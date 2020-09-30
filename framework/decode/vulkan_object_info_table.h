@@ -25,6 +25,7 @@
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <functional>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -201,6 +202,47 @@ class VulkanObjectInfoTable
     PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id)  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
     DeferredOperationKHRInfo*          GetDeferredOperationKHRInfo(format::HandleId id)           { return GetObjectInfo<DeferredOperationKHRInfo>(id, &deferred_operation_khr_map_); }
     PrivateDataSlotEXTInfo*            GetPrivateDataSlotEXTInfo(format::HandleId id)             { return GetObjectInfo<PrivateDataSlotEXTInfo>(id, &private_data_slot_ext_map_); }
+
+    void VisitInstanceInfo(std::function<void(const InstanceInfo*)> visitor) const                                           { for (const auto& entry : instance_map_) { visitor(&entry.second); } }
+    void VisitPhysicalDeviceInfo(std::function<void(const PhysicalDeviceInfo*)> visitor) const                               { for (const auto& entry : physical_device_map_) { visitor(&entry.second); } }
+    void VisitDeviceInfo(std::function<void(const DeviceInfo*)> visitor) const                                               { for (const auto& entry : device_map_) { visitor(&entry.second); } }
+    void VisitQueueInfo(std::function<void(const QueueInfo*)> visitor) const                                                 { for (const auto& entry : queue_map_) { visitor(&entry.second); } }
+    void VisitSemaphoreInfo(std::function<void(const SemaphoreInfo*)> visitor) const                                         { for (const auto& entry : semaphore_map_) { visitor(&entry.second); } }
+    void VisitCommandBufferInfo(std::function<void(const CommandBufferInfo*)> visitor) const                                 { for (const auto& entry : command_buffer_map_) { visitor(&entry.second); } }
+    void VisitFenceInfo(std::function<void(const FenceInfo*)> visitor) const                                                 { for (const auto& entry : fence_map_) { visitor(&entry.second); } }
+    void VisitDeviceMemoryInfo(std::function<void(const DeviceMemoryInfo*)> visitor) const                                   { for (const auto& entry : device_memory_map_) { visitor(&entry.second); } }
+    void VisitBufferInfo(std::function<void(const BufferInfo*)> visitor) const                                               { for (const auto& entry : buffer_map_) { visitor(&entry.second); } }
+    void VisitImageInfo(std::function<void(const ImageInfo*)> visitor) const                                                 { for (const auto& entry : image_map_) { visitor(&entry.second); } }
+    void VisitEventInfo(std::function<void(const EventInfo*)> visitor) const                                                 { for (const auto& entry : event_map_) { visitor(&entry.second); } }
+    void VisitQueryPoolInfo(std::function<void(const QueryPoolInfo*)> visitor) const                                         { for (const auto& entry : query_pool_map_) { visitor(&entry.second); } }
+    void VisitBufferViewInfo(std::function<void(const BufferViewInfo*)> visitor) const                                       { for (const auto& entry : buffer_view_map_) { visitor(&entry.second); } }
+    void VisitImageViewInfo(std::function<void(const ImageViewInfo*)> visitor) const                                         { for (const auto& entry : image_view_map_) { visitor(&entry.second); } }
+    void VisitShaderModuleInfo(std::function<void(const ShaderModuleInfo*)> visitor) const                                   { for (const auto& entry : shader_module_map_) { visitor(&entry.second); } }
+    void VisitPipelineCacheInfo(std::function<void(const PipelineCacheInfo*)> visitor) const                                 { for (const auto& entry : pipeline_cache_map_) { visitor(&entry.second); } }
+    void VisitPipelineLayoutInfo(std::function<void(const PipelineLayoutInfo*)> visitor) const                               { for (const auto& entry : pipeline_layout_map_) { visitor(&entry.second); } }
+    void VisitRenderPassInfo(std::function<void(const RenderPassInfo*)> visitor) const                                       { for (const auto& entry : render_pass_map_) { visitor(&entry.second); } }
+    void VisitPipelineInfo(std::function<void(const PipelineInfo*)> visitor) const                                           { for (const auto& entry : pipeline_map_) { visitor(&entry.second); } }
+    void VisitDescriptorSetLayoutInfo(std::function<void(const DescriptorSetLayoutInfo*)> visitor) const                     { for (const auto& entry : descriptor_set_layout_map_) { visitor(&entry.second); } }
+    void VisitSamplerInfo(std::function<void(const SamplerInfo*)> visitor) const                                             { for (const auto& entry : sampler_map_) { visitor(&entry.second); } }
+    void VisitDescriptorPoolInfo(std::function<void(const DescriptorPoolInfo*)> visitor) const                               { for (const auto& entry : descriptor_pool_map_) { visitor(&entry.second); } }
+    void VisitDescriptorSetInfo(std::function<void(const DescriptorSetInfo*)> visitor) const                                 { for (const auto& entry : descriptor_set_map_) { visitor(&entry.second); } }
+    void VisitFramebufferInfo(std::function<void(const FramebufferInfo*)> visitor) const                                     { for (const auto& entry : framebuffer_map_) { visitor(&entry.second); } }
+    void VisitCommandPoolInfo(std::function<void(const CommandPoolInfo*)> visitor) const                                     { for (const auto& entry : command_pool_map_) { visitor(&entry.second); } }
+    void VisitSamplerYcbcrConversionInfo(std::function<void(const SamplerYcbcrConversionInfo*)> visitor) const               { for (const auto& entry : sampler_ycbcr_conversion_map_) { visitor(&entry.second); } }
+    void VisitDescriptorUpdateTemplateInfo(std::function<void(const DescriptorUpdateTemplateInfo*)> visitor) const           { for (const auto& entry : descriptor_update_template_map_) { visitor(&entry.second); } }
+    void VisitSurfaceKHRInfo(std::function<void(const SurfaceKHRInfo*)> visitor) const                                       { for (const auto& entry : surface_khr_map_) { visitor(&entry.second); } }
+    void VisitSwapchainKHRInfo(std::function<void(const SwapchainKHRInfo*)> visitor) const                                   { for (const auto& entry : swapchain_khr_map_) { visitor(&entry.second); } }
+    void VisitDisplayKHRInfo(std::function<void(const DisplayKHRInfo*)> visitor) const                                       { for (const auto& entry : display_khr_map_) { visitor(&entry.second); } }
+    void VisitDisplayModeKHRInfo(std::function<void(const DisplayModeKHRInfo*)> visitor) const                               { for (const auto& entry : display_mode_khr_map_) { visitor(&entry.second); } }
+    void VisitDebugReportCallbackEXTInfo(std::function<void(const DebugReportCallbackEXTInfo*)> visitor) const               { for (const auto& entry : debug_report_callback_ext_map_) { visitor(&entry.second); } }
+    void VisitIndirectCommandsLayoutNVInfo(std::function<void(const IndirectCommandsLayoutNVInfo*)> visitor) const           { for (const auto& entry : indirect_commands_layout_nv_map_) { visitor(&entry.second); } }
+    void VisitDebugUtilsMessengerEXTInfo(std::function<void(const DebugUtilsMessengerEXTInfo*)> visitor) const               { for (const auto& entry : debug_utils_messenger_ext_map_) { visitor(&entry.second); } }
+    void VisitValidationCacheEXTInfo(std::function<void(const ValidationCacheEXTInfo*)> visitor) const                       { for (const auto& entry : validation_cache_ext_map_) { visitor(&entry.second); } }
+    void VisitAccelerationStructureKHRInfo(std::function<void(const AccelerationStructureKHRInfo*)> visitor) const           { for (const auto& entry : acceleration_structure_khr_map_) { visitor(&entry.second); } }
+    void VisitAccelerationStructureNVInfo(std::function<void(const AccelerationStructureNVInfo*)> visitor) const             { for (const auto& entry : acceleration_structure_nv_map_) { visitor(&entry.second); } }
+    void VisitPerformanceConfigurationINTELInfo(std::function<void(const PerformanceConfigurationINTELInfo*)> visitor) const { for (const auto& entry : performance_configuration_intel_map_) { visitor(&entry.second); } }
+    void VisitDeferredOperationKHRInfo(std::function<void(const DeferredOperationKHRInfo*)> visitor) const                   { for (const auto& entry : deferred_operation_khr_map_) { visitor(&entry.second); } }
+    void VisitPrivateDataSlotEXTInfo(std::function<void(const PrivateDataSlotEXTInfo*)> visitor) const                       { for (const auto& entry : private_data_slot_ext_map_) { visitor(&entry.second); } }
     // clang-format on
 
     void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)

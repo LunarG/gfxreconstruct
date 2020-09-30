@@ -64,6 +64,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_mapping_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.h
@@ -107,7 +109,8 @@ target_sources(gfxrecon_decode
 if (MSVC AND (MSVC_VERSION LESS 1910))
     # This file fails to compile with VS2015, requiring the default section limit of 2^16 to be increased.
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 
 target_include_directories(gfxrecon_decode

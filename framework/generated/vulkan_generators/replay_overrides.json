@@ -1,7 +1,6 @@
 {
   "functions": {
     "vkCreateInstance": "OverrideCreateInstance",
-    "vkDestroyInstance" : "OverrideDestroyInstance",
     "vkCreateDevice": "OverrideCreateDevice",
     "vkDestroyDevice" : "OverrideDestroyDevice",
     "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",

@@ -21,6 +21,7 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
+#include "decode/vulkan_object_cleanup_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/file_path.h"
 #include "util/hash.h"
@@ -147,57 +148,19 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 {
-    for (auto device_id : active_device_ids_)
-    {
-        auto device_info = object_info_table_.GetDeviceInfo(device_id);
+    // Idle all devices before destroying other resources.
+    object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
+        assert(info != nullptr);
+        VkDevice device = info->handle;
+        GetDeviceTable(device)->DeviceWaitIdle(device);
+    });
 
-        if (device_info != nullptr)
-        {
-            VkDevice device = device_info->handle;
-
-            // Idle device before destroying other resources.
-            GetDeviceTable(device)->DeviceWaitIdle(device);
-
-            for (auto swapchain_id : device_info->active_swapchains)
-            {
-                auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_id);
-
-                if (swapchain_info != nullptr)
-                {
-                    GetDeviceTable(device)->DestroySwapchainKHR(device, swapchain_info->handle, nullptr);
-                }
-            }
-        }
-    }
-
-    for (auto instance_id : active_instance_ids_)
-    {
-        auto instance_info = object_info_table_.GetInstanceInfo(instance_id);
-
-        if (instance_info != nullptr)
-        {
-            VkInstance instance = instance_info->handle;
-            auto       table    = GetInstanceTable(instance);
-
-            for (auto surface_id : instance_info->active_surfaces)
-            {
-                auto surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
-
-                if (surface_info)
-                {
-                    auto window = surface_info->window;
-                    if (window != nullptr)
-                    {
-                        window->DestroySurface(table, instance, surface_info->handle);
-                    }
-                    else
-                    {
-                        table->DestroySurfaceKHR(instance, surface_info->handle, nullptr);
-                    }
-                }
-            }
-        }
-    }
+    object_cleanup::FreeAllLiveObjects(
+        &object_info_table_,
+        false,
+        true,
+        [this](const void* handle) { return GetInstanceTable(handle); },
+        [this](const void* handle) { return GetDeviceTable(handle); });
 
     // Destroy any windows that were created for Vulkan surfaces.
     for (auto window : active_windows_)
@@ -2020,8 +1983,6 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
 
         surface_info->window = window;
         active_windows_.insert(window);
-
-        instance_info->active_surfaces.insert(*surface_id);
     }
     else
     {
@@ -2270,27 +2231,9 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
             instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
         }
-
-        active_instance_ids_.insert(*pInstance->GetPointer());
     }
 
     return result;
-}
-
-void VulkanReplayConsumerBase::OverrideDestroyInstance(
-    PFN_vkDestroyInstance                                      func,
-    const InstanceInfo*                                        instance_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    VkInstance instance = VK_NULL_HANDLE;
-
-    if (instance_info != nullptr)
-    {
-        instance = instance_info->handle;
-        active_instance_ids_.erase(instance_info->capture_id);
-    }
-
-    func(instance, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult
@@ -2392,8 +2335,6 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
-
-            active_device_ids_.insert(*pDevice->GetPointer());
         }
     }
 
@@ -2410,7 +2351,6 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
     if (device_info != nullptr)
     {
         device = device_info->handle;
-        active_device_ids_.erase(device_info->capture_id);
 
         if (screenshot_handler_ != nullptr)
         {
@@ -3888,8 +3828,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         swapchain_info->width       = replay_create_info->imageExtent.width;
         swapchain_info->height      = replay_create_info->imageExtent.height;
         swapchain_info->format      = replay_create_info->imageFormat;
-
-        device_info->active_swapchains.insert(*pSwapchain->GetPointer());
     }
 
     return result;
@@ -3909,7 +3847,6 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     if (swapchain_info != nullptr)
     {
         swapchain = swapchain_info->handle;
-        device_info->active_swapchains.erase(swapchain_info->capture_id);
     }
 
     func(device, swapchain, GetAllocationCallbacks(pAllocator));
@@ -3932,20 +3869,33 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
     VkResult result = func(device_info->handle, swapchain_info->handle, image_count, images);
 
-    if ((result == VK_SUCCESS) && (screenshot_handler_ != nullptr) && (images != nullptr) &&
-        (swapchain_info->images.size() < (*image_count)))
+    if ((result == VK_SUCCESS) && (images != nullptr) && (image_count != nullptr))
     {
         uint32_t count = (*image_count);
 
-        if (!swapchain_info->images.empty())
-        {
-            // Clear any images that may have been stored by a previous, incomplete call to vkGetSwapchainImagesKHR.
-            swapchain_info->images.clear();
-        }
-
         for (uint32_t i = 0; i < count; ++i)
         {
-            swapchain_info->images.push_back(images[i]);
+            auto image_info = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+            assert(image_info != nullptr);
+
+            image_info->is_swapchain_image = true;
+        }
+
+        // Store image handles for screenshot generation.
+        if ((screenshot_handler_ != nullptr) && (swapchain_info->images.size() < (*image_count)))
+        {
+            uint32_t count = (*image_count);
+
+            if (!swapchain_info->images.empty())
+            {
+                // Clear any images that may have been stored by a previous, incomplete call to vkGetSwapchainImagesKHR.
+                swapchain_info->images.clear();
+            }
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                swapchain_info->images.push_back(images[i]);
+            }
         }
     }
 
@@ -4434,7 +4384,6 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
     {
         surface = surface_info->handle;
         window  = surface_info->window;
-        instance_info->active_surfaces.erase(surface_info->capture_id);
     }
 
     if (window != nullptr)
