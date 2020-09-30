@@ -21,7 +21,6 @@
 #include "decode/vulkan_object_info.h"
 #include "format/format.h"
 #include "util/defines.h"
-#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -272,10 +271,6 @@ class VulkanObjectInfoTable
             {
                 object_info = &entry->second;
             }
-            else
-            {
-                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
-            }
         }
 
         return object_info;
@@ -295,10 +290,6 @@ class VulkanObjectInfoTable
             if (entry != map->end())
             {
                 object_info = &entry->second;
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
             }
         }
 

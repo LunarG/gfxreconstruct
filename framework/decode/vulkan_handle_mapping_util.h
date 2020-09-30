@@ -20,6 +20,8 @@
 #include "decode/vulkan_object_info_table.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -32,14 +34,22 @@ GFXRECON_BEGIN_NAMESPACE(handle_mapping)
 template <typename T>
 static typename T::HandleType MapHandle(format::HandleId             id,
                                         const VulkanObjectInfoTable& object_info_table,
-                                        const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
+                                        const T* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
 {
     typename T::HandleType handle = VK_NULL_HANDLE;
-    const T*               info   = (object_info_table.*MapFunc)(id);
 
-    if (info != nullptr)
+    if (id != format::kNullHandleId)
     {
-        handle = info->handle;
+        const T* info = (object_info_table.*GetInfoFunc)(id);
+
+        if (info != nullptr)
+        {
+            handle = info->handle;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
+        }
     }
 
     return handle;
@@ -48,7 +58,7 @@ static typename T::HandleType MapHandle(format::HandleId             id,
 template <typename T>
 static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                                               const VulkanObjectInfoTable&                  object_info_table,
-                                              const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
+                                              const T* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
 {
     assert(handles_pointer != nullptr);
 
@@ -65,14 +75,18 @@ static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::H
 
         for (size_t i = 0; i < len; ++i)
         {
-            const T* info = (object_info_table.*MapFunc)(ids[i]);
-            if (info != nullptr)
+            if (ids[i] != format::kNullHandleId)
             {
-                handles[i] = info->handle;
-            }
-            else
-            {
-                handles[i] = VK_NULL_HANDLE;
+                const T* info = (object_info_table.*GetInfoFunc)(ids[i]);
+                if (info != nullptr)
+                {
+                    handles[i] = info->handle;
+                }
+                else
+                {
+                    handles[i] = VK_NULL_HANDLE;
+                    GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, ids[i]);
+                }
             }
         }
     }
