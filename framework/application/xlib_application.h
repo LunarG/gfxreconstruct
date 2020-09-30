@@ -35,7 +35,9 @@ class XlibApplication : public Application
 
     const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
 
-    Display* GetDisplay() const { return display_; }
+    Display* OpenDisplay();
+
+    void CloseDisplay(Display* display);
 
     virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
@@ -47,6 +49,7 @@ class XlibApplication : public Application
 
   private:
     Display*         display_;
+    size_t           display_open_count_;
     util::XlibLoader xlib_loader_;
 };
 

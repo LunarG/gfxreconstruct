@@ -67,6 +67,7 @@ class XlibWindow : public decode::Window
   private:
   private:
     XlibApplication* xlib_application_;
+    Display*         display_;
     ::Window         window_;
     uint32_t         width_;
     uint32_t         height_;
