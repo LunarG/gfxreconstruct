@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -76,6 +76,48 @@ class VulkanObjectInfoTable
     void AddPerformanceConfigurationINTELInfo(PerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performance_configuration_intel_map_); }
     void AddDeferredOperationKHRInfo(DeferredOperationKHRInfo&& info)                   { AddObjectInfo(std::move(info), &deferred_operation_khr_map_); }
     void AddPrivateDataSlotEXTInfo(PrivateDataSlotEXTInfo&& info)                       { AddObjectInfo(std::move(info), &private_data_slot_ext_map_); }
+
+    void RemoveInstanceInfo(format::HandleId id)                      { instance_map_.erase(id); }
+    void RemovePhysicalDeviceInfo(format::HandleId id)                { physical_device_map_.erase(id); }
+    void RemoveDeviceInfo(format::HandleId id)                        { device_map_.erase(id); }
+    void RemoveQueueInfo(format::HandleId id)                         { queue_map_.erase(id); }
+    void RemoveSemaphoreInfo(format::HandleId id)                     { semaphore_map_.erase(id); }
+    void RemoveCommandBufferInfo(format::HandleId id)                 { command_buffer_map_.erase(id); }
+    void RemoveFenceInfo(format::HandleId id)                         { fence_map_.erase(id); }
+    void RemoveDeviceMemoryInfo(format::HandleId id)                  { device_memory_map_.erase(id); }
+    void RemoveBufferInfo(format::HandleId id)                        { buffer_map_.erase(id); }
+    void RemoveImageInfo(format::HandleId id)                         { image_map_.erase(id); }
+    void RemoveEventInfo(format::HandleId id)                         { event_map_.erase(id); }
+    void RemoveQueryPoolInfo(format::HandleId id)                     { query_pool_map_.erase(id); }
+    void RemoveBufferViewInfo(format::HandleId id)                    { buffer_view_map_.erase(id); }
+    void RemoveImageViewInfo(format::HandleId id)                     { image_view_map_.erase(id); }
+    void RemoveShaderModuleInfo(format::HandleId id)                  { shader_module_map_.erase(id); }
+    void RemovePipelineCacheInfo(format::HandleId id)                 { pipeline_cache_map_.erase(id); }
+    void RemovePipelineLayoutInfo(format::HandleId id)                { pipeline_layout_map_.erase(id); }
+    void RemoveRenderPassInfo(format::HandleId id)                    { render_pass_map_.erase(id); }
+    void RemovePipelineInfo(format::HandleId id)                      { pipeline_map_.erase(id); }
+    void RemoveDescriptorSetLayoutInfo(format::HandleId id)           { descriptor_set_layout_map_.erase(id); }
+    void RemoveSamplerInfo(format::HandleId id)                       { sampler_map_.erase(id); }
+    void RemoveDescriptorPoolInfo(format::HandleId id)                { descriptor_pool_map_.erase(id); }
+    void RemoveDescriptorSetInfo(format::HandleId id)                 { descriptor_set_map_.erase(id); }
+    void RemoveFramebufferInfo(format::HandleId id)                   { framebuffer_map_.erase(id); }
+    void RemoveCommandPoolInfo(format::HandleId id)                   { command_pool_map_.erase(id); }
+    void RemoveSamplerYcbcrConversionInfo(format::HandleId id)        { sampler_ycbcr_conversion_map_.erase(id); }
+    void RemoveDescriptorUpdateTemplateInfo(format::HandleId id)      { descriptor_update_template_map_.erase(id); }
+    void RemoveSurfaceKHRInfo(format::HandleId id)                    { surface_khr_map_.erase(id); }
+    void RemoveSwapchainKHRInfo(format::HandleId id)                  { swapchain_khr_map_.erase(id); }
+    void RemoveDisplayKHRInfo(format::HandleId id)                    { display_khr_map_.erase(id); }
+    void RemoveDisplayModeKHRInfo(format::HandleId id)                { display_mode_khr_map_.erase(id); }
+    void RemoveSamplerYcbcrConversionKHRInfo(format::HandleId id)     { sampler_ycbcr_conversion_khr_map_.erase(id); }
+    void RemoveDebugReportCallbackEXTInfo(format::HandleId id)        { debug_report_callback_ext_map_.erase(id); }
+    void RemoveIndirectCommandsLayoutNVInfo(format::HandleId id)      { indirect_commands_layout_nv_map_.erase(id); }
+    void RemoveDebugUtilsMessengerEXTInfo(format::HandleId id)        { debug_utils_messenger_ext_map_.erase(id); }
+    void RemoveValidationCacheEXTInfo(format::HandleId id)            { validation_cache_ext_map_.erase(id); }
+    void RemoveAccelerationStructureKHRInfo(format::HandleId id)      { acceleration_structure_khr_map_.erase(id); }
+    void RemoveAccelerationStructureNVInfo(format::HandleId id)       { acceleration_structure_nv_map_.erase(id); }
+    void RemovePerformanceConfigurationINTELInfo(format::HandleId id) { performance_configuration_intel_map_.erase(id); }
+    void RemoveDeferredOperationKHRInfo(format::HandleId id)          { deferred_operation_khr_map_.erase(id); }
+    void RemovePrivateDataSlotEXTInfo(format::HandleId id)            { private_data_slot_ext_map_.erase(id); }
 
     const InstanceInfo*                      GetInstanceInfo(format::HandleId id) const                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
     const PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id) const                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
