@@ -147,11 +147,25 @@ struct VulkanObjectInfo
     format::HandleId parent_id{ format::kNullHandleId };  // ID of the object's parent instance/device object.
 };
 
+// Info for a pool object which other objects will be allocated from.
+template <typename T>
+struct VulkanPoolInfo : public VulkanObjectInfo<T>
+{
+    std::unordered_set<format::HandleId> child_ids; // IDs of objects allocated from the pool.
+};
+
+// Info for objects that are allocated from pools.
+template <typename T>
+struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
+{
+    format::HandleId pool_id{ format::kNullHandleId }; // ID of the pool that the object was allocated from.
+};
+
 //
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
+typedef VulkanPoolObjectInfo<VkCommandBuffer>             CommandBufferInfo;
 typedef VulkanObjectInfo<VkFence>                         FenceInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
@@ -162,10 +176,10 @@ typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
-typedef VulkanObjectInfo<VkDescriptorPool>                DescriptorPoolInfo;
-typedef VulkanObjectInfo<VkDescriptorSet>                 DescriptorSetInfo;
+typedef VulkanPoolInfo<VkDescriptorPool>                  DescriptorPoolInfo;
+typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
 typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
-typedef VulkanObjectInfo<VkCommandPool>                   CommandPoolInfo;
+typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;

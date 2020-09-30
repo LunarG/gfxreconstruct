@@ -3755,6 +3755,27 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
 }
 
+VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescriptorPool  func,
+                                                               VkResult                   original_result,
+                                                               const DeviceInfo*          device_info,
+                                                               DescriptorPoolInfo*        pool_info,
+                                                               VkDescriptorPoolResetFlags flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (pool_info != nullptr));
+
+    // Descriptor sets allocated from the pool are implicitly freed and must be removed from the object info table.
+    for (auto child_id : pool_info->child_ids)
+    {
+        object_info_table_.RemoveDescriptorSetInfo(child_id);
+    }
+
+    pool_info->child_ids.clear();
+
+    return func(device_info->handle, pool_info->handle, flags);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
     PFN_vkCreateDebugReportCallbackEXT                                      func,
     VkResult                                                                original_result,

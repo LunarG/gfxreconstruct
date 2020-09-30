@@ -38,6 +38,7 @@
     "vkGetImageSubresourceLayout" : "OverrideGetImageSubresourceLayout",
     "vkCreateShaderModule": "OverrideCreateShaderModule",
     "vkCreatePipelineCache": "OverrideCreatePipelineCache",
+    "vkResetDescriptorPool": "OverrideResetDescriptorPool",
     "vkCreateDescriptorUpdateTemplate": "OverrideCreateDescriptorUpdateTemplate",
     "vkCreateDescriptorUpdateTemplateKHR": "OverrideCreateDescriptorUpdateTemplate",
     "vkDestroyDescriptorUpdateTemplate": "OverrideDestroyDescriptorUpdateTemplate",

@@ -176,7 +176,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    typename T::HandleType* MapHandles(HandlePointerDecoder<typename T::HandleType>* handle_pointer,
+    typename T::HandleType* MapHandles(HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                                        size_t                                        handles_len,
                                        const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
@@ -185,12 +185,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
         typename T::HandleType* handles = nullptr;
 
-        if ((handle_pointer != nullptr) && !handle_pointer->IsNull())
+        if (handles_pointer != nullptr)
         {
             // The handle and ID array sizes are expected to be the same for mapping operations.
-            assert(handles_len == handle_pointer->GetLength());
+            assert(handles_len == handles_pointer->GetLength());
 
-            handles = handle_mapping::MapHandleArray(handle_pointer, object_info_table_, MapFunc);
+            handles = handle_mapping::MapHandleArray(handles_pointer, object_info_table_, MapFunc);
         }
 
         return handles;
@@ -244,6 +244,76 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+    }
+
+    template <typename S, typename T>
+    void AddPoolHandles(format::HandleId              parent_id,
+                        format::HandleId              pool_id,
+                        const format::HandleId*       ids,
+                        size_t                        ids_len,
+                        const typename T::HandleType* handles,
+                        size_t                        handles_len,
+                        std::vector<T>&&              initial_infos,
+                        S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                        void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        handle_mapping::AddHandleArray(parent_id,
+                                       pool_id,
+                                       ids,
+                                       ids_len,
+                                       handles,
+                                       handles_len,
+                                       std::move(initial_infos),
+                                       &object_info_table_,
+                                       GetPoolInfoFunc,
+                                       AddFunc);
+    }
+
+    template <typename S, typename T>
+    void AddPoolHandles(format::HandleId              parent_id,
+                        format::HandleId              pool_id,
+                        const format::HandleId*       ids,
+                        size_t                        ids_len,
+                        const typename T::HandleType* handles,
+                        size_t                        handles_len,
+                        S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                        void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        handle_mapping::AddHandleArray(
+            parent_id, pool_id, ids, ids_len, handles, handles_len, &object_info_table_, GetPoolInfoFunc, AddFunc);
+    }
+
+    void RemoveHandle(format::HandleId id, void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
+    {
+        handle_mapping::RemoveHandle(id, &object_info_table_, RemoveFunc);
+    }
+
+    template <typename T>
+    void RemovePoolHandle(format::HandleId id,
+                          T* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                          void (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
+                          void (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
+    {
+        handle_mapping::RemovePoolHandle(id, &object_info_table_, GetPoolInfoFunc, RemovePoolFunc, RemoveObjectFunc);
+    }
+
+    template <typename S, typename T>
+    void RemovePoolHandles(format::HandleId                                    pool_id,
+                           const HandlePointerDecoder<typename T::HandleType>* handles_pointer,
+                           size_t                                              handles_len,
+                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
+    {
+        // This parameter is only referenced by debug builds.
+        GFXRECON_UNREFERENCED_PARAMETER(handles_len);
+
+        if (handles_pointer != nullptr)
+        {
+            // The handle and ID array sizes are expected to be the same for mapping operations.
+            assert(handles_len == handles_pointer->GetLength());
+            handle_mapping::RemoveHandleArray<S, T>(
+                pool_id, handles_pointer, &object_info_table_, GetPoolInfoFunc, RemoveFunc);
+        }
     }
 
     template <typename HandleInfoT>
@@ -524,6 +594,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
                                          const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
                                          HandlePointerDecoder<VkPipelineCache>*                         pPipelineCache);
+
+    VkResult OverrideResetDescriptorPool(PFN_vkResetDescriptorPool  func,
+                                         VkResult                   original_result,
+                                         const DeviceInfo*          device_info,
+                                         DescriptorPoolInfo*        pool_info,
+                                         VkDescriptorPoolResetFlags flags);
 
     VkResult OverrideCreateDebugReportCallbackEXT(
         PFN_vkCreateDebugReportCallbackEXT                                      func,
