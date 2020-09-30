@@ -206,10 +206,6 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
     std::vector<VkPhysicalDevice> replay_devices;
 
     std::unordered_map<VkPhysicalDevice, ReplayDeviceInfo> replay_device_info;
-
-    // Ensure surfaces are cleaned up on exit to avoid issues encountered when calling xcb_disconnect with active xcb
-    // surfaces.
-    std::unordered_set<format::HandleId> active_surfaces;
 };
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
@@ -241,10 +237,6 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
-
-    // Ensure swapchains are cleaned up on exit to avoid issues encountered when calling xcb_disconnect with active xcb
-    // surfaces.
-    std::unordered_set<format::HandleId> active_swapchains;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
@@ -280,6 +272,8 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 struct ImageInfo : public VulkanObjectInfo<VkImage>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    bool is_swapchain_image{ false };
 
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };

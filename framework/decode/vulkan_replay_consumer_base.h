@@ -381,10 +381,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                     HandlePointerDecoder<VkInstance>*                          pInstance);
 
-    void OverrideDestroyInstance(PFN_vkDestroyInstance                                      func,
-                                 const InstanceInfo*                                        instance_info,
-                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
-
     VkResult OverrideCreateDevice(VkResult                                                   original_result,
                                   PhysicalDeviceInfo*                                        physical_device_info,
                                   const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
@@ -863,8 +859,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
-    std::unordered_set<format::HandleId>                             active_instance_ids_;
-    std::unordered_set<format::HandleId>                             active_device_ids_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
     std::string                                                      screenshot_file_prefix_;
 };
