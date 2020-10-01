@@ -88,7 +88,8 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
                     # Temporarily remove resource only matching restriction from isHandle() when generating the function signature.
                     self.restrictHandles = False
-                    cmddef += self.makeConsumerFuncDecl(returnType, 'Process_' + cmd, params) + ';\n'
+                    decl = self.makeConsumerFuncDecl(returnType, 'Process_' + cmd, params)
+                    cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
                     self.restrictHandles = True
 
                     write(cmddef, file=self.outFile)
