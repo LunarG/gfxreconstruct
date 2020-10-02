@@ -58,18 +58,19 @@ def CreateInstallApkParser():
 
 def CreateReplayParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' replay', description='Launch the replay tool.')
-    parser.add_argument('-p', '--push-file', metavar='local-file', help='Local file to push to the location on device specified by <file>')
+    parser.add_argument('-p', '--push-file', metavar='LOCAL_FILE', help='Local file to push to the location on device specified by <file>')
     parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
-    parser.add_argument('--screenshots', metavar='<N1[-N2][,...]>', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots.  (Forwarded to replay tool)')
-    parser.add_argument('--screenshot-format', metavar='<format>', choices=['bmp'], help='Image file format to use for screenshot generation.  Available formats are: bmp (forwarded to replay tool)')
-    parser.add_argument('--screenshot-dir', metavar='<dir>', help='Directory to write screenshots. Default is "/sdcard" (forwarded to replay tool)')
-    parser.add_argument('--screenshot-prefix', metavar='<file-prefix>', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
+    parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
+    parser.add_argument('--screenshots', metavar='RANGES', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots (forwarded to replay tool)')
+    parser.add_argument('--screenshot-format', metavar='FORMAT', choices=['bmp'], help='Image file format to use for screenshot generation.  Available formats are: bmp (forwarded to replay tool)')
+    parser.add_argument('--screenshot-dir', metavar='DIR', help='Directory to write screenshots. Default is "/sdcard" (forwarded to replay tool)')
+    parser.add_argument('--screenshot-prefix', metavar='PREFIX', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache (forwarded to replay tool)')
     parser.add_argument('--sync', action='store_true', default=False, help='Synchronize after each queue submission with vkQueueWaitIdle (forwarded to replay tool)')
-    parser.add_argument('-m', '--memory-translation', metavar='<mode>', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
+    parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
     return parser
 
@@ -86,11 +87,32 @@ def MakeExtrasString(args):
     if args.paused:
         arg_list.append('--paused')
 
+    if args.screenshot_all:
+        arg_list.append('--screenshot-all')
+    elif args.screenshots:
+        arg_list.append('--screenshots')
+        arg_list.append('{}'.format(args.screenshots))
+
+    if args.screenshot_format:
+        arg_list.append('--screenshot-format')
+        arg_list.append('{}'.format(args.screenshot_format))
+
+    if args.screenshot_dir:
+        arg_list.append('--screenshot-dir')
+        arg_list.append('{}'.format(args.screenshot_dir))
+
+    if args.screenshot_prefix:
+        arg_list.append('--screenshot-prefix')
+        arg_list.append('{}'.format(args.screenshot_prefix))
+
     if args.sfa:
         arg_list.append('--sfa')
 
     if args.opcd:
         arg_list.append('--opcd')
+
+    if args.sync:
+        arg_list.append('--sync')
 
     if args.memory_translation:
         arg_list.append('-m')
