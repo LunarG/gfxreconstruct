@@ -283,55 +283,65 @@ python gfxrecon.py install replay-debug.apk
 The `gfxrecon.py replay` command has the following usage:
 
 ```text
-usage: gfxrecon.py replay [-h] [-p local-file] [--version] [--pause-frame N] [--paused]
-                          [--screenshots <N1[-N2][,...]>] [--screenshot-format <format>]
-                          [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
-                          [--sfa] [--opcd] [--sync] [-m <mode>]
+usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
+                          [--paused] [--screenshot-all] [--screenshots RANGES]
+                          [--screenshot-format FORMAT] [--screenshot-dir DIR]
+                          [--screenshot-prefix PREFIX] [--sfa] [--opcd]
+                          [--sync] [-m MODE]
                           [file]
+
+Launch the replay tool.
 
 positional arguments:
   file                  File on device to play (forwarded to replay tool)
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p local-file, --push-file local-file
-                        Local file to push to the location on device specified by <file>
-  --version             Print version information and exit (forwarded to replay tool)
-  --pause-frame N       Pause after replaying frame number N (forwarded to replay tool)
-  --paused              Pause after replaying the first frame (same as "--pause-frame
-                        1"; forwarded to replay tool)
-  --screenshots <N1[-N2][,...]>
-                        Generate screenshots for the specified frames. Target frames are
-                        specified as a comma separated list of frame ranges. A frame
-                        range can be specified as a single value, to specify a single
-                        frame, or as two hyphenated values, to specify the first and
-                        last frames to process. Frame ranges should be specified in
-                        ascending order and cannot overlap. Note that frame numbering is
-                        1-based (i.e. the first frame is frame 1). Example: 200,301-305
-                        will generate six screenshots. (Forwarded to replay tool)
-  --screenshot-format <format>
-                        Image file format to use for screenshot generation. Available
-                        formats are: bmp (forwarded to replay tool)
-  --screenshot-dir <dir>
-                        Directory to write screenshots. Default is "/sdcard" (forwarded
-                        to replay tool)
-  --screenshot-prefix <file-prefix>
-                        Prefix to apply to the screenshot file name. Default is
-                        "screenshot" (forwarded to replay tool)
+  -p LOCAL_FILE, --push-file LOCAL_FILE
+                        Local file to push to the location on device specified
+                        by <file>
+  --version             Print version information and exit (forwarded to
+                        replay tool)
+  --pause-frame N       Pause after replaying frame number N (forwarded to
+                        replay tool)
+  --paused              Pause after replaying the first frame (same as "--
+                        pause-frame 1"; forwarded to replay tool)
+  --screenshot-all      Generate screenshots for all frames. When this option
+                        is specified, --screenshots is ignored (forwarded to
+                        replay tool)
+  --screenshots RANGES  Generate screenshots for the specified frames. Target
+                        frames are specified as a comma separated list of
+                        frame ranges. A frame range can be specified as a
+                        single value, to specify a single frame, or as two
+                        hyphenated values, to specify the first and last
+                        frames to process. Frame ranges should be specified in
+                        ascending order and cannot overlap. Note that frame
+                        numbering is 1-based (i.e. the first frame is frame
+                        1). Example: 200,301-305 will generate six screenshots
+                        (forwarded to replay tool)
+  --screenshot-format FORMAT
+                        Image file format to use for screenshot generation.
+                        Available formats are: bmp (forwarded to replay tool)
+  --screenshot-dir DIR  Directory to write screenshots. Default is "/sdcard"
+                        (forwarded to replay tool)
+  --screenshot-prefix PREFIX
+                        Prefix to apply to the screenshot file name. Default
+                        is "screenshot" (forwarded to replay tool)
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
-                        vkAllocateDescriptorSets calls that failed during capture
-                        (forwarded to replay tool)
+                        vkAllocateDescriptorSets calls that failed during
+                        capture (forwarded to replay tool)
   --opcd, --omit-pipeline-cache-data
-                        Omit pipeline cache data from calls to vkCreatePipelineCache
-                        (forwarded to replay tool)
-  --sync                Synchronize after each queue submission with vkQueueWaitIdle
-                        (forwarded to replay tool)
-  -m <mode>, --memory-translation <mode>
-                        Enable memory translation for replay on GPUs with memory types
-                        that are not compatible with the capture GPU's memory types.
-                        Available modes are: none, remap, realign, rebind (forwarded to
-                        replay tool)```
+                        Omit pipeline cache data from calls to
+                        vkCreatePipelineCache (forwarded to replay tool)
+  --sync                Synchronize after each queue submission with
+                        vkQueueWaitIdle (forwarded to replay tool)
+  -m MODE, --memory-translation MODE
+                        Enable memory translation for replay on GPUs with
+                        memory types that are not compatible with the capture
+                        GPU's memory types. Available modes are: none, remap,
+                        realign, rebind (forwarded to replay tool)
+```
 
 The command will force-stop an active replay process before starting the replay
 activity with the following:

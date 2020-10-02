@@ -328,7 +328,7 @@ arguments:
 
 ```text
 gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
-                        [--pause-frame <N>] [--paused] [--sync]
+                        [--pause-frame <N>] [--paused] [--sync] [--screenshot-all]
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
@@ -349,6 +349,9 @@ Optional arguments:
   --pause-frame <N>     Pause after replaying frame number N.
   --paused              Pause after replaying the first frame (same
                         as --pause-frame 1).
+  --screenshot-all
+                        Generate screenshots for all frames.  When this
+                        option is specified, --screenshots is ignored.
   --screenshots <N1[-N2][,...]>
                         Generate screenshots for the specified frames.
                         Target frames are specified as a comma separated
