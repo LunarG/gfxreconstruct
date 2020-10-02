@@ -493,7 +493,8 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    auto allocator = copy_resource->allocator;
+    auto allocator         = copy_resource->allocator;
+    auto screenshot_format = kImageFormats[static_cast<size_t>(screenshot_format_)];
 
     VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -541,7 +542,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
                                              &copy_resource->memory_property_flags);
     }
 
-    if ((result == VK_SUCCESS) && (image_format != kImageFormats[static_cast<size_t>(screenshot_format_)]))
+    if ((result == VK_SUCCESS) && (image_format != screenshot_format))
     {
         // The source image format does not match the image file format and requires a format conversion.  Create an
         // image to serve as the tranfer destination of a blit based color conversion.
@@ -549,7 +550,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
         image_create_info.pNext                 = nullptr;
         image_create_info.flags                 = 0;
         image_create_info.imageType             = VK_IMAGE_TYPE_2D;
-        image_create_info.format                = image_format;
+        image_create_info.format                = screenshot_format;
         image_create_info.extent                = { width, height, 1 };
         image_create_info.mipLevels             = 1;
         image_create_info.arrayLayers           = 1;
