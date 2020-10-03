@@ -79,6 +79,10 @@ class ScreenshotHandler
     typedef std::unordered_map<VkDevice, CopyResource> CommandPools;
 
   private:
+    bool IsSrgbFormat(VkFormat image_format) const;
+
+    VkFormat GetConversionFormat(VkFormat image_format) const;
+
     VkDeviceSize GetCopyBufferSize(VkDevice                   device,
                                    const encode::DeviceTable* device_table,
                                    VkFormat                   format,
