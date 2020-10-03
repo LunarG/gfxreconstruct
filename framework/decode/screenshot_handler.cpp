@@ -28,8 +28,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const uint32_t kDefaultQueueFamilyIndex = 0;
 const uint32_t kDefaultQueueIndex       = 0;
 
-const VkFormat kImageFormats[] = {
-    VK_FORMAT_B8G8R8A8_UNORM // Vulkan image format for ScreenshotFormat::kBmp
+const size_t kUnormIndex = 0;
+const size_t kSrgbIndex  = 1;
+
+const VkFormat kImageFormats[][2] = {
+    // Vulkan image formats for ScreenshotFormat::kBmp
+    { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_B8G8R8A8_SRGB }
 };
 
 ScreenshotHandler::ScreenshotHandler(ScreenshotFormat                    screenshot_format,
@@ -422,6 +426,61 @@ void ScreenshotHandler::DestroyDevice(VkDevice device, const encode::DeviceTable
     }
 }
 
+bool ScreenshotHandler::IsSrgbFormat(VkFormat image_format) const
+{
+    switch (image_format)
+    {
+        case VK_FORMAT_R8_SRGB:
+        case VK_FORMAT_R8G8_SRGB:
+        case VK_FORMAT_R8G8B8_SRGB:
+        case VK_FORMAT_B8G8R8_SRGB:
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+        case VK_FORMAT_A8B8G8R8_SRGB_PACK32:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+        case VK_FORMAT_BC2_SRGB_BLOCK:
+        case VK_FORMAT_BC3_SRGB_BLOCK:
+        case VK_FORMAT_BC7_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_4x4_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_5x4_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_5x5_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_6x5_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_6x6_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_8x5_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_8x6_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_8x8_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_10x5_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_10x6_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_10x8_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_10x10_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_12x10_SRGB_BLOCK:
+        case VK_FORMAT_ASTC_12x12_SRGB_BLOCK:
+        case VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG:
+        case VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG:
+        case VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG:
+        case VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG:
+            return true;
+        default:
+            return false;
+    }
+}
+
+VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
+{
+    if (IsSrgbFormat(image_format))
+    {
+        return kImageFormats[static_cast<size_t>(screenshot_format_)][kSrgbIndex];
+    }
+    else
+    {
+        return kImageFormats[static_cast<size_t>(screenshot_format_)][kUnormIndex];
+    }
+}
+
 VkDeviceSize ScreenshotHandler::GetCopyBufferSize(
     VkDevice device, const encode::DeviceTable* device_table, VkFormat format, uint32_t width, uint32_t height) const
 {
@@ -494,7 +553,7 @@ VkResult ScreenshotHandler::CreateCopyResource(VkDevice                         
     }
 
     auto allocator         = copy_resource->allocator;
-    auto screenshot_format = kImageFormats[static_cast<size_t>(screenshot_format_)];
+    auto screenshot_format = GetConversionFormat(image_format);
 
     VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
     create_info.pNext                 = nullptr;
