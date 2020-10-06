@@ -1303,5 +1303,34 @@ void VulkanRebindAllocator::ReportBindIncompatibility(const ResourceData* alloca
     }
 }
 
+VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
+                                                        VkMemoryMapFlags flags,
+                                                        void**           data,
+                                                        ResourceData     allocator_data)
+{
+    VkResult result = VK_ERROR_MEMORY_MAP_FAILED;
+
+    if ((data != nullptr) && (allocator_data != 0))
+    {
+        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+
+        if (resource_alloc_info->mapped_pointer == nullptr)
+        {
+            result = vmaMapMemory(allocator_, resource_alloc_info->allocation, &resource_alloc_info->mapped_pointer);
+        }
+        else
+        {
+            result = VK_SUCCESS;
+        }
+
+        if (result == VK_SUCCESS)
+        {
+            (*data) = reinterpret_cast<uint8_t*>(resource_alloc_info->mapped_pointer);
+        }
+    }
+
+    return result;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

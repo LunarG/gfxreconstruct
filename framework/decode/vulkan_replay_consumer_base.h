@@ -831,7 +831,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult CreateSwapchainImage(const DeviceInfo*        device_info,
                                   const VkImageCreateInfo* image_create_info,
                                   VkImage*                 image,
-                                  format::HandleId         image_id,
                                   ImageInfo*               image_info);
 
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to

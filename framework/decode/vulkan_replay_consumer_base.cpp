@@ -1242,10 +1242,7 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
             if ((buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
             {
-                assert(buffer_info->memory != VK_NULL_HANDLE);
-
-                result = initializer->LoadData(
-                    buffer_info->memory, buffer_info->bind_offset, data_size, data, buffer_info->memory_allocator_data);
+                result = initializer->LoadData(data_size, data, buffer_info->allocator_data);
 
                 if (result != VK_SUCCESS)
                 {
@@ -1327,13 +1324,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     (image_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
                 {
-                    assert(image_info->memory != VK_NULL_HANDLE);
-
-                    result = initializer->LoadData(image_info->memory,
-                                                   image_info->bind_offset,
-                                                   data_size,
-                                                   data,
-                                                   image_info->memory_allocator_data);
+                    result = initializer->LoadData(data_size, data, image_info->allocator_data);
 
                     if (result != VK_SUCCESS)
                     {
@@ -2470,7 +2461,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
         if (screenshot_handler_ != nullptr)
         {
-            screenshot_handler_->DestroyDevice(device, GetDeviceTable(device));
+            screenshot_handler_->DestroyDeviceResources(device, GetDeviceTable(device));
         }
     }
 
@@ -3403,13 +3394,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
                                                   memory_info->allocator_data,
                                                   &buffer_info->memory_property_flags);
 
-    if (result == VK_SUCCESS)
-    {
-        buffer_info->memory                = memory_info->handle;
-        buffer_info->memory_allocator_data = memory_info->allocator_data;
-        buffer_info->bind_offset           = memoryOffset;
-    }
-    else if (original_result == VK_SUCCESS)
+    if ((result != VK_SUCCESS) && (original_result == VK_SUCCESS))
     {
         // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
         // enabling memory translation.
@@ -3476,16 +3461,10 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     {
         for (uint32_t i = 0; i < bindInfoCount; ++i)
         {
-            const VkBindBufferMemoryInfo* bind_info = &replay_bind_infos[i];
-
             auto buffer_info = buffer_infos[i];
-            auto memory_info = memory_infos[i];
 
-            if ((buffer_info != nullptr) && (memory_info != nullptr))
+            if (buffer_info != nullptr)
             {
-                buffer_info->bind_offset           = bind_info->memoryOffset;
-                buffer_info->memory                = memory_info->handle;
-                buffer_info->memory_allocator_data = memory_info->allocator_data;
                 buffer_info->memory_property_flags = memory_property_flags[i];
             }
         }
@@ -3523,13 +3502,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
                                                  memory_info->allocator_data,
                                                  &image_info->memory_property_flags);
 
-    if (result == VK_SUCCESS)
-    {
-        image_info->memory                = memory_info->handle;
-        image_info->memory_allocator_data = memory_info->allocator_data;
-        image_info->bind_offset           = memoryOffset;
-    }
-    else if (original_result == VK_SUCCESS)
+    if ((result != VK_SUCCESS) && (original_result == VK_SUCCESS))
     {
         // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
         // enabling memory translation.
@@ -3597,15 +3570,12 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 
         for (uint32_t i = 0; i < bindInfoCount; ++i)
         {
-            const VkBindImageMemoryInfo* bind_info = &replay_bind_infos[i];
+            auto image_info = image_infos[i];
 
-            auto image_info  = image_infos[i];
-            auto memory_info = memory_infos[i];
-
-            image_info->bind_offset           = bind_info->memoryOffset;
-            image_info->memory                = memory_info->handle;
-            image_info->memory_allocator_data = memory_info->allocator_data;
-            image_info->memory_property_flags = memory_property_flags[i];
+            if (image_info != nullptr)
+            {
+                image_info->memory_property_flags = memory_property_flags[i];
+            }
         }
     }
     else if (original_result == VK_SUCCESS)
@@ -4242,8 +4212,8 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
 
         for (const ImageInfo& image_info : swapchain_info->image_infos)
         {
-            allocator->DestroyImage(image_info.handle, nullptr, image_info.allocator_data);
-            allocator->FreeMemory(image_info.memory, nullptr, image_info.memory_allocator_data);
+            allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+            allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
         }
     }
     else
@@ -4281,10 +4251,6 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         }
         else
         {
-            assert(!pSwapchainImages->IsNull());
-
-            const format::HandleId* capture_ids = pSwapchainImages->GetPointer();
-
             // Create an image for the null swapchain.  Based on vkspec.html#swapchain-wsi-image-create-info.
             VkImageCreateInfo image_create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
             image_create_info.pNext                 = nullptr;
@@ -4315,12 +4281,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
             for (uint32_t i = 0; i < swapchain_image_count; ++i)
             {
-                format::HandleId capture_id   = capture_ids[i];
-                VkImage*         replay_image = &(replay_images[i]);
-                ImageInfo*       image_info   = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                VkImage*   replay_image = &(replay_images[i]);
+                ImageInfo* image_info   = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
                 assert(image_info != nullptr);
 
-                result = CreateSwapchainImage(device_info, &image_create_info, replay_image, capture_id, image_info);
+                result = CreateSwapchainImage(device_info, &image_create_info, replay_image, image_info);
 
                 if ((result != VK_SUCCESS) || (replay_image == VK_NULL_HANDLE))
                 {
@@ -5296,7 +5261,6 @@ void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<
 VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*        device_info,
                                                         const VkImageCreateInfo* image_create_info,
                                                         VkImage*                 image,
-                                                        format::HandleId         image_id,
                                                         ImageInfo*               image_info)
 {
     // TODO - Rename/repurpose CreateStagingImage to be more allow single place to create image resources.
@@ -5304,7 +5268,7 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*       
     assert(allocator != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_image_data;
-    VkResult result = allocator->CreateImage(image_create_info, nullptr, image_id, image, &allocator_image_data);
+    VkResult result = allocator->CreateImageDirect(image_create_info, nullptr, image, &allocator_image_data);
 
     if (result == VK_SUCCESS)
     {
@@ -5342,13 +5306,13 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*       
         alloc_info.memoryTypeIndex      = memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
-        result =
-            allocator->AllocateMemory(&alloc_info, nullptr, format::kNullHandleId, &memory, &allocator_memory_data);
+        result = allocator->AllocateMemoryDirect(&alloc_info, nullptr, &memory, &allocator_memory_data);
 
         if (result == VK_SUCCESS)
         {
             VkMemoryPropertyFlags flags;
-            result = allocator->BindImageMemory(*image, memory, 0, allocator_image_data, allocator_memory_data, &flags);
+            result = allocator->BindImageMemoryDirect(
+                *image, memory, 0, allocator_image_data, allocator_memory_data, &flags);
         }
 
         if (result == VK_SUCCESS)
@@ -5362,7 +5326,7 @@ VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*       
         }
         else
         {
-            allocator->DestroyImage(*image, nullptr, allocator_image_data);
+            allocator->DestroyImageDirect(*image, nullptr, allocator_image_data);
         }
     }
     return result;

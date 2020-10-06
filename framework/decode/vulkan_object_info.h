@@ -273,10 +273,7 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
-    VkDeviceMemory                      memory{ VK_NULL_HANDLE };
-    VulkanResourceAllocator::MemoryData memory_allocator_data{ 0 };
     VkMemoryPropertyFlags               memory_property_flags{ 0 };
-    VkDeviceSize                        bind_offset{ 0 };
     VkBufferUsageFlags                  usage{ 0 };
     uint32_t                            queue_family_index{ 0 };
 };
@@ -295,7 +292,6 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     VkDeviceMemory                      memory{ VK_NULL_HANDLE };
     VulkanResourceAllocator::MemoryData memory_allocator_data{ 0 };
     VkMemoryPropertyFlags               memory_property_flags{ 0 };
-    VkDeviceSize                        bind_offset{ 0 };
     VkImageUsageFlags                   usage{ 0 };
     VkImageType                         type{};
     VkFormat                            format{};

@@ -41,11 +41,7 @@ class VulkanResourceInitializer
 
     ~VulkanResourceInitializer();
 
-    VkResult LoadData(VkDeviceMemory                      memory,
-                      VkDeviceSize                        offset,
-                      VkDeviceSize                        size,
-                      const uint8_t*                      data,
-                      VulkanResourceAllocator::MemoryData allocator_data);
+    VkResult LoadData(VkDeviceSize size, const uint8_t* data, VulkanResourceAllocator::ResourceData allocator_data);
 
     VkResult InitializeBuffer(VkDeviceSize        data_size,
                               const uint8_t*      data,

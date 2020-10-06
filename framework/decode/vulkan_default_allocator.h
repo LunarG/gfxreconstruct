@@ -152,10 +152,103 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                  const ResourceData*          allocator_resource_datas,
                                                  const MemoryData*            allocator_memory_datas) override;
 
+    // Direct allocation methods that perform memory allocation and resource creation without performing memory
+    // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
+    // that the allocator is aware of all allocations performed at replay.
+    virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
+                                        const VkAllocationCallbacks* allocation_callbacks,
+                                        VkBuffer*                    buffer,
+                                        ResourceData*                allocator_data) override
+    {
+        return CreateBuffer(create_info, allocation_callbacks, format::kNullHandleId, buffer, allocator_data);
+    }
+
+    virtual void DestroyBufferDirect(VkBuffer                     buffer,
+                                     const VkAllocationCallbacks* allocation_callbacks,
+                                     ResourceData                 allocator_data) override
+    {
+        DestroyBuffer(buffer, allocation_callbacks, allocator_data);
+    }
+
+    virtual VkResult CreateImageDirect(const VkImageCreateInfo*     create_info,
+                                       const VkAllocationCallbacks* allocation_callbacks,
+                                       VkImage*                     image,
+                                       ResourceData*                allocator_data) override
+    {
+        return CreateImage(create_info, allocation_callbacks, format::kNullHandleId, image, allocator_data);
+    }
+
+    virtual void DestroyImageDirect(VkImage                      image,
+                                    const VkAllocationCallbacks* allocation_callbacks,
+                                    ResourceData                 allocator_data) override
+    {
+        DestroyImage(image, allocation_callbacks, allocator_data);
+    }
+
+    virtual VkResult AllocateMemoryDirect(const VkMemoryAllocateInfo*  allocate_info,
+                                          const VkAllocationCallbacks* allocation_callbacks,
+                                          VkDeviceMemory*              memory,
+                                          MemoryData*                  allocator_data) override
+    {
+        return Allocate(allocate_info, allocation_callbacks, format::kNullHandleId, memory, allocator_data);
+    }
+
+    virtual void FreeMemoryDirect(VkDeviceMemory               memory,
+                                  const VkAllocationCallbacks* allocation_callbacks,
+                                  MemoryData                   allocator_data) override
+    {
+        FreeMemory(memory, allocation_callbacks, allocator_data);
+    }
+
+    virtual VkResult BindBufferMemoryDirect(VkBuffer               buffer,
+                                            VkDeviceMemory         memory,
+                                            VkDeviceSize           memory_offset,
+                                            ResourceData           allocator_buffer_data,
+                                            MemoryData             allocator_memory_data,
+                                            VkMemoryPropertyFlags* bind_memory_properties) override
+    {
+        return BindBufferMemory(
+            buffer, memory, memory_offset, allocator_buffer_data, allocator_memory_data, bind_memory_properties);
+    }
+
+    virtual VkResult BindImageMemoryDirect(VkImage                image,
+                                           VkDeviceMemory         memory,
+                                           VkDeviceSize           memory_offset,
+                                           ResourceData           allocator_image_data,
+                                           MemoryData             allocator_memory_data,
+                                           VkMemoryPropertyFlags* bind_memory_properties) override
+    {
+        return BindImageMemory(
+            image, memory, memory_offset, allocator_image_data, allocator_memory_data, bind_memory_properties);
+    }
+
+    virtual VkResult MapResourceMemoryDirect(VkDeviceSize     size,
+                                             VkMemoryMapFlags flags,
+                                             void**           data,
+                                             ResourceData     allocator_data) override;
+
+    virtual void UnmapResourceMemoryDirect(ResourceData allocator_data) override;
+
+    virtual VkResult FlushMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                                   const VkMappedMemoryRange* memory_ranges,
+                                                   const MemoryData*          allocator_datas) override
+    {
+        return FlushMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
+    }
+
+    virtual VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                                        const VkMappedMemoryRange* memory_ranges,
+                                                        const MemoryData*          allocator_datas) override
+    {
+        return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
+    }
+
   protected:
     struct ResourceAllocInfo
     {
         format::HandleId capture_id{ format::kNullHandleId };
+        VkDeviceMemory   bound_memory{ VK_NULL_HANDLE };
+        VkDeviceSize     bound_offset{ 0 };
     };
 
     struct MemoryAllocInfo

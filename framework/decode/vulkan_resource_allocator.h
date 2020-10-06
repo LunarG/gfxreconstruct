@@ -187,6 +187,65 @@ class VulkanResourceAllocator
                                                  const VkBindImageMemoryInfo* bind_infos,
                                                  const ResourceData*          allocator_resource_datas,
                                                  const MemoryData*            allocator_memory_datas) = 0;
+
+    // Direct allocation methods that perform memory allocation and resource creation without performing memory
+    // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
+    // that the allocator is aware of all allocations performed at replay.
+    virtual VkResult CreateBufferDirect(const VkBufferCreateInfo*    create_info,
+                                        const VkAllocationCallbacks* allocation_callbacks,
+                                        VkBuffer*                    buffer,
+                                        ResourceData*                allocator_data) = 0;
+
+    virtual void DestroyBufferDirect(VkBuffer                     buffer,
+                                     const VkAllocationCallbacks* allocation_callbacks,
+                                     ResourceData                 allocator_data) = 0;
+
+    virtual VkResult CreateImageDirect(const VkImageCreateInfo*     create_info,
+                                       const VkAllocationCallbacks* allocation_callbacks,
+                                       VkImage*                     image,
+                                       ResourceData*                allocator_data) = 0;
+
+    virtual void DestroyImageDirect(VkImage                      image,
+                                    const VkAllocationCallbacks* allocation_callbacks,
+                                    ResourceData                 allocator_data) = 0;
+
+    virtual VkResult AllocateMemoryDirect(const VkMemoryAllocateInfo*  allocate_info,
+                                          const VkAllocationCallbacks* allocation_callbacks,
+                                          VkDeviceMemory*              memory,
+                                          MemoryData*                  allocator_data) = 0;
+
+    virtual void FreeMemoryDirect(VkDeviceMemory               memory,
+                                  const VkAllocationCallbacks* allocation_callbacks,
+                                  MemoryData                   allocator_data) = 0;
+
+    virtual VkResult BindBufferMemoryDirect(VkBuffer               buffer,
+                                            VkDeviceMemory         memory,
+                                            VkDeviceSize           memory_offset,
+                                            ResourceData           allocator_buffer_data,
+                                            MemoryData             allocator_memory_data,
+                                            VkMemoryPropertyFlags* bind_memory_properties) = 0;
+
+    virtual VkResult BindImageMemoryDirect(VkImage                image,
+                                           VkDeviceMemory         memory,
+                                           VkDeviceSize           memory_offset,
+                                           ResourceData           allocator_image_data,
+                                           MemoryData             allocator_memory_data,
+                                           VkMemoryPropertyFlags* bind_memory_properties) = 0;
+
+    // Map the memory that the buffer was bound to.  The returned pointer references the start of the buffer memory (it
+    // is the start of the memory the resource was bound to plus the resource bind offset).
+    virtual VkResult
+    MapResourceMemoryDirect(VkDeviceSize size, VkMemoryMapFlags flags, void** data, ResourceData allocator_data) = 0;
+
+    virtual void UnmapResourceMemoryDirect(ResourceData allocator_data) = 0;
+
+    virtual VkResult FlushMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                                   const VkMappedMemoryRange* memory_ranges,
+                                                   const MemoryData*          allocator_datas) = 0;
+
+    virtual VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
+                                                        const VkMappedMemoryRange* memory_ranges,
+                                                        const MemoryData*          allocator_datas) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)
