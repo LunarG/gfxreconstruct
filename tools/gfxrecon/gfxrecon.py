@@ -18,7 +18,7 @@
 # Utility for invoking gfxrecon commands
 # Usage:
 #
-#     gfxrecon.py [capture|compress|extract|info|replay] [<args>]
+#     gfxrecon.py [capture|compress|extract|info|optimize|replay] [<args>]
 #
 #         args is a command-specific argument list
 
@@ -37,6 +37,7 @@ valid_commands = [
     'compress',
     'extract',
     'info',
+    'optimize',
     'replay'
 ]
 
