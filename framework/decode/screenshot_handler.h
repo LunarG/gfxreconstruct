@@ -54,7 +54,7 @@ class ScreenshotHandler
                     uint32_t                                width,
                     uint32_t                                height);
 
-    void DestroyDevice(VkDevice device, const encode::DeviceTable* device_table);
+    void DestroyDeviceResources(VkDevice device, const encode::DeviceTable* device_table);
 
   private:
     struct CopyResource
@@ -102,8 +102,7 @@ class ScreenshotHandler
                                 uint32_t                                height,
                                 CopyResource*                           copy_resource) const;
 
-    void
-    DestroyCopyResource(VkDevice device, const encode::DeviceTable* device_table, CopyResource* copy_resource) const;
+    void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
 
   private:
     uint32_t                     current_frame_number_;
