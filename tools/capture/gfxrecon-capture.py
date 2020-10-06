@@ -67,10 +67,12 @@ def PrintErrorAndExit(msg):
 
 
 ######################
-# Remove an env variable if it is currently in environ
-def DelEnvVar(env):
-    if env in os.environ:
-        del os.environ[env]
+# Set an environment variable to a given value or remove it from the environment if None
+def SetEnvVar(name, value):
+    if value is not None:
+        os.environ[name] = value
+    elif name in os.environ:
+        del os.environ[name]
 
 
 ######################
@@ -85,17 +87,17 @@ def ParseArgs():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]), description='Create a capture of a Vulkan program.', usage=UsageMsg(), allow_abbrev=False, formatter_class=SmartFormatter)
 
     # Common optional args
+    # All arguments default to None, indicating they should be unset in the capture environment
     parser.add_argument('-w', '--working-dir', dest='workingDir', metavar='<dir>', help='Set CWD to this directory before running the program')
     parser.add_argument('-o', '--capture-file', dest='captureFile', metavar='<captureFile>', help='Name of the capture file, default is gfxrecon_capture.gfxr')
     parser.add_argument('-f', '--capture-frames', dest='captureFrames', metavar='<captureFrames>', help='List of frames to capture, default is all frames')
-    parser.add_argument('--no-file-timestamp', dest='noTimestampFile', action='store_true', help='Do not add a timestamp to the capture file name')
+    parser.add_argument('--no-file-timestamp', dest='fileTimestamp', action='store_const', const='false', help='Do not add a timestamp to the capture file name')
     parser.add_argument('--trigger', dest='trigger', choices=triggerKeyChoices, help='Specify a hotkey to start/stop capture')
     parser.add_argument('--compression-type', dest='compressionType', choices=compressionTypeChoices, help='Specify the type of compression to use in the capture file, default is LZ4')
-    parser.add_argument('--file-flush', dest='fileFlush', action='store_true', help='Flush output stream after each packet is written to capture file')
+    parser.add_argument('--file-flush', dest='fileFlush', action='store_const', const='true', help='Flush output stream after each packet is written to capture file')
     parser.add_argument('--log-level', dest='logLevel', choices=logLevelChoices, help='Specify highest level message to log, default is info')
     parser.add_argument('--log-file', dest='logFile', metavar='logFile', help='Name of the log file (disable logging with empty string), default is stdout/stderr')
-    if sys.platform == 'win32':
-        parser.add_argument('--log-debugview', dest='logDebugView', action='store_true', help='Log messages with OutputDebugStringA')
+    parser.add_argument('--log-debugview', dest='logDebugView', action='store_const', const='true', help='Log messages with OutputDebugStringA' if sys.platform=='win32' else argparse.SUPPRESS)
     parser.add_argument('--memory-tracking-mode', dest='memoryTrackingMode', choices=memoryTrackingModeChoices , help=
                         'R|Method to use to track changes to memory mapped objects:' + os.linesep +
                         '   page_guard: use pageguard to track changes (default)' + os.linesep +
@@ -122,8 +124,7 @@ def PrintArgs(args):
     print('file-flush', args.fileFlush)
     print('log-level', args.logLevel)
     print('log-file', args.logFile)
-    if sys.platform == 'win32':
-        print('log-debugview', args.logDebugView)
+    print('log-debugview', args.logDebugView)
     print('memory-tracking-mode', args.memoryTrackingMode)
     print('programAndArgs', args.programAndArgs)
 
@@ -166,7 +167,7 @@ def ValidateArgs(args):
 
 
 ######################
-# Set env variables for trace layer
+# Set env variables for capture layer
 def SetEnvVars(args):
 
     # Set VK_INSTANCE_LAYERS
@@ -176,62 +177,18 @@ def SetEnvVars(args):
     elif (not ('VK_LAYER_LUNARG_gfxreconstruct' in os.getenv('VK_INSTANCE_LAYERS'))):
         os.environ['VK_INSTANCE_LAYERS'] = os.environ['VK_INSTANCE_LAYERS'] + os.pathsep + 'VK_LAYER_LUNARG_gfxreconstruct'
 
-    # Set GFXRECON_CAPTURE_FILE
-    # We don't verify that we can write the captureFile.
-    # The trace layer will generate an error if it is unable to write the file.
-    if args.captureFile is not None:
-        os.environ['GFXRECON_CAPTURE_FILE'] = args.captureFile
-    else:
-        DelEnvVar('GFXRECON_CAPTURE_FILE')
-
-    # Set GFXRECON_CAPTURE_FRAMES
-    if args.captureFrames is not None:
-        os.environ['GFXRECON_CAPTURE_FRAMES'] = args.captureFrames
-    else:
-        DelEnvVar('GFXRECON_CAPTURE_FRAMES')
-
-    # Set GFXRECON_CAPTURE_FILE_TIMESTAMP
-    if args.noTimestampFile:
-        os.environ['GFXRECON_CAPTURE_FILE_TIMESTAMP'] = 'false'
-    else:
-        DelEnvVar('GFXRECON_CAPTURE_FILE_TIMESTAMP')
-
-    # Set GFXRECON_CAPTURE_TRIGGER
-    if args.trigger is not None:
-        os.environ['GFXRECON_CAPTURE_TRIGGER'] = args.trigger
-    else:
-        DelEnvVar('GFXRECON_CAPTURE_TRIGGER')
-
-    # Set GFXRECON_CAPTURE_COMPRESSION_TYPE
-    if args.compressionType is not None:
-        os.environ['GFXRECON_CAPTURE_COMPRESSION_TYPE'] = args.compressionType
-    else:
-        DelEnvVar('GFXRECON_CAPTURE_COMPRESSION_TYPE')
-
-    # Set GFXRECON_CAPTURE_FILE_FLUSH
-    os.environ['GFXRECON_CAPTURE_FILE_FLUSH'] = str(args.fileFlush)
-
-    # Set GFXRECON_LOG_LEVEL
-    if args.logLevel is not None:
-        os.environ['GFXRECON_LOG_LEVEL'] = args.logLevel
-    else:
-        DelEnvVar('GFXRECON_LOG_LEVEL')
-
-    # Set GFXRECON_LOG_FILE
-    if args.logFile is not None:
-        os.environ['GFXRECON_LOG_FILE'] = args.logFile
-    else:
-        DelEnvVar('GFXRECON_LOG_FILE')
-
-    # Set GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING
-    if sys.platform == 'win32':
-        os.environ['GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING'] = str(args.logDebugView)
-    else:
-        DelEnvVar('GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING')
-
-    # Set GFXRECON_MEMORY_TRACKING_MODE
-    if args.memoryTrackingMode is not None:
-        os.environ['GFXRECON_MEMORY_TRACKING_MODE'] = args.memoryTrackingMode
+    # Set GFXRECON_* capture options
+    # The capture layer will validate these options and generate errors as needed
+    SetEnvVar('GFXRECON_CAPTURE_FILE', args.captureFile)
+    SetEnvVar('GFXRECON_CAPTURE_FRAMES', args.captureFrames)
+    SetEnvVar('GFXRECON_CAPTURE_FILE_TIMESTAMP', args.fileTimestamp)
+    SetEnvVar('GFXRECON_CAPTURE_TRIGGER', args.trigger)
+    SetEnvVar('GFXRECON_CAPTURE_COMPRESSION_TYPE', args.compressionType)
+    SetEnvVar('GFXRECON_CAPTURE_FILE_FLUSH', args.fileFlush)
+    SetEnvVar('GFXRECON_LOG_LEVEL', args.logLevel)
+    SetEnvVar('GFXRECON_LOG_FILE', args.logFile)
+    SetEnvVar('GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING', args.logDebugView)
+    SetEnvVar('GFXRECON_MEMORY_TRACKING_MODE', args.memoryTrackingMode)
 
 
 ######################
