@@ -85,6 +85,7 @@ jobs:
 
           Build Info:
           - Android SDK Version: 27 (Android 8.1)
+          - Android NDK Version: 21.3.6528147 (r21d)
         draft: false
         prerelease: false
     - name: Get release URL
