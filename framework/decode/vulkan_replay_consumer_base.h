@@ -817,6 +817,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
 
+    void SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
+
     void InitializeScreenshotHandler();
 
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
