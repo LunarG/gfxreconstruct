@@ -30,6 +30,7 @@
 #include "util/platform.h"
 
 #include <android_native_app_glue.h>
+#include <android/log.h>
 #include <android/window.h>
 
 #include <cstdlib>
@@ -111,7 +112,7 @@ void android_main(struct android_app* app)
                     gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                     gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
                         window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                    gfxrecon::decode::VulkanDecoder        decoder;
+                    gfxrecon::decode::VulkanDecoder decoder;
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
@@ -329,6 +330,77 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     return 0;
 }
 
+// This "kills" the package using the Java API in order for the app to clear after each run
+void KillPackage(android_app* pApp)
+{
+    if (pApp == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "android_app is null and not available");
+    }
+    if (pApp->activity == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "android_app->activity is null and not available");
+    }
+
+    // First get instance of the JavaVM app is running in
+    JavaVM* pJavaVM = pApp->activity->vm;
+    if (pJavaVM == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "android_app->activity->vm is null and not available");
+    }
+
+    JNIEnv* pJNIContext = nullptr;
+    if (pJavaVM->AttachCurrentThread(&pJNIContext, nullptr) != JNI_OK)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "JavaVM can't attach current thread to JNIEnv");
+    }
+
+    jobject nativeActivity = pApp->activity->clazz;
+
+    // Get the context class which contains the activity service name
+    jclass   androidContext = pJNIContext->FindClass("android/content/Context");
+    jfieldID activityServiceFieldId =
+        pJNIContext->GetStaticFieldID(androidContext, "ACTIVITY_SERVICE", "Ljava/lang/String;");
+    jobject activityServiceName = pJNIContext->GetStaticObjectField(androidContext, activityServiceFieldId);
+    if (activityServiceName == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "Failed to fetch ACTIVITY_SERVICE from Context class");
+    }
+
+    // Call the getSystemService method to obtain the activity manager object
+    jclass    activityClass = pJNIContext->FindClass("android/app/Activity");
+    jmethodID getSystemServiceMethod =
+        pJNIContext->GetMethodID(activityClass, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+    jobject activityManager =
+        pJNIContext->CallObjectMethod(nativeActivity, getSystemServiceMethod, activityServiceName);
+    if (activityManager == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the activity manager class");
+    }
+
+    // Get the application class and get our process name
+    jclass    applicationClass = pJNIContext->FindClass("android/app/Application");
+    jmethodID getProcessNameMethod =
+        pJNIContext->GetStaticMethodID(applicationClass, "getProcessName", "()Ljava/lang/String;");
+    jstring processName =
+        static_cast<jstring>(pJNIContext->CallStaticObjectMethod(applicationClass, getProcessNameMethod));
+    if (processName == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the application process name");
+    }
+
+    // Get the killBackgroundProcesses method and end the gfxrecon process
+    jclass    androidActivityManager = pJNIContext->FindClass("android/app/ActivityManager");
+    jmethodID killBackgroundProcessesMethod =
+        pJNIContext->GetMethodID(androidActivityManager, "killBackgroundProcesses", "(Ljava/lang/String;)V");
+    if (killBackgroundProcessesMethod == nullptr)
+    {
+        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the activity manager killBackgroundProcess method");
+    }
+
+    pJNIContext->CallVoidMethod(activityManager, killBackgroundProcessesMethod, processName);
+}
+
 void DestroyActivity(struct android_app* app)
 {
     ANativeActivity_finish(app->activity);
@@ -349,4 +421,6 @@ void DestroyActivity(struct android_app* app)
             break;
         }
     }
+
+    KillPackage(app);
 }
