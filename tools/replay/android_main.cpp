@@ -30,6 +30,7 @@
 #include "util/platform.h"
 
 #include <android_native_app_glue.h>
+#include <android/window.h>
 
 #include <cstdlib>
 #include <exception>
@@ -51,6 +52,9 @@ void        DestroyActivity(struct android_app* app);
 void android_main(struct android_app* app)
 {
     gfxrecon::util::Log::Init();
+
+    // Keep screen on while window is active.
+    ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
