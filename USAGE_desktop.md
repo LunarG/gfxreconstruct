@@ -382,7 +382,9 @@ Optional arguments:
                         <handle_id> is the handle id of the CreateShaderModule call.
                         See gfxrecon-extract.
   --opcd                Omit pipeline cache data from calls to
-                        vkCreatePipelineCache (same as --omit-pipeline-cache-data).
+                        vkCreatePipelineCache and skip calls to
+                        vkGetPipelineCacheData (same as
+                        --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
                         Available platforms are: auto,win32,xlib,xcb,wayland
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.

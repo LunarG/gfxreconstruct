@@ -871,15 +871,15 @@ void VulkanReplayConsumer::Process_vkGetPipelineCacheData(
     PointerDecoder<size_t>*                     pDataSize,
     PointerDecoder<uint8_t>*                    pData)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkPipelineCache in_pipelineCache = MapHandle<PipelineCacheInfo>(pipelineCache, &VulkanObjectInfoTable::GetPipelineCacheInfo);
-    size_t* out_pDataSize = pDataSize->IsNull() ? nullptr : pDataSize->AllocateOutputData(1, GetOutputArrayCount<size_t, PipelineCacheInfo>("vkGetPipelineCacheData", returnValue, pipelineCache, kPipelineCacheArrayGetPipelineCacheData, pDataSize, pData, &VulkanObjectInfoTable::GetPipelineCacheInfo));
-    void* out_pData = pData->IsNull() ? nullptr : pData->AllocateOutputData(*out_pDataSize);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_pipelineCache = GetObjectInfoTable().GetPipelineCacheInfo(pipelineCache);
+    pDataSize->IsNull() ? nullptr : pDataSize->AllocateOutputData(1, GetOutputArrayCount<size_t, PipelineCacheInfo>("vkGetPipelineCacheData", returnValue, pipelineCache, kPipelineCacheArrayGetPipelineCacheData, pDataSize, pData, &VulkanObjectInfoTable::GetPipelineCacheInfo));
+    if (!pData->IsNull()) { pData->AllocateOutputData(*pDataSize->GetOutputPointer()); }
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetPipelineCacheData(in_device, in_pipelineCache, out_pDataSize, out_pData);
+    VkResult replay_result = OverrideGetPipelineCacheData(GetDeviceTable(in_device->handle)->GetPipelineCacheData, returnValue, in_device, in_pipelineCache, pDataSize, pData);
     CheckResult("vkGetPipelineCacheData", returnValue, replay_result);
 
-    if (pData->IsNull()) { SetOutputArrayCount<PipelineCacheInfo>(pipelineCache, kPipelineCacheArrayGetPipelineCacheData, *out_pDataSize, &VulkanObjectInfoTable::GetPipelineCacheInfo); }
+    if (pData->IsNull()) { SetOutputArrayCount<PipelineCacheInfo>(pipelineCache, kPipelineCacheArrayGetPipelineCacheData, *pDataSize->GetOutputPointer(), &VulkanObjectInfoTable::GetPipelineCacheInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkMergePipelineCaches(

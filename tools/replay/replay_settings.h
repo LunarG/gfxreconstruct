@@ -622,7 +622,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\t<handle_id> is the handle id of the CreateShaderModule call.");
     GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
     GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
-    GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data).");
+    GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache and skip calls to");
+    GFXRECON_WRITE_CONSOLE("        \t\tvkGetPipelineCacheData (same as");
+    GFXRECON_WRITE_CONSOLE("        \t\t--omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
     GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
 #if defined(WIN32) && defined(_DEBUG)
