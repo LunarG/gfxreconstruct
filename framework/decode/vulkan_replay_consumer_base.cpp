@@ -2088,6 +2088,45 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Deco
     }
 }
 
+void VulkanReplayConsumerBase::SetSwapchainWindowSize(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info)
+{
+    assert(swapchain_info != nullptr);
+
+    const auto create_info = swapchain_info->decoded_value;
+    if (create_info != nullptr)
+    {
+        const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
+        if (surface_info && (surface_info->window != nullptr))
+        {
+            uint32_t pre_transform = 0;
+            switch (create_info->preTransform)
+            {
+                default:
+                case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
+                case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR:
+                case VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR:
+                    pre_transform = format::ResizeWindowPreTransform::kPreTransform0;
+                    break;
+                case VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR:
+                case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR:
+                    pre_transform = format::ResizeWindowPreTransform::kPreTransform90;
+                    break;
+                case VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR:
+                case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR:
+                    pre_transform = format::ResizeWindowPreTransform::kPreTransform180;
+                    break;
+                case VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR:
+                case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR:
+                    pre_transform = format::ResizeWindowPreTransform::kPreTransform270;
+                    break;
+            }
+
+            surface_info->window->SetSizePreTransform(
+                create_info->imageExtent.width, create_info->imageExtent.height, pre_transform);
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::InitializeScreenshotHandler()
 {
     screenshot_file_prefix_ = options_.screenshot_file_prefix;
@@ -3793,6 +3832,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     VkResult result             = VK_ERROR_INITIALIZATION_FAILED;
     auto     replay_create_info = pCreateInfo->GetPointer();
     auto     replay_swapchain   = pSwapchain->GetHandlePointer();
+
+    // Enusre that the window has been resized properly.  For Android, this ensures that we will set the proper screen
+    // orientation when the swapchain pre-transform specifies a 90 or 270 degree rotation for older files that do not
+    // include a ResizeWindowCmd2 command.
+    auto meta_info = pCreateInfo->GetMetaStructPointer();
+    if (meta_info != nullptr)
+    {
+        SetSwapchainWindowSize(meta_info);
+    }
 
     ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
