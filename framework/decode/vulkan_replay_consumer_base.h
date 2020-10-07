@@ -584,6 +584,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                         HandlePointerDecoder<VkShaderModule>*                         pShaderModule);
 
+    VkResult OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData func,
+                                          VkResult                   original_result,
+                                          const DeviceInfo*          device_info,
+                                          const PipelineCacheInfo*   pipeline_cache_info,
+                                          PointerDecoder<size_t>*    pDataSize,
+                                          PointerDecoder<uint8_t>*   pData);
+
     VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                                      func,
                                          VkResult                                                       original_result,
                                          const DeviceInfo*                                              device_info,

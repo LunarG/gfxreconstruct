@@ -333,7 +333,8 @@ optional arguments:
                         capture (forwarded to replay tool)
   --opcd, --omit-pipeline-cache-data
                         Omit pipeline cache data from calls to
-                        vkCreatePipelineCache (forwarded to replay tool)
+                        vkCreatePipelineCache and skip calls to
+                        vkGetPipelineCacheData (forwarded to replay tool)
   --sync                Synchronize after each queue submission with
                         vkQueueWaitIdle (forwarded to replay tool)
   -m MODE, --memory-translation MODE

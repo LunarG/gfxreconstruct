@@ -3659,6 +3659,24 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         device_info->handle, &override_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData func,
+                                                                VkResult                   original_result,
+                                                                const DeviceInfo*          device_info,
+                                                                const PipelineCacheInfo*   pipeline_cache_info,
+                                                                PointerDecoder<size_t>*    pDataSize,
+                                                                PointerDecoder<uint8_t>*   pData)
+{
+    if (options_.omit_pipeline_cache_data)
+    {
+        return original_result;
+    }
+    else
+    {
+        return func(
+            device_info->handle, pipeline_cache_info->handle, pDataSize->GetOutputPointer(), pData->GetOutputPointer());
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     PFN_vkCreatePipelineCache                                      func,
     VkResult                                                       original_result,
