@@ -343,6 +343,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                             height{ 0 };
     VkFormat                             format{ VK_FORMAT_UNDEFINED };
     std::vector<VkImage>                 images;
+    std::vector<uint32_t>                acquired_indices;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.

@@ -642,7 +642,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          VkResult                  original_result,
                                          const DeviceInfo*         device_info,
-                                         const SwapchainKHRInfo*   swapchain_info,
+                                         SwapchainKHRInfo*         swapchain_info,
                                          uint64_t                  timeout,
                                          SemaphoreInfo*            semaphore_info,
                                          FenceInfo*                fence_info,
