@@ -4306,6 +4306,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         {
             uint32_t count = (*replay_image_count);
 
+            swapchain_info->acquired_indices.resize(count);
+
             for (uint32_t i = 0; i < count; ++i)
             {
                 auto image_info = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
@@ -4338,13 +4340,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                                                VkResult                  original_result,
                                                                const DeviceInfo*         device_info,
-                                                               const SwapchainKHRInfo*   swapchain_info,
+                                                               SwapchainKHRInfo*         swapchain_info,
                                                                uint64_t                  timeout,
                                                                SemaphoreInfo*            semaphore_info,
                                                                FenceInfo*                fence_info,
                                                                PointerDecoder<uint32_t>* pImageIndex)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    assert(swapchain_info != nullptr);
 
     VkResult result = VK_SUCCESS;
 
@@ -4357,8 +4359,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
     }
     else if (swapchain_info->surface != VK_NULL_HANDLE)
     {
-        assert((device_info != nullptr) && (swapchain_info != nullptr) && (pImageIndex != nullptr) &&
-               (pImageIndex->GetPointer() != nullptr));
+        assert((device_info != nullptr) && (pImageIndex != nullptr) && !pImageIndex->IsNull());
 
         VkDevice       device               = device_info->handle;
         VkSwapchainKHR swapchain            = swapchain_info->handle;
@@ -4373,6 +4374,8 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
         {
             auto table = GetDeviceTable(device);
             assert(table != nullptr);
+
+            swapchain_info->acquired_indices[captured_index] = captured_index;
 
             // The image has already been acquired. Swap the synchronization objects.
             if (semaphore != VK_NULL_HANDLE)
@@ -4398,9 +4401,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
         }
         else
         {
-            assert(pImageIndex->GetOutputPointer() != nullptr);
+            auto replay_index = pImageIndex->GetOutputPointer();
 
-            result = func(device, swapchain, timeout, semaphore, fence, pImageIndex->GetOutputPointer());
+            assert(replay_index != nullptr);
+
+            result = func(device, swapchain, timeout, semaphore, fence, replay_index);
+
+            // Track the index that was acquired on replay, which may be different than the captured index.
+            swapchain_info->acquired_indices[captured_index] = (*replay_index);
         }
     }
     else
@@ -4430,13 +4438,12 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
     PointerDecoder<uint32_t>*                                      pImageIndex)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     assert((pAcquireInfo != nullptr) && !pAcquireInfo->IsNull());
 
     VkResult          result            = VK_SUCCESS;
     auto              acquire_meta_info = pAcquireInfo->GetMetaStructPointer();
     SwapchainKHRInfo* swapchain_info    = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
+    assert(swapchain_info != nullptr);
 
     // If image acquire failed at capture, there is nothing worth replaying as the fence and semaphore aren't processed
     // and a successful acquire on replay of an image that does not have a corresponding present to replay can lead to
@@ -4460,6 +4467,11 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
         {
             auto table = GetDeviceTable(device);
             assert(table != nullptr);
+
+            if (swapchain_info != nullptr)
+            {
+                swapchain_info->acquired_indices[captured_index] = captured_index;
+            }
 
             // The image has already been acquired. Swap the synchronization objects.
             if (replay_acquire_info->semaphore != VK_NULL_HANDLE)
@@ -4485,9 +4497,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
         }
         else
         {
-            assert(pImageIndex->GetOutputPointer() != nullptr);
+            auto replay_index = pImageIndex->GetOutputPointer();
 
-            result = func(device, replay_acquire_info, pImageIndex->GetOutputPointer());
+            assert(replay_index != nullptr);
+
+            result = func(device, replay_acquire_info, replay_index);
+
+            // Track the index that was acquired on replay, which may be different than the captured index.
+            swapchain_info->acquired_indices[captured_index] = (*replay_index);
         }
     }
     else
@@ -4561,7 +4578,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
             {
                 valid_swapchains.push_back(swapchain_info->handle);
-                modified_image_indices.push_back(present_info->pImageIndices[i]);
+                modified_image_indices.push_back(swapchain_info->acquired_indices[present_info->pImageIndices[i]]);
             }
             else
             {
@@ -4661,6 +4678,27 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         modified_present_info.swapchainCount = static_cast<uint32_t>(valid_swapchains.size());
         modified_present_info.pSwapchains    = valid_swapchains.data();
         modified_present_info.pImageIndices  = modified_image_indices.data();
+    }
+    else
+    {
+        // Need to match the last acquired image index from replay to avoid OUT_OF_DATE errors from present.
+        modified_image_indices.insert(modified_image_indices.end(),
+                                      present_info->pImageIndices,
+                                      std::next(present_info->pImageIndices, present_info->swapchainCount));
+
+        const auto swapchain_ids = present_info_data->pSwapchains.GetPointer();
+        for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+        {
+            assert(swapchain_ids != nullptr);
+
+            const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            if (swapchain_info != nullptr)
+            {
+                modified_image_indices[i] = swapchain_info->acquired_indices[present_info->pImageIndices[i]];
+            }
+        }
+
+        modified_present_info.pImageIndices = modified_image_indices.data();
     }
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
