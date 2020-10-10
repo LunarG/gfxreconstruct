@@ -287,7 +287,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
                           [--paused] [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
-                          [--sync] [-m MODE]
+                          [--surface-index N] [--sync] [-m MODE]
                           [file]
 
 Launch the replay tool.
@@ -335,6 +335,10 @@ optional arguments:
                         Omit pipeline cache data from calls to
                         vkCreatePipelineCache and skip calls to
                         vkGetPipelineCacheData (forwarded to replay tool)
+  --surface-index N     Restrict rendering to the Nth surface object created.
+                        Used with captures that include multiple surfaces.
+                        Default is -1 (render to all surfaces; forwarded to
+                        replay tool)
   --sync                Synchronize after each queue submission with
                         vkQueueWaitIdle (forwarded to replay tool)
   -m MODE, --memory-translation MODE

@@ -558,21 +558,6 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                 ->DestroyPrivateDataSlotEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, SwapchainKHRInfo>(
-        table,
-        GFXRECON_STR(VkDevice),
-        GFXRECON_STR(VkSwapchainKHR),
-        remove_entries,
-        report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitSwapchainKHRInfo,
-        &VulkanObjectInfoTable::RemoveSwapchainKHRInfo,
-        [&](const DeviceInfo* parent_info, const SwapchainKHRInfo* object_info) {
-            assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroySwapchainKHR(parent_info->handle, object_info->handle, nullptr);
-        });
-
     FreeChildObjects<InstanceInfo, DebugReportCallbackEXTInfo>(
         table,
         GFXRECON_STR(VkInstance),
@@ -601,6 +586,38 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_instance_table(parent_info->handle)
                 ->DestroyDebugUtilsMessengerEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
+    // VkSwapchainKHR objects have a special destroy function to ignore the object when it has a null surface handle.
+    // A valid swapchain object was not created in this case.
+    FreeChildObjects<DeviceInfo, SwapchainKHRInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkSwapchainKHR),
+        remove_entries,
+        report_leaks,
+        &VulkanObjectInfoTable::GetDeviceInfo,
+        &VulkanObjectInfoTable::VisitSwapchainKHRInfo,
+        &VulkanObjectInfoTable::RemoveSwapchainKHRInfo,
+        [&](const DeviceInfo* parent_info, const SwapchainKHRInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            if (object_info->surface != VK_NULL_HANDLE)
+            {
+                get_device_table(parent_info->handle)
+                    ->DestroySwapchainKHR(parent_info->handle, object_info->handle, nullptr);
+            }
+            else
+            {
+                // Destroy placeholder images that were created in place of a valid swapchain.
+                auto allocator = parent_info->allocator.get();
+                assert(allocator != nullptr);
+
+                for (const ImageInfo& image_info : object_info->image_infos)
+                {
+                    allocator->DestroyImage(image_info.handle, nullptr, image_info.allocator_data);
+                    allocator->FreeMemory(image_info.memory, nullptr, image_info.memory_allocator_data);
+                }
+            }
         });
 
     // VkSurfaceKHR objects have a special destroy function to destroy the object through the Window object that

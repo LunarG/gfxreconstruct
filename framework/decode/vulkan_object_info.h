@@ -166,7 +166,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 //
 
 typedef VulkanPoolObjectInfo<VkCommandBuffer>             CommandBufferInfo;
-typedef VulkanObjectInfo<VkFence>                         FenceInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
@@ -247,6 +246,20 @@ struct QueueInfo : public VulkanObjectInfo<VkQueue>
 struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
 {
     bool is_external{ false };
+
+    // If a null-swapchain/surface interacts with a semaphore, replay needs to shadow signal it until a future call
+    // waits on it.
+    bool shadow_signaled{ false };
+    // Fences can be reset, semaphores can't, so replay needs to know when a semaphore will not be submitted for a wait
+    // operation to prevent validation errors around queue forward progress.
+    bool forward_progress{ true };
+};
+
+struct FenceInfo : public VulkanObjectInfo<VkFence>
+{
+    // If a null-swapchain/surface interacts with a fence, replay needs to to shadow signal it until a future call waits
+    // on it.
+    bool shadow_signaled{ false };
 };
 
 struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
@@ -278,7 +291,8 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
-    // The following values are only used when loading the initial state for trimmed files.
+    // The following values are used when loading the initial state for trimmed files, and for null-swapchain/surface
+    // creation.
     VkDeviceMemory                      memory{ VK_NULL_HANDLE };
     VulkanResourceAllocator::MemoryData memory_allocator_data{ 0 };
     VkMemoryPropertyFlags               memory_property_flags{ 0 };
@@ -333,6 +347,16 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
     // The following values are only used when loading the initial state for trimmed files.
     uint32_t queue_family_index{ 0 };
+
+    // When replay is restricted to a specific surface, a dummy swapchain is created for the omitted surfaces, requiring
+    // backing images.
+    std::vector<ImageInfo>    image_infos;
+    VkSwapchainCreateFlagsKHR image_flags;
+    VkFormat                  image_format;
+    VkExtent2D                image_extent;
+    uint32_t                  image_array_layers;
+    VkImageUsageFlags         image_usage;
+    VkSharingMode             image_sharing_mode;
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>

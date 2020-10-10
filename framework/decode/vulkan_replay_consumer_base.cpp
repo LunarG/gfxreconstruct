@@ -22,6 +22,7 @@
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
+#include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/file_path.h"
 #include "util/hash.h"
@@ -135,7 +136,8 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false)
+    window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false),
+    create_surface_count_(0)
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -148,6 +150,14 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 {
+    if (options_.surface_index >= create_surface_count_)
+    {
+        GFXRECON_LOG_WARNING("Rendering was restricted to surface index %u, but a surface was never created for that "
+                             "index; replay created %d surface(s)",
+                             options_.surface_index,
+                             create_surface_count_);
+    }
+
     // Idle all devices before destroying other resources.
     object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
         assert(info != nullptr);
@@ -1956,38 +1966,51 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
 
     VkInstance    instance       = instance_info->handle;
     VkSurfaceKHR* replay_surface = nullptr;
+    VkResult      result         = VK_SUCCESS;
 
     if (surface != nullptr)
     {
         replay_surface = surface->GetHandlePointer();
     }
 
-    // Create a window for our surface.
-    Window* window = window_factory_->Create(
-        kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight);
-
-    if (window == nullptr)
+    // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for the
+    // specified index.
+    if ((options_.surface_index == -1) || (options_.surface_index == create_surface_count_))
     {
-        // Failure to create a window is a fatal error.
-        GFXRECON_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
-        RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
-    }
+        // Create a window for our surface.
+        Window* window = window_factory_->Create(
+            kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight);
 
-    VkResult result = window->CreateSurface(GetInstanceTable(instance), instance, flags, replay_surface);
+        if (window == nullptr)
+        {
+            // Failure to create a window is a fatal error.
+            GFXRECON_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
+            RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
+        }
 
-    if ((result == VK_SUCCESS) && (replay_surface != nullptr))
-    {
-        auto surface_id   = surface->GetPointer();
-        auto surface_info = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
-        assert((surface_id != nullptr) && (surface_info != nullptr));
+        VkResult result = window->CreateSurface(GetInstanceTable(instance), instance, flags, replay_surface);
 
-        surface_info->window = window;
-        active_windows_.insert(window);
+        if ((result == VK_SUCCESS) && (replay_surface != nullptr))
+        {
+            auto surface_id   = surface->GetPointer();
+            auto surface_info = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
+            assert((surface_id != nullptr) && (surface_info != nullptr));
+
+            surface_info->window = window;
+            active_windows_.insert(window);
+        }
+        else
+        {
+            window_factory_->Destroy(window);
+        }
     }
     else
     {
-        window_factory_->Destroy(window);
+        GFXRECON_LOG_INFO("Skipping surface creation for surface index %d", create_surface_count_);
     }
+
+    // Count the number of surfaces created for restricting replay to a specific surface.
+    ++create_surface_count_;
 
     return result;
 }
@@ -2573,23 +2596,57 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
 {
     assert((device_info != nullptr) && (pFences != nullptr));
 
-    VkResult result;
-    VkDevice device = device_info->handle;
+    VkResult             result               = VK_SUCCESS;
+    VkDevice             device               = device_info->handle;
+    uint32_t             modified_fence_count = fenceCount;
+    const VkFence*       modified_fences      = nullptr;
+    std::vector<VkFence> valid_fences;
+
+    // Check for fences that need to be removed.
+    if (shadow_fences_.empty())
+    {
+        modified_fences = pFences->GetHandlePointer();
+    }
+    else
+    {
+        const format::HandleId* fence_handles = pFences->GetPointer();
+        for (size_t i = 0; i < pFences->GetLength(); ++i)
+        {
+            FenceInfo* fence_info = object_info_table_.GetFenceInfo(fence_handles[i]);
+            if (fence_info != nullptr)
+            {
+                VkFence fence_handle = fence_info->handle;
+                if (fence_info->shadow_signaled)
+                {
+                    // If found, unsignal the fence to represent it being used.
+                    fence_info->shadow_signaled = false;
+                    shadow_fences_.erase(fence_handle);
+                }
+                else
+                {
+                    valid_fences.push_back(fence_handle);
+                }
+            }
+        }
+
+        modified_fence_count = static_cast<uint32_t>(valid_fences.size());
+        modified_fences      = valid_fences.data();
+    }
 
     if (original_result == VK_SUCCESS)
     {
         // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
         // timeout to UINT64_MAX.
-        result = func(device, fenceCount, pFences->GetHandlePointer(), waitAll, std::numeric_limits<uint64_t>::max());
+        result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
     }
     else if (original_result == VK_TIMEOUT)
     {
         // Try to get a timeout result with a 0 timeout.
-        result = func(device, fenceCount, pFences->GetHandlePointer(), waitAll, 0);
+        result = func(device, modified_fence_count, modified_fences, waitAll, 0);
     }
     else
     {
-        result = func(device, fenceCount, pFences->GetHandlePointer(), waitAll, timeout);
+        result = func(device, modified_fence_count, modified_fences, waitAll, timeout);
     }
 
     return result;
@@ -2670,7 +2727,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     VkResult            result       = VK_SUCCESS;
     const VkSubmitInfo* submit_infos = pSubmits->GetPointer();
-    VkFence             fence        = VK_NULL_HANDLE;
+    assert(submit_infos != nullptr);
+    auto    submit_info_data = pSubmits->GetMetaStructPointer();
+    VkFence fence            = VK_NULL_HANDLE;
 
     if (fence_info != nullptr)
     {
@@ -2678,7 +2737,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
-    if (!have_imported_semaphores_ || (submit_infos == nullptr))
+    // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
+    // tracked.
+    if ((!have_imported_semaphores_) && (options_.surface_index == -1))
     {
         result = func(queue_info->handle, submitCount, submit_infos, fence);
     }
@@ -2686,25 +2747,32 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
     {
         // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
         // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> imported_wait_submits;
-        std::vector<const SemaphoreInfo*>                               imported_semaphores;
+        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
+        std::vector<const SemaphoreInfo*>                               removed_semaphores;
 
-        auto submit_info_data = pSubmits->GetMetaStructPointer();
         if (submit_info_data != nullptr)
         {
             for (uint32_t i = 0; i < submitCount; i++)
             {
-                GetImportedSemaphores(submit_info_data[i].pWaitSemaphores, &imported_semaphores);
+                GetImportedSemaphores(submit_info_data[i].pWaitSemaphores, &removed_semaphores);
+                GetShadowSemaphores(submit_info_data[i].pWaitSemaphores, &removed_semaphores);
 
-                if (!imported_semaphores.empty())
+                // If rendering is restricted to a specific surface, need to track forward progress for semaphores that
+                // have been submitted with a null-swapchain.
+                TrackSemaphoreForwardProgress(submit_info_data[i].pWaitSemaphores, &removed_semaphores);
+
+                // Remove non-forward progress of signal semaphores.
+                GetNonForwardProgress(submit_info_data[i].pSignalSemaphores, &removed_semaphores);
+
+                if (!removed_semaphores.empty())
                 {
-                    imported_wait_submits[i].swap(imported_semaphores);
-                    assert(imported_semaphores.empty());
+                    altered_submits[i].swap(removed_semaphores);
+                    assert(removed_semaphores.empty());
                 }
             }
         }
 
-        if (imported_wait_submits.empty())
+        if (altered_submits.empty())
         {
             result = func(queue_info->handle, submitCount, submit_infos, fence);
         }
@@ -2713,11 +2781,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
             // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
             // original semaphore array with the imported semaphores omitted.
             std::vector<VkSubmitInfo> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
-            std::vector<std::vector<VkSemaphore>> semaphore_memory(imported_wait_submits.size());
+            std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
 
-            auto memory_iter = semaphore_memory.begin();
+            std::vector<VkSemaphore> wait_semaphores;
+            std::vector<VkSemaphore> signal_semaphores;
 
-            for (const auto& submit_iter : imported_wait_submits)
+            for (const auto& submit_iter : altered_submits)
             {
                 // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
                 VkSubmitInfo& modified_submit_info = modified_submit_infos[submit_iter.first];
@@ -2729,19 +2798,34 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
                     if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
                     {
-                        memory_iter->push_back(semaphore);
+                        wait_semaphores.push_back(semaphore);
                     }
                     else
                     {
-                        // Omit the imported semaphore from the current submission.
+                        // Omit the ignored semaphore from the current submission.
                         ++semaphore_iter;
                     }
                 }
 
-                modified_submit_info.waitSemaphoreCount = static_cast<uint32_t>(memory_iter->size());
-                modified_submit_info.pWaitSemaphores    = memory_iter->data();
+                for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreCount; ++i)
+                {
+                    VkSemaphore semaphore = modified_submit_info.pSignalSemaphores[i];
 
-                ++memory_iter;
+                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        signal_semaphores.push_back(semaphore);
+                    }
+                    else
+                    {
+                        // Omit the ignored semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                modified_submit_info.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size());
+                modified_submit_info.pWaitSemaphores      = wait_semaphores.data();
+                modified_submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
+                modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
             result = func(queue_info->handle,
@@ -2767,7 +2851,7 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                                                   const StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
                                                   const FenceInfo*                                      fence_info)
 {
-    assert((queue_info != nullptr) && (pBindInfo != nullptr));
+    assert((queue_info != nullptr) && (pBindInfo != nullptr) && !pBindInfo->IsNull());
 
     VkResult                result     = VK_SUCCESS;
     const VkBindSparseInfo* bind_infos = pBindInfo->GetPointer();
@@ -2779,7 +2863,9 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
-    if (!have_imported_semaphores_ || (bind_infos == nullptr))
+    // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
+    // tracked.
+    if ((!have_imported_semaphores_) && (options_.surface_index == -1))
     {
         result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
     }
@@ -2787,25 +2873,33 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     {
         // Check for imported semaphores in the current bind info list, mapping the pBindInfo array index to a vector of
         // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> imported_wait_binds;
-        std::vector<const SemaphoreInfo*>                               imported_semaphores;
+        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> altered_submits;
+        std::vector<const SemaphoreInfo*>                               removed_semaphores;
 
         auto bind_info_data = pBindInfo->GetMetaStructPointer();
         if (bind_info_data != nullptr)
         {
             for (uint32_t i = 0; i < bindInfoCount; i++)
             {
-                GetImportedSemaphores(bind_info_data[i].pWaitSemaphores, &imported_semaphores);
+                GetImportedSemaphores(bind_info_data[i].pWaitSemaphores, &removed_semaphores);
+                GetShadowSemaphores(bind_info_data[i].pWaitSemaphores, &removed_semaphores);
 
-                if (!imported_semaphores.empty())
+                // If rendering is restricted to a specific surface, need to track forward progress for semaphores that
+                // have been submitted with a null-swapchain.
+                TrackSemaphoreForwardProgress(bind_info_data[i].pWaitSemaphores, &removed_semaphores);
+
+                // Remove non-forward progress of signal semaphores.
+                GetNonForwardProgress(bind_info_data[i].pSignalSemaphores, &removed_semaphores);
+
+                if (!removed_semaphores.empty())
                 {
-                    imported_wait_binds[i].swap(imported_semaphores);
-                    assert(imported_semaphores.empty());
+                    altered_submits[i].swap(removed_semaphores);
+                    assert(removed_semaphores.empty());
                 }
             }
         }
 
-        if (imported_wait_binds.empty())
+        if (altered_submits.empty())
         {
             result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
         }
@@ -2814,11 +2908,12 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
             // Make shallow copies of the VkBindSparseInfo structures and change pWaitSemaphores to reference a copy of
             // the original semaphore array with the imported semaphores omitted.
             std::vector<VkBindSparseInfo>         modified_bind_infos(bind_infos, std::next(bind_infos, bindInfoCount));
-            std::vector<std::vector<VkSemaphore>> semaphore_memory(imported_wait_binds.size());
+            std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
 
-            auto memory_iter = semaphore_memory.begin();
+            std::vector<VkSemaphore> wait_semaphores;
+            std::vector<VkSemaphore> signal_semaphores;
 
-            for (const auto& bind_iter : imported_wait_binds)
+            for (const auto& bind_iter : altered_submits)
             {
                 // Shallow copy with filtered copy of pWaitSemaphores for bind info with imported semaphores.
                 VkBindSparseInfo& modified_bind_info = modified_bind_infos[bind_iter.first];
@@ -2830,19 +2925,34 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 
                     if ((semaphore_iter == bind_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
                     {
-                        memory_iter->push_back(semaphore);
+                        wait_semaphores.push_back(semaphore);
                     }
                     else
                     {
-                        // Omit the imported semaphore from the current submission.
+                        // Omit the ignored semaphore from the current submission.
                         ++semaphore_iter;
                     }
                 }
 
-                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(memory_iter->size());
-                modified_bind_info.pWaitSemaphores    = memory_iter->data();
+                for (uint32_t j = 0; j < modified_bind_info.signalSemaphoreCount; ++j)
+                {
+                    VkSemaphore semaphore = modified_bind_info.pSignalSemaphores[j];
 
-                ++memory_iter;
+                    if ((semaphore_iter == bind_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        signal_semaphores.push_back(semaphore);
+                    }
+                    else
+                    {
+                        // Omit the ignored semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
+                modified_bind_info.pWaitSemaphores    = wait_semaphores.data();
+                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
+                modified_bind_info.pWaitSemaphores    = signal_semaphores.data();
             }
 
             result = func(queue_info->handle,
@@ -3844,41 +3954,63 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pSwapchain != nullptr) && !pSwapchain->IsNull() &&
-           (pSwapchain->GetHandlePointer() != nullptr));
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && !pCreateInfo->IsNull() && (pSwapchain != nullptr) &&
+           !pSwapchain->IsNull() && (pSwapchain->GetHandlePointer() != nullptr));
 
-    VkResult result             = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result             = VK_SUCCESS;
     auto     replay_create_info = pCreateInfo->GetPointer();
     auto     replay_swapchain   = pSwapchain->GetHandlePointer();
+    auto     swapchain_info     = reinterpret_cast<SwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
+    assert(swapchain_info != nullptr);
 
-    // Ensure that the window has been resized properly.  For Android, this ensures that we will set the proper screen
-    // orientation when the swapchain pre-transform specifies a 90 or 270 degree rotation for older files that do not
-    // include a ResizeWindowCmd2 command.
-    auto meta_info = pCreateInfo->GetMetaStructPointer();
-    if (meta_info != nullptr)
+    // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
+    if (replay_create_info->surface != VK_NULL_HANDLE)
     {
-        SetSwapchainWindowSize(meta_info);
-    }
+        // Ensure that the window has been resized properly.  For Android, this ensures that we will set the proper
+        // screen orientation when the swapchain pre-transform specifies a 90 or 270 degree rotation for older files
+        // that do not include a ResizeWindowCmd2 command.
+        auto meta_info = pCreateInfo->GetMetaStructPointer();
+        if (meta_info != nullptr)
+        {
+            SetSwapchainWindowSize(meta_info);
+        }
 
-    ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
+        ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-    if (screenshot_handler_ == nullptr)
-    {
-        result = func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+        if (screenshot_handler_ == nullptr)
+        {
+            result =
+                func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+        }
+        else
+        {
+            // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
+            VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+            modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+            result =
+                func(device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+        }
     }
     else
     {
-        // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
-        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
-        modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        result = func(device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+        GFXRECON_LOG_INFO("Skipping creation for swapchain (ID = %" PRIu64 "), which is backed by a disabled surface",
+                          swapchain_info->capture_id);
+
+        // Set fax handle data to find uncreated swapchain later.
+        // Possible colision of handles from driver, but should not occur starting with uint max.
+        static format::HandleId dummy_handle = std::numeric_limits<uint64_t>::max();
+        (*replay_swapchain)                  = format::FromHandleId<VkSwapchainKHR>(dummy_handle);
+        --dummy_handle;
+
+        swapchain_info->surface            = VK_NULL_HANDLE;
+        swapchain_info->image_flags        = replay_create_info->flags;
+        swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
+        swapchain_info->image_usage        = replay_create_info->imageUsage;
+        swapchain_info->image_sharing_mode = replay_create_info->imageSharingMode;
     }
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
-        auto swapchain_info = reinterpret_cast<SwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
-        assert(swapchain_info != nullptr);
-
         if ((replay_create_info->imageSharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
         {
@@ -3909,13 +4041,30 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
 
     VkDevice       device    = device_info->handle;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+    VkSurfaceKHR   surface   = VK_NULL_HANDLE;
 
     if (swapchain_info != nullptr)
     {
         swapchain = swapchain_info->handle;
+        surface   = swapchain_info->surface;
     }
 
-    func(device, swapchain, GetAllocationCallbacks(pAllocator));
+    // Delete backed images of dummy swapchain.
+    if (surface == VK_NULL_HANDLE)
+    {
+        auto allocator = device_info->allocator.get();
+        assert(allocator != nullptr);
+
+        for (const ImageInfo& image_info : swapchain_info->image_infos)
+        {
+            allocator->DestroyImage(image_info.handle, nullptr, image_info.allocator_data);
+            allocator->FreeMemory(image_info.memory, nullptr, image_info.memory_allocator_data);
+        }
+    }
+    else
+    {
+        func(device, swapchain, GetAllocationCallbacks(pAllocator));
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
@@ -3930,37 +4079,108 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
     assert((device_info != nullptr) && (swapchain_info != nullptr) && (pSwapchainImageCount != nullptr) &&
            (pSwapchainImages != nullptr));
 
-    auto image_count = pSwapchainImageCount->GetOutputPointer();
-    auto images      = pSwapchainImages->GetHandlePointer();
+    VkResult result             = original_result;
+    auto     replay_image_count = pSwapchainImageCount->GetOutputPointer();
+    auto     replay_images      = pSwapchainImages->GetHandlePointer();
 
-    VkResult result = func(device_info->handle, swapchain_info->handle, image_count, images);
-
-    if ((result == VK_SUCCESS) && (images != nullptr) && (image_count != nullptr))
+    // Handle if swapchain was never created due to surface-index being skipped
+    if (swapchain_info->surface == VK_NULL_HANDLE)
     {
-        uint32_t count = (*image_count);
+        assert(!pSwapchainImageCount->IsNull());
 
-        for (uint32_t i = 0; i < count; ++i)
+        const uint32_t swapchain_image_count = *pSwapchainImageCount->GetPointer();
+        if (replay_images == nullptr)
         {
-            auto image_info = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
-            assert(image_info != nullptr);
-
-            image_info->is_swapchain_image = true;
+            // Set the image count from data saved in trace file.
+            (*replay_image_count) = swapchain_image_count;
         }
-
-        // Store image handles for screenshot generation.
-        if ((screenshot_handler_ != nullptr) && (swapchain_info->images.size() < (*image_count)))
+        else
         {
-            uint32_t count = (*image_count);
+            assert(!pSwapchainImages->IsNull());
 
-            if (!swapchain_info->images.empty())
+            const format::HandleId* capture_ids = pSwapchainImages->GetPointer();
+
+            // Create an image for the null swapchain.  Based on vkspec.html#swapchain-wsi-image-create-info.
+            VkImageCreateInfo image_create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+            image_create_info.pNext                 = nullptr;
+            image_create_info.flags                 = 0;
+            image_create_info.imageType             = VK_IMAGE_TYPE_2D;
+            image_create_info.format                = swapchain_info->format;
+            image_create_info.extent                = { swapchain_info->width, swapchain_info->height, 1 };
+            image_create_info.mipLevels             = 1;
+            image_create_info.arrayLayers           = swapchain_info->image_array_layers;
+            image_create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+            image_create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+            image_create_info.usage                 = swapchain_info->image_usage;
+            image_create_info.sharingMode           = swapchain_info->image_sharing_mode;
+            image_create_info.queueFamilyIndexCount = 0;
+            image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            if ((swapchain_info->image_flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR) ==
+                VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
             {
-                // Clear any images that may have been stored by a previous, incomplete call to vkGetSwapchainImagesKHR.
-                swapchain_info->images.clear();
+                image_create_info.flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
             }
+
+            GFXRECON_LOG_INFO("Creating %u images of %ux%u to back dummy swapchain (ID = %" PRIu64 ")",
+                              swapchain_image_count,
+                              image_create_info.extent.width,
+                              image_create_info.extent.height,
+                              swapchain_info->capture_id);
+
+            for (uint32_t i = 0; i < swapchain_image_count; ++i)
+            {
+                format::HandleId capture_id   = capture_ids[i];
+                VkImage*         replay_image = &(replay_images[i]);
+                ImageInfo*       image_info   = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                assert(image_info != nullptr);
+
+                result = CreateSwapchainImage(device_info, &image_create_info, replay_image, capture_id, image_info);
+
+                if ((result != VK_SUCCESS) || (replay_image == VK_NULL_HANDLE))
+                {
+                    GFXRECON_LOG_ERROR("Unable to create backing images for dummy swapchain (ID = %" PRIu64 ")",
+                                       swapchain_info->capture_id);
+                    break;
+                }
+
+                image_info->is_swapchain_image = true;
+
+                // Create a copy of the image info to use for image cleanup when the swapchain is destroyed.
+                swapchain_info->image_infos.push_back(*image_info);
+            }
+        }
+    }
+    else
+    {
+        result = func(device_info->handle, swapchain_info->handle, replay_image_count, replay_images);
+
+        if ((result == VK_SUCCESS) && (replay_images != nullptr) && (replay_image_count != nullptr))
+        {
+            uint32_t count = (*replay_image_count);
 
             for (uint32_t i = 0; i < count; ++i)
             {
-                swapchain_info->images.push_back(images[i]);
+                auto image_info = reinterpret_cast<ImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                assert(image_info != nullptr);
+
+                image_info->is_swapchain_image = true;
+            }
+
+            // Store image handles for screenshot generation.
+            if ((screenshot_handler_ != nullptr) && (swapchain_info->images.size() < count))
+            {
+                if (!swapchain_info->images.empty())
+                {
+                    // Clear any images that may have been stored by a previous, incomplete call to
+                    // vkGetSwapchainImagesKHR.
+                    swapchain_info->images.clear();
+                }
+
+                for (uint32_t i = 0; i < count; ++i)
+                {
+                    swapchain_info->images.push_back(replay_images[i]);
+                }
             }
         }
     }
@@ -3973,57 +4193,84 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
                                                                const DeviceInfo*         device_info,
                                                                const SwapchainKHRInfo*   swapchain_info,
                                                                uint64_t                  timeout,
-                                                               const SemaphoreInfo*      semaphore_info,
-                                                               const FenceInfo*          fence_info,
+                                                               SemaphoreInfo*            semaphore_info,
+                                                               FenceInfo*                fence_info,
                                                                PointerDecoder<uint32_t>* pImageIndex)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (swapchain_info != nullptr) && (pImageIndex != nullptr) &&
-           (pImageIndex->GetPointer() != nullptr));
+    VkResult result = VK_SUCCESS;
 
-    VkResult       result               = VK_SUCCESS;
-    VkDevice       device               = device_info->handle;
-    VkSwapchainKHR swapchain            = swapchain_info->handle;
-    VkSemaphore    semaphore            = (semaphore_info != nullptr) ? semaphore_info->handle : VK_NULL_HANDLE;
-    VkFence        fence                = (fence_info != nullptr) ? fence_info->handle : VK_NULL_HANDLE;
-    VkSemaphore    preacquire_semaphore = VK_NULL_HANDLE;
-    VkFence        preacquire_fence     = VK_NULL_HANDLE;
-    uint32_t       captured_index       = (*pImageIndex->GetPointer());
-
-    if (swapchain_image_tracker_.RetrievePreAcquiredImage(
-            swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
+    // If image acquire failed at capture, there is nothing worth replaying as the fence and semaphore aren't processed
+    // and a successful acquire on replay of an image that does not have a corresponding present to replay can lead to
+    // OUT_OF_DATE errors.
+    if (original_result < 0)
     {
-        auto table = GetDeviceTable(device);
-        assert(table != nullptr);
+        result = original_result;
+    }
+    else if (swapchain_info->surface != VK_NULL_HANDLE)
+    {
+        assert((device_info != nullptr) && (swapchain_info != nullptr) && (pImageIndex != nullptr) &&
+               (pImageIndex->GetPointer() != nullptr));
 
-        // The image has already been acquired. Swap the synchronization objects.
-        if (semaphore != VK_NULL_HANDLE)
+        VkDevice       device               = device_info->handle;
+        VkSwapchainKHR swapchain            = swapchain_info->handle;
+        VkSemaphore    semaphore            = (semaphore_info != nullptr) ? semaphore_info->handle : VK_NULL_HANDLE;
+        VkFence        fence                = (fence_info != nullptr) ? fence_info->handle : VK_NULL_HANDLE;
+        VkSemaphore    preacquire_semaphore = VK_NULL_HANDLE;
+        VkFence        preacquire_fence     = VK_NULL_HANDLE;
+        uint32_t       captured_index       = (*pImageIndex->GetPointer());
+
+        if (swapchain_image_tracker_.RetrievePreAcquiredImage(
+                swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
-            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
-            // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
-            // after destroy.
-            object_info_table_.ReplaceSemaphore(semaphore, preacquire_semaphore);
-            preacquire_semaphore = semaphore;
-        }
+            auto table = GetDeviceTable(device);
+            assert(table != nullptr);
 
-        if (fence != VK_NULL_HANDLE)
+            // The image has already been acquired. Swap the synchronization objects.
+            if (semaphore != VK_NULL_HANDLE)
+            {
+                // TODO: This should be processed at a higher level where the original handle IDs are available, so that
+                // the swap can be performed with the original handle ID and the semaphore can be guaranteed not to be
+                // used after destroy.
+                object_info_table_.ReplaceSemaphore(semaphore, preacquire_semaphore);
+                preacquire_semaphore = semaphore;
+            }
+
+            if (fence != VK_NULL_HANDLE)
+            {
+                // TODO: This should be processed at a higher level where the original handle IDs are available, so that
+                // the swap can be performed with the original handle ID and the fence can be guaranteed not to be used
+                // after destroy.
+                object_info_table_.ReplaceFence(fence, preacquire_fence);
+                preacquire_fence = fence;
+            }
+
+            table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+            table->DestroyFence(device, preacquire_fence, nullptr);
+        }
+        else
         {
-            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
-            // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
-            // after destroy.
-            object_info_table_.ReplaceFence(fence, preacquire_fence);
-            preacquire_fence = fence;
-        }
+            assert(pImageIndex->GetOutputPointer() != nullptr);
 
-        table->DestroySemaphore(device, preacquire_semaphore, nullptr);
-        table->DestroyFence(device, preacquire_fence, nullptr);
+            result = func(device, swapchain, timeout, semaphore, fence, pImageIndex->GetOutputPointer());
+        }
     }
     else
     {
-        assert(pImageIndex->GetOutputPointer() != nullptr);
+        // Track semphore and fence objects as shadow objects so that they can be ignored when they would have been
+        // unsignaled (waited on).
+        if (semaphore_info != nullptr)
+        {
+            semaphore_info->shadow_signaled = true;
+            shadow_semaphores_.insert(semaphore_info->handle);
+        }
 
-        result = func(device, swapchain, timeout, semaphore, fence, pImageIndex->GetOutputPointer());
+        if (fence_info != nullptr)
+        {
+            fence_info->shadow_signaled = true;
+            shadow_fences_.insert(fence_info->handle);
+        }
     }
 
     return result;
@@ -4038,49 +4285,82 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pAcquireInfo != nullptr) && !pAcquireInfo->IsNull() &&
-           (pImageIndex != nullptr) && (pImageIndex->GetPointer() != nullptr));
+    assert((pAcquireInfo != nullptr) && !pAcquireInfo->IsNull());
 
-    VkResult    result               = VK_SUCCESS;
-    VkDevice    device               = device_info->handle;
-    VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
-    VkFence     preacquire_fence     = VK_NULL_HANDLE;
-    auto        replay_acquire_info  = pAcquireInfo->GetPointer();
-    uint32_t    captured_index       = (*pImageIndex->GetPointer());
+    VkResult          result            = VK_SUCCESS;
+    auto              acquire_meta_info = pAcquireInfo->GetMetaStructPointer();
+    SwapchainKHRInfo* swapchain_info    = object_info_table_.GetSwapchainKHRInfo(acquire_meta_info->swapchain);
 
-    if (swapchain_image_tracker_.RetrievePreAcquiredImage(
-            replay_acquire_info->swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
+    // If image acquire failed at capture, there is nothing worth replaying as the fence and semaphore aren't processed
+    // and a successful acquire on replay of an image that does not have a corresponding present to replay can lead to
+    // OUT_OF_DATE errors.
+    if (original_result < 0)
     {
-        auto table = GetDeviceTable(device);
-        assert(table != nullptr);
+        result = original_result;
+    }
+    else if (swapchain_info->surface != VK_NULL_HANDLE)
+    {
+        assert((device_info != nullptr) && (pImageIndex != nullptr) && !pImageIndex->IsNull());
 
-        // The image has already been acquired. Swap the synchronization objects.
-        if (replay_acquire_info->semaphore != VK_NULL_HANDLE)
+        VkDevice    device               = device_info->handle;
+        VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
+        VkFence     preacquire_fence     = VK_NULL_HANDLE;
+        auto        replay_acquire_info  = pAcquireInfo->GetPointer();
+        uint32_t    captured_index       = (*pImageIndex->GetPointer());
+
+        if (swapchain_image_tracker_.RetrievePreAcquiredImage(
+                replay_acquire_info->swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
         {
-            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
-            // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
-            // after destroy.
-            object_info_table_.ReplaceSemaphore(replay_acquire_info->semaphore, preacquire_semaphore);
-            preacquire_semaphore = replay_acquire_info->semaphore;
-        }
+            auto table = GetDeviceTable(device);
+            assert(table != nullptr);
 
-        if (replay_acquire_info->fence != VK_NULL_HANDLE)
+            // The image has already been acquired. Swap the synchronization objects.
+            if (replay_acquire_info->semaphore != VK_NULL_HANDLE)
+            {
+                // TODO: This should be processed at a higher level where the original handle IDs are available, so that
+                // the swap can be performed with the original handle ID and the semaphore can be guaranteed not to be
+                // used after destroy.
+                object_info_table_.ReplaceSemaphore(replay_acquire_info->semaphore, preacquire_semaphore);
+                preacquire_semaphore = replay_acquire_info->semaphore;
+            }
+
+            if (replay_acquire_info->fence != VK_NULL_HANDLE)
+            {
+                // TODO: This should be processed at a higher level where the original handle IDs are available, so that
+                // the swap can be performed with the original handle ID and the fence can be guaranteed not to be used
+                // after destroy.
+                object_info_table_.ReplaceFence(replay_acquire_info->fence, preacquire_fence);
+                preacquire_fence = replay_acquire_info->fence;
+            }
+
+            table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+            table->DestroyFence(device, preacquire_fence, nullptr);
+        }
+        else
         {
-            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
-            // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
-            // after destroy.
-            object_info_table_.ReplaceFence(replay_acquire_info->fence, preacquire_fence);
-            preacquire_fence = replay_acquire_info->fence;
-        }
+            assert(pImageIndex->GetOutputPointer() != nullptr);
 
-        table->DestroySemaphore(device, preacquire_semaphore, nullptr);
-        table->DestroyFence(device, preacquire_fence, nullptr);
+            result = func(device, replay_acquire_info, pImageIndex->GetOutputPointer());
+        }
     }
     else
     {
-        assert(pImageIndex->GetOutputPointer() != nullptr);
+        // Track semphore and fence objects as shadow objects so that they can be ignored when they would have been
+        // unsignaled (waited on).
+        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(acquire_meta_info->semaphore);
+        FenceInfo*     fence_info     = object_info_table_.GetFenceInfo(acquire_meta_info->fence);
 
-        result = func(device, replay_acquire_info, pImageIndex->GetOutputPointer());
+        if (semaphore_info != nullptr)
+        {
+            semaphore_info->shadow_signaled = true;
+            shadow_semaphores_.insert(semaphore_info->handle);
+        }
+
+        if (fence_info != nullptr)
+        {
+            fence_info->shadow_signaled = true;
+            shadow_fences_.insert(fence_info->handle);
+        }
     }
 
     return result;
@@ -4092,10 +4372,27 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                   const QueueInfo*                                      queue_info,
                                                   const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
-    assert((queue_info != nullptr) && (pPresentInfo != nullptr));
+    assert((queue_info != nullptr) && (pPresentInfo != nullptr) && !pPresentInfo->IsNull());
 
-    VkResult                result       = VK_SUCCESS;
-    const VkPresentInfoKHR* present_info = pPresentInfo->GetPointer();
+    VkResult   result             = VK_SUCCESS;
+    const auto present_info       = pPresentInfo->GetPointer();
+    auto       present_info_data  = pPresentInfo->GetMetaStructPointer();
+    bool       dispatched_command = true;
+
+    // Make a shallow copy of the VkPresentInfoKHR structure and change pSwapchains to reference a copy of
+    // the original swapchain array with the dummy swapchains omitted.
+    VkPresentInfoKHR            modified_present_info = *present_info;
+    VkDeviceGroupPresentInfoKHR modified_device_group_present_info{ VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR };
+    VkPresentRegionsKHR         modified_present_region_info{ VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR };
+    VkPresentTimesInfoGOOGLE    modified_present_times_info{ VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE };
+
+    std::vector<VkSwapchainKHR>       valid_swapchains;
+    std::vector<uint32_t>             modified_image_indices;
+    std::vector<uint32_t>             modified_device_masks;
+    std::vector<VkPresentRegionKHR>   modified_regions;
+    std::vector<VkPresentTimeGOOGLE>  modified_times;
+    std::vector<const SemaphoreInfo*> removed_semaphores;
+    std::unordered_set<uint32_t>      removed_swapchain_indices;
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -4105,37 +4402,157 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         WriteScreenshots(meta_info);
     }
 
-    // Only attempt to find imported semaphores if we know at least one has been imported.
-    if (!have_imported_semaphores_ || (present_info == nullptr))
+    // If rendering is restricted to a specific surface, need to check for dummy swapchains at present.
+    if (options_.surface_index != -1)
     {
-        result = func(queue_info->handle, present_info);
+        const auto swapchain_ids = present_info_data->pSwapchains.GetPointer();
+        for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+        {
+            assert(swapchain_ids != nullptr);
+
+            const auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            if ((swapchain_info != nullptr) && (swapchain_info->surface != VK_NULL_HANDLE))
+            {
+                valid_swapchains.push_back(swapchain_info->handle);
+                modified_image_indices.push_back(present_info->pImageIndices[i]);
+            }
+            else
+            {
+                removed_swapchain_indices.insert(i);
+            }
+        }
+
+        // If a swapchain was removed, pNext stucts that reference the swapchain need to be modified as well.
+        if (removed_swapchain_indices.empty() == false)
+        {
+            const VkBaseInStructure* next = reinterpret_cast<const VkBaseInStructure*>(modified_present_info.pNext);
+            while (next != nullptr)
+            {
+                switch (next->sType)
+                {
+                    case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
+                    {
+                        const VkDeviceGroupPresentInfoKHR* pNext =
+                            reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(next);
+
+                        if (pNext->pDeviceMasks != nullptr)
+                        {
+                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+                            {
+                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                {
+                                    modified_device_masks.push_back(pNext->pDeviceMasks[i]);
+                                }
+                            }
+
+                            assert(valid_swapchains.size() == modified_device_masks.size());
+
+                            modified_device_group_present_info.pNext = pNext->pNext;
+                            modified_device_group_present_info.swapchainCount =
+                                static_cast<uint32_t>(modified_device_masks.size());
+                            modified_device_group_present_info.pDeviceMasks = modified_device_masks.data();
+                            modified_device_group_present_info.mode         = pNext->mode;
+                            pNext                                           = &modified_device_group_present_info;
+                        }
+                        break;
+                    }
+                    case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
+                    {
+                        const VkPresentRegionsKHR* pNext = reinterpret_cast<const VkPresentRegionsKHR*>(next);
+
+                        if (pNext->pRegions != nullptr)
+                        {
+                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+                            {
+                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                {
+                                    modified_regions.push_back(pNext->pRegions[i]);
+                                }
+                            }
+
+                            assert(valid_swapchains.size() == modified_regions.size());
+
+                            modified_present_region_info.pNext = pNext->pNext;
+                            modified_present_region_info.swapchainCount =
+                                static_cast<uint32_t>(modified_regions.size());
+                            modified_present_region_info.pRegions = modified_regions.data();
+                            pNext                                 = &modified_present_region_info;
+                        }
+                        break;
+                    }
+                    case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
+                    {
+                        const VkPresentTimesInfoGOOGLE* pNext = reinterpret_cast<const VkPresentTimesInfoGOOGLE*>(next);
+
+                        if (pNext->pTimes != nullptr)
+                        {
+                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+                            {
+                                if (removed_swapchain_indices.find(i) == removed_swapchain_indices.end())
+                                {
+                                    modified_times.push_back(pNext->pTimes[i]);
+                                }
+                            }
+
+                            assert(valid_swapchains.size() == modified_times.size());
+
+                            modified_present_times_info.pNext          = pNext->pNext;
+                            modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times.size());
+                            modified_present_times_info.pTimes         = modified_times.data();
+                            pNext                                      = &modified_present_times_info;
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                next = reinterpret_cast<const VkBaseInStructure*>(next->pNext);
+            }
+        }
+
+        modified_present_info.swapchainCount = static_cast<uint32_t>(valid_swapchains.size());
+        modified_present_info.pSwapchains    = valid_swapchains.data();
+        modified_present_info.pImageIndices  = modified_image_indices.data();
+    }
+
+    // Only attempt to find imported or shadow semaphores if we know at least one around.
+    if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
+    {
+        result = func(queue_info->handle, &modified_present_info);
+    }
+    else if (modified_present_info.swapchainCount == 0)
+    {
+        // No need to progress farther if there is no valid swapchain to present.
+        dispatched_command = false;
+
+        // Used to mark shadow semaphores as signaled in case acquireNextImage signals were supposed to be waited on
+        // here.
+        GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
     }
     else
     {
         // Check for imported semaphores in the present info, creating a vector of imported semaphore info structures.
-        std::vector<const SemaphoreInfo*> imported_semaphores;
-        auto                              present_info_data = pPresentInfo->GetMetaStructPointer();
         if (present_info_data != nullptr)
         {
-            GetImportedSemaphores(present_info_data->pWaitSemaphores, &imported_semaphores);
+            GetImportedSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
+            GetShadowSemaphores(present_info_data->pWaitSemaphores, &removed_semaphores);
         }
 
-        if (imported_semaphores.empty())
+        if (removed_semaphores.empty())
         {
-            result = func(queue_info->handle, present_info);
+            result = func(queue_info->handle, &modified_present_info);
         }
         else
         {
-            // Make a shallow copy of the VkPresentInfoKHR structure and change pWaitSemaphores to reference a copy of
-            // the original semaphore array with the imported semaphores omitted.
             std::vector<VkSemaphore> semaphore_memory;
-            auto                     semaphore_iter = imported_semaphores.begin();
+            auto                     semaphore_iter = removed_semaphores.begin();
 
-            for (uint32_t i = 0; i < present_info->waitSemaphoreCount; i++)
+            for (uint32_t i = 0; i < modified_present_info.waitSemaphoreCount; ++i)
             {
-                VkSemaphore semaphore = present_info->pWaitSemaphores[i];
+                VkSemaphore semaphore = modified_present_info.pWaitSemaphores[i];
 
-                if ((semaphore_iter == imported_semaphores.end()) || ((*semaphore_iter)->handle != semaphore))
+                if ((semaphore_iter == removed_semaphores.end()) || ((*semaphore_iter)->handle != semaphore))
                 {
                     semaphore_memory.push_back(semaphore);
                 }
@@ -4146,11 +4563,36 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 }
             }
 
-            VkPresentInfoKHR modified_present_info   = *present_info;
             modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(semaphore_memory.size());
             modified_present_info.pWaitSemaphores    = semaphore_memory.data();
 
             result = func(queue_info->handle, &modified_present_info);
+        }
+    }
+
+    // If running with surface-index on, need to track forward progress of semaphore that have been submitted
+    if (options_.surface_index != -1)
+    {
+        if (dispatched_command)
+        {
+            TrackSemaphoreForwardProgress(present_info_data->pWaitSemaphores, &removed_semaphores);
+        }
+        else
+        {
+            // Need to mark all wait semaphores as not in forward progress.
+            const format::HandleId* semaphore_ids = present_info_data->pWaitSemaphores.GetPointer();
+            if (semaphore_ids != nullptr)
+            {
+                size_t count = present_info_data->pWaitSemaphores.GetLength();
+                for (uint32_t i = 0; i < count; ++i)
+                {
+                    SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+                    if (semaphore_info)
+                    {
+                        semaphore_info->forward_progress = false;
+                    }
+                }
+            }
         }
     }
 
@@ -4543,6 +4985,164 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<
             }
         }
     }
+}
+
+void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                                                   std::vector<const SemaphoreInfo*>*       shadow_semaphores)
+{
+    assert(shadow_semaphores != nullptr);
+
+    const format::HandleId* semaphore_ids = semaphore_data.GetPointer();
+    if (semaphore_ids != nullptr)
+    {
+        size_t count = semaphore_data.GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if ((semaphore_info != nullptr) && (semaphore_info->shadow_signaled == true))
+            {
+                // If found, unsignal the semaphore to represent it being used.
+                shadow_semaphores->push_back(semaphore_info);
+                semaphore_info->shadow_signaled = false;
+                shadow_semaphores_.erase(semaphore_info->handle);
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::TrackSemaphoreForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                                                             std::vector<const SemaphoreInfo*>* removed_semaphores)
+{
+    assert(removed_semaphores != nullptr);
+
+    const format::HandleId* semaphore_ids = semaphore_data.GetPointer();
+    if (semaphore_ids != nullptr)
+    {
+        size_t count = semaphore_data.GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if (semaphore_info != nullptr)
+            {
+                VkSemaphore semaphore = semaphore_info->handle;
+                // Need to ignore if removed.
+                bool removed = false;
+                for (const SemaphoreInfo* remove_semaphore : *removed_semaphores)
+                {
+                    if (semaphore == remove_semaphore->handle)
+                    {
+                        removed                          = true;
+                        semaphore_info->forward_progress = false;
+                        break;
+                    }
+                }
+
+                // If not removed, mark as forward progress.
+                if (removed == false)
+                {
+                    semaphore_info->forward_progress = true;
+                }
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                                                     std::vector<const SemaphoreInfo*>* non_forward_progress_semaphores)
+{
+    assert(non_forward_progress_semaphores != nullptr);
+
+    const format::HandleId* semaphore_ids = semaphore_data.GetPointer();
+    if (semaphore_ids != nullptr)
+    {
+        size_t count = semaphore_data.GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if ((semaphore_info != nullptr) && (semaphore_info->forward_progress == false))
+            {
+                non_forward_progress_semaphores->push_back(semaphore_info);
+            }
+        }
+    }
+}
+
+VkResult VulkanReplayConsumerBase::CreateSwapchainImage(const DeviceInfo*        device_info,
+                                                        const VkImageCreateInfo* image_create_info,
+                                                        VkImage*                 image,
+                                                        format::HandleId         image_id,
+                                                        ImageInfo*               image_info)
+{
+    // TODO - Rename/repurpose CreateStagingImage to be more allow single place to create image resources.
+    VulkanResourceAllocator* allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    VulkanResourceAllocator::ResourceData allocator_image_data;
+    VkResult result = allocator->CreateImage(image_create_info, nullptr, image_id, image, &allocator_image_data);
+
+    if (result == VK_SUCCESS)
+    {
+        VkDeviceMemory                      memory                = VK_NULL_HANDLE;
+        VulkanResourceAllocator::MemoryData allocator_memory_data = 0;
+        VkMemoryRequirements                memory_reqs;
+
+        GetDeviceTable(device_info->handle)->GetImageMemoryRequirements(device_info->handle, *image, &memory_reqs);
+
+        // TODO - Move this and VulkanResourceInitializer::GetMemoryTypeIndex to common place
+        // Can be any flag
+        VkMemoryPropertyFlags property_flags    = VK_QUEUE_FLAG_BITS_MAX_ENUM;
+        uint32_t              memory_type_index = std::numeric_limits<uint32_t>::max();
+        {
+            // TODO - Probably useful to save memory properties as class variable
+            VkPhysicalDeviceMemoryProperties properties;
+            auto                             instance_table = GetInstanceTable(device_info->parent);
+            assert(instance_table != nullptr);
+            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &properties);
+
+            for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
+            {
+                if ((memory_reqs.memoryTypeBits & (1 << i)) &&
+                    ((properties.memoryTypes[i].propertyFlags & property_flags) != 0))
+                {
+                    memory_type_index = i;
+                    break;
+                }
+            }
+            assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+        }
+
+        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        alloc_info.pNext                = nullptr;
+        alloc_info.memoryTypeIndex      = memory_type_index;
+        alloc_info.allocationSize       = memory_reqs.size;
+
+        result =
+            allocator->AllocateMemory(&alloc_info, nullptr, format::kNullHandleId, &memory, &allocator_memory_data);
+
+        if (result == VK_SUCCESS)
+        {
+            VkMemoryPropertyFlags flags;
+            result = allocator->BindImageMemory(*image, memory, 0, allocator_image_data, allocator_memory_data, &flags);
+        }
+
+        if (result == VK_SUCCESS)
+        {
+            // Only need to save data that is used to delete image
+            // Normal swapchain images don't carry any consumer data
+            image_info->handle                = *image;
+            image_info->allocator_data        = allocator_image_data;
+            image_info->memory                = memory;
+            image_info->memory_allocator_data = allocator_memory_data;
+        }
+        else
+        {
+            allocator->DestroyImage(*image, nullptr, allocator_image_data);
+        }
+    }
+    return result;
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
