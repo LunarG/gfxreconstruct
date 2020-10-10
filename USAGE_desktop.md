@@ -334,7 +334,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [-m <mode> | --memory-translation <mode>] <file>
+                        [--surface-index <N>] [-m <mode> | --memory-translation <mode>]<file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -387,6 +387,9 @@ Optional arguments:
                         --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
                         Available platforms are: auto,win32,xlib,xcb,wayland
+  --surface-index <N>   Restrict rendering to the Nth surface object created.
+                        Used with captures that include multiple surfaces.  Default
+                        is -1 (render to all surfaces).
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's

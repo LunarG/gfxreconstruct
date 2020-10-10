@@ -644,8 +644,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const DeviceInfo*         device_info,
                                          const SwapchainKHRInfo*   swapchain_info,
                                          uint64_t                  timeout,
-                                         const SemaphoreInfo*      semaphore_info,
-                                         const FenceInfo*          fence_info,
+                                         SemaphoreInfo*            semaphore_info,
+                                         FenceInfo*                fence_info,
                                          PointerDecoder<uint32_t>* pImageIndex);
 
     VkResult OverrideAcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR func,
@@ -797,6 +797,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                std::vector<const SemaphoreInfo*>*       imported_semaphores);
 
+    void GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                             std::vector<const SemaphoreInfo*>*       shadow_semaphores);
+
+    void TrackSemaphoreForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                                       std::vector<const SemaphoreInfo*>*       removed_semaphores);
+
+    void GetNonForwardProgress(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                               std::vector<const SemaphoreInfo*>*       non_forward_progress_semaphores);
+
+    VkResult CreateSwapchainImage(const DeviceInfo*        device_info,
+                                  const VkImageCreateInfo* image_create_info,
+                                  VkImage*                 image,
+                                  format::HandleId         image_id,
+                                  ImageInfo*               image_info);
+
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
@@ -870,6 +885,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
     std::string                                                      screenshot_file_prefix_;
+    int32_t                                                          create_surface_count_;
+
+    // Used to track if any shadow sync objects are active to avoid checking if not needed
+    std::unordered_set<VkSemaphore> shadow_semaphores_;
+    std::unordered_set<VkFence>     shadow_fences_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

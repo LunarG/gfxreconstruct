@@ -458,6 +458,15 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     expr = '{} {} = '.format(value.fullType, argName)
                     expr += 'MapHandle<{type}Info>({}, &VulkanObjectInfoTable::Get{type}Info);'.format(value.name, type=value.baseType[2:])
                     preexpr.append(expr)
+
+                    # If surface was not created, need to automatically ignore for non-overrides queries
+                    # Swapchain also need to check if a dummy swapchain was created instead
+                    if value.name == "surface":
+                        expr = 'if ({} == VK_NULL_HANDLE) {{ return; }}'.format(argName)
+                        preexpr.append(expr)
+                    elif value.name == "swapchain":
+                        expr = 'if (GetObjectInfoTable().Get{}Info({})->surface == VK_NULL_HANDLE) {{ return; }}'.format(value.baseType[2:], value.name)
+                        preexpr.append(expr)
             elif self.isFunctionPtr(value.baseType):
                 # Function pointers are encoded as a 64-bit address value.
                 # TODO: Check for cases that need to be handled.
