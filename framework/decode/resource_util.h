@@ -25,8 +25,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(resource)
 
-void CopyImageSubresourceMemory(
-    uint8_t* dst, const uint8_t* src, size_t offset, size_t size, size_t dst_row_pitch, size_t src_row_pitch);
+void CopyImageSubresourceMemory(uint8_t*       dst,
+                                const uint8_t* src,
+                                size_t         offset,
+                                size_t         size,
+                                size_t         dst_row_pitch,
+                                size_t         src_row_pitch,
+                                uint32_t       height);
 
 GFXRECON_END_NAMESPACE(resource)
 GFXRECON_END_NAMESPACE(decode)

@@ -233,6 +233,7 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
             auto resource_alloc_info      = new ResourceAllocInfo;
             resource_alloc_info->usage    = create_info->usage;
             resource_alloc_info->tiling   = create_info->tiling;
+            resource_alloc_info->height   = create_info->extent.height;
             resource_alloc_info->is_image = true;
             (*allocator_data)             = reinterpret_cast<uintptr_t>(resource_alloc_info);
 
@@ -915,7 +916,8 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
                                                              copy_dst_offset,
                                                              copy_size,
                                                              rebind_row_pitch,
-                                                             original_row_pitch);
+                                                             original_row_pitch,
+                                                             resource_alloc_info->height);
                     }
                     else
                     {
