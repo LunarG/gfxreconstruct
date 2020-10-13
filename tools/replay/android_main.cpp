@@ -49,7 +49,6 @@ std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
 void        DestroyActivity(struct android_app* app);
-void        KillPackage(struct android_app* app);
 
 void android_main(struct android_app* app)
 {
@@ -150,7 +149,7 @@ void android_main(struct android_app* app)
     gfxrecon::util::Log::Release();
 
     DestroyActivity(app);
-    KillPackage(app);
+    raise(SIGTERM);
 }
 
 // Retrieve the program argument string from the intent extras
@@ -330,75 +329,6 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     }
 
     return 0;
-}
-
-// This "kills" the package using the Java API in order for the app to clear after each run
-void KillPackage(struct android_app* app)
-{
-    if (app == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "android_app is null and not available");
-    }
-    if (app->activity == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "android_app->activity is null and not available");
-    }
-
-    // First get instance of the JavaVM app is running in
-    JavaVM* jni_vm = app->activity->vm;
-    if (jni_vm == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "android_app->activity->vm is null and not available");
-    }
-
-    JNIEnv* env = nullptr;
-    if (jni_vm->AttachCurrentThread(&env, nullptr) != JNI_OK)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "JavaVM can't attach current thread to JNIEnv");
-    }
-
-    jobject jni_activity = app->activity->clazz;
-
-    // Get the context class which contains the activity service name
-    jclass   context                   = env->FindClass("android/content/Context");
-    jfieldID activity_service_field_id = env->GetStaticFieldID(context, "ACTIVITY_SERVICE", "Ljava/lang/String;");
-    jobject  activity_service_name     = env->GetStaticObjectField(context, activity_service_field_id);
-    if (activity_service_name == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "Failed to fetch ACTIVITY_SERVICE from Context class");
-    }
-
-    // Call the getSystemService method to obtain the activity manager object
-    jclass    activity_class = env->FindClass("android/app/Activity");
-    jmethodID get_system_service_method =
-        env->GetMethodID(activity_class, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-    jobject activity_manager = env->CallObjectMethod(jni_activity, get_system_service_method, activity_service_name);
-    if (activity_manager == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the activity manager class");
-    }
-
-    // Get the application class and get our process name
-    jclass    application_class = env->FindClass("android/app/Application");
-    jmethodID get_process_name_method =
-        env->GetStaticMethodID(application_class, "getProcessName", "()Ljava/lang/String;");
-    jstring process_name =
-        static_cast<jstring>(env->CallStaticObjectMethod(application_class, get_process_name_method));
-    if (process_name == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the application process name");
-    }
-
-    // Get the killBackgroundProcesses method and end the gfxrecon process
-    jclass    activity_manager_class = env->FindClass("android/app/ActivityManager");
-    jmethodID kill_background_processes_method =
-        env->GetMethodID(activity_manager_class, "killBackgroundProcesses", "(Ljava/lang/String;)V");
-    if (kill_background_processes_method == nullptr)
-    {
-        __android_log_assert(nullptr, "gfxrecon", "Failed to obtain the activity manager killBackgroundProcess method");
-    }
-
-    env->CallVoidMethod(activity_manager, kill_background_processes_method, process_name);
 }
 
 void DestroyActivity(struct android_app* app)
