@@ -178,6 +178,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         bool             is_image{ false };
         VkFlags          usage{ 0 };
         VkImageTiling    tiling{};
+        uint32_t         height{ 0 };
         bool             uses_extensions{ false };
 
         // Image layouts for performing mapped memory writes to linear images with different capture/replay memory

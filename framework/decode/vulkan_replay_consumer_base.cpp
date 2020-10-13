@@ -244,29 +244,24 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
             {
                 assert(buffer_data != nullptr);
 
-                if (buffer_info.compatible_strides)
-                {
-                    // Copy entire range without adjustment.
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-                    size_t copy_size = static_cast<size_t>(size);
-                    util::platform::MemoryCopy(static_cast<uint8_t*>(buffer_data) + offset, copy_size, data, copy_size);
-                }
-                else if (buffer_info.plane_info.size() == 1)
+                if (buffer_info.plane_info.size() == 1)
                 {
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
 
-                    size_t data_size         = static_cast<size_t>(size);
-                    size_t data_offset       = static_cast<size_t>(offset);
-                    size_t capture_row_pitch = buffer_info.plane_info[0].capture_row_pitch;
-                    size_t replay_row_pitch  = buffer_info.plane_info[0].replay_row_pitch;
+                    size_t   data_size         = static_cast<size_t>(size);
+                    size_t   data_offset       = static_cast<size_t>(offset);
+                    size_t   capture_row_pitch = buffer_info.plane_info[0].capture_row_pitch;
+                    size_t   replay_row_pitch  = buffer_info.plane_info[0].replay_row_pitch;
+                    uint32_t height            = buffer_info.plane_info[0].height;
 
                     resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),
                                                          data,
                                                          data_offset,
                                                          data_size,
+                                                         replay_row_pitch,
                                                          capture_row_pitch,
-                                                         capture_row_pitch);
+                                                         height);
                 }
                 else
                 {
@@ -453,6 +448,7 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
                 memory_info.plane_info[0].replay_offset     = 0;
                 memory_info.plane_info[0].capture_row_pitch = bpp * stride;
                 memory_info.plane_info[0].replay_row_pitch  = bpp * desc.stride;
+                memory_info.plane_info[0].height            = height;
             }
             else
             {
@@ -468,6 +464,7 @@ void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
                     memory_info.plane_info[i].replay_offset     = replay_plane_info[i].offset;
                     memory_info.plane_info[i].capture_row_pitch = plane_info[i].row_pitch;
                     memory_info.plane_info[i].replay_row_pitch  = replay_plane_info[i].row_pitch;
+                    memory_info.plane_info[i].height            = height;
 
                     if ((plane_info[i].offset != replay_plane_info[i].offset) ||
                         (plane_info[i].row_pitch != replay_plane_info[i].row_pitch))

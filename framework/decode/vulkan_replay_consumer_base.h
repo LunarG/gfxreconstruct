@@ -853,6 +853,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         uint64_t replay_offset;
         uint32_t capture_row_pitch;
         uint32_t replay_row_pitch;
+        uint32_t height;
     };
 
     struct HardwareBufferMemoryInfo
