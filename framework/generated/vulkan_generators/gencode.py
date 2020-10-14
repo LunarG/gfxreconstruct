@@ -38,6 +38,7 @@ from vulkan_referenced_resource_consumer_header_generator import VulkanReference
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator,VulkanReferencedResourceBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator,VulkanStructHandleMappersHeaderGeneratorOptions
 from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator,VulkanStructHandleMappersBodyGeneratorOptions
+from vulkan_feature_util_body_generator import VulkanFeatureUtilBodyGenerator,VulkanFeatureUtilBodyGeneratorOptions
 
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
@@ -315,6 +316,17 @@ def makeGenOpts(args):
             protectFile       = False,
             protectFeature    = False)
         ]
+
+    genOpts['generated_vulkan_feature_util.cpp'] = [
+        VulkanFeatureUtilBodyGenerator,
+        VulkanFeatureUtilBodyGeneratorOptions(
+        filename          = 'generated_vulkan_feature_util.cpp',
+        directory         = directory,
+        platformTypes     = platformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = False)
+    ]
 
     #
     # API call encoder generators
