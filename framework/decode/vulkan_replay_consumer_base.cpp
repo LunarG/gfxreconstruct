@@ -21,6 +21,7 @@
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
+#include "decode/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
@@ -2238,6 +2239,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     {
         if (replay_create_info->ppEnabledExtensionNames)
         {
+            // Swap the surface extension supported by platform the replay is running on if different from trace
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
                 const char* current_extension = replay_create_info->ppEnabledExtensionNames[i];
@@ -2248,6 +2250,21 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 else
                 {
                     filtered_extensions.push_back(current_extension);
+                }
+            }
+
+            if (options_.remove_unsupported_features)
+            {
+                // Remove enabled extensions that are not available from the replay instance.
+                // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are
+                // needed in the replay application.
+                PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
+                    reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+                        get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
+                std::vector<VkExtensionProperties> properties;
+                if (feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
+                {
+                    feature_util::RemoveUnsupportedExtensions(properties, &filtered_extensions);
                 }
             }
         }
@@ -2318,49 +2335,52 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     {
         auto replay_create_info = pCreateInfo->GetPointer();
         auto replay_device      = pDevice->GetHandlePointer();
+        assert(replay_create_info != nullptr);
+        VkDeviceCreateInfo modified_create_info = (*replay_create_info);
 
+        // Make copy so list can be modified without effecting original.
+        std::vector<const char*> modified_extensions;
+        if (replay_create_info->ppEnabledExtensionNames)
+        {
+            modified_extensions.insert(
+                modified_extensions.begin(),
+                replay_create_info->ppEnabledExtensionNames,
+                std::next(replay_create_info->ppEnabledExtensionNames, replay_create_info->enabledExtensionCount));
+        }
+
+        // Enable extensions used for loading resources during initial state setup for trimmed files.
         std::vector<std::string> extensions;
         if (loading_trim_state_ && CheckTrimDeviceExtensions(physical_device, &extensions))
         {
-            std::vector<const char*> modified_extensions;
-            VkDeviceCreateInfo       modified_create_info{};
-
-            if (replay_create_info != nullptr)
+            for (const auto& extension : extensions)
             {
-                if (replay_create_info->ppEnabledExtensionNames)
+                if (std::find(modified_extensions.begin(), modified_extensions.end(), extension) ==
+                    modified_extensions.end())
                 {
-                    modified_extensions.insert(
-                        modified_extensions.begin(),
-                        replay_create_info->ppEnabledExtensionNames,
-                        (replay_create_info->ppEnabledExtensionNames + replay_create_info->enabledExtensionCount));
+                    modified_extensions.push_back(extension.c_str());
                 }
-
-                for (const auto& extension : extensions)
-                {
-                    if (std::find(modified_extensions.begin(), modified_extensions.end(), extension) ==
-                        modified_extensions.end())
-                    {
-                        modified_extensions.push_back(extension.c_str());
-                    }
-                }
-
-                modified_create_info                         = (*replay_create_info);
-                modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
-                modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
             }
-            else
-            {
-                GFXRECON_LOG_WARNING("The vkCreateDevice parameter pCreateInfo is NULL.");
-            }
-
-            result = create_device_proc(
-                physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
         }
-        else
+
+        if (options_.remove_unsupported_features && (physical_device != VK_NULL_HANDLE))
         {
-            result = create_device_proc(
-                physical_device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_device);
+            // Remove enabled extensions that are not available from the replay device.
+            auto table = GetInstanceTable(physical_device);
+            assert(table != nullptr);
+
+            std::vector<VkExtensionProperties> properties;
+            if (feature_util::GetDeviceExtensions(
+                    physical_device, table->EnumerateDeviceExtensionProperties, &properties) == VK_SUCCESS)
+            {
+                feature_util::RemoveUnsupportedExtensions(properties, &modified_extensions);
+            }
         }
+
+        modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+        modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
+
+        result = create_device_proc(
+            physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
 
         if ((replay_device != nullptr) && (result == VK_SUCCESS))
         {
