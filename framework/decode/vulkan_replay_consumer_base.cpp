@@ -2377,6 +2377,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             {
                 feature_util::RemoveUnsupportedExtensions(properties, &modified_extensions);
             }
+
+            // Remove enabled features that are not available from the replay device.
+            feature_util::RemoveUnsupportedFeatures(physical_device,
+                                                    table->GetPhysicalDeviceFeatures,
+                                                    table->GetPhysicalDeviceFeatures2,
+                                                    modified_create_info.pNext,
+                                                    modified_create_info.pEnabledFeatures);
         }
 
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
