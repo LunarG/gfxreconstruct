@@ -59,6 +59,7 @@ const char kSurfaceIndexArgument[]             = "--surface-index";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kSyncOption[]                       = "--sync";
+const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kScreenshotAllOption[]              = "--screenshot-all";
 const char kScreenshotRangeArgument[]          = "--screenshots";
@@ -67,7 +68,7 @@ const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-                        "opcd|--omit-pipeline-cache-data,--screenshot-all";
+                        "opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all";
 const char kArguments[] =
     "--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--replace-shaders,--screenshots,--"
     "screenshot-format,--screenshot-dir,--screenshot-prefix";
@@ -507,6 +508,11 @@ GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
         replay_options.sync_queue_submissions = true;
     }
 
+    if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
+    {
+        replay_options.remove_unsupported_features = true;
+    }
+
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
         arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
     {
@@ -580,11 +586,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [-m <mode> | --memory-translation <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [--remove-unsupported]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
 #if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
-#endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
+#else
     GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
+#endif
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
@@ -640,6 +648,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                  \tUsed with captures that include multiple surfaces.  Default");
     GFXRECON_WRITE_CONSOLE("                  \tis -1 (render to all surfaces).");
     GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
+    GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
+    GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

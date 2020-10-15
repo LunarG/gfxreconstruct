@@ -334,7 +334,9 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--surface-index <N>] [-m <mode> | --memory-translation <mode>]<file>
+                        [--surface-index <N>] [--remove-unsupported]
+                        [-m <mode> | --memory-translation <mode>]
+                        <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -391,6 +393,8 @@ Optional arguments:
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
+  --remove-unsupported  Remove unsupported extensions and features from instance
+                        and device creation parameters.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
