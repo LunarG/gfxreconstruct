@@ -175,7 +175,6 @@ typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
 typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
-typedef VulkanPoolInfo<VkDescriptorPool>                  DescriptorPoolInfo;
 typedef VulkanPoolObjectInfo<VkDescriptorSet>             DescriptorSetInfo;
 typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
 typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
@@ -317,6 +316,15 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
+{
+    VkDescriptorPoolCreateFlags       flags{};
+    uint32_t                          max_sets{ 0 };
+    uint32_t                          max_inline_uniform_block_bindings{ 0 }; // For VK_EXT_inline_uniform_block.
+    std::vector<VkDescriptorPoolSize> pool_sizes;
+    std::vector<VkDescriptorPool>     retired_pools;
 };
 
 struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdateTemplate>

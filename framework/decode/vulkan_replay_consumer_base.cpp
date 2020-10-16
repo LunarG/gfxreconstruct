@@ -2989,6 +2989,154 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorPool(
+    PFN_vkCreateDescriptorPool                                      func,
+    VkResult                                                        original_result,
+    const DeviceInfo*                                               device_info,
+    const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+    HandlePointerDecoder<VkDescriptorPool>*                         pDescriptorPool)
+{
+    assert((pCreateInfo != nullptr) && !pCreateInfo->IsNull() && (pDescriptorPool != nullptr) &&
+           !pDescriptorPool->IsNull());
+
+    auto       replay_pool = pDescriptorPool->GetHandlePointer();
+    const auto create_info = pCreateInfo->GetPointer();
+
+    VkResult result = func(device_info->handle, create_info, GetAllocationCallbacks(pAllocator), replay_pool);
+
+    if (result >= 0)
+    {
+        // Due to capture and replay differences, it is possible for descriptor set allocation to fail with the
+        // descriptor pool running out of memory.  To handle this case, replay will store the pool creation info so that
+        // it can attempt to recover from an out of pool memory event by creating a new pool with the same properties.
+        auto pool_info = reinterpret_cast<DescriptorPoolInfo*>(pDescriptorPool->GetConsumerData(0));
+        assert(pool_info != nullptr);
+
+        pool_info->flags    = create_info->flags;
+        pool_info->max_sets = create_info->maxSets;
+
+        for (uint32_t i = 0; i < create_info->poolSizeCount; i++)
+        {
+            pool_info->pool_sizes.push_back(create_info->pPoolSizes[i]);
+        }
+
+        // 'Out' struct for non-const pNext pointers.
+        if (create_info->pNext != nullptr)
+        {
+            auto meta_info = pCreateInfo->GetMetaStructPointer();
+            auto pnext     = reinterpret_cast<VkBaseOutStructure*>(meta_info->pNext->GetPointer());
+            while (pnext != nullptr)
+            {
+                if (pnext->sType == VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT)
+                {
+                    auto inline_uniform_block_info =
+                        reinterpret_cast<VkDescriptorPoolInlineUniformBlockCreateInfoEXT*>(pnext);
+                    pool_info->max_inline_uniform_block_bindings =
+                        inline_uniform_block_info->maxInlineUniformBlockBindings;
+                    break;
+                }
+                pnext = pnext->pNext;
+            }
+        }
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyDescriptorPool(
+    PFN_vkDestroyDescriptorPool                                func,
+    const DeviceInfo*                                          device_info,
+    DescriptorPoolInfo*                                        descriptor_pool_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    assert((device_info != nullptr) && (descriptor_pool_info != nullptr));
+
+    // If descriptor allocation ran out of pool memory one or more times, there will be one or more descriptor pools
+    // that need to be destroyed.
+    for (auto retired_pool : descriptor_pool_info->retired_pools)
+    {
+        func(device_info->handle, retired_pool, GetAllocationCallbacks(pAllocator));
+    }
+
+    func(device_info->handle, descriptor_pool_info->handle, GetAllocationCallbacks(pAllocator));
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
+    PFN_vkAllocateDescriptorSets                                     func,
+    VkResult                                                         original_result,
+    const DeviceInfo*                                                device_info,
+    const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
+    HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets)
+{
+    assert((device_info != nullptr) && (pAllocateInfo != nullptr) && (pDescriptorSets != nullptr) &&
+           (pDescriptorSets->GetHandlePointer() != nullptr));
+
+    VkResult result = original_result;
+
+    if ((original_result >= 0) || !options_.skip_failed_allocations)
+    {
+        result = func(device_info->handle, pAllocateInfo->GetPointer(), pDescriptorSets->GetHandlePointer());
+
+        if ((original_result >= 0) && (result == VK_ERROR_OUT_OF_POOL_MEMORY))
+        {
+            // Handle case where replay runs out of descriptor pool memory when capture did not by creating a new
+            // descriptor pool and attempting the allocation a second time.
+            VkDescriptorPool new_pool  = VK_NULL_HANDLE;
+            auto             meta_info = pAllocateInfo->GetMetaStructPointer();
+            auto             pool_info = object_info_table_.GetDescriptorPoolInfo(meta_info->descriptorPool);
+
+            VkDescriptorPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+            create_info.pNext                      = nullptr;
+            create_info.maxSets                    = pool_info->max_sets;
+            create_info.poolSizeCount              = static_cast<uint32_t>(pool_info->pool_sizes.size());
+            create_info.pPoolSizes                 = pool_info->pool_sizes.data();
+
+            VkDescriptorPoolInlineUniformBlockCreateInfoEXT inline_uniform_block = {
+                VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT,
+                nullptr,
+                pool_info->max_inline_uniform_block_bindings
+            };
+
+            if (pool_info->max_inline_uniform_block_bindings != 0)
+            {
+                create_info.pNext = &inline_uniform_block;
+            }
+
+            result = GetDeviceTable(device_info->handle)
+                         ->CreateDescriptorPool(device_info->handle, &create_info, nullptr, &new_pool);
+
+            if (result == VK_SUCCESS)
+            {
+                GFXRECON_LOG_INFO(
+                    "A new VkDescriptorPool object (handle = 0x%" PRIx64
+                    ") has been created to replace a VkDescriptorPool object (ID = %" PRIu64 ", handle = 0x%" PRIx64
+                    ") that has run our of pool memory (vkAllocateDescriptorSets returned VK_ERROR_OUT_OF_POOL_MEMORY)",
+                    new_pool,
+                    pool_info->capture_id,
+                    pool_info->handle);
+
+                // Retire old pool and swap it with the new pool.
+                pool_info->retired_pools.push_back(pool_info->handle);
+                pool_info->handle = new_pool;
+
+                // Retry descriptor set allocation.
+                VkDescriptorSetAllocateInfo modified_allocate_info = (*pAllocateInfo->GetPointer());
+                modified_allocate_info.descriptorPool              = new_pool;
+
+                result = func(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("Skipping vkAllocateDescriptorSets call that failed during capture with error %s",
+                          enumutil::GetResultValueString(original_result));
+    }
+
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     PFN_vkAllocateCommandBuffers                                     func,
     VkResult                                                         original_result,
@@ -3008,31 +3156,6 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     else
     {
         GFXRECON_LOG_INFO("Skipping vkAllocateCommandBuffers call that failed during capture with error %s",
-                          enumutil::GetResultValueString(original_result));
-    }
-
-    return result;
-}
-
-VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
-    PFN_vkAllocateDescriptorSets                                     func,
-    VkResult                                                         original_result,
-    const DeviceInfo*                                                device_info,
-    const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets)
-{
-    assert((device_info != nullptr) && (pAllocateInfo != nullptr) && (pDescriptorSets != nullptr) &&
-           (pDescriptorSets->GetHandlePointer() != nullptr));
-
-    VkResult result = original_result;
-
-    if ((original_result >= 0) || !options_.skip_failed_allocations)
-    {
-        result = func(device_info->handle, pAllocateInfo->GetPointer(), pDescriptorSets->GetHandlePointer());
-    }
-    else
-    {
-        GFXRECON_LOG_INFO("Skipping vkAllocateDescriptorSets call that failed during capture with error %s",
                           enumutil::GetResultValueString(original_result));
     }
 
