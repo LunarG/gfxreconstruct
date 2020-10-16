@@ -423,21 +423,6 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                 ->DestroyDescriptorUpdateTemplate(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, DescriptorPoolInfo>(
-        table,
-        GFXRECON_STR(VkDevice),
-        GFXRECON_STR(VkDescriptorPool),
-        remove_entries,
-        report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDescriptorPoolInfo,
-        &VulkanObjectInfoTable::RemoveDescriptorPoolInfo,
-        [&](const DeviceInfo* parent_info, const DescriptorPoolInfo* object_info) {
-            assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)
-                ->DestroyDescriptorPool(parent_info->handle, object_info->handle, nullptr);
-        });
-
     FreeChildObjects<DeviceInfo, CommandPoolInfo>(
         table,
         GFXRECON_STR(VkDevice),
@@ -586,6 +571,30 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_instance_table(parent_info->handle)
                 ->DestroyDebugUtilsMessengerEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
+    // VKDescriptorPool objects have a special destroy function to destroy any retired descriptor pool objects that ran
+    // out of memory during replay.
+    FreeChildObjects<DeviceInfo, DescriptorPoolInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkDescriptorPool),
+        remove_entries,
+        report_leaks,
+        &VulkanObjectInfoTable::GetDeviceInfo,
+        &VulkanObjectInfoTable::VisitDescriptorPoolInfo,
+        &VulkanObjectInfoTable::RemoveDescriptorPoolInfo,
+        [&](const DeviceInfo* parent_info, const DescriptorPoolInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+
+            for (auto retired_pool : object_info->retired_pools)
+            {
+                get_device_table(parent_info->handle)
+                    ->DestroyDescriptorPool(parent_info->handle, retired_pool, nullptr);
+            }
+
+            get_device_table(parent_info->handle)
+                ->DestroyDescriptorPool(parent_info->handle, object_info->handle, nullptr);
         });
 
     // VkSwapchainKHR objects have a special destroy function to ignore the object when it has a null surface handle.

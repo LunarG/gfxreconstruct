@@ -458,12 +458,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
                                      const FenceInfo*                                      fence_info);
 
-    VkResult
-    OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
-                                   VkResult                                                         original_result,
-                                   const DeviceInfo*                                                device_info,
-                                   const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
-                                   HandlePointerDecoder<VkCommandBuffer>*                           pCommandBuffers);
+    VkResult OverrideCreateDescriptorPool(PFN_vkCreateDescriptorPool func,
+                                          VkResult                   original_result,
+                                          const DeviceInfo*          device_info,
+                                          const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
+                                          const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                          HandlePointerDecoder<VkDescriptorPool>* pDescriptorPool);
+
+    void OverrideDestroyDescriptorPool(PFN_vkDestroyDescriptorPool                                func,
+                                       const DeviceInfo*                                          device_info,
+                                       DescriptorPoolInfo*                                        descriptor_pool_info,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     VkResult
     OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets                                     func,
@@ -471,6 +476,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const DeviceInfo*                                                device_info,
                                    const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                    HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets);
+
+    VkResult
+    OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
+                                   VkResult                                                         original_result,
+                                   const DeviceInfo*                                                device_info,
+                                   const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
+                                   HandlePointerDecoder<VkCommandBuffer>*                           pCommandBuffers);
 
     VkResult OverrideAllocateMemory(PFN_vkAllocateMemory                                       func,
                                     VkResult                                                   original_result,
