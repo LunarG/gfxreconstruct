@@ -210,6 +210,7 @@ struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
     VkInstance                           parent{ VK_NULL_HANDLE };
     uint32_t                             parent_api_version{ 0 };
+    std::unordered_set<uint32_t>         depth_stencil_formats;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture device properties.
@@ -230,6 +231,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 {
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
     std::unique_ptr<VulkanResourceAllocator> allocator;
+    std::unordered_set<uint32_t>*            depth_stencil_formats{ nullptr };
     std::unordered_map<uint32_t, size_t>     array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.

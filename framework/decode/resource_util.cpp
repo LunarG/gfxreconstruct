@@ -16,9 +16,11 @@
 
 #include "decode/resource_util.h"
 
+#include "util/logging.h"
 #include "util/platform.h"
 
 #include <algorithm>
+#include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -112,6 +114,105 @@ void CopyImageSubresourceMemory(uint8_t*       dst,
             }
         }
     }
+}
+
+bool IsDepthFormat(VkFormat format)
+{
+    switch (format)
+    {
+        case VK_FORMAT_D16_UNORM:
+        case VK_FORMAT_X8_D24_UNORM_PACK32:
+        case VK_FORMAT_D32_SFLOAT:
+        case VK_FORMAT_D16_UNORM_S8_UINT:
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return true;
+    }
+
+    return false;
+}
+
+void GetSupportedDepthStencilFormats(VkPhysicalDevice                        physical_device,
+                                     PFN_vkGetPhysicalDeviceFormatProperties get_format_properties_proc,
+                                     std::unordered_set<uint32_t>*           supported_formats)
+{
+    assert((get_format_properties_proc != nullptr) && (supported_formats != nullptr));
+
+    if ((get_format_properties_proc != nullptr) && (supported_formats != nullptr))
+    {
+        VkFormatProperties properties;
+
+        // Only care about optimal tiling for depth stencil formats
+        get_format_properties_proc(physical_device, VK_FORMAT_X8_D24_UNORM_PACK32, &properties);
+        if ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0)
+        {
+            supported_formats->insert(VK_FORMAT_X8_D24_UNORM_PACK32);
+        }
+
+        get_format_properties_proc(physical_device, VK_FORMAT_D32_SFLOAT, &properties);
+        if ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0)
+        {
+            supported_formats->insert(VK_FORMAT_D32_SFLOAT);
+        }
+
+        get_format_properties_proc(physical_device, VK_FORMAT_D24_UNORM_S8_UINT, &properties);
+        if ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0)
+        {
+            supported_formats->insert(VK_FORMAT_D24_UNORM_S8_UINT);
+        }
+
+        get_format_properties_proc(physical_device, VK_FORMAT_D32_SFLOAT_S8_UINT, &properties);
+        if ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0)
+        {
+            supported_formats->insert(VK_FORMAT_D32_SFLOAT_S8_UINT);
+        }
+    }
+}
+
+VkFormat GetClosestDepthStencilFormat(VkFormat desired_format, const std::unordered_set<uint32_t>& supported_formats)
+{
+    // If format is not checked below then return original format
+    VkFormat valid_format = desired_format;
+
+    if ((desired_format == VK_FORMAT_X8_D24_UNORM_PACK32) &&
+        (supported_formats.find(VK_FORMAT_X8_D24_UNORM_PACK32) == supported_formats.end()))
+    {
+        valid_format = VK_FORMAT_D16_UNORM;
+    }
+    else if ((desired_format == VK_FORMAT_D32_SFLOAT) &&
+             (supported_formats.find(VK_FORMAT_D32_SFLOAT) == supported_formats.end()))
+    {
+        if (supported_formats.find(VK_FORMAT_D32_SFLOAT_S8_UINT) == supported_formats.end())
+        {
+            GFXRECON_LOG_FATAL("There is no VK_FORMAT_D32_SFLOAT_S8_UINT format support on replay device to support "
+                               "the VK_FORMAT_D32_SFLOAT");
+        }
+        valid_format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+    }
+    else if ((desired_format == VK_FORMAT_D32_SFLOAT_S8_UINT) &&
+             (supported_formats.find(VK_FORMAT_D32_SFLOAT_S8_UINT) == supported_formats.end()))
+    {
+        // TODO - Will take a lot more work to handle seperating the depth from the stencil
+        GFXRECON_LOG_FATAL("There is no support on replay device to support the VK_FORMAT_D32_SFLOAT_S8_UINT");
+    }
+    else if ((desired_format == VK_FORMAT_D24_UNORM_S8_UINT) &&
+             (supported_formats.find(VK_FORMAT_D24_UNORM_S8_UINT) == supported_formats.end()))
+    {
+        valid_format = VK_FORMAT_D16_UNORM_S8_UINT;
+    }
+
+    // To reduce log spamming, only report once the warning that formats are not supported.
+    static bool report_warning = false;
+    if ((report_warning == false) && (valid_format != desired_format))
+    {
+        report_warning = true;
+        GFXRECON_LOG_WARNING("Some format (such as %d) are not supported on replay device and alternative formats "
+                             "(such as %d) are being used and there is a chance of functional artifacts",
+                             desired_format,
+                             valid_format);
+    }
+
+    return valid_format;
 }
 
 GFXRECON_END_NAMESPACE(resource)

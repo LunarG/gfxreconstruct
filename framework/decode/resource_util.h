@@ -19,7 +19,10 @@
 
 #include "util/defines.h"
 
+#include "vulkan/vulkan.h"
+
 #include <cstddef>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -32,6 +35,14 @@ void CopyImageSubresourceMemory(uint8_t*       dst,
                                 size_t         dst_row_pitch,
                                 size_t         src_row_pitch,
                                 uint32_t       height);
+
+bool IsDepthFormat(VkFormat format);
+
+void GetSupportedDepthStencilFormats(VkPhysicalDevice                        physical_device,
+                                     PFN_vkGetPhysicalDeviceFormatProperties get_format_properties_proc,
+                                     std::unordered_set<uint32_t>*           supported_formats);
+
+VkFormat GetClosestDepthStencilFormat(VkFormat desired_format, const std::unordered_set<uint32_t>& supported_formats);
 
 GFXRECON_END_NAMESPACE(resource)
 GFXRECON_END_NAMESPACE(decode)

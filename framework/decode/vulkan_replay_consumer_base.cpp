@@ -2389,7 +2389,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
         result = create_device_proc(
             physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
 
-        if ((replay_device != nullptr) && (result == VK_SUCCESS))
+        if ((replay_device != nullptr) && (replay_create_info != nullptr) && (result == VK_SUCCESS))
         {
             AddDeviceTable(*replay_device, get_device_proc_addr);
 
@@ -2420,7 +2420,19 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                             replay_create_info->enabledExtensionCount);
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
-            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+            // Set format support if not added yet for physical device.
+            if (physical_device_info->depth_stencil_formats.empty())
+            {
+                auto table = GetInstanceTable(physical_device);
+                assert(table != nullptr);
+
+                resource::GetSupportedDepthStencilFormats(physical_device,
+                                                          table->GetPhysicalDeviceFormatProperties,
+                                                          &physical_device_info->depth_stencil_formats);
+            }
+
+            device_info->allocator             = std::unique_ptr<VulkanResourceAllocator>(allocator);
+            device_info->depth_stencil_formats = &physical_device_info->depth_stencil_formats;
         }
     }
 
@@ -3675,31 +3687,39 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
 
+    VkImageCreateInfo modified_create_info = *(pCreateInfo->GetPointer());
+
+    if ((original_result >= 0) && (device_info->depth_stencil_formats != nullptr) &&
+        resource::IsDepthFormat(modified_create_info.format))
+    {
+        // Make sure that a supported depth-stencil format is used for image creation.
+        modified_create_info.format =
+            resource::GetClosestDepthStencilFormat(modified_create_info.format, *device_info->depth_stencil_formats);
+    }
+
     VkResult result = allocator->CreateImage(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
+        &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
-    auto replay_create_info = pCreateInfo->GetPointer();
-
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
+    if ((result == VK_SUCCESS) && ((*replay_image) != VK_NULL_HANDLE))
     {
         auto image_info = reinterpret_cast<ImageInfo*>(pImage->GetConsumerData(0));
         assert(image_info != nullptr);
 
         image_info->allocator_data = allocator_data;
-        image_info->usage          = replay_create_info->usage;
-        image_info->type           = replay_create_info->imageType;
-        image_info->format         = replay_create_info->format;
-        image_info->extent         = replay_create_info->extent;
-        image_info->tiling         = replay_create_info->tiling;
-        image_info->sample_count   = replay_create_info->samples;
-        image_info->initial_layout = replay_create_info->initialLayout;
-        image_info->layer_count    = replay_create_info->arrayLayers;
-        image_info->level_count    = replay_create_info->mipLevels;
+        image_info->usage          = modified_create_info.usage;
+        image_info->type           = modified_create_info.imageType;
+        image_info->format         = modified_create_info.format;
+        image_info->extent         = modified_create_info.extent;
+        image_info->tiling         = modified_create_info.tiling;
+        image_info->sample_count   = modified_create_info.samples;
+        image_info->initial_layout = modified_create_info.initialLayout;
+        image_info->layer_count    = modified_create_info.arrayLayers;
+        image_info->level_count    = modified_create_info.mipLevels;
 
-        if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
-            (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
+        if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+            (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
         {
-            image_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
+            image_info->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
         else
         {
@@ -3758,6 +3778,104 @@ void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
                                          pLayout->GetOutputPointer(),
                                          pLayout->GetPointer(),
                                          image_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
+    PFN_vkCreateImageView                                      func,
+    VkResult                                                   original_result,
+    const DeviceInfo*                                          device_info,
+    const StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkImageView>*                         pImageView)
+{
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pImageView != nullptr));
+
+    VkImageViewCreateInfo modified_create_info = *(pCreateInfo->GetPointer());
+
+    if ((original_result >= 0) && (device_info->depth_stencil_formats != nullptr) &&
+        (resource::IsDepthFormat(modified_create_info.format)))
+    {
+        // Make sure that a supported depth-stencil format is used for image view creation.
+        // This does not propertly support the mutable format case where a non-depth-stencil format is used to create a
+        // view for a depth-stencil image.
+        modified_create_info.format =
+            resource::GetClosestDepthStencilFormat(modified_create_info.format, *device_info->depth_stencil_formats);
+    }
+
+    return func(
+        device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), pImageView->GetHandlePointer());
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
+    PFN_vkCreateRenderPass                                      func,
+    VkResult                                                    original_result,
+    const DeviceInfo*                                           device_info,
+    const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+    HandlePointerDecoder<VkRenderPass>*                         pRenderPass)
+{
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pRenderPass != nullptr));
+
+    VkRenderPassCreateInfo               modified_create_info = *(pCreateInfo->GetPointer());
+    std::vector<VkAttachmentDescription> modified_attachments(
+        modified_create_info.pAttachments,
+        std::next(modified_create_info.pAttachments, modified_create_info.attachmentCount));
+
+    if ((original_result >= 0) && (device_info->depth_stencil_formats != nullptr))
+    {
+        // Make sure that a supported depth-stencil format is used for render pass creation.
+        for (uint32_t i = 0; i < modified_create_info.attachmentCount; i++)
+        {
+            if (resource::IsDepthFormat(modified_attachments[i].format))
+            {
+                modified_attachments[i].format = resource::GetClosestDepthStencilFormat(
+                    modified_attachments[i].format, *device_info->depth_stencil_formats);
+            }
+        }
+    }
+
+    modified_create_info.pAttachments = modified_attachments.data();
+
+    return func(device_info->handle,
+                &modified_create_info,
+                GetAllocationCallbacks(pAllocator),
+                pRenderPass->GetHandlePointer());
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
+    PFN_vkCreateRenderPass2                                      func,
+    VkResult                                                     original_result,
+    const DeviceInfo*                                            device_info,
+    const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+    HandlePointerDecoder<VkRenderPass>*                          pRenderPass)
+{
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pRenderPass != nullptr));
+
+    VkRenderPassCreateInfo2               modified_create_info = *(pCreateInfo->GetPointer());
+    std::vector<VkAttachmentDescription2> modified_attachments(
+        modified_create_info.pAttachments,
+        std::next(modified_create_info.pAttachments, modified_create_info.attachmentCount));
+
+    if ((original_result >= 0) && (device_info->depth_stencil_formats != nullptr))
+    {
+        // Make sure that a supported depth-stencil format is used for render pass creation.
+        for (uint32_t i = 0; i < modified_create_info.attachmentCount; i++)
+        {
+            if (resource::IsDepthFormat(modified_attachments[i].format))
+            {
+                modified_attachments[i].format = resource::GetClosestDepthStencilFormat(
+                    modified_attachments[i].format, *device_info->depth_stencil_formats);
+            }
+        }
+    }
+
+    modified_create_info.pAttachments = modified_attachments.data();
+
+    return func(device_info->handle,
+                &modified_create_info,
+                GetAllocationCallbacks(pAllocator),
+                pRenderPass->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(

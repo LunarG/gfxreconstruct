@@ -576,6 +576,27 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                            const StructPointerDecoder<Decoded_VkImageSubresource>* pSubresource,
                                            StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout);
 
+    VkResult OverrideCreateImageView(PFN_vkCreateImageView                                      func,
+                                     VkResult                                                   original_result,
+                                     const DeviceInfo*                                          device_info,
+                                     const StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
+                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                     HandlePointerDecoder<VkImageView>*                         pImageView);
+
+    VkResult OverrideCreateRenderPass(PFN_vkCreateRenderPass                                      func,
+                                      VkResult                                                    original_result,
+                                      const DeviceInfo*                                           device_info,
+                                      const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>* pCreateInfo,
+                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+                                      HandlePointerDecoder<VkRenderPass>*                         pRenderPass);
+
+    VkResult OverrideCreateRenderPass2(PFN_vkCreateRenderPass2                                      func,
+                                       VkResult                                                     original_result,
+                                       const DeviceInfo*                                            device_info,
+                                       const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                       HandlePointerDecoder<VkRenderPass>*                          pRenderPass);
+
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,
