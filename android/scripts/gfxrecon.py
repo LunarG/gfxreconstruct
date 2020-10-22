@@ -72,6 +72,7 @@ def CreateReplayParser():
     parser.add_argument('--surface-index', metavar='N', help='Restrict rendering to the Nth surface object created.  Used with captures that include multiple surfaces.  Default is -1 (render to all surfaces; forwarded to replay tool)')
     parser.add_argument('--sync', action='store_true', default=False, help='Synchronize after each queue submission with vkQueueWaitIdle (forwarded to replay tool)')
     parser.add_argument('--remove-unsupported', action='store_true', default=False, help='Remove unsupported extensions and features from instance and device creation parameters (forwarded to replay tool)')
+    parser.add_argument('--adjust-depth-format', action='store_true', default=False, help='Attempt to substitute a supported depth format for an unsupported depth format (forwarded to replay tool)')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
     return parser
@@ -122,6 +123,9 @@ def MakeExtrasString(args):
 
     if args.remove_unsupported:
         arg_list.append('--remove-unsupported')
+
+    if args.adjust_depth_format:
+        arg_list.append('--adjust-depth-format')
 
     if args.memory_translation:
         arg_list.append('-m')

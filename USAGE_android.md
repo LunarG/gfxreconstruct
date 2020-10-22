@@ -288,7 +288,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--pause-frame N]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
-                          [-m MODE]
+                          [--adjust-depth-format] [-m MODE]
                           [file]
 
 Launch the replay tool.
@@ -345,6 +345,9 @@ optional arguments:
   --remove-unsupported  Remove unsupported extensions and features from
                         instance and device creation parameters (forwarded to
                         replay tool)
+  --adjust-depth-format
+                        Attempt to substitute a supported depth format for an
+                        unsupported depth format (forwarded to replay tool)
   -m MODE, --memory-translation MODE
                         Enable memory translation for replay on GPUs with
                         memory types that are not compatible with the capture

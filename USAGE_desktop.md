@@ -335,7 +335,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported]
-                        [-m <mode> | --memory-translation <mode>]
+                        [--adjust-depth-format] [-m <mode> | --memory-translation <mode>]
                         <file>
 
 Required arguments:
@@ -395,6 +395,8 @@ Optional arguments:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
+  --adjust-depth-format Attempt to substitute a supported depth format for an
+                        unsupported depth format.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
