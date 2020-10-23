@@ -273,7 +273,7 @@ void Log::LogMessage(
                     __android_log_print(ANDROID_LOG_ERROR, process_tag, "%s", output_message.c_str());
                     break;
                 case kFatalSeverity:
-                    __android_log_print(ANDROID_LOG_FATAL, process_tag, "%s", output_message.c_str());
+                    __android_log_assert(nullptr, process_tag, "%s", output_message.c_str());
                     break;
                 default:
                     __android_log_print(ANDROID_LOG_VERBOSE, process_tag, "%s", output_message.c_str());
