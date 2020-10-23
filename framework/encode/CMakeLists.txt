@@ -59,8 +59,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
 )
 
-if (MSVC AND (MSVC_VERSION LESS 1910))
-    # This file fails to compile with VS2015, requiring the default section limit of 2^16 to be increased.
+if (MSVC AND (MSVC_VERSION LESS 1920))
+    # This file may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
     set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 
