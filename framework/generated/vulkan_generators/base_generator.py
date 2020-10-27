@@ -185,6 +185,15 @@ class BaseGenerator(OutputGenerator):
     # Platform specific structure types that have been defined extarnally to the Vulkan header.
     PLATFORM_STRUCTS = []
 
+    GENERIC_HANDLE_APICALLS = {'vkDebugReportMessageEXT' : {'object' : 'objectType' },
+                               'vkSetPrivateDataEXT' : {'objectHandle' : 'objectType' },
+                               'vkGetPrivateDataEXT' : {'objectHandle' : 'objectType' }}
+
+    GENERIC_HANDLE_STRUCTS = {'VkDebugMarkerObjectNameInfoEXT' : {'object' : 'objectType' },
+                              'VkDebugMarkerObjectTagInfoEXT' : {'object' : 'objectType' },
+                              'VkDebugUtilsObjectNameInfoEXT' : {'objectHandle' : 'objectType' },
+                              'VkDebugUtilsObjectTagInfoEXT' : {'objectHandle' : 'objectType' }}
+
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
@@ -666,6 +675,48 @@ class BaseGenerator(OutputGenerator):
         return False
 
     #
+    # For a struct member that contains a generic handle value, retrieve the struct member
+    # containing an enum value defining the specific handle type.  Generic handles have an
+    # integer type such as uint64_t, with an associated enum value defining the specific
+    # type such as VkObjectType.
+    def getGenericStructHandleTypeValue(self, structName, memberName):
+        if structName in self.GENERIC_HANDLE_STRUCTS:
+            structEntry = self.GENERIC_HANDLE_STRUCTS[structName]
+            if memberName in structEntry:
+                return structEntry[memberName]
+        return None
+
+    #
+    # For an API call parameter that contains a generic handle value, retrieve the parameter
+    # containing an enum value defining the specific handle type.  Generic handles have an
+    # integer type such as uint64_t, with an associated enum value defining the specific
+    # type such as VkObjectType.
+    def getGenericCmdHandleTypeValue(self, cmdName, paramName):
+        if cmdName in self.GENERIC_HANDLE_APICALLS:
+            cmdEntry = self.GENERIC_HANDLE_APICALLS[cmdName]
+            if paramName in cmdEntry:
+                return cmdEntry[paramName]
+        return None
+
+    #
+    # Determine if a struct member contains a generic handle value.  Generic handles have an
+    # integer type such as uint64_t, with an associated enum value defining the specific
+    # type such as VkObjectType.
+    def isGenericStructHandleValue(self, structName, memberName):
+        if self.getGenericStructHandleTypeValue(structName, memberName):
+            return True
+        return False
+
+    #
+    # Determine if an API call parameter contains a generic handle value.  Generic handles have an
+    # integer type such as uint64_t, with an associated enum value defining the specific
+    # type such as VkObjectType.
+    def isGenericCmdHandleValue(self, cmdName, paramName):
+        if self.getGenericCmdHandleTypeValue(cmdName, paramName):
+            return True
+        return False
+
+    #
     # Indent all lines in a string.
     #  value - String to indent.
     #  spaces - Number of spaces to indent.
@@ -851,8 +902,17 @@ class BaseGenerator(OutputGenerator):
 
     #
     # Generate a parameter encoder method call invocation.
-    def makeEncoderMethodCall(self, value, values, prefix, omitOutputParam=None):
-        args = [prefix + value.name]
+    def makeEncoderMethodCall(self, name, value, values, prefix, omitOutputParam=None):
+        argName = prefix + value.name
+        if self.isGenericStructHandleValue(name, value.name) or self.isGenericCmdHandleValue(name, value.name):
+            handleTypeName = prefix
+            if self.isGenericStructHandleValue(name, value.name):
+                handleTypeName += self.getGenericStructHandleTypeValue(name, value.name)
+            else:
+                handleTypeName += self.getGenericCmdHandleTypeValue(name, value.name)
+            argName = 'GetWrappedId({}, {})'.format(argName, handleTypeName)
+
+        args = [argName]
 
         isStruct = False
         isString = False

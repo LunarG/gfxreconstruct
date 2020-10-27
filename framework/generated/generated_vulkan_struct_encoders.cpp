@@ -3137,7 +3137,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugMarkerObjectNameInfoEX
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.object);
+    encoder->EncodeUInt64Value(GetWrappedId(value.object, value.objectType));
     encoder->EncodeString(value.pObjectName);
 }
 
@@ -3146,7 +3146,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugMarkerObjectTagInfoEXT
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.object);
+    encoder->EncodeUInt64Value(GetWrappedId(value.object, value.objectType));
     encoder->EncodeUInt64Value(value.tagName);
     encoder->EncodeSizeTValue(value.tagSize);
     encoder->EncodeVoidArray(value.pTag, value.tagSize);
@@ -3602,7 +3602,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.objectHandle);
+    encoder->EncodeUInt64Value(GetWrappedId(value.objectHandle, value.objectType));
     encoder->EncodeString(value.pObjectName);
 }
 
@@ -3638,7 +3638,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT&
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.objectHandle);
+    encoder->EncodeUInt64Value(GetWrappedId(value.objectHandle, value.objectType));
     encoder->EncodeUInt64Value(value.tagName);
     encoder->EncodeSizeTValue(value.tagSize);
     encoder->EncodeVoidArray(value.pTag, value.tagSize);

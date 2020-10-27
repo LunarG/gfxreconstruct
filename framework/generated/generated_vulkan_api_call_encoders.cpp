@@ -8258,7 +8258,7 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
         encoder->EncodeHandleValue(instance);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(objectType);
-        encoder->EncodeUInt64Value(object);
+        encoder->EncodeUInt64Value(GetWrappedId(object, objectType));
         encoder->EncodeSizeTValue(location);
         encoder->EncodeInt32Value(messageCode);
         encoder->EncodeString(pLayerPrefix);
@@ -8267,8 +8267,9 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
+    uint64_t object_unwrapped = GetWrappedHandle(object, objectType);
 
-    GetInstanceTable(instance)->DebugReportMessageEXT(instance_unwrapped, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+    GetInstanceTable(instance)->DebugReportMessageEXT(instance_unwrapped, flags, objectType, object_unwrapped, location, messageCode, pLayerPrefix, pMessage);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(TraceManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 }
@@ -8279,9 +8280,11 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDebugMarkerObjectTagInfoEXT* pTagInfo_unwrapped = UnwrapStructPtrHandles(pTagInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectTagEXT(device_unwrapped, pTagInfo);
+    VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
     if (encoder)
@@ -8303,9 +8306,11 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDebugMarkerObjectNameInfoEXT* pNameInfo_unwrapped = UnwrapStructPtrHandles(pNameInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectNameEXT(device_unwrapped, pNameInfo);
+    VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT);
     if (encoder)
@@ -9414,9 +9419,11 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDebugUtilsObjectNameInfoEXT* pNameInfo_unwrapped = UnwrapStructPtrHandles(pNameInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectNameEXT(device_unwrapped, pNameInfo);
+    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
@@ -9438,9 +9445,11 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDebugUtilsObjectTagInfoEXT* pTagInfo_unwrapped = UnwrapStructPtrHandles(pTagInfo, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectTagEXT(device_unwrapped, pTagInfo);
+    VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
     if (encoder)
@@ -12025,16 +12034,17 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
     VkPrivateDataSlotEXT privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlotEXT>(privateDataSlot);
 
-    VkResult result = GetDeviceTable(device)->SetPrivateDataEXT(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, data);
+    VkResult result = GetDeviceTable(device)->SetPrivateDataEXT(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, data);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(objectType);
-        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeUInt64Value(GetWrappedId(objectHandle, objectType));
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Value(data);
         encoder->EncodeEnumValue(result);
@@ -12056,16 +12066,17 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
     VkPrivateDataSlotEXT privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlotEXT>(privateDataSlot);
 
-    GetDeviceTable(device)->GetPrivateDataEXT(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, pData);
+    GetDeviceTable(device)->GetPrivateDataEXT(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, pData);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPrivateDataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(objectType);
-        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeUInt64Value(GetWrappedId(objectHandle, objectType));
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Ptr(pData);
         TraceManager::Get()->EndApiCallTrace(encoder);

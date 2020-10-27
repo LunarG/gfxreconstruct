@@ -175,6 +175,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
     }
 
+    uint64_t MapHandle(uint64_t object, VkObjectType object_type)
+    {
+        return handle_mapping::MapHandle(object, object_type, object_info_table_);
+    }
+
+    uint64_t MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type)
+    {
+        return handle_mapping::MapHandle(object, object_type, object_info_table_);
+    }
+
     template <typename T>
     typename T::HandleType* MapHandles(HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                                        size_t                                        handles_len,

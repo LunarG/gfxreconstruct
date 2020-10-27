@@ -200,7 +200,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += indent + '}\n'
         else:
             # Check for handles that need unwrapping.
-            unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(values, indent)
+            unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(name, values, indent)
             if unwrapExpr:
                 if needUnwrapMemory:
                     body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
@@ -264,11 +264,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         indent += ' ' * self.INDENT_SIZE
 
         for value in values:
-            methodCall = self.makeEncoderMethodCall(value, values, '', omitOutputParam)
+            methodCall = self.makeEncoderMethodCall(name, value, values, '', omitOutputParam)
             body += indent + '{};\n'.format(methodCall)
 
         if returnType and returnType != 'void':
-            methodCall = self.makeEncoderMethodCall(ValueInfo('result', returnType, returnType), [], '')
+            methodCall = self.makeEncoderMethodCall(name, ValueInfo('result', returnType, returnType), [], '')
             body += indent + '{};\n'.format(methodCall)
 
         # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
@@ -436,7 +436,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, parentValue, coParentValue, value.name)
         return expr
 
-    def makeHandleUnwrapping(self, values, indent):
+    def makeHandleUnwrapping(self, name, values, indent):
         args = []
         expr = ''
         needUnwrapMemory = False
@@ -449,7 +449,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         argName += '_unwrapped'
                         arrayLength = value.arrayLength if value.isArray else 1  # At this time, all pointer unwrap cases are arrays
                         expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(value.fullType, value.baseType, arrayLength, name=value.name)
-                    elif value.baseType in self.structsWithHandles:
+                    elif (value.baseType in self.structsWithHandles) or (value.baseType in self.GENERIC_HANDLE_STRUCTS):
                         needUnwrapMemory = True
                         argName += '_unwrapped'
                         if value.isArray:
@@ -459,6 +459,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             elif self.isHandle(value.baseType):
                 argName += '_unwrapped'
                 expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(type=value.baseType, name=value.name)
+            elif self.isGenericCmdHandleValue(name, value.name):
+                argName += '_unwrapped'
+                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle({name}, {typeValue});\n'.format(type=value.baseType, name=value.name, typeValue=self.getGenericCmdHandleTypeValue(name, value.name))
             args.append(argName)
         return expr, ', '.join(args), needUnwrapMemory
 

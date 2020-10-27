@@ -157,15 +157,21 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
-            if struct in self.structsWithHandles:
-                members = self.structsWithHandles[struct]
+            if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
+                handleMembers = dict()
+                genericHandleMembers = dict()
+
+                if struct in self.structsWithHandles:
+                    handleMembers = self.structsWithHandles[struct]
+                if struct in self.GENERIC_HANDLE_STRUCTS:
+                    genericHandleMembers = self.GENERIC_HANDLE_STRUCTS[struct]
 
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(struct)
                 body += '{\n'
                 body += '    if (value != nullptr)\n'
                 body += '    {'
-                body += self.makeStructHandleUnwrappings(struct, members)
+                body += self.makeStructHandleUnwrappings(struct, handleMembers, genericHandleMembers)
                 body += '    }\n'
                 body += '}'
 
@@ -173,10 +179,10 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
     #
     # Generating expressions for unwrapping struct handles before an API call.
-    def makeStructHandleUnwrappings(self, name, members):
+    def makeStructHandleUnwrappings(self, name, handleMembers, genericHandleMembers):
         body = ''
 
-        for member in members:
+        for member in handleMembers:
             body += '\n'
 
             if 'pNext' in member.name:
@@ -203,5 +209,9 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                     body += '        value->{name} = UnwrapHandles<{}>(value->{name}, 1, unwrap_memory);\n'.format(member.baseType, name=member.name);
                 else:
                     body += '        value->{name} = GetWrappedHandle<{}>(value->{name});\n'.format(member.baseType, name=member.name);
+
+        for member in genericHandleMembers:
+            body += '\n'
+            body += '        value->{name} = GetWrappedHandle(value->{name}, value->{});\n'.format(genericHandleMembers[member], name=member);
 
         return body

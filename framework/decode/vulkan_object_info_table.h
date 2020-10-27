@@ -66,7 +66,6 @@ class VulkanObjectInfoTable
     void AddSwapchainKHRInfo(SwapchainKHRInfo&& info)                                   { AddObjectInfo(std::move(info), &swapchain_khr_map_); }
     void AddDisplayKHRInfo(DisplayKHRInfo&& info)                                       { AddObjectInfo(std::move(info), &display_khr_map_); }
     void AddDisplayModeKHRInfo(DisplayModeKHRInfo&& info)                               { AddObjectInfo(std::move(info), &display_mode_khr_map_); }
-    void AddSamplerYcbcrConversionKHRInfo(SamplerYcbcrConversionKHRInfo&& info)         { AddObjectInfo(std::move(info), &sampler_ycbcr_conversion_khr_map_); }
     void AddDebugReportCallbackEXTInfo(DebugReportCallbackEXTInfo&& info)               { AddObjectInfo(std::move(info), &debug_report_callback_ext_map_); }
     void AddIndirectCommandsLayoutNVInfo(IndirectCommandsLayoutNVInfo&& info)           { AddObjectInfo(std::move(info), &indirect_commands_layout_nv_map_); }
     void AddDebugUtilsMessengerEXTInfo(DebugUtilsMessengerEXTInfo&& info)               { AddObjectInfo(std::move(info), &debug_utils_messenger_ext_map_); }
@@ -108,7 +107,6 @@ class VulkanObjectInfoTable
     void RemoveSwapchainKHRInfo(format::HandleId id)                  { swapchain_khr_map_.erase(id); }
     void RemoveDisplayKHRInfo(format::HandleId id)                    { display_khr_map_.erase(id); }
     void RemoveDisplayModeKHRInfo(format::HandleId id)                { display_mode_khr_map_.erase(id); }
-    void RemoveSamplerYcbcrConversionKHRInfo(format::HandleId id)     { sampler_ycbcr_conversion_khr_map_.erase(id); }
     void RemoveDebugReportCallbackEXTInfo(format::HandleId id)        { debug_report_callback_ext_map_.erase(id); }
     void RemoveIndirectCommandsLayoutNVInfo(format::HandleId id)      { indirect_commands_layout_nv_map_.erase(id); }
     void RemoveDebugUtilsMessengerEXTInfo(format::HandleId id)        { debug_utils_messenger_ext_map_.erase(id); }
@@ -150,7 +148,6 @@ class VulkanObjectInfoTable
     const SwapchainKHRInfo*                  GetSwapchainKHRInfo(format::HandleId id) const                   { return GetObjectInfo<SwapchainKHRInfo>(id, &swapchain_khr_map_); }
     const DisplayKHRInfo*                    GetDisplayKHRInfo(format::HandleId id) const                     { return GetObjectInfo<DisplayKHRInfo>(id, &display_khr_map_); }
     const DisplayModeKHRInfo*                GetDisplayModeKHRInfo(format::HandleId id) const                 { return GetObjectInfo<DisplayModeKHRInfo>(id, &display_mode_khr_map_); }
-    const SamplerYcbcrConversionKHRInfo*     GetSamplerYcbcrConversionKHRInfo(format::HandleId id) const      { return GetObjectInfo<SamplerYcbcrConversionKHRInfo>(id, &sampler_ycbcr_conversion_khr_map_); }
     const DebugReportCallbackEXTInfo*        GetDebugReportCallbackEXTInfo(format::HandleId id) const         { return GetObjectInfo<DebugReportCallbackEXTInfo>(id, &debug_report_callback_ext_map_); }
     const IndirectCommandsLayoutNVInfo*      GetIndirectCommandsLayoutNVInfo(format::HandleId id) const       { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirect_commands_layout_nv_map_); }
     const DebugUtilsMessengerEXTInfo*        GetDebugUtilsMessengerEXTInfo(format::HandleId id) const         { return GetObjectInfo<DebugUtilsMessengerEXTInfo>(id, &debug_utils_messenger_ext_map_); }
@@ -192,7 +189,6 @@ class VulkanObjectInfoTable
     SwapchainKHRInfo*                  GetSwapchainKHRInfo(format::HandleId id)                   { return GetObjectInfo<SwapchainKHRInfo>(id, &swapchain_khr_map_); }
     DisplayKHRInfo*                    GetDisplayKHRInfo(format::HandleId id)                     { return GetObjectInfo<DisplayKHRInfo>(id, &display_khr_map_); }
     DisplayModeKHRInfo*                GetDisplayModeKHRInfo(format::HandleId id)                 { return GetObjectInfo<DisplayModeKHRInfo>(id, &display_mode_khr_map_); }
-    SamplerYcbcrConversionKHRInfo*     GetSamplerYcbcrConversionKHRInfo(format::HandleId id)      { return GetObjectInfo<SamplerYcbcrConversionKHRInfo>(id, &sampler_ycbcr_conversion_khr_map_); }
     DebugReportCallbackEXTInfo*        GetDebugReportCallbackEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugReportCallbackEXTInfo>(id, &debug_report_callback_ext_map_); }
     IndirectCommandsLayoutNVInfo*      GetIndirectCommandsLayoutNVInfo(format::HandleId id)       { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirect_commands_layout_nv_map_); }
     DebugUtilsMessengerEXTInfo*        GetDebugUtilsMessengerEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugUtilsMessengerEXTInfo>(id, &debug_utils_messenger_ext_map_); }
@@ -370,7 +366,6 @@ class VulkanObjectInfoTable
     std::unordered_map<format::HandleId, SwapchainKHRInfo>                  swapchain_khr_map_;
     std::unordered_map<format::HandleId, DisplayKHRInfo>                    display_khr_map_;
     std::unordered_map<format::HandleId, DisplayModeKHRInfo>                display_mode_khr_map_;
-    std::unordered_map<format::HandleId, SamplerYcbcrConversionKHRInfo>     sampler_ycbcr_conversion_khr_map_;
     std::unordered_map<format::HandleId, DebugReportCallbackEXTInfo>        debug_report_callback_ext_map_;
     std::unordered_map<format::HandleId, IndirectCommandsLayoutNVInfo>      indirect_commands_layout_nv_map_;
     std::unordered_map<format::HandleId, DebugUtilsMessengerEXTInfo>        debug_utils_messenger_ext_map_;

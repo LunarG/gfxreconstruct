@@ -3292,6 +3292,7 @@ struct Decoded_VkDebugMarkerObjectNameInfoEXT
     VkDebugMarkerObjectNameInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t object{ 0 };
     StringDecoder pObjectName;
 };
 
@@ -3302,6 +3303,7 @@ struct Decoded_VkDebugMarkerObjectTagInfoEXT
     VkDebugMarkerObjectTagInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t object{ 0 };
     PointerDecoder<uint8_t> pTag;
 };
 
@@ -3807,6 +3809,7 @@ struct Decoded_VkDebugUtilsObjectNameInfoEXT
     VkDebugUtilsObjectNameInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t objectHandle{ 0 };
     StringDecoder pObjectName;
 };
 
@@ -3842,6 +3845,7 @@ struct Decoded_VkDebugUtilsObjectTagInfoEXT
     VkDebugUtilsObjectTagInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t objectHandle{ 0 };
     PointerDecoder<uint8_t> pTag;
 };
 

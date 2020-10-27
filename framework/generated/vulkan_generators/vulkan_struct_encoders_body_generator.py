@@ -84,7 +84,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
             body = '' if first else '\n'
             body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(struct)
             body += '{\n'
-            body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
+            body += self.makeStructBody(struct, self.featureStructMembers[struct], 'value.')
             body += '}'
             write(body, file=self.outFile)
 
@@ -92,7 +92,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
 
     #
     # Command definition
-    def makeStructBody(self, values, prefix):
+    def makeStructBody(self, name, values, prefix):
         # Build array of lines for function body
         body = ''
 
@@ -101,7 +101,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
             if 'pNext' in value.name:
                 body += '    EncodePNextStruct(encoder, {});\n'.format(prefix + value.name)
             else:
-                methodCall = self.makeEncoderMethodCall(value, values, prefix)
+                methodCall = self.makeEncoderMethodCall(name, value, values, prefix)
                 body += '    {};\n'.format(methodCall)
 
         return body

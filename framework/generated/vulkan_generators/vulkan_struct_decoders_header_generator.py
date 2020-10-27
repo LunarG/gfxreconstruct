@@ -114,7 +114,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
     #
     # Determines if a Vulkan struct member needs an associated member delcaration in the decoded struct wrapper.
-    def needsMemberDeclaration(self, value):
+    def needsMemberDeclaration(self, name, value):
         if value.isPointer or value.isArray:
             return True
         elif self.isFunctionPtr(value.baseType):
@@ -122,6 +122,8 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         elif self.isHandle(value.baseType):
             return True
         elif self.isStruct(value.baseType):
+            return True
+        elif self.isGenericStructHandleValue(name, value.name):
             return True
         return False
 
@@ -145,7 +147,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
             if value.name == 'pNext':
                 # We have a special type to store the pNext chain
                 body += '    std::unique_ptr<PNextNode> pNext;\n'
-            elif self.needsMemberDeclaration(value):
+            elif self.needsMemberDeclaration(name, value):
                 typeName = self.makeDecodedParamType(value)
                 if self.isStruct(value.baseType):
                     typeName = 'std::unique_ptr<{}>'.format(typeName)

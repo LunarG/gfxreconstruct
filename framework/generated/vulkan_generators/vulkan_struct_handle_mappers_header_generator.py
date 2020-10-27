@@ -162,7 +162,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
-            if struct in self.structsWithHandles:
+            if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectInfoTable& object_info_table);'.format(struct)
                 write(body, file=self.outFile)
