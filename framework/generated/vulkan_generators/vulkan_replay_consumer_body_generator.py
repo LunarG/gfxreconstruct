@@ -330,7 +330,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         if needTempValue:
                             expr += '{}->GetPointer();'.format(value.name)
 
-                        if value.baseType in self.structsWithHandles:
+                        if (value.baseType in self.structsWithHandles) or (value.baseType in self.GENERIC_HANDLE_STRUCTS):
                             preexpr.append(expr)
                             if value.isArray:
                                 expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(name=value.name)
@@ -467,6 +467,13 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     elif value.name == "swapchain":
                         expr = 'if (GetObjectInfoTable().Get{}Info({})->surface == VK_NULL_HANDLE) {{ return; }}'.format(value.baseType[2:], value.name)
                         preexpr.append(expr)
+            elif self.isGenericCmdHandleValue(name, value.name):
+                # Handles need to be mapped.
+                argName = 'in_' + value.name
+                args.append(argName)
+                expr = '{} {} = '.format(value.fullType, argName)
+                expr += 'MapHandle({}, {});'.format(value.name, self.getGenericCmdHandleTypeValue(name, value.name))
+                preexpr.append(expr)
             elif self.isFunctionPtr(value.baseType):
                 # Function pointers are encoded as a 64-bit address value.
                 # TODO: Check for cases that need to be handled.

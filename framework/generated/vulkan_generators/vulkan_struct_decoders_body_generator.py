@@ -107,13 +107,13 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                 body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
-                body += self.makeDecodeInvocation(value)
+                body += self.makeDecodeInvocation(name, value)
 
         return body
 
     #
     # Generate the struct member decoder function call invocation.
-    def makeDecodeInvocation(self, value):
+    def makeDecodeInvocation(self, name, value):
         bufferArgs = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
         body = ''
@@ -175,6 +175,9 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             elif isHandle:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
                 body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
+            elif self.isGenericStructHandleValue(name, value.name):
+                body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    value->{} = 0;\n'.format(value.name)
             elif value.bitfieldWidth:
                 # Bit fields need to be read into a tempoaray and then assigned to the struct member.
                 tempParamName = 'temp_{}'.format(value.name)

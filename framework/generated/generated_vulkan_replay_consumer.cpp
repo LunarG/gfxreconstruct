@@ -4044,10 +4044,11 @@ void VulkanReplayConsumer::Process_vkDebugReportMessageEXT(
     StringDecoder*                              pMessage)
 {
     VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectInfoTable::GetInstanceInfo);
+    uint64_t in_object = MapHandle(object, objectType);
     const char* in_pLayerPrefix = pLayerPrefix->GetPointer();
     const char* in_pMessage = pMessage->GetPointer();
 
-    GetInstanceTable(in_instance)->DebugReportMessageEXT(in_instance, flags, objectType, object, location, messageCode, in_pLayerPrefix, in_pMessage);
+    GetInstanceTable(in_instance)->DebugReportMessageEXT(in_instance, flags, objectType, in_object, location, messageCode, in_pLayerPrefix, in_pMessage);
 }
 
 void VulkanReplayConsumer::Process_vkDebugMarkerSetObjectTagEXT(
@@ -4057,6 +4058,7 @@ void VulkanReplayConsumer::Process_vkDebugMarkerSetObjectTagEXT(
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugMarkerObjectTagInfoEXT* in_pTagInfo = pTagInfo->GetPointer();
+    MapStructHandles(pTagInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->DebugMarkerSetObjectTagEXT(in_device, in_pTagInfo);
     CheckResult("vkDebugMarkerSetObjectTagEXT", returnValue, replay_result);
@@ -4069,6 +4071,7 @@ void VulkanReplayConsumer::Process_vkDebugMarkerSetObjectNameEXT(
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugMarkerObjectNameInfoEXT* in_pNameInfo = pNameInfo->GetPointer();
+    MapStructHandles(pNameInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->DebugMarkerSetObjectNameEXT(in_device, in_pNameInfo);
     CheckResult("vkDebugMarkerSetObjectNameEXT", returnValue, replay_result);
@@ -4601,6 +4604,7 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectNameEXT(
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugUtilsObjectNameInfoEXT* in_pNameInfo = pNameInfo->GetPointer();
+    MapStructHandles(pNameInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->SetDebugUtilsObjectNameEXT(in_device, in_pNameInfo);
     CheckResult("vkSetDebugUtilsObjectNameEXT", returnValue, replay_result);
@@ -4613,6 +4617,7 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectTagEXT(
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     const VkDebugUtilsObjectTagInfoEXT* in_pTagInfo = pTagInfo->GetPointer();
+    MapStructHandles(pTagInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->SetDebugUtilsObjectTagEXT(in_device, in_pTagInfo);
     CheckResult("vkSetDebugUtilsObjectTagEXT", returnValue, replay_result);
@@ -5849,9 +5854,10 @@ void VulkanReplayConsumer::Process_vkSetPrivateDataEXT(
     uint64_t                                    data)
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    uint64_t in_objectHandle = MapHandle(objectHandle, objectType);
     VkPrivateDataSlotEXT in_privateDataSlot = MapHandle<PrivateDataSlotEXTInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo);
 
-    VkResult replay_result = GetDeviceTable(in_device)->SetPrivateDataEXT(in_device, objectType, objectHandle, in_privateDataSlot, data);
+    VkResult replay_result = GetDeviceTable(in_device)->SetPrivateDataEXT(in_device, objectType, in_objectHandle, in_privateDataSlot, data);
     CheckResult("vkSetPrivateDataEXT", returnValue, replay_result);
 }
 
@@ -5863,10 +5869,11 @@ void VulkanReplayConsumer::Process_vkGetPrivateDataEXT(
     PointerDecoder<uint64_t>*                   pData)
 {
     VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    uint64_t in_objectHandle = MapHandle(objectHandle, objectType);
     VkPrivateDataSlotEXT in_privateDataSlot = MapHandle<PrivateDataSlotEXTInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo);
     uint64_t* out_pData = pData->IsNull() ? nullptr : pData->AllocateOutputData(1, static_cast<uint64_t>(0));
 
-    GetDeviceTable(in_device)->GetPrivateDataEXT(in_device, objectType, objectHandle, in_privateDataSlot, out_pData);
+    GetDeviceTable(in_device)->GetPrivateDataEXT(in_device, objectType, in_objectHandle, in_privateDataSlot, out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(

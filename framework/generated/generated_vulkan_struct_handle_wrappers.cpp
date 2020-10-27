@@ -783,6 +783,22 @@ void UnwrapStructHandles(VkResolveImageInfo2KHR* value, HandleUnwrapMemory* unwr
     }
 }
 
+void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->object = GetWrappedHandle(value->object, value->objectType);
+    }
+}
+
+void UnwrapStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->object = GetWrappedHandle(value->object, value->objectType);
+    }
+}
+
 void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -818,6 +834,22 @@ void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrap
     if (value != nullptr)
     {
         value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+    }
+}
+
+void UnwrapStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->objectHandle = GetWrappedHandle(value->objectHandle, value->objectType);
+    }
+}
+
+void UnwrapStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->objectHandle = GetWrappedHandle(value->objectHandle, value->objectType);
     }
 }
 

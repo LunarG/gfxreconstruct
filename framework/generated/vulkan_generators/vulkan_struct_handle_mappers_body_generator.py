@@ -151,16 +151,25 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
-            if struct in self.structsWithHandles:
-                members = self.structsWithHandles[struct]
+            if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
+                handleMembers = dict()
+                genericHandleMembers = dict()
+
+                if struct in self.structsWithHandles:
+                    handleMembers = self.structsWithHandles[struct]
+                if struct in self.GENERIC_HANDLE_STRUCTS:
+                    genericHandleMembers = self.GENERIC_HANDLE_STRUCTS[struct]
 
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
                 # and does not need a temporary variable referencing the struct value.
                 needsValuePtr = False
-                for member in members:
-                    if self.isHandle(member.baseType) and not (member.isArray and not member.isDynamic):
-                        needsValuePtr = True
-                        break
+                if genericHandleMembers:
+                    needsValuePtr = True
+                else:
+                    for member in handleMembers:
+                        if self.isHandle(member.baseType) and not (member.isArray and not member.isDynamic):
+                            needsValuePtr = True
+                            break
 
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectInfoTable& object_info_table)\n'.format(struct)
@@ -174,7 +183,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                     body += '    {\n'
                     body += '        {}* value = wrapper->decoded_value;\n'.format(struct)
 
-                body += self.makeStructHandleMappings(struct, members)
+                body += self.makeStructHandleMappings(struct, handleMembers, genericHandleMembers)
                 body += '    }\n'
                 body += '}'
 
@@ -182,10 +191,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
 
     #
     # Generating expressions for mapping struct handles read from the capture file to handles created at replay.
-    def makeStructHandleMappings(self, name, members):
+    def makeStructHandleMappings(self, name, handleMembers, genericHandleMembers):
         body = ''
 
-        for member in members:
+        for member in handleMembers:
             body += '\n'
 
             if 'pNext' in member.name:
@@ -210,6 +219,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                         body += '        handle_mapping::MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                 else:
                     body += '        value->{name} = handle_mapping::MapHandle<{type}Info>(wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+
+        for member in genericHandleMembers:
+            body += '\n'
+            body += '        value->{name} = handle_mapping::MapHandle(wrapper->{name}, value->{}, object_info_table);\n'.format(genericHandleMembers[member], name=member);
 
         return body
 

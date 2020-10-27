@@ -929,6 +929,26 @@ void MapStructHandles(Decoded_VkResolveImageInfo2KHR* wrapper, const VulkanObjec
     }
 }
 
+void MapStructHandles(Decoded_VkDebugMarkerObjectNameInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDebugMarkerObjectNameInfoEXT* value = wrapper->decoded_value;
+
+        value->object = handle_mapping::MapHandle(wrapper->object, value->objectType, object_info_table);
+    }
+}
+
+void MapStructHandles(Decoded_VkDebugMarkerObjectTagInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDebugMarkerObjectTagInfoEXT* value = wrapper->decoded_value;
+
+        value->object = handle_mapping::MapHandle(wrapper->object, value->objectType, object_info_table);
+    }
+}
+
 void MapStructHandles(Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -972,6 +992,26 @@ void MapStructHandles(Decoded_VkConditionalRenderingBeginInfoEXT* wrapper, const
         VkConditionalRenderingBeginInfoEXT* value = wrapper->decoded_value;
 
         value->buffer = handle_mapping::MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkDebugUtilsObjectNameInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDebugUtilsObjectNameInfoEXT* value = wrapper->decoded_value;
+
+        value->objectHandle = handle_mapping::MapHandle(wrapper->objectHandle, value->objectType, object_info_table);
+    }
+}
+
+void MapStructHandles(Decoded_VkDebugUtilsObjectTagInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDebugUtilsObjectTagInfoEXT* value = wrapper->decoded_value;
+
+        value->objectHandle = handle_mapping::MapHandle(wrapper->objectHandle, value->objectType, object_info_table);
     }
 }
 
