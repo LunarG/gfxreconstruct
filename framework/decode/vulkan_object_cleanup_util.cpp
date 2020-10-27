@@ -16,6 +16,7 @@
 
 #include "decode/vulkan_object_cleanup_util.h"
 
+#include "decode/vulkan_resource_allocator.h"
 #include "format/format.h"
 #include "util/logging.h"
 
@@ -289,7 +290,11 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         &VulkanObjectInfoTable::RemoveImageInfo,
         [&](const DeviceInfo* parent_info, const ImageInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyImage(parent_info->handle, object_info->handle, nullptr);
+
+            auto allocator = parent_info->allocator.get();
+            assert(allocator != nullptr);
+
+            allocator->DestroyImage(object_info->handle, nullptr, object_info->allocator_data);
         });
 
     FreeChildObjects<DeviceInfo, BufferViewInfo>(
@@ -317,7 +322,11 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         &VulkanObjectInfoTable::RemoveBufferInfo,
         [&](const DeviceInfo* parent_info, const BufferInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->DestroyBuffer(parent_info->handle, object_info->handle, nullptr);
+
+            auto allocator = parent_info->allocator.get();
+            assert(allocator != nullptr);
+
+            allocator->DestroyBuffer(object_info->handle, nullptr, object_info->allocator_data);
         });
 
     FreeChildObjects<DeviceInfo, DeviceMemoryInfo>(
@@ -331,7 +340,11 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         &VulkanObjectInfoTable::RemoveDeviceMemoryInfo,
         [&](const DeviceInfo* parent_info, const DeviceMemoryInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            get_device_table(parent_info->handle)->FreeMemory(parent_info->handle, object_info->handle, nullptr);
+
+            auto allocator = parent_info->allocator.get();
+            assert(allocator != nullptr);
+
+            allocator->FreeMemory(object_info->handle, nullptr, object_info->allocator_data);
         });
 
     FreeChildObjects<DeviceInfo, PipelineCacheInfo>(
@@ -623,8 +636,8 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
 
                 for (const ImageInfo& image_info : object_info->image_infos)
                 {
-                    allocator->DestroyImage(image_info.handle, nullptr, image_info.allocator_data);
-                    allocator->FreeMemory(image_info.memory, nullptr, image_info.memory_allocator_data);
+                    allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
+                    allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
                 }
             }
         });
@@ -660,6 +673,7 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                                   &VulkanObjectInfoTable::RemoveDeviceInfo,
                                   [&](const DeviceInfo* object_info) {
                                       assert(object_info != nullptr);
+                                      object_info->allocator->Destroy();
                                       auto table = get_device_table(object_info->handle);
                                       table->DestroyDevice(object_info->handle, nullptr);
                                   });

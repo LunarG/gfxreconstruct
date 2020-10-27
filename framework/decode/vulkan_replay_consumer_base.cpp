@@ -159,11 +159,20 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
                              create_surface_count_);
     }
 
-    // Idle all devices before destroying other resources.
+    // Idle all devices before destroying other resources, and cleanup screenshot resources before destroying device.
     object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
-        GetDeviceTable(device)->DeviceWaitIdle(device);
+
+        auto device_table = GetDeviceTable(device);
+        assert(device_table != nullptr);
+
+        device_table->DeviceWaitIdle(device);
+
+        if (screenshot_handler_ != nullptr)
+        {
+            screenshot_handler_->DestroyDeviceResources(device, device_table);
+        }
     });
 
     object_cleanup::FreeAllLiveObjects(
@@ -2463,6 +2472,8 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         {
             screenshot_handler_->DestroyDeviceResources(device, GetDeviceTable(device));
         }
+
+        device_info->allocator->Destroy();
     }
 
     func(device, GetAllocationCallbacks(pAllocator));
