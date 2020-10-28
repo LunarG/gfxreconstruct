@@ -55,6 +55,11 @@ static typename T::HandleType MapHandle(format::HandleId             id,
     return handle;
 }
 
+uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObjectInfoTable& object_info_table);
+
+uint64_t
+MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type, const VulkanObjectInfoTable& object_info_table);
+
 template <typename T>
 static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                                               const VulkanObjectInfoTable&                  object_info_table,

@@ -101,6 +101,14 @@ format::HandleId GetWrappedId(const T& handle)
     return (handle != VK_NULL_HANDLE) ? reinterpret_cast<HandleWrapper<T>*>(handle)->handle_id : 0;
 }
 
+uint64_t GetWrappedHandle(uint64_t, VkObjectType object_type);
+
+uint64_t GetWrappedHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type);
+
+uint64_t GetWrappedId(uint64_t, VkObjectType object_type);
+
+uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type);
+
 inline const InstanceTable* GetInstanceTable(VkInstance handle)
 {
     assert(handle != VK_NULL_HANDLE);
