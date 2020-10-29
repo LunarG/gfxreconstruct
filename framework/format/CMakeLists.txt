@@ -43,6 +43,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_format_test "")
     target_sources(gfxrecon_format_test PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+    target_link_libraries(gfxrecon_format_test PRIVATE gfxrecon_format)
     common_build_directives(gfxrecon_format_test)
     common_test_directives(gfxrecon_format_test)
 endif()
