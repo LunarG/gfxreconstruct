@@ -850,6 +850,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                   uint32_t       last_presented_image,
                                                   const std::vector<format::SwapchainImageStateInfo>& image_info);
 
+    void ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info);
+
     void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);

@@ -2013,6 +2013,32 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
     return result;
 }
 
+void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Decoded_VkInstanceCreateInfo* instance_info)
+{
+    assert(instance_info != nullptr);
+
+    if (instance_info->pNext != nullptr)
+    {
+        // 'Out' struct for non-const pNext pointers.
+        auto pnext = reinterpret_cast<VkBaseOutStructure*>(instance_info->pNext->GetPointer());
+        while (pnext != nullptr)
+        {
+            if (pnext->sType == VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT)
+            {
+                auto debug_report_info         = reinterpret_cast<VkDebugReportCallbackCreateInfoEXT*>(pnext);
+                debug_report_info->pfnCallback = DebugReportCallback;
+            }
+            else if (pnext->sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT)
+            {
+                auto debug_utils_info             = reinterpret_cast<VkDebugUtilsMessengerCreateInfoEXT*>(pnext);
+                debug_utils_info->pfnUserCallback = DebugUtilsCallback;
+            }
+
+            pnext = pnext->pNext;
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
     const Decoded_VkSwapchainCreateInfoKHR* swapchain_info)
 {
@@ -2237,6 +2263,10 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
     if (replay_create_info != nullptr)
     {
+        // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update
+        // the callback pointers.
+        ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
+
         if (replay_create_info->ppEnabledExtensionNames)
         {
             // Swap the surface extension supported by platform the replay is running on if different from trace
