@@ -76,6 +76,7 @@ if (${RUN_TESTS})
 
     target_sources(VkLayer_gfxreconstruct_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+    target_link_libraries(VkLayer_gfxreconstruct_test PRIVATE VkLayer_gfxreconstruct)
 
     common_build_directives(VkLayer_gfxreconstruct_test)
     common_test_directives(VkLayer_gfxreconstruct_test)

@@ -131,6 +131,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
     target_sources(gfxrecon_util_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+    target_link_libraries(gfxrecon_util_test PRIVATE gfxrecon_util)
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()
