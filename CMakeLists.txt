@@ -83,6 +83,8 @@ endif()
 
 configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
 
+option(BUILD_WERROR "Build with -Werror" ON)
+
 # Code checks
 include("CodeStyle")
 include("Lint")
@@ -132,7 +134,10 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
-target_compile_options(linux_specific INTERFACE -Werror)
+
+if(BUILD_WERROR)
+    target_compile_options(linux_specific INTERFACE -Werror)
+endif(BUILD_WERROR)
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
