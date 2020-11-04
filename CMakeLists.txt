@@ -83,7 +83,7 @@ endif()
 
 configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
 
-option(BUILD_WERROR "Build with -Werror" ON)
+option(BUILD_WERROR "Build with warnings as errors" ON)
 
 # Code checks
 include("CodeStyle")
@@ -126,7 +126,6 @@ endif(UNIX)
 
 add_library(windows_specific INTERFACE)
 target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
-target_compile_options(windows_specific INTERFACE /WX)
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
@@ -135,14 +134,18 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
 
-if(BUILD_WERROR)
-    target_compile_options(linux_specific INTERFACE -Werror)
-endif(BUILD_WERROR)
-
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
     $<$<BOOL:${WIN32}>:windows_specific>
     $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
+
+if(BUILD_WERROR)
+    if(MSVC)
+        target_compile_options(platform_specific INTERFACE /WX)
+    else()
+        target_compile_options(platform_specific INTERFACE -Werror)
+    endif()
+endif()
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
