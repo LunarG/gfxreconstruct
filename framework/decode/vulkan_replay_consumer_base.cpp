@@ -3080,16 +3080,24 @@ void VulkanReplayConsumerBase::OverrideDestroyDescriptorPool(
     DescriptorPoolInfo*                                        descriptor_pool_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    assert((device_info != nullptr) && (descriptor_pool_info != nullptr));
+    assert(device_info != nullptr);
 
-    // If descriptor allocation ran out of pool memory one or more times, there will be one or more descriptor pools
-    // that need to be destroyed.
-    for (auto retired_pool : descriptor_pool_info->retired_pools)
+    VkDevice         device          = device_info->handle;
+    VkDescriptorPool descriptor_pool = VK_NULL_HANDLE;
+
+    if (descriptor_pool_info != nullptr)
     {
-        func(device_info->handle, retired_pool, GetAllocationCallbacks(pAllocator));
+        descriptor_pool = descriptor_pool_info->handle;
+
+        // If descriptor allocation ran out of pool memory one or more times, there will be one or more descriptor pools
+        // that need to be destroyed.
+        for (auto retired_pool : descriptor_pool_info->retired_pools)
+        {
+            func(device, retired_pool, GetAllocationCallbacks(pAllocator));
+        }
     }
 
-    func(device_info->handle, descriptor_pool_info->handle, GetAllocationCallbacks(pAllocator));
+    func(device, descriptor_pool, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
