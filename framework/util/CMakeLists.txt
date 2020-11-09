@@ -55,6 +55,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/zstd_compressor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
