@@ -25,6 +25,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/monotonic_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/monotonic_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/page_guard_manager.cpp
