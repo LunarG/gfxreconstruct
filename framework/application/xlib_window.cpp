@@ -332,7 +332,19 @@ VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::I
                                                                  VkPhysicalDevice             physical_device,
                                                                  uint32_t                     queue_family_index)
 {
-    return table->GetPhysicalDeviceXlibPresentationSupportKHR(physical_device, queue_family_index, nullptr, 0);
+    const auto display = xlib_application_->OpenDisplay();
+    const auto xlib    = xlib_application_->GetXlibFunctionTable();
+
+    // Get visual ID which will be inherited from parent at window creation
+    XWindowAttributes root_attributes;
+    xlib.GetWindowAttributes(display, RootWindow(display, DefaultScreen(display)), &root_attributes);
+    const auto visual_id = xlib.VisualIDFromVisual(root_attributes.visual);
+
+    const auto result =
+        table->GetPhysicalDeviceXlibPresentationSupportKHR(physical_device, queue_family_index, display, visual_id);
+
+    xlib_application_->CloseDisplay(display);
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(application)

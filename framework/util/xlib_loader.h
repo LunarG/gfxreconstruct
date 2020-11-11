@@ -49,6 +49,7 @@ class XlibLoader
         decltype(XStoreName)*           StoreName;
         decltype(XSync)*                Sync;
         decltype(XUnmapWindow)*         UnmapWindow;
+        decltype(XVisualIDFromVisual)*  VisualIDFromVisual;
     };
 
   public:
