@@ -87,6 +87,8 @@ bool XlibLoader::Initialize()
             function_table_.Sync = reinterpret_cast<decltype(XSync)*>(util::platform::GetProcAddress(libx11_, "XSync"));
             function_table_.UnmapWindow =
                 reinterpret_cast<decltype(XUnmapWindow)*>(util::platform::GetProcAddress(libx11_, "XUnmapWindow"));
+            function_table_.VisualIDFromVisual = reinterpret_cast<decltype(XVisualIDFromVisual)*>(
+                util::platform::GetProcAddress(libx11_, "XVisualIDFromVisual"));
         }
         else
         {
