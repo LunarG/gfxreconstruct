@@ -1539,9 +1539,11 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
 
     if ((call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR) ||
         (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR) ||
-        (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR))
+        (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
+        (call_id == format::ApiCallId::ApiCall_vkCmdSetCheckpointNV))
     {
         // The window system related handles are ignored by replay.
+        // The checkpoint marker is ignored by replay.
     }
     else
     {
