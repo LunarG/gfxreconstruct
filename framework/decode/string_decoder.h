@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_STRING_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
+#include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -40,14 +41,6 @@ class BasicStringDecoder : public PointerDecoderBase
 {
   public:
     BasicStringDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) {}
-
-    ~BasicStringDecoder()
-    {
-        if ((data_ != nullptr) && !is_memory_external_)
-        {
-            delete[] data_;
-        }
-    }
 
     const CharT* GetPointer() const { return data_; }
 
@@ -82,7 +75,7 @@ class BasicStringDecoder : public PointerDecoderBase
             {
                 assert(data_ == nullptr);
 
-                data_     = new CharT[alloc_len];
+                data_     = DecodeAllocator::Allocate<CharT>(alloc_len, false);
                 capacity_ = alloc_len;
                 bytes_read += ValueDecoder::DecodeArrayFrom<EncodeT>(
                     (buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);

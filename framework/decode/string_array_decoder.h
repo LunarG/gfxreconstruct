@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_STRING_ARRAY_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
+#include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -42,15 +43,13 @@ class BasicStringArrayDecoder : public PointerDecoderBase
   public:
     BasicStringArrayDecoder() {}
 
-    ~BasicStringArrayDecoder() { DestroyStrings(); }
+    const uint32_t* GetStringAttributes() const { return string_attributes_; }
 
-    const uint32_t* GetStringAttributes() const { return string_attributes_.get(); }
+    const uint64_t* GetStringAddresses() const { return string_addresses_; }
 
-    const uint64_t* GetStringAddresses() const { return string_addresses_.get(); }
+    const size_t* GetStringLengths() const { return string_lengths_; }
 
-    const size_t* GetStringLengths() const { return string_lengths_.get(); }
-
-    const CharT* const* GetPointer() const { return strings_.get(); }
+    const CharT* const* GetPointer() const { return strings_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {
@@ -63,10 +62,10 @@ class BasicStringArrayDecoder : public PointerDecoderBase
         if (!IsNull() && HasData())
         {
             size_t len         = GetLength();
-            strings_           = std::make_unique<char*[]>(len);
-            string_attributes_ = std::make_unique<uint32_t[]>(len);
-            string_addresses_  = std::make_unique<uint64_t[]>(len);
-            string_lengths_    = std::make_unique<size_t[]>(len);
+            strings_           = DecodeAllocator::Allocate<char*>(len);
+            string_attributes_ = DecodeAllocator::Allocate<uint32_t>(len);
+            string_addresses_  = DecodeAllocator::Allocate<uint64_t>(len);
+            string_lengths_    = DecodeAllocator::Allocate<size_t>(len);
 
             for (size_t i = 0; i < len; ++i)
             {
@@ -88,7 +87,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
                     bytes_read +=
                         ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &slen);
 
-                    CharT* value = new CharT[slen + 1];
+                    CharT* value = DecodeAllocator::Allocate<CharT>(slen + 1, false);
 
                     if (((attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData))
                     {
@@ -119,24 +118,10 @@ class BasicStringArrayDecoder : public PointerDecoderBase
     }
 
   private:
-    void DestroyStrings()
-    {
-        if (strings_ != nullptr)
-        {
-            // Must explicitly destroy the individual strings in the array.
-            for (size_t i = 0; i < GetLength(); ++i)
-            {
-                delete[] strings_[i];
-                strings_[i] = nullptr;
-            }
-        }
-    }
-
-  private:
-    std::unique_ptr<CharT*[]>   strings_;
-    std::unique_ptr<uint32_t[]> string_attributes_;
-    std::unique_ptr<uint64_t[]> string_addresses_;
-    std::unique_ptr<size_t[]>   string_lengths_;
+    CharT**   strings_{ nullptr };
+    uint32_t* string_attributes_{ nullptr };
+    uint64_t* string_addresses_{ nullptr };
+    size_t*   string_lengths_{ nullptr };
 };
 
 typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString>     StringArrayDecoder;

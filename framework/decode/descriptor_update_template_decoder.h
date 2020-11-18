@@ -42,22 +42,19 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
 
     ~DescriptorUpdateTemplateDecoder();
 
-    const void* GetPointer() const { return template_memory_.get(); }
+    const void* GetPointer() const { return template_memory_; }
 
     size_t GetImageInfoCount() const { return image_info_count_; }
     size_t GetBufferInfoCount() const { return buffer_info_count_; }
     size_t GetTexelBufferViewCount() const { return texel_buffer_view_count_; }
 
-    Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() { return decoded_image_info_.get(); }
-    Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() { return decoded_buffer_info_.get(); }
-    format::HandleId* GetTexelBufferViewHandleIdsPointer() { return decoded_texel_buffer_view_handle_ids_.get(); }
+    Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() { return decoded_image_info_; }
+    Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() { return decoded_buffer_info_; }
+    format::HandleId* GetTexelBufferViewHandleIdsPointer() { return decoded_texel_buffer_view_handle_ids_; }
 
-    const Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
-    const Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
-    const format::HandleId*               GetTexelBufferViewHandleIdsPointer() const
-    {
-        return decoded_texel_buffer_view_handle_ids_.get();
-    }
+    const Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_; }
+    const Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_; }
+    const format::HandleId* GetTexelBufferViewHandleIdsPointer() const { return decoded_texel_buffer_view_handle_ids_; }
 
     VkDescriptorImageInfo*  GetImageInfoPointer() { return image_info_; }
     VkDescriptorBufferInfo* GetBufferInfoPointer() { return buffer_info_; }
@@ -70,16 +67,16 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t Decode(const uint8_t* buffer, size_t buffer_size);
 
   private:
-    std::unique_ptr<uint8_t[]>                        template_memory_;
-    std::unique_ptr<Decoded_VkDescriptorImageInfo[]>  decoded_image_info_;
-    std::unique_ptr<Decoded_VkDescriptorBufferInfo[]> decoded_buffer_info_;
-    std::unique_ptr<format::HandleId[]>               decoded_texel_buffer_view_handle_ids_;
-    size_t                                            image_info_count_;
-    size_t                                            buffer_info_count_;
-    size_t                                            texel_buffer_view_count_;
-    VkDescriptorImageInfo*                            image_info_;
-    VkDescriptorBufferInfo*                           buffer_info_;
-    VkBufferView*                                     texel_buffer_views_;
+    uint8_t*                        template_memory_{ nullptr };
+    Decoded_VkDescriptorImageInfo*  decoded_image_info_{ nullptr };
+    Decoded_VkDescriptorBufferInfo* decoded_buffer_info_{ nullptr };
+    format::HandleId*               decoded_texel_buffer_view_handle_ids_{ nullptr };
+    size_t                          image_info_count_;
+    size_t                          buffer_info_count_;
+    size_t                          texel_buffer_view_count_;
+    VkDescriptorImageInfo*          image_info_;
+    VkDescriptorBufferInfo*         buffer_info_;
+    VkBufferView*                   texel_buffer_views_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

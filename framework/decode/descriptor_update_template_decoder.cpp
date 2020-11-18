@@ -24,6 +24,7 @@
 #include "decode/descriptor_update_template_decoder.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -61,13 +62,13 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
         size_t total_size               = texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
 
         assert(template_memory_ == nullptr);
-        template_memory_ = std::make_unique<uint8_t[]>(total_size);
+        template_memory_ = DecodeAllocator::Allocate<uint8_t>(total_size);
 
         // Read each value type.
         if (image_info_count_ > 0)
         {
-            image_info_         = reinterpret_cast<VkDescriptorImageInfo*>(template_memory_.get());
-            decoded_image_info_ = std::make_unique<Decoded_VkDescriptorImageInfo[]>(image_info_count_);
+            image_info_         = reinterpret_cast<VkDescriptorImageInfo*>(template_memory_);
+            decoded_image_info_ = DecodeAllocator::Allocate<Decoded_VkDescriptorImageInfo>(image_info_count_);
 
             for (size_t i = 0; i < image_info_count_; ++i)
             {
@@ -78,8 +79,8 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
 
         if (buffer_info_count_ > 0)
         {
-            buffer_info_ = reinterpret_cast<VkDescriptorBufferInfo*>(template_memory_.get() + buffer_info_offset);
-            decoded_buffer_info_ = std::make_unique<Decoded_VkDescriptorBufferInfo[]>(buffer_info_count_);
+            buffer_info_         = reinterpret_cast<VkDescriptorBufferInfo*>(template_memory_ + buffer_info_offset);
+            decoded_buffer_info_ = DecodeAllocator::Allocate<Decoded_VkDescriptorBufferInfo>(buffer_info_count_);
 
             for (size_t i = 0; i < buffer_info_count_; ++i)
             {
@@ -90,12 +91,13 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
 
         if (texel_buffer_view_count_ > 0)
         {
-            texel_buffer_views_ = reinterpret_cast<VkBufferView*>(template_memory_.get() + texel_buffer_view_offset);
-            decoded_texel_buffer_view_handle_ids_ = std::make_unique<format::HandleId[]>(texel_buffer_view_count_);
+            texel_buffer_views_ = reinterpret_cast<VkBufferView*>(template_memory_ + texel_buffer_view_offset);
+            decoded_texel_buffer_view_handle_ids_ =
+                DecodeAllocator::Allocate<format::HandleId>(texel_buffer_view_count_);
 
             ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
                                               (buffer_size - bytes_read),
-                                              decoded_texel_buffer_view_handle_ids_.get(),
+                                              decoded_texel_buffer_view_handle_ids_,
                                               texel_buffer_view_count_);
         }
     }

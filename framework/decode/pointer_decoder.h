@@ -25,6 +25,7 @@
 #define GFXRECON_DECODE_POINTER_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
+#include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -42,42 +43,37 @@ class PointerDecoder : public PointerDecoderBase
   public:
     PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false), output_len_(0) {}
 
-    virtual ~PointerDecoder() override
-    {
-        if ((data_ != nullptr) && !is_memory_external_)
-        {
-            delete[] data_;
-        }
-    }
-
     T* GetPointer() { return data_; }
 
     const T* GetPointer() const { return data_; }
 
     size_t GetOutputLength() const { return output_len_; }
 
-    OutputT* GetOutputPointer() { return output_data_.get(); }
+    OutputT* GetOutputPointer() { return output_data_; }
 
-    const OutputT* GetOutputPointer() const { return output_data_.get(); }
+    const OutputT* GetOutputPointer() const { return output_data_; }
 
     OutputT* AllocateOutputData(size_t len)
     {
-        output_len_  = len;
-        output_data_ = std::make_unique<OutputT[]>(len);
-        return output_data_.get();
+        output_len_ = len;
+
+        // Default initialize output_data_
+        output_data_ = DecodeAllocator::Allocate<OutputT>(len);
+
+        return output_data_;
     }
 
     OutputT* AllocateOutputData(size_t len, const OutputT& init)
     {
         output_len_  = len;
-        output_data_ = std::make_unique<OutputT[]>(len);
+        output_data_ = DecodeAllocator::Allocate<OutputT>(len, false);
 
         for (size_t i = 0; i < len; ++i)
         {
             output_data_[i] = init;
         }
 
-        return output_data_.get();
+        return output_data_;
     }
 
     template <size_t N, size_t M>
@@ -176,11 +172,15 @@ class PointerDecoder : public PointerDecoderBase
         size_t bytes_read = 0;
         size_t len        = GetLength();
 
-        data_ = new T[len];
-
         if (HasData())
         {
+            data_      = DecodeAllocator::Allocate<T>(len, false);
             bytes_read = ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, len);
+        }
+        else
+        {
+            // Allocate and default initialize
+            data_ = DecodeAllocator::Allocate<T>(len);
         }
 
         return bytes_read;
@@ -230,8 +230,8 @@ class PointerDecoder : public PointerDecoderBase
     /// Optional memory allocated for output pramaters when retrieving data from a function call. Allows both the data
     /// read from the file and the data retrieved from an API call to exist simultaneously, allowing the values to be
     /// compared.
-    std::unique_ptr<OutputT[]> output_data_;
-    size_t                     output_len_; ///< Size of #output_data_.
+    OutputT* output_data_{ nullptr };
+    size_t   output_len_; ///< Size of #output_data_.
 };
 
 template <typename T>
@@ -239,18 +239,6 @@ class PointerDecoder<T*> : public PointerDecoderBase
 {
   public:
     PointerDecoder() : data_(nullptr) {}
-
-    virtual ~PointerDecoder() override
-    {
-        if (data_ != nullptr)
-        {
-            for (size_t i = 0; i < GetLength(); ++i)
-            {
-                delete[] data_[i];
-            }
-            delete[] data_;
-        }
-    }
 
     T** GetPointer() { return data_; }
 
@@ -311,7 +299,7 @@ class PointerDecoder<T*> : public PointerDecoderBase
         size_t bytes_read = 0;
         size_t len        = GetLength();
 
-        data_ = new T*[len];
+        data_ = DecodeAllocator::Allocate<T*>(len, false);
 
         for (size_t i = 0; i < len; ++i)
         {
@@ -341,7 +329,7 @@ class PointerDecoder<T*> : public PointerDecoderBase
                 bytes_read +=
                     ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &inner_len);
 
-                T* inner_data = new T[inner_len];
+                T* inner_data = DecodeAllocator::Allocate<T>(inner_len);
                 bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(
                     (buffer + bytes_read), (buffer_size - bytes_read), inner_data, inner_len);
 
