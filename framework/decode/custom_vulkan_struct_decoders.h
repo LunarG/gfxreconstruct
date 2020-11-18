@@ -65,8 +65,8 @@ struct Decoded_VkClearColorValue
 struct Decoded_VkClearValue
 {
     using struct_type = VkClearValue;
-    VkClearValue*                              decoded_value{ nullptr };
-    std::unique_ptr<Decoded_VkClearColorValue> color;
+    VkClearValue*              decoded_value{ nullptr };
+    Decoded_VkClearColorValue* color{ nullptr };
 };
 
 struct Decoded_VkPipelineExecutableStatisticValueKHR
@@ -97,9 +97,9 @@ struct Decoded_VkAccelerationStructureGeometryDataKHR
     using struct_type = VkAccelerationStructureGeometryDataKHR;
     VkAccelerationStructureGeometryDataKHR* decoded_value{ nullptr };
 
-    std::unique_ptr<Decoded_VkAccelerationStructureGeometryTrianglesDataKHR> triangles;
-    std::unique_ptr<Decoded_VkAccelerationStructureGeometryAabbsDataKHR>     aabbs;
-    std::unique_ptr<Decoded_VkAccelerationStructureGeometryInstancesDataKHR> instances;
+    Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* triangles{ nullptr };
+    Decoded_VkAccelerationStructureGeometryAabbsDataKHR*     aabbs{ nullptr };
+    Decoded_VkAccelerationStructureGeometryInstancesDataKHR* instances{ nullptr };
 };
 
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the Decoded_VkPerformanceValueINTEL
@@ -130,11 +130,11 @@ struct Decoded_VkWriteDescriptorSet
 
     VkWriteDescriptorSet* decoded_value{ nullptr };
 
-    std::unique_ptr<PNextNode>                                            pNext;
-    format::HandleId                                                      dstSet{ format::kNullHandleId };
-    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>  pImageInfo;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
-    HandlePointerDecoder<VkBufferView>                                    pTexelBufferView;
+    std::unique_ptr<PNextNode>                            pNext;
+    format::HandleId                                      dstSet{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*  pImageInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorBufferInfo>* pBufferInfo{ nullptr };
+    HandlePointerDecoder<VkBufferView>                    pTexelBufferView;
 };
 
 struct Decoded_VkPerformanceValueINTEL
@@ -143,7 +143,7 @@ struct Decoded_VkPerformanceValueINTEL
 
     VkPerformanceValueINTEL* decoded_value{ nullptr };
 
-    std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
+    Decoded_VkPerformanceValueDataINTEL* data{ nullptr };
 };
 
 struct Decoded_VkAccelerationStructureGeometryKHR
@@ -152,8 +152,8 @@ struct Decoded_VkAccelerationStructureGeometryKHR
 
     VkAccelerationStructureGeometryKHR* decoded_value{ nullptr };
 
-    std::unique_ptr<PNextNode>                                      pNext;
-    std::unique_ptr<Decoded_VkAccelerationStructureGeometryDataKHR> geometry;
+    std::unique_ptr<PNextNode>                      pNext;
+    Decoded_VkAccelerationStructureGeometryDataKHR* geometry{ nullptr };
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
@@ -170,13 +170,13 @@ struct Decoded_SECURITY_DESCRIPTOR
 
     SECURITY_DESCRIPTOR* decoded_value{ nullptr };
 
-    std::unique_ptr<uint8_t[]> Owner;
-    std::unique_ptr<uint8_t[]> Group;
-    PointerDecoder<uint8_t>    PackedOwner;
-    PointerDecoder<uint8_t>    PackedGroup;
+    uint8_t*                Owner{ nullptr };
+    uint8_t*                Group{ nullptr };
+    PointerDecoder<uint8_t> PackedOwner;
+    PointerDecoder<uint8_t> PackedGroup;
 
-    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Sacl;
-    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Dacl;
+    StructPointerDecoder<Decoded_ACL>* Sacl{ nullptr };
+    StructPointerDecoder<Decoded_ACL>* Dacl{ nullptr };
 };
 
 struct Decoded_SECURITY_ATTRIBUTES
@@ -185,7 +185,7 @@ struct Decoded_SECURITY_ATTRIBUTES
 
     SECURITY_ATTRIBUTES* decoded_value{ nullptr };
 
-    std::unique_ptr<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>> lpSecurityDescriptor;
+    StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -156,12 +156,15 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
             elif self.needsMemberDeclaration(name, value):
                 typeName = self.makeDecodedParamType(value)
                 if self.isStruct(value.baseType):
-                    typeName = 'std::unique_ptr<{}>'.format(typeName)
+                    typeName = '{}*'.format(typeName)
 
                 defaultValue = self.getDefaultInitValue(typeName)
                 if defaultValue:
                     body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)
                 else:
-                    body += '    {} {};\n'.format(typeName, value.name)
+                    if self.isStruct(value.baseType):
+                        body += '    {} {}{{ nullptr }};\n'.format(typeName, value.name)
+                    else:
+                        body += '    {} {};\n'.format(typeName, value.name)
 
         return body

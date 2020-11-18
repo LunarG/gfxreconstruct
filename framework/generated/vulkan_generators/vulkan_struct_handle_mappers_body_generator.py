@@ -215,7 +215,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 elif member.isPointer:
                     body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_info_table);\n'.format(member.baseType, member.name)
                 else:
-                    body += '        MapStructHandles(wrapper->{}.get(), object_info_table);\n'.format(member.name)
+                    body += '        MapStructHandles(wrapper->{}, object_info_table);\n'.format(member.name)
             else:
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):
@@ -254,7 +254,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 elif member.isPointer:
                     body += '        AddStructArrayHandles<Decoded_{}>(parent_id, id_wrapper->{name}->GetMetaStructPointer(), 1, handle_struct->{name}, 1, object_info_table);\n'.format(member.baseType, name=member.name)
                 else:
-                    body += '        AddStructHandles(parent_id, id_wrapper->{name}.get(), &handle_struct->{name}, object_info_table);\n'.format(name=member.name)
+                    body += '        AddStructHandles(parent_id, id_wrapper->{name}, &handle_struct->{name}, object_info_table);\n'.format(name=member.name)
             else:
                 # If it is an array or pointer, add with the utility function.
                 if (member.isArray or member.isPointer):
@@ -305,7 +305,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 elif member.isPointer:
                     body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), 1);\n'.format(member.baseType, name=member.name)
                 else:
-                    body += '        SetStructHandleLengths(wrapper->{name}.get());\n'.format(name=member.name)
+                    body += '        SetStructHandleLengths(wrapper->{name});\n'.format(name=member.name)
             else:
                 # If it is an array or pointer, add with the utility function.
                 if (member.isArray or member.isPointer):

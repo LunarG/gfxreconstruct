@@ -360,7 +360,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    const auto image_info = meta_writes->pImageInfo.get();
+                    const auto image_info = meta_writes->pImageInfo;
                     assert(image_info != nullptr);
 
                     if (!image_info->IsNull() && image_info->HasData())
@@ -379,7 +379,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
-                    const auto buffer_info = meta_writes->pBufferInfo.get();
+                    const auto buffer_info = meta_writes->pBufferInfo;
                     assert(buffer_info != nullptr);
 
                     if (!buffer_info->IsNull() && buffer_info->HasData())
