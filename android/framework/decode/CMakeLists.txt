@@ -9,6 +9,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/decode_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/decode_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.h
