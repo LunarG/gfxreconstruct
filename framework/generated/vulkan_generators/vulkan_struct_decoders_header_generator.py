@@ -152,7 +152,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         for value in values:
             if value.name == 'pNext':
                 # We have a special type to store the pNext chain
-                body += '    std::unique_ptr<PNextNode> pNext;\n'
+                body += '    PNextNode* pNext{ nullptr };\n'
             elif self.needsMemberDeclaration(name, value):
                 typeName = self.makeDecodedParamType(value)
                 if self.isStruct(value.baseType):

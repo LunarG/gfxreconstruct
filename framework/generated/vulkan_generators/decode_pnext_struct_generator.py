@@ -58,6 +58,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "decode/decode_allocator.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pnext_typed_node.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
@@ -68,7 +69,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  std::unique_ptr<PNextNode>* pNext)', file=self.outFile)
+        write('size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  PNextNode** pNext)', file=self.outFile)
         write('{', file=self.outFile)
         write('    assert(pNext != nullptr);', file=self.outFile)
         self.newline()
@@ -148,7 +149,7 @@ class DecodePNextStructGenerator(BaseGenerator):
     def generateFeature(self):
         for struct in self.sTypeValues:
             write('            case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
-            write('                (*pNext) = std::make_unique<PNextTypedNode<Decoded_{}>>();'.format(struct), file=self.outFile)
+            write('                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'.format(struct), file=self.outFile)
             write('                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);'.format(struct), file=self.outFile)
             write('                break;', file=self.outFile)
         self.sTypeValues = dict()

@@ -51,7 +51,7 @@ struct Decoded_VkBaseOutStructure
 
     VkBaseOutStructure* decoded_value{ nullptr };
 
-    std::unique_ptr<PNextNode> pNext;
+    PNextNode* pNext{ nullptr };
 };
 
 // Decoded union wrappers.
@@ -130,7 +130,7 @@ struct Decoded_VkWriteDescriptorSet
 
     VkWriteDescriptorSet* decoded_value{ nullptr };
 
-    std::unique_ptr<PNextNode>                            pNext;
+    PNextNode*                                            pNext{ nullptr };
     format::HandleId                                      dstSet{ format::kNullHandleId };
     StructPointerDecoder<Decoded_VkDescriptorImageInfo>*  pImageInfo{ nullptr };
     StructPointerDecoder<Decoded_VkDescriptorBufferInfo>* pBufferInfo{ nullptr };
@@ -152,7 +152,7 @@ struct Decoded_VkAccelerationStructureGeometryKHR
 
     VkAccelerationStructureGeometryKHR* decoded_value{ nullptr };
 
-    std::unique_ptr<PNextNode>                      pNext;
+    PNextNode*                                      pNext{ nullptr };
     Decoded_VkAccelerationStructureGeometryDataKHR* geometry{ nullptr };
 };
 
