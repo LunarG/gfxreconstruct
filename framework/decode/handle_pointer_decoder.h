@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_HANDLE_POINTER_DECODER_H
 #define GFXRECON_DECODE_HANDLE_POINTER_DECODER_H
 
+#include "decode/decode_allocator.h"
 #include "decode/pointer_decoder.h"
 
 #include <cassert>
@@ -107,7 +108,7 @@ class HandlePointerDecoder
         {
             if (consumer_data_ == nullptr)
             {
-                consumer_data_ = std::make_unique<void*[]>(handle_data_len_);
+                consumer_data_ = DecodeAllocator::Allocate<void*>(handle_data_len_);
             }
 
             consumer_data_[index] = consumer_data;
@@ -120,7 +121,7 @@ class HandlePointerDecoder
     size_t                              handle_data_len_;
     size_t                              capacity_;
     bool                                is_memory_external_;
-    std::unique_ptr<void*[]>            consumer_data_;
+    void**                              consumer_data_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
