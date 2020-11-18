@@ -23,6 +23,7 @@
 
 #include "decode/custom_vulkan_struct_decoders.h"
 
+#include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
@@ -55,9 +56,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearVa
     size_t        bytes_read = 0;
     VkClearValue* value      = wrapper->decoded_value;
 
-    wrapper->color                = std::make_unique<Decoded_VkClearColorValue>();
+    wrapper->color                = DecodeAllocator::Allocate<Decoded_VkClearColorValue>();
     wrapper->color->decoded_value = &(value->color);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color.get());
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color);
 
     return bytes_read;
 }
@@ -151,11 +152,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteDe
     bytes_read +=
         ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorType));
 
-    wrapper->pImageInfo = std::make_unique<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+    wrapper->pImageInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
     bytes_read += wrapper->pImageInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageInfo = wrapper->pImageInfo->GetPointer();
 
-    wrapper->pBufferInfo = std::make_unique<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>>();
+    wrapper->pBufferInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>>();
     bytes_read += wrapper->pBufferInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferInfo = wrapper->pBufferInfo->GetPointer();
 
@@ -174,7 +175,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPerform
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
 
-    wrapper->data                = std::make_unique<Decoded_VkPerformanceValueDataINTEL>();
+    wrapper->data                = DecodeAllocator::Allocate<Decoded_VkPerformanceValueDataINTEL>();
     wrapper->data->decoded_value = &(value->data);
 
     if (value->type == VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL)
@@ -205,27 +206,26 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read +=
         ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->geometryType));
 
-    wrapper->geometry = std::make_unique<Decoded_VkAccelerationStructureGeometryDataKHR>();
+    wrapper->geometry = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryDataKHR>();
 
     switch (value->geometryType)
     {
         case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
-            wrapper->geometry->triangles = std::make_unique<Decoded_VkAccelerationStructureGeometryTrianglesDataKHR>();
+            wrapper->geometry->triangles =
+                DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryTrianglesDataKHR>();
             wrapper->geometry->triangles->decoded_value = &(value->geometry.triangles);
-            bytes_read +=
-                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->triangles.get());
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->triangles);
             break;
         case VK_GEOMETRY_TYPE_AABBS_KHR:
-            wrapper->geometry->aabbs = std::make_unique<Decoded_VkAccelerationStructureGeometryAabbsDataKHR>();
+            wrapper->geometry->aabbs = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryAabbsDataKHR>();
             wrapper->geometry->aabbs->decoded_value = &(value->geometry.aabbs);
-            bytes_read +=
-                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->aabbs.get());
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->aabbs);
             break;
         case VK_GEOMETRY_TYPE_INSTANCES_KHR:
-            wrapper->geometry->instances = std::make_unique<Decoded_VkAccelerationStructureGeometryInstancesDataKHR>();
+            wrapper->geometry->instances =
+                DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryInstancesDataKHR>();
             wrapper->geometry->instances->decoded_value = &(value->geometry.instances);
-            bytes_read +=
-                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->instances.get());
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->instances);
             break;
     }
 
@@ -235,7 +235,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
 }
 
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
-static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
+static uint8_t* unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {
     const uint8_t* bytes = packed_value.GetPointer();
 
@@ -245,10 +245,10 @@ static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t
 
     // sizeof(SID) already includes the size of one of the SidAuthority elements,
     // so we can subtract 4 bytes from sid_authority_size.
-    size_t                     allocation_size = sizeof(SID) + (sid_authority_size - sizeof(uint32_t));
-    std::unique_ptr<uint8_t[]> unpacked_memory = std::make_unique<uint8_t[]>(allocation_size);
+    size_t   allocation_size = sizeof(SID) + (sid_authority_size - sizeof(uint32_t));
+    uint8_t* unpacked_memory = DecodeAllocator::Allocate<uint8_t>(allocation_size);
 
-    SID* sid               = reinterpret_cast<SID*>(unpacked_memory.get());
+    SID* sid               = reinterpret_cast<SID*>(unpacked_memory);
     sid->Revision          = bytes[0];
     sid->SubAuthorityCount = bytes[1];
     memcpy(sid->IdentifierAuthority.Value, &bytes[2], 6);
@@ -289,17 +289,17 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
     // The SID structure has a variable size, so has been packed into an array of bytes.
     bytes_read += wrapper->PackedOwner.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
     wrapper->Owner = unpack_sid_struct(wrapper->PackedOwner);
-    value->Owner   = wrapper->Owner.get();
+    value->Owner   = wrapper->Owner;
 
     bytes_read += wrapper->PackedGroup.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
     wrapper->Group = unpack_sid_struct(wrapper->PackedOwner);
-    value->Group   = wrapper->Group.get();
+    value->Group   = wrapper->Group;
 
-    wrapper->Sacl = std::make_unique<StructPointerDecoder<Decoded_ACL>>();
+    wrapper->Sacl = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_ACL>>();
     bytes_read += wrapper->Sacl->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->Sacl = wrapper->Sacl->GetPointer();
 
-    wrapper->Dacl = std::make_unique<StructPointerDecoder<Decoded_ACL>>();
+    wrapper->Dacl = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_ACL>>();
     bytes_read += wrapper->Dacl->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->Dacl = wrapper->Dacl->GetPointer();
 
@@ -317,7 +317,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &nLength);
     value->nLength = nLength;
 
-    wrapper->lpSecurityDescriptor = std::make_unique<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>>();
+    wrapper->lpSecurityDescriptor = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>>();
     bytes_read += wrapper->lpSecurityDescriptor->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->lpSecurityDescriptor = wrapper->lpSecurityDescriptor->GetPointer();
 

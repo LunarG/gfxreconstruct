@@ -23,6 +23,7 @@
 
 #include "decode/file_processor.h"
 
+#include "decode/decode_allocator.h"
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
@@ -51,6 +52,8 @@ FileProcessor::~FileProcessor()
     {
         fclose(file_descriptor_);
     }
+
+    DecodeAllocator::DestroyInstance();
 }
 
 bool FileProcessor::Initialize(const std::string& filename)
@@ -413,7 +416,9 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
             {
                 if (decoder->SupportsApiCall(call_id))
                 {
+                    DecodeAllocator::Begin();
                     decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                    DecodeAllocator::End();
                 }
             }
         }
