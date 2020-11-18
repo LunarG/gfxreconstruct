@@ -64,7 +64,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
+        write('size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);', file=self.outFile)
 
     # Method override
     def endFile(self):
