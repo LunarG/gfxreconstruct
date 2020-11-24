@@ -37,6 +37,8 @@ gfxrecon::format::HandleId GetHandleId()
 
 TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+
     VkBuffer buffer = kBufferHandle;
     gfxrecon::encode::CreateWrappedHandle<gfxrecon::encode::DeviceWrapper,
                                           gfxrecon::encode::NoParentWrapper,
@@ -71,4 +73,6 @@ TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
     }
 
     gfxrecon::encode::DestroyWrappedHandle<gfxrecon::encode::BufferWrapper>(buffer);
+
+    gfxrecon::util::Log::Release();
 }
