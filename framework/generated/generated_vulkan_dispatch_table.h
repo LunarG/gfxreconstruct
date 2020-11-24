@@ -25,6 +25,7 @@
 
 #include "format/platform_types.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vk_layer.h"
 #include "vulkan/vulkan.h"
@@ -52,441 +53,441 @@ static DispatchKey GetDispatchKey(const void* handle)
 
 GFXRECON_BEGIN_NAMESPACE(noop)
 // clang-format off
-static VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance, uint32_t*, VkPhysicalDevice*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice, VkPhysicalDeviceFeatures*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice, VkFormat, VkFormatProperties*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice, VkFormat, VkImageType, VkImageTiling, VkImageUsageFlags, VkImageCreateFlags, VkImageFormatProperties*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice, VkPhysicalDeviceProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties*) {}
-static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance, const char*) { return nullptr; }
-static VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice, const char*, uint32_t*, VkExtensionProperties*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice, uint32_t*, VkLayerProperties*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(VkPhysicalDevice, VkFormat, VkImageType, VkSampleCountFlagBits, VkImageUsageFlags, VkImageTiling, uint32_t*, VkSparseImageFormatProperties*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(VkInstance, uint32_t*, VkPhysicalDeviceGroupProperties*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(VkPhysicalDevice, VkPhysicalDeviceFeatures2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice, VkPhysicalDeviceProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(VkPhysicalDevice, VkFormat, VkFormatProperties2*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice, const VkPhysicalDeviceImageFormatInfo2*, VkImageFormatProperties2*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(VkPhysicalDevice, const VkPhysicalDeviceSparseImageFormatInfo2*, uint32_t*, VkSparseImageFormatProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalBufferInfo*, VkExternalBufferProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalFenceInfo*, VkExternalFenceProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo*, VkExternalSemaphoreProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(VkInstance, VkSurfaceKHR, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice, uint32_t, VkSurfaceKHR, VkBool32*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice, VkSurfaceKHR, VkSurfaceCapabilitiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkSurfaceFormatKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkPresentModeKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkRect2D*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(VkPhysicalDevice, uint32_t*, VkDisplayPropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(VkPhysicalDevice, uint32_t*, VkDisplayPlanePropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(VkPhysicalDevice, uint32_t, uint32_t*, VkDisplayKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModePropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(VkPhysicalDevice, VkDisplayKHR, const VkDisplayModeCreateInfoKHR*, const VkAllocationCallbacks*, VkDisplayModeKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(VkPhysicalDevice, VkDisplayModeKHR, uint32_t, VkDisplayPlaneCapabilitiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(VkInstance, const VkDisplaySurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(VkInstance, const VkXlibSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice, uint32_t, Display*, VisualID) { return VK_TRUE; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(VkInstance, const VkXcbSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice, uint32_t, xcb_connection_t*, xcb_visualid_t) { return VK_TRUE; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(VkInstance, const VkWaylandSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice, uint32_t, struct wl_display*) { return VK_TRUE; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(VkInstance, const VkAndroidSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(VkInstance, const VkWin32SurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t) { return VK_TRUE; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(VkPhysicalDevice, VkPhysicalDeviceFeatures2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice, VkPhysicalDeviceProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevice, VkFormat, VkFormatProperties2*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(VkPhysicalDevice, const VkPhysicalDeviceImageFormatInfo2*, VkImageFormatProperties2*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(VkPhysicalDevice, const VkPhysicalDeviceSparseImageFormatInfo2*, uint32_t*, VkSparseImageFormatProperties2*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(VkInstance, uint32_t*, VkPhysicalDeviceGroupProperties*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalBufferInfo*, VkExternalBufferProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo*, VkExternalSemaphoreProperties*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalFenceInfo*, VkExternalFenceProperties*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(VkPhysicalDevice, uint32_t, uint32_t*, VkPerformanceCounterKHR*, VkPerformanceCounterDescriptionKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(VkPhysicalDevice, const VkQueryPoolPerformanceCreateInfoKHR*, uint32_t*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkSurfaceCapabilities2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkSurfaceFormat2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayProperties2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayPlaneProperties2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModeProperties2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysicalDevice, const VkDisplayPlaneInfo2KHR*, VkDisplayPlaneCapabilities2KHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(VkInstance, const VkStreamDescriptorSurfaceCreateInfoGGP*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(VkPhysicalDevice, VkFormat, VkImageType, VkImageTiling, VkImageUsageFlags, VkImageCreateFlags, VkExternalMemoryHandleTypeFlagsNV, VkExternalImageFormatPropertiesNV*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(VkInstance, const VkViSurfaceCreateInfoNN*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(VkPhysicalDevice, VkDisplayKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(VkPhysicalDevice, Display*, RROutput, VkDisplayKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(VkPhysicalDevice, VkSurfaceKHR, VkSurfaceCapabilities2EXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(VkInstance, const VkIOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(VkInstance, const VkMacOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(VkInstance, VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice, VkSampleCountFlagBits, VkMultisamplePropertiesEXT*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(VkInstance, const VkMetalSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceToolPropertiesEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesNV*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(VkPhysicalDevice, uint32_t*, VkFramebufferMixedSamplesCombinationNV*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(VkInstance, const VkHeadlessSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(VkInstance, const VkDirectFBSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice, uint32_t, IDirectFB*) { return VK_TRUE; }
-static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { return nullptr; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(VkQueue, uint32_t, const VkSubmitInfo*, VkFence) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(VkQueue) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(VkDevice) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(VkDevice, const VkMemoryAllocateInfo*, const VkAllocationCallbacks*, VkDeviceMemory*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL FreeMemory(VkDevice, VkDeviceMemory, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL MapMemory(VkDevice, VkDeviceMemory, VkDeviceSize, VkDeviceSize, VkMemoryMapFlags, void**) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL UnmapMemory(VkDevice, VkDeviceMemory) {}
-static VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(VkDevice, uint32_t, const VkMappedMemoryRange*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(VkDevice, uint32_t, const VkMappedMemoryRange*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(VkDevice, VkDeviceMemory, VkDeviceSize*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(VkDevice, VkBuffer, VkDeviceMemory, VkDeviceSize) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(VkDevice, VkImage, VkDeviceMemory, VkDeviceSize) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(VkDevice, VkBuffer, VkMemoryRequirements*) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(VkDevice, VkImage, VkMemoryRequirements*) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(VkDevice, VkImage, uint32_t*, VkSparseImageMemoryRequirements*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue, uint32_t, const VkBindSparseInfo*, VkFence) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateFence(VkDevice, const VkFenceCreateInfo*, const VkAllocationCallbacks*, VkFence*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyFence(VkDevice, VkFence, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL ResetFences(VkDevice, uint32_t, const VkFence*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(VkDevice, VkFence) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(VkDevice, uint32_t, const VkFence*, VkBool32, uint64_t) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(VkDevice, const VkSemaphoreCreateInfo*, const VkAllocationCallbacks*, VkSemaphore*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroySemaphore(VkDevice, VkSemaphore, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(VkDevice, const VkEventCreateInfo*, const VkAllocationCallbacks*, VkEvent*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyEvent(VkDevice, VkEvent, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(VkDevice, VkEvent) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL SetEvent(VkDevice, VkEvent) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(VkDevice, VkEvent) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(VkDevice, const VkQueryPoolCreateInfo*, const VkAllocationCallbacks*, VkQueryPool*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(VkDevice, VkQueryPool, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(VkDevice, VkQueryPool, uint32_t, uint32_t, size_t, void*, VkDeviceSize, VkQueryResultFlags) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(VkDevice, const VkBufferCreateInfo*, const VkAllocationCallbacks*, VkBuffer*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyBuffer(VkDevice, VkBuffer, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(VkDevice, const VkBufferViewCreateInfo*, const VkAllocationCallbacks*, VkBufferView*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyBufferView(VkDevice, VkBufferView, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice, const VkImageCreateInfo*, const VkAllocationCallbacks*, VkImage*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyImage(VkDevice, VkImage, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(VkDevice, VkImage, const VkImageSubresource*, VkSubresourceLayout*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(VkDevice, const VkImageViewCreateInfo*, const VkAllocationCallbacks*, VkImageView*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyImageView(VkDevice, VkImageView, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(VkDevice, const VkShaderModuleCreateInfo*, const VkAllocationCallbacks*, VkShaderModule*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(VkDevice, VkShaderModule, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(VkDevice, const VkPipelineCacheCreateInfo*, const VkAllocationCallbacks*, VkPipelineCache*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(VkDevice, VkPipelineCache, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(VkDevice, VkPipelineCache, size_t*, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(VkDevice, VkPipelineCache, uint32_t, const VkPipelineCache*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice, VkPipelineCache, uint32_t, const VkGraphicsPipelineCreateInfo*, const VkAllocationCallbacks*, VkPipeline*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice, VkPipelineCache, uint32_t, const VkComputePipelineCreateInfo*, const VkAllocationCallbacks*, VkPipeline*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyPipeline(VkDevice, VkPipeline, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(VkDevice, const VkPipelineLayoutCreateInfo*, const VkAllocationCallbacks*, VkPipelineLayout*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(VkDevice, VkPipelineLayout, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(VkDevice, const VkSamplerCreateInfo*, const VkAllocationCallbacks*, VkSampler*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroySampler(VkDevice, VkSampler, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(VkDevice, const VkDescriptorSetLayoutCreateInfo*, const VkAllocationCallbacks*, VkDescriptorSetLayout*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(VkDevice, VkDescriptorSetLayout, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(VkDevice, const VkDescriptorPoolCreateInfo*, const VkAllocationCallbacks*, VkDescriptorPool*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(VkDevice, VkDescriptorPool, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(VkDevice, VkDescriptorPool, VkDescriptorPoolResetFlags) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(VkDevice, const VkDescriptorSetAllocateInfo*, VkDescriptorSet*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(VkDevice, VkDescriptorPool, uint32_t, const VkDescriptorSet*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(VkDevice, uint32_t, const VkWriteDescriptorSet*, uint32_t, const VkCopyDescriptorSet*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(VkDevice, const VkFramebufferCreateInfo*, const VkAllocationCallbacks*, VkFramebuffer*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(VkDevice, VkFramebuffer, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice, const VkRenderPassCreateInfo*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(VkDevice, VkRenderPass, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(VkDevice, VkRenderPass, VkExtent2D*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice, const VkCommandPoolCreateInfo*, const VkAllocationCallbacks*, VkCommandPool*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(VkDevice, VkCommandPool, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(VkDevice, VkCommandPool, VkCommandPoolResetFlags) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(VkDevice, const VkCommandBufferAllocateInfo*, VkCommandBuffer*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(VkDevice, VkCommandPool, uint32_t, const VkCommandBuffer*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(VkCommandBuffer, const VkCommandBufferBeginInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(VkCommandBuffer) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(VkCommandBuffer, VkCommandBufferResetFlags) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetViewport(VkCommandBuffer, uint32_t, uint32_t, const VkViewport*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetScissor(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(VkCommandBuffer, float) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(VkCommandBuffer, float, float, float) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(VkCommandBuffer, const float[4]) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(VkCommandBuffer, float, float) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(VkCommandBuffer, VkStencilFaceFlags, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(VkCommandBuffer, VkStencilFaceFlags, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(VkCommandBuffer, VkStencilFaceFlags, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, const VkDescriptorSet*, uint32_t, const uint32_t*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkIndexType) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDraw(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(VkCommandBuffer, uint32_t, uint32_t, uint32_t, int32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDispatch(VkCommandBuffer, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(VkCommandBuffer, VkBuffer, VkBuffer, uint32_t, const VkBufferCopy*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageCopy*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBlitImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageBlit*, VkFilter) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(VkCommandBuffer, VkBuffer, VkImage, VkImageLayout, uint32_t, const VkBufferImageCopy*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(VkCommandBuffer, VkImage, VkImageLayout, VkBuffer, uint32_t, const VkBufferImageCopy*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, const void*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer, VkImage, VkImageLayout, const VkClearColorValue*, uint32_t, const VkImageSubresourceRange*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(VkCommandBuffer, VkImage, VkImageLayout, const VkClearDepthStencilValue*, uint32_t, const VkImageSubresourceRange*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(VkCommandBuffer, uint32_t, const VkClearAttachment*, uint32_t, const VkClearRect*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdResolveImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageResolve*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetEvent(VkCommandBuffer, VkEvent, VkPipelineStageFlags) {}
-static VKAPI_ATTR void VKAPI_CALL CmdResetEvent(VkCommandBuffer, VkEvent, VkPipelineStageFlags) {}
-static VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(VkCommandBuffer, uint32_t, const VkEvent*, VkPipelineStageFlags, VkPipelineStageFlags, uint32_t, const VkMemoryBarrier*, uint32_t, const VkBufferMemoryBarrier*, uint32_t, const VkImageMemoryBarrier*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(VkCommandBuffer, VkPipelineStageFlags, VkPipelineStageFlags, VkDependencyFlags, uint32_t, const VkMemoryBarrier*, uint32_t, const VkBufferMemoryBarrier*, uint32_t, const VkImageMemoryBarrier*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(VkCommandBuffer, VkQueryPool, uint32_t, VkQueryControlFlags) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndQuery(VkCommandBuffer, VkQueryPool, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(VkCommandBuffer, VkPipelineStageFlagBits, VkQueryPool, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t, VkBuffer, VkDeviceSize, VkDeviceSize, VkQueryResultFlags) {}
-static VKAPI_ATTR void VKAPI_CALL CmdPushConstants(VkCommandBuffer, VkPipelineLayout, VkShaderStageFlags, uint32_t, uint32_t, const void*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(VkCommandBuffer, const VkRenderPassBeginInfo*, VkSubpassContents) {}
-static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(VkCommandBuffer, VkSubpassContents) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(VkCommandBuffer) {}
-static VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(VkCommandBuffer, uint32_t, const VkCommandBuffer*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(VkDevice, uint32_t, const VkBindBufferMemoryInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(VkDevice, uint32_t, const VkBindImageMemoryInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(VkCommandBuffer, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(VkDevice, const VkImageMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(VkDevice, const VkBufferMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(VkDevice, const VkImageSparseMemoryRequirementsInfo2*, uint32_t*, VkSparseImageMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL TrimCommandPool(VkDevice, VkCommandPool, VkCommandPoolTrimFlags) {}
-static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(VkDevice, const VkDeviceQueueInfo2*, VkQueue*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(VkDevice, const VkSamplerYcbcrConversionCreateInfo*, const VkAllocationCallbacks*, VkSamplerYcbcrConversion*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(VkDevice, VkSamplerYcbcrConversion, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(VkDevice, const VkDescriptorUpdateTemplateCreateInfo*, const VkAllocationCallbacks*, VkDescriptorUpdateTemplate*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) {}
-static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(VkCommandBuffer, const VkSubpassEndInfo*) {}
-static VKAPI_ATTR void VKAPI_CALL ResetQueryPool(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(VkDevice, VkSemaphore, uint64_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(VkDevice, const VkSemaphoreSignalInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
-static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
-static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice, VkSwapchainKHR, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice, VkSwapchainKHR, uint32_t*, VkImage*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore, VkFence, uint32_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue, const VkPresentInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(VkDevice, VkDeviceGroupPresentCapabilitiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(VkDevice, VkSurfaceKHR, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(VkDevice, const VkAcquireNextImageInfoKHR*, uint32_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(VkDevice, uint32_t, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(VkCommandBuffer, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(VkDevice, VkCommandPool, VkCommandPoolTrimFlags) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(VkDevice, VkExternalMemoryHandleTypeFlagBits, HANDLE, VkMemoryWin32HandlePropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(VkDevice, const VkMemoryGetFdInfoKHR*, int*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(VkDevice, VkExternalMemoryHandleTypeFlagBits, int, VkMemoryFdPropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(VkDevice, const VkImportSemaphoreWin32HandleInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(VkDevice, const VkSemaphoreGetWin32HandleInfoKHR*, HANDLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(VkDevice, const VkImportSemaphoreFdInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(VkDevice, const VkSemaphoreGetFdInfoKHR*, int*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, const VkWriteDescriptorSet*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer, VkDescriptorUpdateTemplate, VkPipelineLayout, uint32_t, const void*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(VkDevice, const VkDescriptorUpdateTemplateCreateInfo*, const VkAllocationCallbacks*, VkDescriptorUpdateTemplate*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(VkCommandBuffer, const VkSubpassEndInfo*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(VkDevice, const VkImportFenceFdInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(VkDevice, const VkFenceGetFdInfoKHR*, int*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(VkDevice, const VkAcquireProfilingLockInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(VkDevice) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(VkDevice, const VkImageMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(VkDevice, const VkBufferMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(VkDevice, const VkImageSparseMemoryRequirementsInfo2*, uint32_t*, VkSparseImageMemoryRequirements2*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(VkDevice, const VkSamplerYcbcrConversionCreateInfo*, const VkAllocationCallbacks*, VkSamplerYcbcrConversion*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(VkDevice, VkSamplerYcbcrConversion, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(VkDevice, uint32_t, const VkBindBufferMemoryInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(VkDevice, uint32_t, const VkBindImageMemoryInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSemaphore, uint64_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
-static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
-static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(VkDevice, const VkAllocationCallbacks*, VkDeferredOperationKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(VkDevice, VkDeferredOperationKHR, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(VkDevice, VkDeferredOperationKHR) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(VkDevice, VkDeferredOperationKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDeferredOperationKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(VkCommandBuffer, const VkCopyBufferInfo2KHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(VkCommandBuffer, const VkCopyImageInfo2KHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(VkCommandBuffer, const VkCopyBufferToImageInfo2KHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(VkCommandBuffer, const VkCopyImageToBufferInfo2KHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(VkCommandBuffer, const VkBlitImageInfo2KHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(VkCommandBuffer, const VkResolveImageInfo2KHR*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(VkCommandBuffer) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*, const VkDeviceSize*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(VkCommandBuffer, VkQueryPool, uint32_t, VkQueryControlFlags, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(VkCommandBuffer, uint32_t, uint32_t, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(VkDevice, const VkImageViewHandleInfoNVX*) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(VkDevice, VkImageView, VkImageViewAddressPropertiesNVX*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(VkDevice, VkPipeline, VkShaderStageFlagBits, VkShaderInfoTypeAMD, size_t*, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(VkDevice, VkDeviceMemory, VkExternalMemoryHandleTypeFlagsNV, HANDLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(VkCommandBuffer, const VkConditionalRenderingBeginInfoEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(VkCommandBuffer) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(VkCommandBuffer, uint32_t, uint32_t, const VkViewportWScalingNV*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(VkDevice, VkDisplayKHR, const VkDisplayPowerInfoEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(VkDevice, const VkDeviceEventInfoEXT*, const VkAllocationCallbacks*, VkFence*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(VkDevice, VkDisplayKHR, const VkDisplayEventInfoEXT*, const VkAllocationCallbacks*, VkFence*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(VkDevice, VkSwapchainKHR, VkSurfaceCounterFlagBitsEXT, uint64_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(VkDevice, VkSwapchainKHR, VkRefreshCycleDurationGOOGLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(VkDevice, VkSwapchainKHR, uint32_t*, VkPastPresentationTimingGOOGLE*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) {}
-static VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(VkDevice, uint32_t, const VkSwapchainKHR*, const VkHdrMetadataEXT*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(VkDevice, const VkDebugUtilsObjectNameInfoEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(VkDevice, const VkDebugUtilsObjectTagInfoEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(VkQueue, const VkDebugUtilsLabelEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(VkQueue) {}
-static VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(VkQueue, const VkDebugUtilsLabelEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(VkCommandBuffer, const VkDebugUtilsLabelEXT*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(VkCommandBuffer) {}
-static VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(VkCommandBuffer, const VkDebugUtilsLabelEXT*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(VkCommandBuffer, const VkSampleLocationsInfoEXT*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(VkDevice, VkImage, VkImageDrmFormatModifierPropertiesEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(VkDevice, const VkValidationCacheCreateInfoEXT*, const VkAllocationCallbacks*, VkValidationCacheEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(VkDevice, VkValidationCacheEXT, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(VkDevice, VkValidationCacheEXT, uint32_t, const VkValidationCacheEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(VkDevice, VkValidationCacheEXT, size_t*, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(VkCommandBuffer, VkImageView, VkImageLayout) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(VkCommandBuffer, uint32_t, uint32_t, const VkShadingRatePaletteNV*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(VkCommandBuffer, VkCoarseSampleOrderTypeNV, uint32_t, const VkCoarseSampleOrderCustomNV*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(VkDevice, const VkAccelerationStructureCreateInfoNV*, const VkAllocationCallbacks*, VkAccelerationStructureNV*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoNV*, VkMemoryRequirements2KHR*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryKHR(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(VkCommandBuffer, const VkAccelerationStructureInfoNV*, VkBuffer, VkDeviceSize, VkBool32, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkBuffer, VkDeviceSize) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(VkCommandBuffer, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkCopyAccelerationStructureModeKHR) {}
-static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoNV*, const VkAllocationCallbacks*, VkPipeline*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(VkDevice, VkAccelerationStructureKHR, size_t, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(VkDevice, VkPipeline, uint32_t) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryHostPointerPropertiesEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(VkCommandBuffer, VkPipelineStageFlagBits, VkBuffer, VkDeviceSize, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(VkDevice, uint32_t, const VkCalibratedTimestampInfoEXT*, uint64_t*, uint64_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(VkCommandBuffer, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(VkCommandBuffer, const void*) {}
-static VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(VkDevice, const VkInitializePerformanceApiInfoINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(VkDevice) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(VkCommandBuffer, const VkPerformanceMarkerInfoINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(VkCommandBuffer, const VkPerformanceStreamMarkerInfoINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(VkCommandBuffer, const VkPerformanceOverrideInfoINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(VkDevice, const VkPerformanceConfigurationAcquireInfoINTEL*, VkPerformanceConfigurationINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(VkDevice, VkPerformanceConfigurationINTEL) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(VkQueue, VkPerformanceConfigurationINTEL) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(VkDevice, VkPerformanceParameterTypeINTEL, VkPerformanceValueINTEL*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(VkDevice, VkSwapchainKHR, VkBool32) {}
-static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(VkCommandBuffer, uint32_t, uint16_t) {}
-static VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(VkCommandBuffer, VkCullModeFlags) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(VkCommandBuffer, VkFrontFace) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(VkCommandBuffer, VkPrimitiveTopology) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(VkCommandBuffer, uint32_t, const VkViewport*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(VkCommandBuffer, uint32_t, const VkRect2D*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*, const VkDeviceSize*, const VkDeviceSize*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(VkCommandBuffer, VkBool32) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(VkCommandBuffer, VkBool32) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(VkCommandBuffer, VkCompareOp) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(VkCommandBuffer, VkBool32) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(VkCommandBuffer, VkBool32) {}
-static VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(VkCommandBuffer, VkStencilFaceFlags, VkStencilOp, VkStencilOp, VkStencilOp, VkCompareOp) {}
-static VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(VkCommandBuffer, VkBool32, const VkGeneratedCommandsInfoNV*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(VkCommandBuffer, VkPipelineBindPoint, VkPipeline, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(VkDevice, const VkIndirectCommandsLayoutCreateInfoNV*, const VkAllocationCallbacks*, VkIndirectCommandsLayoutNV*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(VkDevice, VkIndirectCommandsLayoutNV, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(VkDevice, const VkPrivateDataSlotCreateInfoEXT*, const VkAllocationCallbacks*, VkPrivateDataSlotEXT*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlotEXT, const VkAllocationCallbacks*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoKHR*, VkMemoryRequirements2*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureIndirectKHR(VkCommandBuffer, const VkAccelerationStructureBuildGeometryInfoKHR*, VkBuffer, VkDeviceSize, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructureKHR(VkDevice, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice, const VkCopyAccelerationStructureInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(VkDevice, const VkCopyAccelerationStructureToMemoryInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(VkDevice, const VkCopyMemoryToAccelerationStructureInfoKHR*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(VkDevice, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, size_t, void*, size_t) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(VkCommandBuffer, const VkCopyAccelerationStructureInfoKHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(VkCommandBuffer, const VkCopyAccelerationStructureToMemoryInfoKHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(VkCommandBuffer, const VkCopyMemoryToAccelerationStructureInfoKHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, uint32_t, uint32_t, uint32_t) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoKHR*, const VkAllocationCallbacks*, VkPipeline*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(VkDevice, const VkAccelerationStructureDeviceAddressInfoKHR*) { return 0; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, VkBuffer, VkDeviceSize) {}
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(VkDevice, const VkAccelerationStructureVersionKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyInstance was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance, uint32_t*, VkPhysicalDevice*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumeratePhysicalDevices was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice, VkPhysicalDeviceFeatures*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFeatures was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice, VkFormat, VkFormatProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFormatProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice, VkFormat, VkImageType, VkImageTiling, VkImageUsageFlags, VkImageCreateFlags, VkImageFormatProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceImageFormatProperties was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice, VkPhysicalDeviceProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceQueueFamilyProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceMemoryProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkGetInstanceProcAddr was called, resulting in no-op behavior."); return nullptr; }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice, const char*, uint32_t*, VkExtensionProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumerateDeviceExtensionProperties was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice, uint32_t*, VkLayerProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumerateDeviceLayerProperties was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(VkPhysicalDevice, VkFormat, VkImageType, VkSampleCountFlagBits, VkImageUsageFlags, VkImageTiling, uint32_t*, VkSparseImageFormatProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSparseImageFormatProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(VkInstance, uint32_t*, VkPhysicalDeviceGroupProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumeratePhysicalDeviceGroups was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(VkPhysicalDevice, VkPhysicalDeviceFeatures2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFeatures2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice, VkPhysicalDeviceProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceProperties2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(VkPhysicalDevice, VkFormat, VkFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFormatProperties2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice, const VkPhysicalDeviceImageFormatInfo2*, VkImageFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceImageFormatProperties2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceQueueFamilyProperties2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceMemoryProperties2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(VkPhysicalDevice, const VkPhysicalDeviceSparseImageFormatInfo2*, uint32_t*, VkSparseImageFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSparseImageFormatProperties2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalBufferInfo*, VkExternalBufferProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalBufferProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalFenceInfo*, VkExternalFenceProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalFenceProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo*, VkExternalSemaphoreProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalSemaphoreProperties was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(VkInstance, VkSurfaceKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySurfaceKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice, uint32_t, VkSurfaceKHR, VkBool32*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceSupportKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice, VkSurfaceKHR, VkSurfaceCapabilitiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceCapabilitiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkSurfaceFormatKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceFormatsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkPresentModeKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfacePresentModesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(VkPhysicalDevice, VkSurfaceKHR, uint32_t*, VkRect2D*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDevicePresentRectanglesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(VkPhysicalDevice, uint32_t*, VkDisplayPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDisplayPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(VkPhysicalDevice, uint32_t*, VkDisplayPlanePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDisplayPlanePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(VkPhysicalDevice, uint32_t, uint32_t*, VkDisplayKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayPlaneSupportedDisplaysKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayModePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(VkPhysicalDevice, VkDisplayKHR, const VkDisplayModeCreateInfoKHR*, const VkAllocationCallbacks*, VkDisplayModeKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDisplayModeKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(VkPhysicalDevice, VkDisplayModeKHR, uint32_t, VkDisplayPlaneCapabilitiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayPlaneCapabilitiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(VkInstance, const VkDisplaySurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDisplayPlaneSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(VkInstance, const VkXlibSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateXlibSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice, uint32_t, Display*, VisualID) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceXlibPresentationSupportKHR was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(VkInstance, const VkXcbSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateXcbSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice, uint32_t, xcb_connection_t*, xcb_visualid_t) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceXcbPresentationSupportKHR was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(VkInstance, const VkWaylandSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateWaylandSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice, uint32_t, struct wl_display*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceWaylandPresentationSupportKHR was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(VkInstance, const VkAndroidSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAndroidSurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(VkInstance, const VkWin32SurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateWin32SurfaceKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceWin32PresentationSupportKHR was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(VkPhysicalDevice, VkPhysicalDeviceFeatures2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFeatures2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice, VkPhysicalDeviceProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceProperties2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevice, VkFormat, VkFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFormatProperties2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(VkPhysicalDevice, const VkPhysicalDeviceImageFormatInfo2*, VkImageFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceImageFormatProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice, uint32_t*, VkQueueFamilyProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceQueueFamilyProperties2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDevice, VkPhysicalDeviceMemoryProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceMemoryProperties2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(VkPhysicalDevice, const VkPhysicalDeviceSparseImageFormatInfo2*, uint32_t*, VkSparseImageFormatProperties2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSparseImageFormatProperties2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(VkInstance, uint32_t*, VkPhysicalDeviceGroupProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumeratePhysicalDeviceGroupsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalBufferInfo*, VkExternalBufferProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalBufferPropertiesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo*, VkExternalSemaphoreProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalSemaphorePropertiesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalFenceInfo*, VkExternalFenceProperties*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalFencePropertiesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(VkPhysicalDevice, uint32_t, uint32_t*, VkPerformanceCounterKHR*, VkPerformanceCounterDescriptionKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(VkPhysicalDevice, const VkQueryPoolPerformanceCreateInfoKHR*, uint32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkSurfaceCapabilities2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceCapabilities2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkSurfaceFormat2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceFormats2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDisplayProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayPlaneProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDisplayPlaneProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModeProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayModeProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysicalDevice, const VkDisplayPlaneInfo2KHR*, VkDisplayPlaneCapabilities2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayPlaneCapabilities2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDebugReportCallbackEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDebugReportCallbackEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugReportMessageEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(VkInstance, const VkStreamDescriptorSurfaceCreateInfoGGP*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateStreamDescriptorSurfaceGGP was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(VkPhysicalDevice, VkFormat, VkImageType, VkImageTiling, VkImageUsageFlags, VkImageCreateFlags, VkExternalMemoryHandleTypeFlagsNV, VkExternalImageFormatPropertiesNV*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceExternalImageFormatPropertiesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(VkInstance, const VkViSurfaceCreateInfoNN*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateViSurfaceNN was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(VkPhysicalDevice, VkDisplayKHR) { GFXRECON_LOG_WARNING("Unsupported function vkReleaseDisplayEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireXlibDisplayEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(VkPhysicalDevice, Display*, RROutput, VkDisplayKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRandROutputDisplayEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(VkPhysicalDevice, VkSurfaceKHR, VkSurfaceCapabilities2EXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfaceCapabilities2EXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(VkInstance, const VkIOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateIOSSurfaceMVK was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(VkInstance, const VkMacOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateMacOSSurfaceMVK was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDebugUtilsMessengerEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDebugUtilsMessengerEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(VkInstance, VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkSubmitDebugUtilsMessageEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice, VkSampleCountFlagBits, VkMultisamplePropertiesEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceMultisamplePropertiesEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceCalibrateableTimeDomainsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateImagePipeSurfaceFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(VkInstance, const VkMetalSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateMetalSurfaceEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceToolPropertiesEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceToolPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesNV*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceCooperativeMatrixPropertiesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(VkPhysicalDevice, uint32_t*, VkFramebufferMixedSamplesCombinationNV*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceSurfacePresentModes2EXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(VkInstance, const VkHeadlessSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateHeadlessSurfaceEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(VkInstance, const VkDirectFBSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDirectFBSurfaceEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice, uint32_t, IDirectFB*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDirectFBPresentationSupportEXT was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceProcAddr was called, resulting in no-op behavior."); return nullptr; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDevice was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceQueue was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(VkQueue, uint32_t, const VkSubmitInfo*, VkFence) { GFXRECON_LOG_WARNING("Unsupported function vkQueueSubmit was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(VkQueue) { GFXRECON_LOG_WARNING("Unsupported function vkQueueWaitIdle was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(VkDevice) { GFXRECON_LOG_WARNING("Unsupported function vkDeviceWaitIdle was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(VkDevice, const VkMemoryAllocateInfo*, const VkAllocationCallbacks*, VkDeviceMemory*) { GFXRECON_LOG_WARNING("Unsupported function vkAllocateMemory was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL FreeMemory(VkDevice, VkDeviceMemory, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkFreeMemory was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL MapMemory(VkDevice, VkDeviceMemory, VkDeviceSize, VkDeviceSize, VkMemoryMapFlags, void**) { GFXRECON_LOG_WARNING("Unsupported function vkMapMemory was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL UnmapMemory(VkDevice, VkDeviceMemory) { GFXRECON_LOG_WARNING("Unsupported function vkUnmapMemory was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(VkDevice, uint32_t, const VkMappedMemoryRange*) { GFXRECON_LOG_WARNING("Unsupported function vkFlushMappedMemoryRanges was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(VkDevice, uint32_t, const VkMappedMemoryRange*) { GFXRECON_LOG_WARNING("Unsupported function vkInvalidateMappedMemoryRanges was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(VkDevice, VkDeviceMemory, VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceMemoryCommitment was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(VkDevice, VkBuffer, VkDeviceMemory, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkBindBufferMemory was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(VkDevice, VkImage, VkDeviceMemory, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkBindImageMemory was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(VkDevice, VkBuffer, VkMemoryRequirements*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferMemoryRequirements was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(VkDevice, VkImage, VkMemoryRequirements*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageMemoryRequirements was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(VkDevice, VkImage, uint32_t*, VkSparseImageMemoryRequirements*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageSparseMemoryRequirements was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue, uint32_t, const VkBindSparseInfo*, VkFence) { GFXRECON_LOG_WARNING("Unsupported function vkQueueBindSparse was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateFence(VkDevice, const VkFenceCreateInfo*, const VkAllocationCallbacks*, VkFence*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateFence was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyFence(VkDevice, VkFence, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyFence was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL ResetFences(VkDevice, uint32_t, const VkFence*) { GFXRECON_LOG_WARNING("Unsupported function vkResetFences was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(VkDevice, VkFence) { GFXRECON_LOG_WARNING("Unsupported function vkGetFenceStatus was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(VkDevice, uint32_t, const VkFence*, VkBool32, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkWaitForFences was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(VkDevice, const VkSemaphoreCreateInfo*, const VkAllocationCallbacks*, VkSemaphore*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSemaphore was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroySemaphore(VkDevice, VkSemaphore, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySemaphore was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(VkDevice, const VkEventCreateInfo*, const VkAllocationCallbacks*, VkEvent*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateEvent was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyEvent(VkDevice, VkEvent, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyEvent was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(VkDevice, VkEvent) { GFXRECON_LOG_WARNING("Unsupported function vkGetEventStatus was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SetEvent(VkDevice, VkEvent) { GFXRECON_LOG_WARNING("Unsupported function vkSetEvent was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(VkDevice, VkEvent) { GFXRECON_LOG_WARNING("Unsupported function vkResetEvent was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(VkDevice, const VkQueryPoolCreateInfo*, const VkAllocationCallbacks*, VkQueryPool*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateQueryPool was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(VkDevice, VkQueryPool, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyQueryPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(VkDevice, VkQueryPool, uint32_t, uint32_t, size_t, void*, VkDeviceSize, VkQueryResultFlags) { GFXRECON_LOG_WARNING("Unsupported function vkGetQueryPoolResults was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(VkDevice, const VkBufferCreateInfo*, const VkAllocationCallbacks*, VkBuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateBuffer was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyBuffer(VkDevice, VkBuffer, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(VkDevice, const VkBufferViewCreateInfo*, const VkAllocationCallbacks*, VkBufferView*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateBufferView was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyBufferView(VkDevice, VkBufferView, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyBufferView was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice, const VkImageCreateInfo*, const VkAllocationCallbacks*, VkImage*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateImage was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyImage(VkDevice, VkImage, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(VkDevice, VkImage, const VkImageSubresource*, VkSubresourceLayout*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageSubresourceLayout was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(VkDevice, const VkImageViewCreateInfo*, const VkAllocationCallbacks*, VkImageView*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateImageView was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyImageView(VkDevice, VkImageView, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyImageView was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(VkDevice, const VkShaderModuleCreateInfo*, const VkAllocationCallbacks*, VkShaderModule*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateShaderModule was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(VkDevice, VkShaderModule, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyShaderModule was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(VkDevice, const VkPipelineCacheCreateInfo*, const VkAllocationCallbacks*, VkPipelineCache*) { GFXRECON_LOG_WARNING("Unsupported function vkCreatePipelineCache was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(VkDevice, VkPipelineCache, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPipelineCache was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(VkDevice, VkPipelineCache, size_t*, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineCacheData was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(VkDevice, VkPipelineCache, uint32_t, const VkPipelineCache*) { GFXRECON_LOG_WARNING("Unsupported function vkMergePipelineCaches was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice, VkPipelineCache, uint32_t, const VkGraphicsPipelineCreateInfo*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateGraphicsPipelines was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice, VkPipelineCache, uint32_t, const VkComputePipelineCreateInfo*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateComputePipelines was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyPipeline(VkDevice, VkPipeline, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPipeline was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(VkDevice, const VkPipelineLayoutCreateInfo*, const VkAllocationCallbacks*, VkPipelineLayout*) { GFXRECON_LOG_WARNING("Unsupported function vkCreatePipelineLayout was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(VkDevice, VkPipelineLayout, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPipelineLayout was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(VkDevice, const VkSamplerCreateInfo*, const VkAllocationCallbacks*, VkSampler*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSampler was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroySampler(VkDevice, VkSampler, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySampler was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(VkDevice, const VkDescriptorSetLayoutCreateInfo*, const VkAllocationCallbacks*, VkDescriptorSetLayout*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDescriptorSetLayout was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(VkDevice, VkDescriptorSetLayout, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDescriptorSetLayout was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(VkDevice, const VkDescriptorPoolCreateInfo*, const VkAllocationCallbacks*, VkDescriptorPool*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDescriptorPool was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(VkDevice, VkDescriptorPool, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDescriptorPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(VkDevice, VkDescriptorPool, VkDescriptorPoolResetFlags) { GFXRECON_LOG_WARNING("Unsupported function vkResetDescriptorPool was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(VkDevice, const VkDescriptorSetAllocateInfo*, VkDescriptorSet*) { GFXRECON_LOG_WARNING("Unsupported function vkAllocateDescriptorSets was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(VkDevice, VkDescriptorPool, uint32_t, const VkDescriptorSet*) { GFXRECON_LOG_WARNING("Unsupported function vkFreeDescriptorSets was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(VkDevice, uint32_t, const VkWriteDescriptorSet*, uint32_t, const VkCopyDescriptorSet*) { GFXRECON_LOG_WARNING("Unsupported function vkUpdateDescriptorSets was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(VkDevice, const VkFramebufferCreateInfo*, const VkAllocationCallbacks*, VkFramebuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateFramebuffer was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(VkDevice, VkFramebuffer, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyFramebuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice, const VkRenderPassCreateInfo*, const VkAllocationCallbacks*, VkRenderPass*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRenderPass was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(VkDevice, VkRenderPass, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyRenderPass was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(VkDevice, VkRenderPass, VkExtent2D*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRenderAreaGranularity was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice, const VkCommandPoolCreateInfo*, const VkAllocationCallbacks*, VkCommandPool*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateCommandPool was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(VkDevice, VkCommandPool, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyCommandPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(VkDevice, VkCommandPool, VkCommandPoolResetFlags) { GFXRECON_LOG_WARNING("Unsupported function vkResetCommandPool was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(VkDevice, const VkCommandBufferAllocateInfo*, VkCommandBuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkAllocateCommandBuffers was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(VkDevice, VkCommandPool, uint32_t, const VkCommandBuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkFreeCommandBuffers was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(VkCommandBuffer, const VkCommandBufferBeginInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBeginCommandBuffer was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkEndCommandBuffer was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(VkCommandBuffer, VkCommandBufferResetFlags) { GFXRECON_LOG_WARNING("Unsupported function vkResetCommandBuffer was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(VkCommandBuffer, VkPipelineBindPoint, VkPipeline) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindPipeline was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetViewport(VkCommandBuffer, uint32_t, uint32_t, const VkViewport*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetViewport was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetScissor(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetScissor was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(VkCommandBuffer, float) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetLineWidth was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(VkCommandBuffer, float, float, float) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthBias was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(VkCommandBuffer, const float[4]) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetBlendConstants was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(VkCommandBuffer, float, float) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthBounds was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(VkCommandBuffer, VkStencilFaceFlags, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetStencilCompareMask was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(VkCommandBuffer, VkStencilFaceFlags, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetStencilWriteMask was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(VkCommandBuffer, VkStencilFaceFlags, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetStencilReference was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, const VkDescriptorSet*, uint32_t, const uint32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindDescriptorSets was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkIndexType) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindIndexBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindVertexBuffers was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDraw(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDraw was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(VkCommandBuffer, uint32_t, uint32_t, uint32_t, int32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndexed was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndirect was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndexedIndirect was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDispatch(VkCommandBuffer, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDispatch was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(VkCommandBuffer, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDispatchIndirect was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(VkCommandBuffer, VkBuffer, VkBuffer, uint32_t, const VkBufferCopy*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageCopy*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBlitImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageBlit*, VkFilter) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBlitImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(VkCommandBuffer, VkBuffer, VkImage, VkImageLayout, uint32_t, const VkBufferImageCopy*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBufferToImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(VkCommandBuffer, VkImage, VkImageLayout, VkBuffer, uint32_t, const VkBufferImageCopy*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyImageToBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdUpdateBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdFillBuffer was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer, VkImage, VkImageLayout, const VkClearColorValue*, uint32_t, const VkImageSubresourceRange*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdClearColorImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(VkCommandBuffer, VkImage, VkImageLayout, const VkClearDepthStencilValue*, uint32_t, const VkImageSubresourceRange*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdClearDepthStencilImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(VkCommandBuffer, uint32_t, const VkClearAttachment*, uint32_t, const VkClearRect*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdClearAttachments was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdResolveImage(VkCommandBuffer, VkImage, VkImageLayout, VkImage, VkImageLayout, uint32_t, const VkImageResolve*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResolveImage was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetEvent(VkCommandBuffer, VkEvent, VkPipelineStageFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetEvent was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdResetEvent(VkCommandBuffer, VkEvent, VkPipelineStageFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResetEvent was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(VkCommandBuffer, uint32_t, const VkEvent*, VkPipelineStageFlags, VkPipelineStageFlags, uint32_t, const VkMemoryBarrier*, uint32_t, const VkBufferMemoryBarrier*, uint32_t, const VkImageMemoryBarrier*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWaitEvents was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(VkCommandBuffer, VkPipelineStageFlags, VkPipelineStageFlags, VkDependencyFlags, uint32_t, const VkMemoryBarrier*, uint32_t, const VkBufferMemoryBarrier*, uint32_t, const VkImageMemoryBarrier*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPipelineBarrier was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(VkCommandBuffer, VkQueryPool, uint32_t, VkQueryControlFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginQuery was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndQuery(VkCommandBuffer, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndQuery was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResetQueryPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(VkCommandBuffer, VkPipelineStageFlagBits, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteTimestamp was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t, VkBuffer, VkDeviceSize, VkDeviceSize, VkQueryResultFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyQueryPoolResults was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdPushConstants(VkCommandBuffer, VkPipelineLayout, VkShaderStageFlags, uint32_t, uint32_t, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPushConstants was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(VkCommandBuffer, const VkRenderPassBeginInfo*, VkSubpassContents) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginRenderPass was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(VkCommandBuffer, VkSubpassContents) { GFXRECON_LOG_WARNING("Unsupported function vkCmdNextSubpass was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndRenderPass was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(VkCommandBuffer, uint32_t, const VkCommandBuffer*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdExecuteCommands was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(VkDevice, uint32_t, const VkBindBufferMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindBufferMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(VkDevice, uint32_t, const VkBindImageMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindImageMemory2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupPeerMemoryFeatures was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDeviceMask was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDispatchBase was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(VkDevice, const VkImageMemoryRequirementsInfo2*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageMemoryRequirements2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(VkDevice, const VkBufferMemoryRequirementsInfo2*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferMemoryRequirements2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(VkDevice, const VkImageSparseMemoryRequirementsInfo2*, uint32_t*, VkSparseImageMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageSparseMemoryRequirements2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL TrimCommandPool(VkDevice, VkCommandPool, VkCommandPoolTrimFlags) { GFXRECON_LOG_WARNING("Unsupported function vkTrimCommandPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(VkDevice, const VkDeviceQueueInfo2*, VkQueue*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceQueue2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(VkDevice, const VkSamplerYcbcrConversionCreateInfo*, const VkAllocationCallbacks*, VkSamplerYcbcrConversion*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSamplerYcbcrConversion was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(VkDevice, VkSamplerYcbcrConversion, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySamplerYcbcrConversion was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(VkDevice, const VkDescriptorUpdateTemplateCreateInfo*, const VkAllocationCallbacks*, VkDescriptorUpdateTemplate*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDescriptorUpdateTemplate was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDescriptorUpdateTemplate was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkUpdateDescriptorSetWithTemplate was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetLayoutSupport was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndirectCount was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndexedIndirectCount was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRenderPass2 was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginRenderPass2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdNextSubpass2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(VkCommandBuffer, const VkSubpassEndInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndRenderPass2 was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL ResetQueryPool(VkDevice, VkQueryPool, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkResetQueryPool was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(VkDevice, VkSemaphore, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreCounterValue was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkWaitSemaphores was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(VkDevice, const VkSemaphoreSignalInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkSignalSemaphore was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferDeviceAddress was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferOpaqueCaptureAddress was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceMemoryOpaqueCaptureAddress was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSwapchainKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice, VkSwapchainKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySwapchainKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice, VkSwapchainKHR, uint32_t*, VkImage*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSwapchainImagesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore, VkFence, uint32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireNextImageKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue, const VkPresentInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkQueuePresentKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(VkDevice, VkDeviceGroupPresentCapabilitiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupPresentCapabilitiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(VkDevice, VkSurfaceKHR, VkDeviceGroupPresentModeFlagsKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupSurfacePresentModesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(VkDevice, const VkAcquireNextImageInfoKHR*, uint32_t*) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireNextImage2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(VkDevice, uint32_t, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSharedSwapchainsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(VkDevice, uint32_t, uint32_t, uint32_t, VkPeerMemoryFeatureFlags*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupPeerMemoryFeaturesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDeviceMaskKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(VkCommandBuffer, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDispatchBaseKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(VkDevice, VkCommandPool, VkCommandPoolTrimFlags) { GFXRECON_LOG_WARNING("Unsupported function vkTrimCommandPoolKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryWin32HandleKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(VkDevice, VkExternalMemoryHandleTypeFlagBits, HANDLE, VkMemoryWin32HandlePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryWin32HandlePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(VkDevice, const VkMemoryGetFdInfoKHR*, int*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryFdKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(VkDevice, VkExternalMemoryHandleTypeFlagBits, int, VkMemoryFdPropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryFdPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(VkDevice, const VkImportSemaphoreWin32HandleInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkImportSemaphoreWin32HandleKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(VkDevice, const VkSemaphoreGetWin32HandleInfoKHR*, HANDLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreWin32HandleKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(VkDevice, const VkImportSemaphoreFdInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkImportSemaphoreFdKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(VkDevice, const VkSemaphoreGetFdInfoKHR*, int*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreFdKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(VkCommandBuffer, VkPipelineBindPoint, VkPipelineLayout, uint32_t, uint32_t, const VkWriteDescriptorSet*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPushDescriptorSetKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer, VkDescriptorUpdateTemplate, VkPipelineLayout, uint32_t, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPushDescriptorSetWithTemplateKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(VkDevice, const VkDescriptorUpdateTemplateCreateInfo*, const VkAllocationCallbacks*, VkDescriptorUpdateTemplate*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDescriptorUpdateTemplateKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDescriptorUpdateTemplateKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkUpdateDescriptorSetWithTemplateKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRenderPass2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginRenderPass2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdNextSubpass2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(VkCommandBuffer, const VkSubpassEndInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndRenderPass2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(VkDevice, VkSwapchainKHR) { GFXRECON_LOG_WARNING("Unsupported function vkGetSwapchainStatusKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkImportFenceWin32HandleKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetFenceWin32HandleKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(VkDevice, const VkImportFenceFdInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkImportFenceFdKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(VkDevice, const VkFenceGetFdInfoKHR*, int*) { GFXRECON_LOG_WARNING("Unsupported function vkGetFenceFdKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(VkDevice, const VkAcquireProfilingLockInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireProfilingLockKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(VkDevice) { GFXRECON_LOG_WARNING("Unsupported function vkReleaseProfilingLockKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(VkDevice, const VkImageMemoryRequirementsInfo2*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageMemoryRequirements2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(VkDevice, const VkBufferMemoryRequirementsInfo2*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferMemoryRequirements2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(VkDevice, const VkImageSparseMemoryRequirementsInfo2*, uint32_t*, VkSparseImageMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageSparseMemoryRequirements2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(VkDevice, const VkSamplerYcbcrConversionCreateInfo*, const VkAllocationCallbacks*, VkSamplerYcbcrConversion*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateSamplerYcbcrConversionKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(VkDevice, VkSamplerYcbcrConversion, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroySamplerYcbcrConversionKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(VkDevice, uint32_t, const VkBindBufferMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindBufferMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(VkDevice, uint32_t, const VkBindImageMemoryInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkBindImageMemory2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDescriptorSetLayoutSupportKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndirectCountKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndexedIndirectCountKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSemaphore, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreCounterValueKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkWaitSemaphoresKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkSignalSemaphoreKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceMemoryOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(VkDevice, const VkAllocationCallbacks*, VkDeferredOperationKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDeferredOperationKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(VkDevice, VkDeferredOperationKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDeferredOperationKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(VkDevice, VkDeferredOperationKHR) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeferredOperationMaxConcurrencyKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(VkDevice, VkDeferredOperationKHR) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeferredOperationResultKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDeferredOperationKHR) { GFXRECON_LOG_WARNING("Unsupported function vkDeferredOperationJoinKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutablePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableStatisticsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableInternalRepresentationsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(VkCommandBuffer, const VkCopyBufferInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBuffer2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(VkCommandBuffer, const VkCopyImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyImage2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(VkCommandBuffer, const VkCopyBufferToImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBufferToImage2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(VkCommandBuffer, const VkCopyImageToBufferInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyImageToBuffer2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(VkCommandBuffer, const VkBlitImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBlitImage2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(VkCommandBuffer, const VkResolveImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResolveImage2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugMarkerSetObjectTagEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugMarkerSetObjectNameEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDebugMarkerBeginEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDebugMarkerEndEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDebugMarkerInsertEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*, const VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindTransformFeedbackBuffersEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginTransformFeedbackEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndTransformFeedbackEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(VkCommandBuffer, VkQueryPool, uint32_t, VkQueryControlFlags, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginQueryIndexedEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(VkCommandBuffer, VkQueryPool, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndQueryIndexedEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(VkCommandBuffer, uint32_t, uint32_t, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndirectByteCountEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(VkDevice, const VkImageViewHandleInfoNVX*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageViewHandleNVX was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(VkDevice, VkImageView, VkImageViewAddressPropertiesNVX*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageViewAddressNVX was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndirectCountAMD was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawIndexedIndirectCountAMD was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(VkDevice, VkPipeline, VkShaderStageFlagBits, VkShaderInfoTypeAMD, size_t*, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetShaderInfoAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(VkDevice, VkDeviceMemory, VkExternalMemoryHandleTypeFlagsNV, HANDLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryWin32HandleNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(VkCommandBuffer, const VkConditionalRenderingBeginInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginConditionalRenderingEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndConditionalRenderingEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(VkCommandBuffer, uint32_t, uint32_t, const VkViewportWScalingNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetViewportWScalingNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(VkDevice, VkDisplayKHR, const VkDisplayPowerInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkDisplayPowerControlEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(VkDevice, const VkDeviceEventInfoEXT*, const VkAllocationCallbacks*, VkFence*) { GFXRECON_LOG_WARNING("Unsupported function vkRegisterDeviceEventEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(VkDevice, VkDisplayKHR, const VkDisplayEventInfoEXT*, const VkAllocationCallbacks*, VkFence*) { GFXRECON_LOG_WARNING("Unsupported function vkRegisterDisplayEventEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(VkDevice, VkSwapchainKHR, VkSurfaceCounterFlagBitsEXT, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSwapchainCounterEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(VkDevice, VkSwapchainKHR, VkRefreshCycleDurationGOOGLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRefreshCycleDurationGOOGLE was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(VkDevice, VkSwapchainKHR, uint32_t*, VkPastPresentationTimingGOOGLE*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPastPresentationTimingGOOGLE was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDiscardRectangleEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(VkDevice, uint32_t, const VkSwapchainKHR*, const VkHdrMetadataEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkSetHdrMetadataEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(VkDevice, const VkDebugUtilsObjectNameInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkSetDebugUtilsObjectNameEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(VkDevice, const VkDebugUtilsObjectTagInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkSetDebugUtilsObjectTagEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(VkQueue, const VkDebugUtilsLabelEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkQueueBeginDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(VkQueue) { GFXRECON_LOG_WARNING("Unsupported function vkQueueEndDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(VkQueue, const VkDebugUtilsLabelEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkQueueInsertDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(VkCommandBuffer, const VkDebugUtilsLabelEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBeginDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(VkCommandBuffer) { GFXRECON_LOG_WARNING("Unsupported function vkCmdEndDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(VkCommandBuffer, const VkDebugUtilsLabelEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdInsertDebugUtilsLabelEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAndroidHardwareBufferPropertiesANDROID was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryAndroidHardwareBufferANDROID was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(VkCommandBuffer, const VkSampleLocationsInfoEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetSampleLocationsEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(VkDevice, VkImage, VkImageDrmFormatModifierPropertiesEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetImageDrmFormatModifierPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(VkDevice, const VkValidationCacheCreateInfoEXT*, const VkAllocationCallbacks*, VkValidationCacheEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateValidationCacheEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(VkDevice, VkValidationCacheEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyValidationCacheEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(VkDevice, VkValidationCacheEXT, uint32_t, const VkValidationCacheEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkMergeValidationCachesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(VkDevice, VkValidationCacheEXT, size_t*, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetValidationCacheDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(VkCommandBuffer, VkImageView, VkImageLayout) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindShadingRateImageNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(VkCommandBuffer, uint32_t, uint32_t, const VkShadingRatePaletteNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetViewportShadingRatePaletteNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(VkCommandBuffer, VkCoarseSampleOrderTypeNV, uint32_t, const VkCoarseSampleOrderCustomNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetCoarseSampleOrderNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(VkDevice, const VkAccelerationStructureCreateInfoNV*, const VkAllocationCallbacks*, VkAccelerationStructureNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoNV*, VkMemoryRequirements2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureMemoryRequirementsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryKHR(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkBindAccelerationStructureMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkBindAccelerationStructureMemoryNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(VkCommandBuffer, const VkAccelerationStructureInfoNV*, VkBuffer, VkDeviceSize, VkBool32, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(VkCommandBuffer, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkCopyAccelerationStructureModeKHR) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoNV*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRayTracingPipelinesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingShaderGroupHandlesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingShaderGroupHandlesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(VkDevice, VkAccelerationStructureKHR, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureHandleNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(VkDevice, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCompileDeferredNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryHostPointerPropertiesEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryHostPointerPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(VkCommandBuffer, VkPipelineStageFlagBits, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteBufferMarkerAMD was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(VkDevice, uint32_t, const VkCalibratedTimestampInfoEXT*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetCalibratedTimestampsEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(VkCommandBuffer, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawMeshTasksNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(VkCommandBuffer, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawMeshTasksIndirectNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdDrawMeshTasksIndirectCountNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetExclusiveScissorNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(VkCommandBuffer, const void*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetCheckpointNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) { GFXRECON_LOG_WARNING("Unsupported function vkGetQueueCheckpointDataNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(VkDevice, const VkInitializePerformanceApiInfoINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkInitializePerformanceApiINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(VkDevice) { GFXRECON_LOG_WARNING("Unsupported function vkUninitializePerformanceApiINTEL was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(VkCommandBuffer, const VkPerformanceMarkerInfoINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPerformanceMarkerINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(VkCommandBuffer, const VkPerformanceStreamMarkerInfoINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPerformanceStreamMarkerINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(VkCommandBuffer, const VkPerformanceOverrideInfoINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPerformanceOverrideINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(VkDevice, const VkPerformanceConfigurationAcquireInfoINTEL*, VkPerformanceConfigurationINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkAcquirePerformanceConfigurationINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(VkDevice, VkPerformanceConfigurationINTEL) { GFXRECON_LOG_WARNING("Unsupported function vkReleasePerformanceConfigurationINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(VkQueue, VkPerformanceConfigurationINTEL) { GFXRECON_LOG_WARNING("Unsupported function vkQueueSetPerformanceConfigurationINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(VkDevice, VkPerformanceParameterTypeINTEL, VkPerformanceValueINTEL*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPerformanceParameterINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(VkDevice, VkSwapchainKHR, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkSetLocalDimmingAMD was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferDeviceAddressEXT was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { GFXRECON_LOG_WARNING("Unsupported function vkAcquireFullScreenExclusiveModeEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { GFXRECON_LOG_WARNING("Unsupported function vkReleaseFullScreenExclusiveModeEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceGroupSurfacePresentModes2EXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(VkCommandBuffer, uint32_t, uint16_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetLineStippleEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(VkDevice, VkQueryPool, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkResetQueryPoolEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(VkCommandBuffer, VkCullModeFlags) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetCullModeEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(VkCommandBuffer, VkFrontFace) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetFrontFaceEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(VkCommandBuffer, VkPrimitiveTopology) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPrimitiveTopologyEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(VkCommandBuffer, uint32_t, const VkViewport*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetViewportWithCountEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(VkCommandBuffer, uint32_t, const VkRect2D*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetScissorWithCountEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*, const VkDeviceSize*, const VkDeviceSize*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindVertexBuffers2EXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthTestEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthWriteEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(VkCommandBuffer, VkCompareOp) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthCompareOpEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthBoundsTestEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetStencilTestEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(VkCommandBuffer, VkStencilFaceFlags, VkStencilOp, VkStencilOp, VkStencilOp, VkCompareOp) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetStencilOpEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetGeneratedCommandsMemoryRequirementsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPreprocessGeneratedCommandsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(VkCommandBuffer, VkBool32, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdExecuteGeneratedCommandsNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(VkCommandBuffer, VkPipelineBindPoint, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBindPipelineShaderGroupNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(VkDevice, const VkIndirectCommandsLayoutCreateInfoNV*, const VkAllocationCallbacks*, VkIndirectCommandsLayoutNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateIndirectCommandsLayoutNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(VkDevice, VkIndirectCommandsLayoutNV, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyIndirectCommandsLayoutNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(VkDevice, const VkPrivateDataSlotCreateInfoEXT*, const VkAllocationCallbacks*, VkPrivateDataSlotEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreatePrivateDataSlotEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlotEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPrivateDataSlotEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoKHR*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureMemoryRequirementsKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureIndirectKHR(VkCommandBuffer, const VkAccelerationStructureBuildGeometryInfoKHR*, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureIndirectKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructureKHR(VkDevice, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkBuildAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice, const VkCopyAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(VkDevice, const VkCopyAccelerationStructureToMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureToMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(VkDevice, const VkCopyMemoryToAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyMemoryToAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(VkDevice, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, size_t, void*, size_t) { GFXRECON_LOG_WARNING("Unsupported function vkWriteAccelerationStructuresPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(VkCommandBuffer, const VkCopyAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(VkCommandBuffer, const VkCopyAccelerationStructureToMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureToMemoryKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(VkCommandBuffer, const VkCopyMemoryToAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyMemoryToAccelerationStructureKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoKHR*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRayTracingPipelinesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(VkDevice, const VkAccelerationStructureDeviceAddressInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingCaptureReplayShaderGroupHandlesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysIndirectKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(VkDevice, const VkAccelerationStructureVersionKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceAccelerationStructureCompatibilityKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
