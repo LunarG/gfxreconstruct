@@ -196,6 +196,7 @@ typedef VulkanObjectInfo<VkPrivateDataSlotEXT>            PrivateDataSlotEXTInfo
 struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 {
     uint32_t                             api_version{ 0 };
+    std::vector<std::string>             enabled_extensions;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture and replay devices sorted in the order that they were originally retrieved from
@@ -210,6 +211,7 @@ struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
     VkInstance                           parent{ VK_NULL_HANDLE };
     uint32_t                             parent_api_version{ 0 };
+    std::vector<std::string>             parent_enabled_extensions;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture device properties.
