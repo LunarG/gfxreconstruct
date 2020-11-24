@@ -1872,15 +1872,6 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.get_physical_device_properties        = instance_table->GetPhysicalDeviceProperties;
     functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
 
-    if (instance_table->GetPhysicalDeviceMemoryProperties2 != nullptr)
-    {
-        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
-    }
-    else
-    {
-        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2KHR;
-    }
-
     functions.allocate_memory                = device_table->AllocateMemory;
     functions.free_memory                    = device_table->FreeMemory;
     functions.get_device_memory_commitment   = device_table->GetDeviceMemoryCommitment;
@@ -1899,40 +1890,40 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.get_image_subresource_layout   = device_table->GetImageSubresourceLayout;
     functions.bind_image_memory              = device_table->BindImageMemory;
 
-    if (device_table->GetBufferMemoryRequirements2 != nullptr)
+    if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
-        functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2;
+        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
+        functions.get_buffer_memory_requirements2        = device_table->GetBufferMemoryRequirements2;
+        functions.get_image_memory_requirements2         = device_table->GetImageMemoryRequirements2;
+        functions.bind_buffer_memory2                    = device_table->BindBufferMemory2;
+        functions.bind_image_memory2                     = device_table->BindImageMemory2;
     }
     else
     {
-        functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2KHR;
-    }
+        const auto& instance_extensions = physical_device_info->parent_enabled_extensions;
 
-    if (device_table->BindBufferMemory2 != nullptr)
-    {
-        functions.bind_buffer_memory2 = device_table->BindBufferMemory2;
-    }
-    else
-    {
-        functions.bind_buffer_memory2 = device_table->BindBufferMemory2KHR;
-    }
+        if (std::find(instance_extensions.begin(),
+                      instance_extensions.end(),
+                      VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) != instance_extensions.end())
+        {
+            functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2KHR;
+        }
 
-    if (device_table->GetImageMemoryRequirements2 != nullptr)
-    {
-        functions.get_image_memory_requirements2 = device_table->GetImageMemoryRequirements2;
-    }
-    else
-    {
-        functions.get_image_memory_requirements2 = device_table->GetImageMemoryRequirements2KHR;
-    }
+        if (std::find(enabled_device_extensions.begin(),
+                      enabled_device_extensions.end(),
+                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME) != enabled_device_extensions.end())
+        {
+            functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2KHR;
+            functions.get_image_memory_requirements2  = device_table->GetImageMemoryRequirements2KHR;
+        }
 
-    if (device_table->BindImageMemory2 != nullptr)
-    {
-        functions.bind_image_memory2 = device_table->BindImageMemory2;
-    }
-    else
-    {
-        functions.bind_image_memory2 = device_table->BindImageMemory2KHR;
+        if (std::find(enabled_device_extensions.begin(),
+                      enabled_device_extensions.end(),
+                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME) != enabled_device_extensions.end())
+        {
+            functions.bind_buffer_memory2 = device_table->BindBufferMemory2KHR;
+            functions.bind_image_memory2  = device_table->BindImageMemory2KHR;
+        }
     }
 
     auto replay_device_info = physical_device_info->replay_device_info;
@@ -2536,9 +2527,10 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
             auto physical_device_info = reinterpret_cast<PhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
             assert(physical_device_info != nullptr);
 
-            physical_device_info->parent             = instance;
-            physical_device_info->parent_api_version = instance_info->api_version;
-            physical_device_info->replay_device_info = &instance_info->replay_device_info[replay_devices[i]];
+            physical_device_info->parent                    = instance;
+            physical_device_info->parent_api_version        = instance_info->api_version;
+            physical_device_info->parent_enabled_extensions = instance_info->enabled_extensions;
+            physical_device_info->replay_device_info        = &instance_info->replay_device_info[replay_devices[i]];
 
             if (store_replay_device)
             {
