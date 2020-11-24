@@ -39,6 +39,8 @@ const gfxrecon::format::HandleId kDeviceId        = 6;
 
 TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+
     gfxrecon::decode::VulkanObjectInfoTable info_table;
 
     // Basic add.
@@ -136,4 +138,6 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
 
         REQUIRE(object == gfxrecon::format::ToHandleId(kBufferHandles[0]));
     }
+
+    gfxrecon::util::Log::Release();
 }
