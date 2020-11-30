@@ -97,7 +97,7 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 }
 
 TraceManager::TraceManager() :
-    force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
+    force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
@@ -420,10 +420,10 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             std::lock_guard<std::mutex> lock(file_lock_);
 
             // Write appropriate function call block header.
-            bytes_written_ += file_stream_->Write(header_pointer, header_size);
+            file_stream_->Write(header_pointer, header_size);
 
             // Write parameter data.
-            bytes_written_ += file_stream_->Write(data_pointer, data_size);
+            file_stream_->Write(data_pointer, data_size);
 
             if (force_file_flush_)
             {
@@ -629,8 +629,8 @@ void TraceManager::WriteFileHeader()
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
-    bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
-    bytes_written_ += file_stream_->Write(option_list.data(), option_list.size() * sizeof(format::FileOptionPair));
+    file_stream_->Write(&file_header, sizeof(file_header));
+    file_stream_->Write(option_list.data(), option_list.size() * sizeof(format::FileOptionPair));
 
     if (force_file_flush_)
     {
@@ -661,8 +661,8 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
-            bytes_written_ += file_stream_->Write(message, message_length);
+            file_stream_->Write(&message_cmd, sizeof(message_cmd));
+            file_stream_->Write(message, message_length);
 
             if (force_file_flush_)
             {
@@ -688,7 +688,7 @@ void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t wi
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
-            bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+            file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 
             if (force_file_flush_)
             {
@@ -739,7 +739,7 @@ void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_i
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
-            bytes_written_ += file_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
+            file_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
 
             if (force_file_flush_)
             {
@@ -793,8 +793,8 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-            bytes_written_ += file_stream_->Write(write_address, write_size);
+            file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+            file_stream_->Write(write_address, write_size);
 
             if (force_file_flush_)
             {
@@ -853,11 +853,11 @@ void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
+            file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
 
             if (planes_size > 0)
             {
-                bytes_written_ += file_stream_->Write(plane_info.data(), planes_size);
+                file_stream_->Write(plane_info.data(), planes_size);
             }
 
             if (force_file_flush_)
@@ -896,7 +896,7 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
+            file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
 
             if (force_file_flush_)
             {
@@ -939,8 +939,8 @@ void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId             
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
-            bytes_written_ += file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
+            file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
+            file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
 
             if (force_file_flush_)
             {
@@ -974,7 +974,7 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+            file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
 
             format::DeviceMemoryType type;
             for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
@@ -982,7 +982,7 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
                 type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
                 type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
 
-                bytes_written_ += file_stream_->Write(&type, sizeof(type));
+                file_stream_->Write(&type, sizeof(type));
             }
 
             format::DeviceMemoryHeap heap;
@@ -991,7 +991,7 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
                 heap.size  = memory_properties.memoryHeaps[i].size;
                 heap.flags = memory_properties.memoryHeaps[i].flags;
 
-                bytes_written_ += file_stream_->Write(&heap, sizeof(heap));
+                file_stream_->Write(&heap, sizeof(heap));
             }
 
             if (force_file_flush_)
@@ -1024,7 +1024,7 @@ void TraceManager::WriteSetBufferAddressCommand(format::HandleId device_id,
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
+            file_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
 
             if (force_file_flush_)
             {

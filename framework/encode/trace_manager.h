@@ -1005,7 +1005,6 @@ class TraceManager
     std::mutex                                      file_lock_;
     bool                                            timestamp_filename_;
     bool                                            force_file_flush_;
-    uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     bool                                            page_guard_align_buffer_sizes_;
