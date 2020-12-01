@@ -52,6 +52,9 @@ const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 const char kHelpShortOption[]                  = "-h";
 const char kHelpLongOption[]                   = "--help";
 const char kVersionOption[]                    = "--version";
+const char kLogLevelArgument[]                 = "--log-level";
+const char kLogFileArgument[]                  = "--log-file";
+const char kLogDebugView[]                     = "--log-debugview";
 const char kNoDebugPopup[]                     = "--no-debug-popup";
 const char kOverrideGpuArgument[]              = "--gpu";
 const char kPausedOption[]                     = "--paused";
@@ -73,11 +76,10 @@ const char kScreenshotFormatArgument[]         = "--screenshot-format";
 const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-                        "opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all";
-const char kArguments[] =
-    "--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--replace-shaders,--screenshots,--"
-    "screenshot-format,--screenshot-dir,--screenshot-prefix";
+const char kOptions[] = "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-"
+                        "allocations,--opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all";
+const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
+                          "replace-shaders,--screenshots,--screenshot-format,--screenshot-dir,--screenshot-prefix";
 
 enum class WsiPlatform
 {
@@ -296,6 +298,28 @@ static std::string GetWsiArgString()
     wsi_args += kWsiPlatformWayland;
 #endif
     return wsi_args;
+}
+
+// Modifies settings parameter with values set via command line
+static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
+                           gfxrecon::util::Log::Settings&        log_settings)
+{
+    // Parse log level
+    gfxrecon::util::Log::Severity log_level;
+    const std::string&            value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
+    if (value_string.empty() || !gfxrecon::util::Log::StringToSeverity(value_string, log_level))
+    {
+        log_level = gfxrecon::decode::kDefaultLogLevel;
+        if (!value_string.empty())
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized log level option value \"%s\"", value_string.c_str());
+        }
+    }
+
+    // Update settings
+    log_settings.min_severity              = log_level;
+    log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
+    log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
 }
 
 static gfxrecon::decode::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -594,16 +618,28 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [--remove-unsupported]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
-#if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
-#else
-    GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
+#if defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
 #endif
+#else
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>]");
+#endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
+
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify highest level message to log. Options are:");
+    GFXRECON_WRITE_CONSOLE("          \t\tdebug, info, warning, error, and fatal. Default is info.");
+    GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.")
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is: Empty string (file logging disabled).");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
+#endif
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices.  Replay may fail");

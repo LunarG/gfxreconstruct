@@ -480,30 +480,11 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
 util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  value_string,
                                                          util::Log::Severity default_value)
 {
-    util::Log::Severity result = default_value;
+    util::Log::Severity result;
 
-    if (util::platform::StringCompareNoCase("debug", value_string.c_str()) == 0)
+    if (!util::Log::StringToSeverity(value_string, result))
     {
-        result = util::Log::Severity::kDebugSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("info", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kInfoSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("warning", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kWarningSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("error", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kErrorSeverity;
-    }
-    else if (util::platform::StringCompareNoCase("fatal", value_string.c_str()) == 0)
-    {
-        result = util::Log::Severity::kFatalSeverity;
-    }
-    else
-    {
+        result = default_value;
         if (!value_string.empty())
         {
             GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized log level option value \"%s\"",

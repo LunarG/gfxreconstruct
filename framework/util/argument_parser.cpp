@@ -232,13 +232,16 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                         {
                             // Get the next value and strip off any quotes surrounding the whole string
                             std::string argument_value = command_line_args[++cur_arg];
-                            if (argument_value.front() == '\"')
+                            if (!argument_value.empty())
                             {
-                                argument_value.erase(argument_value.begin());
-                            }
-                            if (argument_value.back() == '\"')
-                            {
-                                argument_value.pop_back();
+                                if (argument_value.front() == '\"')
+                                {
+                                    argument_value.erase(argument_value.begin());
+                                }
+                                if (argument_value.back() == '\"')
+                                {
+                                    argument_value.pop_back();
+                                }
                             }
                             argument_values_[cur_argument.second] = argument_value;
                         }
