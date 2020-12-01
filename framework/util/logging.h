@@ -147,6 +147,40 @@ class Log
         }
     }
 
+    // Returns true if Severity was successfully parsed into parsed_severity. Returns false if the string could not be
+    // parsed as a Severity and parsed_severity is not modified.
+    static bool StringToSeverity(const std::string& value_string, Severity& parsed_severity)
+    {
+        bool parse_success = true;
+
+        if (platform::StringCompareNoCase("debug", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kDebugSeverity;
+        }
+        else if (platform::StringCompareNoCase("info", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kInfoSeverity;
+        }
+        else if (platform::StringCompareNoCase("warning", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kWarningSeverity;
+        }
+        else if (platform::StringCompareNoCase("error", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kErrorSeverity;
+        }
+        else if (util::platform::StringCompareNoCase("fatal", value_string.c_str()) == 0)
+        {
+            parsed_severity = Severity::kFatalSeverity;
+        }
+        else
+        {
+            parse_success = false;
+        }
+
+        return parse_success;
+    }
+
   private:
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 

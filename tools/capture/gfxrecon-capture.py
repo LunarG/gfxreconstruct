@@ -102,7 +102,7 @@ def ParseArgs():
     parser.add_argument('--compression-type', dest='compressionType', choices=compressionTypeChoices, help='Specify the type of compression to use in the capture file, default is LZ4')
     parser.add_argument('--file-flush', dest='fileFlush', action='store_const', const='true', help='Flush output stream after each packet is written to capture file')
     parser.add_argument('--log-level', dest='logLevel', choices=logLevelChoices, help='Specify highest level message to log, default is info')
-    parser.add_argument('--log-file', dest='logFile', metavar='logFile', help='Name of the log file (disable logging with empty string), default is stdout/stderr')
+    parser.add_argument('--log-file', dest='logFile', metavar='<logFile>', help='Write log messages to a file at the specified path. Default is: Empty string (file logging disabled)')
     parser.add_argument('--log-debugview', dest='logDebugView', action='store_const', const='true', help='Log messages with OutputDebugStringA' if sys.platform=='win32' else argparse.SUPPRESS)
     parser.add_argument('--memory-tracking-mode', dest='memoryTrackingMode', choices=memoryTrackingModeChoices , help=
                         'R|Method to use to track changes to memory mapped objects:' + os.linesep +
