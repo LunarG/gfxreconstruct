@@ -73,11 +73,13 @@ _featuresPat          = _makeREstring(_features, '.*')
 #   pointerCount - Number of '*' characters in the type declaration.
 #   arrayLength - The parameter that specifies the number of elements in an array, or None if the value is not an array.
 #   arrayCapacity - The max size of a statically allocated array, or None for a dynamically allocated array.
+#   arrayDimension - Number of the array dimension
 #   platformBaseType - For platform specific type definitions, stores the original baseType declaration before platform to trace type substitution.
 #   platformFullType - For platform specific type definitions, stores the original fullType declaration before platform to trace type substitution.
 #   isPointer - True if the value is a pointer.
 #   isArray - True if the member is an array.
 #   isDynamic - True if the memory for the member is an array and it is dynamically allocated.
+#   isConst - True if the member is a const.
 class ValueInfo():
     """Contains information descripting Vulkan API call parameters and struct members"""
     def __init__(self,
@@ -88,16 +90,19 @@ class ValueInfo():
                  arrayLength = None,
                  arrayLengthValue = None,
                  arrayCapacity = None,
+                 arrayDimension = None,
                  platformBaseType = None,
                  platformFullType = None,
-                 bitfieldWidth = None):
+                 bitfieldWidth = None,
+                 isConst = False):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
         self.pointerCount = pointerCount
         self.arrayLength = arrayLength
-        self.arrayLengthValue = None
+        self.arrayLengthValue = arrayLengthValue
         self.arrayCapacity = arrayCapacity
+        self.arrayDimension = arrayDimension
         self.platformBaseType = platformBaseType
         self.platformFullType = platformFullType
         self.bitfieldWidth = bitfieldWidth
@@ -105,6 +110,7 @@ class ValueInfo():
         self.isPointer = True if pointerCount > 0 else False
         self.isArray = True if arrayLength else False
         self.isDynamic = True if not arrayCapacity else False
+        self.isConst = isConst
 
 
 # BaseGeneratorOptions - subclass of GeneratorOptions.
