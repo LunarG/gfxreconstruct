@@ -1310,15 +1310,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pBuffer);
 
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-
-    VkResult result = GetDeviceTable(device)->CreateBuffer(device_unwrapped, pCreateInfo, pAllocator, pBuffer);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferWrapper>(device, NoParentWrapper::kHandleValue, pBuffer, TraceManager::GetUniqueId);
-    }
-    else
+    VkResult result = TraceManager::Get()->OverrideCreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
+    if (result < 0)
     {
         omit_output_data = true;
     }

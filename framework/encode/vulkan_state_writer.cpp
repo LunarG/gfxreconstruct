@@ -128,7 +128,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WriteSwapchainKhrState(state_table);
 
     // Resource creation.
-    StandardCreateWrite<BufferWrapper>(state_table);
+    WriteBufferState(state_table);
     StandardCreateWrite<ImageWrapper>(state_table);
     WriteDeviceMemoryState(state_table);
 
@@ -864,6 +864,24 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
 
     // Write device memory allocation calls.
     state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
+            // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
+            // list.
+            WriteSetBufferAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+        }
+
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
@@ -2598,6 +2616,23 @@ void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId p
 
         output_stream_->Write(&heap, sizeof(heap));
     }
+}
+
+void VulkanStateWriter::WriteSetBufferAddressCommand(format::HandleId device_id,
+                                                     format::HandleId buffer_id,
+                                                     uint64_t         address)
+{
+    format::SetBufferAddressCommand buffer_address_cmd;
+
+    buffer_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    buffer_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(buffer_address_cmd);
+    buffer_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetBufferAddressCommand;
+    buffer_address_cmd.thread_id                     = thread_id_;
+    buffer_address_cmd.device_id                     = device_id;
+    buffer_address_cmd.buffer_id                     = buffer_id;
+    buffer_address_cmd.address                       = address;
+
+    output_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
 }
 
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,

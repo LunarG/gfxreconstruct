@@ -96,7 +96,8 @@ enum MetaDataType : uint32_t
     kDestroyHardwareBufferCommand       = 10,
     kSetDevicePropertiesCommand         = 11,
     kSetDeviceMemoryPropertiesCommand   = 12,
-    kResizeWindowCommand2               = 13
+    kResizeWindowCommand2               = 13,
+    kSetBufferAddressCommand            = 14
 };
 
 enum CompressionType : uint32_t
@@ -373,6 +374,15 @@ struct SetDevicePropertiesCommand
     uint32_t         device_type;
     uint8_t          pipeline_cache_uuid[kUuidSize];
     uint32_t         device_name_len;
+};
+
+struct SetBufferAddressCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId buffer_id;
+    uint64_t         address;
 };
 
 #pragma pack(pop)

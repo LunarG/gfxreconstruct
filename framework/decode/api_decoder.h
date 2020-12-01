@@ -102,6 +102,11 @@ class ApiDecoder
                                              const std::vector<format::DeviceMemoryType>& memory_types,
                                              const std::vector<format::DeviceMemoryHeap>& memory_heaps) = 0;
 
+    virtual void DispatchSetBufferAddressCommand(format::ThreadId thread_id,
+                                                 format::HandleId device_id,
+                                                 format::HandleId buffer_id,
+                                                 uint64_t         address) = 0;
+
     virtual void
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
                                           format::HandleId                                    device_id,

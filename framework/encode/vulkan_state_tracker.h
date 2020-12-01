@@ -295,6 +295,8 @@ class VulkanStateTracker
                                                 uint32_t                mode_count,
                                                 const VkPresentModeKHR* modes);
 
+    void TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address);
+
     void TrackBufferMemoryBinding(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);

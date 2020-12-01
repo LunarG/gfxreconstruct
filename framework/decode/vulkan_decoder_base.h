@@ -114,6 +114,11 @@ class VulkanDecoderBase : public ApiDecoder
                                              const std::vector<format::DeviceMemoryType>& memory_types,
                                              const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
+    virtual void DispatchSetBufferAddressCommand(format::ThreadId thread_id,
+                                                 format::HandleId device_id,
+                                                 format::HandleId buffer_id,
+                                                 uint64_t         address) override;
+
     virtual void
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
                                           format::HandleId                                    device_id,
