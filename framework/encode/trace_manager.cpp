@@ -1002,6 +1002,38 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
     }
 }
 
+void TraceManager::WriteSetBufferAddressCommand(format::HandleId device_id,
+                                                format::HandleId buffer_id,
+                                                uint64_t         address)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::SetBufferAddressCommand buffer_address_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        buffer_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        buffer_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(buffer_address_cmd);
+        buffer_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetBufferAddressCommand;
+        buffer_address_cmd.thread_id                     = thread_data->thread_id_;
+        buffer_address_cmd.device_id                     = device_id;
+        buffer_address_cmd.buffer_id                     = buffer_id;
+        buffer_address_cmd.address                       = address;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
 void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                                    const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
@@ -1135,6 +1167,9 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
             VkInstanceCreateInfo create_info_copy = (*pCreateInfo);
 
             // TODO: Only enable KHR_get_physical_device_properties_2 for 1.0 API version.
+            // TODO: Only enable KHR_buffer_device_address for 1.1 or lower API versions.
+            // TODO: The bufferDeviceAddressCaptureReplay device feature needs to be enabled, or a warning needs to be
+            // printed when it is not available.
             size_t                   extension_count = create_info_copy.enabledExtensionCount;
             const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
             std::vector<const char*> modified_extensions;
@@ -1182,25 +1217,32 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    if (page_guard_memory_mode_ == kMemoryModeExternal)
+    assert(pCreateInfo_unwrapped != nullptr);
+
+    // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
+    // TODO: Only enable KHR_buffer_device_address for 1.1 or lower API versions.
+    // TODO: Add an option to enable/disable use of KHR_buffer_device_address.
+    size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
+    const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
+    std::vector<const char*> modified_extensions;
+
+    bool has_buffer_address = false;
+    bool has_ext_mem_caps   = false;
+    bool has_ext_mem        = false;
+    bool has_ext_mem_host   = false;
+
+    for (size_t i = 0; i < extension_count; ++i)
     {
-        assert(pCreateInfo_unwrapped != nullptr);
+        auto entry = pCreateInfo_unwrapped->ppEnabledExtensionNames[i];
 
-        // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
-        size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
-        const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
-        std::vector<const char*> modified_extensions;
+        modified_extensions.push_back(entry);
 
-        bool has_ext_mem_caps = false;
-        bool has_ext_mem      = false;
-        bool has_ext_mem_host = false;
-
-        for (size_t i = 0; i < extension_count; ++i)
+        if (util::platform::StringCompare(entry, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME) == 0)
         {
-            auto entry = pCreateInfo_unwrapped->ppEnabledExtensionNames[i];
-
-            modified_extensions.push_back(entry);
-
+            has_buffer_address = true;
+        }
+        else if (page_guard_memory_mode_ == kMemoryModeExternal)
+        {
             if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
             {
                 has_ext_mem_caps = true;
@@ -1214,7 +1256,15 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
                 has_ext_mem_host = true;
             }
         }
+    }
 
+    if (!has_buffer_address)
+    {
+        modified_extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+    }
+
+    if (page_guard_memory_mode_ == kMemoryModeExternal)
+    {
         if (!has_ext_mem_caps)
         {
             modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
@@ -1229,29 +1279,97 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
         {
             modified_extensions.push_back(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
         }
+    }
 
-        pCreateInfo_unwrapped->enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
-        pCreateInfo_unwrapped->ppEnabledExtensionNames = modified_extensions.data();
+    pCreateInfo_unwrapped->enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+    pCreateInfo_unwrapped->ppEnabledExtensionNames = modified_extensions.data();
 
-        VkResult result =
-            layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
+    VkResult result = layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
 
-        if ((result == VK_SUCCESS) && (capture_mode_ & kModeTrack) != kModeTrack)
-        {
-            assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
+    if ((result == VK_SUCCESS) && (page_guard_memory_mode_ == kMemoryModeExternal) &&
+        ((capture_mode_ & kModeTrack) != kModeTrack))
+    {
+        assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
-            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
-            // here to ensure it is available for memory allocation.
-            auto wrapper             = reinterpret_cast<DeviceWrapper*>(*pDevice);
-            wrapper->physical_device = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
-        }
+        // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
+        // here to ensure it is available for memory allocation when kMemoryModeExternal is enabled.
+        auto wrapper             = reinterpret_cast<DeviceWrapper*>(*pDevice);
+        wrapper->physical_device = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
+    }
 
-        return result;
+    return result;
+}
+
+VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
+                                            const VkBufferCreateInfo*    pCreateInfo,
+                                            const VkAllocationCallbacks* pAllocator,
+                                            VkBuffer*                    pBuffer)
+{
+    VkResult result           = VK_SUCCESS;
+    auto     device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    auto     device_table     = GetDeviceTable(device);
+
+    bool uses_address = false;
+    if ((pCreateInfo->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) == VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+    {
+        uses_address = true;
+    }
+
+    // NOTE: VkBufferCreateInfo does not currently support pNext structures with handles, so does not have a handle
+    // unwrapping function.  If a pNext struct with handles is added in the future, it will be necessary to unwrap
+    // pCreateInfo before calling CreateBuffer.  The unwrapping process will create a mutable copy of the original
+    // pCreateInfo, with unwrapped handles, which can be modified directly and would not require the
+    // 'modified_create_info' copy performed below.
+    if (uses_address && ((pCreateInfo->flags & VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT) !=
+                         VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT))
+    {
+        // If the buffer has shader device address usage, but the device address capture replay flag was not set, it
+        // needs to be set here.  We create copy from an override to prevent the modificatied pCreateInfo from being
+        // written to the capture file.
+        VkBufferCreateInfo modified_create_info = (*pCreateInfo);
+        modified_create_info.flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+
+        result = device_table->CreateBuffer(device_unwrapped, &modified_create_info, pAllocator, pBuffer);
     }
     else
     {
-        return layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
+        result = device_table->CreateBuffer(device_unwrapped, pCreateInfo, pAllocator, pBuffer);
     }
+
+    if ((result == VK_SUCCESS) && (pBuffer != nullptr))
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferWrapper>(
+            device, NoParentWrapper::kHandleValue, pBuffer, TraceManager::GetUniqueId);
+
+        if (uses_address)
+        {
+            // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
+            // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
+            // list.
+            // TODO: This needs a version 1.2 check to determine which function to call.
+            // TODO: This code needs to be skipped if bufferDeviceAddressCaptureReplay is not supported.
+
+            auto                      device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+            auto                      buffer_wrapper = reinterpret_cast<BufferWrapper*>(*pBuffer);
+            VkBufferDeviceAddressInfo info           = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
+            info.pNext                               = nullptr;
+            info.buffer                              = buffer_wrapper->handle;
+
+            auto address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+
+            if (address != 0)
+            {
+                WriteSetBufferAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
+
+                if ((capture_mode_ & kModeTrack) == kModeTrack)
+                {
+                    state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 VkResult TraceManager::OverrideAllocateMemory(VkDevice                     device,

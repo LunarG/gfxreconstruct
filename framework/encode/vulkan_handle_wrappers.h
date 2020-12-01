@@ -169,6 +169,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
     VkDeviceSize     created_size{ 0 };
+
+    // State tracking info for buffers with device addresses.
+    format::HandleId device_id{ format::kNullHandleId };
+    VkDeviceAddress  address{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>

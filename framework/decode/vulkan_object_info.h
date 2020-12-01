@@ -241,6 +241,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     std::unique_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
+    std::unordered_map<format::HandleId, uint64_t> buffer_addresses;
+
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;

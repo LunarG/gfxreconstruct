@@ -602,6 +602,19 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     }
 }
 
+void VulkanReplayConsumerBase::ProcessSetBufferAddressCommand(format::HandleId device_id,
+                                                              format::HandleId buffer_id,
+                                                              uint64_t         address)
+{
+    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+
+    if (device_info != nullptr)
+    {
+        // Store the buffer address to use at device creation.
+        device_info->buffer_addresses[buffer_id] = address;
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     format::HandleId                                    device_id,
     format::HandleId                                    swapchain_id,
@@ -3614,14 +3627,53 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
+    VkResult                              result = VK_SUCCESS;
     VulkanResourceAllocator::ResourceData allocator_data;
-    auto                                  replay_buffer = pBuffer->GetHandlePointer();
-    auto                                  capture_id    = (*pBuffer->GetPointer());
+    auto                                  replay_buffer      = pBuffer->GetHandlePointer();
+    auto                                  capture_id         = (*pBuffer->GetPointer());
+    auto                                  replay_create_info = pCreateInfo->GetPointer();
 
-    VkResult result = allocator->CreateBuffer(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+    // Check for a buffer device address.
+    if ((replay_create_info != nullptr) && ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
+                                            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT))
+    {
+        // TODO: The bufferDeviceAddressCaptureReplay device feature needs to be enabled, or a warning needs to be
+        // printed when it is not available and this code needs to be skipped.
+        // TODO: A Vulkan 1.2 check needs to be made, and the extensions needs to be enabled if the version is less
+        // than 1.2
+        VkBufferCreateInfo modified_create_info = (*replay_create_info);
 
-    auto replay_create_info = pCreateInfo->GetPointer();
+        VkBufferOpaqueCaptureAddressCreateInfo address_info = {
+            VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
+        };
+
+        auto entry = device_info->buffer_addresses.find(capture_id);
+        if (entry != device_info->buffer_addresses.end())
+        {
+            address_info.opaqueCaptureAddress = entry->second;
+
+            // The shallow copy of VkBufferCreateInfo references the same pNext list from the copy source.  We insert
+            // the buffer address extension struct at the start of the list to avoid modifying the original by appending
+            // to the end.
+            address_info.pNext         = modified_create_info.pNext;
+            modified_create_info.pNext = &address_info;
+
+            modified_create_info.flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Buffer device address is not available for VkBuffer object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+
+        result = allocator->CreateBuffer(
+            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+    }
+    else
+    {
+        result = allocator->CreateBuffer(
+            replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+    }
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {

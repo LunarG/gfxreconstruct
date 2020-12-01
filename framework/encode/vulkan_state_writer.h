@@ -125,6 +125,8 @@ class VulkanStateWriter
 
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
 
+    void WriteBufferState(const VulkanStateTable& state_table);
+
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
     void
@@ -264,6 +266,8 @@ class VulkanStateWriter
 
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
+
+    void WriteSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, VkDeviceAddress address);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)

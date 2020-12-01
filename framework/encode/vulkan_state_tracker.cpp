@@ -214,6 +214,17 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
     entry.assign(modes, modes + mode_count);
 }
 
+void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
+{
+    assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    auto wrapper       = reinterpret_cast<BufferWrapper*>(buffer);
+    wrapper->device_id = GetWrappedId(device);
+    wrapper->address   = address;
+}
+
 void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
                                                   VkBuffer       buffer,
                                                   VkDeviceMemory memory,

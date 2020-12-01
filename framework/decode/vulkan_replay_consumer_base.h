@@ -115,6 +115,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                             const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
     virtual void
+    ProcessSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, uint64_t address) override;
+
+    virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
                                          format::HandleId                                    swapchain_id,
                                          uint32_t                                            last_presented_image,
