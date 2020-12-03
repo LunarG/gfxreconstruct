@@ -10,8 +10,9 @@
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplateKHR",
-    "vkBuildAccelerationStructureKHR",
-    "vkCmdBuildAccelerationStructureKHR"
+    "vkBuildAccelerationStructuresKHR",
+    "vkCmdBuildAccelerationStructuresKHR",
+    "vkCmdBuildAccelerationStructuresIndirectKHR"
   ],
   "structures": [
     "VkBaseOutStructure",

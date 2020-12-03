@@ -412,44 +412,6 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            commandBuffer,
         VkBool32                                    isPreprocessed,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
-
-    virtual void Process_vkCmdBuildAccelerationStructureIndirectKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfo,
-        format::HandleId                            indirectBuffer,
-        VkDeviceSize                                indirectOffset,
-        uint32_t                                    indirectStride) override;
-
-    virtual void Process_vkCmdCopyAccelerationStructureKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) override;
-
-    virtual void Process_vkCmdCopyAccelerationStructureToMemoryKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo) override;
-
-    virtual void Process_vkCmdCopyMemoryToAccelerationStructureKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo) override;
-
-    virtual void Process_vkCmdTraceRaysKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
-        uint32_t                                    width,
-        uint32_t                                    height,
-        uint32_t                                    depth) override;
-
-    virtual void Process_vkCmdTraceRaysIndirectKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

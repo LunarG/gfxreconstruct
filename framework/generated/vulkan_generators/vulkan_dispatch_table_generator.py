@@ -48,6 +48,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                                  'VkBool32' : 'VK_TRUE',
                                  'PFN_vkVoidFunction' : 'nullptr',
                                  'VkDeviceAddress' : '0',
+                                 'VkDeviceSize' : '0',
                                  'uint32_t' : '0',
                                  'uint64_t' : '0' }
 

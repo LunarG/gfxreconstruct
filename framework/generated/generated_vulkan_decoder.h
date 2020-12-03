@@ -562,6 +562,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkSignalSemaphoreKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetPhysicalDeviceFragmentShadingRatesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetFragmentShadingRateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetBufferDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetBufferOpaqueCaptureAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -724,13 +728,9 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCreateAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkDestroyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkDestroyAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetAccelerationStructureMemoryRequirementsNV(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkBindAccelerationStructureMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkBindAccelerationStructureMemoryNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -747,8 +747,6 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetRayTracingShaderGroupHandlesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetAccelerationStructureHandleNV(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkCmdWriteAccelerationStructuresPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdWriteAccelerationStructuresPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -864,15 +862,15 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPrivateDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdSetFragmentShadingRateEnumNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateDirectFBSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetAccelerationStructureMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkCmdBuildAccelerationStructureIndirectKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkDestroyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCopyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -888,17 +886,25 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdCopyMemoryToAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetAccelerationStructureDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteAccelerationStructuresPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceAccelerationStructureCompatibilityKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetAccelerationStructureBuildSizesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdTraceRaysKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkGetAccelerationStructureDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdTraceRaysIndirectKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetDeviceAccelerationStructureCompatibilityKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkGetRayTracingShaderGroupStackSizeKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRayTracingPipelineStackSizeKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)

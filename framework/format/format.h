@@ -37,6 +37,7 @@ typedef uint32_t FlagsEncodeType;
 typedef uint32_t SampleMaskEncodeType;
 typedef uint64_t HandleEncodeType;
 typedef uint64_t DeviceSizeEncodeType;
+typedef uint64_t DeviceAddressEncodeType;
 typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.

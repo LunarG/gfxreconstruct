@@ -42,16 +42,25 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               const void*                pData);
 
 VKAPI_ATTR void VKAPI_CALL
-                CmdBuildAccelerationStructureKHR(VkCommandBuffer                                         commandBuffer,
-                                                 uint32_t                                                infoCount,
-                                                 const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
-                                                 const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos);
+CmdBuildAccelerationStructuresKHR(VkCommandBuffer                                        commandBuffer,
+                                  uint32_t                                               infoCount,
+                                  const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                                  const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos);
+
+VKAPI_ATTR void VKAPI_CALL
+CmdBuildAccelerationStructuresIndirectKHR(VkCommandBuffer                                    commandBuffer,
+                                          uint32_t                                           infoCount,
+                                          const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
+                                          const VkDeviceAddress*                             pIndirectDeviceAddresses,
+                                          const uint32_t*                                    pIndirectStrides,
+                                          const uint32_t* const*                             ppMaxPrimitiveCounts);
 
 VKAPI_ATTR VkResult VKAPI_CALL
-                    BuildAccelerationStructureKHR(VkDevice                                                device,
-                                                  uint32_t                                                infoCount,
-                                                  const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
-                                                  const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos);
+BuildAccelerationStructuresKHR(VkDevice                                               device,
+                               VkDeferredOperationKHR                                 deferredOperation,
+                               uint32_t                                               infoCount,
+                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

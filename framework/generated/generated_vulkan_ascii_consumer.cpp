@@ -2384,6 +2384,23 @@ void VulkanAsciiConsumer::Process_vkSignalSemaphoreKHR(
     fprintf(GetFile(), "%s\n", "vkSignalSemaphoreKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pFragmentShadingRateCount,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceFragmentShadingRatesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetFragmentShadingRateKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
+    PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetFragmentShadingRateKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressKHR(
     VkDeviceAddress                             returnValue,
     format::HandleId                            device,
@@ -3101,14 +3118,6 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureNV(
     fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureNV");
 }
 
-void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureKHR(
-    format::HandleId                            device,
-    format::HandleId                            accelerationStructure,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    fprintf(GetFile(), "%s\n", "vkDestroyAccelerationStructureKHR");
-}
-
 void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureNV(
     format::HandleId                            device,
     format::HandleId                            accelerationStructure,
@@ -3125,20 +3134,11 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV
     fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureMemoryRequirementsNV");
 }
 
-void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryKHR(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    uint32_t                                    bindInfoCount,
-    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos)
-{
-    fprintf(GetFile(), "%s\n", "vkBindAccelerationStructureMemoryKHR");
-}
-
 void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryNV(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    bindInfoCount,
-    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos)
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
 {
     fprintf(GetFile(), "%s\n", "vkBindAccelerationStructureMemoryNV");
 }
@@ -3232,21 +3232,10 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureHandleNV(
     fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureHandleNV");
 }
 
-void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
-    format::HandleId                            commandBuffer,
-    uint32_t                                    accelerationStructureCount,
-    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
-    VkQueryType                                 queryType,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery)
-{
-    fprintf(GetFile(), "%s\n", "vkCmdWriteAccelerationStructuresPropertiesKHR");
-}
-
 void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     format::HandleId                            commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
     VkQueryType                                 queryType,
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
@@ -3738,6 +3727,14 @@ void VulkanAsciiConsumer::Process_vkGetPrivateDataEXT(
     fprintf(GetFile(), "%s\n", "vkGetPrivateDataEXT");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
+    format::HandleId                            commandBuffer,
+    VkFragmentShadingRateNV                     shadingRate,
+    PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetFragmentShadingRateEnumNV");
+}
+
 void VulkanAsciiConsumer::Process_vkCreateDirectFBSurfaceEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,
@@ -3767,27 +3764,18 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(
     fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureKHR");
 }
 
-void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsKHR(
+void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureKHR(
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoKHR>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
+    format::HandleId                            accelerationStructure,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureMemoryRequirementsKHR");
-}
-
-void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructureIndirectKHR(
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfo,
-    format::HandleId                            indirectBuffer,
-    VkDeviceSize                                indirectOffset,
-    uint32_t                                    indirectStride)
-{
-    fprintf(GetFile(), "%s\n", "vkCmdBuildAccelerationStructureIndirectKHR");
+    fprintf(GetFile(), "%s\n", "vkDestroyAccelerationStructureKHR");
 }
 
 void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
+    format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCopyAccelerationStructureKHR");
@@ -3796,6 +3784,7 @@ void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureKHR(
 void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
+    format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCopyAccelerationStructureToMemoryKHR");
@@ -3804,6 +3793,7 @@ void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
 void VulkanAsciiConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
+    format::HandleId                            deferredOperation,
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCopyMemoryToAccelerationStructureKHR");
@@ -3843,12 +3833,49 @@ void VulkanAsciiConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
     fprintf(GetFile(), "%s\n", "vkCmdCopyMemoryToAccelerationStructureKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
+    VkDeviceAddress                             returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureDeviceAddressKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    accelerationStructureCount,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    VkQueryType                                 queryType,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWriteAccelerationStructuresPropertiesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR(
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureVersionInfoKHR>* pVersionInfo,
+    PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeviceAccelerationStructureCompatibilityKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
+    format::HandleId                            device,
+    VkAccelerationStructureBuildTypeKHR         buildType,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
+    PointerDecoder<uint32_t>*                   pMaxPrimitiveCounts,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureBuildSizesKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkCmdTraceRaysKHR(
     format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
     uint32_t                                    width,
     uint32_t                                    height,
     uint32_t                                    depth)
@@ -3859,6 +3886,7 @@ void VulkanAsciiConsumer::Process_vkCmdTraceRaysKHR(
 void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
+    format::HandleId                            deferredOperation,
     format::HandleId                            pipelineCache,
     uint32_t                                    createInfoCount,
     StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
@@ -3866,14 +3894,6 @@ void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesKHR(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     fprintf(GetFile(), "%s\n", "vkCreateRayTracingPipelinesKHR");
-}
-
-void VulkanAsciiConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
-    VkDeviceAddress                             returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
-{
-    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureDeviceAddressKHR");
 }
 
 void VulkanAsciiConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
@@ -3890,22 +3910,30 @@ void VulkanAsciiConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandles
 
 void VulkanAsciiConsumer::Process_vkCmdTraceRaysIndirectKHR(
     format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset)
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    VkDeviceAddress                             indirectDeviceAddress)
 {
     fprintf(GetFile(), "%s\n", "vkCmdTraceRaysIndirectKHR");
 }
 
-void VulkanAsciiConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR(
-    VkResult                                    returnValue,
+void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupStackSizeKHR(
+    VkDeviceSize                                returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkAccelerationStructureVersionKHR>* version)
+    format::HandleId                            pipeline,
+    uint32_t                                    group,
+    VkShaderGroupShaderKHR                      groupShader)
 {
-    fprintf(GetFile(), "%s\n", "vkGetDeviceAccelerationStructureCompatibilityKHR");
+    fprintf(GetFile(), "%s\n", "vkGetRayTracingShaderGroupStackSizeKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    pipelineStackSize)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetRayTracingPipelineStackSizeKHR");
 }
 
 GFXRECON_END_NAMESPACE(decode)
