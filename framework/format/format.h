@@ -116,20 +116,21 @@ enum FileOption : uint32_t
 
 enum PointerAttributes : uint32_t
 {
-    kIsNull         = 0x01, // The pointer was null, so the address and data were not encoded.
+    kIsNull         = 0x0001, // The pointer was null, so the address and data were not encoded.
 
     // Type of data
-    kIsSingle       = 0x02, // Pointer to a single value.
-    kIsArray        = 0x04, // Pointer to an array of values (can be combined with kIsString or kIsStruct).
+    kIsSingle       = 0x0002, // Pointer to a single value.
+    kIsArray        = 0x0004, // Pointer to an array of values (can be combined with kIsString or kIsStruct).
+    kIsArray2D      = 0x0100, // Pointer to an array of pointers or arrays.
 
     // Type modifiers for pointers to aggregate data types
-    kIsString       = 0x08, // Pointer to a UTF-8 string.
-    kIsWString      = 0x10, // Pointer to a UTF-16 string.
-    kIsStruct       = 0x20, // Pointer to a struct.
+    kIsString       = 0x0008, // Pointer to a UTF-8 string.
+    kIsWString      = 0x0010, // Pointer to a UTF-16 string.
+    kIsStruct       = 0x0020, // Pointer to a struct.
 
     // What was encoded
-    kHasAddress     = 0x40, // The address of the pointer was encoded (always comes before data).
-    kHasData        = 0x80, // The data pointed to was encoded.
+    kHasAddress     = 0x0040, // The address of the pointer was encoded (always comes before data).
+    kHasData        = 0x0080, // The data pointed to was encoded.
 };
 
 enum ResizeWindowPreTransform : uint32_t

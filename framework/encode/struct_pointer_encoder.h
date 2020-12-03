@@ -59,6 +59,53 @@ void EncodeStructArray(
     }
 }
 
+template <typename T>
+void EncodeStructArray2D(ParameterEncoder* encoder,
+                         const T* const*   value,
+                         size_t            m,
+                         size_t            n,
+                         bool              omit_data = false,
+                         bool              omit_addr = false)
+{
+    encoder->EncodeStructArray2DPreamble(value, m, omit_data, omit_addr);
+
+    if ((value != nullptr) && (m > 0) && !omit_data)
+    {
+        for (size_t i = 0; i < m; ++i)
+        {
+            encoder->EncodeStructArrayPreamble(value[i], n, omit_data, omit_addr);
+            for (size_t j = 0; j < n; ++j)
+            {
+                EncodeStruct(encoder, value[i][j]);
+            }
+        }
+    }
+}
+
+template <typename T, typename SizeT>
+typename std::enable_if<!std::is_integral<SizeT>::value>::type EncodeStructArray2D(ParameterEncoder* encoder,
+                                                                                   const T* const*   value,
+                                                                                   const SizeT&      size_2d,
+                                                                                   bool              omit_data = false,
+                                                                                   bool              omit_addr = false)
+{
+    const size_t outer_len = size_2d.size();
+    encoder->EncodeStructArray2DPreamble(value, outer_len, omit_data, omit_addr);
+
+    if ((value != nullptr) && (outer_len > 0))
+    {
+        for (size_t i = 0; i < outer_len; ++i)
+        {
+            const size_t inner_len = size_2d[i];
+            encoder->EncodeStructArrayPreamble(value[i], inner_len, omit_data, omit_addr);
+            for (size_t j = 0; j < inner_len; ++j)
+            {
+                EncodeStruct(encoder, value[i][j]);
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

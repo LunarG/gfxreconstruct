@@ -234,6 +234,132 @@ class PointerDecoder : public PointerDecoderBase
     size_t                     output_len_; ///< Size of #output_data_.
 };
 
+template <typename T>
+class PointerDecoder<T*> : public PointerDecoderBase
+{
+  public:
+    PointerDecoder() : data_(nullptr) {}
+
+    virtual ~PointerDecoder() override
+    {
+        if (data_ != nullptr)
+        {
+            for (size_t i = 0; i < GetLength(); ++i)
+            {
+                delete[] data_[i];
+            }
+            delete[] data_;
+        }
+    }
+
+    T** GetPointer() { return data_; }
+
+    const T** GetPointer() const { return data_; }
+
+    // clang-format off
+    size_t DecodeInt32(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<int32_t>(buffer, buffer_size); }
+    size_t DecodeUInt32(const uint8_t* buffer, size_t buffer_size)          { return DecodeFrom<uint32_t>(buffer, buffer_size); }
+    size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)          { return DecodeFrom<uint64_t>(buffer, buffer_size); }
+    size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<float>(buffer, buffer_size); }
+    size_t DecodeVkBool32(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<VkBool32>(buffer, buffer_size); }
+
+    // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
+    size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
+
+    // Decode for array of bytes.
+    size_t DecodeUInt8(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<uint8_t>(buffer, buffer_size); }
+    size_t DecodeVoid(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<uint8_t>(buffer, buffer_size); }
+
+    // Decode for special types that may require conversion.
+    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
+    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    // clang-format on
+
+  private:
+    template <typename SrcT>
+    size_t DecodeFrom(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
+
+        // We should not be decoding pointers, arrays, or structs.
+        assert((GetAttributeMask() & format::PointerAttributes::kIsSingle) != format::PointerAttributes::kIsSingle);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray) != format::PointerAttributes::kIsArray);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
+
+        // We should only be decoding 2D arrays
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D);
+
+        if (!IsNull() && HasData())
+        {
+            bytes_read += DecodeInternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t DecodeInternal(const uint8_t* buffer, size_t buffer_size)
+    {
+        assert(data_ == nullptr);
+
+        size_t bytes_read = 0;
+        size_t len        = GetLength();
+
+        data_ = new T*[len];
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            uint32_t attrib = 0;
+            bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+            if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+            {
+                if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+                {
+                    uint64_t address;
+                    bytes_read +=
+                        ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+                }
+
+                // We should not be decoding string arrays or structs.
+                assert((GetAttributeMask() &
+                        (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray)) !=
+                       (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
+                assert((GetAttributeMask() &
+                        (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray)) !=
+                       (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray));
+                assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) !=
+                       format::PointerAttributes::kIsStruct);
+
+                size_t inner_len = 0;
+                bytes_read +=
+                    ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &inner_len);
+
+                T* inner_data = new T[inner_len];
+                bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(
+                    (buffer + bytes_read), (buffer_size - bytes_read), inner_data, inner_len);
+
+                data_[i] = inner_data;
+            }
+            else
+            {
+                data_[i] = nullptr;
+            }
+        }
+
+        return bytes_read;
+    }
+
+  private:
+    T** data_; ///< Memory to hold decoded data
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

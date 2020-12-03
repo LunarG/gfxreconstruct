@@ -806,12 +806,11 @@ class BaseGenerator(OutputGenerator):
         if value.isPointer or value.isArray:
             count = value.pointerCount
 
-            # We currently only expect the '*' count to be greater than one for the char** case
-            if (count > 1) and (typeName != 'char') and (not typeName in self.EXTERNAL_OBJECT_TYPES):
-                print("WARNING: Processing a multi-dimensional array that is not an array of strings ({})".format(typeName + ('*' * count)))
-
             if self.isStruct(typeName):
-                typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
+                if count > 1:
+                    typeName = 'StructPointerDecoder<Decoded_{}*>'.format(typeName)
+                else:
+                    typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
             elif typeName == 'wchar_t':
                 if count > 1:
                     typeName = 'WStringArrayDecoder'
@@ -836,7 +835,10 @@ class BaseGenerator(OutputGenerator):
             elif self.isHandle(typeName):
                 typeName = 'HandlePointerDecoder<{}>'.format(typeName)
             else:
-                typeName = 'PointerDecoder<{}>'.format(typeName)
+                if count > 1:
+                    typeName = 'PointerDecoder<{}*>'.format(typeName)
+                else:
+                    typeName = 'PointerDecoder<{}>'.format(typeName)
         elif self.isFunctionPtr(typeName):
             # Function pointers are encoded as a 64-bit address value.
             typeName ='uint64_t'
@@ -919,6 +921,23 @@ class BaseGenerator(OutputGenerator):
 
         return lengthExpr
 
+    def makeArray2DLengthExpression(self, value, values, prefix=''):
+        lengthExprs = value.arrayLength.split(',')
+        if len(lengthExprs) == value.pointerCount:
+            # All dimensions are provided in the xml
+            lengths = []
+            for lengthExpr in lengthExprs:
+                # Prefix members
+                for v in values:
+                    lengthExpr = re.sub(r'\b({})\b'.format(v.name), r'{}\1'.format(prefix), lengthExpr)
+                lengths.append(lengthExpr)
+            return lengths
+        else:
+            # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes
+            type_list = ', '.join([v.fullType for v in values])
+            arg_list = ', '.join([v.name for v in values])
+            return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
+
     #
     # Generate a parameter encoder method call invocation.
     def makeEncoderMethodCall(self, name, value, values, prefix, omitOutputParam=None):
@@ -951,12 +970,20 @@ class BaseGenerator(OutputGenerator):
 
             methodCall = 'encoder->Encode' + typeName
 
-        if value.isArray and not (isString and not value.isDynamic):  # Make sure strings delcared as 'char s[N]' are not treated as string arrays
-            if ',' in value.arrayLength:
+        if isString:
+            if value.isArray and value.isDynamic:
+                methodCall += 'Array'
+                args.append(self.makeArrayLengthExpression(value, prefix))
+        elif value.isArray:
+            if value.pointerCount > 1:
+                methodCall += 'Array{}D'.format(value.pointerCount)
+                args.extend(self.makeArray2DLengthExpression(value, values, prefix))
+            elif ',' in value.arrayLength:
                 methodCall += '{}DMatrix'.format(value.arrayLength.count(',') + 1)
+                args.append(self.makeArrayLengthExpression(value, prefix))
             else:
                 methodCall += 'Array'
-            args.append(self.makeArrayLengthExpression(value, prefix))
+                args.append(self.makeArrayLengthExpression(value, prefix))
         elif isStruct:
             if value.isPointer:
                 methodCall += 'Ptr'

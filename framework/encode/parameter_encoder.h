@@ -131,6 +131,10 @@ class ParameterEncoder
     void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }
     void EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_data = false, bool omit_addr = false)    { EncodeBasicStringArray<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, len, omit_data, omit_addr); }
 
+    // 2D Arrays
+    template<typename SizeT>
+    void EncodeUInt32Array2D(const uint32_t* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false) { EncodeArray2D(arr, size_2d, omit_data, omit_addr); }
+
     template <size_t N, size_t M>
     void EncodeFloat2DMatrix(const float (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const float*>(arr), n * m, omit_data, omit_addr); }
 
@@ -152,6 +156,25 @@ class ParameterEncoder
     void EncodeStructArrayPreamble(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib = format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray |
+                                  GetPointerAttributeMask(arr, omit_data, omit_addr);
+
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            EncodeSizeTValue(len);
+        }
+    }
+
+    void EncodeStructArray2DPreamble(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    {
+        uint32_t pointer_attrib = format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsArray2D |
                                   GetPointerAttributeMask(arr, omit_data, omit_addr);
 
         output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
@@ -369,6 +392,57 @@ class ParameterEncoder
                 for (size_t i = 0; i < len; ++i)
                 {
                     EncodeHandleValue(arr[i]);
+                }
+            }
+        }
+    }
+
+    template <typename T, typename SizeT>
+    typename std::enable_if<!std::is_integral<SizeT>::value>::type
+    EncodeArray2D(const T* const* arr, SizeT size_2d, bool omit_data = false, bool omit_addr = false)
+    {
+        // Outer pointer attributes
+        uint32_t pointer_attrib =
+            format::PointerAttributes::kIsArray2D | GetPointerAttributeMask(arr, omit_data, omit_addr);
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            // Outer array address
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(arr);
+            }
+
+            // Outer array size
+            EncodeSizeTValue(size_2d.size());
+
+            // Treat all inner array infomation as data
+            if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
+            {
+                for (size_t i = 0; i < size_2d.size(); ++i)
+                {
+                    // Inner pointer attributes
+                    uint32_t inner_pointer_attrib =
+                        format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr[i], omit_data, omit_addr);
+                    output_stream_->Write(&inner_pointer_attrib, sizeof(inner_pointer_attrib));
+
+                    // Inner array address
+                    if ((inner_pointer_attrib & format::PointerAttributes::kHasAddress) ==
+                        format::PointerAttributes::kHasAddress)
+                    {
+                        EncodeAddress(arr[i]);
+                    }
+
+                    // Inner array size
+                    EncodeSizeTValue(size_2d[i]);
+
+                    // Inner array data
+                    if ((inner_pointer_attrib & format::PointerAttributes::kHasData) ==
+                        format::PointerAttributes::kHasData)
+                    {
+                        output_stream_->Write(arr[i], size_2d[i] * sizeof(T));
+                    }
                 }
             }
         }
