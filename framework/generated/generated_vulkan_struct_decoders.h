@@ -5600,6 +5600,20 @@ struct Decoded_VkAccelerationStructureGeometryKHR
     std::unique_ptr<Decoded_VkAccelerationStructureGeometryDataKHR> geometry;
 };
 
+struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR
+{
+    using struct_type = VkAccelerationStructureBuildGeometryInfoKHR;
+
+    VkAccelerationStructureBuildGeometryInfoKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcAccelerationStructure{ format::kNullHandleId };
+    format::HandleId dstAccelerationStructure{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR>> pGeometries;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkAccelerationStructureGeometryKHR*>> ppGeometries;
+    std::unique_ptr<Decoded_VkDeviceOrHostAddressKHR> scratchData;
+};
+
 struct Decoded_VkAccelerationStructureCreateInfoKHR
 {
     using struct_type = VkAccelerationStructureCreateInfoKHR;

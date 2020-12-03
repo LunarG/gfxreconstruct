@@ -3778,6 +3778,37 @@ void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureKHR(
     fprintf(GetFile(), "%s\n", "vkDestroyAccelerationStructureKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBuildAccelerationStructuresKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
+    PointerDecoder<uint32_t>*                   pIndirectStrides,
+    PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBuildAccelerationStructuresIndirectKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkBuildAccelerationStructuresKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            deferredOperation,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+{
+    fprintf(GetFile(), "%s\n", "vkBuildAccelerationStructuresKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,

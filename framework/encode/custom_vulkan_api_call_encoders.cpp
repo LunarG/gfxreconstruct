@@ -287,44 +287,5 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-CmdBuildAccelerationStructuresKHR(VkCommandBuffer                                        commandBuffer,
-                                  uint32_t                                               infoCount,
-                                  const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
-                                  const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("CmdBuildAccelerationStructuresKHR encoding is not supported");
-    GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppRangeInfos);
-}
-
-VKAPI_ATTR void VKAPI_CALL
-CmdBuildAccelerationStructuresIndirectKHR(VkCommandBuffer                                    commandBuffer,
-                                          uint32_t                                           infoCount,
-                                          const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
-                                          const VkDeviceAddress*                             pIndirectDeviceAddresses,
-                                          const uint32_t*                                    pIndirectStrides,
-                                          const uint32_t* const*                             ppMaxPrimitiveCounts)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("CmdBuildAccelerationStructuresIndirectKHR encoding is not supported");
-    GetDeviceTable(commandBuffer)
-        ->CmdBuildAccelerationStructuresIndirectKHR(
-            commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL
-BuildAccelerationStructuresKHR(VkDevice                                               device,
-                               VkDeferredOperationKHR                                 deferredOperation,
-                               uint32_t                                               infoCount,
-                               const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
-                               const VkAccelerationStructureBuildRangeInfoKHR* const* ppRangeInfos)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("BuildAccelerationStructuresKHR encoding is not supported");
-    return GetDeviceTable(device)->BuildAccelerationStructuresKHR(
-        device, deferredOperation, infoCount, pInfos, ppRangeInfos);
-}
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

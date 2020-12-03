@@ -72,6 +72,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
         self.newline()
         write('#include "encode/custom_encoder_commands.h"', file=self.outFile)
+        write('#include "encode/custom_vulkan_array_size_2d.h"', file=self.outFile)
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)

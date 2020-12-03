@@ -812,6 +812,34 @@ void TrackCmdBindPipelineShaderGroupNVHandles(CommandBufferWrapper* wrapper, VkP
     wrapper->command_handles[CommandHandleType::PipelineHandle].insert(GetWrappedId(pipeline));
 }
 
+void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfos != nullptr)
+    {
+        for (uint32_t pInfos_index = 0; pInfos_index < infoCount; ++pInfos_index)
+        {
+            wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId(pInfos[pInfos_index].srcAccelerationStructure));
+            wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId(pInfos[pInfos_index].dstAccelerationStructure));
+        }
+    }
+}
+
+void TrackCmdBuildAccelerationStructuresIndirectKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pInfos != nullptr)
+    {
+        for (uint32_t pInfos_index = 0; pInfos_index < infoCount; ++pInfos_index)
+        {
+            wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId(pInfos[pInfos_index].srcAccelerationStructure));
+            wrapper->command_handles[CommandHandleType::AccelerationStructureKHRHandle].insert(GetWrappedId(pInfos[pInfos_index].dstAccelerationStructure));
+        }
+    }
+}
+
 void TrackCmdCopyAccelerationStructureKHRHandles(CommandBufferWrapper* wrapper, const VkCopyAccelerationStructureInfoKHR* pInfo)
 {
     assert(wrapper != nullptr);

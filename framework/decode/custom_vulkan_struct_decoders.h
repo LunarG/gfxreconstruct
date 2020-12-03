@@ -139,13 +139,6 @@ struct Decoded_VkPerformanceValueINTEL
     std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
 };
 
-struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR
-{
-    using struct_type = VkAccelerationStructureBuildGeometryInfoKHR;
-    VkAccelerationStructureBuildGeometryInfoKHR* decoded_value{ nullptr };
-    // TODO
-};
-
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL
 {

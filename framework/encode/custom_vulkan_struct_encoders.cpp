@@ -169,12 +169,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& valu
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildGeometryInfoKHR& value)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR is not supported");
-}
-
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.
 static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
 {

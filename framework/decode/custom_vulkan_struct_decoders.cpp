@@ -191,15 +191,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPerform
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t*                                       parameter_buffer,
-                    size_t                                               buffer_size,
-                    Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR is not supported");
-    return 0;
-}
-
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
 static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {
