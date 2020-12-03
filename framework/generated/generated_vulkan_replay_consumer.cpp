@@ -5943,6 +5943,56 @@ void VulkanReplayConsumer::Process_vkDestroyAccelerationStructureKHR(
     RemoveHandle(accelerationStructure, &VulkanObjectInfoTable::RemoveAccelerationStructureKHRInfo);
 }
 
+void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkAccelerationStructureBuildGeometryInfoKHR* in_pInfos = pInfos->GetPointer();
+    MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+    const VkAccelerationStructureBuildRangeInfoKHR* const* in_ppBuildRangeInfos = ppBuildRangeInfos->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresKHR(in_commandBuffer, infoCount, in_pInfos, in_ppBuildRangeInfos);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
+    PointerDecoder<uint32_t>*                   pIndirectStrides,
+    PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkAccelerationStructureBuildGeometryInfoKHR* in_pInfos = pInfos->GetPointer();
+    MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+    const VkDeviceAddress* in_pIndirectDeviceAddresses = pIndirectDeviceAddresses->GetPointer();
+    const uint32_t* in_pIndirectStrides = pIndirectStrides->GetPointer();
+    const uint32_t* const* in_ppMaxPrimitiveCounts = ppMaxPrimitiveCounts->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR(in_commandBuffer, infoCount, in_pInfos, in_pIndirectDeviceAddresses, in_pIndirectStrides, in_ppMaxPrimitiveCounts);
+}
+
+void VulkanReplayConsumer::Process_vkBuildAccelerationStructuresKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            deferredOperation,
+    uint32_t                                    infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkDeferredOperationKHR in_deferredOperation = MapHandle<DeferredOperationKHRInfo>(deferredOperation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
+    const VkAccelerationStructureBuildGeometryInfoKHR* in_pInfos = pInfos->GetPointer();
+    MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+    const VkAccelerationStructureBuildRangeInfoKHR* const* in_ppBuildRangeInfos = ppBuildRangeInfos->GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->BuildAccelerationStructuresKHR(in_device, in_deferredOperation, infoCount, in_pInfos, in_ppBuildRangeInfos);
+    CheckResult("vkBuildAccelerationStructuresKHR", returnValue, replay_result);
+}
+
 void VulkanReplayConsumer::Process_vkCopyAccelerationStructureKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,

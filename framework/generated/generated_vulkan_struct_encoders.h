@@ -728,6 +728,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeomet
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryInstancesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildGeometryInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerationStructureKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAccelerationStructureFeaturesKHR& value);

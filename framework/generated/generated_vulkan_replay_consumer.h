@@ -2545,6 +2545,28 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            accelerationStructure,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    virtual void Process_vkCmdBuildAccelerationStructuresKHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
+
+    virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        PointerDecoder<VkDeviceAddress>*            pIndirectDeviceAddresses,
+        PointerDecoder<uint32_t>*                   pIndirectStrides,
+        PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) override;
+
+    virtual void Process_vkBuildAccelerationStructuresKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            deferredOperation,
+        uint32_t                                    infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) override;
+
     virtual void Process_vkCopyAccelerationStructureKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,

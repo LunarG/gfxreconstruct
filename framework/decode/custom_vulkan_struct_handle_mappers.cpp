@@ -111,12 +111,5 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
     }
 }
 
-void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
-                      const VulkanObjectInfoTable&                         object_info_table)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR handle mapping is not supported");
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1029,6 +1029,16 @@ void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, Han
     }
 }
 
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcAccelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->srcAccelerationStructure);
+
+        value->dstAccelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->dstAccelerationStructure);
+    }
+}
+
 void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)

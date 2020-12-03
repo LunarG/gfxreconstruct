@@ -5216,6 +5216,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeomet
     encoder->EncodeFlagsValue(value.flags);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildGeometryInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.mode);
+    encoder->EncodeHandleValue(value.srcAccelerationStructure);
+    encoder->EncodeHandleValue(value.dstAccelerationStructure);
+    encoder->EncodeUInt32Value(value.geometryCount);
+    EncodeStructArray(encoder, value.pGeometries, value.geometryCount);
+    EncodeStructArray2D(encoder, value.ppGeometries, value.geometryCount, 1);
+    EncodeStruct(encoder, value.scratchData);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);

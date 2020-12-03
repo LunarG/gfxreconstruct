@@ -120,11 +120,5 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
     }
 }
 
-void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR handle unwrapping is not supported");
-}
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

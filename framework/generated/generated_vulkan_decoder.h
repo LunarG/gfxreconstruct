@@ -878,6 +878,12 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkDestroyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdBuildAccelerationStructuresKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBuildAccelerationStructuresIndirectKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkBuildAccelerationStructuresKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCopyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCopyAccelerationStructureToMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size);

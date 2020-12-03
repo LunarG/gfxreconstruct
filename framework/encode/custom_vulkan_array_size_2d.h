@@ -33,6 +33,78 @@ template <typename... T>
 class ArraySize2D
 {};
 
+// Size of vkCmdBuildAccelerationStructuresKHR argument ppBuildRangeInfos
+template <>
+class ArraySize2D<VkCommandBuffer,
+                  uint32_t,
+                  const VkAccelerationStructureBuildGeometryInfoKHR*,
+                  const VkAccelerationStructureBuildRangeInfoKHR* const*>
+{
+  public:
+    ArraySize2D(VkCommandBuffer                                        commandBuffer,
+                uint32_t                                               infoCount,
+                const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos) :
+        size_(infoCount),
+        infos_(pInfos){};
+    size_t size() const { return size_; }
+    size_t operator[](size_t i) const { return infos_[i].geometryCount; }
+
+  private:
+    const size_t                                       size_;
+    const VkAccelerationStructureBuildGeometryInfoKHR* infos_;
+};
+
+// Size of vkCmdBuildAccelerationStructuresIndirectKHR argument ppMaxPrimitiveCounts
+template <>
+class ArraySize2D<VkCommandBuffer,
+                  uint32_t,
+                  const VkAccelerationStructureBuildGeometryInfoKHR*,
+                  const VkDeviceAddress*,
+                  const uint32_t*,
+                  const uint32_t* const*>
+{
+  public:
+    ArraySize2D(VkCommandBuffer                                    commandBuffer,
+                uint32_t                                           infoCount,
+                const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
+                const VkDeviceAddress*                             pIndirectDeviceAddresses,
+                const uint32_t*                                    pIndirectStrides,
+                const uint32_t* const*                             ppMaxPrimitiveCounts) :
+        size_(infoCount),
+        infos_(pInfos){};
+    size_t size() const { return size_; }
+    size_t operator[](size_t i) const { return infos_[i].geometryCount; }
+
+  private:
+    const size_t                                       size_;
+    const VkAccelerationStructureBuildGeometryInfoKHR* infos_;
+};
+
+// Size of vkBuildAccelerationStructuresKHR argument ppBuildRangeInfos
+template <>
+class ArraySize2D<VkDevice,
+                  VkDeferredOperationKHR,
+                  uint32_t,
+                  const VkAccelerationStructureBuildGeometryInfoKHR*,
+                  const VkAccelerationStructureBuildRangeInfoKHR* const*>
+{
+  public:
+    ArraySize2D(VkDevice                                               device,
+                VkDeferredOperationKHR                                 deferredOperation,
+                uint32_t                                               infoCount,
+                const VkAccelerationStructureBuildGeometryInfoKHR*     pInfos,
+                const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos) :
+        size_(infoCount),
+        infos_(pInfos){};
+    size_t size() const { return size_; }
+    size_t operator[](size_t i) const { return infos_[i].geometryCount; }
+
+  private:
+    const size_t                                       size_;
+    const VkAccelerationStructureBuildGeometryInfoKHR* infos_;
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

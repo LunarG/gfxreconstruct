@@ -254,6 +254,8 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoNV* wrapper, const VulkanOb
 
 void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureKHR* wrapper, const VulkanObjectInfoTable& object_info_table);
