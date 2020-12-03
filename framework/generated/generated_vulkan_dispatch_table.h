@@ -117,6 +117,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(VkP
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayPlaneProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDisplayPlaneProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(VkPhysicalDevice, VkDisplayKHR, uint32_t*, VkDisplayModeProperties2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayModeProperties2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysicalDevice, const VkDisplayPlaneInfo2KHR*, VkDisplayPlaneCapabilities2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDisplayPlaneCapabilities2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceFragmentShadingRateKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceFragmentShadingRatesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDebugReportCallbackEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDebugReportCallbackEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkDebugReportMessageEXT was called, resulting in no-op behavior."); }
@@ -343,6 +344,7 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(VkCommandBuffer
 static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSemaphore, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreCounterValueKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkWaitSemaphoresKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkSignalSemaphoreKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(VkCommandBuffer, const VkExtent2D*, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetFragmentShadingRateKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
 static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetBufferOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
 static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceMemoryOpaqueCaptureAddressKHR was called, resulting in no-op behavior."); return 0; }
@@ -408,20 +410,17 @@ static VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(VkCommandBuffer, VkI
 static VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(VkCommandBuffer, uint32_t, uint32_t, const VkShadingRatePaletteNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetViewportShadingRatePaletteNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(VkCommandBuffer, VkCoarseSampleOrderTypeNV, uint32_t, const VkCoarseSampleOrderCustomNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetCoarseSampleOrderNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(VkDevice, const VkAccelerationStructureCreateInfoNV*, const VkAllocationCallbacks*, VkAccelerationStructureNV*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(VkDevice, VkAccelerationStructureNV, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoNV*, VkMemoryRequirements2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureMemoryRequirementsNV was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryKHR(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkBindAccelerationStructureMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkBindAccelerationStructureMemoryNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(VkCommandBuffer, const VkAccelerationStructureInfoNV*, VkBuffer, VkDeviceSize, VkBool32, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureNV was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(VkCommandBuffer, VkAccelerationStructureKHR, VkAccelerationStructureKHR, VkCopyAccelerationStructureModeKHR) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(VkDevice, uint32_t, const VkBindAccelerationStructureMemoryInfoNV*) { GFXRECON_LOG_WARNING("Unsupported function vkBindAccelerationStructureMemoryNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(VkCommandBuffer, const VkAccelerationStructureInfoNV*, VkBuffer, VkDeviceSize, VkBool32, VkAccelerationStructureNV, VkAccelerationStructureNV, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(VkCommandBuffer, VkAccelerationStructureNV, VkAccelerationStructureNV, VkCopyAccelerationStructureModeKHR) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, VkBuffer, VkDeviceSize, VkDeviceSize, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoNV*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRayTracingPipelinesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingShaderGroupHandlesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingShaderGroupHandlesNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(VkDevice, VkAccelerationStructureKHR, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureHandleNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(VkDevice, VkAccelerationStructureNV, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureHandleNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer, uint32_t, const VkAccelerationStructureNV*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(VkDevice, VkPipeline, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCompileDeferredNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryHostPointerPropertiesEXT*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryHostPointerPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(VkCommandBuffer, VkPipelineStageFlagBits, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteBufferMarkerAMD was called, resulting in no-op behavior."); }
@@ -470,24 +469,29 @@ static VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(VkDevice, const V
 static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlotEXT, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyPrivateDataSlotEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(VkCommandBuffer, VkFragmentShadingRateNV, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetFragmentShadingRateEnumNV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR(VkDevice, const VkAccelerationStructureMemoryRequirementsInfoKHR*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureMemoryRequirementsKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureIndirectKHR(VkCommandBuffer, const VkAccelerationStructureBuildGeometryInfoKHR*, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructureIndirectKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructureKHR(VkDevice, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildOffsetInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkBuildAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice, const VkCopyAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(VkDevice, const VkCopyAccelerationStructureToMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureToMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(VkDevice, const VkCopyMemoryToAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyMemoryToAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkDeviceAddress*, const uint32_t*, const uint32_t* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructuresIndirectKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(VkDevice, VkDeferredOperationKHR, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice, VkDeferredOperationKHR, const VkCopyAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(VkDevice, VkDeferredOperationKHR, const VkCopyAccelerationStructureToMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyAccelerationStructureToMemoryKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(VkDevice, VkDeferredOperationKHR, const VkCopyMemoryToAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCopyMemoryToAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(VkDevice, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, size_t, void*, size_t) { GFXRECON_LOG_WARNING("Unsupported function vkWriteAccelerationStructuresPropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(VkCommandBuffer, const VkCopyAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(VkCommandBuffer, const VkCopyAccelerationStructureToMemoryInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyAccelerationStructureToMemoryKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(VkCommandBuffer, const VkCopyMemoryToAccelerationStructureInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyMemoryToAccelerationStructureKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoKHR*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRayTracingPipelinesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(VkDevice, const VkAccelerationStructureDeviceAddressInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureDeviceAddressKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureKHR*, VkQueryType, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteAccelerationStructuresPropertiesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(VkDevice, const VkAccelerationStructureVersionInfoKHR*, VkAccelerationStructureCompatibilityKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceAccelerationStructureCompatibilityKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(VkDevice, VkAccelerationStructureBuildTypeKHR, const VkAccelerationStructureBuildGeometryInfoKHR*, const uint32_t*, VkAccelerationStructureBuildSizesInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetAccelerationStructureBuildSizesKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(VkCommandBuffer, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice, VkDeferredOperationKHR, VkPipelineCache, uint32_t, const VkRayTracingPipelineCreateInfoKHR*, const VkAllocationCallbacks*, VkPipeline*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateRayTracingPipelinesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(VkDevice, VkPipeline, uint32_t, uint32_t, size_t, void*) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingCaptureReplayShaderGroupHandlesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(VkCommandBuffer, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, const VkStridedBufferRegionKHR*, VkBuffer, VkDeviceSize) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysIndirectKHR was called, resulting in no-op behavior."); }
-static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(VkDevice, const VkAccelerationStructureVersionKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceAccelerationStructureCompatibilityKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(VkCommandBuffer, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, const VkStridedDeviceAddressRegionKHR*, VkDeviceAddress) { GFXRECON_LOG_WARNING("Unsupported function vkCmdTraceRaysIndirectKHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(VkDevice, VkPipeline, uint32_t, VkShaderGroupShaderKHR) { GFXRECON_LOG_WARNING("Unsupported function vkGetRayTracingShaderGroupStackSizeKHR was called, resulting in no-op behavior."); return 0; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetRayTracingPipelineStackSizeKHR was called, resulting in no-op behavior."); }
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
@@ -563,6 +567,7 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceDisplayPlaneProperties2KHR GetPhysicalDeviceDisplayPlaneProperties2KHR{ noop::GetPhysicalDeviceDisplayPlaneProperties2KHR };
     PFN_vkGetDisplayModeProperties2KHR GetDisplayModeProperties2KHR{ noop::GetDisplayModeProperties2KHR };
     PFN_vkGetDisplayPlaneCapabilities2KHR GetDisplayPlaneCapabilities2KHR{ noop::GetDisplayPlaneCapabilities2KHR };
+    PFN_vkGetPhysicalDeviceFragmentShadingRatesKHR GetPhysicalDeviceFragmentShadingRatesKHR{ noop::GetPhysicalDeviceFragmentShadingRatesKHR };
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallbackEXT{ noop::CreateDebugReportCallbackEXT };
     PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallbackEXT{ noop::DestroyDebugReportCallbackEXT };
     PFN_vkDebugReportMessageEXT DebugReportMessageEXT{ noop::DebugReportMessageEXT };
@@ -793,6 +798,7 @@ struct DeviceTable
     PFN_vkGetSemaphoreCounterValueKHR GetSemaphoreCounterValueKHR{ noop::GetSemaphoreCounterValueKHR };
     PFN_vkWaitSemaphoresKHR WaitSemaphoresKHR{ noop::WaitSemaphoresKHR };
     PFN_vkSignalSemaphoreKHR SignalSemaphoreKHR{ noop::SignalSemaphoreKHR };
+    PFN_vkCmdSetFragmentShadingRateKHR CmdSetFragmentShadingRateKHR{ noop::CmdSetFragmentShadingRateKHR };
     PFN_vkGetBufferDeviceAddressKHR GetBufferDeviceAddressKHR{ noop::GetBufferDeviceAddressKHR };
     PFN_vkGetBufferOpaqueCaptureAddressKHR GetBufferOpaqueCaptureAddressKHR{ noop::GetBufferOpaqueCaptureAddressKHR };
     PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR GetDeviceMemoryOpaqueCaptureAddressKHR{ noop::GetDeviceMemoryOpaqueCaptureAddressKHR };
@@ -858,10 +864,8 @@ struct DeviceTable
     PFN_vkCmdSetViewportShadingRatePaletteNV CmdSetViewportShadingRatePaletteNV{ noop::CmdSetViewportShadingRatePaletteNV };
     PFN_vkCmdSetCoarseSampleOrderNV CmdSetCoarseSampleOrderNV{ noop::CmdSetCoarseSampleOrderNV };
     PFN_vkCreateAccelerationStructureNV CreateAccelerationStructureNV{ noop::CreateAccelerationStructureNV };
-    PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureNV DestroyAccelerationStructureNV{ noop::DestroyAccelerationStructureNV };
     PFN_vkGetAccelerationStructureMemoryRequirementsNV GetAccelerationStructureMemoryRequirementsNV{ noop::GetAccelerationStructureMemoryRequirementsNV };
-    PFN_vkBindAccelerationStructureMemoryKHR BindAccelerationStructureMemoryKHR{ noop::BindAccelerationStructureMemoryKHR };
     PFN_vkBindAccelerationStructureMemoryNV BindAccelerationStructureMemoryNV{ noop::BindAccelerationStructureMemoryNV };
     PFN_vkCmdBuildAccelerationStructureNV CmdBuildAccelerationStructureNV{ noop::CmdBuildAccelerationStructureNV };
     PFN_vkCmdCopyAccelerationStructureNV CmdCopyAccelerationStructureNV{ noop::CmdCopyAccelerationStructureNV };
@@ -870,7 +874,6 @@ struct DeviceTable
     PFN_vkGetRayTracingShaderGroupHandlesKHR GetRayTracingShaderGroupHandlesKHR{ noop::GetRayTracingShaderGroupHandlesKHR };
     PFN_vkGetRayTracingShaderGroupHandlesNV GetRayTracingShaderGroupHandlesNV{ noop::GetRayTracingShaderGroupHandlesNV };
     PFN_vkGetAccelerationStructureHandleNV GetAccelerationStructureHandleNV{ noop::GetAccelerationStructureHandleNV };
-    PFN_vkCmdWriteAccelerationStructuresPropertiesKHR CmdWriteAccelerationStructuresPropertiesKHR{ noop::CmdWriteAccelerationStructuresPropertiesKHR };
     PFN_vkCmdWriteAccelerationStructuresPropertiesNV CmdWriteAccelerationStructuresPropertiesNV{ noop::CmdWriteAccelerationStructuresPropertiesNV };
     PFN_vkCompileDeferredNV CompileDeferredNV{ noop::CompileDeferredNV };
     PFN_vkGetMemoryHostPointerPropertiesEXT GetMemoryHostPointerPropertiesEXT{ noop::GetMemoryHostPointerPropertiesEXT };
@@ -920,11 +923,12 @@ struct DeviceTable
     PFN_vkDestroyPrivateDataSlotEXT DestroyPrivateDataSlotEXT{ noop::DestroyPrivateDataSlotEXT };
     PFN_vkSetPrivateDataEXT SetPrivateDataEXT{ noop::SetPrivateDataEXT };
     PFN_vkGetPrivateDataEXT GetPrivateDataEXT{ noop::GetPrivateDataEXT };
+    PFN_vkCmdSetFragmentShadingRateEnumNV CmdSetFragmentShadingRateEnumNV{ noop::CmdSetFragmentShadingRateEnumNV };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
-    PFN_vkGetAccelerationStructureMemoryRequirementsKHR GetAccelerationStructureMemoryRequirementsKHR{ noop::GetAccelerationStructureMemoryRequirementsKHR };
-    PFN_vkCmdBuildAccelerationStructureKHR CmdBuildAccelerationStructureKHR{ noop::CmdBuildAccelerationStructureKHR };
-    PFN_vkCmdBuildAccelerationStructureIndirectKHR CmdBuildAccelerationStructureIndirectKHR{ noop::CmdBuildAccelerationStructureIndirectKHR };
-    PFN_vkBuildAccelerationStructureKHR BuildAccelerationStructureKHR{ noop::BuildAccelerationStructureKHR };
+    PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
+    PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::CmdBuildAccelerationStructuresKHR };
+    PFN_vkCmdBuildAccelerationStructuresIndirectKHR CmdBuildAccelerationStructuresIndirectKHR{ noop::CmdBuildAccelerationStructuresIndirectKHR };
+    PFN_vkBuildAccelerationStructuresKHR BuildAccelerationStructuresKHR{ noop::BuildAccelerationStructuresKHR };
     PFN_vkCopyAccelerationStructureKHR CopyAccelerationStructureKHR{ noop::CopyAccelerationStructureKHR };
     PFN_vkCopyAccelerationStructureToMemoryKHR CopyAccelerationStructureToMemoryKHR{ noop::CopyAccelerationStructureToMemoryKHR };
     PFN_vkCopyMemoryToAccelerationStructureKHR CopyMemoryToAccelerationStructureKHR{ noop::CopyMemoryToAccelerationStructureKHR };
@@ -932,12 +936,16 @@ struct DeviceTable
     PFN_vkCmdCopyAccelerationStructureKHR CmdCopyAccelerationStructureKHR{ noop::CmdCopyAccelerationStructureKHR };
     PFN_vkCmdCopyAccelerationStructureToMemoryKHR CmdCopyAccelerationStructureToMemoryKHR{ noop::CmdCopyAccelerationStructureToMemoryKHR };
     PFN_vkCmdCopyMemoryToAccelerationStructureKHR CmdCopyMemoryToAccelerationStructureKHR{ noop::CmdCopyMemoryToAccelerationStructureKHR };
+    PFN_vkGetAccelerationStructureDeviceAddressKHR GetAccelerationStructureDeviceAddressKHR{ noop::GetAccelerationStructureDeviceAddressKHR };
+    PFN_vkCmdWriteAccelerationStructuresPropertiesKHR CmdWriteAccelerationStructuresPropertiesKHR{ noop::CmdWriteAccelerationStructuresPropertiesKHR };
+    PFN_vkGetDeviceAccelerationStructureCompatibilityKHR GetDeviceAccelerationStructureCompatibilityKHR{ noop::GetDeviceAccelerationStructureCompatibilityKHR };
+    PFN_vkGetAccelerationStructureBuildSizesKHR GetAccelerationStructureBuildSizesKHR{ noop::GetAccelerationStructureBuildSizesKHR };
     PFN_vkCmdTraceRaysKHR CmdTraceRaysKHR{ noop::CmdTraceRaysKHR };
     PFN_vkCreateRayTracingPipelinesKHR CreateRayTracingPipelinesKHR{ noop::CreateRayTracingPipelinesKHR };
-    PFN_vkGetAccelerationStructureDeviceAddressKHR GetAccelerationStructureDeviceAddressKHR{ noop::GetAccelerationStructureDeviceAddressKHR };
     PFN_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR GetRayTracingCaptureReplayShaderGroupHandlesKHR{ noop::GetRayTracingCaptureReplayShaderGroupHandlesKHR };
     PFN_vkCmdTraceRaysIndirectKHR CmdTraceRaysIndirectKHR{ noop::CmdTraceRaysIndirectKHR };
-    PFN_vkGetDeviceAccelerationStructureCompatibilityKHR GetDeviceAccelerationStructureCompatibilityKHR{ noop::GetDeviceAccelerationStructureCompatibilityKHR };
+    PFN_vkGetRayTracingShaderGroupStackSizeKHR GetRayTracingShaderGroupStackSizeKHR{ noop::GetRayTracingShaderGroupStackSizeKHR };
+    PFN_vkCmdSetRayTracingPipelineStackSizeKHR CmdSetRayTracingPipelineStackSizeKHR{ noop::CmdSetRayTracingPipelineStackSizeKHR };
 };
 
 template <typename GetProcAddr, typename Handle, typename FuncP>
@@ -1018,6 +1026,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceDisplayPlaneProperties2KHR", &table->GetPhysicalDeviceDisplayPlaneProperties2KHR);
     LoadFunction(gpa, instance, "vkGetDisplayModeProperties2KHR", &table->GetDisplayModeProperties2KHR);
     LoadFunction(gpa, instance, "vkGetDisplayPlaneCapabilities2KHR", &table->GetDisplayPlaneCapabilities2KHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceFragmentShadingRatesKHR", &table->GetPhysicalDeviceFragmentShadingRatesKHR);
     LoadFunction(gpa, instance, "vkCreateDebugReportCallbackEXT", &table->CreateDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDestroyDebugReportCallbackEXT", &table->DestroyDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDebugReportMessageEXT", &table->DebugReportMessageEXT);
@@ -1250,6 +1259,7 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetSemaphoreCounterValueKHR", &table->GetSemaphoreCounterValueKHR);
     LoadFunction(gpa, device, "vkWaitSemaphoresKHR", &table->WaitSemaphoresKHR);
     LoadFunction(gpa, device, "vkSignalSemaphoreKHR", &table->SignalSemaphoreKHR);
+    LoadFunction(gpa, device, "vkCmdSetFragmentShadingRateKHR", &table->CmdSetFragmentShadingRateKHR);
     LoadFunction(gpa, device, "vkGetBufferDeviceAddressKHR", &table->GetBufferDeviceAddressKHR);
     LoadFunction(gpa, device, "vkGetBufferOpaqueCaptureAddressKHR", &table->GetBufferOpaqueCaptureAddressKHR);
     LoadFunction(gpa, device, "vkGetDeviceMemoryOpaqueCaptureAddressKHR", &table->GetDeviceMemoryOpaqueCaptureAddressKHR);
@@ -1315,10 +1325,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdSetViewportShadingRatePaletteNV", &table->CmdSetViewportShadingRatePaletteNV);
     LoadFunction(gpa, device, "vkCmdSetCoarseSampleOrderNV", &table->CmdSetCoarseSampleOrderNV);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureNV", &table->CreateAccelerationStructureNV);
-    LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkDestroyAccelerationStructureNV", &table->DestroyAccelerationStructureNV);
     LoadFunction(gpa, device, "vkGetAccelerationStructureMemoryRequirementsNV", &table->GetAccelerationStructureMemoryRequirementsNV);
-    LoadFunction(gpa, device, "vkBindAccelerationStructureMemoryKHR", &table->BindAccelerationStructureMemoryKHR);
     LoadFunction(gpa, device, "vkBindAccelerationStructureMemoryNV", &table->BindAccelerationStructureMemoryNV);
     LoadFunction(gpa, device, "vkCmdBuildAccelerationStructureNV", &table->CmdBuildAccelerationStructureNV);
     LoadFunction(gpa, device, "vkCmdCopyAccelerationStructureNV", &table->CmdCopyAccelerationStructureNV);
@@ -1327,7 +1335,6 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetRayTracingShaderGroupHandlesKHR", &table->GetRayTracingShaderGroupHandlesKHR);
     LoadFunction(gpa, device, "vkGetRayTracingShaderGroupHandlesNV", &table->GetRayTracingShaderGroupHandlesNV);
     LoadFunction(gpa, device, "vkGetAccelerationStructureHandleNV", &table->GetAccelerationStructureHandleNV);
-    LoadFunction(gpa, device, "vkCmdWriteAccelerationStructuresPropertiesKHR", &table->CmdWriteAccelerationStructuresPropertiesKHR);
     LoadFunction(gpa, device, "vkCmdWriteAccelerationStructuresPropertiesNV", &table->CmdWriteAccelerationStructuresPropertiesNV);
     LoadFunction(gpa, device, "vkCompileDeferredNV", &table->CompileDeferredNV);
     LoadFunction(gpa, device, "vkGetMemoryHostPointerPropertiesEXT", &table->GetMemoryHostPointerPropertiesEXT);
@@ -1377,11 +1384,12 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkDestroyPrivateDataSlotEXT", &table->DestroyPrivateDataSlotEXT);
     LoadFunction(gpa, device, "vkSetPrivateDataEXT", &table->SetPrivateDataEXT);
     LoadFunction(gpa, device, "vkGetPrivateDataEXT", &table->GetPrivateDataEXT);
+    LoadFunction(gpa, device, "vkCmdSetFragmentShadingRateEnumNV", &table->CmdSetFragmentShadingRateEnumNV);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
-    LoadFunction(gpa, device, "vkGetAccelerationStructureMemoryRequirementsKHR", &table->GetAccelerationStructureMemoryRequirementsKHR);
-    LoadFunction(gpa, device, "vkCmdBuildAccelerationStructureKHR", &table->CmdBuildAccelerationStructureKHR);
-    LoadFunction(gpa, device, "vkCmdBuildAccelerationStructureIndirectKHR", &table->CmdBuildAccelerationStructureIndirectKHR);
-    LoadFunction(gpa, device, "vkBuildAccelerationStructureKHR", &table->BuildAccelerationStructureKHR);
+    LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
+    LoadFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);
+    LoadFunction(gpa, device, "vkCmdBuildAccelerationStructuresIndirectKHR", &table->CmdBuildAccelerationStructuresIndirectKHR);
+    LoadFunction(gpa, device, "vkBuildAccelerationStructuresKHR", &table->BuildAccelerationStructuresKHR);
     LoadFunction(gpa, device, "vkCopyAccelerationStructureKHR", &table->CopyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkCopyAccelerationStructureToMemoryKHR", &table->CopyAccelerationStructureToMemoryKHR);
     LoadFunction(gpa, device, "vkCopyMemoryToAccelerationStructureKHR", &table->CopyMemoryToAccelerationStructureKHR);
@@ -1389,12 +1397,16 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdCopyAccelerationStructureKHR", &table->CmdCopyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkCmdCopyAccelerationStructureToMemoryKHR", &table->CmdCopyAccelerationStructureToMemoryKHR);
     LoadFunction(gpa, device, "vkCmdCopyMemoryToAccelerationStructureKHR", &table->CmdCopyMemoryToAccelerationStructureKHR);
+    LoadFunction(gpa, device, "vkGetAccelerationStructureDeviceAddressKHR", &table->GetAccelerationStructureDeviceAddressKHR);
+    LoadFunction(gpa, device, "vkCmdWriteAccelerationStructuresPropertiesKHR", &table->CmdWriteAccelerationStructuresPropertiesKHR);
+    LoadFunction(gpa, device, "vkGetDeviceAccelerationStructureCompatibilityKHR", &table->GetDeviceAccelerationStructureCompatibilityKHR);
+    LoadFunction(gpa, device, "vkGetAccelerationStructureBuildSizesKHR", &table->GetAccelerationStructureBuildSizesKHR);
     LoadFunction(gpa, device, "vkCmdTraceRaysKHR", &table->CmdTraceRaysKHR);
     LoadFunction(gpa, device, "vkCreateRayTracingPipelinesKHR", &table->CreateRayTracingPipelinesKHR);
-    LoadFunction(gpa, device, "vkGetAccelerationStructureDeviceAddressKHR", &table->GetAccelerationStructureDeviceAddressKHR);
     LoadFunction(gpa, device, "vkGetRayTracingCaptureReplayShaderGroupHandlesKHR", &table->GetRayTracingCaptureReplayShaderGroupHandlesKHR);
     LoadFunction(gpa, device, "vkCmdTraceRaysIndirectKHR", &table->CmdTraceRaysIndirectKHR);
-    LoadFunction(gpa, device, "vkGetDeviceAccelerationStructureCompatibilityKHR", &table->GetDeviceAccelerationStructureCompatibilityKHR);
+    LoadFunction(gpa, device, "vkGetRayTracingShaderGroupStackSizeKHR", &table->GetRayTracingShaderGroupStackSizeKHR);
+    LoadFunction(gpa, device, "vkCmdSetRayTracingPipelineStackSizeKHR", &table->CmdSetRayTracingPipelineStackSizeKHR);
 }
 
 GFXRECON_END_NAMESPACE(encode)

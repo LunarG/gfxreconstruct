@@ -130,6 +130,7 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
     size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
 

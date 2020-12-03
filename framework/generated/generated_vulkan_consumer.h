@@ -1616,6 +1616,17 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo) {}
 
+    virtual void Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pFragmentShadingRateCount,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates) {}
+
+    virtual void Process_vkCmdSetFragmentShadingRateKHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
+        PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) {}
+
     virtual void Process_vkGetBufferDeviceAddressKHR(
         VkDeviceAddress                             returnValue,
         format::HandleId                            device,
@@ -2090,11 +2101,6 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure) {}
 
-    virtual void Process_vkDestroyAccelerationStructureKHR(
-        format::HandleId                            device,
-        format::HandleId                            accelerationStructure,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
-
     virtual void Process_vkDestroyAccelerationStructureNV(
         format::HandleId                            device,
         format::HandleId                            accelerationStructure,
@@ -2105,17 +2111,11 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
         StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements) {}
 
-    virtual void Process_vkBindAccelerationStructureMemoryKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        uint32_t                                    bindInfoCount,
-        StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos) {}
-
     virtual void Process_vkBindAccelerationStructureMemoryNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         uint32_t                                    bindInfoCount,
-        StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos) {}
+        StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos) {}
 
     virtual void Process_vkCmdBuildAccelerationStructureNV(
         format::HandleId                            commandBuffer,
@@ -2185,18 +2185,10 @@ class VulkanConsumer : public VulkanConsumerBase
         size_t                                      dataSize,
         PointerDecoder<uint8_t>*                    pData) {}
 
-    virtual void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
-        format::HandleId                            commandBuffer,
-        uint32_t                                    accelerationStructureCount,
-        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
-        VkQueryType                                 queryType,
-        format::HandleId                            queryPool,
-        uint32_t                                    firstQuery) {}
-
     virtual void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
         format::HandleId                            commandBuffer,
         uint32_t                                    accelerationStructureCount,
-        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
         VkQueryType                                 queryType,
         format::HandleId                            queryPool,
         uint32_t                                    firstQuery) {}
@@ -2517,6 +2509,11 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            privateDataSlot,
         PointerDecoder<uint64_t>*                   pData) {}
 
+    virtual void Process_vkCmdSetFragmentShadingRateEnumNV(
+        format::HandleId                            commandBuffer,
+        VkFragmentShadingRateNV                     shadingRate,
+        PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) {}
+
     virtual void Process_vkCreateDirectFBSurfaceEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -2537,31 +2534,27 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure) {}
 
-    virtual void Process_vkGetAccelerationStructureMemoryRequirementsKHR(
+    virtual void Process_vkDestroyAccelerationStructureKHR(
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoKHR>* pInfo,
-        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) {}
-
-    virtual void Process_vkCmdBuildAccelerationStructureIndirectKHR(
-        format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfo,
-        format::HandleId                            indirectBuffer,
-        VkDeviceSize                                indirectOffset,
-        uint32_t                                    indirectStride) {}
+        format::HandleId                            accelerationStructure,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
 
     virtual void Process_vkCopyAccelerationStructureKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
+        format::HandleId                            deferredOperation,
         StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) {}
 
     virtual void Process_vkCopyAccelerationStructureToMemoryKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
+        format::HandleId                            deferredOperation,
         StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo) {}
 
     virtual void Process_vkCopyMemoryToAccelerationStructureKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
+        format::HandleId                            deferredOperation,
         StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo) {}
 
     virtual void Process_vkWriteAccelerationStructuresPropertiesKHR(
@@ -2586,12 +2579,37 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo) {}
 
+    virtual void Process_vkGetAccelerationStructureDeviceAddressKHR(
+        VkDeviceAddress                             returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo) {}
+
+    virtual void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    accelerationStructureCount,
+        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        VkQueryType                                 queryType,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery) {}
+
+    virtual void Process_vkGetDeviceAccelerationStructureCompatibilityKHR(
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkAccelerationStructureVersionInfoKHR>* pVersionInfo,
+        PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility) {}
+
+    virtual void Process_vkGetAccelerationStructureBuildSizesKHR(
+        format::HandleId                            device,
+        VkAccelerationStructureBuildTypeKHR         buildType,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
+        PointerDecoder<uint32_t>*                   pMaxPrimitiveCounts,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo) {}
+
     virtual void Process_vkCmdTraceRaysKHR(
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
         uint32_t                                    width,
         uint32_t                                    height,
         uint32_t                                    depth) {}
@@ -2599,16 +2617,12 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCreateRayTracingPipelinesKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
+        format::HandleId                            deferredOperation,
         format::HandleId                            pipelineCache,
         uint32_t                                    createInfoCount,
         StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkPipeline>*           pPipelines) {}
-
-    virtual void Process_vkGetAccelerationStructureDeviceAddressKHR(
-        VkDeviceAddress                             returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo) {}
 
     virtual void Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
         VkResult                                    returnValue,
@@ -2621,17 +2635,22 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkCmdTraceRaysIndirectKHR(
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
-        format::HandleId                            buffer,
-        VkDeviceSize                                offset) {}
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+        VkDeviceAddress                             indirectDeviceAddress) {}
 
-    virtual void Process_vkGetDeviceAccelerationStructureCompatibilityKHR(
-        VkResult                                    returnValue,
+    virtual void Process_vkGetRayTracingShaderGroupStackSizeKHR(
+        VkDeviceSize                                returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkAccelerationStructureVersionKHR>* version) {}
+        format::HandleId                            pipeline,
+        uint32_t                                    group,
+        VkShaderGroupShaderKHR                      groupShader) {}
+
+    virtual void Process_vkCmdSetRayTracingPipelineStackSizeKHR(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    pipelineStackSize) {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

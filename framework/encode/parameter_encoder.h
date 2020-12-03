@@ -105,6 +105,7 @@ class ParameterEncoder
     void EncodeVkBool32Array(const VkBool32* arr, size_t len, bool omit_data = false, bool omit_addr = false)         { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::SampleMaskEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::DeviceSizeEncodeType>(arr, len, omit_data, omit_addr); }
+    void EncodeVkDeviceAddressArray(const VkDeviceAddress* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::DeviceAddressEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeSizeTArray(const size_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)              { EncodeArrayConverted<format::SizeTEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeHandleIdArray(const format::HandleId* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::HandleEncodeType>(arr, len, omit_data, omit_addr); }
 

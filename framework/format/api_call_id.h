@@ -450,9 +450,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkDestroyAccelerationStructureKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x118f),
     ApiCall_vkGetAccelerationStructureMemoryRequirementsKHR                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1190),
     ApiCall_vkBindAccelerationStructureMemoryKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1191),
-    ApiCall_vkCmdBuildAccelerationStructureKHR                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1192),
-    ApiCall_vkCmdBuildAccelerationStructureIndirectKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1193),
-    ApiCall_vkBuildAccelerationStructureKHR                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1194),
+    ApiCall_vkCmdBuildAccelerationStructuresKHR                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1192),
+    ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1193),
+    ApiCall_vkBuildAccelerationStructuresKHR                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1194),
     ApiCall_vkCopyAccelerationStructureKHR                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1195),
     ApiCall_vkCopyAccelerationStructureToMemoryKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1196),
     ApiCall_vkCopyMemoryToAccelerationStructureKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1197),
@@ -499,6 +499,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdCopyImageToBuffer2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1220),
     ApiCall_vkCmdBlitImage2KHR                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1221),
     ApiCall_vkCmdResolveImage2KHR                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1222),
+    ApiCall_vkGetAccelerationStructureBuildSizesKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1223),
+    ApiCall_vkGetRayTracingShaderGroupStackSizeKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1224),
+    ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1225),
+    ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1226),
+    ApiCall_vkCmdSetFragmentShadingRateKHR                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1227),
+    ApiCall_vkCmdSetFragmentShadingRateEnumNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1228),
 
     ApiCall_VulkanLast
     // clang-format on
