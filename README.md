@@ -79,5 +79,5 @@ found at the following locations:
 
 ## License
 
-This work is licensed under the Apache License, Version 2.0; see
+This work is licensed under the terms of the MIT License; see
 [LICENSE](LICENSE.txt) for more information.
