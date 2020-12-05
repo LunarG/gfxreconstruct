@@ -2426,6 +2426,60 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
         modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
 
+        VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info)->pNext;
+        while (current_struct != nullptr)
+        {
+            switch (current_struct->sType)
+            {
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+                {
+                    VkPhysicalDeviceBufferDeviceAddressFeatures* buffer_address_features =
+                        reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
+
+                    if (buffer_address_features->bufferDeviceAddress)
+                    {
+                        auto table = GetInstanceTable(physical_device);
+                        assert(table != nullptr);
+
+                        // Get buffer_address properties
+                        VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+                        VkPhysicalDeviceBufferDeviceAddressFeatures supported_features{
+                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES
+                        };
+                        features2.pNext = &supported_features;
+                        if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
+                        {
+                            table->GetPhysicalDeviceFeatures2(physical_device, &features2);
+                        }
+                        else
+                        {
+                            table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
+                        }
+
+                        // Enable bufferDeviceAddressCaptureReplay if it is supported
+                        if (supported_features.bufferDeviceAddressCaptureReplay)
+                        {
+                            buffer_address_features->bufferDeviceAddressCaptureReplay = true;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_ERROR("VkPhysicalDeviceBufferDeviceAddressFeatures::"
+                                               "bufferDeviceAddressCaptureReplay is needed to replay captured device "
+                                               "addresses, but it is not supported by the replay device.");
+                        }
+                    }
+                }
+                break;
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
+                {
+                    GFXRECON_LOG_ERROR("Extension %s is not supported by GFXReconstruct.",
+                                       VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+                }
+                break;
+            }
+            current_struct = current_struct->pNext;
+        }
+
         result = create_device_proc(
             physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
 
@@ -3637,10 +3691,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     if ((replay_create_info != nullptr) && ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
                                             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT))
     {
-        // TODO: The bufferDeviceAddressCaptureReplay device feature needs to be enabled, or a warning needs to be
-        // printed when it is not available and this code needs to be skipped.
-        // TODO: A Vulkan 1.2 check needs to be made, and the extensions needs to be enabled if the version is less
-        // than 1.2
         VkBufferCreateInfo modified_create_info = (*replay_create_info);
 
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {

@@ -1167,9 +1167,6 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
             VkInstanceCreateInfo create_info_copy = (*pCreateInfo);
 
             // TODO: Only enable KHR_get_physical_device_properties_2 for 1.0 API version.
-            // TODO: Only enable KHR_buffer_device_address for 1.1 or lower API versions.
-            // TODO: The bufferDeviceAddressCaptureReplay device feature needs to be enabled, or a warning needs to be
-            // printed when it is not available.
             size_t                   extension_count = create_info_copy.enabledExtensionCount;
             const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
             std::vector<const char*> modified_extensions;
@@ -1204,6 +1201,12 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
         }
     }
 
+    if ((result == VK_SUCCESS) && (pCreateInfo->pApplicationInfo != nullptr))
+    {
+        auto instance_wrapper         = reinterpret_cast<InstanceWrapper*>(*pInstance);
+        instance_wrapper->api_version = pCreateInfo->pApplicationInfo->apiVersion;
+    }
+
     return result;
 }
 
@@ -1219,17 +1222,72 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
     assert(pCreateInfo_unwrapped != nullptr);
 
+    const InstanceTable* instance_table          = GetInstanceTable(physicalDevice);
+    auto                 physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
+
+    // Force bufferDeviceAddressCaptureReplay on if bufferDeviceAddress feature is enabled
+    VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(pCreateInfo_unwrapped)->pNext;
+    VkPhysicalDeviceBufferDeviceAddressFeatures* modified_buffer_address_features = nullptr;
+    VkPhysicalDeviceBufferDeviceAddressFeatures  incoming_buffer_address_features{};
+    while (current_struct != nullptr)
+    {
+        switch (current_struct->sType)
+        {
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+            {
+                VkPhysicalDeviceBufferDeviceAddressFeatures* buffer_address_features =
+                    reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
+                if (buffer_address_features->bufferDeviceAddress)
+                {
+                    // Get buffer_address properties
+                    VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+                    VkPhysicalDeviceBufferDeviceAddressFeatures supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES
+                    };
+                    features2.pNext = &supported_features;
+                    if (physical_device_wrapper->instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+                    {
+                        instance_table->GetPhysicalDeviceFeatures2(physicalDevice_unwrapped, &features2);
+                    }
+                    else
+                    {
+                        instance_table->GetPhysicalDeviceFeatures2KHR(physicalDevice_unwrapped, &features2);
+                    }
+
+                    // Enable bufferDeviceAddressCaptureReplay if it is supported
+                    if (supported_features.bufferDeviceAddressCaptureReplay)
+                    {
+                        incoming_buffer_address_features                          = *buffer_address_features;
+                        modified_buffer_address_features                          = buffer_address_features;
+                        buffer_address_features->bufferDeviceAddressCaptureReplay = true;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR(
+                            "VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay "
+                            "is needed to capture device addresses, but it is not supported by the capture device.");
+                    }
+                }
+            }
+            break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
+            {
+                GFXRECON_LOG_ERROR("Extension %s is not supported by GFXReconstruct.",
+                                   VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+            }
+            break;
+        }
+        current_struct = current_struct->pNext;
+    }
+
     // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
-    // TODO: Only enable KHR_buffer_device_address for 1.1 or lower API versions.
-    // TODO: Add an option to enable/disable use of KHR_buffer_device_address.
     size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
     const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
     std::vector<const char*> modified_extensions;
 
-    bool has_buffer_address = false;
-    bool has_ext_mem_caps   = false;
-    bool has_ext_mem        = false;
-    bool has_ext_mem_host   = false;
+    bool has_ext_mem_caps = false;
+    bool has_ext_mem      = false;
+    bool has_ext_mem_host = false;
 
     for (size_t i = 0; i < extension_count; ++i)
     {
@@ -1237,11 +1295,7 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
         modified_extensions.push_back(entry);
 
-        if (util::platform::StringCompare(entry, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME) == 0)
-        {
-            has_buffer_address = true;
-        }
-        else if (page_guard_memory_mode_ == kMemoryModeExternal)
+        if (page_guard_memory_mode_ == kMemoryModeExternal)
         {
             if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
             {
@@ -1256,11 +1310,6 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
                 has_ext_mem_host = true;
             }
         }
-    }
-
-    if (!has_buffer_address)
-    {
-        modified_extensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
     }
 
     if (page_guard_memory_mode_ == kMemoryModeExternal)
@@ -1286,15 +1335,20 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
     VkResult result = layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
 
-    if ((result == VK_SUCCESS) && (page_guard_memory_mode_ == kMemoryModeExternal) &&
-        ((capture_mode_ & kModeTrack) != kModeTrack))
+    // restore modified state of VkPhysicalDeviceBufferDeviceAddressFeatures
+    if (modified_buffer_address_features != nullptr)
+    {
+        *modified_buffer_address_features = incoming_buffer_address_features;
+    }
+
+    if ((result == VK_SUCCESS) && ((capture_mode_ & kModeTrack) != kModeTrack))
     {
         assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
         // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
-        // here to ensure it is available for memory allocation when kMemoryModeExternal is enabled.
+        // here to ensure it is available.
         auto wrapper             = reinterpret_cast<DeviceWrapper*>(*pDevice);
-        wrapper->physical_device = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
+        wrapper->physical_device = physical_device_wrapper;
     }
 
     return result;
@@ -1346,16 +1400,21 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
             // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            // TODO: This needs a version 1.2 check to determine which function to call.
-            // TODO: This code needs to be skipped if bufferDeviceAddressCaptureReplay is not supported.
-
             auto                      device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
             auto                      buffer_wrapper = reinterpret_cast<BufferWrapper*>(*pBuffer);
             VkBufferDeviceAddressInfo info           = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
             info.pNext                               = nullptr;
             info.buffer                              = buffer_wrapper->handle;
+            uint64_t address                         = 0;
 
-            auto address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+            if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
+            {
+                address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
+            }
+            else
+            {
+                address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+            }
 
             if (address != 0)
             {
@@ -1749,6 +1808,8 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
                         // When not tracking state, set the memory types directly.
                         physical_device_wrapper->memory_properties = std::move(memory_properties);
                     }
+
+                    physical_device_wrapper->instance_api_version = instance_wrapper->api_version;
 
                     WriteSetDevicePropertiesCommand(physical_device_id, properties);
                     WriteSetDeviceMemoryPropertiesCommand(physical_device_id,
