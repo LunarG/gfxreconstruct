@@ -90,12 +90,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR
     encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryDataKHR& value)
-{
-    // TODO
-    GFXRECON_LOG_ERROR("VkAccelerationStructureGeometryDataKHR is not supported");
-}
-
 // Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 {
@@ -167,6 +161,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& valu
     {
         encoder->EncodeUInt64Value(value.data.value64);
     }
+}
+
+// Encodes the VkAccelerationStructureGeometryKHR::geometry union based on the value of geometryType
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.geometryType);
+    switch (value.geometryType)
+    {
+        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+            EncodeStruct(encoder, value.geometry.triangles);
+            break;
+        case VK_GEOMETRY_TYPE_AABBS_KHR:
+            EncodeStruct(encoder, value.geometry.aabbs);
+            break;
+        case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+            EncodeStruct(encoder, value.geometry.instances);
+            break;
+    }
+    encoder->EncodeFlagsValue(value.flags);
 }
 
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.

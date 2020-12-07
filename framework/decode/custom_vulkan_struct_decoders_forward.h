@@ -50,10 +50,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
 struct Decoded_VkDescriptorImageInfo;
 struct Decoded_VkWriteDescriptorSet;
 struct Decoded_VkPerformanceValueINTEL;
+struct Decoded_VkAccelerationStructureGeometryKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryKHR* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

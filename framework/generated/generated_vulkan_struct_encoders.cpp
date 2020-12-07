@@ -5207,15 +5207,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeomet
     EncodeStruct(encoder, value.data);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.geometryType);
-    EncodeStruct(encoder, value.geometry);
-    encoder->EncodeFlagsValue(value.flags);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildGeometryInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);

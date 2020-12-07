@@ -191,6 +191,49 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPerform
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                              bytes_read = 0;
+    VkAccelerationStructureGeometryKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->geometryType));
+
+    wrapper->geometry = std::make_unique<Decoded_VkAccelerationStructureGeometryDataKHR>();
+
+    switch (value->geometryType)
+    {
+        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+            wrapper->geometry->triangles = std::make_unique<Decoded_VkAccelerationStructureGeometryTrianglesDataKHR>();
+            wrapper->geometry->triangles->decoded_value = &(value->geometry.triangles);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->triangles.get());
+            break;
+        case VK_GEOMETRY_TYPE_AABBS_KHR:
+            wrapper->geometry->aabbs = std::make_unique<Decoded_VkAccelerationStructureGeometryAabbsDataKHR>();
+            wrapper->geometry->aabbs->decoded_value = &(value->geometry.aabbs);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->aabbs.get());
+            break;
+        case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+            wrapper->geometry->instances = std::make_unique<Decoded_VkAccelerationStructureGeometryInstancesDataKHR>();
+            wrapper->geometry->instances->decoded_value = &(value->geometry.instances);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->geometry->instances.get());
+            break;
+    }
+
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+
+    return bytes_read;
+}
+
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
 static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {
