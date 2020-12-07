@@ -89,10 +89,17 @@ struct Decoded_VkDeviceOrHostAddressConstKHR
     uint64_t                       hostAddress{ 0 };
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkAccelerationStructureGeometryKHR DecodeStruct function, based on the value of
+// VkAccelerationStructureGeometryKHR::geometryType.
 struct Decoded_VkAccelerationStructureGeometryDataKHR
 {
     using struct_type = VkAccelerationStructureGeometryDataKHR;
     VkAccelerationStructureGeometryDataKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkAccelerationStructureGeometryTrianglesDataKHR> triangles;
+    std::unique_ptr<Decoded_VkAccelerationStructureGeometryAabbsDataKHR>     aabbs;
+    std::unique_ptr<Decoded_VkAccelerationStructureGeometryInstancesDataKHR> instances;
 };
 
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the Decoded_VkPerformanceValueINTEL
@@ -137,6 +144,16 @@ struct Decoded_VkPerformanceValueINTEL
     VkPerformanceValueINTEL* decoded_value{ nullptr };
 
     std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
+};
+
+struct Decoded_VkAccelerationStructureGeometryKHR
+{
+    using struct_type = VkAccelerationStructureGeometryKHR;
+
+    VkAccelerationStructureGeometryKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode>                                      pNext;
+    std::unique_ptr<Decoded_VkAccelerationStructureGeometryDataKHR> geometry;
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.

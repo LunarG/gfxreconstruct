@@ -5590,16 +5590,6 @@ struct Decoded_VkAccelerationStructureGeometryInstancesDataKHR
     std::unique_ptr<Decoded_VkDeviceOrHostAddressConstKHR> data;
 };
 
-struct Decoded_VkAccelerationStructureGeometryKHR
-{
-    using struct_type = VkAccelerationStructureGeometryKHR;
-
-    VkAccelerationStructureGeometryKHR* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    std::unique_ptr<Decoded_VkAccelerationStructureGeometryDataKHR> geometry;
-};
-
 struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR
 {
     using struct_type = VkAccelerationStructureBuildGeometryInfoKHR;
