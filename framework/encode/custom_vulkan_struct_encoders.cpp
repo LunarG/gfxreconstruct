@@ -130,6 +130,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            // Handles are encoded in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext chain
+            break;
         default:
             GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
             break;
