@@ -52,7 +52,9 @@ class ParameterEncoder
     // clang-format off
 
     // Values
+    void EncodeInt8Value(int8_t value)                                                                                { EncodeValue(value); }
     void EncodeUInt8Value(uint8_t value)                                                                              { EncodeValue(value); }
+    void EncodeInt16Value(int16_t value)                                                                              { EncodeValue(value); }
     void EncodeUInt16Value(uint16_t value)                                                                            { EncodeValue(value); }
     void EncodeInt32Value(int32_t value)                                                                              { EncodeValue(value); }
     void EncodeUInt32Value(uint32_t value)                                                                            { EncodeValue(value); }
@@ -80,8 +82,15 @@ class ParameterEncoder
     void EncodeFlagsValue(T value)                                                                                    { EncodeValue(static_cast<format::FlagsEncodeType>(value)); }
 
     // Pointers
+    void EncodeUInt8Ptr(const uint8_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeInt32Ptr(const int32_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt32Ptr(const uint32_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
+
+#if defined(WIN32)
+    // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
+    void EncodeUInt32Ptr(const unsigned long* ptr, bool omit_data = false, bool omit_addr = false)                    { EncodePointer(ptr, omit_data, omit_addr); }
+#endif
+
     void EncodeInt64Ptr(const int64_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt64Ptr(const uint64_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeFloatPtr(const float* ptr, bool omit_data = false, bool omit_addr = false)                             { EncodePointer(ptr, omit_data, omit_addr); }
@@ -103,6 +112,8 @@ class ParameterEncoder
     void EncodeFlagsPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                 { EncodePointerConverted<format::FlagsEncodeType>(ptr, omit_data, omit_addr); }
 
     // Arrays
+    void EncodeInt16Array(const int16_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
+    void EncodeUInt16Array(const uint16_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)           { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeInt32Array(const int32_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeUInt32Array(const uint32_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)           { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeInt64Array(const int64_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }

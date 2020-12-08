@@ -33,6 +33,7 @@ BASE_GENERATOR_PATH = './vulkan_generators'
 # File names to provide to the dxgi generator script.
 GENERATE_TARGETS = [
     'generated_dx12_api_call_encoders.h',
+    'generated_dx12_api_call_encoders.cpp',
 ]
 
 DX12_SOURCE_LIST = [

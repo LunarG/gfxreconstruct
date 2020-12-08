@@ -36,6 +36,8 @@ from dx12_base_generator\
 from dx12_api_call_encoders_header_generator\
     import DX12ApiCallEncodersHeaderGenerator
 
+from dx12_api_call_encoders_body_generator\
+    import DX12ApiCallEncodersBodyGenerator
 
 # Simple timer functions
 start_time = None
@@ -112,6 +114,18 @@ def make_gen_opts(args):
             directory=directory,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_api_call_encoders_body_generator.py')
+    gen_opts['generated_dx12_api_call_encoders.cpp'] = [
+        DX12ApiCallEncodersBodyGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_api_call_encoders.cpp',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=False,
             protectFeature=False)
     ]
 
