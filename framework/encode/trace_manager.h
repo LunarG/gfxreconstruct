@@ -116,6 +116,16 @@ class TraceManager
         return nullptr;
     }
 
+    ParameterEncoder* BeginMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
+    {
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            return InitMethodCallTrace(call_id, object_id);
+        }
+
+        return nullptr;
+    }
+
     // Single object creation.
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
     void EndCreateApiCallTrace(VkResult                      result,
@@ -286,6 +296,8 @@ class TraceManager
     }
 
     void EndApiCallTrace(ParameterEncoder* encoder);
+
+    void EndMethodCallTrace(ParameterEncoder* encoder);
 
     void EndFrame();
 
@@ -919,6 +931,7 @@ class TraceManager
       public:
         const format::ThreadId                    thread_id_;
         format::ApiCallId                         call_id_;
+        format::HandleId                          object_id_;
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
@@ -960,6 +973,8 @@ class TraceManager
                          std::vector<format::FileOptionPair>* option_list);
 
     ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
+
+    ParameterEncoder* InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id);
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
     void WriteResizeWindowCmd2(format::HandleId              surface_id,
