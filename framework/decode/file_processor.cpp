@@ -214,6 +214,29 @@ bool FileProcessor::ProcessBlocks()
                     HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
                 }
             }
+            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
+            {
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+                if (success)
+                {
+                    success = ProcessMethodCall(block_header, api_call_id);
+
+                    // Break from loop on frame delimiter.
+                    if (IsFrameDelimiter(api_call_id))
+                    {
+                        // Make sure to increment the frame number on the way out.
+                        ++current_frame_number_;
+                        break;
+                    }
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+                }
+            }
             else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
             {
                 format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
@@ -419,6 +442,80 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                     DecodeAllocator::Begin();
                     decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                     DecodeAllocator::End();
+                }
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+{
+    size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t         uncompressed_size     = 0;
+    format::HandleId object_id             = 0;
+    ApiCallInfo      call_info             = {};
+
+    bool success = ReadBytes(&object_id, sizeof(object_id));
+    success      = success && ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+
+    if (success)
+    {
+        parameter_buffer_size -= (sizeof(object_id) + sizeof(call_info.thread_id));
+
+        if (format::IsBlockCompressed(block_header.type))
+        {
+            parameter_buffer_size -= sizeof(uncompressed_size);
+            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
+
+            if (success)
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+
+                size_t actual_size = 0;
+                success            = ReadCompressedParameterBuffer(
+                    parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+
+                if (success)
+                {
+                    assert(actual_size == uncompressed_size);
+                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read compressed function call block data");
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
+                                     "Failed to read compressed function call block header");
+            }
+        }
+        else
+        {
+            success = ReadParameterBuffer(parameter_buffer_size);
+
+            if (!success)
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
+            }
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                if (decoder->SupportsApiCall(call_id))
+                {
+                    decoder->DecodeMethodCall(
+                        call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
                 }
             }
         }
