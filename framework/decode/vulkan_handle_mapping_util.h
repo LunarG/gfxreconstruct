@@ -215,7 +215,9 @@ static void AddHandleArray(format::HandleId              parent_id,
 
         for (size_t i = 0; i < len; ++i)
         {
-            if (ids[i] != format::kNullHandleId)
+            // Prevent the the ID from being added to the pool's child list if it would be rejectd by AddFunc due to a
+            // null handle ID or null handle.
+            if ((ids[i] != format::kNullHandleId) && (handles[i] != VK_NULL_HANDLE))
             {
                 if (pool_info != nullptr)
                 {
@@ -253,7 +255,9 @@ static void AddHandleArray(format::HandleId              parent_id,
         size_t len = std::min(ids_len, handles_len);
         for (size_t i = 0; i < len; ++i)
         {
-            if (ids[i] != format::kNullHandleId)
+            // Prevent the the ID from being added to the pool's child list if it would be rejectd by AddFunc due to a
+            // null handle ID or null handle.
+            if ((ids[i] != format::kNullHandleId) && (handles[i] != VK_NULL_HANDLE))
             {
                 if (pool_info != nullptr)
                 {
