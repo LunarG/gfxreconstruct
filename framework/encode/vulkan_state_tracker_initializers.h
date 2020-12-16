@@ -439,6 +439,50 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
 }
 
 template <>
+inline void
+InitializeGroupObjectState<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(
+    VkDevice                                 parent_handle,
+    VkDeferredOperationKHR                   secondary_handle,
+    PipelineWrapper*                         wrapper,
+    const VkRayTracingPipelineCreateInfoKHR* create_info,
+    format::ApiCallId                        create_call_id,
+    CreateParameters                         create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert((create_info != nullptr) && (create_info->pStages != nullptr));
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    // TODO: Track pipeline cache dependency.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    for (uint32_t i = 0; i < create_info->stageCount; ++i)
+    {
+        auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
+        assert(shader_wrapper != nullptr);
+
+        CreateDependencyInfo info;
+        info.handle_id         = shader_wrapper->handle_id;
+        info.create_call_id    = shader_wrapper->create_call_id;
+        info.create_parameters = shader_wrapper->create_parameters;
+
+        wrapper->shader_module_dependencies.emplace_back(std::move(info));
+    }
+
+    auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
+    assert(layout_wrapper != nullptr);
+
+    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
+}
+
+template <>
 inline void InitializeState<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>(VkDevice             parent_handle,
                                                                                  DeviceMemoryWrapper* wrapper,
                                                                                  const VkMemoryAllocateInfo* alloc_info,
@@ -729,6 +773,9 @@ inline void InitializePoolObjectState(VkDevice                           parent_
                 // TODO
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                // TODO
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 // TODO
                 break;
             default:

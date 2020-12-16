@@ -471,10 +471,12 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     // pipelines than it should, resulting in object leaks or the overwriting of recycled handles.
     std::set<util::MemoryOutputStream*>    processed_graphics_pipelines;
     std::set<util::MemoryOutputStream*>    processed_compute_pipelines;
-    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines;
+    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines_nv;
+    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines_khr;
     std::vector<util::MemoryOutputStream*> graphics_pipelines;
     std::vector<util::MemoryOutputStream*> compute_pipelines;
-    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines;
+    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_nv;
+    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines_khr;
 
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_shaders;
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
@@ -522,11 +524,20 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesNV)
         {
-            if (processed_ray_tracing_pipelines.find(wrapper->create_parameters.get()) ==
-                processed_ray_tracing_pipelines.end())
+            if (processed_ray_tracing_pipelines_nv.find(wrapper->create_parameters.get()) ==
+                processed_ray_tracing_pipelines_nv.end())
             {
-                ray_tracing_pipelines.push_back(wrapper->create_parameters.get());
-                processed_ray_tracing_pipelines.insert(wrapper->create_parameters.get());
+                ray_tracing_pipelines_nv.push_back(wrapper->create_parameters.get());
+                processed_ray_tracing_pipelines_nv.insert(wrapper->create_parameters.get());
+            }
+        }
+        else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesKHR)
+        {
+            if (processed_ray_tracing_pipelines_khr.find(wrapper->create_parameters.get()) ==
+                processed_ray_tracing_pipelines_khr.end())
+            {
+                ray_tracing_pipelines_khr.push_back(wrapper->create_parameters.get());
+                processed_ray_tracing_pipelines_khr.insert(wrapper->create_parameters.get());
             }
         }
 
@@ -595,9 +606,14 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         WriteFunctionCall(format::ApiCall_vkCreateComputePipelines, entry);
     }
 
-    for (const auto& entry : ray_tracing_pipelines)
+    for (const auto& entry : ray_tracing_pipelines_nv)
     {
         WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesNV, entry);
+    }
+
+    for (const auto& entry : ray_tracing_pipelines_khr)
+    {
+        WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesKHR, entry);
     }
 
     // Temporary object destruction.
@@ -2177,6 +2193,9 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            // TODO
+            break;
         default:
             GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
             break;
@@ -3517,7 +3536,11 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
-                GFXRECON_LOG_WARNING("Descriptor type acceleration structure is not currently supported");
+                GFXRECON_LOG_WARNING("Descriptor type acceleration structure NV is not currently supported");
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                // TODO
+                GFXRECON_LOG_WARNING("Descriptor type acceleration structure KHR is not currently supported");
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");
