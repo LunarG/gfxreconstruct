@@ -26,6 +26,28 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
+if (WIN32)
+
+add_library(d3d12_capture SHARED "")
+target_sources(d3d12_capture PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_d3d12_capture.cpp ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def)
+target_include_directories(d3d12_capture PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
+common_build_directives(d3d12_capture)
+
+add_library(d3d12 SHARED "")
+target_sources(d3d12 PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_d3d12.cpp ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
+target_include_directories(d3d12 PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util)
+common_build_directives(d3d12)
+
+add_library(dxgi SHARED "")
+target_sources(dxgi PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_dxgi.cpp ${CMAKE_CURRENT_LIST_DIR}/dxgi.def)
+target_include_directories(dxgi PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(dxgi gfxrecon_encode gfxrecon_util)
+common_build_directives(dxgi)
+
+endif()
+
 add_library(VkLayer_gfxreconstruct SHARED "")
 
 target_sources(VkLayer_gfxreconstruct
