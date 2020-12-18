@@ -2476,6 +2476,8 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                        VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
                 }
                 break;
+                default:
+                    break;
             }
             current_struct = current_struct->pNext;
         }
