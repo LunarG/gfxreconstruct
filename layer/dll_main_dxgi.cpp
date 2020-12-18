@@ -30,29 +30,12 @@
 #include <string>
 #include <windows.h>
 
-const wchar_t kLocalDllName[]   = L"dxgi.dll";
 const wchar_t kSystemDllName[]  = L"dxgi_ms.dll";
 const wchar_t kCaptureDllName[] = L"d3d12_capture.dll";
 
 static HMODULE                             dxgi_dll    = nullptr;
 static HMODULE                             capture_dll = nullptr;
 static gfxrecon::encode::DxgiDispatchTable dispatch_table;
-
-// Functions forwarded to the system DLL.
-EXTERN_C FARPROC gfxrecon_ApplyCompatResolutionQuirking{ nullptr };
-EXTERN_C FARPROC gfxrecon_CompatString{ nullptr };
-EXTERN_C FARPROC gfxrecon_CompatValue{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGID3D10CreateDevice{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGID3D10CreateLayeredDevice{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGID3D10GetLayeredDeviceSize{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGID3D10RegisterLayers{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGIDumpJournal{ nullptr };
-EXTERN_C FARPROC gfxrecon_DXGIReportAdapterConfiguration{ nullptr };
-EXTERN_C FARPROC gfxrecon_PIXBeginCapture{ nullptr };
-EXTERN_C FARPROC gfxrecon_PIXEndCapture{ nullptr };
-EXTERN_C FARPROC gfxrecon_PIXGetCaptureState{ nullptr };
-EXTERN_C FARPROC gfxrecon_SetAppCompatStringPointer{ nullptr };
-EXTERN_C FARPROC gfxrecon_UpdateHMDEmulationStatus{ nullptr };
 
 EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory(REFIID riid, void** ppFactory)
 {
@@ -87,64 +70,6 @@ static bool IsCaptureEnabled()
     return false;
 }
 
-static bool IsSystemLibrary(HMODULE library)
-{
-    std::array<wchar_t, MAX_PATH> system_path{};
-
-    auto length = GetSystemDirectoryW(system_path.data(), static_cast<uint32_t>(system_path.size()));
-    if (length > 0)
-    {
-        std::array<wchar_t, MAX_PATH> library_path{};
-
-        if (GetModuleFileNameW(library, library_path.data(), static_cast<uint32_t>(library_path.size())) > 0)
-        {
-            if (wcsncmp(system_path.data(), library_path.data(), length) == 0)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-static HMODULE LoadSystemLibrary(const wchar_t* name)
-{
-    std::array<wchar_t, MAX_PATH> system_path{};
-    HMODULE                       library = nullptr;
-
-    auto length = GetSystemDirectoryW(system_path.data(), static_cast<uint32_t>(system_path.size()));
-    if (length > 0)
-    {
-        std::wstring path = system_path.data();
-        path += L"\\";
-        path += name;
-        library = LoadLibraryW(path.c_str());
-    }
-
-    return library;
-}
-
-static void LoadDxgiPassThroughProcs()
-{
-    assert(dxgi_dll != nullptr);
-
-    gfxrecon_ApplyCompatResolutionQuirking  = GetProcAddress(dxgi_dll, "ApplyCompatResolutionQuirking");
-    gfxrecon_CompatString                   = GetProcAddress(dxgi_dll, "CompatString");
-    gfxrecon_CompatValue                    = GetProcAddress(dxgi_dll, "CompatValue");
-    gfxrecon_DXGID3D10CreateDevice          = GetProcAddress(dxgi_dll, "DXGID3D10CreateDevice");
-    gfxrecon_DXGID3D10CreateLayeredDevice   = GetProcAddress(dxgi_dll, "DXGID3D10CreateLayeredDevice");
-    gfxrecon_DXGID3D10GetLayeredDeviceSize  = GetProcAddress(dxgi_dll, "DXGID3D10GetLayeredDeviceSize");
-    gfxrecon_DXGID3D10RegisterLayers        = GetProcAddress(dxgi_dll, "DXGID3D10RegisterLayers");
-    gfxrecon_DXGIDumpJournal                = GetProcAddress(dxgi_dll, "DXGIDumpJournal");
-    gfxrecon_DXGIReportAdapterConfiguration = GetProcAddress(dxgi_dll, "DXGIReportAdapterConfiguration");
-    gfxrecon_PIXBeginCapture                = GetProcAddress(dxgi_dll, "PIXBeginCapture");
-    gfxrecon_PIXEndCapture                  = GetProcAddress(dxgi_dll, "PIXEndCapture");
-    gfxrecon_PIXGetCaptureState             = GetProcAddress(dxgi_dll, "PIXGetCaptureState");
-    gfxrecon_SetAppCompatStringPointer      = GetProcAddress(dxgi_dll, "SetAppCompatStringPointer");
-    gfxrecon_UpdateHMDEmulationStatus       = GetProcAddress(dxgi_dll, "UpdateHMDEmulationStatus");
-}
-
 static void LoadDxgiCaptureProcs()
 {
     assert(dxgi_dll != nullptr);
@@ -165,19 +90,10 @@ static BOOL Initialize(HINSTANCE instance)
 {
     if (dxgi_dll == nullptr)
     {
-        auto dll_name = kLocalDllName;
-
-        if (IsSystemLibrary(instance))
-        {
-            // If the current capture dxgi.dll is in the system folder, the real dxgi.dll must have been renamed.
-            dll_name = kSystemDllName;
-        }
-
-        dxgi_dll = LoadSystemLibrary(dll_name);
+        dxgi_dll = LoadLibraryW(kSystemDllName);
 
         if (dxgi_dll != nullptr)
         {
-            LoadDxgiPassThroughProcs();
             LoadDxgiCaptureProcs();
 
             if (IsCaptureEnabled() && capture_dll == nullptr)
