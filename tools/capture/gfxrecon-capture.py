@@ -124,7 +124,7 @@ def PrintArgs(args):
     print('working-dir', args.workingDir)
     print('capture-file', args.captureFile)
     print('capture-frames', args.captureFrames)
-    print('no-file-timestamp', args.noTimestampFile)
+    print('no-file-timestamp', args.fileTimestamp)
     print('trigger', args.trigger)
     print('compression-type', args.compressionType)
     print('file-flush', args.fileFlush)
