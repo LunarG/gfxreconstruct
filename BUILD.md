@@ -262,7 +262,7 @@ make -j4
 For build systems that support ccache, it can be enabled with the CMake
 `-DUSE_CCACHE=On` option.
 
-## Install the project
+#### Install the project
 
 Files can be installed to "/usr/local/" with `sudo make install`
 
@@ -270,7 +270,7 @@ For Linux, the default install directory `/usr/local` can be changed by setting 
 variable. For example, to install to a "/tmp/gfxreconstruct" directory, run `cmake -DCMAKE_INSTALL_PREFIX=/tmp/gfxreconstruct .`
 from gfxreconstruct's root source directory. Then install with `make install`.
 
-## Android
+## Building for Android
 
 ### Android Development Requirements
 
