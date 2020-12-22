@@ -4,6 +4,8 @@
     "vkCreateDevice": "OverrideCreateDevice",
     "vkDestroyDevice": "OverrideDestroyDevice",
     "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",
+    "vkEnumeratePhysicalDeviceGroups": "OverrideEnumeratePhysicalDeviceGroups",
+    "vkEnumeratePhysicalDeviceGroupsKHR": "OverrideEnumeratePhysicalDeviceGroups",
     "vkGetPhysicalDeviceProperties": "OverrideGetPhysicalDeviceProperties",
     "vkGetPhysicalDeviceProperties2": "OverrideGetPhysicalDeviceProperties2",
     "vkGetPhysicalDeviceProperties2KHR": "OverrideGetPhysicalDeviceProperties2",

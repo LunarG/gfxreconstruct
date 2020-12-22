@@ -416,6 +416,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                               PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
                                               HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
 
+    VkResult OverrideEnumeratePhysicalDeviceGroups(
+        PFN_vkEnumeratePhysicalDeviceGroups                            func,
+        VkResult                                                       original_result,
+        InstanceInfo*                                                  instance_info,
+        PointerDecoder<uint32_t>*                                      pPhysicalDeviceGroupCount,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties);
+
     void OverrideGetPhysicalDeviceProperties(PFN_vkGetPhysicalDeviceProperties func,
                                              PhysicalDeviceInfo*               physical_device_info,
                                              StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties);
@@ -794,6 +801,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     PFN_vkGetDeviceProcAddr GetDeviceAddrProc(VkPhysicalDevice physical_device);
 
     PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
+
+    void SetInstancePhysicalDeviceEntries(InstanceInfo*           instance_info,
+                                          size_t                  capture_device_count,
+                                          const format::HandleId* capture_devices,
+                                          size_t                  replay_device_count,
+                                          const VkPhysicalDevice* replay_devices);
 
     void SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
                                      const VkPhysicalDeviceProperties* capture_properties,
