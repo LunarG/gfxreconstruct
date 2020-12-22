@@ -59,6 +59,29 @@
 #endif
 #endif
 
+#if defined(WIN32)
+#include <conio.h>
+void WaitForExit()
+{
+    DWORD process_list[2];
+    DWORD result = GetConsoleProcessList(process_list, ARRAYSIZE(process_list));
+
+    // If the process list contains a single entry, we assume that the console was created when the gfxrecon-replay.exe
+    // process started, and will be destroyed when it exits.  In this case, we will wait on user input before exiting
+    // and closing the console window to give the user a chance to read any console output.
+    if (result <= 1)
+    {
+        GFXRECON_WRITE_CONSOLE("\nPress any key to close this window . . .");
+        while (!_kbhit())
+        {
+            Sleep(250);
+        }
+    }
+}
+#else
+void WaitForExit() {}
+#endif
+
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)
@@ -223,6 +246,8 @@ int main(int argc, const char** argv)
         GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
         return_code = -1;
     }
+
+    WaitForExit();
 
     gfxrecon::util::Log::Release();
 
