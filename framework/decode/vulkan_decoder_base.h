@@ -55,8 +55,7 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
-        return ((call_id >= format::ApiCallId::ApiCall_vkCreateInstance) &&
-                (call_id < format::ApiCallId::ApiCall_VulkanLast));
+        return (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_Vulkan);
     }
 
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,

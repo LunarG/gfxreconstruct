@@ -52,6 +52,13 @@ class ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) = 0;
 
+    virtual void DecodeMethodCall(format::ApiCallId  call_id,
+                                  format::HandleId   object_id,
+                                  const ApiCallInfo& call_options,
+                                  const uint8_t*     parameter_buffer,
+                                  size_t             buffer_size)
+    {}
+
     virtual void DispatchStateBeginMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
