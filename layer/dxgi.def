@@ -1,0 +1,21 @@
+LIBRARY dxgi
+EXPORTS
+ApplyCompatResolutionQuirking=dxgi_ms.ApplyCompatResolutionQuirking @1
+CompatString=dxgi_ms.CompatString @2
+CompatValue=dxgi_ms.CompatValue @3
+CreateDXGIFactory=gfxrecon_CreateDXGIFactory @10
+CreateDXGIFactory1=gfxrecon_CreateDXGIFactory1 @11
+CreateDXGIFactory2=gfxrecon_CreateDXGIFactory2 @12
+DXGID3D10CreateDevice=dxgi_ms.DXGID3D10CreateDevice @13
+DXGID3D10CreateLayeredDevice=dxgi_ms.DXGID3D10CreateLayeredDevice @14
+DXGID3D10GetLayeredDeviceSize=dxgi_ms.DXGID3D10GetLayeredDeviceSize @15
+DXGID3D10RegisterLayers=dxgi_ms.DXGID3D10RegisterLayers @16
+DXGIDeclareAdapterRemovalSupport=gfxrecon_DXGIDeclareAdapterRemovalSupport @17
+DXGIDumpJournal=dxgi_ms.DXGIDumpJournal @4
+DXGIGetDebugInterface1=gfxrecon_DXGIGetDebugInterface1 @18
+DXGIReportAdapterConfiguration=dxgi_ms.DXGIReportAdapterConfiguration @19
+PIXBeginCapture=dxgi_ms.PIXBeginCapture @5
+PIXEndCapture=dxgi_ms.PIXEndCapture @6
+PIXGetCaptureState=dxgi_ms.PIXGetCaptureState @7
+SetAppCompatStringPointer=dxgi_ms.SetAppCompatStringPointer @8
+UpdateHMDEmulationStatus=dxgi_ms.UpdateHMDEmulationStatus @9

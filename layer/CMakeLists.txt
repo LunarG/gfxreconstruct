@@ -26,6 +26,40 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
+if (MSVC)
+    set (LINK_ARCH "x64")
+    if(NOT CMAKE_CL_64)
+        set (LINK_ARCH "x86")
+    endif(NOT CMAKE_CL_64)
+
+    set(LINK_D3D12_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/d3d12_ms.lib)
+    set(LINK_DXGI_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/dxgi_ms.lib)
+
+    add_library(d3d12_capture SHARED "")
+    target_sources(d3d12_capture PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_d3d12_capture.cpp ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def)
+    target_include_directories(d3d12_capture PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+    target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
+    common_build_directives(d3d12_capture)
+
+    add_library(d3d12 SHARED "")
+    target_sources(d3d12 PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_d3d12.cpp ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
+    target_include_directories(d3d12 PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+    target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})
+    common_build_directives(d3d12)
+    add_custom_command(TARGET d3d12 PRE_BUILD
+                       COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def /out:${LINK_D3D12_OUTPUT} /machine:${LINK_ARCH}
+                       DEPENDS ${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def)
+
+    add_library(dxgi SHARED "")
+    target_sources(dxgi PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dll_main_dxgi.cpp ${CMAKE_CURRENT_LIST_DIR}/dxgi.def)
+    target_include_directories(dxgi PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+    target_link_libraries(dxgi gfxrecon_encode gfxrecon_util ${LINK_DXGI_OUTPUT})
+    common_build_directives(dxgi)
+    add_custom_command(TARGET dxgi PRE_BUILD
+                       COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/dxgi_ms.def /out:${LINK_DXGI_OUTPUT} /machine:${LINK_ARCH}
+                       DEPENDS ${CMAKE_CURRENT_LIST_DIR}/dxgi_ms.def)
+endif()
+
 add_library(VkLayer_gfxreconstruct SHARED "")
 
 target_sources(VkLayer_gfxreconstruct
