@@ -808,6 +808,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           size_t                  replay_device_count,
                                           const VkPhysicalDevice* replay_devices);
 
+    void CheckReplayDeviceInfo(PhysicalDeviceInfo* physical_device_info);
+
+    void SetPhysicalDeviceInstanceInfo(InstanceInfo*       instance_info,
+                                       PhysicalDeviceInfo* physical_device_info,
+                                       VkPhysicalDevice    replay_device);
+
     void SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
                                      const VkPhysicalDeviceProperties* capture_properties,
                                      const VkPhysicalDeviceProperties* replay_properties);

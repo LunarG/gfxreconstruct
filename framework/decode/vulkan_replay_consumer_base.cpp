@@ -1648,6 +1648,43 @@ void VulkanReplayConsumerBase::SetInstancePhysicalDeviceEntries(InstanceInfo*   
     }
 }
 
+void VulkanReplayConsumerBase::CheckReplayDeviceInfo(PhysicalDeviceInfo* physical_device_info)
+{
+    assert(physical_device_info != nullptr);
+
+    if (physical_device_info->replay_device_info == nullptr)
+    {
+        // A physical device handle was obtained without calling vkEnumeratePhysicalDevices or
+        // vkEnumeratePhysicalDeviceGroups, so the physical device initialization that would have been performed when
+        // replaying those calls will be performed here.
+        auto instance_info = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
+        if (instance_info != nullptr)
+        {
+            assert(physical_device_info->handle != VK_NULL_HANDLE);
+            SetPhysicalDeviceInstanceInfo(instance_info, physical_device_info, physical_device_info->handle);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to find VkInstance object (ID = %" PRIu64
+                                 ") when attempting to initialize VkPhysicalDevice object (ID = %" PRIu64 ")",
+                                 physical_device_info->parent_id,
+                                 physical_device_info->capture_id);
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::SetPhysicalDeviceInstanceInfo(InstanceInfo*       instance_info,
+                                                             PhysicalDeviceInfo* physical_device_info,
+                                                             VkPhysicalDevice    replay_device)
+{
+    assert((instance_info != nullptr) && (physical_device_info != nullptr));
+
+    physical_device_info->parent                    = instance_info->handle;
+    physical_device_info->parent_api_version        = instance_info->api_version;
+    physical_device_info->parent_enabled_extensions = instance_info->enabled_extensions;
+    physical_device_info->replay_device_info        = &instance_info->replay_device_info[replay_device];
+}
+
 void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
                                                            const VkPhysicalDeviceProperties* capture_properties,
                                                            const VkPhysicalDeviceProperties* replay_properties)
@@ -1665,6 +1702,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*  
                                capture_properties->pipelineCacheUUID,
                                VK_UUID_SIZE);
 
+    CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
@@ -1686,6 +1724,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceMemoryProperties(
         physical_device_info->capture_memory_properties = *capture_properties;
     }
 
+    CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
@@ -1800,6 +1839,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
     auto table = GetInstanceTable(physical_device_info->handle);
     assert(table != nullptr);
 
+    CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
@@ -1850,6 +1890,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
 
 void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceInfo* physical_device_info)
 {
+    CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
@@ -2616,10 +2657,7 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
             auto physical_device_info = reinterpret_cast<PhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
             assert(physical_device_info != nullptr);
 
-            physical_device_info->parent                    = instance;
-            physical_device_info->parent_api_version        = instance_info->api_version;
-            physical_device_info->parent_enabled_extensions = instance_info->enabled_extensions;
-            physical_device_info->replay_device_info        = &instance_info->replay_device_info[replay_devices[i]];
+            SetPhysicalDeviceInstanceInfo(instance_info, physical_device_info, replay_devices[i]);
         }
 
         if ((replay_device_count > 0) && (replay_device_count < capture_device_count))
@@ -2633,12 +2671,10 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
             {
                 PhysicalDeviceInfo overflow_info;
 
-                overflow_info.handle             = overflow_device;
-                overflow_info.capture_id         = capture_devices[i];
-                overflow_info.parent             = instance;
-                overflow_info.parent_id          = instance_info->capture_id;
-                overflow_info.parent_api_version = instance_info->api_version;
-                overflow_info.replay_device_info = &instance_info->replay_device_info[overflow_device];
+                overflow_info.handle     = overflow_device;
+                overflow_info.capture_id = capture_devices[i];
+                overflow_info.parent_id  = instance_info->capture_id;
+                SetPhysicalDeviceInstanceInfo(instance_info, &overflow_info, overflow_device);
 
                 object_info_table_.AddPhysicalDeviceInfo(std::move(overflow_info));
             }
@@ -2750,13 +2786,10 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
                 // insertion, which will be ignored.
                 PhysicalDeviceInfo physical_device_info;
 
-                physical_device_info.handle                    = entry.second;
-                physical_device_info.capture_id                = entry.first;
-                physical_device_info.parent                    = instance;
-                physical_device_info.parent_id                 = instance_info->capture_id;
-                physical_device_info.parent_api_version        = instance_info->api_version;
-                physical_device_info.parent_enabled_extensions = instance_info->enabled_extensions;
-                physical_device_info.replay_device_info        = &instance_info->replay_device_info[entry.second];
+                physical_device_info.handle     = entry.second;
+                physical_device_info.capture_id = entry.first;
+                physical_device_info.parent_id  = instance_info->capture_id;
+                SetPhysicalDeviceInstanceInfo(instance_info, &physical_device_info, entry.second);
 
                 object_info_table_.AddPhysicalDeviceInfo(std::move(physical_device_info));
             }
@@ -2781,12 +2814,10 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
             {
                 PhysicalDeviceInfo overflow_info;
 
-                overflow_info.handle             = overflow_device;
-                overflow_info.capture_id         = capture_devices[i];
-                overflow_info.parent             = instance;
-                overflow_info.parent_id          = instance_info->capture_id;
-                overflow_info.parent_api_version = instance_info->api_version;
-                overflow_info.replay_device_info = &instance_info->replay_device_info[overflow_device];
+                overflow_info.handle     = overflow_device;
+                overflow_info.capture_id = capture_devices[i];
+                overflow_info.parent_id  = instance_info->capture_id;
+                SetPhysicalDeviceInstanceInfo(instance_info, &overflow_info, overflow_device);
 
                 object_info_table_.AddPhysicalDeviceInfo(std::move(overflow_info));
             }
