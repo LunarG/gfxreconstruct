@@ -137,6 +137,7 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
 
     // Feature state at device creation
     VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
+    VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -372,6 +373,10 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
+    // State tracking info for buffers with device addresses.
+    format::HandleId device_id{ format::kNullHandleId };
+    VkDeviceAddress  address{ 0 };
+
     // TODO: Determine what additional state tracking is needed.
 };
 

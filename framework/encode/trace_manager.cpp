@@ -1322,6 +1322,11 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
             wrapper->feature_bufferDeviceAddressCaptureReplay =
                 (*modified_features.bufferDeviceAddressCaptureReplay_ptr);
         }
+        if (modified_features.accelerationStructureCaptureReplay_ptr != nullptr)
+        {
+            wrapper->feature_accelerationStructureCaptureReplay =
+                (*modified_features.accelerationStructureCaptureReplay_ptr);
+        }
 
         if ((capture_mode_ & kModeTrack) != kModeTrack)
         {
@@ -1346,10 +1351,20 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
     auto     device_unwrapped = GetWrappedHandle<VkDevice>(device);
     auto     device_table     = GetDeviceTable(device);
 
-    bool uses_address = false;
+    bool                uses_address         = false;
+    VkBufferCreateFlags address_create_flags = 0;
+    VkBufferUsageFlags  address_usage_flags  = 0;
     if ((pCreateInfo->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) == VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
     {
         uses_address = true;
+        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+    }
+    if ((pCreateInfo->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
+    {
+        uses_address = true;
+        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
 
     // NOTE: VkBufferCreateInfo does not currently support pNext structures with handles, so does not have a handle
@@ -1357,14 +1372,15 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
     // pCreateInfo before calling CreateBuffer.  The unwrapping process will create a mutable copy of the original
     // pCreateInfo, with unwrapped handles, which can be modified directly and would not require the
     // 'modified_create_info' copy performed below.
-    if (uses_address && ((pCreateInfo->flags & VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT) !=
-                         VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT))
+    if (uses_address && (((pCreateInfo->flags & address_create_flags) != address_create_flags) ||
+                         ((pCreateInfo->usage & address_usage_flags) != address_usage_flags)))
     {
         // If the buffer has shader device address usage, but the device address capture replay flag was not set, it
-        // needs to be set here.  We create copy from an override to prevent the modificatied pCreateInfo from being
+        // needs to be set here.  We create copy from an override to prevent the modified pCreateInfo from being
         // written to the capture file.
         VkBufferCreateInfo modified_create_info = (*pCreateInfo);
-        modified_create_info.flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        modified_create_info.flags |= address_create_flags;
+        modified_create_info.usage |= address_usage_flags;
 
         result = device_table->CreateBuffer(device_unwrapped, &modified_create_info, pAllocator, pBuffer);
     }
@@ -1416,6 +1432,62 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
                 {
                     state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
                 }
+            }
+        }
+    }
+
+    return result;
+}
+
+VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
+                                                              const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
+                                                              const VkAllocationCallbacks*                pAllocator,
+                                                              VkAccelerationStructureKHR* pAccelerationStructureKHR)
+{
+    auto                                        handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice                                    device_unwrapped     = GetWrappedHandle<VkDevice>(device);
+    const DeviceTable*                          device_table         = GetDeviceTable(device);
+    const VkAccelerationStructureCreateInfoKHR* pCreateInfo_unwrapped =
+        UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    // Add flag to allow for opaque address capture
+    VkAccelerationStructureCreateInfoKHR modified_create_info = (*pCreateInfo_unwrapped);
+    modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
+    VkResult result = device_table->CreateAccelerationStructureKHR(
+        device_unwrapped, &modified_create_info, pAllocator, pAccelerationStructureKHR);
+
+    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, HandleWrapper<VkAccelerationStructureKHR>>(
+        device, NoParentWrapper::kHandleValue, pAccelerationStructureKHR, TraceManager::GetUniqueId);
+
+    if ((result == VK_SUCCESS) && (pAccelerationStructureKHR != nullptr))
+    {
+        auto                             device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+        AccelerationStructureKHRWrapper* accel_struct_wrapper =
+            reinterpret_cast<AccelerationStructureKHRWrapper*>(*pAccelerationStructureKHR);
+
+        // Log error if accelerationStructureCaptureReplay feature was not enabled
+        if (!device_wrapper->feature_accelerationStructureCaptureReplay)
+        {
+            GFXRECON_LOG_ERROR_ONCE(
+                "The application is using the accelerationStructure feature, which requires the "
+                "accelerationStructureCaptureReplay feature for accurate capture and replay. The capture device does "
+                "not support this feature, so replay of the captured file may fail.");
+        }
+
+        VkAccelerationStructureDeviceAddressInfoKHR address_info{
+            VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR, nullptr, accel_struct_wrapper->handle
+        };
+
+        // save address to use as pCreateInfo->deviceAddress during replay
+        VkDeviceAddress address =
+            device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
+        if (address != 0)
+        {
+            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
+
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
             }
         }
     }

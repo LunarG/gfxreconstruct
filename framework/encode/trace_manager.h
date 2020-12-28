@@ -314,6 +314,11 @@ class TraceManager
                                   const VkAllocationCallbacks* pAllocator,
                                   VkBuffer*                    pBuffer);
 
+    VkResult OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
+                                                    const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
+                                                    const VkAllocationCallbacks*                pAllocator,
+                                                    VkAccelerationStructureKHR* pAccelerationStructureKHR);
+
     VkResult OverrideAllocateMemory(VkDevice                     device,
                                     const VkMemoryAllocateInfo*  pAllocateInfo,
                                     const VkAllocationCallbacks* pAllocator,

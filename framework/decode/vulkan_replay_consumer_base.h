@@ -789,6 +789,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const SurfaceKHRInfo*                                      surface_info,
                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
+    VkResult OverrideCreateAccelerationStructureKHR(
+        PFN_vkCreateAccelerationStructureKHR                                      func,
+        VkResult                                                                  original_result,
+        const DeviceInfo*                                                         device_info,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+        HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
+
   private:
     void RaiseFatalError(const char* message) const;
 

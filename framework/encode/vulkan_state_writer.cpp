@@ -886,6 +886,23 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
     });
 }
 
+void VulkanStateWriter::WriteAccelerationStructureKHRState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const AccelerationStructureKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            // If the acceleration struct has a device address, write the 'set opaque address' command before writing
+            // the API call to create the acceleration struct.  The address will need to be passed to
+            // vkCreateAccelerationStructKHR through the VkAccelerationStructureCreateInfoKHR::deviceAddress.
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+        }
+
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
 void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
                                               AHardwareBuffer* hardware_buffer,
                                               VkDeviceSize     allocation_size)

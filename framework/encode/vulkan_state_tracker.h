@@ -359,6 +359,10 @@ class VulkanStateTracker
                               const uint32_t*       image_indices,
                               VkQueue               queue);
 
+    void TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
+                                                    VkAccelerationStructureKHR accel_struct,
+                                                    VkDeviceAddress            address);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                  parent_handle,

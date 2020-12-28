@@ -36,6 +36,10 @@ struct ModifiedPhysicalDeviceFeatures
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
     VkBool32  bufferDeviceAddressCaptureReplay_original{ VK_FALSE };
+
+    // VkPhysicalDeviceAccelerationStructureFeaturesKHR::accelerationStructureCaptureReplay
+    VkBool32* accelerationStructureCaptureReplay_ptr{ nullptr };
+    VkBool32  accelerationStructureCaptureReplay_original{ VK_FALSE };
 };
 
 // Try to enable the device features required for application capture and replay

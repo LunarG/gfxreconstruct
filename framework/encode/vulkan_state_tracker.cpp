@@ -980,6 +980,19 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
     }
 }
 
+void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
+                                                                    VkAccelerationStructureKHR accel_struct,
+                                                                    VkDeviceAddress            address)
+{
+    assert((device != VK_NULL_HANDLE) && (accel_struct != VK_NULL_HANDLE));
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    auto wrapper       = reinterpret_cast<AccelerationStructureKHRWrapper*>(accel_struct);
+    wrapper->device_id = GetWrappedId(device);
+    wrapper->address   = address;
+}
+
 void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
 {
     assert(wrapper != nullptr);

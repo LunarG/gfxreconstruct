@@ -68,6 +68,7 @@
     "vkGetPhysicalDeviceXlibPresentationSupportKHR": "OverrideGetPhysicalDeviceXlibPresentationSupportKHR",
     "vkCreateWaylandSurfaceKHR": "OverrideCreateWaylandSurfaceKHR",
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
-    "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR"
+    "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
+    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR"
   }
 }

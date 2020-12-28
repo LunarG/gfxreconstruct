@@ -81,6 +81,42 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                                    VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
             }
             break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
+            {
+                // Enable accelerationStructureCaptureReplay
+                VkPhysicalDeviceAccelerationStructureFeaturesKHR* accel_struct_features =
+                    reinterpret_cast<VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(current_struct);
+
+                modified_features.accelerationStructureCaptureReplay_ptr =
+                    (&accel_struct_features->accelerationStructureCaptureReplay);
+                modified_features.accelerationStructureCaptureReplay_original =
+                    accel_struct_features->accelerationStructureCaptureReplay;
+
+                if (!accel_struct_features->accelerationStructureCaptureReplay)
+                {
+                    // Get acceleration struct properties
+                    VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+                    VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR
+                    };
+                    features2.pNext = &supported_features;
+                    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+                    {
+                        instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
+                    }
+                    else
+                    {
+                        instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
+                    }
+
+                    // Enable accelerationStructureCaptureReplay if it is supported
+                    if (supported_features.accelerationStructureCaptureReplay)
+                    {
+                        accel_struct_features->accelerationStructureCaptureReplay = true;
+                    }
+                }
+            }
+            break;
             default:
                 break;
         }
@@ -94,6 +130,11 @@ void RestoreModifiedPhysicalDeviceFeatures(const ModifiedPhysicalDeviceFeatures&
     {
         (*modified_features.bufferDeviceAddressCaptureReplay_ptr) =
             modified_features.bufferDeviceAddressCaptureReplay_original;
+    }
+    if (modified_features.accelerationStructureCaptureReplay_ptr != nullptr)
+    {
+        (*modified_features.accelerationStructureCaptureReplay_ptr) =
+            modified_features.accelerationStructureCaptureReplay_original;
     }
 }
 
