@@ -129,6 +129,8 @@ class VulkanStateWriter
 
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
+    void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
+
     void
     ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 

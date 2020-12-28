@@ -249,6 +249,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
     // Feature state at device creation
     VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
+    VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

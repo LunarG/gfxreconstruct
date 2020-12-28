@@ -12214,17 +12214,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
 
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkAccelerationStructureCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->CreateAccelerationStructureKHR(device_unwrapped, pCreateInfo_unwrapped, pAllocator, pAccelerationStructure);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, TraceManager::GetUniqueId);
-    }
-    else
+    VkResult result = TraceManager::Get()->OverrideCreateAccelerationStructureKHR(device, pCreateInfo, pAllocator, pAccelerationStructure);
+    if (result < 0)
     {
         omit_output_data = true;
     }
