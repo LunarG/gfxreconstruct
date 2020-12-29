@@ -993,6 +993,17 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
     wrapper->address   = address;
 }
 
+void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address)
+{
+    assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    auto wrapper       = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    wrapper->device_id = GetWrappedId(device);
+    wrapper->address   = address;
+}
+
 void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
 {
     assert(wrapper != nullptr);

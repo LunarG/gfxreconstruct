@@ -865,6 +865,12 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     // Write device memory allocation calls.
     state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
         assert(wrapper != nullptr);
+
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+        }
+
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }

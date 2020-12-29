@@ -363,6 +363,8 @@ class VulkanStateTracker
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
 
+    void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                  parent_handle,

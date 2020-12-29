@@ -1504,8 +1504,9 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     void*                            external_memory = nullptr;
     VkImportMemoryHostPointerInfoEXT import_info;
 
+    auto                  device_wrapper       = reinterpret_cast<DeviceWrapper*>(device);
+    VkDevice              device_unwrapped     = device_wrapper->handle;
     auto                  handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice              device_unwrapped     = GetWrappedHandle<VkDevice>(device);
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
@@ -1514,10 +1515,31 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
         FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
 #endif
 
+    bool                   uses_address         = false;
+    VkMemoryAllocateFlags* modified_alloc_flags = nullptr;
+    VkMemoryAllocateFlags  incoming_alloc_flags;
+    VkBaseOutStructure*    current_struct = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped)->pNext;
+    while (current_struct != nullptr)
+    {
+        if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
+        {
+            auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+            if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
+                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
+            {
+                uses_address         = true;
+                incoming_alloc_flags = alloc_flags_info->flags;
+                alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+                modified_alloc_flags = &(alloc_flags_info->flags);
+            }
+            break;
+        }
+        current_struct = current_struct->pNext;
+    }
+
     if (page_guard_memory_mode_ == kMemoryModeExternal)
     {
-        auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
-        VkMemoryPropertyFlags properties     = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
+        VkMemoryPropertyFlags properties = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
 
         if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
         {
@@ -1567,6 +1589,25 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
         assert(pMemory != nullptr);
         auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+
+        if (uses_address)
+        {
+            // Restore modified allocation flags
+            assert(modified_alloc_flags != nullptr);
+            *modified_alloc_flags = incoming_alloc_flags;
+
+            VkDeviceMemoryOpaqueCaptureAddressInfo info{ VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
+                                                         nullptr,
+                                                         *pMemory };
+            uint64_t address = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddress(device_unwrapped, &info);
+
+            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, memory_wrapper->handle_id, address);
+
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                state_tracker_->TrackDeviceMemoryDeviceAddress(device, *pMemory, address);
+            }
+        }
 
         memory_wrapper->external_allocation = external_memory;
 
