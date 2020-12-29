@@ -3455,8 +3455,53 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto                                replay_memory        = pMemory->GetHandlePointer();
         auto                                capture_id           = (*pMemory->GetPointer());
 
-        result = allocator->AllocateMemory(
-            replay_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+        // Check if this allocation was captured with an opaque address
+        bool                uses_address   = false;
+        uint64_t            opaque_address = 0;
+        VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(replay_allocate_info)->pNext;
+        while (current_struct != nullptr)
+        {
+            if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
+            {
+                auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
+                    VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
+                {
+                    uses_address = true;
+                    alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+                    auto opaque_address_pair = device_info->opaque_addresses.find(capture_id);
+                    if (opaque_address_pair != device_info->opaque_addresses.end())
+                    {
+                        opaque_address = opaque_address_pair->second;
+                    }
+                }
+                break;
+            }
+            current_struct = current_struct->pNext;
+        }
+
+        if (uses_address)
+        {
+            // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
+            VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
+            VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info.pNext,
+                opaque_address
+            };
+            modified_allocate_info.pNext = &address_info;
+
+            result = allocator->AllocateMemory(&modified_allocate_info,
+                                               GetAllocationCallbacks(pAllocator),
+                                               capture_id,
+                                               replay_memory,
+                                               &allocator_data);
+        }
+        else
+        {
+            result = allocator->AllocateMemory(
+                replay_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+        }
 
         if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
