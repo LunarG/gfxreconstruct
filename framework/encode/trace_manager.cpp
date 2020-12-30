@@ -521,10 +521,10 @@ void TraceManager::EndMethodCallTrace(ParameterEncoder* encoder)
             std::lock_guard<std::mutex> lock(file_lock_);
 
             // Write appropriate function call block header.
-            bytes_written_ += file_stream_->Write(header_pointer, header_size);
+            file_stream_->Write(header_pointer, header_size);
 
             // Write parameter data.
-            bytes_written_ += file_stream_->Write(data_pointer, data_size);
+            file_stream_->Write(data_pointer, data_size);
 
             if (force_file_flush_)
             {
