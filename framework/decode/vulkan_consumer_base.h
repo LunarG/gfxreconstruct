@@ -89,7 +89,7 @@ class VulkanConsumerBase
     {}
 
     virtual void
-    ProcessSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, uint64_t address)
+    ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address)
     {}
 
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,

@@ -97,7 +97,7 @@ enum MetaDataType : uint32_t
     kSetDevicePropertiesCommand         = 11,
     kSetDeviceMemoryPropertiesCommand   = 12,
     kResizeWindowCommand2               = 13,
-    kSetBufferAddressCommand            = 14
+    kSetOpaqueAddressCommand            = 14
 };
 
 enum CompressionType : uint32_t
@@ -377,12 +377,12 @@ struct SetDevicePropertiesCommand
     uint32_t         device_name_len;
 };
 
-struct SetBufferAddressCommand
+struct SetOpaqueAddressCommand
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     format::HandleId device_id;
-    format::HandleId buffer_id;
+    format::HandleId object_id;
     uint64_t         address;
 };
 

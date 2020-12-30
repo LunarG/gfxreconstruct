@@ -267,7 +267,7 @@ class VulkanStateWriter
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
 
-    void WriteSetBufferAddressCommand(format::HandleId device_id, format::HandleId buffer_id, VkDeviceAddress address);
+    void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, VkDeviceAddress address);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)

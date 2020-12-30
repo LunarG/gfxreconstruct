@@ -876,10 +876,10 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 
         if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
         {
-            // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
+            // If the buffer has a device address, write the 'set opaque address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            WriteSetBufferAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
+            WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -2618,21 +2618,21 @@ void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId p
     }
 }
 
-void VulkanStateWriter::WriteSetBufferAddressCommand(format::HandleId device_id,
-                                                     format::HandleId buffer_id,
+void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
+                                                     format::HandleId object_id,
                                                      uint64_t         address)
 {
-    format::SetBufferAddressCommand buffer_address_cmd;
+    format::SetOpaqueAddressCommand opaque_address_cmd;
 
-    buffer_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    buffer_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(buffer_address_cmd);
-    buffer_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetBufferAddressCommand;
-    buffer_address_cmd.thread_id                     = thread_id_;
-    buffer_address_cmd.device_id                     = device_id;
-    buffer_address_cmd.buffer_id                     = buffer_id;
-    buffer_address_cmd.address                       = address;
+    opaque_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    opaque_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(opaque_address_cmd);
+    opaque_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetOpaqueAddressCommand;
+    opaque_address_cmd.thread_id                     = thread_id_;
+    opaque_address_cmd.device_id                     = device_id;
+    opaque_address_cmd.object_id                     = object_id;
+    opaque_address_cmd.address                       = address;
 
-    output_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
+    output_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
 }
 
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,
