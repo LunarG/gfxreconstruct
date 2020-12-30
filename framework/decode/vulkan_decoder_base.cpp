@@ -161,16 +161,16 @@ void VulkanDecoderBase::DispatchSetDeviceMemoryPropertiesCommand(
     }
 }
 
-void VulkanDecoderBase::DispatchSetBufferAddressCommand(format::ThreadId thread_id,
+void VulkanDecoderBase::DispatchSetOpaqueAddressCommand(format::ThreadId thread_id,
                                                         format::HandleId device_id,
-                                                        format::HandleId buffer_id,
+                                                        format::HandleId object_id,
                                                         uint64_t         address)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessSetBufferAddressCommand(device_id, buffer_id, address);
+        consumer->ProcessSetOpaqueAddressCommand(device_id, object_id, address);
     }
 }
 

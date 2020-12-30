@@ -1011,29 +1011,29 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
     }
 }
 
-void TraceManager::WriteSetBufferAddressCommand(format::HandleId device_id,
-                                                format::HandleId buffer_id,
+void TraceManager::WriteSetOpaqueAddressCommand(format::HandleId device_id,
+                                                format::HandleId object_id,
                                                 uint64_t         address)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        format::SetBufferAddressCommand buffer_address_cmd;
+        format::SetOpaqueAddressCommand opaque_address_cmd;
 
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
-        buffer_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        buffer_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(buffer_address_cmd);
-        buffer_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetBufferAddressCommand;
-        buffer_address_cmd.thread_id                     = thread_data->thread_id_;
-        buffer_address_cmd.device_id                     = device_id;
-        buffer_address_cmd.buffer_id                     = buffer_id;
-        buffer_address_cmd.address                       = address;
+        opaque_address_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        opaque_address_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(opaque_address_cmd);
+        opaque_address_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetOpaqueAddressCommand;
+        opaque_address_cmd.thread_id                     = thread_data->thread_id_;
+        opaque_address_cmd.device_id                     = device_id;
+        opaque_address_cmd.object_id                     = object_id;
+        opaque_address_cmd.address                       = address;
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
 
-            file_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
+            file_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
 
             if (force_file_flush_)
             {
@@ -1410,7 +1410,7 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
 
             if (address != 0)
             {
-                WriteSetBufferAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
+                WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
 
                 if ((capture_mode_ & kModeTrack) == kModeTrack)
                 {

@@ -603,7 +603,7 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     }
 }
 
-void VulkanReplayConsumerBase::ProcessSetBufferAddressCommand(format::HandleId device_id,
+void VulkanReplayConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
                                                               format::HandleId buffer_id,
                                                               uint64_t         address)
 {
@@ -612,7 +612,7 @@ void VulkanReplayConsumerBase::ProcessSetBufferAddressCommand(format::HandleId d
     if (device_info != nullptr)
     {
         // Store the buffer address to use at device creation.
-        device_info->buffer_addresses[buffer_id] = address;
+        device_info->opaque_addresses[buffer_id] = address;
     }
 }
 
@@ -3859,8 +3859,8 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
             VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
         };
 
-        auto entry = device_info->buffer_addresses.find(capture_id);
-        if (entry != device_info->buffer_addresses.end())
+        auto entry = device_info->opaque_addresses.find(capture_id);
+        if (entry != device_info->opaque_addresses.end())
         {
             address_info.opaqueCaptureAddress = entry->second;
 
@@ -3874,7 +3874,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         }
         else
         {
-            GFXRECON_LOG_DEBUG("Buffer device address is not available for VkBuffer object (ID = %" PRIu64 ")",
+            GFXRECON_LOG_DEBUG("Opaque device address is not available for VkBuffer object (ID = %" PRIu64 ")",
                                capture_id);
         }
 

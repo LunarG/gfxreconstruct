@@ -784,24 +784,24 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read set device memory properties meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kSetBufferAddressCommand)
+    else if (meta_type == format::MetaDataType::kSetOpaqueAddressCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
-        format::SetBufferAddressCommand header;
+        format::SetOpaqueAddressCommand header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
-        success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
+        success = success && ReadBytes(&header.object_id, sizeof(header.object_id));
         success = success && ReadBytes(&header.address, sizeof(header.address));
 
         if (success)
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchSetBufferAddressCommand(
-                    header.thread_id, header.device_id, header.buffer_id, header.address);
+                decoder->DispatchSetOpaqueAddressCommand(
+                    header.thread_id, header.device_id, header.object_id, header.address);
             }
         }
         else
