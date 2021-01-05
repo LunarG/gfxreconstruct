@@ -1424,14 +1424,11 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
                 address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
             }
 
-            if (address != 0)
-            {
-                WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
+            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
 
-                if ((capture_mode_ & kModeTrack) == kModeTrack)
-                {
-                    state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
-                }
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
             }
         }
     }
@@ -1481,14 +1478,12 @@ VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice          
         // save address to use as pCreateInfo->deviceAddress during replay
         VkDeviceAddress address =
             device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
-        if (address != 0)
-        {
-            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
 
-            if ((capture_mode_ & kModeTrack) == kModeTrack)
-            {
-                state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
-            }
+        WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
+
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
         }
     }
 
