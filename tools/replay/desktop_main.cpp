@@ -59,6 +59,11 @@
 #endif
 #endif
 
+#if defined(VK_USE_PLATFORM_HEADLESS)
+#include "application/headless_application.h"
+#include "application/headless_window.h"
+#endif
+
 #if defined(WIN32)
 #include <conio.h>
 void WaitForExit()
@@ -182,6 +187,19 @@ int main(int argc, const char** argv)
                 }
             }
 #endif
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+            if (wsi_platform == WsiPlatform::kHeadless || (wsi_platform == WsiPlatform::kAuto && !application))
+            {
+                auto headless_application =
+                    std::make_unique<gfxrecon::application::HeadlessApplication>(kApplicationName);
+                if (headless_application->Initialize(&file_processor))
+                {
+                    window_factory =
+                        std::make_unique<gfxrecon::application::HeadlessWindowFactory>(headless_application.get());
+                    application = std::move(headless_application);
+                }
+            }
 #endif
 
             if (!window_factory || !application)

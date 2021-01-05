@@ -45,6 +45,14 @@ set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 7)
 set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
+if (NOT DEFINED NO_XCB)
+    set(NO_XCB FALSE)
+endif()
+
+if (NOT DEFINED HEADLESS)
+    set(HEADLESS TRUE)
+endif()
+
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 git_get_exact_tag(GIT_TAG)
@@ -131,7 +139,11 @@ endif()
 find_package(LZ4)
 find_package(ZSTD)
 if(UNIX)
-    find_package(XCB)
+    if (NOT ${NO_XCB})
+        find_package(XCB)
+    else()
+        set(XCB_FOUND FALSE)
+    endif()
     find_package(WAYLAND)
 endif(UNIX)
 
@@ -142,14 +154,16 @@ if(UNIX)
 endif(UNIX)
 
 add_library(windows_specific INTERFACE)
-target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
+target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR
+$<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
-    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
+    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
+    $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE

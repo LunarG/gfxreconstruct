@@ -87,14 +87,16 @@ enum class WsiPlatform
     kWin32,
     kXlib,
     kXcb,
-    kWayland
+    kWayland,
+    kHeadless
 };
 
-const char kWsiPlatformAuto[]    = "auto";
-const char kWsiPlatformWin32[]   = "win32";
-const char kWsiPlatformXlib[]    = "xlib";
-const char kWsiPlatformXcb[]     = "xcb";
-const char kWsiPlatformWayland[] = "wayland";
+const char kWsiPlatformAuto[]     = "auto";
+const char kWsiPlatformWin32[]    = "win32";
+const char kWsiPlatformXlib[]     = "xlib";
+const char kWsiPlatformXcb[]      = "xcb";
+const char kWsiPlatformWayland[]  = "wayland";
+const char kWsiPlatformHeadless[] = "headless";
 
 const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
@@ -269,6 +271,14 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
             GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
 #endif
         }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformHeadless, value.c_str()) == 0)
+        {
+#if defined(VK_USE_PLATFORM_HEADLESS)
+            wsi_platform = WsiPlatform::kHeadless;
+#else
+            GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
+#endif
+        }
         else
         {
             GFXRECON_LOG_WARNING("Ignoring unrecognized wsi option \"%s\"", value.c_str());
@@ -296,6 +306,10 @@ static std::string GetWsiArgString()
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     wsi_args += ',';
     wsi_args += kWsiPlatformWayland;
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+    wsi_args += ',';
+    wsi_args += kWsiPlatformHeadless;
 #endif
     return wsi_args;
 }
