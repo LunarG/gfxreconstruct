@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -327,6 +327,11 @@ class TraceManager
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
                                                 VkPhysicalDevice* pPhysicalDevices);
+
+    void PostProcess_vkEnumeratePhysicalDeviceGroups(VkResult                         result,
+                                                     VkInstance                       instance,
+                                                     uint32_t*                        pPhysicalDeviceGroupCount,
+                                                     VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties);
 
     void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
                                                               uint32_t*                pQueueFamilyPropertyCount,
@@ -983,6 +988,9 @@ class TraceManager
     void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
                                               VkDescriptorUpdateTemplate update_templat,
                                               const void*                data);
+
+    void
+    ProcessEnumeratePhysicalDevices(VkResult result, VkInstance instance, uint32_t count, VkPhysicalDevice* devices);
 
     VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
 

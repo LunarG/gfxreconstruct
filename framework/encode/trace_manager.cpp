@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -37,6 +37,7 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <unordered_set>
 
 #if defined(__linux__) && !defined(__ANDROID__)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -1590,6 +1591,67 @@ VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
+void TraceManager::ProcessEnumeratePhysicalDevices(VkResult          result,
+                                                   VkInstance        instance,
+                                                   uint32_t          count,
+                                                   VkPhysicalDevice* devices)
+{
+    assert(devices != nullptr);
+
+    auto instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
+    assert(instance_wrapper != nullptr);
+
+    // Write meta-data describing physical device properties on first call to vkEnumeratePhysicalDevices or
+    // vkEnumeratePhysicalDeviceGroups.
+    if (!instance_wrapper->have_device_properties)
+    {
+        // Only filter duplicate checks when we have a complete list of physical devices.
+        if (result != VK_INCOMPLETE)
+        {
+            instance_wrapper->have_device_properties = true;
+        }
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            VkPhysicalDevice physical_device = devices[i];
+
+            if (physical_device != VK_NULL_HANDLE)
+            {
+                const InstanceTable* instance_table = GetInstanceTable(physical_device);
+                assert(instance_table != nullptr);
+
+                auto             physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
+                format::HandleId physical_device_id      = physical_device_wrapper->handle_id;
+                VkPhysicalDevice physical_device_handle  = physical_device_wrapper->handle;
+                uint32_t         count                   = 0;
+
+                VkPhysicalDeviceProperties       properties;
+                VkPhysicalDeviceMemoryProperties memory_properties;
+
+                instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
+                instance_table->GetPhysicalDeviceMemoryProperties(physical_device_handle, &memory_properties);
+
+                if ((capture_mode_ & kModeTrack) == kModeTrack)
+                {
+                    // Let the state tracker process the memory properties.
+                    assert(state_tracker_ != nullptr);
+                    state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
+                }
+                else
+                {
+                    // When not tracking state, set the memory types directly.
+                    physical_device_wrapper->memory_properties = std::move(memory_properties);
+                }
+
+                physical_device_wrapper->instance_api_version = instance_wrapper->api_version;
+
+                WriteSetDevicePropertiesCommand(physical_device_id, properties);
+                WriteSetDeviceMemoryPropertiesCommand(physical_device_id, physical_device_wrapper->memory_properties);
+            }
+        }
+    }
+}
+
 VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
 {
     PhysicalDeviceWrapper*                  physical_device_wrapper = device_wrapper->physical_device;
@@ -1767,58 +1829,33 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
 {
     if ((result >= 0) && (pPhysicalDeviceCount != nullptr) && (pPhysicalDevices != nullptr))
     {
-        auto     instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
-        uint32_t count            = *pPhysicalDeviceCount;
+        ProcessEnumeratePhysicalDevices(result, instance, *pPhysicalDeviceCount, pPhysicalDevices);
+    }
+}
 
-        // Write meta-data describing physical device properties on first call to vkEnumeratePhysicalDevices.
-        if (!instance_wrapper->have_device_properties)
+void TraceManager::PostProcess_vkEnumeratePhysicalDeviceGroups(
+    VkResult                         result,
+    VkInstance                       instance,
+    uint32_t*                        pPhysicalDeviceGroupCount,
+    VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties)
+{
+    if ((result >= 0) && (pPhysicalDeviceGroupCount != nullptr) && (pPhysicalDeviceGroupProperties != nullptr))
+    {
+        std::unordered_set<VkPhysicalDevice> unique_handles;
+        uint32_t                             count = *pPhysicalDeviceGroupCount;
+
+        // Build a list of retrieved physical device handles, filtering duplicates.
+        for (uint32_t i = 0; i < count; ++i)
         {
-            // Only filter duplicate checks when we have a complete list of physical devices.
-            if (result != VK_INCOMPLETE)
+            for (uint32_t j = 0; j < pPhysicalDeviceGroupProperties[i].physicalDeviceCount; ++j)
             {
-                instance_wrapper->have_device_properties = true;
-            }
-
-            for (uint32_t i = 0; i < count; ++i)
-            {
-                VkPhysicalDevice physical_device = pPhysicalDevices[i];
-
-                if (physical_device != VK_NULL_HANDLE)
-                {
-                    const InstanceTable* instance_table = GetInstanceTable(physical_device);
-                    assert(instance_table != nullptr);
-
-                    auto physical_device_wrapper            = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
-                    format::HandleId physical_device_id     = physical_device_wrapper->handle_id;
-                    VkPhysicalDevice physical_device_handle = physical_device_wrapper->handle;
-                    uint32_t         count                  = 0;
-
-                    VkPhysicalDeviceProperties       properties;
-                    VkPhysicalDeviceMemoryProperties memory_properties;
-
-                    instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
-                    instance_table->GetPhysicalDeviceMemoryProperties(physical_device_handle, &memory_properties);
-
-                    if ((capture_mode_ & kModeTrack) == kModeTrack)
-                    {
-                        // Let the state tracker process the memory properties.
-                        assert(state_tracker_ != nullptr);
-                        state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
-                    }
-                    else
-                    {
-                        // When not tracking state, set the memory types directly.
-                        physical_device_wrapper->memory_properties = std::move(memory_properties);
-                    }
-
-                    physical_device_wrapper->instance_api_version = instance_wrapper->api_version;
-
-                    WriteSetDevicePropertiesCommand(physical_device_id, properties);
-                    WriteSetDeviceMemoryPropertiesCommand(physical_device_id,
-                                                          physical_device_wrapper->memory_properties);
-                }
+                unique_handles.insert(pPhysicalDeviceGroupProperties[i].physicalDevices[j]);
             }
         }
+
+        std::vector<VkPhysicalDevice> devices(unique_handles.begin(), unique_handles.end());
+
+        ProcessEnumeratePhysicalDevices(result, instance, static_cast<uint32_t>(devices.size()), devices.data());
     }
 }
 
