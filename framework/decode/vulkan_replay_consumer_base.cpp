@@ -3908,8 +3908,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
         address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
-    if (uses_address && (((replay_create_info->flags & address_create_flags) != address_create_flags) ||
-                         ((replay_create_info->usage & address_usage_flags) != address_usage_flags)))
+    if (uses_address)
     {
         // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
         if (!device_info->feature_bufferDeviceAddressCaptureReplay)
