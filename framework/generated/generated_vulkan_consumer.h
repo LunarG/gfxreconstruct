@@ -2520,6 +2520,17 @@ class VulkanConsumer : public VulkanConsumerBase
         VkFragmentShadingRateNV                     shadingRate,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) {}
 
+    virtual void Process_vkAcquireWinrtDisplayNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display) {}
+
+    virtual void Process_vkGetWinrtDisplayNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    deviceRelativeId,
+        HandlePointerDecoder<VkDisplayKHR>*         pDisplay) {}
+
     virtual void Process_vkCreateDirectFBSurfaceEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,

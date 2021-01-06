@@ -1400,6 +1400,14 @@ struct Decoded_VkDirectFBSurfaceCreateInfoEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDirectFBSurfaceCreateInfoEXT* wrapper);
 
+struct Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
+struct Decoded_VkMutableDescriptorTypeListVALVE;
+struct Decoded_VkMutableDescriptorTypeCreateInfoVALVE;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMutableDescriptorTypeListVALVE* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMutableDescriptorTypeCreateInfoVALVE* wrapper);
+
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR;
 struct Decoded_VkAccelerationStructureGeometryTrianglesDataKHR;
 struct Decoded_VkAccelerationStructureGeometryAabbsDataKHR;

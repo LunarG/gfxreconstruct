@@ -511,6 +511,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1226),
     ApiCall_vkCmdSetFragmentShadingRateKHR                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1227),
     ApiCall_vkCmdSetFragmentShadingRateEnumNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1228),
+    ApiCall_vkAcquireWinrtDisplayNV                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1229),
+    ApiCall_vkGetWinrtDisplayNV                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x122a),
 
     ApiCall_VulkanLast
     // clang-format on

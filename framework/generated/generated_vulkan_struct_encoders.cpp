@@ -5170,6 +5170,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDirectFBSurfaceCreateInfoEX
     encoder->EncodeVoidPtr(value.surface);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.mutableDescriptorType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMutableDescriptorTypeListVALVE& value)
+{
+    encoder->EncodeUInt32Value(value.descriptorTypeCount);
+    encoder->EncodeEnumArray(value.pDescriptorTypes, value.descriptorTypeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMutableDescriptorTypeCreateInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.mutableDescriptorTypeListCount);
+    EncodeStructArray(encoder, value.pMutableDescriptorTypeLists, value.mutableDescriptorTypeListCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)
 {
     encoder->EncodeUInt32Value(value.primitiveCount);

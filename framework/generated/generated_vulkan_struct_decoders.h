@@ -5551,6 +5551,34 @@ struct Decoded_VkDirectFBSurfaceCreateInfoEXT
     uint64_t surface{ 0 };
 };
 
+struct Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE;
+
+    VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkMutableDescriptorTypeListVALVE
+{
+    using struct_type = VkMutableDescriptorTypeListVALVE;
+
+    VkMutableDescriptorTypeListVALVE* decoded_value{ nullptr };
+
+    PointerDecoder<VkDescriptorType> pDescriptorTypes;
+};
+
+struct Decoded_VkMutableDescriptorTypeCreateInfoVALVE
+{
+    using struct_type = VkMutableDescriptorTypeCreateInfoVALVE;
+
+    VkMutableDescriptorTypeCreateInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkMutableDescriptorTypeListVALVE>* pMutableDescriptorTypeLists{ nullptr };
+};
+
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR
 {
     using struct_type = VkAccelerationStructureBuildRangeInfoKHR;

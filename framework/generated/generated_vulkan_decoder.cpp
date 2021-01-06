@@ -9096,6 +9096,48 @@ size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateEnumNV(const uint8_t* pa
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkAcquireWinrtDisplayNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    format::HandleId display;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkAcquireWinrtDisplayNV(return_value, physicalDevice, display);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetWinrtDisplayNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    uint32_t deviceRelativeId;
+    HandlePointerDecoder<VkDisplayKHR> pDisplay;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &deviceRelativeId);
+    bytes_read += pDisplay.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetWinrtDisplayNV(return_value, physicalDevice, deviceRelativeId, &pDisplay);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateDirectFBSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -10895,6 +10937,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV:
         Decode_vkCmdSetFragmentShadingRateEnumNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkAcquireWinrtDisplayNV:
+        Decode_vkAcquireWinrtDisplayNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetWinrtDisplayNV:
+        Decode_vkGetWinrtDisplayNV(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT:
         Decode_vkCreateDirectFBSurfaceEXT(parameter_buffer, buffer_size);

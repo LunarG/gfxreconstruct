@@ -723,6 +723,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice4444FormatsFe
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDirectFBSurfaceCreateInfoEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMutableDescriptorTypeListVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMutableDescriptorTypeCreateInfoVALVE& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);
