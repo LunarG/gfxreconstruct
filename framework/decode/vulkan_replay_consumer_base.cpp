@@ -2391,19 +2391,37 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 }
             }
 
-            if (options_.remove_unsupported_features)
+            PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
+                reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+                    get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
+            std::vector<VkExtensionProperties> properties;
+            if (feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
             {
-                // Remove enabled extensions that are not available from the replay instance.
-                // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are
-                // needed in the replay application.
-                PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
-                    reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
-                        get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
-                std::vector<VkExtensionProperties> properties;
-                if (feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
+                if (options_.remove_unsupported_features)
                 {
+                    // Remove enabled extensions that are not available from the replay instance.
+                    // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but
+                    // are needed in the replay application.
                     feature_util::RemoveUnsupportedExtensions(properties, &filtered_extensions);
                 }
+                else
+                {
+                    // Check that the requested extensions are present and print warnings if not.
+                    for (auto extensionIter = filtered_extensions.begin(); extensionIter != filtered_extensions.end();
+                         ++extensionIter)
+                    {
+                        if (!feature_util::IsSupportedExtension(properties, *extensionIter))
+                        {
+                            GFXRECON_LOG_WARNING("Extension %s, is not supported by the replay device.",
+                                                 *extensionIter);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
+                                     "extension availability.");
             }
         }
 

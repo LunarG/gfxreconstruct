@@ -74,6 +74,21 @@ VkResult GetDeviceExtensions(VkPhysicalDevice                         physical_d
     return result;
 }
 
+bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto& property : properties)
+    {
+        if (strcmp(property.extensionName, extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& properties,
                                  std::vector<const char*>*                 extensions)
 {
@@ -82,17 +97,7 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
     auto extensionIter = extensions->begin();
     while (extensionIter != extensions->end())
     {
-        bool found = false;
-        for (const auto& property : properties)
-        {
-            if (strcmp(property.extensionName, *extensionIter) == 0)
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (found == false)
+        if (!IsSupportedExtension(properties, *extensionIter))
         {
             GFXRECON_LOG_WARNING("Extension %s, which is not supported by the replay device, will not be enabled",
                                  *extensionIter);
