@@ -5879,6 +5879,34 @@ void VulkanReplayConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     GetDeviceTable(in_commandBuffer)->CmdSetFragmentShadingRateEnumNV(in_commandBuffer, shadingRate, in_combinerOps);
 }
 
+void VulkanReplayConsumer::Process_vkAcquireWinrtDisplayNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    format::HandleId                            display)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    VkDisplayKHR in_display = MapHandle<DisplayKHRInfo>(display, &VulkanObjectInfoTable::GetDisplayKHRInfo);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->AcquireWinrtDisplayNV(in_physicalDevice, in_display);
+    CheckResult("vkAcquireWinrtDisplayNV", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetWinrtDisplayNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    uint32_t                                    deviceRelativeId,
+    HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    if (!pDisplay->IsNull()) { pDisplay->SetHandleLength(1); }
+    VkDisplayKHR* out_pDisplay = pDisplay->GetHandlePointer();
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetWinrtDisplayNV(in_physicalDevice, deviceRelativeId, out_pDisplay);
+    CheckResult("vkGetWinrtDisplayNV", returnValue, replay_result);
+
+    AddHandle<DisplayKHRInfo>(physicalDevice, pDisplay->GetPointer(), out_pDisplay, &VulkanObjectInfoTable::AddDisplayKHRInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,

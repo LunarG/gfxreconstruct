@@ -460,6 +460,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkSetPrivateDataEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::SetPrivateDataEXT) },
     { "vkGetPrivateDataEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::GetPrivateDataEXT) },
     { "vkCmdSetFragmentShadingRateEnumNV",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetFragmentShadingRateEnumNV) },
+    { "vkAcquireWinrtDisplayNV",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::AcquireWinrtDisplayNV) },
+    { "vkGetWinrtDisplayNV",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::GetWinrtDisplayNV) },
     { "vkCreateDirectFBSurfaceEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::CreateDirectFBSurfaceEXT) },
     { "vkGetPhysicalDeviceDirectFBPresentationSupportEXT",                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceDirectFBPresentationSupportEXT) },
     { "vkCreateAccelerationStructureKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateAccelerationStructureKHR) },

@@ -870,6 +870,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdSetFragmentShadingRateEnumNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkAcquireWinrtDisplayNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetWinrtDisplayNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateDirectFBSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(const uint8_t* parameter_buffer, size_t buffer_size);

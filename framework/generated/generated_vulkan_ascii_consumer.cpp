@@ -3741,6 +3741,23 @@ void VulkanAsciiConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     fprintf(GetFile(), "%s\n", "vkCmdSetFragmentShadingRateEnumNV");
 }
 
+void VulkanAsciiConsumer::Process_vkAcquireWinrtDisplayNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    format::HandleId                            display)
+{
+    fprintf(GetFile(), "%s\n", "vkAcquireWinrtDisplayNV");
+}
+
+void VulkanAsciiConsumer::Process_vkGetWinrtDisplayNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    uint32_t                                    deviceRelativeId,
+    HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
+{
+    fprintf(GetFile(), "%s\n", "vkGetWinrtDisplayNV");
+}
+
 void VulkanAsciiConsumer::Process_vkCreateDirectFBSurfaceEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,

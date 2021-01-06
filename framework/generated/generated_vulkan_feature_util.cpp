@@ -1734,6 +1734,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE:
+            {
+                const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(next);
+                VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->mutableDescriptorType == VK_TRUE) && (query.mutableDescriptorType == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature mutableDescriptorType, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(currentNext)->mutableDescriptorType = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 const VkPhysicalDeviceAccelerationStructureFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(next);
