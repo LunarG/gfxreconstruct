@@ -114,7 +114,15 @@ if(MSVC)
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
-endif(MSVC)
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(CMAKE_PREFIX_PATH
+        ${CMAKE_PREFIX_PATH}
+       "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+    set(CMAKE_PREFIX_PATH
+        ${CMAKE_PREFIX_PATH}
+       "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm")
+endif()
 
 # GFXReconstruct provided find modules
 find_package(LZ4)
