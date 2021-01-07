@@ -1,6 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2021 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,22 +22,30 @@
 #
 # Author: LunarG Team
 # Author: AMD Developer Tools Team
-# Description: CMake script for framework util target
+# Description: CMake script for framework graphics target
 ###############################################################################
 
-add_executable(gfxrecon-compress "")
+add_library(gfxrecon_graphics STATIC "")
 
-target_sources(gfxrecon-compress
+target_sources(gfxrecon_graphics
                PRIVATE
-                   ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
-                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
-)
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
+              )
 
-target_include_directories(gfxrecon-compress PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(gfxrecon_graphics
+                           PUBLIC
+                               ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon-compress gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
 
-common_build_directives(gfxrecon-compress)
+common_build_directives(gfxrecon_graphics)
 
-install(TARGETS gfxrecon-compress RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (${RUN_TESTS})
+    add_executable(gfxrecon_graphics_test "")
+    target_sources(gfxrecon_graphics_test PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
+    target_link_libraries(gfxrecon_graphics_test PRIVATE gfxrecon_graphics)
+    common_build_directives(gfxrecon_graphics_test)
+    common_test_directives(gfxrecon_graphics_test)
+endif()

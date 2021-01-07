@@ -14,6 +14,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../../framework/util ${CMAKE_SOURCE_DIR}/../../framework/util/build)
+add_subdirectory(../../framework/graphics ${CMAKE_SOURCE_DIR}/../../framework/graphics/build)
 add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/format/build)
 add_subdirectory(../../framework/decode ${CMAKE_SOURCE_DIR}/../../framework/decode/build)
 add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework/application/build)
@@ -32,6 +33,7 @@ target_link_libraries(
         gfxrecon-replay
         gfxrecon_application
         gfxrecon_decode
+        gfxrecon_graphics
         gfxrecon_format
         gfxrecon_util
         platform_specific
