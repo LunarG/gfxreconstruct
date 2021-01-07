@@ -60,7 +60,6 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
@@ -77,7 +76,7 @@ target_include_directories(gfxrecon_encode
                                ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 common_build_directives(gfxrecon_encode)
 

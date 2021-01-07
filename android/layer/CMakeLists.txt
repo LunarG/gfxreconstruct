@@ -4,6 +4,7 @@ get_filename_component(GFXRECON_SOURCE_DIR ../.. ABSOLUTE)
 
 include(../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../framework/util ${CMAKE_SOURCE_DIR}/../framework/util/build)
+add_subdirectory(../framework/graphics ${CMAKE_SOURCE_DIR}/../framework/graphics/build)
 add_subdirectory(../framework/format ${CMAKE_SOURCE_DIR}/../framework/format/build)
 add_subdirectory(../framework/encode ${CMAKE_SOURCE_DIR}/../framework/encode/build)
 
@@ -24,6 +25,7 @@ target_include_directories(VkLayer_gfxreconstruct
 
 target_link_libraries(VkLayer_gfxreconstruct
                       gfxrecon_encode
+                      gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
                       vulkan_registry

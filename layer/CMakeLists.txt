@@ -42,7 +42,7 @@ target_include_directories(VkLayer_gfxreconstruct
                                ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR})
 
-target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 common_build_directives(VkLayer_gfxreconstruct)
 

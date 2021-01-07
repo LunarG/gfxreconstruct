@@ -17,6 +17,7 @@ target_include_directories(gfxrecon_application
 
 target_link_libraries(gfxrecon_application
                       gfxrecon_decode
+                      gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
                       vulkan_registry
