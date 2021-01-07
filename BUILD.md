@@ -205,6 +205,12 @@ sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-de
         libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev
 ```
 
+For arm64 builds (cross compilation):
+
+```bash
+sudo apt-get install g++-aarch64-linux-gnu
+```
+
 #### Fedora
 
 For Fedora, the required packages can be installed with the following
@@ -214,6 +220,13 @@ command:
 sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
         libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel
 ```
+
+For arm64 builds (cross compilation):
+
+```bash
+sudo dnf install g++-aarch64-linux-gnu
+```
+
 
 ### Linux Build
 
@@ -235,13 +248,16 @@ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug
 ```
 
 The following commands can be used to generate makefiles for different
-variations of Debug and Release 32-bit and 64-bit build configurations,
-where `-DCMAKE_BUILD_TYPE` is used to specify `Debug` or `Release` build
-profiles:
+variations of Debug and Release, as well as different architectures.
+`-DCMAKE_BUILD_TYPE` is used to specify `Debug` or `Release` build
+profiles and the `-DCMAKE_TOOLCHAIN_FILE` with a matching toolcain file
+can be changed to compile for different architectures:
 
-- 64-bit Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
-- 32-bit Debug: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_SHARED_LINKER_FLAGS=-m32
-- 32-bit Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_SHARED_LINKER_FLAGS=-m32
+- 64-bit x64 Release (default): cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+- 32-bit x86 Debug: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
+- 32-bit x86 Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
+- 32-bit arm Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm.cmake
+- 64-bit arm Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm64.cmake
 
 For 32-bit builds, the 32-bit versions of the required packages specified above
 must be installed.
