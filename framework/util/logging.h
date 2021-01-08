@@ -280,6 +280,25 @@ GFXRECON_END_NAMESPACE(gfxrecon)
                                         ##__VA_ARGS__);                              \
     }
 
+#define GFXRECON_LOG_ONCE(X)         \
+    {                                \
+        static bool log_once = true; \
+        if (log_once)                \
+        {                            \
+            X;                       \
+            log_once = false;        \
+        }                            \
+    }
+
+// clang-format off
+#define GFXRECON_WRITE_CONSOLE_ONCE(message, ...) GFXRECON_LOG_ONCE(GFXRECON_WRITE_CONSOLE(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_FATAL_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_FATAL(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_ERROR_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_ERROR(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_WARNING_ONCE(message, ...)   GFXRECON_LOG_ONCE(GFXRECON_LOG_WARNING(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_INFO_ONCE(message, ...)      GFXRECON_LOG_ONCE(GFXRECON_LOG_INFO(message, ##__VA_ARGS__))
+#define GFXRECON_LOG_DEBUG_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_DEBUG(message, ##__VA_ARGS__))
+// clang-format on
+
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
 
 #define GFXRECON_LOG_COMMAND() gfxrecon::util::CommandTrace command_trace(__FILE__, __FUNCTION__);
