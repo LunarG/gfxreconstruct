@@ -66,6 +66,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp
 )
 
 if (MSVC AND (MSVC_VERSION LESS 1920))
