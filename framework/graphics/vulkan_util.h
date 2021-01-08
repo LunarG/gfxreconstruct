@@ -23,6 +23,7 @@
 #ifndef GFXRECON_GRAPHICS_VULKAN_UTIL_H
 #define GFXRECON_GRAPHICS_VULKAN_UTIL_H
 
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -30,7 +31,22 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-static void Placeholder();
+struct ModifiedPhysicalDeviceFeatures
+{
+    // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
+    VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
+    VkBool32  bufferDeviceAddressCaptureReplay_original{ VK_FALSE };
+};
+
+// Try to enable the device features required for application capture and replay
+void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instance_api_version,
+                                          const encode::InstanceTable*    instance_table,
+                                          const VkPhysicalDevice          physical_device,
+                                          const VkDeviceCreateInfo*       create_info,
+                                          ModifiedPhysicalDeviceFeatures& modified_features);
+
+// Restore feature values that may have been modified by EnableRequiredPhysicalDeviceFeatures().
+void RestoreModifiedPhysicalDeviceFeatures(const ModifiedPhysicalDeviceFeatures& modified_features);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
