@@ -31,6 +31,7 @@
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "graphics/vulkan_util.h"
 #include "util/file_path.h"
 #include "util/hash.h"
 #include "util/platform.h"
@@ -2504,61 +2505,12 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
         modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
 
-        VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info)->pNext;
-        while (current_struct != nullptr)
-        {
-            switch (current_struct->sType)
-            {
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
-                {
-                    VkPhysicalDeviceBufferDeviceAddressFeatures* buffer_address_features =
-                        reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
-
-                    if (buffer_address_features->bufferDeviceAddress)
-                    {
-                        auto table = GetInstanceTable(physical_device);
-                        assert(table != nullptr);
-
-                        // Get buffer_address properties
-                        VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-                        VkPhysicalDeviceBufferDeviceAddressFeatures supported_features{
-                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES
-                        };
-                        features2.pNext = &supported_features;
-                        if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
-                        {
-                            table->GetPhysicalDeviceFeatures2(physical_device, &features2);
-                        }
-                        else
-                        {
-                            table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
-                        }
-
-                        // Enable bufferDeviceAddressCaptureReplay if it is supported
-                        if (supported_features.bufferDeviceAddressCaptureReplay)
-                        {
-                            buffer_address_features->bufferDeviceAddressCaptureReplay = true;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_ERROR("VkPhysicalDeviceBufferDeviceAddressFeatures::"
-                                               "bufferDeviceAddressCaptureReplay is needed to replay captured device "
-                                               "addresses, but it is not supported by the replay device.");
-                        }
-                    }
-                }
-                break;
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
-                {
-                    GFXRECON_LOG_ERROR("Extension %s is not supported by GFXReconstruct.",
-                                       VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
-                }
-                break;
-                default:
-                    break;
-            }
-            current_struct = current_struct->pNext;
-        }
+        graphics::ModifiedPhysicalDeviceFeatures modified_features{};
+        graphics::EnableRequiredPhysicalDeviceFeatures(physical_device_info->parent_api_version,
+                                                       GetInstanceTable(physical_device),
+                                                       physical_device,
+                                                       &modified_create_info,
+                                                       modified_features);
 
         result = create_device_proc(
             physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
@@ -2596,6 +2548,9 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
         }
+
+        // Restore modified features to the original application values
+        graphics::RestoreModifiedPhysicalDeviceFeatures(modified_features);
     }
 
     return result;
