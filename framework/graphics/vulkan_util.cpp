@@ -72,12 +72,6 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                     {
                         buffer_address_features->bufferDeviceAddressCaptureReplay = true;
                     }
-                    else
-                    {
-                        GFXRECON_LOG_ERROR("VkPhysicalDeviceBufferDeviceAddressFeatures::"
-                                           "bufferDeviceAddressCaptureReplay should be enabled to capture and replay "
-                                           "device addresses, but it is not supported by the current device.");
-                    }
                 }
             }
             break;

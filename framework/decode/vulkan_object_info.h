@@ -246,6 +246,9 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+
+    // Feature state at device creation
+    VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

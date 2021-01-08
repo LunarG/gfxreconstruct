@@ -1309,14 +1309,26 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
     VkResult result = layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
 
-    if ((result == VK_SUCCESS) && ((capture_mode_ & kModeTrack) != kModeTrack))
+    if (result == VK_SUCCESS)
     {
         assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
-        // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
-        // here to ensure it is available.
-        auto wrapper             = reinterpret_cast<DeviceWrapper*>(*pDevice);
-        wrapper->physical_device = physical_device_wrapper;
+        auto wrapper = reinterpret_cast<DeviceWrapper*>(*pDevice);
+
+        // Track whether device address features were enabled in order to log errors if features are used but not
+        // enabled
+        if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
+        {
+            wrapper->feature_bufferDeviceAddressCaptureReplay =
+                (*modified_features.bufferDeviceAddressCaptureReplay_ptr);
+        }
+
+        if ((capture_mode_ & kModeTrack) != kModeTrack)
+        {
+            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here
+            // to ensure it is available.
+            wrapper->physical_device = physical_device_wrapper;
+        }
     }
 
     // Restore modified features to the original application values
@@ -1377,6 +1389,15 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
             info.pNext                               = nullptr;
             info.buffer                              = buffer_wrapper->handle;
             uint64_t address                         = 0;
+
+            // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
+            if (!device_wrapper->feature_bufferDeviceAddressCaptureReplay)
+            {
+                GFXRECON_LOG_ERROR_ONCE(
+                    "The application is using the bufferDeviceAddress feature, which requires the "
+                    "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The capture device does "
+                    "not support this feature, so replay of the captured file may fail.");
+            }
 
             if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
