@@ -95,7 +95,7 @@ def ParseArgs():
     # Common optional args
     # All arguments default to None, indicating they should be unset in the capture environment
     parser.add_argument('-w', '--working-dir', dest='workingDir', metavar='<dir>', help='Set CWD to this directory before running the program')
-    parser.add_argument('-o', '--capture-file', dest='captureFile', metavar='<captureFile>', help='Name of the capture file, default is gfxrecon_capture.gfxr')
+    parser.add_argument('-o', '--capture-file', dest='captureFile', metavar='<captureFile>', default='gfxrecon_capture.gfxr', help='Name of the capture file, default is gfxrecon_capture.gfxr')
     parser.add_argument('-f', '--capture-frames', dest='captureFrames', metavar='<captureFrames>', help='List of frames to capture, default is all frames')
     parser.add_argument('--no-file-timestamp', dest='fileTimestamp', action='store_const', const='false', help='Do not add a timestamp to the capture file name')
     parser.add_argument('--trigger', dest='trigger', choices=triggerKeyChoices, help='Specify a hotkey to start/stop capture')
@@ -122,7 +122,7 @@ def ParseArgs():
 # PrintArgs - for debugging
 def PrintArgs(args):
     print('working-dir', args.workingDir)
-    print('capture-file', args.captureFile)
+    print('capture-file', os.path.abspath(args.captureFile))
     print('capture-frames', args.captureFrames)
     print('no-file-timestamp', args.fileTimestamp)
     print('trigger', args.trigger)
@@ -171,6 +171,13 @@ def ValidateArgs(args):
         programName = os.path.join('.', programName)
         args.programAndArgs[0] = programName
 
+    # Verify captureFile directory exists and is a valid directory.
+    captureFileDir = os.path.dirname(os.path.abspath(args.captureFile))
+    if (not os.path.exists(captureFileDir)):
+        PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' does not exist')
+    if (not os.path.isdir(captureFileDir)):
+        PrintErrorAndExit('Capture file output directory ' + captureFileDir + ' is not a valid directory')
+
 
 ######################
 # Set env variables for capture layer
@@ -185,7 +192,7 @@ def SetEnvVars(args):
 
     # Set GFXRECON_* capture options
     # The capture layer will validate these options and generate errors as needed
-    SetEnvVar('GFXRECON_CAPTURE_FILE', args.captureFile)
+    SetEnvVar('GFXRECON_CAPTURE_FILE', os.path.abspath(args.captureFile))
     SetEnvVar('GFXRECON_CAPTURE_FRAMES', args.captureFrames)
     SetEnvVar('GFXRECON_CAPTURE_FILE_TIMESTAMP', args.fileTimestamp)
     SetEnvVar('GFXRECON_CAPTURE_TRIGGER', args.trigger)
