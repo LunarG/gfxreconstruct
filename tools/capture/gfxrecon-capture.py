@@ -26,6 +26,7 @@
 
 import argparse
 import os
+import shutil
 import sys
 import subprocess
 
@@ -136,6 +137,13 @@ def PrintArgs(args):
 
 
 ######################
+# Get the full path to the command to execute
+def GetCommandPath(args):
+    # Replace ~ or ~user with the user's home path before calling shutil.which()
+    programName=os.path.expanduser(args.programAndArgs[0])
+    return shutil.which(programName)
+
+######################
 # Do validation on arguments
 def ValidateArgs(args):
 
@@ -151,25 +159,8 @@ def ValidateArgs(args):
         PrintErrorAndExit('<program> must be specified')
 
     # Verify programName exists and is executable.
-    programName=args.programAndArgs[0]
-    if (os.path.isabs(programName)):
-        programNamePath=programName
-    else:
-        if args.workingDir is not None:
-            programNamePath = os.path.join(args.workingDir, programName)
-        else:
-            programNamePath=programName
-    if (not os.path.isfile(programNamePath)):
-        PrintErrorAndExit('Cannot find program ' + programNamePath + ' to execute')
-    if (not os.access(programNamePath, os.X_OK)):
-        PrintErrorAndExit('Program ' + programNamePath + ' does not have execute permission')
-
-    # Program name passed to subprocess.run() needs to be an absolute
-    # or relative path because subprocess.run() searches for cmd in
-    # PATH if the program name path is not absolute or relative
-    if not os.path.isabs(programName) and programName[0] != '.':
-        programName = os.path.join('.', programName)
-        args.programAndArgs[0] = programName
+    if GetCommandPath(args) is None:
+        PrintErrorAndExit('Cannot find program ' + programName + ' to execute')
 
     # Verify captureFile directory exists and is a valid directory.
     captureFileDir = os.path.dirname(os.path.abspath(args.captureFile))
@@ -252,5 +243,6 @@ if __name__ == '__main__':
         os.chdir(args.workingDir)
 
     # Run the program and and exit with the exit status of the program
+    print('Executing program', GetCommandPath(args))
     result = subprocess.run(args.programAndArgs)
     sys.exit(result.returncode)
