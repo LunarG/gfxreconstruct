@@ -2547,6 +2547,14 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+
+            // Track whether device address features were enabled in order to log errors if features are used but not
+            // enabled
+            if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
+            {
+                device_info->feature_bufferDeviceAddressCaptureReplay =
+                    (*modified_features.bufferDeviceAddressCaptureReplay_ptr);
+            }
         }
 
         // Restore modified features to the original application values
@@ -3837,6 +3845,14 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     if ((replay_create_info != nullptr) && ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
                                             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT))
     {
+        // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
+        if (!device_info->feature_bufferDeviceAddressCaptureReplay)
+        {
+            GFXRECON_LOG_ERROR_ONCE("The captured application used the bufferDeviceAddress feature, which requires the "
+                                    "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
+                                    "replay device does not support this feature, so replay may fail.");
+        }
+
         VkBufferCreateInfo modified_create_info = (*replay_create_info);
 
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {

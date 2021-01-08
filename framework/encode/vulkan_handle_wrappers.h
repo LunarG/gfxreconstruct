@@ -134,6 +134,9 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     DeviceTable                layer_table;
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
+
+    // Feature state at device creation
+    VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
