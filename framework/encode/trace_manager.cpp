@@ -139,6 +139,13 @@ bool TraceManager::CreateInstance()
         util::Log::Release();
         util::Log::Init(log_settings);
 
+        GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
+        GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_LOG_INFO("  Vulkan Header Version %u.%u.%u",
+                          VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
+                          VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                          VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
 
@@ -1204,8 +1211,21 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
 
     if ((result == VK_SUCCESS) && (pCreateInfo->pApplicationInfo != nullptr))
     {
+        auto api_version              = pCreateInfo->pApplicationInfo->apiVersion;
         auto instance_wrapper         = reinterpret_cast<InstanceWrapper*>(*pInstance);
-        instance_wrapper->api_version = pCreateInfo->pApplicationInfo->apiVersion;
+        instance_wrapper->api_version = api_version;
+
+        // Warn when enabled API version is newer than the supported API version.
+        if (api_version > VK_HEADER_VERSION_COMPLETE)
+        {
+            GFXRECON_LOG_WARNING(
+                "The application has specified that it uses Vulkan API version %u.%u.%u, which is newer than the "
+                "version supported by GFXReconstruct.  Use of unsupported Vulkan features may cause capture or replay "
+                "to fail.",
+                VK_VERSION_MAJOR(api_version),
+                VK_VERSION_MINOR(api_version),
+                VK_VERSION_PATCH(api_version));
+        }
     }
 
     return result;
