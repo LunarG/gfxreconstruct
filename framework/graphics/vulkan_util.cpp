@@ -27,6 +27,66 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+// Query for supported features from the given features struct type T, result is saved to feature_struct
+template <typename T>
+static void GetSupportedPhysicalDeviceFeatures(uint32_t                     instance_api_version,
+                                               const encode::InstanceTable* instance_table,
+                                               const VkPhysicalDevice       physical_device,
+                                               T*                           feature_struct)
+{
+    VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+    features2.pNext = feature_struct;
+    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    {
+        instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
+    }
+    else
+    {
+        instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
+    }
+}
+
+template <typename T>
+static void EnableRequiredBufferDeviceAddressFeatures(uint32_t                        instance_api_version,
+                                                      const encode::InstanceTable*    instance_table,
+                                                      const VkPhysicalDevice          physical_device,
+                                                      T*                              feature_struct,
+                                                      ModifiedPhysicalDeviceFeatures& modified_features)
+{
+    // Type must be feature struct type that contains bufferDeviceAddress and bufferDeviceAddressCaptureReplay
+    static_assert(std::is_same<T, VkPhysicalDeviceVulkan12Features>::value ||
+                      std::is_same<T, VkPhysicalDeviceBufferDeviceAddressFeatures>::value,
+                  "Unexpected type for EnableRequiredBufferDeviceAddressFeatures");
+
+    // Only one device address feature struct should be present, so bufferDeviceAddressCaptureReplay_ptr should not have
+    // been set yet
+    assert(modified_features.bufferDeviceAddressCaptureReplay_ptr == nullptr);
+    if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
+    {
+        return;
+    }
+
+    // Save original application's feature state
+    modified_features.bufferDeviceAddressCaptureReplay_original = feature_struct->bufferDeviceAddressCaptureReplay;
+    modified_features.bufferDeviceAddressCaptureReplay_ptr      = (&feature_struct->bufferDeviceAddressCaptureReplay);
+
+    // Enable the capture replay flag device addresses if bufferDeviceAddress is enabled and the capture replay feature
+    // is supported by the device
+    if (feature_struct->bufferDeviceAddress && !feature_struct->bufferDeviceAddressCaptureReplay)
+    {
+        // Get buffer_address properties
+        T supported_features{ feature_struct->sType };
+        GetSupportedPhysicalDeviceFeatures<T>(
+            instance_api_version, instance_table, physical_device, &supported_features);
+
+        // Enable bufferDeviceAddressCaptureReplay if it is supported
+        if (supported_features.bufferDeviceAddressCaptureReplay)
+        {
+            feature_struct->bufferDeviceAddressCaptureReplay = VK_TRUE;
+        }
+    }
+}
+
 void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instance_api_version,
                                           const encode::InstanceTable*    instance_table,
                                           const VkPhysicalDevice          physical_device,
@@ -39,40 +99,19 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
         switch (current_struct->sType)
         {
             // Enable bufferDeviceAddressCaptureReplay if bufferDeviceAddress feature is enabled
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
+            {
+                auto vulkan_1_2_features = reinterpret_cast<VkPhysicalDeviceVulkan12Features*>(current_struct);
+                EnableRequiredBufferDeviceAddressFeatures<VkPhysicalDeviceVulkan12Features>(
+                    instance_api_version, instance_table, physical_device, vulkan_1_2_features, modified_features);
+            }
+            break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
             {
-                VkPhysicalDeviceBufferDeviceAddressFeatures* buffer_address_features =
+                auto buffer_address_features =
                     reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
-
-                modified_features.bufferDeviceAddressCaptureReplay_ptr =
-                    (&buffer_address_features->bufferDeviceAddressCaptureReplay);
-                modified_features.bufferDeviceAddressCaptureReplay_original =
-                    buffer_address_features->bufferDeviceAddressCaptureReplay;
-
-                if (buffer_address_features->bufferDeviceAddress &&
-                    !buffer_address_features->bufferDeviceAddressCaptureReplay)
-                {
-                    // Get buffer_address properties
-                    VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-                    VkPhysicalDeviceBufferDeviceAddressFeatures supported_features{
-                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES
-                    };
-                    features2.pNext = &supported_features;
-                    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
-                    {
-                        instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
-                    }
-                    else
-                    {
-                        instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
-                    }
-
-                    // Enable bufferDeviceAddressCaptureReplay if it is supported
-                    if (supported_features.bufferDeviceAddressCaptureReplay)
-                    {
-                        buffer_address_features->bufferDeviceAddressCaptureReplay = true;
-                    }
-                }
+                EnableRequiredBufferDeviceAddressFeatures<VkPhysicalDeviceBufferDeviceAddressFeatures>(
+                    instance_api_version, instance_table, physical_device, buffer_address_features, modified_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
@@ -84,7 +123,7 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 // Enable accelerationStructureCaptureReplay
-                VkPhysicalDeviceAccelerationStructureFeaturesKHR* accel_struct_features =
+                auto accel_struct_features =
                     reinterpret_cast<VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(current_struct);
 
                 modified_features.accelerationStructureCaptureReplay_ptr =
@@ -95,24 +134,16 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                 if (!accel_struct_features->accelerationStructureCaptureReplay)
                 {
                     // Get acceleration struct properties
-                    VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
                     VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR
                     };
-                    features2.pNext = &supported_features;
-                    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
-                    {
-                        instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
-                    }
-                    else
-                    {
-                        instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
-                    }
+                    GetSupportedPhysicalDeviceFeatures<VkPhysicalDeviceAccelerationStructureFeaturesKHR>(
+                        instance_api_version, instance_table, physical_device, &supported_features);
 
                     // Enable accelerationStructureCaptureReplay if it is supported
                     if (supported_features.accelerationStructureCaptureReplay)
                     {
-                        accel_struct_features->accelerationStructureCaptureReplay = true;
+                        accel_struct_features->accelerationStructureCaptureReplay = VK_TRUE;
                     }
                 }
             }
