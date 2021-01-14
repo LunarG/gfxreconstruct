@@ -210,11 +210,11 @@ class DX12BaseGenerator(BaseGenerator):
             isConst=const)
 
     # Method override
-    def genType(self):
-        self.genStruct()
+    def genType(self, typeinfo, name, alias):
+        self.genStruct(None, None, None)
 
     # Method override
-    def genStruct(self):
+    def genStruct(self, typeinfo, typename, alias):
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for k2, v2 in v.classes.items():

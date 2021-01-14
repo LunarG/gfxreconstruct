@@ -20,41 +20,17 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import argparse
-import pdb
 import sys
-import time
 import threading
-from dx12_reg import DX12Registry
-from generator import write
 
 
 # API Call Encoders
 from dx12_base_generator\
-    import DX12GeneratorOptions
-
+    import DX12GeneratorOptions, write
 from dx12_api_call_encoders_header_generator\
     import DX12ApiCallEncodersHeaderGenerator
-
 from dx12_api_call_encoders_body_generator\
     import DX12ApiCallEncodersBodyGenerator
-
-# Simple timer functions
-start_time = None
-
-
-def start_timer(timeit):
-    global start_time
-    if timeit:
-        start_time = time.process_time()
-
-
-def end_timer(timeit, msg):
-    global start_time
-    if timeit:
-        end_time = time.process_time()
-        write(msg, end_time - start_time, file=sys.stderr)
-        start_time = None
 
 
 # Returns a directory of [ generator function, generator options ] indexed
@@ -130,10 +106,6 @@ def make_gen_opts(args):
     ]
 
 
-err_warn = None
-diag = None
-
-
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
 # The args parameter is an parsed argument object containing the following
@@ -151,33 +123,6 @@ def gen_target(args, source_dict):
         create_generator = gen_opts[args.target][0]
         options = gen_opts[args.target][1]
 
-        if not args.quiet:
-            write('* Building', options.filename, file=sys.stderr)
-            write(
-                '* options.versions          =',
-                options.versions,
-                file=sys.stderr)
-            write(
-                '* options.emitversions      =',
-                options.emitversions,
-                file=sys.stderr)
-            write(
-                '* options.defaultExtensions =',
-                options.defaultExtensions,
-                file=sys.stderr)
-            write(
-                '* options.addExtensions     =',
-                options.addExtensions,
-                file=sys.stderr)
-            write(
-                '* options.removeExtensions  =',
-                options.removeExtensions,
-                file=sys.stderr)
-            write(
-                '* options.emitExtensions    =',
-                options.emitExtensions,
-                file=sys.stderr)
-
         # Text specific to dx12 headers
         dx12_prefix_strings = ("/*\n"
                                "** This part is generated from {} in Windows SDK: {}\n"  # noqa
@@ -187,9 +132,7 @@ def gen_target(args, source_dict):
         gen = create_generator(
             source_dict,
             dx12_prefix_strings,
-            errFile=err_warn,
-            warnFile=err_warn,
-            diagFile=diag)
+            diagFile=None)
 
         return (gen, options)
     else:
@@ -210,133 +153,12 @@ class GenCode (threading.Thread):
         self.directory = directory
         self.configs = configs
 
-    # -feature name
-    # -extension name
-    # For both, "name" may be a single name, or a space-separated list
-    # of names, or a regular expression.
     def run(self):
-        parser_info = argparse.ArgumentParser()
+        (gen, options) = gen_target(self, self.source_dict)
 
-        parser_info.add_argument(
-            '-debug',
-            action='store_true',
-            help='Enable debugging')
-        parser_info.add_argument(
-            '-dump',
-            action='store_true',
-            help='Enable dump to stderr')
-        parser_info.add_argument(
-            '-diagfile',
-            action='store',
-            default=None,
-            help='Write diagnostics to specified file')
-        parser_info.add_argument(
-            '-errfile',
-            action='store',
-            default=None,
-            help='Write errors and warnings to specified file instead of stderr')  # noqa
-        parser_info.add_argument(
-            '-noprotect',
-            dest='protect',
-            action='store_false',
-            help='Disable inclusion protection in output headers')
-        parser_info.add_argument(
-            '-profile',
-            action='store_true',
-            help='Enable profiling')
-        parser_info.add_argument(
-            '-windows_sdk_version',
-            action='store',
-            help='WindowsSDK Version')
-        parser_info.add_argument(
-            '-source_dir',
-            action='store',
-            help='DX12 header fold path')
-        parser_info.add_argument(
-            '-source_list',
-            action='store',
-            help='DX12 header file name')
-        parser_info.add_argument(
-            '-time',
-            action='store_true',
-            help='Enable timing')
-        parser_info.add_argument(
-            '-validate',
-            action='store_true',
-            help='Enable group validation')
-        parser_info.add_argument(
-            '-o',
-            action='store',
-            dest='directory',
-            default='.',
-            help='Create target and related files in specified directory')
-        parser_info.add_argument(
-            'target',
-            metavar='target',
-            nargs='?',
-            help='Specify target')
-        parser_info.add_argument(
-            '-quiet',
-            action='store_true',
-            default=True,
-            help='Suppress script output during normal execution.')
-        parser_info.add_argument(
-            '-verbose',
-            action='store_false',
-            dest='quiet',
-            default=True,
-            help='Enable script output during normal execution.')
-        parser_info.add_argument(
-            '-configs',
-            action='store',
-            dest='configs',
-            default='.',
-            help='Specify directory containing JSON configuration files for generators')  # noqa
-
-        args = parser_info.parse_args()
-        args.target = self.target
-        args.windows_sdk_version = self.windows_sdk_version
-        args.directory = self.directory
-        args.configs = self.configs
-
-        global err_warn, diag
-        # create error/warning & diagnostic files
-        if (args.errfile):
-            err_warn = open(args.errfile, 'w', encoding='utf-8')
-        else:
-            err_warn = sys.stderr
-
-        if (args.diagfile):
-            diag = open(args.diagfile, 'w', encoding='utf-8')
-        else:
-            diag = None
-
-        (gen, options) = gen_target(args, self.source_dict)
-
-        # TODO: Remove Registry in the future
-        reg = DX12Registry(gen, options)
-
-        start_timer(args.time)
-
-        end_timer(args.time, '* Time to make ElementTree =')
-
-        if (args.validate):
-            reg.validateGroups()
-
-        if (args.dump):
-            write('* Dumping registry to regdump.txt', file=sys.stderr)
-            reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
-
-        if (args.debug):
-            pdb.run('reg.apiGen()')
-        else:
-            start_timer(args.time)
-            reg.apiGen()
-            end_timer(
-                args.time,
-                '* Time to generate ' +
-                options.filename +
-                ' =')
-
-        if not args.quiet:
-            write('* Generated', options.filename, file=sys.stderr)
+        gen.beginFile(options)
+        gen.beginFeature({}, False)
+        gen.genType(None, None, None)
+        gen.generateFeature()
+        gen.endFeature()
+        gen.endFile()
