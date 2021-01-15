@@ -2548,8 +2548,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
 
-            // Track whether device address features were enabled in order to log errors if features are used but not
-            // enabled
+            // Track whether device address features were enabled
             if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
             {
                 device_info->feature_bufferDeviceAddressCaptureReplay =
@@ -3467,12 +3466,15 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
                     VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
                 {
-                    uses_address = true;
-                    alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-                    auto opaque_address_pair = device_info->opaque_addresses.find(capture_id);
-                    if (opaque_address_pair != device_info->opaque_addresses.end())
+                    if (device_info->feature_bufferDeviceAddressCaptureReplay)
                     {
-                        opaque_address = opaque_address_pair->second;
+                        uses_address = true;
+                        alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+                        auto opaque_address_pair = device_info->opaque_addresses.find(capture_id);
+                        if (opaque_address_pair != device_info->opaque_addresses.end())
+                        {
+                            opaque_address = opaque_address_pair->second;
+                        }
                     }
                 }
                 break;
@@ -3908,16 +3910,20 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
         address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
+
+    if (uses_address && !device_info->feature_bufferDeviceAddressCaptureReplay)
+    {
+        // Don't enable and query opaque addresses if the feature was not enabled
+        uses_address = false;
+
+        // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
+        GFXRECON_LOG_ERROR_ONCE("The captured application used the bufferDeviceAddress feature, which requires the "
+                                "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
+                                "replay device does not support this feature, so replay may fail.");
+    }
+
     if (uses_address)
     {
-        // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
-        if (!device_info->feature_bufferDeviceAddressCaptureReplay)
-        {
-            GFXRECON_LOG_ERROR_ONCE("The captured application used the bufferDeviceAddress feature, which requires the "
-                                    "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
-                                    "replay device does not support this feature, so replay may fail.");
-        }
-
         VkBufferCreateInfo modified_create_info = (*replay_create_info);
 
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {
@@ -5454,31 +5460,36 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto     device_table        = GetDeviceTable(device);
     assert(device_table != nullptr);
 
-    // Log error if accelerationStructureCaptureReplay feature was not enabled
-    if (!device_info->feature_accelerationStructureCaptureReplay)
+    if (device_info->feature_accelerationStructureCaptureReplay)
     {
-        GFXRECON_LOG_ERROR_ONCE("The captured application used the accelerationStructure feature, which requires the "
-                                "accelerationStructureCaptureReplay feature for accurate capture and replay. The "
-                                "replay device does not support this feature, so replay may fail.");
-    }
+        // Set opaque device address
+        VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);
+        modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
+        auto entry = device_info->opaque_addresses.find(capture_id);
+        if (entry != device_info->opaque_addresses.end())
+        {
+            modified_create_info.deviceAddress = entry->second;
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG(
+                "Opaque device address is not available for VkAccelerationStructureKHR object (ID = %" PRIu64 ")",
+                capture_id);
+        }
 
-    // Set opaque device address
-    VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);
-    modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
-    auto entry = device_info->opaque_addresses.find(capture_id);
-    if (entry != device_info->opaque_addresses.end())
-    {
-        modified_create_info.deviceAddress = entry->second;
+        result = device_table->CreateAccelerationStructureKHR(
+            device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
     else
     {
-        GFXRECON_LOG_DEBUG("Opaque device address is not available for VkAccelerationStructureKHR object (ID = %" PRIu64
-                           ")",
-                           capture_id);
-    }
+        // Log error if accelerationStructureCaptureReplay feature was not enabled
+        GFXRECON_LOG_ERROR_ONCE("The captured application used the accelerationStructure feature, which requires the "
+                                "accelerationStructureCaptureReplay feature for accurate capture and replay. The "
+                                "replay device does not support this feature, so replay may fail.");
 
-    result = device_table->CreateAccelerationStructureKHR(
-        device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+        result = device_table->CreateAccelerationStructureKHR(
+            device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+    }
 
     return result;
 }
