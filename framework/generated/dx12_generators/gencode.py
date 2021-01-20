@@ -39,6 +39,8 @@ from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenera
 from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator
 from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
 from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator
+from dx12_wrapper_header_generator import Dx12WrapperHeaderGenerator
+from dx12_wrapper_body_generator import Dx12WrapperBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -260,6 +262,35 @@ def make_gen_opts(args):
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    # Wrapper generators
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_wrapper_header_generator.py'
+    )
+    gen_opts['generated_dx12_wrappers.h'] = [
+        Dx12WrapperHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_wrappers.h',
+            directory=directory,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_wrapper_body_generator.py'
+    )
+    gen_opts['generated_dx12_wrappers.cpp'] = [
+        Dx12WrapperBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_wrappers.cpp',
+            directory=directory,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
