@@ -1471,28 +1471,30 @@ VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice          
             "support this feature, so replay of the captured file may fail.");
     }
 
-    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, HandleWrapper<VkAccelerationStructureKHR>>(
-        device, NoParentWrapper::kHandleValue, pAccelerationStructureKHR, TraceManager::GetUniqueId);
-
-    if (device_wrapper->feature_accelerationStructureCaptureReplay && (result == VK_SUCCESS) &&
-        (pAccelerationStructureKHR != nullptr))
+    if ((result == VK_SUCCESS) && (pAccelerationStructureKHR != nullptr))
     {
-        AccelerationStructureKHRWrapper* accel_struct_wrapper =
-            reinterpret_cast<AccelerationStructureKHRWrapper*>(*pAccelerationStructureKHR);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(
+            device, NoParentWrapper::kHandleValue, pAccelerationStructureKHR, TraceManager::GetUniqueId);
 
-        VkAccelerationStructureDeviceAddressInfoKHR address_info{
-            VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR, nullptr, accel_struct_wrapper->handle
-        };
-
-        // save address to use as pCreateInfo->deviceAddress during replay
-        VkDeviceAddress address =
-            device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
-
-        WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
-
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        if (device_wrapper->feature_accelerationStructureCaptureReplay)
         {
-            state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
+            AccelerationStructureKHRWrapper* accel_struct_wrapper =
+                reinterpret_cast<AccelerationStructureKHRWrapper*>(*pAccelerationStructureKHR);
+
+            VkAccelerationStructureDeviceAddressInfoKHR address_info{
+                VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR, nullptr, accel_struct_wrapper->handle
+            };
+
+            // save address to use as pCreateInfo->deviceAddress during replay
+            VkDeviceAddress address =
+                device_table->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, &address_info);
+
+            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, accel_struct_wrapper->handle_id, address);
+
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                state_tracker_->TrackAccelerationStructureKHRDeviceAddress(device, *pAccelerationStructureKHR, address);
+            }
         }
     }
 
