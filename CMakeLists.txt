@@ -177,7 +177,7 @@ target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINM
 $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(linux_specific INTERFACE)
-target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
@@ -202,6 +202,10 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(platform_specific INTERFACE linuxs_specific)
+endif()
+
+if(NOT APPLE)
+    target_compile_definitions(platform_specific INTERFACE PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
 endif()
 
 if(BUILD_WERROR)
