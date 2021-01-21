@@ -225,7 +225,13 @@ inline pid_t GetCurrentProcessId()
 
 inline uint64_t GetCurrentThreadId()
 {
+#ifdef __APPLE__
+    uint64_t tid;
+    pthread_threadid_np(NULL, &tid);
+    return tid;
+#else
     return static_cast<uint64_t>(syscall(SYS_gettid));
+#endif
 }
 
 inline void TriggerDebugBreak()
@@ -381,7 +387,7 @@ inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
-#if defined(__ANDROID__) && (__ANDROID_API__ < 28)
+#if defined(__APPLE__) || (defined(__ANDROID__) && (__ANDROID_API__ < 28))
     return fwrite(buffer, element_size, element_count, stream);
 #else
     return fwrite_unlocked(buffer, element_size, element_count, stream);
@@ -390,7 +396,7 @@ inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t el
 
 inline size_t FileReadNoLock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
-#if defined(__ANDROID__) && (__ANDROID_API__ < 28)
+#if defined(__APPLE__) || (defined(__ANDROID__) && (__ANDROID_API__ < 28))
     return fread(buffer, element_size, element_count, stream);
 #else
     return fread_unlocked(buffer, element_size, element_count, stream);
