@@ -776,7 +776,8 @@ inline void InitializePoolObjectState(VkDevice                           parent_
                 // TODO
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                // TODO
+                descriptor_info.acceleration_structures =
+                    std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");

@@ -23,6 +23,7 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
+#include "graphics/vulkan_util.h"
 
 #include <algorithm>
 
@@ -542,8 +543,27 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         // TODO
                         break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                        // TODO
-                        break;
+                    {
+                        VkWriteDescriptorSetAccelerationStructureKHR* write_accel_struct =
+                            graphics::GetPNextStruct<VkWriteDescriptorSetAccelerationStructureKHR>(
+                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR);
+
+                        if (write_accel_struct != nullptr)
+                        {
+                            format::HandleId* dst_accel_struct_ids = &binding.handle_ids[current_dst_array_element];
+                            VkAccelerationStructureKHR* dst_accel_struct =
+                                &binding.acceleration_structures[current_dst_array_element];
+                            const VkAccelerationStructureKHR* src_accel_struct =
+                                &write_accel_struct->pAccelerationStructures[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                dst_accel_struct_ids[i] = GetWrappedId(src_accel_struct[i]);
+                                dst_accel_struct[i]     = src_accel_struct[i];
+                            }
+                        }
+                    }
+                    break;
                     default:
                         GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
                         break;
@@ -616,6 +636,12 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     memcpy(&dst_binding.buffers[current_dst_array_element],
                            &src_binding.buffers[current_src_array_element],
                            (sizeof(VkDescriptorBufferInfo) * current_copies));
+                }
+                else if (src_binding.acceleration_structures != nullptr)
+                {
+                    memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
+                           &src_binding.acceleration_structures[current_src_array_element],
+                           (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
                 }
                 else
                 {
