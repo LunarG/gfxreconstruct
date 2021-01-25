@@ -380,8 +380,6 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
-
-    // TODO: Determine what additional state tracking is needed.
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

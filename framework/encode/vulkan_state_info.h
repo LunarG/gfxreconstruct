@@ -63,14 +63,15 @@ struct DescriptorBindingInfo
 
 struct DescriptorInfo
 {
-    VkDescriptorType                          type;
-    uint32_t                                  count{ 0 };
-    std::unique_ptr<bool[]>                   written;
-    std::unique_ptr<format::HandleId[]>       handle_ids;  // Image, buffer, or buffer view IDs depending on type.
-    std::unique_ptr<format::HandleId[]>       sampler_ids; // Sampler IDs for image type.
-    std::unique_ptr<VkDescriptorImageInfo[]>  images;
-    std::unique_ptr<VkDescriptorBufferInfo[]> buffers;
-    std::unique_ptr<VkBufferView[]>           texel_buffer_views;
+    VkDescriptorType                              type;
+    uint32_t                                      count{ 0 };
+    std::unique_ptr<bool[]>                       written;
+    std::unique_ptr<format::HandleId[]>           handle_ids;  // Image, buffer, or buffer view IDs depending on type.
+    std::unique_ptr<format::HandleId[]>           sampler_ids; // Sampler IDs for image type.
+    std::unique_ptr<VkDescriptorImageInfo[]>      images;
+    std::unique_ptr<VkDescriptorBufferInfo[]>     buffers;
+    std::unique_ptr<VkBufferView[]>               texel_buffer_views;
+    std::unique_ptr<VkAccelerationStructureKHR[]> acceleration_structures;
 };
 
 struct CreateDependencyInfo

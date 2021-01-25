@@ -2162,6 +2162,10 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
 
     const VkCopyDescriptorSet* copy = nullptr;
 
+    // write_accel_struct may be used in the pNext chain of the VkWriteDescriptorSet and needs to stay in scope until
+    // after VkWriteDescriptorSet is encoded.
+    VkWriteDescriptorSetAccelerationStructureKHR write_accel_struct;
+
     switch (binding->type)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -2172,6 +2176,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = &binding->images[write->dstArrayElement];
             write->pTexelBufferView = nullptr;
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
@@ -2180,12 +2185,14 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             write->pBufferInfo      = &binding->buffers[write->dstArrayElement];
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = nullptr;
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
+            write->pNext            = nullptr;
             break;
         case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
             // TODO
@@ -2194,8 +2201,18 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
             // TODO
             break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-            // TODO
-            break;
+        {
+            write_accel_struct.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+            write_accel_struct.pNext = nullptr;
+            write_accel_struct.accelerationStructureCount = write->descriptorCount;
+            write_accel_struct.pAccelerationStructures    = &binding->acceleration_structures[write->dstArrayElement];
+
+            write->pBufferInfo      = nullptr;
+            write->pImageInfo       = nullptr;
+            write->pTexelBufferView = nullptr;
+            write->pNext            = &write_accel_struct;
+        }
+        break;
         default:
             GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
             break;
@@ -2283,6 +2300,14 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
         else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV)
         {
             // TODO
+            GFXRECON_LOG_ERROR("Use of VkQueryType::VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV is not "
+                               "currently supported when trimming is enabled.");
+        }
+        else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR)
+        {
+            // TODO
+            GFXRECON_LOG_ERROR("Use of VkQueryType::VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR is not "
+                               "currently supported when trimming is enabled.");
         }
         else
         {
@@ -3539,8 +3564,10 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 GFXRECON_LOG_WARNING("Descriptor type acceleration structure NV is not currently supported");
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                // TODO
-                GFXRECON_LOG_WARNING("Descriptor type acceleration structure KHR is not currently supported");
+                if (state_table.GetAccelerationStructureKHRWrapper(descriptor->handle_ids[index]) != nullptr)
+                {
+                    valid = true;
+                }
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");
