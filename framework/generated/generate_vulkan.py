@@ -31,6 +31,8 @@ registry_path = '../../external/Vulkan-Headers/registry'
 # Relative path to vulkan code generators for trace encode/decode.
 generator_path = './vulkan_generators'
 
+base_generator_path = './base_generators'
+
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_encode_pnext_struct.cpp',
@@ -66,6 +68,11 @@ if __name__ == '__main__':
     current_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     generator_dir = os.path.normpath(os.path.join(current_dir, generator_path))
     registry_dir = os.path.normpath(os.path.join(current_dir, registry_path))
+
+    base_generator_dir = os.path.normpath(
+        os.path.join(current_dir, base_generator_path))
+
+    sys.path.append(base_generator_dir)
 
     sys.path.append(generator_dir)
     sys.path.append(registry_dir)

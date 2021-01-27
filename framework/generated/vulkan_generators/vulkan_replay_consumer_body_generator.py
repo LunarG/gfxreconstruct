@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import os,re,sys,json
-from base_generator import *
+from base_replay_consumer_body_generator import *
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay"""
@@ -43,7 +43,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
 # VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanReplayConsumer class responsible for
 # replaying decoded Vulkan API call parameter data.
-class VulkanReplayConsumerBodyGenerator(BaseGenerator):
+class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGenerator):
     """Generate a C++ class for Vulkan capture file replay"""
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
@@ -116,24 +116,6 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         if self.featureCmdParams:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    def generateFeature(self):
-        first = True
-        for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
-            values = info[2]
-
-            cmddef = '' if first else '\n'
-            cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanReplayConsumer::Process_' + cmd, values) + '\n'
-            cmddef += '{\n'
-            cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
-            cmddef += '}'
-
-            write(cmddef, file=self.outFile)
-            first = False
 
     #
     # Check for dispatchable handle types associated with the instance dispatch table.
