@@ -860,6 +860,55 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 }
             }
         }
+
+        for (const auto& entry : template_info->acceleration_structure_khr)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[current_binding];
+
+                assert(binding.acceleration_structures != nullptr);
+
+                // Check count for consecutive updates.
+                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_writes, true);
+
+                format::HandleId*           dst_view_ids = &binding.handle_ids[current_array_element];
+                VkAccelerationStructureKHR* dst_info     = &binding.acceleration_structures[current_array_element];
+                const uint8_t*              src_address  = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
+                {
+                    auto accel_struct = reinterpret_cast<const VkAccelerationStructureKHR*>(src_address);
+                    dst_view_ids[i]   = GetWrappedId(*accel_struct);
+                    dst_info[i]       = *accel_struct;
+
+                    src_address += entry.stride;
+                }
+
+                // Check for consecutive update.
+                if (current_count == current_writes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_writes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
     }
 }
 
