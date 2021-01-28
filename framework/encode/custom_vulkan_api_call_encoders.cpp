@@ -91,6 +91,19 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
+        // Process VkAccelerationStructureKHR
+        for (const auto& entry_info : info->acceleration_structure_khr)
+        {
+            for (size_t i = 0; i < entry_info.count; ++i)
+            {
+                size_t offset          = entry_info.offset + (entry_info.stride * i);
+                auto   unwrapped_entry = reinterpret_cast<VkAccelerationStructureKHR*>(unwrapped_data + offset);
+                auto   entry           = reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
+
+                *unwrapped_entry = GetWrappedHandle<VkAccelerationStructureKHR>(*entry);
+            }
+        }
+
         return unwrapped_data;
     }
 
@@ -110,12 +123,13 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
         encoder->EncodeStructPtrPreamble(data);
 
         // The update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
-        // VkDescriptorBufferInfo, and VkBufferView types.  There will be one array per descriptor update entry.  We
-        // will write the total number of entries of each type before we write the entries, so that the decoder will
-        // know up front how much memory it needs to allocate for decoding.
+        // VkDescriptorBufferInfo, VkBufferView, and VkAccelerationStructureKHR types.  There will be one array per
+        // descriptor update entry.  We will write the total number of entries of each type before we write the entries,
+        // so that the decoder will know up front how much memory it needs to allocate for decoding.
         encoder->EncodeSizeTValue(info->image_info_count);
         encoder->EncodeSizeTValue(info->buffer_info_count);
         encoder->EncodeSizeTValue(info->texel_buffer_view_count);
+        encoder->EncodeSizeTValue(info->acceleration_structure_khr_count);
 
         // Write the individual template update entries, sorted by type, as tightly packed arrays.
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
@@ -148,6 +162,18 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
+                encoder->EncodeHandleValue(*entry);
+            }
+        }
+
+        // Process VkAccelerationStructureKHR
+        for (const auto& entry_info : info->acceleration_structure_khr)
+        {
+            for (size_t i = 0; i < entry_info.count; ++i)
+            {
+                size_t                            offset = entry_info.offset + (entry_info.stride * i);
+                const VkAccelerationStructureKHR* entry =
+                    reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
                 encoder->EncodeHandleValue(*entry);
             }
         }

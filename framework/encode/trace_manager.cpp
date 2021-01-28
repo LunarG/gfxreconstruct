@@ -1113,6 +1113,21 @@ void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate   
 
                 entry_size = sizeof(VkBufferView);
             }
+            else if (type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+            {
+                UpdateTemplateEntryInfo accel_struct_info;
+                accel_struct_info.binding       = entry->dstBinding;
+                accel_struct_info.array_element = entry->dstArrayElement;
+                accel_struct_info.count         = entry->descriptorCount;
+                accel_struct_info.offset        = entry->offset;
+                accel_struct_info.stride        = entry->stride;
+                accel_struct_info.type          = type;
+
+                info->acceleration_structure_khr_count += entry->descriptorCount;
+                info->acceleration_structure_khr.emplace_back(accel_struct_info);
+
+                entry_size = sizeof(VkAccelerationStructureKHR);
+            }
             else
             {
                 GFXRECON_LOG_ERROR("Unrecognized/unsupported descriptor type in descriptor update template.");

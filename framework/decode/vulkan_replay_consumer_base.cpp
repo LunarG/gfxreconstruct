@@ -4143,9 +4143,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
             (override_create_info.pDescriptorUpdateEntries + override_create_info.descriptorUpdateEntryCount));
 
         // Count the number of values of each type.
-        size_t image_info_count        = 0;
-        size_t buffer_info_count       = 0;
-        size_t texel_buffer_view_count = 0;
+        size_t image_info_count             = 0;
+        size_t buffer_info_count            = 0;
+        size_t texel_buffer_view_count      = 0;
+        size_t acceleration_structure_count = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -4168,6 +4169,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
             {
                 texel_buffer_view_count += entry->descriptorCount;
             }
+            else if (type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+            {
+                acceleration_structure_count += entry->descriptorCount;
+            }
             else
             {
                 assert(false);
@@ -4178,6 +4183,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t image_info_offset        = 0;
         size_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
         size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
+        size_t accel_struct_offset      = texel_buffer_view_offset + (texel_buffer_view_count * sizeof(VkBufferView));
 
         // Track descriptor image type.
         std::vector<VkDescriptorType> image_types;
@@ -4210,6 +4216,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
                 entry->stride = sizeof(VkBufferView);
                 entry->offset = texel_buffer_view_offset;
                 texel_buffer_view_offset += entry->descriptorCount * sizeof(VkBufferView);
+            }
+            else if (type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+            {
+                entry->stride = sizeof(VkAccelerationStructureKHR);
+                entry->offset = accel_struct_offset;
+                accel_struct_offset += entry->descriptorCount * sizeof(VkAccelerationStructureKHR);
             }
             else
             {
@@ -5505,6 +5517,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
     size_t image_info_count        = decoder->GetImageInfoCount();
     size_t buffer_info_count       = decoder->GetBufferInfoCount();
     size_t texel_buffer_view_count = decoder->GetTexelBufferViewCount();
+    size_t accel_struct_count      = decoder->GetAccelerationStructureKHRCount();
 
     if (image_info_count > 0)
     {
@@ -5552,6 +5565,26 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
             else
             {
                 texel_buffer_view_handles[i] = VK_NULL_HANDLE;
+            }
+        }
+    }
+
+    if (accel_struct_count > 0)
+    {
+        auto accel_struct_ids     = decoder->GetAccelerationStructureKHRHandleIdsPointer();
+        auto accel_struct_handles = decoder->GetAccelerationStructureKHRPointer();
+
+        for (size_t i = 0; i < accel_struct_count; ++i)
+        {
+            auto accel_struct_info = object_info_table_.GetAccelerationStructureKHRInfo(accel_struct_ids[i]);
+
+            if (accel_struct_info != nullptr)
+            {
+                accel_struct_handles[i] = accel_struct_info->handle;
+            }
+            else
+            {
+                accel_struct_handles[i] = VK_NULL_HANDLE;
             }
         }
     }
