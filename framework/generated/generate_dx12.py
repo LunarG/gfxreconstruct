@@ -46,6 +46,8 @@ GENERATE_TARGETS = [
     'generated_dx12_ascii_consumer.cpp',
     'generated_dx12_wrappers.h',
     'generated_dx12_wrappers.cpp',
+    'generated_dx12_wrapper_creators.h',
+    'generated_dx12_wrapper_creators.cpp',
 ]
 
 DX12_SOURCE_LIST = [
