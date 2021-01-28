@@ -9276,54 +9276,6 @@ size_t VulkanDecoder::Decode_vkCmdBuildAccelerationStructuresIndirectKHR(const u
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkBuildAccelerationStructuresKHR(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId deferredOperation;
-    uint32_t infoCount;
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR> pInfos;
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*> ppBuildRangeInfos;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &deferredOperation);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &infoCount);
-    bytes_read += pInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppBuildRangeInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkBuildAccelerationStructuresKHR(return_value, device, deferredOperation, infoCount, &pInfos, &ppBuildRangeInfos);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkCopyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId deferredOperation;
-    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfo;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &deferredOperation);
-    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCopyAccelerationStructureKHR(return_value, device, deferredOperation, &pInfo);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkCopyAccelerationStructureToMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -10961,12 +10913,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR:
         Decode_vkCmdBuildAccelerationStructuresIndirectKHR(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR:
-        Decode_vkBuildAccelerationStructuresKHR(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR:
-        Decode_vkCopyAccelerationStructureKHR(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR:
         Decode_vkCopyAccelerationStructureToMemoryKHR(parameter_buffer, buffer_size);

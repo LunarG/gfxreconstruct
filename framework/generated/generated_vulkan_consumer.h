@@ -2570,20 +2570,6 @@ class VulkanConsumer : public VulkanConsumerBase
         PointerDecoder<uint32_t>*                   pIndirectStrides,
         PointerDecoder<uint32_t*>*                  ppMaxPrimitiveCounts) {}
 
-    virtual void Process_vkBuildAccelerationStructuresKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        uint32_t                                    infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos) {}
-
-    virtual void Process_vkCopyAccelerationStructureKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) {}
-
     virtual void Process_vkCopyAccelerationStructureToMemoryKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,

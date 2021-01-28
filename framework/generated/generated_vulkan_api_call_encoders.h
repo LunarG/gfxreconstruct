@@ -2361,18 +2361,6 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
     const uint32_t*                             pIndirectStrides,
     const uint32_t* const*                      ppMaxPrimitiveCounts);
 
-VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(
-    VkDevice                                    device,
-    VkDeferredOperationKHR                      deferredOperation,
-    uint32_t                                    infoCount,
-    const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
-    const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos);
-
-VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(
-    VkDevice                                    device,
-    VkDeferredOperationKHR                      deferredOperation,
-    const VkCopyAccelerationStructureInfoKHR*   pInfo);
-
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      deferredOperation,
