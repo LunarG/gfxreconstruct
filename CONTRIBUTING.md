@@ -7,7 +7,7 @@ Guidelines for contributing to the GFXReconstruct project.
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2018-2020 LunarG, Inc.
+Copyright &copy; 2018-2021 LunarG, Inc.
 
 ## **Index**
 
@@ -15,7 +15,8 @@ Copyright &copy; 2018-2020 LunarG, Inc.
 2. [Submitting Changes](#submitting-changes)
     1. [Coding Conventions and Formatting](#coding-conventions-and-formatting)
     2. [Verifying Changes with the Build Script](#verifying-changes-with-the-build-script)
-    3. [Testing Your Changes](#testing-your-changes)
+    3. [Python code style](#python-code-style)
+    4. [Testing Your Changes](#testing-your-changes)
 3. [Contributor License Agreement](#contributor-license-agreement-cla)
 4. [License and Copyrights](#license-and-copyrights)
 5. [Platform-specific ClangFormat Installation](#platform-specific-clangformat-installation)
@@ -57,17 +58,17 @@ GitHub Issues and Pull Requests.
 
 ### **Coding Conventions and Formatting**
 
-- Changes to the GFXReconstruct project should conform to the coding style
-  defined by the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
-- Code formatting is managed with a custom ClangFormat configuration file.
+- Changes to the GFXReconstruct project's C++ code should conform to the coding
+  style defined by the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
+- C++ Code formatting is managed with a custom ClangFormat configuration file.
   This is the `.clang-format` file found at the base of the repo tree.
   It is intended for use with **ClangFormat version 9.0.1**.
   - ClangFormat version 9.0.1 can be obtained by installing the LLVM 9.0.1
     package available from the [LLVM Download Page](https://releases.llvm.org/download.html),
     or [see below](#platform-specific-clangformat-installation) for
     platform-specific installation notes.
-- Formatting can be applied to pending changes with the `clang-format` or
-  `git clang-format` commands.
+- C++ code formatting can be applied to pending changes with the `clang-format`
+  or `git clang-format` commands.
   - A sample git workflow may look like:
 
 ```bash
@@ -112,6 +113,21 @@ ClangFormat style.
 The build script also has an option to apply `clang-format` to project files
 before build.  Run the script with the `-h` option for additional usage
 information.
+
+### **Python code style**
+
+- Changes to the GFXReconstruct project's Python code should conform to the
+  coding style defined by [PEP 8](https://www.python.org/dev/peps/pep-0008/)
+  - Python code formatting may be verified with tools like the following:
+    - [pycodestyle](https://pypi.org/project/pycodestyle/) (Doesn't check naming conventions)
+    - [flake8](https://pypi.org/project/flake8/) and
+      [pep8-naming](https://pypi.org/project/pep8-naming/) (Check naming conventions)
+  - Python code formatting may be corrected with tools like the following:
+    - [autoflake](https://pypi.org/project/autoflake/) and
+      [autopep8](https://pypi.org/project/autopep8/)
+    - Formatting tools may not be able to correct all formatting issues,
+      requiring additional manual correction after use.
+  - [More tools](https://github.com/pycqa/pycodestyle/wiki/RelatedTools)
 
 ### **Testing Your Changes**
 
