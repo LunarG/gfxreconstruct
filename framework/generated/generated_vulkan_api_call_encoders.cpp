@@ -12320,68 +12320,6 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(
-    VkDevice                                    device,
-    VkDeferredOperationKHR                      deferredOperation,
-    uint32_t                                    infoCount,
-    const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
-    const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
-
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
-    const VkAccelerationStructureBuildGeometryInfoKHR* pInfos_unwrapped = UnwrapStructArrayHandles(pInfos, infoCount, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->BuildAccelerationStructuresKHR(device_unwrapped, deferredOperation_unwrapped, infoCount, pInfos_unwrapped, ppBuildRangeInfos);
-
-    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(deferredOperation);
-        encoder->EncodeUInt32Value(infoCount);
-        EncodeStructArray(encoder, pInfos, infoCount);
-        EncodeStructArray2D(encoder, ppBuildRangeInfos, ArraySize2D<VkDevice, VkDeferredOperationKHR, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*>(device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos));
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndApiCallTrace(encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(TraceManager::Get(), result, device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
-
-    return result;
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(
-    VkDevice                                    device,
-    VkDeferredOperationKHR                      deferredOperation,
-    const VkCopyAccelerationStructureInfoKHR*   pInfo)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, pInfo);
-
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
-    const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->CopyAccelerationStructureKHR(device_unwrapped, deferredOperation_unwrapped, pInfo_unwrapped);
-
-    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(deferredOperation);
-        EncodeStructPtr(encoder, pInfo);
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndApiCallTrace(encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), result, device, deferredOperation, pInfo);
-
-    return result;
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      deferredOperation,

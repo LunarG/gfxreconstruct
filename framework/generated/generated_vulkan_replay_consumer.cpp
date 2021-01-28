@@ -6003,39 +6003,6 @@ void VulkanReplayConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     GetDeviceTable(in_commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR(in_commandBuffer, infoCount, in_pInfos, in_pIndirectDeviceAddresses, in_pIndirectStrides, in_ppMaxPrimitiveCounts);
 }
 
-void VulkanReplayConsumer::Process_vkBuildAccelerationStructuresKHR(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            deferredOperation,
-    uint32_t                                    infoCount,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
-{
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_deferredOperation = MapHandle<DeferredOperationKHRInfo>(deferredOperation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
-    const VkAccelerationStructureBuildGeometryInfoKHR* in_pInfos = pInfos->GetPointer();
-    MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
-    const VkAccelerationStructureBuildRangeInfoKHR* const* in_ppBuildRangeInfos = ppBuildRangeInfos->GetPointer();
-
-    VkResult replay_result = GetDeviceTable(in_device)->BuildAccelerationStructuresKHR(in_device, in_deferredOperation, infoCount, in_pInfos, in_ppBuildRangeInfos);
-    CheckResult("vkBuildAccelerationStructuresKHR", returnValue, replay_result);
-}
-
-void VulkanReplayConsumer::Process_vkCopyAccelerationStructureKHR(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            deferredOperation,
-    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
-{
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkDeferredOperationKHR in_deferredOperation = MapHandle<DeferredOperationKHRInfo>(deferredOperation, &VulkanObjectInfoTable::GetDeferredOperationKHRInfo);
-    const VkCopyAccelerationStructureInfoKHR* in_pInfo = pInfo->GetPointer();
-    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
-
-    VkResult replay_result = GetDeviceTable(in_device)->CopyAccelerationStructureKHR(in_device, in_deferredOperation, in_pInfo);
-    CheckResult("vkCopyAccelerationStructureKHR", returnValue, replay_result);
-}
-
 void VulkanReplayConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
