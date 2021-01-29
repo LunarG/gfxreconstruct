@@ -42,14 +42,24 @@ class ValueDecoder
     // clang-format off
 
     // Values
+    static size_t DecodeInt8Value(const uint8_t* buffer, size_t buffer_size, int8_t* value)                         { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt8Value(const uint8_t* buffer, size_t buffer_size, uint8_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt16Value(const uint8_t* buffer, size_t buffer_size, uint16_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, int32_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, uint32_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
+    static size_t DecodeUInt32BitFieldValue(const uint8_t* buffer, size_t buffer_size, const uint32_t& value)       { return 0; }
+
 #if defined(WIN32)
+    // Oveload for WIN32 LONG type.  Pointers from the LONG typedef of unsigned long are not compatible with int32_t pointers.
+    static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
     // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
+    // Oveload for WIN32 SIZE_T type in 32-bit sysyem.  Pointers from the SIZE_T typedef of unsigned long are not compatible with uint64_t pointers.
+    static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
+    // Oveload for WIN32 LONG_PTR type in 32-bit sysyem.  Pointers from the LONG_PTR typedef of long are not compatible with int64_t pointers.
+    static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
 #endif
+
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeFloatValue(const uint8_t* buffer, size_t buffer_size, float* value)                         { return DecodeValue(buffer, buffer_size, value); }

@@ -62,7 +62,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
         if (!IsNull() && HasData())
         {
             size_t len         = GetLength();
-            strings_           = DecodeAllocator::Allocate<char*>(len);
+            strings_           = DecodeAllocator::Allocate<CharT*>(len);
             string_attributes_ = DecodeAllocator::Allocate<uint32_t>(len);
             string_addresses_  = DecodeAllocator::Allocate<uint64_t>(len);
             string_lengths_    = DecodeAllocator::Allocate<size_t>(len);

@@ -94,3 +94,8 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         if self.featureCmdParams:
             return True
         return False
+
+    #
+    # Performs C++ code generation for the feature.
+    def generateFeature(self):
+        BaseDecoderBodyGenerator.generate_feature(self, 'Vulkan')
