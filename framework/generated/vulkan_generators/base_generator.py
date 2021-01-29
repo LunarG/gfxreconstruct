@@ -865,12 +865,23 @@ class BaseGenerator(OutputGenerator):
 
     #
     # makeConsumerDecl - return VulkanConsumer class member function declaration
-    def makeConsumerFuncDecl(self, returnType, name, values):
+    def makeConsumerFuncDecl(self, returnType, name, values, dx12_method = False):
         """Generate VulkanConsumer class member function declaration"""
         paramDecls = []
 
+        if dx12_method:
+            paramDecl = self.makeAlignedParamDecl('format::HandleId', 'object_id', self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            paramDecls.append(paramDecl)
+
         if returnType != 'void':
-            paramDecl = self.makeAlignedParamDecl(returnType, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            if dx12_method:
+                return_value = self.get_value_info2('returnValue', returnType)
+                rtnType1 = self.makeDecodedParamType(return_value)
+                if rtnType1.find('Decoder') != -1:
+                    rtnType1 += '*'
+                paramDecl = self.makeAlignedParamDecl(rtnType1, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            else:
+                paramDecl = self.makeAlignedParamDecl(returnType, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
             paramDecls.append(paramDecl)
 
         for value in values:

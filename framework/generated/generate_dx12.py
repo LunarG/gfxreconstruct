@@ -41,6 +41,7 @@ GENERATE_TARGETS = [
     'generated_dx12_struct_decoders.cpp',
     'generated_dx12_consumer.h',
     'generated_dx12_replay_consumer.h',
+    'generated_dx12_replay_consumer.cpp',
 ]
 
 DX12_SOURCE_LIST = [

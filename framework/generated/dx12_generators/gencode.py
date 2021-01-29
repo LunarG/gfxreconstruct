@@ -42,6 +42,8 @@ from dx12_decoder_body_generator import DX12DecoderBodyGenerator
 from dx12_consumer_header_generator import DX12ConsumerHeaderGenerator
 from dx12_replay_consumer_header_generator\
     import DX12ReplayConsumerHeaderGenerator
+from dx12_replay_consumer_body_generator\
+    import DX12ReplayConsumerBodyGenerator
 
 
 # Returns a directory of [ generator function, generator options ] indexed
@@ -197,6 +199,18 @@ def make_gen_opts(args):
             directory=directory,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_replay_consumer_body_generator.py')
+    gen_opts['generated_dx12_replay_consumer.cpp'] = [
+        DX12ReplayConsumerBodyGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_replay_consumer.cpp',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=False,
             protectFeature=False)
     ]
 

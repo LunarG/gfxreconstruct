@@ -118,6 +118,11 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
         return False
 
     #
+    # Performs C++ code generation for the feature.
+    def generateFeature(self):
+        BaseReplayConsumerBodyGenerator.generate_feature(self, 'Vulkan')
+
+    #
     # Check for dispatchable handle types associated with the instance dispatch table.
     def useInstanceTable(self, typename):
         if typename in ['VkInstance', 'VkPhysicalDevice']:
