@@ -146,7 +146,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             if value.arrayLength:
                 args.append('uint32_t {}'.format(value.arrayLength))
             args.append('{} {}'.format(value.fullType, value.name))
-        return ', '.join(args)
+        return ', '.join(self.makeUniqueList(args))
 
     #
     #

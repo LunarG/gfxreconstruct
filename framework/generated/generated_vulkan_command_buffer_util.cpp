@@ -512,6 +512,112 @@ void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, V
     wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
 }
 
+void TrackCmdSetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfoKHR* pDependencyInfo)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(event));
+
+    if (pDependencyInfo != nullptr)
+    {
+        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
+        {
+            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+            {
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+            }
+        }
+
+        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
+        {
+            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+            {
+                wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+            }
+        }
+    }
+}
+
+void TrackCmdResetEvent2KHRHandles(CommandBufferWrapper* wrapper, VkEvent event)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(event));
+}
+
+void TrackCmdWaitEvents2KHRHandles(CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfoKHR* pDependencyInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pEvents != nullptr)
+    {
+        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
+        {
+            wrapper->command_handles[CommandHandleType::EventHandle].insert(GetWrappedId(pEvents[pEvents_index]));
+        }
+    }
+
+    if (pDependencyInfos != nullptr)
+    {
+        for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
+        {
+            if (pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers != nullptr)
+            {
+                for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+                {
+                    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+                }
+            }
+
+            if (pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers != nullptr)
+            {
+                for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+                {
+                    wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+                }
+            }
+        }
+    }
+}
+
+void TrackCmdPipelineBarrier2KHRHandles(CommandBufferWrapper* wrapper, const VkDependencyInfoKHR* pDependencyInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pDependencyInfo != nullptr)
+    {
+        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
+        {
+            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+            {
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+            }
+        }
+
+        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
+        {
+            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+            {
+                wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+            }
+        }
+    }
+}
+
+void TrackCmdWriteTimestamp2KHRHandles(CommandBufferWrapper* wrapper, VkQueryPool queryPool)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::QueryPoolHandle].insert(GetWrappedId(queryPool));
+}
+
+void TrackCmdWriteBufferMarker2AMDHandles(CommandBufferWrapper* wrapper, VkBuffer dstBuffer)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(dstBuffer));
+}
+
 void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2KHR* pCopyBufferInfo)
 {
     assert(wrapper != nullptr);

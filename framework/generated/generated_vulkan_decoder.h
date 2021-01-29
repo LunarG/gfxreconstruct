@@ -594,6 +594,22 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPipelineExecutableInternalRepresentationsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdSetEvent2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdResetEvent2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWaitEvents2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdPipelineBarrier2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteTimestamp2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkQueueSubmit2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteBufferMarker2AMD(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetQueueCheckpointData2NV(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdCopyBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdCopyImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size);

@@ -3189,6 +3189,126 @@ struct Decoded_VkPipelineLibraryCreateInfoKHR
     HandlePointerDecoder<VkPipeline> pLibraries;
 };
 
+struct Decoded_VkMemoryBarrier2KHR
+{
+    using struct_type = VkMemoryBarrier2KHR;
+
+    VkMemoryBarrier2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkBufferMemoryBarrier2KHR
+{
+    using struct_type = VkBufferMemoryBarrier2KHR;
+
+    VkBufferMemoryBarrier2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageMemoryBarrier2KHR
+{
+    using struct_type = VkImageMemoryBarrier2KHR;
+
+    VkImageMemoryBarrier2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId image{ format::kNullHandleId };
+    Decoded_VkImageSubresourceRange* subresourceRange{ nullptr };
+};
+
+struct Decoded_VkDependencyInfoKHR
+{
+    using struct_type = VkDependencyInfoKHR;
+
+    VkDependencyInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkMemoryBarrier2KHR>* pMemoryBarriers{ nullptr };
+    StructPointerDecoder<Decoded_VkBufferMemoryBarrier2KHR>* pBufferMemoryBarriers{ nullptr };
+    StructPointerDecoder<Decoded_VkImageMemoryBarrier2KHR>* pImageMemoryBarriers{ nullptr };
+};
+
+struct Decoded_VkSemaphoreSubmitInfoKHR
+{
+    using struct_type = VkSemaphoreSubmitInfoKHR;
+
+    VkSemaphoreSubmitInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId semaphore{ format::kNullHandleId };
+};
+
+struct Decoded_VkCommandBufferSubmitInfoKHR
+{
+    using struct_type = VkCommandBufferSubmitInfoKHR;
+
+    VkCommandBufferSubmitInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId commandBuffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkSubmitInfo2KHR
+{
+    using struct_type = VkSubmitInfo2KHR;
+
+    VkSubmitInfo2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkSemaphoreSubmitInfoKHR>* pWaitSemaphoreInfos{ nullptr };
+    StructPointerDecoder<Decoded_VkCommandBufferSubmitInfoKHR>* pCommandBufferInfos{ nullptr };
+    StructPointerDecoder<Decoded_VkSemaphoreSubmitInfoKHR>* pSignalSemaphoreInfos{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceSynchronization2FeaturesKHR;
+
+    VkPhysicalDeviceSynchronization2FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkQueueFamilyCheckpointProperties2NV
+{
+    using struct_type = VkQueueFamilyCheckpointProperties2NV;
+
+    VkQueueFamilyCheckpointProperties2NV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkCheckpointData2NV
+{
+    using struct_type = VkCheckpointData2NV;
+
+    VkCheckpointData2NV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pCheckpointMarker{ 0 };
+};
+
+struct Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR;
+
+    VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR;
+
+    VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkBufferCopy2KHR
 {
     using struct_type = VkBufferCopy2KHR;

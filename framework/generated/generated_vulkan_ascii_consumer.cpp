@@ -2502,6 +2502,75 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutableInternalRepresentations
     fprintf(GetFile(), "%s\n", "vkGetPipelineExecutableInternalRepresentationsKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdSetEvent2KHR(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            event,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetEvent2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdResetEvent2KHR(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            event,
+    VkPipelineStageFlags2KHR                    stageMask)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdResetEvent2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdWaitEvents2KHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    eventCount,
+    HandlePointerDecoder<VkEvent>*              pEvents,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfos)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWaitEvents2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdPipelineBarrier2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdPipelineBarrier2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdWriteTimestamp2KHR(
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags2KHR                    stage,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWriteTimestamp2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkQueueSubmit2KHR(
+    VkResult                                    returnValue,
+    format::HandleId                            queue,
+    uint32_t                                    submitCount,
+    StructPointerDecoder<Decoded_VkSubmitInfo2KHR>* pSubmits,
+    format::HandleId                            fence)
+{
+    fprintf(GetFile(), "%s\n", "vkQueueSubmit2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdWriteBufferMarker2AMD(
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags2KHR                    stage,
+    format::HandleId                            dstBuffer,
+    VkDeviceSize                                dstOffset,
+    uint32_t                                    marker)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWriteBufferMarker2AMD");
+}
+
+void VulkanAsciiConsumer::Process_vkGetQueueCheckpointData2NV(
+    format::HandleId                            queue,
+    PointerDecoder<uint32_t>*                   pCheckpointDataCount,
+    StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetQueueCheckpointData2NV");
+}
+
 void VulkanAsciiConsumer::Process_vkCmdCopyBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)

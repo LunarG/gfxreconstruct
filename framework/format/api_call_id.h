@@ -513,6 +513,14 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdSetFragmentShadingRateEnumNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1228),
     ApiCall_vkAcquireWinrtDisplayNV                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1229),
     ApiCall_vkGetWinrtDisplayNV                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x122a),
+    ApiCall_vkCmdSetEvent2KHR                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x122b),
+    ApiCall_vkCmdResetEvent2KHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x122c),
+    ApiCall_vkCmdWaitEvents2KHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x122d),
+    ApiCall_vkCmdPipelineBarrier2KHR                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x122e),
+    ApiCall_vkCmdWriteTimestamp2KHR                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x122f),
+    ApiCall_vkQueueSubmit2KHR                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1230),
+    ApiCall_vkCmdWriteBufferMarker2AMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1231),
+    ApiCall_vkGetQueueCheckpointData2NV                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1232),
 
     ApiCall_VulkanLast
     // clang-format on

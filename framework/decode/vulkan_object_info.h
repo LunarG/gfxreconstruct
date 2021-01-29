@@ -91,7 +91,8 @@ enum DeviceArrayIndices : uint32_t
 
 enum QueueArrayIndices : uint32_t
 {
-    kQueueArrayGetQueueCheckpointDataNV = 0
+    kQueueArrayGetQueueCheckpointDataNV  = 0,
+    kQueueArrayGetQueueCheckpointData2NV = 1
 };
 
 enum ImageArrayIndices : uint32_t

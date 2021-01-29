@@ -704,6 +704,36 @@ struct Decoded_VkPipelineLibraryCreateInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineLibraryCreateInfoKHR* wrapper);
 
+struct Decoded_VkMemoryBarrier2KHR;
+struct Decoded_VkBufferMemoryBarrier2KHR;
+struct Decoded_VkImageMemoryBarrier2KHR;
+struct Decoded_VkDependencyInfoKHR;
+struct Decoded_VkSemaphoreSubmitInfoKHR;
+struct Decoded_VkCommandBufferSubmitInfoKHR;
+struct Decoded_VkSubmitInfo2KHR;
+struct Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR;
+struct Decoded_VkQueueFamilyCheckpointProperties2NV;
+struct Decoded_VkCheckpointData2NV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryBarrier2KHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBufferMemoryBarrier2KHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageMemoryBarrier2KHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDependencyInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreSubmitInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCommandBufferSubmitInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubmitInfo2KHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceSynchronization2FeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkQueueFamilyCheckpointProperties2NV* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCheckpointData2NV* wrapper);
+
+struct Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR* wrapper);
+
+struct Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR* wrapper);
+
 struct Decoded_VkBufferCopy2KHR;
 struct Decoded_VkCopyBufferInfo2KHR;
 struct Decoded_VkImageCopy2KHR;

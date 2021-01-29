@@ -512,7 +512,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if value.arrayLength:
                     args.append(value.arrayLength)
                 args.append(value.name)
-            return 'Track{}Handles, {}'.format(cmd[2:], ', '.join(args))
+            return 'Track{}Handles, {}'.format(cmd[2:], ', '.join(self.makeUniqueList(args)))
         else:
             return None
 
