@@ -27,13 +27,14 @@ import sys
 GENERATOR_PATH = './dx12_generators'
 LIB_CPPHEADERPARSER_PATH = '../../external'
 LIB_REGISTRY_PATH = '../../external/Vulkan-Headers/registry'
-BASE_GENERATOR_PATH = './vulkan_generators'
-
+VULKAN_GENERATOR_PATH = './vulkan_generators'
+BASE_GENERATOR_PATH = './base_generators'
 
 # File names to provide to the dxgi generator script.
 GENERATE_TARGETS = [
     'generated_dx12_api_call_encoders.h',
     'generated_dx12_api_call_encoders.cpp',
+    'generated_dx12_decoder.h',
 ]
 
 DX12_SOURCE_LIST = [
@@ -84,6 +85,8 @@ if __name__ == '__main__':
     GENERATOR_DIR = os.path.normpath(os.path.join(CURRENT_DIR, GENERATOR_PATH))
     BASE_GENERATOR_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, BASE_GENERATOR_PATH))
+    VULKAN_GENERATOR_DIR = os.path.normpath(
+        os.path.join(CURRENT_DIR, VULKAN_GENERATOR_PATH))
     LIB_REGISTRY_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, LIB_REGISTRY_PATH))
     LIB_CPPHEADERPARSER_DIR = os.path.normpath(
@@ -91,6 +94,7 @@ if __name__ == '__main__':
 
     sys.path.append(GENERATOR_DIR)
     sys.path.append(BASE_GENERATOR_DIR)
+    sys.path.append(VULKAN_GENERATOR_DIR)
     sys.path.append(LIB_REGISTRY_DIR)
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 

@@ -31,6 +31,7 @@ from dx12_api_call_encoders_header_generator\
     import DX12ApiCallEncodersHeaderGenerator
 from dx12_api_call_encoders_body_generator\
     import DX12ApiCallEncodersBodyGenerator
+from dx12_decoder_header_generator import DX12DecoderHeaderGenerator
 
 
 # Returns a directory of [ generator function, generator options ] indexed
@@ -102,6 +103,18 @@ def make_gen_opts(args):
             directory=directory,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_decoder_header_generator.py')
+    gen_opts['generated_dx12_decoder.h'] = [
+        DX12DecoderHeaderGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_decoder.h',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=True,
             protectFeature=False)
     ]
 
