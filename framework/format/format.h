@@ -40,6 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(format)
 // Types to define encoding sizes.
 typedef uint32_t EnumEncodeType;
 typedef uint32_t FlagsEncodeType;
+typedef uint64_t Flags64EncodeType;
 typedef uint32_t SampleMaskEncodeType;
 typedef uint64_t HandleEncodeType;
 typedef uint64_t DeviceSizeEncodeType;

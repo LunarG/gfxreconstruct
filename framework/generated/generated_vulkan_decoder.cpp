@@ -6066,6 +6066,176 @@ size_t VulkanDecoder::Decode_vkGetPipelineExecutableInternalRepresentationsKHR(c
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdSetEvent2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId event;
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
+    bytes_read += pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetEvent2KHR(commandBuffer, event, &pDependencyInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdResetEvent2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    format::HandleId event;
+    VkPipelineStageFlags2KHR stageMask;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
+    bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stageMask);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdResetEvent2KHR(commandBuffer, event, stageMask);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdWaitEvents2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t eventCount;
+    HandlePointerDecoder<VkEvent> pEvents;
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfos;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &eventCount);
+    bytes_read += pEvents.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDependencyInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWaitEvents2KHR(commandBuffer, eventCount, &pEvents, &pDependencyInfos);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPipelineBarrier2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR> pDependencyInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pDependencyInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPipelineBarrier2KHR(commandBuffer, &pDependencyInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdWriteTimestamp2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineStageFlags2KHR stage;
+    format::HandleId queryPool;
+    uint32_t query;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stage);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryPool);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &query);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWriteTimestamp2KHR(commandBuffer, stage, queryPool, query);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkQueueSubmit2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId queue;
+    uint32_t submitCount;
+    StructPointerDecoder<Decoded_VkSubmitInfo2KHR> pSubmits;
+    format::HandleId fence;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &submitCount);
+    bytes_read += pSubmits.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fence);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkQueueSubmit2KHR(return_value, queue, submitCount, &pSubmits, fence);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdWriteBufferMarker2AMD(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineStageFlags2KHR stage;
+    format::HandleId dstBuffer;
+    VkDeviceSize dstOffset;
+    uint32_t marker;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeFlags64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stage);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstBuffer);
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstOffset);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWriteBufferMarker2AMD(commandBuffer, stage, dstBuffer, dstOffset, marker);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetQueueCheckpointData2NV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId queue;
+    PointerDecoder<uint32_t> pCheckpointDataCount;
+    StructPointerDecoder<Decoded_VkCheckpointData2NV> pCheckpointData;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
+    bytes_read += pCheckpointDataCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCheckpointData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetQueueCheckpointData2NV(queue, &pCheckpointDataCount, &pCheckpointData);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdCopyBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -10475,6 +10645,30 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR:
         Decode_vkGetPipelineExecutableInternalRepresentationsKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetEvent2KHR:
+        Decode_vkCmdSetEvent2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdResetEvent2KHR:
+        Decode_vkCmdResetEvent2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWaitEvents2KHR:
+        Decode_vkCmdWaitEvents2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR:
+        Decode_vkCmdPipelineBarrier2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR:
+        Decode_vkCmdWriteTimestamp2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkQueueSubmit2KHR:
+        Decode_vkQueueSubmit2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWriteBufferMarker2AMD:
+        Decode_vkCmdWriteBufferMarker2AMD(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV:
+        Decode_vkGetQueueCheckpointData2NV(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR:
         Decode_vkCmdCopyBuffer2KHR(parameter_buffer, buffer_size);

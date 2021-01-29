@@ -364,6 +364,14 @@ static VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDefer
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutablePropertiesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableStatisticsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPipelineExecutableInternalRepresentationsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(VkCommandBuffer, VkEvent, const VkDependencyInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetEvent2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR(VkCommandBuffer, VkEvent, VkPipelineStageFlags2KHR) { GFXRECON_LOG_WARNING("Unsupported function vkCmdResetEvent2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdWaitEvents2KHR(VkCommandBuffer, uint32_t, const VkEvent*, const VkDependencyInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWaitEvents2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier2KHR(VkCommandBuffer, const VkDependencyInfoKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdPipelineBarrier2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp2KHR(VkCommandBuffer, VkPipelineStageFlags2KHR, VkQueryPool, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteTimestamp2KHR was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(VkQueue, uint32_t, const VkSubmitInfo2KHR*, VkFence) { GFXRECON_LOG_WARNING("Unsupported function vkQueueSubmit2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarker2AMD(VkCommandBuffer, VkPipelineStageFlags2KHR, VkBuffer, VkDeviceSize, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdWriteBufferMarker2AMD was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointData2NV(VkQueue, uint32_t*, VkCheckpointData2NV*) { GFXRECON_LOG_WARNING("Unsupported function vkGetQueueCheckpointData2NV was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(VkCommandBuffer, const VkCopyBufferInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBuffer2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(VkCommandBuffer, const VkCopyImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyImage2KHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(VkCommandBuffer, const VkCopyBufferToImageInfo2KHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdCopyBufferToImage2KHR was called, resulting in no-op behavior."); }
@@ -820,6 +828,14 @@ struct DeviceTable
     PFN_vkGetPipelineExecutablePropertiesKHR GetPipelineExecutablePropertiesKHR{ noop::GetPipelineExecutablePropertiesKHR };
     PFN_vkGetPipelineExecutableStatisticsKHR GetPipelineExecutableStatisticsKHR{ noop::GetPipelineExecutableStatisticsKHR };
     PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
+    PFN_vkCmdSetEvent2KHR CmdSetEvent2KHR{ noop::CmdSetEvent2KHR };
+    PFN_vkCmdResetEvent2KHR CmdResetEvent2KHR{ noop::CmdResetEvent2KHR };
+    PFN_vkCmdWaitEvents2KHR CmdWaitEvents2KHR{ noop::CmdWaitEvents2KHR };
+    PFN_vkCmdPipelineBarrier2KHR CmdPipelineBarrier2KHR{ noop::CmdPipelineBarrier2KHR };
+    PFN_vkCmdWriteTimestamp2KHR CmdWriteTimestamp2KHR{ noop::CmdWriteTimestamp2KHR };
+    PFN_vkQueueSubmit2KHR QueueSubmit2KHR{ noop::QueueSubmit2KHR };
+    PFN_vkCmdWriteBufferMarker2AMD CmdWriteBufferMarker2AMD{ noop::CmdWriteBufferMarker2AMD };
+    PFN_vkGetQueueCheckpointData2NV GetQueueCheckpointData2NV{ noop::GetQueueCheckpointData2NV };
     PFN_vkCmdCopyBuffer2KHR CmdCopyBuffer2KHR{ noop::CmdCopyBuffer2KHR };
     PFN_vkCmdCopyImage2KHR CmdCopyImage2KHR{ noop::CmdCopyImage2KHR };
     PFN_vkCmdCopyBufferToImage2KHR CmdCopyBufferToImage2KHR{ noop::CmdCopyBufferToImage2KHR };
@@ -1283,6 +1299,14 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetPipelineExecutablePropertiesKHR", &table->GetPipelineExecutablePropertiesKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableStatisticsKHR", &table->GetPipelineExecutableStatisticsKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);
+    LoadFunction(gpa, device, "vkCmdSetEvent2KHR", &table->CmdSetEvent2KHR);
+    LoadFunction(gpa, device, "vkCmdResetEvent2KHR", &table->CmdResetEvent2KHR);
+    LoadFunction(gpa, device, "vkCmdWaitEvents2KHR", &table->CmdWaitEvents2KHR);
+    LoadFunction(gpa, device, "vkCmdPipelineBarrier2KHR", &table->CmdPipelineBarrier2KHR);
+    LoadFunction(gpa, device, "vkCmdWriteTimestamp2KHR", &table->CmdWriteTimestamp2KHR);
+    LoadFunction(gpa, device, "vkQueueSubmit2KHR", &table->QueueSubmit2KHR);
+    LoadFunction(gpa, device, "vkCmdWriteBufferMarker2AMD", &table->CmdWriteBufferMarker2AMD);
+    LoadFunction(gpa, device, "vkGetQueueCheckpointData2NV", &table->GetQueueCheckpointData2NV);
     LoadFunction(gpa, device, "vkCmdCopyBuffer2KHR", &table->CmdCopyBuffer2KHR);
     LoadFunction(gpa, device, "vkCmdCopyImage2KHR", &table->CmdCopyImage2KHR);
     LoadFunction(gpa, device, "vkCmdCopyBufferToImage2KHR", &table->CmdCopyBufferToImage2KHR);

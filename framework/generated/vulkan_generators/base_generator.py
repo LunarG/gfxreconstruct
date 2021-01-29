@@ -234,7 +234,7 @@ class BaseGenerator(OutputGenerator):
         # Typenames
         self.structNames = set()                          # Set of Vulkan struct typenames
         self.handleNames = set()                          # Set of Vulkan handle typenames
-        self.flagsNames = set()                           # Set of bitmask (flags) typenames
+        self.flagsTypes = dict()                          # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enumNames = set()                            # Set of Vulkan enumeration typenames
 
         # Type processing options
@@ -348,7 +348,14 @@ class BaseGenerator(OutputGenerator):
         elif (category == 'handle'):
             self.handleNames.add(name)
         elif (category == 'bitmask'):
-            self.flagsNames.add(name)
+            # Flags can have either VkFlags or VkFlags64 base type
+            alias = typeElem.get('alias')
+            if alias:
+                # Use same base type as the alias if one exists
+                self.flagsTypes[name] = self.flagsTypes[alias]
+            else:
+                # Otherwise, look for base type inside type declaration
+                self.flagsTypes[name] = typeElem.find('type').text
 
     #
     # Struct (e.g. C "struct" type) generation.
@@ -495,7 +502,7 @@ class BaseGenerator(OutputGenerator):
     #
     # Check for flags (bitmask) type
     def isFlags(self, baseType):
-        if baseType in self.flagsNames:
+        if baseType in self.flagsTypes:
             return True
         return False
 
@@ -744,6 +751,15 @@ class BaseGenerator(OutputGenerator):
         return '\n'.join([prefix + v if v else v for v in value.split('\n')])
 
     #
+    # Return a copy of inList with duplicates removed, preserving order
+    def makeUniqueList(self, inList):
+        outList = []
+        for value in inList:
+            if value not in outList:
+                outList.append(value)
+        return outList
+
+    #
     # Create a string containing a comma separated argument list from a list of ValueInfo values.
     #  values - List of ValueInfo objects providing the parameter names for the argument list.
     def makeArgList(self, values):
@@ -772,7 +788,8 @@ class BaseGenerator(OutputGenerator):
         elif self.isHandle(baseType):
             return 'Handle'
         elif self.isFlags(baseType):
-            return 'Flags'
+            # Strip 'Vk' from base flag type
+            return self.flagsTypes[baseType][2:]
         elif self.isEnum(baseType):
             return 'Enum'
         elif baseType == 'wchar_t':

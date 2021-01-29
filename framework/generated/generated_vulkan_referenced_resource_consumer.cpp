@@ -709,6 +709,125 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     GetTable().AddResourceToUser(commandBuffer, countBuffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            event,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(event);
+
+    assert(pDependencyInfo != nullptr);
+
+    if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
+    {
+        auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
+        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        {
+            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+            }
+        }
+
+        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        {
+            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    eventCount,
+    HandlePointerDecoder<VkEvent>*              pEvents,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
+
+    assert(pDependencyInfos != nullptr);
+
+    if (!pDependencyInfos->IsNull() && (pDependencyInfos->HasData()))
+    {
+        auto pDependencyInfos_ptr = pDependencyInfos->GetMetaStructPointer();
+        size_t pDependencyInfos_count = pDependencyInfos->GetLength();
+        for (size_t pDependencyInfos_index = 0; pDependencyInfos_index < pDependencyInfos_count; ++pDependencyInfos_index)
+        {
+            if (!pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->HasData()))
+            {
+                auto pBufferMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetMetaStructPointer();
+                size_t pBufferMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pBufferMemoryBarriers->GetLength();
+                for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+                {
+                    GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+                }
+            }
+
+            if (!pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->IsNull() && (pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->HasData()))
+            {
+                auto pImageMemoryBarriers_ptr = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetMetaStructPointer();
+                size_t pImageMemoryBarriers_count = pDependencyInfos_ptr[pDependencyInfos_index].pImageMemoryBarriers->GetLength();
+                for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+                {
+                    GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+                }
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDependencyInfoKHR>* pDependencyInfo)
+{
+    assert(pDependencyInfo != nullptr);
+
+    if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
+    {
+        auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
+        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        {
+            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+            }
+        }
+
+        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        {
+            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdWriteBufferMarker2AMD(
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags2KHR                    stage,
+    format::HandleId                            dstBuffer,
+    VkDeviceSize                                dstOffset,
+    uint32_t                                    marker)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(stage);
+    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
+    GFXRECON_UNREFERENCED_PARAMETER(marker);
+
+    GetTable().AddResourceToUser(commandBuffer, dstBuffer);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)
