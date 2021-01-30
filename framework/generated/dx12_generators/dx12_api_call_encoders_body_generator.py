@@ -187,7 +187,7 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
         union = self.get_union(value.baseType)
         if union:
             rtn.append('// For Union, find the largest size in the member and encode it.')  # noqa
-            rtn.append('uint64_t union_size_max = 0, union_size = 0;')
+            rtn.append('size_t union_size_max = 0, union_size = 0;')
 
             for m in union['members']:
                 rtn.append('if (union_size = sizeof(value.{}) > union_size_max) union_size_max = union_size;'  # noqa
