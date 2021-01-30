@@ -143,11 +143,15 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         for entry in inherits:
             if initlist_expr:
                 initlist_expr += ', '
-            initlist_expr += '{}_Wrapper(object)'.format(entry['decl_name'])
+            initlist_expr += '{}_Wrapper(riid, object, resources)'.format(
+                entry['decl_name']
+            )
         initlist_expr += ', object_(object)'
-        expr = indent + '{wrapper}::{wrapper}({}* object) : {}\n'.format(
-            class_name, initlist_expr, wrapper=wrapper
-        )
+        expr = indent + '{wrapper}::{wrapper}(REFIID riid, {}* object,'\
+            ' DxWrapperResources* resources) : {}\n'.format(
+            class_name,
+            initlist_expr,
+            wrapper=wrapper)
         expr += indent + '{\n'
         expr += indent + '}\n'
 

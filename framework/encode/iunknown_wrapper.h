@@ -26,6 +26,7 @@
 #include "format/format.h"
 #include "util/defines.h"
 
+#include <atomic>
 #include <comdef.h>
 #include <guiddef.h>
 #include <Unknwn.h>
@@ -33,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-struct DxWrapperResources;
+class DxWrapperResources;
 
 //----------------------------------------------------------------------------
 /// \brief An IID, with value E00BB2CC-162E-4AAD-9769-EDE6915395F6, that may
@@ -57,11 +58,15 @@ IUnknown_Wrapper : public IUnknown
     // clang-format off
 
     //----------------------------------------------------------------------------
-    /// Constructor reciving a pointer to an object to be wrapped.
+    /// Constructor receiving a pointer to an object to be wrapped.
     ///
+    /// \param riid           IID of the object to be wrapped.
     /// \param wrapped_object Pointer to the object to be wrapped.
+    /// \param resources      Pointer to a DxWrapperResources object that is
+    ///                       responsible for maintaining a shared reference
+    ///                       count between related objects.
     //----------------------------------------------------------------------------
-    IUnknown_Wrapper(IUnknown* wrapped_object);
+    IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrapperResources* resources = nullptr);
 
     //----------------------------------------------------------------------------
     /// \brief QueryInterface implementation.
@@ -80,18 +85,31 @@ IUnknown_Wrapper : public IUnknown
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** object) override;
 
     //----------------------------------------------------------------------------
-    /// Increment the object's reference count.
+    /// \brief Increment the wrapper's reference counts.
     ///
-    /// \return The post-increment reference count.
+    /// Increments both the wrapper's individual reference count and the shared
+    /// reference count maintained by #resources_.
+    ///
+    /// \return The post-increment individual reference count.
     //----------------------------------------------------------------------------
     virtual ULONG STDMETHODCALLTYPE AddRef() override;
 
     //----------------------------------------------------------------------------
-    /// Decrement the object's reference count.
+    /// \brief Decrement the wrapper's reference counts.
     ///
-    /// \return The post-decrement reference count.
+    /// Decrements both the wrapper's individual reference count and the shared
+    /// reference count maintained by #resources_.
+    ///
+    /// \return The post-decrement individual reference count.
     //----------------------------------------------------------------------------
     virtual ULONG STDMETHODCALLTYPE Release() override;
+
+    //----------------------------------------------------------------------------
+    /// Get the IID of the wrapped object's interface.
+    ///
+    /// \return The wrapped object's IID.
+    //----------------------------------------------------------------------------
+    REFIID GetRiid() const { return riid_; }
 
     //----------------------------------------------------------------------------
     /// Get the unique ID assigned to the wrapped object.
@@ -128,15 +146,33 @@ IUnknown_Wrapper : public IUnknown
         }
     }
 
-    // clang-format on
+    //----------------------------------------------------------------------------
+    /// \brief Destroy the object wrapper.
+    ///
+    /// Releases the wrapped object and destroys the current wrapper.  Intended
+    /// to be called by #resources_ when the shared reference count reaches zero.
+    //----------------------------------------------------------------------------
+    void Destroy()
+    {
+        resources_ = nullptr;
+        object_    = nullptr;
+        delete this;
+    }
+
+  protected:
+    ~IUnknown_Wrapper() {}
 
   private:
     typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownPtr;
 
   private:
-    IUnknownPtr         object_;     ///< Pointer to the wrapped object.
-    format::HandleId    capture_id_; ///< Interface-specific unique ID assigned to the wrapped object.
-    DxWrapperResources* resources_;
+    REFIID                         riid_;       ///< IID of the wrapped object's interface.
+    IUnknownPtr                    object_;     ///< Pointer to the wrapped object.
+    format::HandleId               capture_id_; ///< Interface-specific unique ID assigned to the wrapped object.
+    std::atomic<unsigned long>     ref_count_;  ///< Wrapper's reference count.
+    DxWrapperResources*            resources_;  ///< Internal state object for maintaining a shared reference
+                                                ///< count between related objects.
+    // clang-format on
 };
 
 GFXRECON_END_NAMESPACE(encode)

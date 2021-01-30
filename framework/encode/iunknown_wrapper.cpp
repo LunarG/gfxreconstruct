@@ -24,14 +24,29 @@
 
 #include "encode/dx12_object_wrapper_resources.h"
 #include "encode/trace_manager.h"
+#include "generated/generated_dx12_wrapper_creators.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-IUnknown_Wrapper::IUnknown_Wrapper(IUnknown* wrapped_object) :
-    object_(wrapped_object, false), capture_id_(TraceManager::GetUniqueId())
+IUnknown_Wrapper::IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrapperResources* resources) :
+    riid_(riid), object_(wrapped_object, false), capture_id_(TraceManager::GetUniqueId()), ref_count_(1)
 {
-    resources_ = new DxWrapperResources();
+    assert(wrapped_object != nullptr);
+
+    // Register this wrapper with the list of related resources, which represents a list of pointers to the same object
+    // with different IIDs, all of which share a reference count and will stay active until all of the resources in the
+    // list are released by the application.
+    if (resources != nullptr)
+    {
+        resources_ = resources;
+        resources_->AddWrapper(this);
+        resources_->IncrementSharedCount();
+    }
+    else
+    {
+        resources_ = new DxWrapperResources(this);
+    }
 }
 
 HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
@@ -45,28 +60,35 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
         return S_OK;
     }
 
-    return object_->QueryInterface(riid, object);
+    auto result = object_->QueryInterface(riid, object);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, object, resources_);
+    }
+
+    return result;
 }
 
 ULONG IUnknown_Wrapper::AddRef()
 {
-    return ++resources_->wrapper_ref_count;
+    resources_->IncrementSharedCount();
+    return ++ref_count_;
 }
 
 ULONG IUnknown_Wrapper::Release()
 {
-    --resources_->wrapper_ref_count;
+    auto shared_count = resources_->DecrementSharedCount();
+    auto local_count  = --ref_count_;
 
-    if (resources_->wrapper_ref_count > 0)
+    if (shared_count == 0)
     {
-        return resources_->wrapper_ref_count;
+        // The resources_ destructor destroys this wrapper and all other wrappers linked to it, so no additional work
+        // may be performed in this function, as the current wrapper will no longer be valid.
+        delete resources_;
     }
 
-    delete resources_; // Destroys this wrapper and all other wrappers linked to it.
-    resources_ = nullptr;
-    object_    = nullptr;
-
-    return 0;
+    return local_count;
 }
 
 GFXRECON_END_NAMESPACE(encode)

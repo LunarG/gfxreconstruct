@@ -52,47 +52,47 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void WrapObject(REFIID riid, void** object)
+IUnknown_Wrapper* WrapObject(REFIID riid, void** object, DxWrapperResources* resources)
 {
     if ((object == nullptr) || (*object == nullptr))
     {
-        return;
+        return nullptr;
     }
 
     if (IsEqualIID(riid, IID_IDXGIKeyedMutex))
     {
-        WrapIDXGIKeyedMutex(riid, reinterpret_cast<IDXGIKeyedMutex**>(object));
+        return WrapIDXGIKeyedMutex(riid, reinterpret_cast<IDXGIKeyedMutex**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIDisplayControl))
     {
-        WrapIDXGIDisplayControl(riid, reinterpret_cast<IDXGIDisplayControl**>(object));
+        return WrapIDXGIDisplayControl(riid, reinterpret_cast<IDXGIDisplayControl**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIOutputDuplication))
     {
-        WrapIDXGIOutputDuplication(riid, reinterpret_cast<IDXGIOutputDuplication**>(object));
+        return WrapIDXGIOutputDuplication(riid, reinterpret_cast<IDXGIOutputDuplication**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGISurface) ||
              IsEqualIID(riid, IID_IDXGISurface1) ||
              IsEqualIID(riid, IID_IDXGISurface2))
     {
-        WrapIDXGISurface(riid, reinterpret_cast<IDXGISurface**>(object));
+        return WrapIDXGISurface(riid, reinterpret_cast<IDXGISurface**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIResource) ||
              IsEqualIID(riid, IID_IDXGIResource1))
     {
-        WrapIDXGIResource(riid, reinterpret_cast<IDXGIResource**>(object));
+        return WrapIDXGIResource(riid, reinterpret_cast<IDXGIResource**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIDecodeSwapChain))
     {
-        WrapIDXGIDecodeSwapChain(riid, reinterpret_cast<IDXGIDecodeSwapChain**>(object));
+        return WrapIDXGIDecodeSwapChain(riid, reinterpret_cast<IDXGIDecodeSwapChain**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIFactoryMedia))
     {
-        WrapIDXGIFactoryMedia(riid, reinterpret_cast<IDXGIFactoryMedia**>(object));
+        return WrapIDXGIFactoryMedia(riid, reinterpret_cast<IDXGIFactoryMedia**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGISwapChainMedia))
     {
-        WrapIDXGISwapChainMedia(riid, reinterpret_cast<IDXGISwapChainMedia**>(object));
+        return WrapIDXGISwapChainMedia(riid, reinterpret_cast<IDXGISwapChainMedia**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGISwapChain) ||
              IsEqualIID(riid, IID_IDXGISwapChain1) ||
@@ -100,7 +100,7 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_IDXGISwapChain3) ||
              IsEqualIID(riid, IID_IDXGISwapChain4))
     {
-        WrapIDXGISwapChain(riid, reinterpret_cast<IDXGISwapChain**>(object));
+        return WrapIDXGISwapChain(riid, reinterpret_cast<IDXGISwapChain**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIDevice) ||
              IsEqualIID(riid, IID_IDXGIDevice1) ||
@@ -108,7 +108,7 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_IDXGIDevice3) ||
              IsEqualIID(riid, IID_IDXGIDevice4))
     {
-        WrapIDXGIDevice(riid, reinterpret_cast<IDXGIDevice**>(object));
+        return WrapIDXGIDevice(riid, reinterpret_cast<IDXGIDevice**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIAdapter) ||
              IsEqualIID(riid, IID_IDXGIAdapter1) ||
@@ -116,7 +116,7 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_IDXGIAdapter3) ||
              IsEqualIID(riid, IID_IDXGIAdapter4))
     {
-        WrapIDXGIAdapter(riid, reinterpret_cast<IDXGIAdapter**>(object));
+        return WrapIDXGIAdapter(riid, reinterpret_cast<IDXGIAdapter**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIOutput) ||
              IsEqualIID(riid, IID_IDXGIOutput1) ||
@@ -126,7 +126,7 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_IDXGIOutput5) ||
              IsEqualIID(riid, IID_IDXGIOutput6))
     {
-        WrapIDXGIOutput(riid, reinterpret_cast<IDXGIOutput**>(object));
+        return WrapIDXGIOutput(riid, reinterpret_cast<IDXGIOutput**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_IDXGIFactory) ||
              IsEqualIID(riid, IID_IDXGIFactory1) ||
@@ -137,88 +137,88 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_IDXGIFactory6) ||
              IsEqualIID(riid, IID_IDXGIFactory7))
     {
-        WrapIDXGIFactory(riid, reinterpret_cast<IDXGIFactory**>(object));
+        return WrapIDXGIFactory(riid, reinterpret_cast<IDXGIFactory**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12RootSignature))
     {
-        WrapID3D12RootSignature(riid, reinterpret_cast<ID3D12RootSignature**>(object));
+        return WrapID3D12RootSignature(riid, reinterpret_cast<ID3D12RootSignature**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12RootSignatureDeserializer))
     {
-        WrapID3D12RootSignatureDeserializer(riid, reinterpret_cast<ID3D12RootSignatureDeserializer**>(object));
+        return WrapID3D12RootSignatureDeserializer(riid, reinterpret_cast<ID3D12RootSignatureDeserializer**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12VersionedRootSignatureDeserializer))
     {
-        WrapID3D12VersionedRootSignatureDeserializer(riid, reinterpret_cast<ID3D12VersionedRootSignatureDeserializer**>(object));
+        return WrapID3D12VersionedRootSignatureDeserializer(riid, reinterpret_cast<ID3D12VersionedRootSignatureDeserializer**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12CommandAllocator))
     {
-        WrapID3D12CommandAllocator(riid, reinterpret_cast<ID3D12CommandAllocator**>(object));
+        return WrapID3D12CommandAllocator(riid, reinterpret_cast<ID3D12CommandAllocator**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12Fence) ||
              IsEqualIID(riid, IID_ID3D12Fence1))
     {
-        WrapID3D12Fence(riid, reinterpret_cast<ID3D12Fence**>(object));
+        return WrapID3D12Fence(riid, reinterpret_cast<ID3D12Fence**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12PipelineState))
     {
-        WrapID3D12PipelineState(riid, reinterpret_cast<ID3D12PipelineState**>(object));
+        return WrapID3D12PipelineState(riid, reinterpret_cast<ID3D12PipelineState**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12DescriptorHeap))
     {
-        WrapID3D12DescriptorHeap(riid, reinterpret_cast<ID3D12DescriptorHeap**>(object));
+        return WrapID3D12DescriptorHeap(riid, reinterpret_cast<ID3D12DescriptorHeap**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12QueryHeap))
     {
-        WrapID3D12QueryHeap(riid, reinterpret_cast<ID3D12QueryHeap**>(object));
+        return WrapID3D12QueryHeap(riid, reinterpret_cast<ID3D12QueryHeap**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12CommandSignature))
     {
-        WrapID3D12CommandSignature(riid, reinterpret_cast<ID3D12CommandSignature**>(object));
+        return WrapID3D12CommandSignature(riid, reinterpret_cast<ID3D12CommandSignature**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12CommandQueue))
     {
-        WrapID3D12CommandQueue(riid, reinterpret_cast<ID3D12CommandQueue**>(object));
+        return WrapID3D12CommandQueue(riid, reinterpret_cast<ID3D12CommandQueue**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12PipelineLibrary) ||
              IsEqualIID(riid, IID_ID3D12PipelineLibrary1))
     {
-        WrapID3D12PipelineLibrary(riid, reinterpret_cast<ID3D12PipelineLibrary**>(object));
+        return WrapID3D12PipelineLibrary(riid, reinterpret_cast<ID3D12PipelineLibrary**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12LifetimeOwner))
     {
-        WrapID3D12LifetimeOwner(riid, reinterpret_cast<ID3D12LifetimeOwner**>(object));
+        return WrapID3D12LifetimeOwner(riid, reinterpret_cast<ID3D12LifetimeOwner**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12SwapChainAssistant))
     {
-        WrapID3D12SwapChainAssistant(riid, reinterpret_cast<ID3D12SwapChainAssistant**>(object));
+        return WrapID3D12SwapChainAssistant(riid, reinterpret_cast<ID3D12SwapChainAssistant**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12LifetimeTracker))
     {
-        WrapID3D12LifetimeTracker(riid, reinterpret_cast<ID3D12LifetimeTracker**>(object));
+        return WrapID3D12LifetimeTracker(riid, reinterpret_cast<ID3D12LifetimeTracker**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12StateObject))
     {
-        WrapID3D12StateObject(riid, reinterpret_cast<ID3D12StateObject**>(object));
+        return WrapID3D12StateObject(riid, reinterpret_cast<ID3D12StateObject**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12StateObjectProperties))
     {
-        WrapID3D12StateObjectProperties(riid, reinterpret_cast<ID3D12StateObjectProperties**>(object));
+        return WrapID3D12StateObjectProperties(riid, reinterpret_cast<ID3D12StateObjectProperties**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings) ||
              IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings1))
     {
-        WrapID3D12DeviceRemovedExtendedDataSettings(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings**>(object));
+        return WrapID3D12DeviceRemovedExtendedDataSettings(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData) ||
              IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData1))
     {
-        WrapID3D12DeviceRemovedExtendedData(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedData**>(object));
+        return WrapID3D12DeviceRemovedExtendedData(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedData**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12ProtectedResourceSession) ||
              IsEqualIID(riid, IID_ID3D12ProtectedResourceSession1))
     {
-        WrapID3D12ProtectedResourceSession(riid, reinterpret_cast<ID3D12ProtectedResourceSession**>(object));
+        return WrapID3D12ProtectedResourceSession(riid, reinterpret_cast<ID3D12ProtectedResourceSession**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12Device) ||
              IsEqualIID(riid, IID_ID3D12Device1) ||
@@ -230,26 +230,26 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_ID3D12Device7) ||
              IsEqualIID(riid, IID_ID3D12Device8))
     {
-        WrapID3D12Device(riid, reinterpret_cast<ID3D12Device**>(object));
+        return WrapID3D12Device(riid, reinterpret_cast<ID3D12Device**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12Resource) ||
              IsEqualIID(riid, IID_ID3D12Resource1) ||
              IsEqualIID(riid, IID_ID3D12Resource2))
     {
-        WrapID3D12Resource(riid, reinterpret_cast<ID3D12Resource**>(object));
+        return WrapID3D12Resource(riid, reinterpret_cast<ID3D12Resource**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12Heap) ||
              IsEqualIID(riid, IID_ID3D12Heap1))
     {
-        WrapID3D12Heap(riid, reinterpret_cast<ID3D12Heap**>(object));
+        return WrapID3D12Heap(riid, reinterpret_cast<ID3D12Heap**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12MetaCommand))
     {
-        WrapID3D12MetaCommand(riid, reinterpret_cast<ID3D12MetaCommand**>(object));
+        return WrapID3D12MetaCommand(riid, reinterpret_cast<ID3D12MetaCommand**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12Tools))
     {
-        WrapID3D12Tools(riid, reinterpret_cast<ID3D12Tools**>(object));
+        return WrapID3D12Tools(riid, reinterpret_cast<ID3D12Tools**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList) ||
              IsEqualIID(riid, IID_ID3D12GraphicsCommandList1) ||
@@ -259,27 +259,29 @@ void WrapObject(REFIID riid, void** object)
              IsEqualIID(riid, IID_ID3D12GraphicsCommandList5) ||
              IsEqualIID(riid, IID_ID3D12GraphicsCommandList6))
     {
-        WrapID3D12GraphicsCommandList(riid, reinterpret_cast<ID3D12GraphicsCommandList**>(object));
+        return WrapID3D12GraphicsCommandList(riid, reinterpret_cast<ID3D12GraphicsCommandList**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3D10Blob))
     {
-        WrapID3D10Blob(riid, reinterpret_cast<ID3D10Blob**>(object));
+        return WrapID3D10Blob(riid, reinterpret_cast<ID3D10Blob**>(object), resources);
     }
     else if (IsEqualIID(riid, IID_ID3DDestructionNotifier))
     {
-        WrapID3DDestructionNotifier(riid, reinterpret_cast<ID3DDestructionNotifier**>(object));
+        return WrapID3DDestructionNotifier(riid, reinterpret_cast<ID3DDestructionNotifier**>(object), resources);
     }
+
+    return nullptr;
 }
 
-void WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object)
+IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIKeyedMutex))
     {
-        auto wrapper = new IDXGIKeyedMutex_Wrapper(static_cast<IDXGIKeyedMutex*>(*object));
+        auto wrapper = new IDXGIKeyedMutex_Wrapper(IID_IDXGIKeyedMutex, static_cast<IDXGIKeyedMutex*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIKeyedMutex*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -288,24 +290,25 @@ void WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIKeyedMutex_Wrapper(static_cast<IDXGIKeyedMutex*>(*object));
+            auto wrapper = new IDXGIKeyedMutex_Wrapper(IID_IDXGIKeyedMutex, converted, resources);
             (*object) = reinterpret_cast<IDXGIKeyedMutex*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIKeyedMutex object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object)
+IUnknown_Wrapper* WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIDisplayControl))
     {
-        auto wrapper = new IDXGIDisplayControl_Wrapper(static_cast<IDXGIDisplayControl*>(*object));
+        auto wrapper = new IDXGIDisplayControl_Wrapper(IID_IDXGIDisplayControl, static_cast<IDXGIDisplayControl*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDisplayControl*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -314,24 +317,25 @@ void WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDisplayControl_Wrapper(static_cast<IDXGIDisplayControl*>(*object));
+            auto wrapper = new IDXGIDisplayControl_Wrapper(IID_IDXGIDisplayControl, converted, resources);
             (*object) = reinterpret_cast<IDXGIDisplayControl*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIDisplayControl object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object)
+IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIOutputDuplication))
     {
-        auto wrapper = new IDXGIOutputDuplication_Wrapper(static_cast<IDXGIOutputDuplication*>(*object));
+        auto wrapper = new IDXGIOutputDuplication_Wrapper(IID_IDXGIOutputDuplication, static_cast<IDXGIOutputDuplication*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutputDuplication*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -340,24 +344,25 @@ void WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutputDuplication_Wrapper(static_cast<IDXGIOutputDuplication*>(*object));
+            auto wrapper = new IDXGIOutputDuplication_Wrapper(IID_IDXGIOutputDuplication, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutputDuplication*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIOutputDuplication object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGISurface(REFIID riid, IDXGISurface** object)
+IUnknown_Wrapper* WrapIDXGISurface(REFIID riid, IDXGISurface** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGISurface2))
     {
-        auto wrapper = new IDXGISurface2_Wrapper(static_cast<IDXGISurface2*>(*object));
+        auto wrapper = new IDXGISurface2_Wrapper(IID_IDXGISurface2, static_cast<IDXGISurface2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISurface2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -366,17 +371,17 @@ void WrapIDXGISurface(REFIID riid, IDXGISurface** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISurface2_Wrapper(static_cast<IDXGISurface2*>(*object));
+            auto wrapper = new IDXGISurface2_Wrapper(IID_IDXGISurface2, converted, resources);
             (*object) = reinterpret_cast<IDXGISurface2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISurface1))
     {
-        auto wrapper = new IDXGISurface1_Wrapper(static_cast<IDXGISurface1*>(*object));
+        auto wrapper = new IDXGISurface1_Wrapper(IID_IDXGISurface1, static_cast<IDXGISurface1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISurface1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -385,17 +390,17 @@ void WrapIDXGISurface(REFIID riid, IDXGISurface** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISurface1_Wrapper(static_cast<IDXGISurface1*>(*object));
+            auto wrapper = new IDXGISurface1_Wrapper(IID_IDXGISurface1, converted, resources);
             (*object) = reinterpret_cast<IDXGISurface1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISurface))
     {
-        auto wrapper = new IDXGISurface_Wrapper(static_cast<IDXGISurface*>(*object));
+        auto wrapper = new IDXGISurface_Wrapper(IID_IDXGISurface, static_cast<IDXGISurface*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISurface*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -404,24 +409,25 @@ void WrapIDXGISurface(REFIID riid, IDXGISurface** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISurface_Wrapper(static_cast<IDXGISurface*>(*object));
+            auto wrapper = new IDXGISurface_Wrapper(IID_IDXGISurface, converted, resources);
             (*object) = reinterpret_cast<IDXGISurface*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGISurface object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIResource(REFIID riid, IDXGIResource** object)
+IUnknown_Wrapper* WrapIDXGIResource(REFIID riid, IDXGIResource** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIResource1))
     {
-        auto wrapper = new IDXGIResource1_Wrapper(static_cast<IDXGIResource1*>(*object));
+        auto wrapper = new IDXGIResource1_Wrapper(IID_IDXGIResource1, static_cast<IDXGIResource1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIResource1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -430,17 +436,17 @@ void WrapIDXGIResource(REFIID riid, IDXGIResource** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIResource1_Wrapper(static_cast<IDXGIResource1*>(*object));
+            auto wrapper = new IDXGIResource1_Wrapper(IID_IDXGIResource1, converted, resources);
             (*object) = reinterpret_cast<IDXGIResource1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIResource))
     {
-        auto wrapper = new IDXGIResource_Wrapper(static_cast<IDXGIResource*>(*object));
+        auto wrapper = new IDXGIResource_Wrapper(IID_IDXGIResource, static_cast<IDXGIResource*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIResource*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -449,24 +455,25 @@ void WrapIDXGIResource(REFIID riid, IDXGIResource** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIResource_Wrapper(static_cast<IDXGIResource*>(*object));
+            auto wrapper = new IDXGIResource_Wrapper(IID_IDXGIResource, converted, resources);
             (*object) = reinterpret_cast<IDXGIResource*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIResource object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object)
+IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIDecodeSwapChain))
     {
-        auto wrapper = new IDXGIDecodeSwapChain_Wrapper(static_cast<IDXGIDecodeSwapChain*>(*object));
+        auto wrapper = new IDXGIDecodeSwapChain_Wrapper(IID_IDXGIDecodeSwapChain, static_cast<IDXGIDecodeSwapChain*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDecodeSwapChain*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -475,24 +482,25 @@ void WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDecodeSwapChain_Wrapper(static_cast<IDXGIDecodeSwapChain*>(*object));
+            auto wrapper = new IDXGIDecodeSwapChain_Wrapper(IID_IDXGIDecodeSwapChain, converted, resources);
             (*object) = reinterpret_cast<IDXGIDecodeSwapChain*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIDecodeSwapChain object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object)
+IUnknown_Wrapper* WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIFactoryMedia))
     {
-        auto wrapper = new IDXGIFactoryMedia_Wrapper(static_cast<IDXGIFactoryMedia*>(*object));
+        auto wrapper = new IDXGIFactoryMedia_Wrapper(IID_IDXGIFactoryMedia, static_cast<IDXGIFactoryMedia*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactoryMedia*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -501,24 +509,25 @@ void WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactoryMedia_Wrapper(static_cast<IDXGIFactoryMedia*>(*object));
+            auto wrapper = new IDXGIFactoryMedia_Wrapper(IID_IDXGIFactoryMedia, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactoryMedia*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIFactoryMedia object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object)
+IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGISwapChainMedia))
     {
-        auto wrapper = new IDXGISwapChainMedia_Wrapper(static_cast<IDXGISwapChainMedia*>(*object));
+        auto wrapper = new IDXGISwapChainMedia_Wrapper(IID_IDXGISwapChainMedia, static_cast<IDXGISwapChainMedia*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChainMedia*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -527,24 +536,25 @@ void WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChainMedia_Wrapper(static_cast<IDXGISwapChainMedia*>(*object));
+            auto wrapper = new IDXGISwapChainMedia_Wrapper(IID_IDXGISwapChainMedia, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChainMedia*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGISwapChainMedia object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
+IUnknown_Wrapper* WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGISwapChain4))
     {
-        auto wrapper = new IDXGISwapChain4_Wrapper(static_cast<IDXGISwapChain4*>(*object));
+        auto wrapper = new IDXGISwapChain4_Wrapper(IID_IDXGISwapChain4, static_cast<IDXGISwapChain4*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChain4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -553,17 +563,17 @@ void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChain4_Wrapper(static_cast<IDXGISwapChain4*>(*object));
+            auto wrapper = new IDXGISwapChain4_Wrapper(IID_IDXGISwapChain4, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChain4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISwapChain3))
     {
-        auto wrapper = new IDXGISwapChain3_Wrapper(static_cast<IDXGISwapChain3*>(*object));
+        auto wrapper = new IDXGISwapChain3_Wrapper(IID_IDXGISwapChain3, static_cast<IDXGISwapChain3*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChain3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -572,17 +582,17 @@ void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChain3_Wrapper(static_cast<IDXGISwapChain3*>(*object));
+            auto wrapper = new IDXGISwapChain3_Wrapper(IID_IDXGISwapChain3, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChain3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISwapChain2))
     {
-        auto wrapper = new IDXGISwapChain2_Wrapper(static_cast<IDXGISwapChain2*>(*object));
+        auto wrapper = new IDXGISwapChain2_Wrapper(IID_IDXGISwapChain2, static_cast<IDXGISwapChain2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChain2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -591,17 +601,17 @@ void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChain2_Wrapper(static_cast<IDXGISwapChain2*>(*object));
+            auto wrapper = new IDXGISwapChain2_Wrapper(IID_IDXGISwapChain2, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChain2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISwapChain1))
     {
-        auto wrapper = new IDXGISwapChain1_Wrapper(static_cast<IDXGISwapChain1*>(*object));
+        auto wrapper = new IDXGISwapChain1_Wrapper(IID_IDXGISwapChain1, static_cast<IDXGISwapChain1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChain1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -610,17 +620,17 @@ void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChain1_Wrapper(static_cast<IDXGISwapChain1*>(*object));
+            auto wrapper = new IDXGISwapChain1_Wrapper(IID_IDXGISwapChain1, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChain1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGISwapChain))
     {
-        auto wrapper = new IDXGISwapChain_Wrapper(static_cast<IDXGISwapChain*>(*object));
+        auto wrapper = new IDXGISwapChain_Wrapper(IID_IDXGISwapChain, static_cast<IDXGISwapChain*>(*object), resources);
         (*object) = reinterpret_cast<IDXGISwapChain*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -629,24 +639,25 @@ void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGISwapChain_Wrapper(static_cast<IDXGISwapChain*>(*object));
+            auto wrapper = new IDXGISwapChain_Wrapper(IID_IDXGISwapChain, converted, resources);
             (*object) = reinterpret_cast<IDXGISwapChain*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGISwapChain object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
+IUnknown_Wrapper* WrapIDXGIDevice(REFIID riid, IDXGIDevice** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIDevice4))
     {
-        auto wrapper = new IDXGIDevice4_Wrapper(static_cast<IDXGIDevice4*>(*object));
+        auto wrapper = new IDXGIDevice4_Wrapper(IID_IDXGIDevice4, static_cast<IDXGIDevice4*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDevice4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -655,17 +666,17 @@ void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDevice4_Wrapper(static_cast<IDXGIDevice4*>(*object));
+            auto wrapper = new IDXGIDevice4_Wrapper(IID_IDXGIDevice4, converted, resources);
             (*object) = reinterpret_cast<IDXGIDevice4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIDevice3))
     {
-        auto wrapper = new IDXGIDevice3_Wrapper(static_cast<IDXGIDevice3*>(*object));
+        auto wrapper = new IDXGIDevice3_Wrapper(IID_IDXGIDevice3, static_cast<IDXGIDevice3*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDevice3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -674,17 +685,17 @@ void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDevice3_Wrapper(static_cast<IDXGIDevice3*>(*object));
+            auto wrapper = new IDXGIDevice3_Wrapper(IID_IDXGIDevice3, converted, resources);
             (*object) = reinterpret_cast<IDXGIDevice3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIDevice2))
     {
-        auto wrapper = new IDXGIDevice2_Wrapper(static_cast<IDXGIDevice2*>(*object));
+        auto wrapper = new IDXGIDevice2_Wrapper(IID_IDXGIDevice2, static_cast<IDXGIDevice2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDevice2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -693,17 +704,17 @@ void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDevice2_Wrapper(static_cast<IDXGIDevice2*>(*object));
+            auto wrapper = new IDXGIDevice2_Wrapper(IID_IDXGIDevice2, converted, resources);
             (*object) = reinterpret_cast<IDXGIDevice2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIDevice1))
     {
-        auto wrapper = new IDXGIDevice1_Wrapper(static_cast<IDXGIDevice1*>(*object));
+        auto wrapper = new IDXGIDevice1_Wrapper(IID_IDXGIDevice1, static_cast<IDXGIDevice1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDevice1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -712,17 +723,17 @@ void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDevice1_Wrapper(static_cast<IDXGIDevice1*>(*object));
+            auto wrapper = new IDXGIDevice1_Wrapper(IID_IDXGIDevice1, converted, resources);
             (*object) = reinterpret_cast<IDXGIDevice1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIDevice))
     {
-        auto wrapper = new IDXGIDevice_Wrapper(static_cast<IDXGIDevice*>(*object));
+        auto wrapper = new IDXGIDevice_Wrapper(IID_IDXGIDevice, static_cast<IDXGIDevice*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIDevice*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -731,24 +742,25 @@ void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIDevice_Wrapper(static_cast<IDXGIDevice*>(*object));
+            auto wrapper = new IDXGIDevice_Wrapper(IID_IDXGIDevice, converted, resources);
             (*object) = reinterpret_cast<IDXGIDevice*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIDevice object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
+IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIAdapter4))
     {
-        auto wrapper = new IDXGIAdapter4_Wrapper(static_cast<IDXGIAdapter4*>(*object));
+        auto wrapper = new IDXGIAdapter4_Wrapper(IID_IDXGIAdapter4, static_cast<IDXGIAdapter4*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIAdapter4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -757,17 +769,17 @@ void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIAdapter4_Wrapper(static_cast<IDXGIAdapter4*>(*object));
+            auto wrapper = new IDXGIAdapter4_Wrapper(IID_IDXGIAdapter4, converted, resources);
             (*object) = reinterpret_cast<IDXGIAdapter4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIAdapter3))
     {
-        auto wrapper = new IDXGIAdapter3_Wrapper(static_cast<IDXGIAdapter3*>(*object));
+        auto wrapper = new IDXGIAdapter3_Wrapper(IID_IDXGIAdapter3, static_cast<IDXGIAdapter3*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIAdapter3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -776,17 +788,17 @@ void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIAdapter3_Wrapper(static_cast<IDXGIAdapter3*>(*object));
+            auto wrapper = new IDXGIAdapter3_Wrapper(IID_IDXGIAdapter3, converted, resources);
             (*object) = reinterpret_cast<IDXGIAdapter3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIAdapter2))
     {
-        auto wrapper = new IDXGIAdapter2_Wrapper(static_cast<IDXGIAdapter2*>(*object));
+        auto wrapper = new IDXGIAdapter2_Wrapper(IID_IDXGIAdapter2, static_cast<IDXGIAdapter2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIAdapter2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -795,17 +807,17 @@ void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIAdapter2_Wrapper(static_cast<IDXGIAdapter2*>(*object));
+            auto wrapper = new IDXGIAdapter2_Wrapper(IID_IDXGIAdapter2, converted, resources);
             (*object) = reinterpret_cast<IDXGIAdapter2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIAdapter1))
     {
-        auto wrapper = new IDXGIAdapter1_Wrapper(static_cast<IDXGIAdapter1*>(*object));
+        auto wrapper = new IDXGIAdapter1_Wrapper(IID_IDXGIAdapter1, static_cast<IDXGIAdapter1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIAdapter1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -814,17 +826,17 @@ void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIAdapter1_Wrapper(static_cast<IDXGIAdapter1*>(*object));
+            auto wrapper = new IDXGIAdapter1_Wrapper(IID_IDXGIAdapter1, converted, resources);
             (*object) = reinterpret_cast<IDXGIAdapter1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIAdapter))
     {
-        auto wrapper = new IDXGIAdapter_Wrapper(static_cast<IDXGIAdapter*>(*object));
+        auto wrapper = new IDXGIAdapter_Wrapper(IID_IDXGIAdapter, static_cast<IDXGIAdapter*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIAdapter*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -833,24 +845,25 @@ void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIAdapter_Wrapper(static_cast<IDXGIAdapter*>(*object));
+            auto wrapper = new IDXGIAdapter_Wrapper(IID_IDXGIAdapter, converted, resources);
             (*object) = reinterpret_cast<IDXGIAdapter*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIAdapter object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
+IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIOutput6))
     {
-        auto wrapper = new IDXGIOutput6_Wrapper(static_cast<IDXGIOutput6*>(*object));
+        auto wrapper = new IDXGIOutput6_Wrapper(IID_IDXGIOutput6, static_cast<IDXGIOutput6*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput6*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -859,17 +872,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput6_Wrapper(static_cast<IDXGIOutput6*>(*object));
+            auto wrapper = new IDXGIOutput6_Wrapper(IID_IDXGIOutput6, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput6*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput5))
     {
-        auto wrapper = new IDXGIOutput5_Wrapper(static_cast<IDXGIOutput5*>(*object));
+        auto wrapper = new IDXGIOutput5_Wrapper(IID_IDXGIOutput5, static_cast<IDXGIOutput5*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput5*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -878,17 +891,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput5_Wrapper(static_cast<IDXGIOutput5*>(*object));
+            auto wrapper = new IDXGIOutput5_Wrapper(IID_IDXGIOutput5, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput5*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput4))
     {
-        auto wrapper = new IDXGIOutput4_Wrapper(static_cast<IDXGIOutput4*>(*object));
+        auto wrapper = new IDXGIOutput4_Wrapper(IID_IDXGIOutput4, static_cast<IDXGIOutput4*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -897,17 +910,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput4_Wrapper(static_cast<IDXGIOutput4*>(*object));
+            auto wrapper = new IDXGIOutput4_Wrapper(IID_IDXGIOutput4, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput3))
     {
-        auto wrapper = new IDXGIOutput3_Wrapper(static_cast<IDXGIOutput3*>(*object));
+        auto wrapper = new IDXGIOutput3_Wrapper(IID_IDXGIOutput3, static_cast<IDXGIOutput3*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -916,17 +929,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput3_Wrapper(static_cast<IDXGIOutput3*>(*object));
+            auto wrapper = new IDXGIOutput3_Wrapper(IID_IDXGIOutput3, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput2))
     {
-        auto wrapper = new IDXGIOutput2_Wrapper(static_cast<IDXGIOutput2*>(*object));
+        auto wrapper = new IDXGIOutput2_Wrapper(IID_IDXGIOutput2, static_cast<IDXGIOutput2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -935,17 +948,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput2_Wrapper(static_cast<IDXGIOutput2*>(*object));
+            auto wrapper = new IDXGIOutput2_Wrapper(IID_IDXGIOutput2, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput1))
     {
-        auto wrapper = new IDXGIOutput1_Wrapper(static_cast<IDXGIOutput1*>(*object));
+        auto wrapper = new IDXGIOutput1_Wrapper(IID_IDXGIOutput1, static_cast<IDXGIOutput1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -954,17 +967,17 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput1_Wrapper(static_cast<IDXGIOutput1*>(*object));
+            auto wrapper = new IDXGIOutput1_Wrapper(IID_IDXGIOutput1, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIOutput))
     {
-        auto wrapper = new IDXGIOutput_Wrapper(static_cast<IDXGIOutput*>(*object));
+        auto wrapper = new IDXGIOutput_Wrapper(IID_IDXGIOutput, static_cast<IDXGIOutput*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIOutput*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -973,24 +986,25 @@ void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIOutput_Wrapper(static_cast<IDXGIOutput*>(*object));
+            auto wrapper = new IDXGIOutput_Wrapper(IID_IDXGIOutput, converted, resources);
             (*object) = reinterpret_cast<IDXGIOutput*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIOutput object type for capture");
+    return nullptr;
 }
 
-void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
+IUnknown_Wrapper* WrapIDXGIFactory(REFIID riid, IDXGIFactory** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_IDXGIFactory7))
     {
-        auto wrapper = new IDXGIFactory7_Wrapper(static_cast<IDXGIFactory7*>(*object));
+        auto wrapper = new IDXGIFactory7_Wrapper(IID_IDXGIFactory7, static_cast<IDXGIFactory7*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory7*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -999,17 +1013,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory7_Wrapper(static_cast<IDXGIFactory7*>(*object));
+            auto wrapper = new IDXGIFactory7_Wrapper(IID_IDXGIFactory7, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory7*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory6))
     {
-        auto wrapper = new IDXGIFactory6_Wrapper(static_cast<IDXGIFactory6*>(*object));
+        auto wrapper = new IDXGIFactory6_Wrapper(IID_IDXGIFactory6, static_cast<IDXGIFactory6*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory6*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1018,17 +1032,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory6_Wrapper(static_cast<IDXGIFactory6*>(*object));
+            auto wrapper = new IDXGIFactory6_Wrapper(IID_IDXGIFactory6, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory6*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory5))
     {
-        auto wrapper = new IDXGIFactory5_Wrapper(static_cast<IDXGIFactory5*>(*object));
+        auto wrapper = new IDXGIFactory5_Wrapper(IID_IDXGIFactory5, static_cast<IDXGIFactory5*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory5*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1037,17 +1051,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory5_Wrapper(static_cast<IDXGIFactory5*>(*object));
+            auto wrapper = new IDXGIFactory5_Wrapper(IID_IDXGIFactory5, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory5*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory4))
     {
-        auto wrapper = new IDXGIFactory4_Wrapper(static_cast<IDXGIFactory4*>(*object));
+        auto wrapper = new IDXGIFactory4_Wrapper(IID_IDXGIFactory4, static_cast<IDXGIFactory4*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1056,17 +1070,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory4_Wrapper(static_cast<IDXGIFactory4*>(*object));
+            auto wrapper = new IDXGIFactory4_Wrapper(IID_IDXGIFactory4, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory3))
     {
-        auto wrapper = new IDXGIFactory3_Wrapper(static_cast<IDXGIFactory3*>(*object));
+        auto wrapper = new IDXGIFactory3_Wrapper(IID_IDXGIFactory3, static_cast<IDXGIFactory3*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1075,17 +1089,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory3_Wrapper(static_cast<IDXGIFactory3*>(*object));
+            auto wrapper = new IDXGIFactory3_Wrapper(IID_IDXGIFactory3, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory2))
     {
-        auto wrapper = new IDXGIFactory2_Wrapper(static_cast<IDXGIFactory2*>(*object));
+        auto wrapper = new IDXGIFactory2_Wrapper(IID_IDXGIFactory2, static_cast<IDXGIFactory2*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1094,17 +1108,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory2_Wrapper(static_cast<IDXGIFactory2*>(*object));
+            auto wrapper = new IDXGIFactory2_Wrapper(IID_IDXGIFactory2, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory1))
     {
-        auto wrapper = new IDXGIFactory1_Wrapper(static_cast<IDXGIFactory1*>(*object));
+        auto wrapper = new IDXGIFactory1_Wrapper(IID_IDXGIFactory1, static_cast<IDXGIFactory1*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1113,17 +1127,17 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory1_Wrapper(static_cast<IDXGIFactory1*>(*object));
+            auto wrapper = new IDXGIFactory1_Wrapper(IID_IDXGIFactory1, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_IDXGIFactory))
     {
-        auto wrapper = new IDXGIFactory_Wrapper(static_cast<IDXGIFactory*>(*object));
+        auto wrapper = new IDXGIFactory_Wrapper(IID_IDXGIFactory, static_cast<IDXGIFactory*>(*object), resources);
         (*object) = reinterpret_cast<IDXGIFactory*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1132,24 +1146,25 @@ void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new IDXGIFactory_Wrapper(static_cast<IDXGIFactory*>(*object));
+            auto wrapper = new IDXGIFactory_Wrapper(IID_IDXGIFactory, converted, resources);
             (*object) = reinterpret_cast<IDXGIFactory*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported IDXGIFactory object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object)
+IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12RootSignature))
     {
-        auto wrapper = new ID3D12RootSignature_Wrapper(static_cast<ID3D12RootSignature*>(*object));
+        auto wrapper = new ID3D12RootSignature_Wrapper(IID_ID3D12RootSignature, static_cast<ID3D12RootSignature*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12RootSignature*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1158,24 +1173,25 @@ void WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12RootSignature_Wrapper(static_cast<ID3D12RootSignature*>(*object));
+            auto wrapper = new ID3D12RootSignature_Wrapper(IID_ID3D12RootSignature, converted, resources);
             (*object) = reinterpret_cast<ID3D12RootSignature*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12RootSignature object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object)
+IUnknown_Wrapper* WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12RootSignatureDeserializer))
     {
-        auto wrapper = new ID3D12RootSignatureDeserializer_Wrapper(static_cast<ID3D12RootSignatureDeserializer*>(*object));
+        auto wrapper = new ID3D12RootSignatureDeserializer_Wrapper(IID_ID3D12RootSignatureDeserializer, static_cast<ID3D12RootSignatureDeserializer*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12RootSignatureDeserializer*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1184,24 +1200,25 @@ void WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeseria
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12RootSignatureDeserializer_Wrapper(static_cast<ID3D12RootSignatureDeserializer*>(*object));
+            auto wrapper = new ID3D12RootSignatureDeserializer_Wrapper(IID_ID3D12RootSignatureDeserializer, converted, resources);
             (*object) = reinterpret_cast<ID3D12RootSignatureDeserializer*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12RootSignatureDeserializer object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRootSignatureDeserializer** object)
+IUnknown_Wrapper* WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRootSignatureDeserializer** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12VersionedRootSignatureDeserializer))
     {
-        auto wrapper = new ID3D12VersionedRootSignatureDeserializer_Wrapper(static_cast<ID3D12VersionedRootSignatureDeserializer*>(*object));
+        auto wrapper = new ID3D12VersionedRootSignatureDeserializer_Wrapper(IID_ID3D12VersionedRootSignatureDeserializer, static_cast<ID3D12VersionedRootSignatureDeserializer*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12VersionedRootSignatureDeserializer*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1210,24 +1227,25 @@ void WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRo
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12VersionedRootSignatureDeserializer_Wrapper(static_cast<ID3D12VersionedRootSignatureDeserializer*>(*object));
+            auto wrapper = new ID3D12VersionedRootSignatureDeserializer_Wrapper(IID_ID3D12VersionedRootSignatureDeserializer, converted, resources);
             (*object) = reinterpret_cast<ID3D12VersionedRootSignatureDeserializer*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12VersionedRootSignatureDeserializer object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object)
+IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12CommandAllocator))
     {
-        auto wrapper = new ID3D12CommandAllocator_Wrapper(static_cast<ID3D12CommandAllocator*>(*object));
+        auto wrapper = new ID3D12CommandAllocator_Wrapper(IID_ID3D12CommandAllocator, static_cast<ID3D12CommandAllocator*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12CommandAllocator*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1236,24 +1254,25 @@ void WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12CommandAllocator_Wrapper(static_cast<ID3D12CommandAllocator*>(*object));
+            auto wrapper = new ID3D12CommandAllocator_Wrapper(IID_ID3D12CommandAllocator, converted, resources);
             (*object) = reinterpret_cast<ID3D12CommandAllocator*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12CommandAllocator object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12Fence(REFIID riid, ID3D12Fence** object)
+IUnknown_Wrapper* WrapID3D12Fence(REFIID riid, ID3D12Fence** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12Fence1))
     {
-        auto wrapper = new ID3D12Fence1_Wrapper(static_cast<ID3D12Fence1*>(*object));
+        auto wrapper = new ID3D12Fence1_Wrapper(IID_ID3D12Fence1, static_cast<ID3D12Fence1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Fence1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1262,17 +1281,17 @@ void WrapID3D12Fence(REFIID riid, ID3D12Fence** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Fence1_Wrapper(static_cast<ID3D12Fence1*>(*object));
+            auto wrapper = new ID3D12Fence1_Wrapper(IID_ID3D12Fence1, converted, resources);
             (*object) = reinterpret_cast<ID3D12Fence1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Fence))
     {
-        auto wrapper = new ID3D12Fence_Wrapper(static_cast<ID3D12Fence*>(*object));
+        auto wrapper = new ID3D12Fence_Wrapper(IID_ID3D12Fence, static_cast<ID3D12Fence*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Fence*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1281,24 +1300,25 @@ void WrapID3D12Fence(REFIID riid, ID3D12Fence** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Fence_Wrapper(static_cast<ID3D12Fence*>(*object));
+            auto wrapper = new ID3D12Fence_Wrapper(IID_ID3D12Fence, converted, resources);
             (*object) = reinterpret_cast<ID3D12Fence*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12Fence object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object)
+IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12PipelineState))
     {
-        auto wrapper = new ID3D12PipelineState_Wrapper(static_cast<ID3D12PipelineState*>(*object));
+        auto wrapper = new ID3D12PipelineState_Wrapper(IID_ID3D12PipelineState, static_cast<ID3D12PipelineState*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12PipelineState*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1307,24 +1327,25 @@ void WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12PipelineState_Wrapper(static_cast<ID3D12PipelineState*>(*object));
+            auto wrapper = new ID3D12PipelineState_Wrapper(IID_ID3D12PipelineState, converted, resources);
             (*object) = reinterpret_cast<ID3D12PipelineState*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12PipelineState object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object)
+IUnknown_Wrapper* WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12DescriptorHeap))
     {
-        auto wrapper = new ID3D12DescriptorHeap_Wrapper(static_cast<ID3D12DescriptorHeap*>(*object));
+        auto wrapper = new ID3D12DescriptorHeap_Wrapper(IID_ID3D12DescriptorHeap, static_cast<ID3D12DescriptorHeap*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12DescriptorHeap*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1333,24 +1354,25 @@ void WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12DescriptorHeap_Wrapper(static_cast<ID3D12DescriptorHeap*>(*object));
+            auto wrapper = new ID3D12DescriptorHeap_Wrapper(IID_ID3D12DescriptorHeap, converted, resources);
             (*object) = reinterpret_cast<ID3D12DescriptorHeap*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12DescriptorHeap object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object)
+IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12QueryHeap))
     {
-        auto wrapper = new ID3D12QueryHeap_Wrapper(static_cast<ID3D12QueryHeap*>(*object));
+        auto wrapper = new ID3D12QueryHeap_Wrapper(IID_ID3D12QueryHeap, static_cast<ID3D12QueryHeap*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12QueryHeap*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1359,24 +1381,25 @@ void WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12QueryHeap_Wrapper(static_cast<ID3D12QueryHeap*>(*object));
+            auto wrapper = new ID3D12QueryHeap_Wrapper(IID_ID3D12QueryHeap, converted, resources);
             (*object) = reinterpret_cast<ID3D12QueryHeap*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12QueryHeap object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object)
+IUnknown_Wrapper* WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12CommandSignature))
     {
-        auto wrapper = new ID3D12CommandSignature_Wrapper(static_cast<ID3D12CommandSignature*>(*object));
+        auto wrapper = new ID3D12CommandSignature_Wrapper(IID_ID3D12CommandSignature, static_cast<ID3D12CommandSignature*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12CommandSignature*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1385,24 +1408,25 @@ void WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12CommandSignature_Wrapper(static_cast<ID3D12CommandSignature*>(*object));
+            auto wrapper = new ID3D12CommandSignature_Wrapper(IID_ID3D12CommandSignature, converted, resources);
             (*object) = reinterpret_cast<ID3D12CommandSignature*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12CommandSignature object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object)
+IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12CommandQueue))
     {
-        auto wrapper = new ID3D12CommandQueue_Wrapper(static_cast<ID3D12CommandQueue*>(*object));
+        auto wrapper = new ID3D12CommandQueue_Wrapper(IID_ID3D12CommandQueue, static_cast<ID3D12CommandQueue*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12CommandQueue*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1411,24 +1435,25 @@ void WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12CommandQueue_Wrapper(static_cast<ID3D12CommandQueue*>(*object));
+            auto wrapper = new ID3D12CommandQueue_Wrapper(IID_ID3D12CommandQueue, converted, resources);
             (*object) = reinterpret_cast<ID3D12CommandQueue*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12CommandQueue object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object)
+IUnknown_Wrapper* WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12PipelineLibrary1))
     {
-        auto wrapper = new ID3D12PipelineLibrary1_Wrapper(static_cast<ID3D12PipelineLibrary1*>(*object));
+        auto wrapper = new ID3D12PipelineLibrary1_Wrapper(IID_ID3D12PipelineLibrary1, static_cast<ID3D12PipelineLibrary1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12PipelineLibrary1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1437,17 +1462,17 @@ void WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12PipelineLibrary1_Wrapper(static_cast<ID3D12PipelineLibrary1*>(*object));
+            auto wrapper = new ID3D12PipelineLibrary1_Wrapper(IID_ID3D12PipelineLibrary1, converted, resources);
             (*object) = reinterpret_cast<ID3D12PipelineLibrary1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12PipelineLibrary))
     {
-        auto wrapper = new ID3D12PipelineLibrary_Wrapper(static_cast<ID3D12PipelineLibrary*>(*object));
+        auto wrapper = new ID3D12PipelineLibrary_Wrapper(IID_ID3D12PipelineLibrary, static_cast<ID3D12PipelineLibrary*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12PipelineLibrary*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1456,24 +1481,25 @@ void WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12PipelineLibrary_Wrapper(static_cast<ID3D12PipelineLibrary*>(*object));
+            auto wrapper = new ID3D12PipelineLibrary_Wrapper(IID_ID3D12PipelineLibrary, converted, resources);
             (*object) = reinterpret_cast<ID3D12PipelineLibrary*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12PipelineLibrary object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object)
+IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12LifetimeOwner))
     {
-        auto wrapper = new ID3D12LifetimeOwner_Wrapper(static_cast<ID3D12LifetimeOwner*>(*object));
+        auto wrapper = new ID3D12LifetimeOwner_Wrapper(IID_ID3D12LifetimeOwner, static_cast<ID3D12LifetimeOwner*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12LifetimeOwner*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1482,24 +1508,25 @@ void WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12LifetimeOwner_Wrapper(static_cast<ID3D12LifetimeOwner*>(*object));
+            auto wrapper = new ID3D12LifetimeOwner_Wrapper(IID_ID3D12LifetimeOwner, converted, resources);
             (*object) = reinterpret_cast<ID3D12LifetimeOwner*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12LifetimeOwner object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object)
+IUnknown_Wrapper* WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12SwapChainAssistant))
     {
-        auto wrapper = new ID3D12SwapChainAssistant_Wrapper(static_cast<ID3D12SwapChainAssistant*>(*object));
+        auto wrapper = new ID3D12SwapChainAssistant_Wrapper(IID_ID3D12SwapChainAssistant, static_cast<ID3D12SwapChainAssistant*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12SwapChainAssistant*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1508,24 +1535,25 @@ void WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12SwapChainAssistant_Wrapper(static_cast<ID3D12SwapChainAssistant*>(*object));
+            auto wrapper = new ID3D12SwapChainAssistant_Wrapper(IID_ID3D12SwapChainAssistant, converted, resources);
             (*object) = reinterpret_cast<ID3D12SwapChainAssistant*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12SwapChainAssistant object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object)
+IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12LifetimeTracker))
     {
-        auto wrapper = new ID3D12LifetimeTracker_Wrapper(static_cast<ID3D12LifetimeTracker*>(*object));
+        auto wrapper = new ID3D12LifetimeTracker_Wrapper(IID_ID3D12LifetimeTracker, static_cast<ID3D12LifetimeTracker*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12LifetimeTracker*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1534,24 +1562,25 @@ void WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12LifetimeTracker_Wrapper(static_cast<ID3D12LifetimeTracker*>(*object));
+            auto wrapper = new ID3D12LifetimeTracker_Wrapper(IID_ID3D12LifetimeTracker, converted, resources);
             (*object) = reinterpret_cast<ID3D12LifetimeTracker*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12LifetimeTracker object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object)
+IUnknown_Wrapper* WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12StateObject))
     {
-        auto wrapper = new ID3D12StateObject_Wrapper(static_cast<ID3D12StateObject*>(*object));
+        auto wrapper = new ID3D12StateObject_Wrapper(IID_ID3D12StateObject, static_cast<ID3D12StateObject*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12StateObject*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1560,24 +1589,25 @@ void WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12StateObject_Wrapper(static_cast<ID3D12StateObject*>(*object));
+            auto wrapper = new ID3D12StateObject_Wrapper(IID_ID3D12StateObject, converted, resources);
             (*object) = reinterpret_cast<ID3D12StateObject*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12StateObject object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** object)
+IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12StateObjectProperties))
     {
-        auto wrapper = new ID3D12StateObjectProperties_Wrapper(static_cast<ID3D12StateObjectProperties*>(*object));
+        auto wrapper = new ID3D12StateObjectProperties_Wrapper(IID_ID3D12StateObjectProperties, static_cast<ID3D12StateObjectProperties*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12StateObjectProperties*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1586,24 +1616,25 @@ void WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** 
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12StateObjectProperties_Wrapper(static_cast<ID3D12StateObjectProperties*>(*object));
+            auto wrapper = new ID3D12StateObjectProperties_Wrapper(IID_ID3D12StateObjectProperties, converted, resources);
             (*object) = reinterpret_cast<ID3D12StateObjectProperties*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12StateObjectProperties object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object)
+IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings1))
     {
-        auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(*object));
+        auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(IID_ID3D12DeviceRemovedExtendedDataSettings1, static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1612,17 +1643,17 @@ void WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemove
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(*object));
+            auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(IID_ID3D12DeviceRemovedExtendedDataSettings1, converted, resources);
             (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings))
     {
-        auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings_Wrapper(static_cast<ID3D12DeviceRemovedExtendedDataSettings*>(*object));
+        auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings_Wrapper(IID_ID3D12DeviceRemovedExtendedDataSettings, static_cast<ID3D12DeviceRemovedExtendedDataSettings*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1631,24 +1662,25 @@ void WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemove
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings_Wrapper(static_cast<ID3D12DeviceRemovedExtendedDataSettings*>(*object));
+            auto wrapper = new ID3D12DeviceRemovedExtendedDataSettings_Wrapper(IID_ID3D12DeviceRemovedExtendedDataSettings, converted, resources);
             (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12DeviceRemovedExtendedDataSettings object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtendedData** object)
+IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtendedData** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData1))
     {
-        auto wrapper = new ID3D12DeviceRemovedExtendedData1_Wrapper(static_cast<ID3D12DeviceRemovedExtendedData1*>(*object));
+        auto wrapper = new ID3D12DeviceRemovedExtendedData1_Wrapper(IID_ID3D12DeviceRemovedExtendedData1, static_cast<ID3D12DeviceRemovedExtendedData1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedData1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1657,17 +1689,17 @@ void WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtende
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12DeviceRemovedExtendedData1_Wrapper(static_cast<ID3D12DeviceRemovedExtendedData1*>(*object));
+            auto wrapper = new ID3D12DeviceRemovedExtendedData1_Wrapper(IID_ID3D12DeviceRemovedExtendedData1, converted, resources);
             (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedData1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData))
     {
-        auto wrapper = new ID3D12DeviceRemovedExtendedData_Wrapper(static_cast<ID3D12DeviceRemovedExtendedData*>(*object));
+        auto wrapper = new ID3D12DeviceRemovedExtendedData_Wrapper(IID_ID3D12DeviceRemovedExtendedData, static_cast<ID3D12DeviceRemovedExtendedData*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedData*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1676,24 +1708,25 @@ void WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtende
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12DeviceRemovedExtendedData_Wrapper(static_cast<ID3D12DeviceRemovedExtendedData*>(*object));
+            auto wrapper = new ID3D12DeviceRemovedExtendedData_Wrapper(IID_ID3D12DeviceRemovedExtendedData, converted, resources);
             (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedData*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12DeviceRemovedExtendedData object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSession** object)
+IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSession** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12ProtectedResourceSession1))
     {
-        auto wrapper = new ID3D12ProtectedResourceSession1_Wrapper(static_cast<ID3D12ProtectedResourceSession1*>(*object));
+        auto wrapper = new ID3D12ProtectedResourceSession1_Wrapper(IID_ID3D12ProtectedResourceSession1, static_cast<ID3D12ProtectedResourceSession1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12ProtectedResourceSession1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1702,17 +1735,17 @@ void WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSess
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12ProtectedResourceSession1_Wrapper(static_cast<ID3D12ProtectedResourceSession1*>(*object));
+            auto wrapper = new ID3D12ProtectedResourceSession1_Wrapper(IID_ID3D12ProtectedResourceSession1, converted, resources);
             (*object) = reinterpret_cast<ID3D12ProtectedResourceSession1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12ProtectedResourceSession))
     {
-        auto wrapper = new ID3D12ProtectedResourceSession_Wrapper(static_cast<ID3D12ProtectedResourceSession*>(*object));
+        auto wrapper = new ID3D12ProtectedResourceSession_Wrapper(IID_ID3D12ProtectedResourceSession, static_cast<ID3D12ProtectedResourceSession*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12ProtectedResourceSession*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1721,24 +1754,25 @@ void WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSess
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12ProtectedResourceSession_Wrapper(static_cast<ID3D12ProtectedResourceSession*>(*object));
+            auto wrapper = new ID3D12ProtectedResourceSession_Wrapper(IID_ID3D12ProtectedResourceSession, converted, resources);
             (*object) = reinterpret_cast<ID3D12ProtectedResourceSession*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12ProtectedResourceSession object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12Device(REFIID riid, ID3D12Device** object)
+IUnknown_Wrapper* WrapID3D12Device(REFIID riid, ID3D12Device** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12Device8))
     {
-        auto wrapper = new ID3D12Device8_Wrapper(static_cast<ID3D12Device8*>(*object));
+        auto wrapper = new ID3D12Device8_Wrapper(IID_ID3D12Device8, static_cast<ID3D12Device8*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device8*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1747,17 +1781,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device8_Wrapper(static_cast<ID3D12Device8*>(*object));
+            auto wrapper = new ID3D12Device8_Wrapper(IID_ID3D12Device8, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device8*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device7))
     {
-        auto wrapper = new ID3D12Device7_Wrapper(static_cast<ID3D12Device7*>(*object));
+        auto wrapper = new ID3D12Device7_Wrapper(IID_ID3D12Device7, static_cast<ID3D12Device7*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device7*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1766,17 +1800,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device7_Wrapper(static_cast<ID3D12Device7*>(*object));
+            auto wrapper = new ID3D12Device7_Wrapper(IID_ID3D12Device7, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device7*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device6))
     {
-        auto wrapper = new ID3D12Device6_Wrapper(static_cast<ID3D12Device6*>(*object));
+        auto wrapper = new ID3D12Device6_Wrapper(IID_ID3D12Device6, static_cast<ID3D12Device6*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device6*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1785,17 +1819,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device6_Wrapper(static_cast<ID3D12Device6*>(*object));
+            auto wrapper = new ID3D12Device6_Wrapper(IID_ID3D12Device6, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device6*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device5))
     {
-        auto wrapper = new ID3D12Device5_Wrapper(static_cast<ID3D12Device5*>(*object));
+        auto wrapper = new ID3D12Device5_Wrapper(IID_ID3D12Device5, static_cast<ID3D12Device5*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device5*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1804,17 +1838,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device5_Wrapper(static_cast<ID3D12Device5*>(*object));
+            auto wrapper = new ID3D12Device5_Wrapper(IID_ID3D12Device5, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device5*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device4))
     {
-        auto wrapper = new ID3D12Device4_Wrapper(static_cast<ID3D12Device4*>(*object));
+        auto wrapper = new ID3D12Device4_Wrapper(IID_ID3D12Device4, static_cast<ID3D12Device4*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1823,17 +1857,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device4_Wrapper(static_cast<ID3D12Device4*>(*object));
+            auto wrapper = new ID3D12Device4_Wrapper(IID_ID3D12Device4, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device3))
     {
-        auto wrapper = new ID3D12Device3_Wrapper(static_cast<ID3D12Device3*>(*object));
+        auto wrapper = new ID3D12Device3_Wrapper(IID_ID3D12Device3, static_cast<ID3D12Device3*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1842,17 +1876,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device3_Wrapper(static_cast<ID3D12Device3*>(*object));
+            auto wrapper = new ID3D12Device3_Wrapper(IID_ID3D12Device3, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device2))
     {
-        auto wrapper = new ID3D12Device2_Wrapper(static_cast<ID3D12Device2*>(*object));
+        auto wrapper = new ID3D12Device2_Wrapper(IID_ID3D12Device2, static_cast<ID3D12Device2*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1861,17 +1895,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device2_Wrapper(static_cast<ID3D12Device2*>(*object));
+            auto wrapper = new ID3D12Device2_Wrapper(IID_ID3D12Device2, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device1))
     {
-        auto wrapper = new ID3D12Device1_Wrapper(static_cast<ID3D12Device1*>(*object));
+        auto wrapper = new ID3D12Device1_Wrapper(IID_ID3D12Device1, static_cast<ID3D12Device1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1880,17 +1914,17 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device1_Wrapper(static_cast<ID3D12Device1*>(*object));
+            auto wrapper = new ID3D12Device1_Wrapper(IID_ID3D12Device1, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Device))
     {
-        auto wrapper = new ID3D12Device_Wrapper(static_cast<ID3D12Device*>(*object));
+        auto wrapper = new ID3D12Device_Wrapper(IID_ID3D12Device, static_cast<ID3D12Device*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Device*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1899,24 +1933,25 @@ void WrapID3D12Device(REFIID riid, ID3D12Device** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Device_Wrapper(static_cast<ID3D12Device*>(*object));
+            auto wrapper = new ID3D12Device_Wrapper(IID_ID3D12Device, converted, resources);
             (*object) = reinterpret_cast<ID3D12Device*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12Device object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12Resource(REFIID riid, ID3D12Resource** object)
+IUnknown_Wrapper* WrapID3D12Resource(REFIID riid, ID3D12Resource** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12Resource2))
     {
-        auto wrapper = new ID3D12Resource2_Wrapper(static_cast<ID3D12Resource2*>(*object));
+        auto wrapper = new ID3D12Resource2_Wrapper(IID_ID3D12Resource2, static_cast<ID3D12Resource2*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Resource2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1925,17 +1960,17 @@ void WrapID3D12Resource(REFIID riid, ID3D12Resource** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Resource2_Wrapper(static_cast<ID3D12Resource2*>(*object));
+            auto wrapper = new ID3D12Resource2_Wrapper(IID_ID3D12Resource2, converted, resources);
             (*object) = reinterpret_cast<ID3D12Resource2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Resource1))
     {
-        auto wrapper = new ID3D12Resource1_Wrapper(static_cast<ID3D12Resource1*>(*object));
+        auto wrapper = new ID3D12Resource1_Wrapper(IID_ID3D12Resource1, static_cast<ID3D12Resource1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Resource1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1944,17 +1979,17 @@ void WrapID3D12Resource(REFIID riid, ID3D12Resource** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Resource1_Wrapper(static_cast<ID3D12Resource1*>(*object));
+            auto wrapper = new ID3D12Resource1_Wrapper(IID_ID3D12Resource1, converted, resources);
             (*object) = reinterpret_cast<ID3D12Resource1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Resource))
     {
-        auto wrapper = new ID3D12Resource_Wrapper(static_cast<ID3D12Resource*>(*object));
+        auto wrapper = new ID3D12Resource_Wrapper(IID_ID3D12Resource, static_cast<ID3D12Resource*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Resource*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1963,24 +1998,25 @@ void WrapID3D12Resource(REFIID riid, ID3D12Resource** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Resource_Wrapper(static_cast<ID3D12Resource*>(*object));
+            auto wrapper = new ID3D12Resource_Wrapper(IID_ID3D12Resource, converted, resources);
             (*object) = reinterpret_cast<ID3D12Resource*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12Resource object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12Heap(REFIID riid, ID3D12Heap** object)
+IUnknown_Wrapper* WrapID3D12Heap(REFIID riid, ID3D12Heap** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12Heap1))
     {
-        auto wrapper = new ID3D12Heap1_Wrapper(static_cast<ID3D12Heap1*>(*object));
+        auto wrapper = new ID3D12Heap1_Wrapper(IID_ID3D12Heap1, static_cast<ID3D12Heap1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Heap1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -1989,17 +2025,17 @@ void WrapID3D12Heap(REFIID riid, ID3D12Heap** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Heap1_Wrapper(static_cast<ID3D12Heap1*>(*object));
+            auto wrapper = new ID3D12Heap1_Wrapper(IID_ID3D12Heap1, converted, resources);
             (*object) = reinterpret_cast<ID3D12Heap1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12Heap))
     {
-        auto wrapper = new ID3D12Heap_Wrapper(static_cast<ID3D12Heap*>(*object));
+        auto wrapper = new ID3D12Heap_Wrapper(IID_ID3D12Heap, static_cast<ID3D12Heap*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Heap*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2008,24 +2044,25 @@ void WrapID3D12Heap(REFIID riid, ID3D12Heap** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Heap_Wrapper(static_cast<ID3D12Heap*>(*object));
+            auto wrapper = new ID3D12Heap_Wrapper(IID_ID3D12Heap, converted, resources);
             (*object) = reinterpret_cast<ID3D12Heap*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12Heap object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object)
+IUnknown_Wrapper* WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12MetaCommand))
     {
-        auto wrapper = new ID3D12MetaCommand_Wrapper(static_cast<ID3D12MetaCommand*>(*object));
+        auto wrapper = new ID3D12MetaCommand_Wrapper(IID_ID3D12MetaCommand, static_cast<ID3D12MetaCommand*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12MetaCommand*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2034,24 +2071,25 @@ void WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12MetaCommand_Wrapper(static_cast<ID3D12MetaCommand*>(*object));
+            auto wrapper = new ID3D12MetaCommand_Wrapper(IID_ID3D12MetaCommand, converted, resources);
             (*object) = reinterpret_cast<ID3D12MetaCommand*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12MetaCommand object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12Tools(REFIID riid, ID3D12Tools** object)
+IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12Tools))
     {
-        auto wrapper = new ID3D12Tools_Wrapper(static_cast<ID3D12Tools*>(*object));
+        auto wrapper = new ID3D12Tools_Wrapper(IID_ID3D12Tools, static_cast<ID3D12Tools*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12Tools*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2060,24 +2098,25 @@ void WrapID3D12Tools(REFIID riid, ID3D12Tools** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12Tools_Wrapper(static_cast<ID3D12Tools*>(*object));
+            auto wrapper = new ID3D12Tools_Wrapper(IID_ID3D12Tools, converted, resources);
             (*object) = reinterpret_cast<ID3D12Tools*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12Tools object type for capture");
+    return nullptr;
 }
 
-void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object)
+IUnknown_Wrapper* WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList6))
     {
-        auto wrapper = new ID3D12GraphicsCommandList6_Wrapper(static_cast<ID3D12GraphicsCommandList6*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList6_Wrapper(IID_ID3D12GraphicsCommandList6, static_cast<ID3D12GraphicsCommandList6*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList6*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2086,17 +2125,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList6_Wrapper(static_cast<ID3D12GraphicsCommandList6*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList6_Wrapper(IID_ID3D12GraphicsCommandList6, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList6*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList5))
     {
-        auto wrapper = new ID3D12GraphicsCommandList5_Wrapper(static_cast<ID3D12GraphicsCommandList5*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList5_Wrapper(IID_ID3D12GraphicsCommandList5, static_cast<ID3D12GraphicsCommandList5*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList5*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2105,17 +2144,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList5_Wrapper(static_cast<ID3D12GraphicsCommandList5*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList5_Wrapper(IID_ID3D12GraphicsCommandList5, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList5*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList4))
     {
-        auto wrapper = new ID3D12GraphicsCommandList4_Wrapper(static_cast<ID3D12GraphicsCommandList4*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList4_Wrapper(IID_ID3D12GraphicsCommandList4, static_cast<ID3D12GraphicsCommandList4*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList4*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2124,17 +2163,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList4_Wrapper(static_cast<ID3D12GraphicsCommandList4*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList4_Wrapper(IID_ID3D12GraphicsCommandList4, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList4*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList3))
     {
-        auto wrapper = new ID3D12GraphicsCommandList3_Wrapper(static_cast<ID3D12GraphicsCommandList3*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList3_Wrapper(IID_ID3D12GraphicsCommandList3, static_cast<ID3D12GraphicsCommandList3*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList3*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2143,17 +2182,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList3_Wrapper(static_cast<ID3D12GraphicsCommandList3*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList3_Wrapper(IID_ID3D12GraphicsCommandList3, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList3*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList2))
     {
-        auto wrapper = new ID3D12GraphicsCommandList2_Wrapper(static_cast<ID3D12GraphicsCommandList2*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList2_Wrapper(IID_ID3D12GraphicsCommandList2, static_cast<ID3D12GraphicsCommandList2*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList2*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2162,17 +2201,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList2_Wrapper(static_cast<ID3D12GraphicsCommandList2*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList2_Wrapper(IID_ID3D12GraphicsCommandList2, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList2*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList1))
     {
-        auto wrapper = new ID3D12GraphicsCommandList1_Wrapper(static_cast<ID3D12GraphicsCommandList1*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList1_Wrapper(IID_ID3D12GraphicsCommandList1, static_cast<ID3D12GraphicsCommandList1*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList1*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2181,17 +2220,17 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList1_Wrapper(static_cast<ID3D12GraphicsCommandList1*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList1_Wrapper(IID_ID3D12GraphicsCommandList1, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList1*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList))
     {
-        auto wrapper = new ID3D12GraphicsCommandList_Wrapper(static_cast<ID3D12GraphicsCommandList*>(*object));
+        auto wrapper = new ID3D12GraphicsCommandList_Wrapper(IID_ID3D12GraphicsCommandList, static_cast<ID3D12GraphicsCommandList*>(*object), resources);
         (*object) = reinterpret_cast<ID3D12GraphicsCommandList*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2200,24 +2239,25 @@ void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** obje
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D12GraphicsCommandList_Wrapper(static_cast<ID3D12GraphicsCommandList*>(*object));
+            auto wrapper = new ID3D12GraphicsCommandList_Wrapper(IID_ID3D12GraphicsCommandList, converted, resources);
             (*object) = reinterpret_cast<ID3D12GraphicsCommandList*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D12GraphicsCommandList object type for capture");
+    return nullptr;
 }
 
-void WrapID3D10Blob(REFIID riid, ID3D10Blob** object)
+IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3D10Blob))
     {
-        auto wrapper = new ID3D10Blob_Wrapper(static_cast<ID3D10Blob*>(*object));
+        auto wrapper = new ID3D10Blob_Wrapper(IID_ID3D10Blob, static_cast<ID3D10Blob*>(*object), resources);
         (*object) = reinterpret_cast<ID3D10Blob*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2226,24 +2266,25 @@ void WrapID3D10Blob(REFIID riid, ID3D10Blob** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3D10Blob_Wrapper(static_cast<ID3D10Blob*>(*object));
+            auto wrapper = new ID3D10Blob_Wrapper(IID_ID3D10Blob, converted, resources);
             (*object) = reinterpret_cast<ID3D10Blob*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3D10Blob object type for capture");
+    return nullptr;
 }
 
-void WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object)
+IUnknown_Wrapper* WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
 
     if (IsEqualIID(riid, IID_ID3DDestructionNotifier))
     {
-        auto wrapper = new ID3DDestructionNotifier_Wrapper(static_cast<ID3DDestructionNotifier*>(*object));
+        auto wrapper = new ID3DDestructionNotifier_Wrapper(IID_ID3DDestructionNotifier, static_cast<ID3DDestructionNotifier*>(*object), resources);
         (*object) = reinterpret_cast<ID3DDestructionNotifier*>(wrapper);
-        return;
+        return wrapper;
     }
     else
     {
@@ -2252,13 +2293,14 @@ void WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object)
         if (SUCCEEDED(result))
         {
             (*object)->Release();
-            auto wrapper = new ID3DDestructionNotifier_Wrapper(static_cast<ID3DDestructionNotifier*>(*object));
+            auto wrapper = new ID3DDestructionNotifier_Wrapper(IID_ID3DDestructionNotifier, converted, resources);
             (*object) = reinterpret_cast<ID3DDestructionNotifier*>(wrapper);
-            return;
+            return wrapper;
         }
     }
 
     GFXRECON_LOG_FATAL("Failed to wrap unsupported ID3DDestructionNotifier object type for capture");
+    return nullptr;
 }
 
 GFXRECON_END_NAMESPACE(encode)

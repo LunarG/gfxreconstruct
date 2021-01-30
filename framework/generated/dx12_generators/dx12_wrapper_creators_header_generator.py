@@ -129,7 +129,8 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
 
     def gen_catch_all_create(self, final_class_names, indent):
         decl = indent
-        decl += 'void WrapObject(REFIID riid, void** object);\n'
+        decl += 'IUnknown_Wrapper* WrapObject(REFIID riid, void** object,'\
+            ' DxWrapperResources* resources);\n'
         return decl
 
     def gen_wrapper_create(self, final_class_name, indent):
@@ -140,9 +141,9 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'void {}(REFIID riid, {} object);\n'.format(
-            func_name, param_type
-        )
+        decl += 'IUnknown_Wrapper*  {}(REFIID riid, {} object,'\
+            ' DxWrapperResources* resources);\n'.format(func_name,
+                                                        param_type)
         return decl
 
     def generate_all(self):
@@ -159,6 +160,7 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = ''
+        code += '#include "encode/dx12_object_wrapper_resources.h"\n'
         code += '#include "util/defines.h"\n'
         code += '\n'
 

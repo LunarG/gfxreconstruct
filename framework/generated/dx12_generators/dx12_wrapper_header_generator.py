@@ -129,7 +129,8 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         indent = self.increment_indent(indent)
 
         # Constructor
-        expr += indent + '{name}_Wrapper({name}* object);\n'.format(name=name)
+        expr += indent + '{name}_Wrapper(REFIID riid, {name}* object,'\
+            ' DxWrapperResources* resources = nullptr);\n'.format(name=name)
 
         # Object "getter"
         expr += '\n'

@@ -153,26 +153,31 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             expr += ')\n'
             expr += indent + '{\n'
             expr += self.increment_indent(indent)
-            expr += '{}(riid, {});\n'.format(func_name, arg_value)
+            expr += 'return {}(riid, {}, resources);\n'.format(
+                func_name, arg_value
+            )
             expr += indent + '}\n'
 
         return expr
 
     def gen_catch_all_create(self, final_class_names, indent):
         decl = indent
-        decl += 'void WrapObject(REFIID riid, void** object)\n'
+        decl += 'IUnknown_Wrapper* WrapObject(REFIID riid, void** object,'\
+            ' DxWrapperResources* resources)\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
 
         decl += indent + 'if ((object == nullptr) || (*object == nullptr))\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
-        decl += indent + 'return;\n'
+        decl += indent + 'return nullptr;\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
         decl += '\n'
 
         decl += self.gen_iid_if_else_expr(final_class_names, indent)
+        decl += '\n'
+        decl += indent + 'return nullptr;\n'
 
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
@@ -187,9 +192,9 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'void {}(REFIID riid, {} object)\n'.format(
-            func_name, param_type
-        )
+        decl += 'IUnknown_Wrapper* {}(REFIID riid, {} object,'\
+            ' DxWrapperResources* resources)\n'.format(func_name,
+                                                       param_type)
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
 
@@ -205,7 +210,6 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             if i > 0:
                 decl += '\n'
 
-            arg_value = 'static_cast<{}*>(*object)'.format(name)
             cast_value = 'reinterpret_cast<{}*>(wrapper)'.format(name)
 
             # If the current type is already the version being checked,
@@ -214,11 +218,13 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             decl += indent + '{\n'
             indent = self.increment_indent(indent)
 
+            arg_list = 'IID_{name}, static_cast<{name}*>(*object),'\
+                ' resources'.format(name=name)
             decl += indent + 'auto wrapper = new {}_Wrapper({});\n'.format(
-                name, arg_value
+                name, arg_list
             )
             decl += indent + '(*object) = {};\n'.format(cast_value)
-            decl += indent + 'return;\n'
+            decl += indent + 'return wrapper;\n'
 
             indent = self.decrement_indent(indent)
             decl += indent + '}\n'
@@ -235,12 +241,13 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             decl += indent + '{\n'
             indent = self.increment_indent(indent)
 
+            arg_list = 'IID_{}, converted, resources'.format(name)
             decl += indent + '(*object)->Release();\n'
             decl += indent + 'auto wrapper = new {}_Wrapper({});\n'.format(
-                name, arg_value
+                name, arg_list
             )
             decl += indent + '(*object) = {};\n'.format(cast_value)
-            decl += indent + 'return;\n'
+            decl += indent + 'return wrapper;\n'
 
             indent = self.decrement_indent(indent)
             decl += indent + '}\n'
@@ -252,6 +259,7 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         decl += indent + 'GFXRECON_LOG_FATAL("'\
             'Failed to wrap unsupported {} object type for capture"'\
             ');\n'.format(first_class)
+        decl += indent + 'return nullptr;\n'
 
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'

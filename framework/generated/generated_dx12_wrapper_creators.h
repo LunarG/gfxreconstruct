@@ -28,6 +28,7 @@
 #ifndef  GFXRECON_GENERATED_DX12_WRAPPER_CREATORS_H
 #define  GFXRECON_GENERATED_DX12_WRAPPER_CREATORS_H
 
+#include "encode/dx12_object_wrapper_resources.h"
 #include "util/defines.h"
 
 #include <dxgi.h>
@@ -49,87 +50,87 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void WrapObject(REFIID riid, void** object);
+IUnknown_Wrapper* WrapObject(REFIID riid, void** object, DxWrapperResources* resources);
 
-void WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object);
+IUnknown_Wrapper*  WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxWrapperResources* resources);
 
-void WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object);
+IUnknown_Wrapper*  WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object, DxWrapperResources* resources);
 
-void WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object);
+IUnknown_Wrapper*  WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object, DxWrapperResources* resources);
 
-void WrapIDXGISurface(REFIID riid, IDXGISurface** object);
+IUnknown_Wrapper*  WrapIDXGISurface(REFIID riid, IDXGISurface** object, DxWrapperResources* resources);
 
-void WrapIDXGIResource(REFIID riid, IDXGIResource** object);
+IUnknown_Wrapper*  WrapIDXGIResource(REFIID riid, IDXGIResource** object, DxWrapperResources* resources);
 
-void WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object);
+IUnknown_Wrapper*  WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object, DxWrapperResources* resources);
 
-void WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object);
+IUnknown_Wrapper*  WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object, DxWrapperResources* resources);
 
-void WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object);
+IUnknown_Wrapper*  WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object, DxWrapperResources* resources);
 
-void WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object);
+IUnknown_Wrapper*  WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object, DxWrapperResources* resources);
 
-void WrapIDXGIDevice(REFIID riid, IDXGIDevice** object);
+IUnknown_Wrapper*  WrapIDXGIDevice(REFIID riid, IDXGIDevice** object, DxWrapperResources* resources);
 
-void WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object);
+IUnknown_Wrapper*  WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapperResources* resources);
 
-void WrapIDXGIOutput(REFIID riid, IDXGIOutput** object);
+IUnknown_Wrapper*  WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperResources* resources);
 
-void WrapIDXGIFactory(REFIID riid, IDXGIFactory** object);
+IUnknown_Wrapper*  WrapIDXGIFactory(REFIID riid, IDXGIFactory** object, DxWrapperResources* resources);
 
-void WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object);
+IUnknown_Wrapper*  WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object, DxWrapperResources* resources);
 
-void WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object);
+IUnknown_Wrapper*  WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object, DxWrapperResources* resources);
 
-void WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRootSignatureDeserializer** object);
+IUnknown_Wrapper*  WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRootSignatureDeserializer** object, DxWrapperResources* resources);
 
-void WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object);
+IUnknown_Wrapper*  WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object, DxWrapperResources* resources);
 
-void WrapID3D12Fence(REFIID riid, ID3D12Fence** object);
+IUnknown_Wrapper*  WrapID3D12Fence(REFIID riid, ID3D12Fence** object, DxWrapperResources* resources);
 
-void WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object);
+IUnknown_Wrapper*  WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object, DxWrapperResources* resources);
 
-void WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object);
+IUnknown_Wrapper*  WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object, DxWrapperResources* resources);
 
-void WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object);
+IUnknown_Wrapper*  WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxWrapperResources* resources);
 
-void WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object);
+IUnknown_Wrapper*  WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object, DxWrapperResources* resources);
 
-void WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object);
+IUnknown_Wrapper*  WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object, DxWrapperResources* resources);
 
-void WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object);
+IUnknown_Wrapper*  WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object, DxWrapperResources* resources);
 
-void WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object);
+IUnknown_Wrapper*  WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object, DxWrapperResources* resources);
 
-void WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object);
+IUnknown_Wrapper*  WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object, DxWrapperResources* resources);
 
-void WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object);
+IUnknown_Wrapper*  WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object, DxWrapperResources* resources);
 
-void WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object);
+IUnknown_Wrapper*  WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object, DxWrapperResources* resources);
 
-void WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** object);
+IUnknown_Wrapper*  WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** object, DxWrapperResources* resources);
 
-void WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object);
+IUnknown_Wrapper*  WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object, DxWrapperResources* resources);
 
-void WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtendedData** object);
+IUnknown_Wrapper*  WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtendedData** object, DxWrapperResources* resources);
 
-void WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSession** object);
+IUnknown_Wrapper*  WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSession** object, DxWrapperResources* resources);
 
-void WrapID3D12Device(REFIID riid, ID3D12Device** object);
+IUnknown_Wrapper*  WrapID3D12Device(REFIID riid, ID3D12Device** object, DxWrapperResources* resources);
 
-void WrapID3D12Resource(REFIID riid, ID3D12Resource** object);
+IUnknown_Wrapper*  WrapID3D12Resource(REFIID riid, ID3D12Resource** object, DxWrapperResources* resources);
 
-void WrapID3D12Heap(REFIID riid, ID3D12Heap** object);
+IUnknown_Wrapper*  WrapID3D12Heap(REFIID riid, ID3D12Heap** object, DxWrapperResources* resources);
 
-void WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object);
+IUnknown_Wrapper*  WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object, DxWrapperResources* resources);
 
-void WrapID3D12Tools(REFIID riid, ID3D12Tools** object);
+IUnknown_Wrapper*  WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperResources* resources);
 
-void WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object);
+IUnknown_Wrapper*  WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object, DxWrapperResources* resources);
 
-void WrapID3D10Blob(REFIID riid, ID3D10Blob** object);
+IUnknown_Wrapper*  WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperResources* resources);
 
-void WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object);
+IUnknown_Wrapper*  WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object, DxWrapperResources* resources);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
