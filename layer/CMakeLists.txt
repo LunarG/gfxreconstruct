@@ -26,15 +26,15 @@
 # Description: CMake script for layer target
 ###############################################################################
 
-if (MSVC)
+if (BUILD_D3D12)
     set (LINK_ARCH "x64")
-    if(NOT CMAKE_CL_64)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
         set (LINK_ARCH "x86")
-    endif(NOT CMAKE_CL_64)
+    endif()
 
-	add_subdirectory(d3d12_capture)
-	add_subdirectory(d3d12)
-	add_subdirectory(dxgi)	
+    add_subdirectory(d3d12_capture)
+    add_subdirectory(d3d12)
+    add_subdirectory(dxgi)
 endif()
 
 add_library(VkLayer_gfxreconstruct SHARED "")

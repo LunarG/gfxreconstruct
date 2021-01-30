@@ -114,6 +114,11 @@ if(MSVC)
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+
+    # Add option to enable/disable D3D12 support.
+    option(BUILD_D3D12 "Build with Direct3D 12 support enabled" ON)
+else(MSVC)
+    option(BUILD_D3D12 "Build with Direct3D 12 support enabled" OFF)
 endif(MSVC)
 
 # GFXReconstruct provided find modules
