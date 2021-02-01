@@ -12854,19 +12854,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
-    VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
-    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device_unwrapped, deferredOperation_unwrapped, pipelineCache_unwrapped, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(device, deferredOperation, pPipelines, createInfoCount, TraceManager::GetUniqueId);
-    }
-    else
+    VkResult result = TraceManager::Get()->OverrideCreateRayTracingPipelinesKHR(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    if (result < 0)
     {
         omit_output_data = true;
     }

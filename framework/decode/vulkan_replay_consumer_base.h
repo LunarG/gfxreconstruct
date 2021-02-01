@@ -804,6 +804,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
 
+    VkResult OverrideCreateRayTracingPipelinesKHR(
+        PFN_vkCreateRayTracingPipelinesKHR                                     func,
+        VkResult                                                               original_result,
+        const DeviceInfo*                                                      device_info,
+        const DeferredOperationKHRInfo*                                        deferred_operation_info,
+        const PipelineCacheInfo*                                               pipeline_cache_info,
+        uint32_t                                                               createInfoCount,
+        const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                      pPipelines);
+
   private:
     void RaiseFatalError(const char* message) const;
 

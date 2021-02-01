@@ -328,6 +328,14 @@ class TraceManager
                                                         uint32_t*                          pToolCount,
                                                         VkPhysicalDeviceToolPropertiesEXT* pToolProperties);
 
+    VkResult OverrideCreateRayTracingPipelinesKHR(VkDevice                                 device,
+                                                  VkDeferredOperationKHR                   deferredOperation,
+                                                  VkPipelineCache                          pipelineCache,
+                                                  uint32_t                                 createInfoCount,
+                                                  const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                  const VkAllocationCallbacks*             pAllocator,
+                                                  VkPipeline*                              pPipelines);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
