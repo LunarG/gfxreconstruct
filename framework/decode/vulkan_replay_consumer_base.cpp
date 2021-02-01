@@ -5525,6 +5525,43 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
+    PFN_vkCreateRayTracingPipelinesKHR                                     func,
+    VkResult                                                               original_result,
+    const DeviceInfo*                                                      device_info,
+    const DeferredOperationKHRInfo*                                        deferred_operation_info,
+    const PipelineCacheInfo*                                               pipeline_cache_info,
+    uint32_t                                                               createInfoCount,
+    const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                      pPipelines)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
+           (pPipelines != nullptr) && !pPipelines->IsNull() && (pPipelines->GetHandlePointer() != nullptr));
+
+    VkResult                                 result          = VK_SUCCESS;
+    VkDevice                                 device          = device_info->handle;
+    auto                                     device_table    = GetDeviceTable(device);
+    const VkRayTracingPipelineCreateInfoKHR* in_pCreateInfos = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks*             in_pAllocator   = GetAllocationCallbacks(pAllocator);
+    VkPipeline*                              out_pPipelines  = pPipelines->GetHandlePointer();
+    VkDeferredOperationKHR                   in_deferredOperation =
+        (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
+    VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    result = device_table->CreateRayTracingPipelinesKHR(device,
+                                                        in_deferredOperation,
+                                                        in_pipelineCache,
+                                                        createInfoCount,
+                                                        in_pCreateInfos,
+                                                        in_pAllocator,
+                                                        out_pPipelines);
+
+    return result;
+}
+
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
     const DescriptorUpdateTemplateInfo* update_template_info, DescriptorUpdateTemplateDecoder* decoder)
 {

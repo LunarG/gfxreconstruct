@@ -1717,6 +1717,39 @@ VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
+VkResult TraceManager::OverrideCreateRayTracingPipelinesKHR(VkDevice                                 device,
+                                                            VkDeferredOperationKHR                   deferredOperation,
+                                                            VkPipelineCache                          pipelineCache,
+                                                            uint32_t                                 createInfoCount,
+                                                            const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                            const VkAllocationCallbacks*             pAllocator,
+                                                            VkPipeline*                              pPipelines)
+{
+    auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
+    VkDevice               device_unwrapped            = device_wrapper->handle;
+    auto                   handle_unwrap_memory        = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
+    VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
+    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
+        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device_unwrapped,
+                                                                           deferredOperation_unwrapped,
+                                                                           pipelineCache_unwrapped,
+                                                                           createInfoCount,
+                                                                           pCreateInfos_unwrapped,
+                                                                           pAllocator,
+                                                                           pPipelines);
+
+    if ((result == VK_SUCCESS) && (pPipelines != nullptr))
+    {
+        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
+            device, deferredOperation, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+    }
+
+    return result;
+}
+
 void TraceManager::ProcessEnumeratePhysicalDevices(VkResult          result,
                                                    VkInstance        instance,
                                                    uint32_t          count,
