@@ -44,6 +44,10 @@ from dx12_replay_consumer_header_generator\
     import DX12ReplayConsumerHeaderGenerator
 from dx12_replay_consumer_body_generator\
     import DX12ReplayConsumerBodyGenerator
+from dx12_ascii_consumer_header_generator\
+    import DX12AsciiConsumerHeaderGenerator
+from dx12_ascii_consumer_body_generator\
+    import DX12AsciiConsumerBodyGenerator
 
 
 # Returns a directory of [ generator function, generator options ] indexed
@@ -208,6 +212,30 @@ def make_gen_opts(args):
         DX12ReplayConsumerBodyGenerator,
         DX12GeneratorOptions(
             filename='generated_dx12_replay_consumer.cpp',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=False,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_ascii_consumer_header_generator.py')
+    gen_opts['generated_dx12_ascii_consumer.h'] = [
+        DX12AsciiConsumerHeaderGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_ascii_consumer.h',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=True,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_ascii_consumer_body_generator.py')
+    gen_opts['generated_dx12_ascii_consumer.cpp'] = [
+        DX12AsciiConsumerBodyGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
