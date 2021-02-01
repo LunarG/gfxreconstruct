@@ -131,7 +131,8 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                 modified_features.accelerationStructureCaptureReplay_original =
                     accel_struct_features->accelerationStructureCaptureReplay;
 
-                if (!accel_struct_features->accelerationStructureCaptureReplay)
+                if (accel_struct_features->accelerationStructure &&
+                    !accel_struct_features->accelerationStructureCaptureReplay)
                 {
                     // Get acceleration struct properties
                     VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
@@ -144,6 +145,33 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                     if (supported_features.accelerationStructureCaptureReplay)
                     {
                         accel_struct_features->accelerationStructureCaptureReplay = VK_TRUE;
+                    }
+                }
+            }
+            break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
+            {
+                // Enable rayTracingPipelineShaderGroupHandleCaptureReplay
+                auto rt_pipeline_features =
+                    reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(current_struct);
+
+                modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr =
+                    (&rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay);
+                modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_original =
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
+
+                if (rt_pipeline_features->rayTracingPipeline &&
+                    !rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay)
+                {
+                    VkPhysicalDeviceRayTracingPipelineFeaturesKHR supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR
+                    };
+                    GetSupportedPhysicalDeviceFeatures<VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(
+                        instance_api_version, instance_table, physical_device, &supported_features);
+
+                    if (supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay)
+                    {
+                        rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay = VK_TRUE;
                     }
                 }
             }
@@ -166,6 +194,11 @@ void RestoreModifiedPhysicalDeviceFeatures(const ModifiedPhysicalDeviceFeatures&
     {
         (*modified_features.accelerationStructureCaptureReplay_ptr) =
             modified_features.accelerationStructureCaptureReplay_original;
+    }
+    if (modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr != nullptr)
+    {
+        (*modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr) =
+            modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_original;
     }
 }
 
