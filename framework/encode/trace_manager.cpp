@@ -1330,7 +1330,7 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
         auto wrapper = reinterpret_cast<DeviceWrapper*>(*pDevice);
 
-        // Track whether device address features were enabled
+        // Track whether capture replay features were enabled
         if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
         {
             wrapper->feature_bufferDeviceAddressCaptureReplay =
@@ -1340,6 +1340,11 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
         {
             wrapper->feature_accelerationStructureCaptureReplay =
                 (*modified_features.accelerationStructureCaptureReplay_ptr);
+        }
+        if (modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr != nullptr)
+        {
+            wrapper->feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
+                (*modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr);
         }
 
         if ((capture_mode_ & kModeTrack) != kModeTrack)

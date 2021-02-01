@@ -138,6 +138,7 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Feature state at device creation
     VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
     VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
+    VkBool32 feature_rayTracingPipelineShaderGroupHandleCaptureReplay{ VK_FALSE };
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
