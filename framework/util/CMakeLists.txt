@@ -64,6 +64,19 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/options.h
+                    ${CMAKE_CURRENT_LIST_DIR}/options.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/injection.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/load_library.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/real_and_mine_hook.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -74,10 +87,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
 )
 
-target_include_directories(gfxrecon_util
-                           PUBLIC
-                               ${CMAKE_SOURCE_DIR}/framework)
 
+target_include_directories(gfxrecon_util PUBLIC ${CMAKE_SOURCE_DIR}/framework)
 target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
 
 if (UNIX AND NOT APPLE)
@@ -113,6 +124,11 @@ endif()
 
 if (WAYLAND_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
+endif()
+
+if (TARGET Detours::Detours)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_DETOURS)
+    target_link_libraries(gfxrecon_util Detours::Detours)
 endif()
 
 if (TARGET LZ4::LZ4)

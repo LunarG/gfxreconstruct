@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,20 +23,20 @@
 #
 # Author: LunarG Team
 # Author: AMD Developer Tools Team
-# Description: CMake script for layer d3d12 target
+# Description: CMake script for framework util target
 ###############################################################################
 
-set(LINK_D3D12_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/d3d12_ms.lib)
+add_executable(gfxrecon-launcher "")
 
-add_library(d3d12 SHARED "")
-target_sources(d3d12 PRIVATE
-                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.h
-                ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
-target_include_directories(d3d12 PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
-target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})
-common_build_directives(d3d12)
-add_custom_command(TARGET d3d12 PRE_BUILD
-                    COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def /out:${LINK_D3D12_OUTPUT} /machine:${LINK_ARCH}
-                    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def)
+target_sources(gfxrecon-launcher
+               PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
+)
+
+target_include_directories(gfxrecon-launcher PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/layer/d3d12_hook ${CMAKE_SOURCE_DIR}/framework/util ${CMAKE_SOURCE_DIR}/framework/interception_util)
+
+target_link_libraries(gfxrecon-launcher gfxrecon_util)
+
+common_build_directives(gfxrecon-launcher)
+
+install(TARGETS gfxrecon-launcher RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -23,20 +23,13 @@
 #
 # Author: LunarG Team
 # Author: AMD Developer Tools Team
-# Description: CMake script for layer d3d12 target
+# Description: CMake script for layer gfxrecon_interceptor target
 ###############################################################################
 
-set(LINK_D3D12_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/d3d12_ms.lib)
+add_library(gfxrecon_interceptor SHARED "")
+target_sources(gfxrecon_interceptor PRIVATE
+                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp)
+target_include_directories(gfxrecon_interceptor PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(gfxrecon_interceptor gfxrecon_util)
 
-add_library(d3d12 SHARED "")
-target_sources(d3d12 PRIVATE
-                ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.h
-                ${CMAKE_CURRENT_LIST_DIR}/hook_d3d12.cpp
-                ${CMAKE_CURRENT_LIST_DIR}/d3d12.def)
-target_include_directories(d3d12 PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
-target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})
-common_build_directives(d3d12)
-add_custom_command(TARGET d3d12 PRE_BUILD
-                    COMMAND lib /def:${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def /out:${LINK_D3D12_OUTPUT} /machine:${LINK_ARCH}
-                    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/d3d12_ms.def)
+

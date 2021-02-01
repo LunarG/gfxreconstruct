@@ -35,6 +35,7 @@ if (BUILD_D3D12)
     add_subdirectory(d3d12_capture)
     add_subdirectory(d3d12)
     add_subdirectory(dxgi)
+    add_subdirectory(gfxrecon_interceptor)
 endif()
 
 add_library(VkLayer_gfxreconstruct SHARED "")

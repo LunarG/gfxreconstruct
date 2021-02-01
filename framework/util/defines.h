@@ -50,4 +50,14 @@
 // Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
 #define GFXRECON_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() >= Value);
 
+// Safely release a dynamic allocation.
+#define GFXRECON_SAFE_DELETE(p)    \
+    {                     \
+        if (p != nullptr) \
+        {                 \
+            delete p;     \
+            p = nullptr;  \
+        }                 \
+    }
+
 #endif // GFXRECON_UTIL_DEFINES_H

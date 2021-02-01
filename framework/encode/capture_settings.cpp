@@ -25,6 +25,7 @@
 #include "encode/capture_settings.h"
 
 #include "util/file_path.h"
+#include "util/options.h"
 #include "util/platform.h"
 #include "util/settings_loader.h"
 
@@ -391,27 +392,7 @@ std::string CaptureSettings::FindOption(OptionsMap* options, const std::string& 
 
 bool CaptureSettings::ParseBoolString(const std::string& value_string, bool default_value)
 {
-    bool result = default_value;
-
-    // Checking for "false" or zero, or "true" or a non-zero number.
-    if ((util::platform::StringCompareNoCase("true", value_string.c_str()) == 0) || (atoi(value_string.c_str()) != 0))
-    {
-        result = true;
-    }
-    else if ((util::platform::StringCompareNoCase("false", value_string.c_str()) == 0) || (value_string == "0"))
-    {
-        result = false;
-    }
-    else
-    {
-        if (!value_string.empty())
-        {
-            GFXRECON_LOG_WARNING("Settings Loader: Ignoring unrecognized Boolean option value \"%s\"",
-                                 value_string.c_str());
-        }
-    }
-
-    return result;
+    return gfxrecon::util::ParseBoolString(value_string, default_value);
 }
 
 CaptureSettings::MemoryTrackingMode

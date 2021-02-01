@@ -6,3 +6,7 @@ add_subdirectory(extract)
 add_subdirectory(optimize)
 add_subdirectory(capture)
 add_subdirectory(gfxrecon)
+
+if(MSVC)
+    add_subdirectory(launcher)
+endif()

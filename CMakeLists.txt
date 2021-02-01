@@ -122,6 +122,7 @@ else(MSVC)
 endif(MSVC)
 
 # GFXReconstruct provided find modules
+find_package(Detours)
 find_package(LZ4)
 find_package(ZSTD)
 if(UNIX)
@@ -136,7 +137,13 @@ if(UNIX)
 endif(UNIX)
 
 add_library(windows_specific INTERFACE)
-target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
+target_compile_definitions(windows_specific INTERFACE
+                            WIN32_LEAN_AND_MEAN
+                            NOMINMAX
+                            VK_USE_PLATFORM_WIN32_KHR
+                            "GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\""
+                            "GFXR_D3D12_PATH=\"$<TARGET_FILE:d3d12>\""
+                            "GFXR_DXGI_PATH=\"$<TARGET_FILE:dxgi>\"")
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
