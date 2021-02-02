@@ -66,6 +66,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_decoder_base.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
@@ -116,6 +118,11 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.cpp>
 )
 
 if (MSVC AND (MSVC_VERSION LESS 1920))
