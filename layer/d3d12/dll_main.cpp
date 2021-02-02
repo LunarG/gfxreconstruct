@@ -43,7 +43,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateDevice(IUnknown*         pAdapter,
                                                    REFIID            riid,
                                                    void**            ppDevice)
 {
-    return dispatch_table.create_device(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+    return dispatch_table.D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateRootSignatureDeserializer(LPCVOID pSrcData,
@@ -51,7 +51,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateRootSignatureDeserializer(LPCVOID pS
                                                                       REFIID  pRootSignatureDeserializerInterface,
                                                                       void**  ppRootSignatureDeserializer)
 {
-    return dispatch_table.create_root_signature_deserializer(
+    return dispatch_table.D3D12CreateRootSignatureDeserializer(
         pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
 }
 
@@ -61,13 +61,13 @@ EXTERN_C HRESULT WINAPI
                                                                         REFIID  pRootSignatureDeserializerInterface,
                                                                         void**  ppRootSignatureDeserializer)
 {
-    return dispatch_table.create_versioned_root_signature_deserializer(
+    return dispatch_table.D3D12CreateVersionedRootSignatureDeserializer(
         pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_D3D12GetDebugInterface(REFIID riid, void** ppvDebug)
 {
-    return dispatch_table.get_debug_interface(riid, ppvDebug);
+    return dispatch_table.D3D12GetDebugInterface(riid, ppvDebug);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeRootSignature(const D3D12_ROOT_SIGNATURE_DESC* pRootSignature,
@@ -75,13 +75,13 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeRootSignature(const D3D12_ROOT_SI
                                                              ID3DBlob**                       ppBlob,
                                                              ID3DBlob**                       ppErrorBlob)
 {
-    return dispatch_table.serialize_root_signature(pRootSignature, Version, ppBlob, ppErrorBlob);
+    return dispatch_table.D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeVersionedRootSignature(
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature, ID3DBlob** ppBlob, ID3DBlob** ppErrorBlob)
 {
-    return dispatch_table.serialize_versioned_root_signature(pRootSignature, ppBlob, ppErrorBlob);
+    return dispatch_table.D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_D3D12EnableExperimentalFeatures(UINT       NumFeatures,
@@ -89,7 +89,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12EnableExperimentalFeatures(UINT       NumF
                                                                  void*      pConfigurationStructs,
                                                                  UINT*      pConfigurationStructSizes)
 {
-    return dispatch_table.enable_experiemental_features(
+    return dispatch_table.D3D12EnableExperimentalFeatures(
         NumFeatures, pIIDs, pConfigurationStructs, pConfigurationStructSizes);
 }
 
@@ -105,20 +105,22 @@ static void LoadDxgiCaptureProcs()
 {
     assert(d3d12_dll != nullptr);
 
-    dispatch_table.create_device =
+    dispatch_table.D3D12CreateDevice =
         reinterpret_cast<PFN_D3D12_CREATE_DEVICE>(GetProcAddress(d3d12_dll, "D3D12CreateDevice"));
-    dispatch_table.create_root_signature_deserializer = reinterpret_cast<PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER>(
-        GetProcAddress(d3d12_dll, "D3D12CreateRootSignatureDeserializer"));
-    dispatch_table.create_versioned_root_signature_deserializer =
+    dispatch_table.D3D12CreateRootSignatureDeserializer =
+        reinterpret_cast<PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER>(
+            GetProcAddress(d3d12_dll, "D3D12CreateRootSignatureDeserializer"));
+    dispatch_table.D3D12CreateVersionedRootSignatureDeserializer =
         reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER>(
             GetProcAddress(d3d12_dll, "D3D12CreateVersionedRootSignatureDeserializer"));
-    dispatch_table.get_debug_interface =
+    dispatch_table.D3D12GetDebugInterface =
         reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(GetProcAddress(d3d12_dll, "D3D12GetDebugInterface"));
-    dispatch_table.serialize_root_signature =
+    dispatch_table.D3D12SerializeRootSignature =
         reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(GetProcAddress(d3d12_dll, "D3D12SerializeRootSignature"));
-    dispatch_table.serialize_versioned_root_signature = reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
-        GetProcAddress(d3d12_dll, "D3D12SerializeVersionedRootSignature"));
-    dispatch_table.enable_experiemental_features = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
+    dispatch_table.D3D12SerializeVersionedRootSignature =
+        reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
+            GetProcAddress(d3d12_dll, "D3D12SerializeVersionedRootSignature"));
+    dispatch_table.D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
         GetProcAddress(d3d12_dll, "D3D12EnableExperimentalFeatures"));
 }
 

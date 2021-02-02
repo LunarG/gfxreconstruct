@@ -24,6 +24,7 @@
 #include <initguid.h>
 
 #include "encode/d3d12_dispatch_table.h"
+#include "encode/dxgi_dispatch_table.h"
 #include "encode/trace_manager.h"
 
 EXTERN_C bool InitializeDxgiCapture(gfxrecon::encode::DxgiDispatchTable*)

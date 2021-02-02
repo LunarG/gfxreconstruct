@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "encode/d3d12_dispatch_table.h"
+#include "encode/dxgi_dispatch_table.h"
 #include "util/defines.h"
 #include "util/file_path.h"
 #include "util/platform.h"
@@ -40,27 +40,27 @@ static gfxrecon::encode::DxgiDispatchTable dispatch_table;
 
 EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory(REFIID riid, void** ppFactory)
 {
-    return dispatch_table.create_dxgi_factory(riid, ppFactory);
+    return dispatch_table.CreateDXGIFactory(riid, ppFactory);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory1(REFIID riid, void** ppFactory)
 {
-    return dispatch_table.create_dxgi_factory1(riid, ppFactory);
+    return dispatch_table.CreateDXGIFactory1(riid, ppFactory);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
 {
-    return dispatch_table.create_dxgi_factory2(Flags, riid, ppFactory);
+    return dispatch_table.CreateDXGIFactory2(Flags, riid, ppFactory);
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_DXGIDeclareAdapterRemovalSupport()
 {
-    return dispatch_table.declare_adapter_removal_support();
+    return dispatch_table.DXGIDeclareAdapterRemovalSupport();
 }
 
 EXTERN_C HRESULT WINAPI gfxrecon_DXGIGetDebugInterface1(UINT Flags, REFIID riid, void** ppDebug)
 {
-    return dispatch_table.get_debug_interface1(Flags, riid, ppDebug);
+    return dispatch_table.DXGIGetDebugInterface1(Flags, riid, ppDebug);
 }
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -75,15 +75,15 @@ static void LoadDxgiCaptureProcs()
 {
     assert(dxgi_dll != nullptr);
 
-    dispatch_table.create_dxgi_factory =
+    dispatch_table.CreateDXGIFactory =
         reinterpret_cast<decltype(CreateDXGIFactory)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory"));
-    dispatch_table.create_dxgi_factory1 =
+    dispatch_table.CreateDXGIFactory1 =
         reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory1"));
-    dispatch_table.create_dxgi_factory2 =
+    dispatch_table.CreateDXGIFactory2 =
         reinterpret_cast<decltype(CreateDXGIFactory2)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory2"));
-    dispatch_table.declare_adapter_removal_support = reinterpret_cast<decltype(DXGIDeclareAdapterRemovalSupport)*>(
+    dispatch_table.DXGIDeclareAdapterRemovalSupport = reinterpret_cast<decltype(DXGIDeclareAdapterRemovalSupport)*>(
         GetProcAddress(dxgi_dll, "DXGIDeclareAdapterRemovalSupport"));
-    dispatch_table.get_debug_interface1 =
+    dispatch_table.DXGIGetDebugInterface1 =
         reinterpret_cast<decltype(DXGIGetDebugInterface1)*>(GetProcAddress(dxgi_dll, "DXGIGetDebugInterface1"));
 }
 

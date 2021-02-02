@@ -20,35 +20,36 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_D3D12_DISPATCH_TABLE_H
-#define GFXRECON_ENCODE_D3D12_DISPATCH_TABLE_H
+#ifndef GFXRECON_ENCODE_DXGI_DISPATCH_TABLE_H
+#define GFXRECON_ENCODE_DXGI_DISPATCH_TABLE_H
 
 #include "util/defines.h"
 #include "util/logging.h"
 
 #include <d3d12.h>
+#include <dxgi.h>
+#include <dxgi1_3.h>
+#include <dxgi1_6.h>
 #include <windows.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-struct D3D12DispatchTable
+struct DxgiDispatchTable
 {
-    // Functions processed for capture.  These are the D3D12 functions exported by d3d12.dll and documented on MSDN.
-    PFN_D3D12_CREATE_DEVICE                                D3D12CreateDevice{ nullptr };
-    PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER           D3D12CreateRootSignatureDeserializer{ nullptr };
-    PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER D3D12CreateVersionedRootSignatureDeserializer{ nullptr };
-    PFN_D3D12_GET_DEBUG_INTERFACE                          D3D12GetDebugInterface{ nullptr };
-    PFN_D3D12_SERIALIZE_ROOT_SIGNATURE                     D3D12SerializeRootSignature{ nullptr };
-    PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE           D3D12SerializeVersionedRootSignature{ nullptr };
-    // NOTE: There is no typedef in d3d12.h for D3D12EnableExperimentalFeatures.
-    decltype(D3D12EnableExperimentalFeatures)* D3D12EnableExperimentalFeatures{ nullptr };
+    // Functions processed for capture.  These are the DXGI functions exported by dxgi.dll and documented on MSDN.
+    // NOTE: There are no typedefs in the DXGI header files for these functions.
+    decltype(CreateDXGIFactory)*                CreateDXGIFactory{ nullptr };
+    decltype(CreateDXGIFactory1)*               CreateDXGIFactory1{ nullptr };
+    decltype(CreateDXGIFactory2)*               CreateDXGIFactory2{ nullptr };
+    decltype(DXGIDeclareAdapterRemovalSupport)* DXGIDeclareAdapterRemovalSupport{ nullptr };
+    decltype(DXGIGetDebugInterface1)*           DXGIGetDebugInterface1{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-typedef bool (*PFN_InitializeD3D12Capture)(gfxrecon::encode::D3D12DispatchTable*);
-typedef void (*PFN_ReleaseD3D12Capture)(gfxrecon::encode::D3D12DispatchTable*);
+typedef bool (*PFN_InitializeDxgiCapture)(gfxrecon::encode::DxgiDispatchTable*);
+typedef void (*PFN_ReleaseDxgiCapture)(gfxrecon::encode::DxgiDispatchTable*);
 
-#endif // GFXRECON_ENCODE_D3D12_DISPATCH_TABLE_H
+#endif // GFXRECON_ENCODE_DXGI_DISPATCH_TABLE_H
