@@ -83,15 +83,81 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_member_def(v2)
 
+    # Check the parameter list for a pointer to an object that is being
+    # created or retrieved, which needs to be wrapped.
+    def get_object_creation_params(self, param_info):
+        refiid_value = None
+        create_values = []
+
+        # Check for pairs of parameters with REFIID and void** types or a
+        # parameter with a non-const double pointer class type.
+        for param in param_info:
+            value = self.get_value_info(param)
+            if not refiid_value:
+                if value.base_type == 'GUID':
+                    refiid_value = value
+                elif (
+                    self.is_class(value)
+                    and ((value.pointer_count == 2) and (not value.is_const))
+                ):
+                    cast_expr = 'reinterpret_cast<void**>({})'.format(
+                        value.name
+                    )
+                    create_values.append(
+                        [
+                            'IID_' + value.base_type, cast_expr,
+                            value.array_length
+                        ]
+                    )
+            else:
+                if (
+                    (value.base_type == 'void') and (value.pointer_count == 2)
+                    and (not value.is_const)
+                ):
+                    create_values.append(
+                        [refiid_value.name, value.name, value.array_length]
+                    )
+                refiid_value = None
+
+        return create_values
+
+    def gen_wrap_object(self, return_type, param_info, indent):
+        expr = ''
+        params = self.get_object_creation_params(param_info)
+
+        if params:
+            expr += '\n'
+            if return_type == 'HRESULT':
+                expr += indent + 'if (SUCCEEDED(result))\n'
+                expr += indent + '{\n'
+                indent = self.increment_indent(indent)
+
+            for tuple in params:
+                if not tuple[2]:
+                    expr += indent + 'WrapObject({}, {}, nullptr);\n'.format(
+                        tuple[0], tuple[1]
+                    )
+                else:
+                    expr += indent + 'WrapObjectArray({}, {}, {}, nullptr);\n'.format(
+                        tuple[0], tuple[1], tuple[2]
+                    )
+
+            if return_type == 'HRESULT':
+                indent = self.decrement_indent(indent)
+                expr += indent + '}\n'
+
+        return expr
+
     def write_function_def(self, function, indent=''):
         return_type = function['rtnType'].replace(' *', '*')
         name = function['name']
+        parameters = function['parameters']
 
         expr = indent + '{} {}('.format(return_type, name)
-        if function['parameters']:
+        if parameters:
             expr += '\n'
             expr += self.make_param_decl_list(
-                function['parameters'], self.increment_indent(indent)
+                parameters, self.increment_indent(indent)
             )
         expr += ')\n'
         expr += indent + '{\n'
@@ -115,12 +181,14 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += 'manager->GetDxgiDispatchTable().'
 
         expr += '{}('.format(name)
-        if function['parameters']:
+        if parameters:
             expr += '\n'
             expr += self.make_arg_list(
-                function['parameters'], self.increment_indent(indent)
+                parameters, self.increment_indent(indent)
             )
         expr += ');\n'
+
+        expr += self.gen_wrap_object(return_type, parameters, indent)
 
         if return_type != 'void':
             expr += '\n'
@@ -160,10 +228,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         for method in methods:
             return_type = method['rtnType'].replace(' *', '*')
             method_name = method['name']
+            parameters = method['parameters']
             expr = indent + '{} {}::{}('.format(
                 return_type, wrapper, method_name
             )
-            if method['parameters']:
+            if parameters:
                 expr += '\n'
                 expr += self.make_param_decl_list(
                     method['parameters'], self.increment_indent(indent)
@@ -182,12 +251,14 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += 'auto result = '
 
             expr += 'object_->{}('.format(method_name)
-            if method['parameters']:
+            if parameters:
                 expr += '\n'
                 expr += self.make_arg_list(
-                    method['parameters'], self.increment_indent(indent)
+                    parameters, self.increment_indent(indent)
                 )
             expr += ');\n'
+
+            expr += self.gen_wrap_object(return_type, parameters, indent)
 
             if return_type != 'void':
                 expr += '\n'
@@ -268,6 +339,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
         code += '#include "encode/trace_manager.h"\n'
+        code += '#include "generated/generated_dx12_wrapper_creators.h"\n'
         code += '#include "util/defines.h"\n'
         code += '\n'
 

@@ -30,6 +30,7 @@
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/trace_manager.h"
+#include "generated/generated_dx12_wrapper_creators.h"
 #include "util/defines.h"
 
 #include <dxgi.h>
@@ -66,6 +67,11 @@ HRESULT WINAPI CreateDXGIFactory(
         riid,
         ppFactory);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppFactory, nullptr);
+    }
+
     return result;
 }
 
@@ -78,6 +84,11 @@ HRESULT WINAPI CreateDXGIFactory1(
     auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory1(
         riid,
         ppFactory);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppFactory, nullptr);
+    }
 
     return result;
 }
@@ -131,6 +142,11 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
         riid,
         ppParent);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppParent, nullptr);
+    }
+
     return result;
 }
 
@@ -145,6 +161,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
     auto result = object_->GetDevice(
         riid,
         ppDevice);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppDevice, nullptr);
+    }
 
     return result;
 }
@@ -279,6 +300,11 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
     auto result = object_->EnumOutputs(
         Output,
         ppOutput);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), nullptr);
+    }
 
     return result;
 }
@@ -446,6 +472,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
         riid,
         ppSurface);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppSurface, nullptr);
+    }
+
     return result;
 }
 
@@ -467,6 +498,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
     auto result = object_->GetFullscreenState(
         pFullscreen,
         ppTarget);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppTarget), nullptr);
+    }
 
     return result;
 }
@@ -512,6 +548,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
     auto result = object_->GetContainingOutput(
         ppOutput);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), nullptr);
+    }
+
     return result;
 }
 
@@ -544,6 +585,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
     auto result = object_->EnumAdapters(
         Adapter,
         ppAdapter);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), nullptr);
+    }
 
     return result;
 }
@@ -578,6 +624,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
         pDesc,
         ppSwapChain);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISwapChain, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
+
     return result;
 }
 
@@ -588,6 +639,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
     auto result = object_->CreateSoftwareAdapter(
         Module,
         ppAdapter);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), nullptr);
+    }
 
     return result;
 }
@@ -601,6 +657,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
 {
     auto result = object_->GetAdapter(
         pAdapter);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(pAdapter), nullptr);
+    }
 
     return result;
 }
@@ -618,6 +679,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
         Usage,
         pSharedResource,
         ppSurface);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), nullptr);
+    }
 
     return result;
 }
@@ -664,6 +730,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
     auto result = object_->EnumAdapters1(
         Adapter,
         ppAdapter);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIAdapter1, reinterpret_cast<void**>(ppAdapter), nullptr);
+    }
 
     return result;
 }
@@ -755,6 +826,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
         pFrameInfo,
         ppDesktopResource);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIResource, reinterpret_cast<void**>(ppDesktopResource), nullptr);
+    }
+
     return result;
 }
 
@@ -836,6 +912,11 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
         ppParentResource,
         pSubresourceIndex);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppParentResource, nullptr);
+    }
+
     return result;
 }
 
@@ -850,6 +931,11 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
     auto result = object_->CreateSubresourceSurface(
         index,
         ppSurface);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISurface2, reinterpret_cast<void**>(ppSurface), nullptr);
+    }
 
     return result;
 }
@@ -947,6 +1033,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
         refiid,
         ppUnk);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(refiid, ppUnk, nullptr);
+    }
+
     return result;
 }
 
@@ -975,6 +1066,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
 {
     auto result = object_->GetRestrictToOutput(
         ppRestrictToOutput);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppRestrictToOutput), nullptr);
+    }
 
     return result;
 }
@@ -1042,6 +1138,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
         pRestrictToOutput,
         ppSwapChain);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
+
     return result;
 }
 
@@ -1058,6 +1159,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
         pDesc,
         pRestrictToOutput,
         ppSwapChain);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
 
     return result;
 }
@@ -1147,6 +1253,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
         pRestrictToOutput,
         ppSwapChain);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
+
     return result;
 }
 
@@ -1212,6 +1323,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
         pDevice,
         ppOutputDuplication);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), nullptr);
+    }
+
     return result;
 }
 
@@ -1233,6 +1349,11 @@ HRESULT WINAPI CreateDXGIFactory2(
         riid,
         ppFactory);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppFactory, nullptr);
+    }
+
     return result;
 }
 
@@ -1247,6 +1368,11 @@ HRESULT WINAPI DXGIGetDebugInterface1(
         Flags,
         riid,
         pDebug);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, pDebug, nullptr);
+    }
 
     return result;
 }
@@ -1460,6 +1586,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
         pRestrictToOutput,
         ppSwapChain);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
+
     return result;
 }
 
@@ -1478,6 +1609,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
         pYuvDecodeBuffers,
         pRestrictToOutput,
         ppSwapChain);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIDecodeSwapChain, reinterpret_cast<void**>(ppSwapChain), nullptr);
+    }
 
     return result;
 }
@@ -1625,6 +1761,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
         riid,
         ppvAdapter);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvAdapter, nullptr);
+    }
+
     return result;
 }
 
@@ -1635,6 +1776,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
     auto result = object_->EnumWarpAdapter(
         riid,
         ppvAdapter);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvAdapter, nullptr);
+    }
 
     return result;
 }
@@ -1728,6 +1874,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
         SupportedFormatsCount,
         pSupportedFormats,
         ppOutputDuplication);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), nullptr);
+    }
 
     return result;
 }
@@ -1864,6 +2015,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
         riid,
         ppvAdapter);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvAdapter, nullptr);
+    }
+
     return result;
 }
 
@@ -1929,6 +2085,12 @@ HRESULT WINAPI D3D12SerializeRootSignature(
         ppBlob,
         ppErrorBlob);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
+        WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppErrorBlob), nullptr);
+    }
+
     return result;
 }
 
@@ -1946,6 +2108,11 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
         pRootSignatureDeserializerInterface,
         ppRootSignatureDeserializer);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(pRootSignatureDeserializerInterface, ppRootSignatureDeserializer, nullptr);
+    }
+
     return result;
 }
 
@@ -1960,6 +2127,12 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
         pRootSignature,
         ppBlob,
         ppErrorBlob);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
+        WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppErrorBlob), nullptr);
+    }
 
     return result;
 }
@@ -1978,6 +2151,11 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
         pRootSignatureDeserializerInterface,
         ppRootSignatureDeserializer);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(pRootSignatureDeserializerInterface, ppRootSignatureDeserializer, nullptr);
+    }
+
     return result;
 }
 
@@ -1995,6 +2173,11 @@ HRESULT WINAPI D3D12CreateDevice(
         riid,
         ppDevice);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppDevice, nullptr);
+    }
+
     return result;
 }
 
@@ -2007,6 +2190,11 @@ HRESULT WINAPI D3D12GetDebugInterface(
     auto result = manager->GetD3D12DispatchTable().D3D12GetDebugInterface(
         riid,
         ppvDebug);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvDebug, nullptr);
+    }
 
     return result;
 }
@@ -2089,6 +2277,11 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
     auto result = object_->GetDevice(
         riid,
         ppvDevice);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvDevice, nullptr);
+    }
 
     return result;
 }
@@ -2292,6 +2485,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 {
     auto result = object_->GetCachedBlob(
         ppBlob);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
+    }
 
     return result;
 }
@@ -3154,6 +3352,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
         riid,
         ppCommandQueue);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppCommandQueue, nullptr);
+    }
+
     return result;
 }
 
@@ -3166,6 +3369,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
         type,
         riid,
         ppCommandAllocator);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppCommandAllocator, nullptr);
+    }
 
     return result;
 }
@@ -3180,6 +3388,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
         riid,
         ppPipelineState);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
+
     return result;
 }
 
@@ -3192,6 +3405,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
         pDesc,
         riid,
         ppPipelineState);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
 
     return result;
 }
@@ -3211,6 +3429,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
         pInitialState,
         riid,
         ppCommandList);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppCommandList, nullptr);
+    }
 
     return result;
 }
@@ -3238,6 +3461,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
         riid,
         ppvHeap);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
+
     return result;
 }
 
@@ -3263,6 +3491,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
         blobLengthInBytes,
         riid,
         ppvRootSignature);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvRootSignature, nullptr);
+    }
 
     return result;
 }
@@ -3405,6 +3638,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
         riidResource,
         ppvResource);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riidResource, ppvResource, nullptr);
+    }
+
     return result;
 }
 
@@ -3417,6 +3655,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
         pDesc,
         riid,
         ppvHeap);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
 
     return result;
 }
@@ -3439,6 +3682,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
         riid,
         ppvResource);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvResource, nullptr);
+    }
+
     return result;
 }
 
@@ -3455,6 +3703,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
         pOptimizedClearValue,
         riid,
         ppvResource);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvResource, nullptr);
+    }
 
     return result;
 }
@@ -3485,6 +3738,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
         NTHandle,
         riid,
         ppvObj);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvObj, nullptr);
+    }
 
     return result;
 }
@@ -3536,6 +3794,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
         riid,
         ppFence);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppFence, nullptr);
+    }
+
     return result;
 }
 
@@ -3577,6 +3840,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
         riid,
         ppvHeap);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
+
     return result;
 }
 
@@ -3600,6 +3868,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
         pRootSignature,
         riid,
         ppvCommandSignature);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvCommandSignature, nullptr);
+    }
 
     return result;
 }
@@ -3657,6 +3930,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
         riid,
         ppPipelineState);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
+
     return result;
 }
 
@@ -3671,6 +3949,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
         pDesc,
         riid,
         ppPipelineState);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
 
     return result;
 }
@@ -3709,6 +3992,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
         riid,
         ppPipelineState);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
+
     return result;
 }
 
@@ -3727,6 +4015,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
         BlobLength,
         riid,
         ppPipelineLibrary);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineLibrary, nullptr);
+    }
 
     return result;
 }
@@ -3775,6 +4068,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
         riid,
         ppPipelineState);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppPipelineState, nullptr);
+    }
+
     return result;
 }
 
@@ -3792,6 +4090,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
         riid,
         ppvHeap);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
+
     return result;
 }
 
@@ -3804,6 +4107,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
         hFileMapping,
         riid,
         ppvHeap);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
 
     return result;
 }
@@ -3836,6 +4144,11 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
     auto result = object_->GetStatusFence(
         riid,
         ppFence);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppFence, nullptr);
+    }
 
     return result;
 }
@@ -3876,6 +4189,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
         riid,
         ppCommandList);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppCommandList, nullptr);
+    }
+
     return result;
 }
 
@@ -3888,6 +4206,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
         pDesc,
         riid,
         ppSession);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppSession, nullptr);
+    }
 
     return result;
 }
@@ -3912,6 +4235,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
         riidResource,
         ppvResource);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riidResource, ppvResource, nullptr);
+    }
+
     return result;
 }
 
@@ -3926,6 +4254,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
         pProtectedSession,
         riid,
         ppvHeap);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvHeap, nullptr);
+    }
 
     return result;
 }
@@ -3945,6 +4278,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
         pProtectedSession,
         riid,
         ppvResource);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvResource, nullptr);
+    }
 
     return result;
 }
@@ -3994,6 +4332,11 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
         riid,
         ppv);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppv, nullptr);
+    }
+
     return result;
 }
 
@@ -4008,6 +4351,12 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
         ppvResource,
         riidQueue,
         ppvQueue);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riidResource, ppvResource, nullptr);
+        WrapObject(riidQueue, ppvQueue, nullptr);
+    }
 
     return result;
 }
@@ -4086,6 +4435,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
         riid,
         ppvTracker);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvTracker, nullptr);
+    }
+
     return result;
 }
 
@@ -4138,6 +4492,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
         riid,
         ppMetaCommand);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppMetaCommand, nullptr);
+    }
+
     return result;
 }
 
@@ -4150,6 +4509,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
         pDesc,
         riid,
         ppStateObject);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppStateObject, nullptr);
+    }
 
     return result;
 }
@@ -4300,6 +4664,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
         riid,
         ppNewStateObject);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppNewStateObject, nullptr);
+    }
+
     return result;
 }
 
@@ -4312,6 +4681,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
         pDesc,
         riid,
         ppSession);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppSession, nullptr);
+    }
 
     return result;
 }
@@ -4355,6 +4729,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
         riidResource,
         ppvResource);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riidResource, ppvResource, nullptr);
+    }
+
     return result;
 }
 
@@ -4375,6 +4754,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
         pOptimizedClearValue,
         riid,
         ppvResource);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppvResource, nullptr);
+    }
 
     return result;
 }
@@ -4423,6 +4807,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
         riid,
         ppProtectedSession);
 
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppProtectedSession, nullptr);
+    }
+
     return result;
 }
 
@@ -4448,6 +4837,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
     auto result = object_->GetProtectedResourceSession(
         riid,
         ppProtectedSession);
+
+    if (SUCCEEDED(result))
+    {
+        WrapObject(riid, ppProtectedSession, nullptr);
+    }
 
     return result;
 }
