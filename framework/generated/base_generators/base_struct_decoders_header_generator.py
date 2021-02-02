@@ -88,7 +88,7 @@ class BaseStructDecodersHeaderGenerator():
         body = ''
 
         for value in values:
-            if value.name == 'pNext':
+            if value.name == 'pNext' and value.baseType == 'void':
                 # We have a special type to store the pNext chain
                 body += '    PNextNode* pNext{ nullptr };\n'
             elif self.needsMemberDeclaration(name, value):

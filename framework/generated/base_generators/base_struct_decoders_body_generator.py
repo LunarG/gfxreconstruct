@@ -55,11 +55,11 @@ class BaseStructDecodersBodyGenerator():
 
         for value in values:
             # pNext fields require special treatment and are not processed by type name
-            if 'pNext' in value.name:
+            if 'pNext' in value.name and value.baseType == 'void':
                 body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
-                body += self.makeDecodeInvocation(name, value)
+                body += BaseStructDecodersBodyGenerator.makeDecodeInvocation(self, name, value)
 
         return body
 
@@ -71,20 +71,29 @@ class BaseStructDecodersBodyGenerator():
         body = ''
 
         isStruct = False
+        isClass = False
         isString = False
         isFuncp = False
         isHandle = False
+        isEnum = False
+        isUnion = False  # union is only for dx12
 
         typeName = self.makeInvocationTypeName(value.baseType)
 
         if self.isStruct(typeName):
             isStruct = True
+        elif self.isClass(typeName):
+            isClass = True
         elif typeName in ['String', 'WString']:
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
         elif typeName == 'Handle':
             isHandle = True
+        elif typeName == 'Enum':
+            isEnum = True
+        elif typeName == 'Union':
+            isUnion = True
 
         # isPointer will be False for static arrays.
         if value.isPointer or value.isArray:
@@ -101,21 +110,35 @@ class BaseStructDecodersBodyGenerator():
                     accessOp = '->'
 
                 if isStaticArray:
+                    arrayDimension = ''
+                    if value.arrayDimension and value.arrayDimension > 0:
+                        arrayDimension = '*'
                     # The pointer decoder will write directly to the struct member's memory.
-                    body += '    wrapper->{name}{}SetExternalMemory(value->{name}, {arraylen});\n'.format(accessOp, name=value.name, arraylen=value.arrayCapacity)
+                    body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(accessOp, arrayDimension, name=value.name, arraylen=value.arrayCapacity)
 
-                if isStruct or isString or isHandle:
+                if isStruct or isString or isHandle or isClass:
                     body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(value.name, accessOp, bufferArgs)
                 else:
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
 
                 if not isStaticArray:
-                    if isHandle:
+                    if isHandle or isClass:
                         # Point the real struct's member pointer to the handle pointer decoder's handle memory.
                         body += '    value->{} = nullptr;\n'.format(value.name)
                     else:
                         # Point the real struct's member pointer to the pointer decoder's memory.
-                        body += '    value->{name} = wrapper->{name}{}GetPointer();\n'.format(accessOp, name=value.name)
+                        convert_const_cast_begin = ''
+                        convert_const_cast_end = ''
+
+                        if value.fullType.find('LPCWSTR *') != -1:
+                            convert_const_cast_end = ')'
+                            convert_const_cast_begin = 'const_cast<LPCWSTR*>('
+
+                        elif value.fullType.find('LPCSTR *') != -1:
+                            convert_const_cast_end = ')'
+                            convert_const_cast_begin = 'const_cast<LPCSTR*>('
+
+                        body += '    value->{name} = {}wrapper->{name}{}GetPointer(){};\n'.format(convert_const_cast_begin, accessOp, convert_const_cast_end, name=value.name)
         else:
             if isStruct:
                 body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
@@ -136,6 +159,17 @@ class BaseStructDecodersBodyGenerator():
                 body += '    {} {};\n'.format(value.baseType, tempParamName)
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, tempParamName)
                 body += '    value->{} = {};\n'.format(value.name, tempParamName)
+            elif isEnum:
+                body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(bufferArgs, value.name)
+            elif isUnion:
+                body += '    // For Union, find the largest size in the member and encode it.\n'\
+                        '    size_t union_size_max = 0, union_size = 0;\n'\
+
+                for m in value.unionMembers:
+                    body += '    if (union_size = sizeof(value->{}) > union_size_max) union_size_max = union_size;\n'.format(m[0])
+
+                body += '    ValueDecoder::DecodeVoidArray({}, reinterpret_cast<void*>(&value->{}), union_size_max);\n'.format(bufferArgs, value.unionMembers[0][0])
+
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
 

@@ -31,6 +31,12 @@ from dx12_api_call_encoders_header_generator\
     import DX12ApiCallEncodersHeaderGenerator
 from dx12_api_call_encoders_body_generator\
     import DX12ApiCallEncodersBodyGenerator
+from dx12_struct_decoders_forward_generator\
+    import DX12StructDecodersForwardGenerator
+from dx12_struct_decoders_header_generator\
+    import DX12StructDecodersHeaderGenerator
+from dx12_struct_decoders_body_generator\
+    import DX12StructDecodersBodyGenerator
 from dx12_decoder_header_generator import DX12DecoderHeaderGenerator
 from dx12_decoder_body_generator import DX12DecoderBodyGenerator
 
@@ -101,6 +107,42 @@ def make_gen_opts(args):
         DX12ApiCallEncodersBodyGenerator,
         DX12GeneratorOptions(
             filename='generated_dx12_api_call_encoders.cpp',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=False,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_decoders_forward_generator.py')
+    gen_opts['generated_dx12_struct_decoders_forward.h'] = [
+        DX12StructDecodersForwardGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_struct_decoders_forward.h',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=True,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_decoders_header_generator.py')
+    gen_opts['generated_dx12_struct_decoders.h'] = [
+        DX12StructDecodersHeaderGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_struct_decoders.h',
+            directory=directory,
+            prefixText=prefix_strings + py_prefix_strings,
+            protectFile=True,
+            protectFeature=False)
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_decoders_body_generator.py')
+    gen_opts['generated_dx12_struct_decoders.cpp'] = [
+        DX12StructDecodersBodyGenerator,
+        DX12GeneratorOptions(
+            filename='generated_dx12_struct_decoders.cpp',
             directory=directory,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,

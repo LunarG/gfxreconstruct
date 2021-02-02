@@ -36,6 +36,9 @@ GENERATE_TARGETS = [
     'generated_dx12_api_call_encoders.cpp',
     'generated_dx12_decoder.h',
     'generated_dx12_decoder.cpp',
+    'generated_dx12_struct_decoders_forward.h',
+    'generated_dx12_struct_decoders.h',
+    'generated_dx12_struct_decoders.cpp',
 ]
 
 DX12_SOURCE_LIST = [
