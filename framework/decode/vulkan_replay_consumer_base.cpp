@@ -2425,6 +2425,9 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             assert(instance_info != nullptr);
 
             instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
+            instance_info->enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
+                                                     modified_create_info.ppEnabledExtensionNames +
+                                                         modified_create_info.enabledExtensionCount);
         }
     }
 
@@ -2541,9 +2544,9 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             auto allocator = options_.create_resource_allocator();
 
-            std::vector<std::string> enabled_extensions(replay_create_info->ppEnabledExtensionNames,
-                                                        replay_create_info->ppEnabledExtensionNames +
-                                                            replay_create_info->enabledExtensionCount);
+            std::vector<std::string> enabled_extensions(modified_create_info.ppEnabledExtensionNames,
+                                                        modified_create_info.ppEnabledExtensionNames +
+                                                            modified_create_info.enabledExtensionCount);
             InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
