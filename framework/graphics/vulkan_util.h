@@ -48,36 +48,6 @@ static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
     return nullptr;
 }
 
-struct ModifiedPhysicalDeviceFeatures
-{
-    // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
-    VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
-    VkBool32  bufferDeviceAddressCaptureReplay_original{ VK_FALSE };
-
-    // VkPhysicalDeviceAccelerationStructureFeaturesKHR::accelerationStructureCaptureReplay
-    VkBool32* accelerationStructureCaptureReplay_ptr{ nullptr };
-    VkBool32  accelerationStructureCaptureReplay_original{ VK_FALSE };
-
-    // VkPhysicalDeviceRayTracingPipelineFeaturesKHR::rayTracingPipelineShaderGroupHandleCaptureReplay
-    VkBool32* rayTracingPipelineShaderGroupHandleCaptureReplay_ptr{ nullptr };
-    VkBool32  rayTracingPipelineShaderGroupHandleCaptureReplay_original{ VK_FALSE };
-
-    // Store associated physical device capture replay properties
-
-    // VkPhysicalDeviceRayTracingPipelinePropertiesKHR::shaderGroupHandleCaptureReplaySize
-    uint32_t shaderGroupHandleCaptureReplaySize{ 0 };
-};
-
-// Try to enable the device features required for application capture and replay
-void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instance_api_version,
-                                          const encode::InstanceTable*    instance_table,
-                                          const VkPhysicalDevice          physical_device,
-                                          const VkDeviceCreateInfo*       create_info,
-                                          ModifiedPhysicalDeviceFeatures& modified_features);
-
-// Restore feature values that may have been modified by EnableRequiredPhysicalDeviceFeatures().
-void RestoreModifiedPhysicalDeviceFeatures(const ModifiedPhysicalDeviceFeatures& modified_features);
-
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

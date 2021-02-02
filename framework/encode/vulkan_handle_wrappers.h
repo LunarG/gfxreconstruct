@@ -27,6 +27,7 @@
 #include "encode/vulkan_state_info.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
@@ -135,10 +136,8 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
 
-    // Feature state at device creation
-    VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
-    VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
-    VkBool32 feature_rayTracingPipelineShaderGroupHandleCaptureReplay{ VK_FALSE };
+    // Physical device property & feature state at device creation
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>

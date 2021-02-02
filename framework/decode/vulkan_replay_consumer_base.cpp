@@ -31,7 +31,7 @@
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/file_path.h"
 #include "util/hash.h"
 #include "util/platform.h"
@@ -2509,12 +2509,12 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
         modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
 
-        graphics::ModifiedPhysicalDeviceFeatures modified_features{};
-        graphics::EnableRequiredPhysicalDeviceFeatures(physical_device_info->parent_api_version,
-                                                       GetInstanceTable(physical_device),
-                                                       physical_device,
-                                                       &modified_create_info,
-                                                       modified_features);
+        graphics::VulkanDeviceUtil                device_util;
+        graphics::VulkanDevicePropertyFeatureInfo property_feature_info =
+            device_util.EnableRequiredPhysicalDeviceFeatures(physical_device_info->parent_api_version,
+                                                             GetInstanceTable(physical_device),
+                                                             physical_device,
+                                                             &modified_create_info);
 
         result = create_device_proc(
             physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
@@ -2552,21 +2552,12 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
 
-            // Track whether device address features were enabled
-            if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
-            {
-                device_info->feature_bufferDeviceAddressCaptureReplay =
-                    (*modified_features.bufferDeviceAddressCaptureReplay_ptr);
-            }
-            if (modified_features.accelerationStructureCaptureReplay_ptr != nullptr)
-            {
-                device_info->feature_accelerationStructureCaptureReplay =
-                    (*modified_features.accelerationStructureCaptureReplay_ptr);
-            }
+            // Track state of physical device properties and features at device creation
+            device_info->property_feature_info = property_feature_info;
         }
 
-        // Restore modified features to the original application values
-        graphics::RestoreModifiedPhysicalDeviceFeatures(modified_features);
+        // Restore modified property/feature create info values to the original application values
+        device_util.RestoreModifiedPhysicalDeviceFeatures();
     }
 
     return result;
@@ -3470,7 +3461,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
                     VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
                 {
-                    if (device_info->feature_bufferDeviceAddressCaptureReplay)
+                    if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
                     {
                         uses_address = true;
                         alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
@@ -3915,7 +3906,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
 
-    if (uses_address && !device_info->feature_bufferDeviceAddressCaptureReplay)
+    if (uses_address && !device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         // Don't enable and query opaque addresses if the feature was not enabled
         uses_address = false;
@@ -5491,7 +5482,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     auto     device_table        = GetDeviceTable(device);
     assert(device_table != nullptr);
 
-    if (device_info->feature_accelerationStructureCaptureReplay)
+    if (device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
     {
         // Set opaque device address
         VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);

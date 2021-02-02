@@ -30,7 +30,7 @@
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/logging.h"
@@ -1262,12 +1262,9 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
     const InstanceTable* instance_table          = GetInstanceTable(physicalDevice);
     auto                 physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
 
-    graphics::ModifiedPhysicalDeviceFeatures modified_features{};
-    graphics::EnableRequiredPhysicalDeviceFeatures(physical_device_wrapper->instance_api_version,
-                                                   instance_table,
-                                                   physicalDevice_unwrapped,
-                                                   pCreateInfo_unwrapped,
-                                                   modified_features);
+    graphics::VulkanDeviceUtil                device_util;
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
+        physical_device_wrapper->instance_api_version, instance_table, physicalDevice_unwrapped, pCreateInfo_unwrapped);
 
     // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
     size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
@@ -1330,22 +1327,8 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
 
         auto wrapper = reinterpret_cast<DeviceWrapper*>(*pDevice);
 
-        // Track whether capture replay features were enabled
-        if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
-        {
-            wrapper->feature_bufferDeviceAddressCaptureReplay =
-                (*modified_features.bufferDeviceAddressCaptureReplay_ptr);
-        }
-        if (modified_features.accelerationStructureCaptureReplay_ptr != nullptr)
-        {
-            wrapper->feature_accelerationStructureCaptureReplay =
-                (*modified_features.accelerationStructureCaptureReplay_ptr);
-        }
-        if (modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr != nullptr)
-        {
-            wrapper->feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
-                (*modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr);
-        }
+        // Track state of physical device properties and features at device creation
+        wrapper->property_feature_info = property_feature_info;
 
         if ((capture_mode_ & kModeTrack) != kModeTrack)
         {
@@ -1355,8 +1338,8 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
         }
     }
 
-    // Restore modified features to the original application values
-    graphics::RestoreModifiedPhysicalDeviceFeatures(modified_features);
+    // Restore modified property/feature create info values to the original application values
+    device_util.RestoreModifiedPhysicalDeviceFeatures();
 
     return result;
 }
@@ -1387,7 +1370,7 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
         address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
     }
 
-    if (uses_address && !device_wrapper->feature_bufferDeviceAddressCaptureReplay)
+    if (uses_address && !device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         // Don't enable and query opaque addresses if the feature was not enabled
         uses_address = false;
@@ -1471,7 +1454,7 @@ VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice          
         UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
     VkResult result;
-    if (device_wrapper->feature_accelerationStructureCaptureReplay)
+    if (device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
     {
         // Add flag to allow for opaque address capture
         VkAccelerationStructureCreateInfoKHR modified_create_info = (*pCreateInfo_unwrapped);
@@ -1496,7 +1479,7 @@ VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice          
         CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(
             device, NoParentWrapper::kHandleValue, pAccelerationStructureKHR, TraceManager::GetUniqueId);
 
-        if (device_wrapper->feature_accelerationStructureCaptureReplay)
+        if (device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
         {
             AccelerationStructureKHRWrapper* accel_struct_wrapper =
                 reinterpret_cast<AccelerationStructureKHRWrapper*>(*pAccelerationStructureKHR);
@@ -1553,7 +1536,7 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
             if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
                 VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
             {
-                if (device_wrapper->feature_bufferDeviceAddressCaptureReplay)
+                if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
                 {
                     uses_address         = true;
                     incoming_alloc_flags = alloc_flags_info->flags;
