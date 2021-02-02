@@ -27,15 +27,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-// Query for supported features from the given features struct type T, result is saved to feature_struct
+// Query specific physical device features struct
+// Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
+// feature_struct sType must be set, pNext must be nullptr
 template <typename T>
-static void GetSupportedPhysicalDeviceFeatures(uint32_t                     instance_api_version,
-                                               const encode::InstanceTable* instance_table,
-                                               const VkPhysicalDevice       physical_device,
-                                               T*                           feature_struct)
+static void GetPhysicalDeviceFeatures(uint32_t                     instance_api_version,
+                                      const encode::InstanceTable* instance_table,
+                                      const VkPhysicalDevice       physical_device,
+                                      T&                           feature_struct)
 {
+    assert((feature_struct.sType != 0) && (feature_struct.pNext == nullptr));
+    feature_struct.pNext = nullptr;
     VkPhysicalDeviceFeatures2 features2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-    features2.pNext = feature_struct;
+    features2.pNext = &feature_struct;
     if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         instance_table->GetPhysicalDeviceFeatures2(physical_device, &features2);
@@ -43,6 +47,29 @@ static void GetSupportedPhysicalDeviceFeatures(uint32_t                     inst
     else
     {
         instance_table->GetPhysicalDeviceFeatures2KHR(physical_device, &features2);
+    }
+}
+
+// Query physical device properties struct
+// Requires Vulkan version >= 1.1 or VK_KHR_get_physical_device_properties2
+// properties_struct sType must be set, pNext must be nullptr
+template <typename T>
+static void GetPhysicalDeviceProperties(uint32_t                     instance_api_version,
+                                        const encode::InstanceTable* instance_table,
+                                        const VkPhysicalDevice       physical_device,
+                                        T&                           properties_struct)
+{
+    assert((properties_struct.sType != 0) && (properties_struct.pNext == nullptr));
+    properties_struct.pNext = nullptr;
+    VkPhysicalDeviceProperties2 properties2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+    properties2.pNext = &properties_struct;
+    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    {
+        instance_table->GetPhysicalDeviceProperties2(physical_device, &properties2);
+    }
+    else
+    {
+        instance_table->GetPhysicalDeviceProperties2KHR(physical_device, &properties2);
     }
 }
 
@@ -75,9 +102,8 @@ static void EnableRequiredBufferDeviceAddressFeatures(uint32_t                  
     if (feature_struct->bufferDeviceAddress && !feature_struct->bufferDeviceAddressCaptureReplay)
     {
         // Get buffer_address properties
-        T supported_features{ feature_struct->sType };
-        GetSupportedPhysicalDeviceFeatures<T>(
-            instance_api_version, instance_table, physical_device, &supported_features);
+        T supported_features{ feature_struct->sType, nullptr };
+        GetPhysicalDeviceFeatures(instance_api_version, instance_table, physical_device, supported_features);
 
         // Enable bufferDeviceAddressCaptureReplay if it is supported
         if (supported_features.bufferDeviceAddressCaptureReplay)
@@ -136,10 +162,10 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                 {
                     // Get acceleration struct properties
                     VkPhysicalDeviceAccelerationStructureFeaturesKHR supported_features{
-                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR, nullptr
                     };
-                    GetSupportedPhysicalDeviceFeatures<VkPhysicalDeviceAccelerationStructureFeaturesKHR>(
-                        instance_api_version, instance_table, physical_device, &supported_features);
+                    GetPhysicalDeviceFeatures(
+                        instance_api_version, instance_table, physical_device, supported_features);
 
                     // Enable accelerationStructureCaptureReplay if it is supported
                     if (supported_features.accelerationStructureCaptureReplay)
@@ -164,14 +190,23 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                     !rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay)
                 {
                     VkPhysicalDeviceRayTracingPipelineFeaturesKHR supported_features{
-                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR, nullptr
                     };
-                    GetSupportedPhysicalDeviceFeatures<VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(
-                        instance_api_version, instance_table, physical_device, &supported_features);
+                    GetPhysicalDeviceFeatures(
+                        instance_api_version, instance_table, physical_device, supported_features);
 
                     if (supported_features.rayTracingPipelineShaderGroupHandleCaptureReplay)
                     {
                         rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay = VK_TRUE;
+
+                        VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties{
+                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR, nullptr
+                        };
+                        GetPhysicalDeviceProperties(
+                            instance_api_version, instance_table, physical_device, rt_properties);
+
+                        modified_features.shaderGroupHandleCaptureReplaySize =
+                            rt_properties.shaderGroupHandleCaptureReplaySize;
                     }
                 }
             }

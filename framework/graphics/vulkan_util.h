@@ -61,6 +61,11 @@ struct ModifiedPhysicalDeviceFeatures
     // VkPhysicalDeviceRayTracingPipelineFeaturesKHR::rayTracingPipelineShaderGroupHandleCaptureReplay
     VkBool32* rayTracingPipelineShaderGroupHandleCaptureReplay_ptr{ nullptr };
     VkBool32  rayTracingPipelineShaderGroupHandleCaptureReplay_original{ VK_FALSE };
+
+    // Store associated physical device capture replay properties
+
+    // VkPhysicalDeviceRayTracingPipelinePropertiesKHR::shaderGroupHandleCaptureReplaySize
+    uint32_t shaderGroupHandleCaptureReplaySize{ 0 };
 };
 
 // Try to enable the device features required for application capture and replay
