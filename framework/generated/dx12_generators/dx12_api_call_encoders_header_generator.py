@@ -42,8 +42,8 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
             diagFile)
 
     # Method override
-    def beginFile(self, genOpts):
-        DX12BaseGenerator.beginFile(self, genOpts)
+    def beginFile(self, gen_opts):
+        DX12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
 
@@ -62,25 +62,16 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
             write(self.dx12_prefix_strings.format(k), file=self.outFile)
             self.newline()
 
-            # print for api_call_id
-            # print('\n    //', k)
-
             for m in v.functions:
-                if m['parent'] is None and m['name'][:7] != 'DEFINE_'\
-                   and m['name'][:8] != 'DECLARE_'\
-                   and m['name'] != 'InlineIsEqualGUID'\
-                   and m['name'] != 'IsEqualGUID'\
-                   and m['name'][:8] != 'operator':
+                if self.is_required_function_data(m):
                     self.write_encode_function('', m)
 
             for k2, v2 in v.classes.items():
-                if v2['declaration_method'] == 'class':
+                if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
                         self.write_encode_function(k2, m)
 
-                elif v2['declaration_method'] == 'struct'\
-                        and k2[-4:] != 'Vtbl'\
-                        and k2.find("::<anon-union-") == -1:
+                elif self.is_required_struct_data(k2, v2):
                     self.write_encode_struct(k2, v2['properties'])
 
     def write_include(self):
@@ -93,10 +84,6 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
                  "#include \"encode/parameter_encoder.h\"\n"
                  "#include \"util/defines.h\"\n"
                  "\n")
-
-        class_list = self.source_dict['class_list']
-        for name in class_list:
-            code += 'class {}_Wrapper;\n'.format(name)
 
         write(code, file=self.outFile)
 
@@ -112,15 +99,11 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
         if self.is_block('', name):
             return
 
-        function_declaration = ("void EncodeStruct(ParameterEncoder* encoder, const {}& value)"  # noqa
-                                .format(name))
-        if function_declaration in self.function_declaration_set:
-            # print('WARNING:', function_declaration, 'is duplicated.')
-            return
+        code = ('void EncodeStruct(ParameterEncoder* encoder, const {}& value)'
+                .format(name))
 
-        self.function_declaration_set.add(function_declaration)
-        body = self.get_encode_struct_body(properties)
-        write('{}{}'.format(function_declaration, body), file=self.outFile)
+        code += self.get_encode_struct_body(properties)
+        write(code, file=self.outFile)
         self.newline()
 
     def get_encode_function_body(self, class_name, method_info):
@@ -189,17 +172,11 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
                 elif space_index == 0:
                     break
 
-        function_declaration = 'void Encode{}_{}(\n'\
-                               '{})'.format(
-                                   class_name, method_info['name'], parameters)
+        code = 'void Encode{}_{}(\n'\
+               '{})'.format(class_name, method_info['name'], parameters)
 
-        if function_declaration in self.function_declaration_set:
-            # print('WARNING:', function_declaration, 'is duplicated.')
-            return
-
-        self.function_declaration_set.add(function_declaration)
-        body = self.get_encode_function_body(class_name, method_info)
-        write('{}{}'.format(function_declaration, body), file=self.outFile)
+        code += self.get_encode_function_body(class_name, method_info)
+        write(code, file=self.outFile)
         self.newline()
 
     # Method override

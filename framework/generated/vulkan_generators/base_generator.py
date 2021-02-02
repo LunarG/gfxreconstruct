@@ -94,7 +94,8 @@ class ValueInfo():
                  platformBaseType = None,
                  platformFullType = None,
                  bitfieldWidth = None,
-                 isConst = False):
+                 isConst = False,
+                 unionMembers = None):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
@@ -111,7 +112,7 @@ class ValueInfo():
         self.isArray = True if arrayLength else False
         self.isDynamic = True if not arrayCapacity else False
         self.isConst = isConst
-
+        self.unionMembers = unionMembers
 
 # BaseGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -477,6 +478,9 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def isClass(self, type):
+        return False
+
     #
     # Check for handle type
     def isHandle(self, baseType):
@@ -817,6 +821,8 @@ class BaseGenerator(OutputGenerator):
                     typeName = 'StructPointerDecoder<Decoded_{}*>'.format(typeName)
                 else:
                     typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
+            elif self.isClass(typeName):
+                typeName = 'HandlePointerDecoder<{}*>'.format(typeName)
             elif typeName == 'wchar_t':
                 if count > 1:
                     typeName = 'WStringArrayDecoder'

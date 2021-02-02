@@ -130,10 +130,15 @@ if __name__ == '__main__':
     struct_list = list()
 
     for k, v in header_dict.items():
-        for k2, v2 in v.classes.items():
+        for k2 in list(v.classes):
+            v2 = v.classes[k2]
             if v2['declaration_method'] == 'struct' and k2[-4:] != 'Vtbl'\
                and k2.find("::<anon-union-") == -1:
-                struct_list.append(k2)
+                if k2 in struct_list:
+                    # print('WARNING:', k2, 'is duplicated.')
+                    del v.classes[k2]
+                else:
+                    struct_list.append(k2)
 
             elif v2['declaration_method'] == 'union':
                 union_dict[v2['name']] = v2

@@ -28,26 +28,6 @@ from dx12_api_call_encoders_header_generator\
 # Generates C++ functions responsible for encoding DX12 API call.
 class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
 
-    # convert based type into the encode function name
-    CONVERT_FUNCTION_LIST = [
-        [['BYTE', 'byte', 'UINT8', 'unsigned char'], 'UInt8'],
-        [['INT8'], 'Int8'],
-        [['UINT16', 'unsigned short'], 'UInt16'],
-        [['SHORT'], 'Int16'],
-        [['DWORD', 'UINT', 'UINT32', 'unsigned int', 'DXGI_USAGE'], 'UInt32'],
-        [['BOOL', 'INT', 'int'], 'Int32'],
-        [['ULONG', 'UINT64', 'unsigned long', 'D3D12_GPU_VIRTUAL_ADDRESS'],
-            'UInt64'],
-        [['LONG', 'LONG_PTR', 'HRESULT', 'LARGE_INTEGER'], 'Int64'],
-        [['FLOAT', 'float'], 'Float'],
-        [['SIZE_T'], 'SizeT'],
-        [['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC'], 'Handle'],
-        [['void'], 'Void'],
-        [['LPCSTR', 'char'], 'String'],
-        [['LPCWSTR', 'WCHAR', 'wchar_t'], 'WString'],
-        [['PFN_DESTRUCTION_CALLBACK'], 'Function'],
-    ]
-
     ERROR_MSG = 'ERROR: Missing parameter type:'
 
     def __init__(self, source_dict, dx12_prefix_strings,
@@ -102,13 +82,13 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
         if is_generating_struct:
             write_parameter_value = 'value.'
 
-        if value.arrayLengthValue:
+        if value.arrayLength and type(value.arrayLength) == str:
             return 'EncodeStructArray(encoder, {}{}, {}{});'.format(
                 write_parameter_value, value.name, write_parameter_value,
-                value.arrayLengthValue)
+                value.arrayLength)
 
         elif value.pointerCount == 1:
-            if value.arrayLength == 0:
+            if value.arrayCapacity == 0:
                 return 'EncodeStructPtr(encoder, {}{});'.format(
                     write_parameter_value, value.name)
             else:
@@ -119,12 +99,12 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
                 write_parameter_value, value.name)
 
         else:
-            if value.arrayLength == 0:
+            if value.arrayCapacity == 0:
                 return 'EncodeStruct(encoder, {}{});'.format(
                     write_parameter_value, value.name)
             else:
                 return 'EncodeStructArray(encoder, {}{}, {});'.format(
-                    write_parameter_value, value.name, value.arrayLength)
+                    write_parameter_value, value.name, value.arrayCapacity)
         return ''
 
     # Method override
@@ -138,13 +118,13 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
         if function_value:
             write_function_value = 'Value'
 
-        if value.arrayLengthValue:
+        if value.arrayLength and type(value.arrayLength) == str:
             return 'encoder->Encode{}Array({}{}, {}{});'.format(
                 function_name, write_parameter_value, value.name,
-                write_parameter_value, value.arrayLengthValue)
+                write_parameter_value, value.arrayLength)
 
         elif value.pointerCount == 1:
-            if value.arrayLength == 0:
+            if value.arrayCapacity == 0:
                 return 'encoder->Encode{}Ptr({}{});'.format(
                     function_name, write_parameter_value, value.name)
             else:
@@ -154,7 +134,7 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
             print(self.ERROR_MSG, '**', function_name, value.name)
 
         else:
-            if value.arrayLength == 0:
+            if value.arrayCapacity == 0:
                 return 'encoder->Encode{}{}({}{});'.format(
                     function_name, write_function_value,
                     write_parameter_value, value.name)
@@ -162,18 +142,11 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
                 if value.arrayDimension > 0:
                     return 'encoder->Encode{}Array(*{}{}, {});'.format(
                         function_name, write_parameter_value, value.name,
-                        value.arrayLength)
+                        value.arrayCapacity)
                 else:
                     return 'encoder->Encode{}Array({}{}, {});'.format(
                         function_name, write_parameter_value, value.name,
-                        value.arrayLength)
-        return ''
-
-    def convert_function(self, type):
-        for e in self.CONVERT_FUNCTION_LIST:
-            for k in e[0]:
-                if type == k:
-                    return e[1]
+                        value.arrayCapacity)
         return ''
 
     # Method override
@@ -184,41 +157,46 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
             struct_name = parameter['parent']['name']
 
         value = self.get_value_info(parameter)
-        union = self.get_union(value.baseType)
-        if union:
+
+        # This union is from winnt.h
+        if value.baseType == 'LARGE_INTEGER':
+            if value.pointerCount == 1:
+                value.name = '&' + value.name + '->QuadPart'
+
+        if value.unionMembers:
             rtn.append('// For Union, find the largest size in the member and encode it.')  # noqa
             rtn.append('size_t union_size_max = 0, union_size = 0;')
 
-            for m in union['members']:
+            for m in value.unionMembers:
                 rtn.append('if (union_size = sizeof(value.{}) > union_size_max) union_size_max = union_size;'  # noqa
-                           .format(m['name']))
+                           .format(m[0]))
             rtn.append('encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.{}), union_size_max);'  # noqa
-                       .format(union['members'][0]['name']))
+                       .format(value.unionMembers[0][0]))
 
         elif self.isStruct(value.baseType):
             rtn.append(self.get_encode_struct(value, is_generating_struct))
 
         elif self.isClass(value.baseType):
-            if value.arrayLengthValue:
+            if value.arrayLength and type(value.arrayLength) == str:
                 if is_generating_struct:
                     if value.isConst:
                         rtn.append('EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(const_cast<{}***>\n'  # noqa
                                    '            (&const_cast<{}*>(&value)->{})), value.{});'  # noqa
                                    .format(value.baseType, struct_name,
-                                           value.name, value.arrayLengthValue))
+                                           value.name, value.arrayLength))
                     else:
                         rtn.append('EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(&const_cast<{}**>\n'  # noqa
                                    '            (&value)->{}), value.{});'
                                    .format(struct_name, value.name,
-                                           value.arrayLengthValue))
+                                           value.arrayLength))
                 else:
                     if value.isConst:
                         rtn.append('EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(const_cast<{}***>(&{})), {});'  # noqa
                                    .format(value.baseType, value.name,
-                                           value.arrayLengthValue))
+                                           value.arrayLength))
                     else:
                         rtn.append('EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(&{}), {});'  # noqa
-                                   .format(value.name, value.arrayLengthValue))
+                                   .format(value.name, value.arrayLength))
 
             else:
                 if is_generating_struct:
@@ -239,10 +217,6 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
                         rtn.append('EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(&{}));'  # noqa
                                    .format(value.name))
 
-        elif value.baseType == 'void' and value.pointerCount == 2:
-            rtn.append('EncodeDxObjectPtr(encoder, {}, FAILED(result));'  # noqa
-                       .format(value.name))
-
         else:
             function_value = True
             encode_type = self.convert_function(value.baseType)
@@ -250,19 +224,12 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
             if encode_type == 'String' or encode_type == 'WString':
                 value.pointerCount = 0
                 function_value = 0
-                value.arrayLength = 0
-
-            # This union is from winnt.h
-            elif value.baseType == 'LARGE_INTEGER':
-                if value.pointerCount == 1:
-                    value.name = '&' + value.name + '->QuadPart'
-                else:
-                    value.name += '.QuadPart'
+                value.arrayCapacity = 0
 
             elif encode_type == 'Function':
                 value.pointerCount = 1
 
-            elif not encode_type:
+            elif encode_type == value.baseType:
                 if self.isEnum(value.baseType):
                     encode_type = 'Enum'
 
