@@ -28,6 +28,7 @@
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_device_util.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -248,9 +249,8 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
 
-    // Feature state at device creation
-    VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
-    VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
+    // Physical device property & feature state at device creation
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

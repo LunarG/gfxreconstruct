@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "graphics/vulkan_util.h"
+#include "graphics/vulkan_device_util.h"
 
 #include "util/logging.h"
 
@@ -74,11 +74,10 @@ static void GetPhysicalDeviceProperties(uint32_t                     instance_ap
 }
 
 template <typename T>
-static void EnableRequiredBufferDeviceAddressFeatures(uint32_t                        instance_api_version,
-                                                      const encode::InstanceTable*    instance_table,
-                                                      const VkPhysicalDevice          physical_device,
-                                                      T*                              feature_struct,
-                                                      ModifiedPhysicalDeviceFeatures& modified_features)
+VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(uint32_t                     instance_api_version,
+                                                                     const encode::InstanceTable* instance_table,
+                                                                     const VkPhysicalDevice       physical_device,
+                                                                     T*                           feature_struct)
 {
     // Type must be feature struct type that contains bufferDeviceAddress and bufferDeviceAddressCaptureReplay
     static_assert(std::is_same<T, VkPhysicalDeviceVulkan12Features>::value ||
@@ -87,15 +86,15 @@ static void EnableRequiredBufferDeviceAddressFeatures(uint32_t                  
 
     // Only one device address feature struct should be present, so bufferDeviceAddressCaptureReplay_ptr should not have
     // been set yet
-    assert(modified_features.bufferDeviceAddressCaptureReplay_ptr == nullptr);
-    if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
+    assert(bufferDeviceAddressCaptureReplay_ptr == nullptr);
+    if (bufferDeviceAddressCaptureReplay_ptr != nullptr)
     {
-        return;
+        return VK_FALSE;
     }
 
     // Save original application's feature state
-    modified_features.bufferDeviceAddressCaptureReplay_original = feature_struct->bufferDeviceAddressCaptureReplay;
-    modified_features.bufferDeviceAddressCaptureReplay_ptr      = (&feature_struct->bufferDeviceAddressCaptureReplay);
+    bufferDeviceAddressCaptureReplay_original = feature_struct->bufferDeviceAddressCaptureReplay;
+    bufferDeviceAddressCaptureReplay_ptr      = (&feature_struct->bufferDeviceAddressCaptureReplay);
 
     // Enable the capture replay flag device addresses if bufferDeviceAddress is enabled and the capture replay feature
     // is supported by the device
@@ -111,15 +110,18 @@ static void EnableRequiredBufferDeviceAddressFeatures(uint32_t                  
             feature_struct->bufferDeviceAddressCaptureReplay = VK_TRUE;
         }
     }
+
+    return feature_struct->bufferDeviceAddressCaptureReplay;
 }
 
-void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instance_api_version,
-                                          const encode::InstanceTable*    instance_table,
-                                          const VkPhysicalDevice          physical_device,
-                                          const VkDeviceCreateInfo*       create_info,
-                                          ModifiedPhysicalDeviceFeatures& modified_features)
+VulkanDevicePropertyFeatureInfo
+VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(uint32_t                     instance_api_version,
+                                                       const encode::InstanceTable* instance_table,
+                                                       const VkPhysicalDevice       physical_device,
+                                                       const VkDeviceCreateInfo*    create_info)
 {
-    VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(create_info)->pNext;
+    VulkanDevicePropertyFeatureInfo result;
+    VkBaseOutStructure*             current_struct = reinterpret_cast<const VkBaseOutStructure*>(create_info)->pNext;
     while (current_struct != nullptr)
     {
         switch (current_struct->sType)
@@ -128,16 +130,16 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
             {
                 auto vulkan_1_2_features = reinterpret_cast<VkPhysicalDeviceVulkan12Features*>(current_struct);
-                EnableRequiredBufferDeviceAddressFeatures<VkPhysicalDeviceVulkan12Features>(
-                    instance_api_version, instance_table, physical_device, vulkan_1_2_features, modified_features);
+                result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
+                    instance_api_version, instance_table, physical_device, vulkan_1_2_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
             {
                 auto buffer_address_features =
                     reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
-                EnableRequiredBufferDeviceAddressFeatures<VkPhysicalDeviceBufferDeviceAddressFeatures>(
-                    instance_api_version, instance_table, physical_device, buffer_address_features, modified_features);
+                result.feature_bufferDeviceAddressCaptureReplay = EnableRequiredBufferDeviceAddressFeatures(
+                    instance_api_version, instance_table, physical_device, buffer_address_features);
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
@@ -152,10 +154,8 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                 auto accel_struct_features =
                     reinterpret_cast<VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(current_struct);
 
-                modified_features.accelerationStructureCaptureReplay_ptr =
-                    (&accel_struct_features->accelerationStructureCaptureReplay);
-                modified_features.accelerationStructureCaptureReplay_original =
-                    accel_struct_features->accelerationStructureCaptureReplay;
+                accelerationStructureCaptureReplay_ptr = (&accel_struct_features->accelerationStructureCaptureReplay);
+                accelerationStructureCaptureReplay_original = accel_struct_features->accelerationStructureCaptureReplay;
 
                 if (accel_struct_features->accelerationStructure &&
                     !accel_struct_features->accelerationStructureCaptureReplay)
@@ -173,6 +173,9 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                         accel_struct_features->accelerationStructureCaptureReplay = VK_TRUE;
                     }
                 }
+
+                result.feature_accelerationStructureCaptureReplay =
+                    accel_struct_features->accelerationStructureCaptureReplay;
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
@@ -181,9 +184,9 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                 auto rt_pipeline_features =
                     reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(current_struct);
 
-                modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr =
+                rayTracingPipelineShaderGroupHandleCaptureReplay_ptr =
                     (&rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay);
-                modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_original =
+                rayTracingPipelineShaderGroupHandleCaptureReplay_original =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
                 if (rt_pipeline_features->rayTracingPipeline &&
@@ -205,10 +208,13 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
                         GetPhysicalDeviceProperties(
                             instance_api_version, instance_table, physical_device, rt_properties);
 
-                        modified_features.shaderGroupHandleCaptureReplaySize =
+                        result.property_shaderGroupHandleCaptureReplaySize =
                             rt_properties.shaderGroupHandleCaptureReplaySize;
                     }
                 }
+
+                result.feature_rayTracingPipelineShaderGroupHandleCaptureReplay =
+                    rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
             }
             break;
             default:
@@ -216,24 +222,27 @@ void EnableRequiredPhysicalDeviceFeatures(uint32_t                        instan
         }
         current_struct = current_struct->pNext;
     }
+
+    return result;
 }
 
-void RestoreModifiedPhysicalDeviceFeatures(const ModifiedPhysicalDeviceFeatures& modified_features)
+void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
 {
-    if (modified_features.bufferDeviceAddressCaptureReplay_ptr != nullptr)
+    if (bufferDeviceAddressCaptureReplay_ptr != nullptr)
     {
-        (*modified_features.bufferDeviceAddressCaptureReplay_ptr) =
-            modified_features.bufferDeviceAddressCaptureReplay_original;
+        (*bufferDeviceAddressCaptureReplay_ptr) = bufferDeviceAddressCaptureReplay_original;
+        bufferDeviceAddressCaptureReplay_ptr    = nullptr;
     }
-    if (modified_features.accelerationStructureCaptureReplay_ptr != nullptr)
+    if (accelerationStructureCaptureReplay_ptr != nullptr)
     {
-        (*modified_features.accelerationStructureCaptureReplay_ptr) =
-            modified_features.accelerationStructureCaptureReplay_original;
+        (*accelerationStructureCaptureReplay_ptr) = accelerationStructureCaptureReplay_original;
+        accelerationStructureCaptureReplay_ptr    = nullptr;
     }
-    if (modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr != nullptr)
+    if (rayTracingPipelineShaderGroupHandleCaptureReplay_ptr != nullptr)
     {
-        (*modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_ptr) =
-            modified_features.rayTracingPipelineShaderGroupHandleCaptureReplay_original;
+        (*rayTracingPipelineShaderGroupHandleCaptureReplay_ptr) =
+            rayTracingPipelineShaderGroupHandleCaptureReplay_original;
+        rayTracingPipelineShaderGroupHandleCaptureReplay_ptr = nullptr;
     }
 }
 

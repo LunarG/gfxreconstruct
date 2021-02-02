@@ -29,8 +29,9 @@ add_library(gfxrecon_graphics STATIC "")
 
 target_sources(gfxrecon_graphics
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
               )
 
 target_include_directories(gfxrecon_graphics

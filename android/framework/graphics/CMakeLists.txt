@@ -2,8 +2,9 @@ add_library(gfxrecon_graphics STATIC "")
 
 target_sources(gfxrecon_graphics
                PRIVATE
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_device_util.h
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_device_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.h
-                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.cpp
               )
 
 target_include_directories(gfxrecon_graphics
