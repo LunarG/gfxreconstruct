@@ -101,7 +101,14 @@ TraceManager::TraceManager() :
     force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if !defined(WIN32)
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
+#else
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite),
+    previous_hotkey_state_(false), dxgi_dispatch_table_{}, d3d12_dispatch_table_
+{}
+#endif
 {}
 
 TraceManager::~TraceManager()

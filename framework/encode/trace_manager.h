@@ -53,6 +53,12 @@
 #include <unordered_map>
 #include <vector>
 
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if defined(WIN32)
+#include "encode/d3d12_dispatch_table.h"
+#include "encode/dxgi_dispatch_table.h"
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -87,6 +93,57 @@ class TraceManager
     void InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
     void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
+
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if defined(WIN32)
+    //----------------------------------------------------------------------------
+    /// Initializes the DXGI dispatch table.
+    ///
+    /// Initializes the TraceManager's internal DXGI dispatch table with functions
+    /// loaded from the DXGI system DLL.  This dispatch table will be used by the
+    /// 'wrapper' functions to invoke the 'real' DXGI function prior to processing
+    /// the function parameters for encoding.
+    ///
+    /// \param dispatch_table A DxgiDispatchTable object contiaining the DXGI
+    ///                       function pointers to be used for initialization.
+    //----------------------------------------------------------------------------
+    void InitDxgiDispatchTable(const DxgiDispatchTable& dispatch_table) { dxgi_dispatch_table_ = dispatch_table; }
+
+    //----------------------------------------------------------------------------
+    /// Initializes the D3D12 dispatch table.
+    ///
+    /// Initializes the TraceManager's internal D3D12 dispatch table with
+    /// functions loaded from the D3D12 system DLL.  This dispatch table will be
+    /// used by the 'wrapper' functions to invoke the 'real' D3D12 function prior
+    /// to processing the function parameters for encoding.
+    ///
+    /// \param dispatch_table A D3D12DispatchTable object contiaining the DXGI
+    ///                       function pointers to be used for initialization.
+    //----------------------------------------------------------------------------
+    void InitD3D12DispatchTable(const D3D12DispatchTable& dispatch_table) { d3d12_dispatch_table_ = dispatch_table; }
+
+    //----------------------------------------------------------------------------
+    /// Retrieves the DXGI dispatch table.
+    ///
+    /// Retrieves the TraceManager's internal DXGI dispatch table. Intended to be
+    /// used by the 'wrapper' functions when invoking the 'real' DXGI functions.
+    ///
+    /// \return dispatch_table A DxgiDispatchTable object contiaining DXGI
+    ///                        function pointers retrieved from the system DLL.
+    //----------------------------------------------------------------------------
+    const DxgiDispatchTable& GetDxgiDispatchTable() const { return dxgi_dispatch_table_; }
+
+    //----------------------------------------------------------------------------
+    /// Retrieves the D3D12 dispatch table.
+    ///
+    /// Retrieves the TraceManager's internal D3D12 dispatch table. Intended to be
+    /// used by the 'wrapper' functions when invoking the 'real' D3D12 functions.
+    ///
+    /// \return dispatch_table A D3D12DispatchTable object contiaining D3D12
+    ///                        function pointers retrieved from the system DLL.
+    //----------------------------------------------------------------------------
+    const D3D12DispatchTable& GetD3D12DispatchTable() const { return d3d12_dispatch_table_; }
+#endif
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -1037,6 +1094,12 @@ class TraceManager
     HardwareBufferMap                               hardware_buffers_;
     util::Keyboard                                  keyboard_;
     bool                                            previous_hotkey_state_;
+
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if defined(WIN32)
+    DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
+    D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
+#endif
 };
 
 GFXRECON_END_NAMESPACE(encode)
