@@ -1043,6 +1043,40 @@ void TraceManager::WriteSetOpaqueAddressCommand(format::HandleId device_id,
     }
 }
 
+void TraceManager::WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                               format::HandleId pipeline_id,
+                                                               size_t           data_size,
+                                                               const void*      data)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::SetRayTracingShaderGroupHandlesCommandHeader set_handles_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        set_handles_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        set_handles_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_handles_cmd) + data_size;
+        set_handles_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand;
+        set_handles_cmd.thread_id                     = thread_data->thread_id_;
+        set_handles_cmd.device_id                     = device_id;
+        set_handles_cmd.pipeline_id                   = pipeline_id;
+        set_handles_cmd.data_size                     = data_size;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            file_stream_->Write(&set_handles_cmd, sizeof(set_handles_cmd));
+            file_stream_->Write(data, data_size);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
 void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                                    const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
@@ -1715,24 +1749,68 @@ VkResult TraceManager::OverrideCreateRayTracingPipelinesKHR(VkDevice            
 {
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
+    const DeviceTable*     device_table                = GetDeviceTable(device);
     auto                   handle_unwrap_memory        = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
     const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
         UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
-    VkResult result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device_unwrapped,
-                                                                           deferredOperation_unwrapped,
-                                                                           pipelineCache_unwrapped,
-                                                                           createInfoCount,
-                                                                           pCreateInfos_unwrapped,
-                                                                           pAllocator,
-                                                                           pPipelines);
+    VkResult result;
+    if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    {
+        auto modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+        for (uint32_t i = 0; i < createInfoCount; ++i)
+        {
+            modified_create_infos[i] = pCreateInfos_unwrapped[i];
+            modified_create_infos[i].flags |= VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+        }
+        result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
+                                                            deferredOperation_unwrapped,
+                                                            pipelineCache_unwrapped,
+                                                            createInfoCount,
+                                                            modified_create_infos.get(),
+                                                            pAllocator,
+                                                            pPipelines);
+    }
+    else
+    {
+        result = device_table->CreateRayTracingPipelinesKHR(device_unwrapped,
+                                                            deferredOperation_unwrapped,
+                                                            pipelineCache_unwrapped,
+                                                            createInfoCount,
+                                                            pCreateInfos_unwrapped,
+                                                            pAllocator,
+                                                            pPipelines);
+    }
 
     if ((result == VK_SUCCESS) && (pPipelines != nullptr))
     {
         CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(
             device, deferredOperation, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+
+        if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+        {
+            for (uint32_t i = 0; i < createInfoCount; ++i)
+            {
+                PipelineWrapper* pipeline_wrapper = reinterpret_cast<PipelineWrapper*>(pPipelines[i]);
+
+                uint32_t data_size = device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                                     pCreateInfos[i].groupCount;
+                std::vector<uint8_t> data(data_size);
+
+                device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
+                    device_unwrapped, pipeline_wrapper->handle, 0, pCreateInfos[i].groupCount, data_size, data.data());
+
+                WriteSetRayTracingShaderGroupHandlesCommand(
+                    device_wrapper->handle_id, pipeline_wrapper->handle_id, data_size, data.data());
+
+                if ((capture_mode_ & kModeTrack) == kModeTrack)
+                {
+                    state_tracker_->TrackRayTracingShaderGroupHandles(device, pPipelines[i], data_size, data.data());
+                }
+            }
+        }
     }
 
     return result;

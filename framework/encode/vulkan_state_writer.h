@@ -276,6 +276,11 @@ class VulkanStateWriter
 
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, VkDeviceAddress address);
 
+    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                     format::HandleId pipeline_id,
+                                                     size_t           data_size,
+                                                     const void*      data);
+
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
     {

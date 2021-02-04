@@ -297,6 +297,10 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     CreateDependencyInfo                        layout_dependency;
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies; // Shared with PipelineLayoutWrapper
 
+    // Ray tracing pipeline's shader group handle data
+    format::HandleId     device_id{ format::kNullHandleId };
+    std::vector<uint8_t> shader_group_handle_data;
+
     // TODO: Base pipeline
     // TODO: Pipeline cache
 };

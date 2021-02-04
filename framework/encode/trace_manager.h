@@ -1005,6 +1005,11 @@ class TraceManager
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
 
+    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                     format::HandleId pipeline_id,
+                                                     size_t           data_size,
+                                                     const void*      data);
+
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);
 
