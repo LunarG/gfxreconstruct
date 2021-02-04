@@ -557,6 +557,14 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesKHR)
         {
+            if ((wrapper->device_id != format::kNullHandleId) && !wrapper->shader_group_handle_data.empty())
+            {
+                WriteSetRayTracingShaderGroupHandlesCommand(wrapper->device_id,
+                                                            wrapper->handle_id,
+                                                            wrapper->shader_group_handle_data.size(),
+                                                            wrapper->shader_group_handle_data.data());
+            }
+
             if (processed_ray_tracing_pipelines_khr.find(wrapper->create_parameters.get()) ==
                 processed_ray_tracing_pipelines_khr.end())
             {
@@ -2758,6 +2766,25 @@ void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
     opaque_address_cmd.address                       = address;
 
     output_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
+}
+
+void VulkanStateWriter::WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                                    format::HandleId pipeline_id,
+                                                                    size_t           data_size,
+                                                                    const void*      data)
+{
+    format::SetRayTracingShaderGroupHandlesCommandHeader set_handles_cmd;
+
+    set_handles_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    set_handles_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_handles_cmd) + data_size;
+    set_handles_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand;
+    set_handles_cmd.thread_id                     = thread_id_;
+    set_handles_cmd.device_id                     = device_id;
+    set_handles_cmd.pipeline_id                   = pipeline_id;
+    set_handles_cmd.data_size                     = data_size;
+
+    output_stream_->Write(&set_handles_cmd, sizeof(set_handles_cmd));
+    output_stream_->Write(data, data_size);
 }
 
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,
