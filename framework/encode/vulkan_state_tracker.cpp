@@ -461,6 +461,12 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 bool* written_start = &binding.written[current_dst_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
+                if (binding.type == VK_DESCRIPTOR_TYPE_MUTABLE_VALVE)
+                {
+                    VkDescriptorType* mutable_type_start = &binding.mutable_type[current_dst_array_element];
+                    std::fill(mutable_type_start, mutable_type_start + current_writes, write->descriptorType);
+                }
+
                 switch (write->descriptorType)
                 {
                     case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -631,23 +637,29 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                            &src_binding.images[current_src_array_element],
                            (sizeof(VkDescriptorImageInfo) * current_copies));
                 }
-                else if (src_binding.buffers != nullptr)
+                if (src_binding.buffers != nullptr)
                 {
                     memcpy(&dst_binding.buffers[current_dst_array_element],
                            &src_binding.buffers[current_src_array_element],
                            (sizeof(VkDescriptorBufferInfo) * current_copies));
                 }
-                else if (src_binding.acceleration_structures != nullptr)
+                if (src_binding.acceleration_structures != nullptr)
                 {
                     memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
                            &src_binding.acceleration_structures[current_src_array_element],
                            (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
                 }
-                else
+                if (src_binding.texel_buffer_views != nullptr)
                 {
                     memcpy(&dst_binding.texel_buffer_views[current_dst_array_element],
                            &src_binding.texel_buffer_views[current_src_array_element],
                            (sizeof(VkBufferView) * current_copies));
+                }
+                if (src_binding.mutable_type != nullptr)
+                {
+                    memcpy(&dst_binding.mutable_type[current_dst_array_element],
+                           &src_binding.mutable_type[current_src_array_element],
+                           (sizeof(VkDescriptorType) * current_copies));
                 }
 
                 // Check for consecutive update.
