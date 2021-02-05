@@ -334,7 +334,31 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         // Write semaphore creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        if (wrapper->signaled)
+        if (wrapper->type == VK_SEMAPHORE_TYPE_TIMELINE)
+        {
+            const DeviceWrapper* device_wrapper = wrapper->device;
+            assert(device_wrapper != nullptr);
+
+            // Query current semaphore value
+            uint64_t          semaphore_value;
+            format::ApiCallId signal_call_id;
+            if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
+            {
+                device_wrapper->layer_table.GetSemaphoreCounterValue(
+                    device_wrapper->handle, wrapper->handle, &semaphore_value);
+                signal_call_id = format::ApiCallId::ApiCall_vkSignalSemaphore;
+            }
+            else
+            {
+                device_wrapper->layer_table.GetSemaphoreCounterValueKHR(
+                    device_wrapper->handle, wrapper->handle, &semaphore_value);
+                signal_call_id = format::ApiCallId::ApiCall_vkSignalSemaphoreKHR;
+            }
+
+            // Write command to set semaphore value on replay
+            WriteSignalSemaphoreValue(signal_call_id, device_wrapper->handle_id, wrapper->handle_id, semaphore_value);
+        }
+        else if (wrapper->signaled)
         {
             signaled[wrapper->device].push_back(wrapper->handle_id);
         }
@@ -2380,6 +2404,29 @@ void VulkanStateWriter::WriteSetEvent(format::HandleId device_id, format::Handle
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkSetEvent, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
+                                                  format::HandleId  device_id,
+                                                  format::HandleId  semaphore_id,
+                                                  uint64_t          value)
+{
+    const VkResult result = VK_SUCCESS;
+
+    VkSemaphoreSignalInfo signal_info = { VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO };
+
+    encoder_.EncodeHandleIdValue(device_id);
+
+    encoder_.EncodeStructPtrPreamble(&signal_info);
+    encoder_.EncodeEnumValue(signal_info.sType);
+    EncodePNextStruct(&encoder_, nullptr);
+    encoder_.EncodeHandleIdValue(semaphore_id);
+    encoder_.EncodeUInt64Value(value);
+
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(api_call_id, &parameter_stream_);
     parameter_stream_.Reset();
 }
 
