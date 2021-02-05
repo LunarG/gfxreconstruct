@@ -69,6 +69,7 @@
     "vkCreateWaylandSurfaceKHR": "OverrideCreateWaylandSurfaceKHR",
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
     "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
-    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR"
+    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
+    "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT"
   }
 }
