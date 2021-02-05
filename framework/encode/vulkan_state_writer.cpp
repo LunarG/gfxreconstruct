@@ -2870,6 +2870,16 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
                                          &memory_type_index,
                                          memory_property_flags,
                                          state_table);
+        if (!found)
+        {
+            // If we are here it is likely that we lack support for HOST_CACHED, fallback to COHERENT
+            found = FindMemoryTypeIndex(device_wrapper,
+                                        memory_requirements.memoryTypeBits,
+                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                        &memory_type_index,
+                                        memory_property_flags,
+                                        state_table);
+        }
 
         if (found)
         {
@@ -2891,8 +2901,8 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached properties for resource "
-                               "memory snapshot staging buffer creation");
+            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached or coherent "
+                               "properties for resource memory snapshot staging buffer creation");
             result = VK_ERROR_INITIALIZATION_FAILED;
         }
     }
