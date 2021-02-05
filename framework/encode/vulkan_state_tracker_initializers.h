@@ -705,6 +705,11 @@ inline void InitializeState<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSe
             binding_info.count         = binding->descriptorCount;
             binding_info.type          = binding->descriptorType;
 
+            binding_info.immutable_samplers =
+                ((binding->pImmutableSamplers != nullptr) &&
+                 ((binding->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) ||
+                  (binding->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)));
+
             wrapper->binding_info.emplace_back(std::move(binding_info));
         }
     }
@@ -753,9 +758,10 @@ inline void InitializePoolObjectState(VkDevice                           parent_
     for (const auto& binding_info : layout_wrapper->binding_info)
     {
         DescriptorInfo descriptor_info;
-        descriptor_info.type    = binding_info.type;
-        descriptor_info.count   = binding_info.count;
-        descriptor_info.written = std::make_unique<bool[]>(binding_info.count);
+        descriptor_info.type               = binding_info.type;
+        descriptor_info.count              = binding_info.count;
+        descriptor_info.immutable_samplers = binding_info.immutable_samplers;
+        descriptor_info.written            = std::make_unique<bool[]>(binding_info.count);
 
         std::fill(descriptor_info.written.get(), descriptor_info.written.get() + binding_info.count, false);
 

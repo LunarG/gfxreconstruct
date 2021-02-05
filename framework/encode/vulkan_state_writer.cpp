@@ -3591,9 +3591,8 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 }
                 break;
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                // TODO: Sampler handle does not need to be valid if descriptor set was allocated from a layout
-                // with immutable samplers.
-                if ((state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr) &&
+                if ((descriptor->immutable_samplers ||
+                     (state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr)) &&
                     IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;

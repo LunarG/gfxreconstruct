@@ -59,12 +59,14 @@ struct DescriptorBindingInfo
     uint32_t         binding_index{ 0 };
     uint32_t         count{ 0 };
     VkDescriptorType type;
+    bool             immutable_samplers{ 0 };
 };
 
 struct DescriptorInfo
 {
     VkDescriptorType                              type;
     uint32_t                                      count{ 0 };
+    bool                                          immutable_samplers{ 0 };
     std::unique_ptr<bool[]>                       written;
     std::unique_ptr<format::HandleId[]>           handle_ids;  // Image, buffer, or buffer view IDs depending on type.
     std::unique_ptr<format::HandleId[]>           sampler_ids; // Sampler IDs for image type.
