@@ -231,8 +231,9 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
     // is not signaled.
-    bool           signaled{ false };
-    DeviceWrapper* device{ nullptr };
+    bool            signaled{ false };
+    VkSemaphoreType type{ VK_SEMAPHORE_TYPE_BINARY_KHR };
+    DeviceWrapper*  device{ nullptr };
 };
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>

@@ -239,6 +239,11 @@ class VulkanStateWriter
 
     void WriteSetEvent(format::HandleId device_id, format::HandleId event_id);
 
+    void WriteSignalSemaphoreValue(format::ApiCallId api_call_id,
+                                   format::HandleId  device_id,
+                                   format::HandleId  semaphore,
+                                   uint64_t          value);
+
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,
                                   format::HandleId             object_id,

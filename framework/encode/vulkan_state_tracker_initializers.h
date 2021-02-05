@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_STATE_TRACKER_INITIALIZERS_H
 #define GFXRECON_ENCODE_VULKAN_STATE_TRACKER_INITIALIZERS_H
 
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "format/format.h"
@@ -241,6 +242,17 @@ inline void InitializeState<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(V
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->device = reinterpret_cast<DeviceWrapper*>(parent_handle);
+
+    auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
+    while (next)
+    {
+        if (next->sType == VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO)
+        {
+            auto semaphore_type = reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(next);
+            wrapper->type       = semaphore_type->semaphoreType;
+        }
+        next = next->pNext;
+    }
 }
 
 template <>
