@@ -722,6 +722,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
         const PointerDecoder<uint64_t, void*>*                                pHandle);
 
+    VkResult OverrideGetRandROutputDisplayEXT(PFN_vkGetRandROutputDisplayEXT      func,
+                                              VkResult                            original_result,
+                                              const PhysicalDeviceInfo*           physicalDevice,
+                                              Display*                            dpy,
+                                              RROutput                            rrOutput,
+                                              HandlePointerDecoder<VkDisplayKHR>* pDisplay);
+
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
     VkResult

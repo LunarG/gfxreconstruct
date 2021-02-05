@@ -1541,6 +1541,7 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
     if ((call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR) ||
         (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR) ||
         (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
+        (call_id == format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT) ||
         (call_id == format::ApiCallId::ApiCall_vkCmdSetCheckpointNV))
     {
         // The window system related handles are ignored by replay.
@@ -5246,6 +5247,21 @@ VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreWin32HandleKHR(
     GFXRECON_UNREFERENCED_PARAMETER(device_info);
     GFXRECON_UNREFERENCED_PARAMETER(pGetWin32HandleInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pHandle);
+    return original_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetRandROutputDisplayEXT(PFN_vkGetRandROutputDisplayEXT      func,
+                                                                    VkResult                            original_result,
+                                                                    const PhysicalDeviceInfo*           physicalDevice,
+                                                                    Display*                            dpy,
+                                                                    RROutput                            rrOutput,
+                                                                    HandlePointerDecoder<VkDisplayKHR>* pDisplay)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+    GFXRECON_UNREFERENCED_PARAMETER(dpy);
+    GFXRECON_UNREFERENCED_PARAMETER(rrOutput);
+    GFXRECON_UNREFERENCED_PARAMETER(pDisplay);
     return original_result;
 }
 
