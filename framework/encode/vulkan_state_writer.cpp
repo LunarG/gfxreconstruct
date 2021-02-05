@@ -690,12 +690,12 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             const DescriptorInfo* binding = &binding_entry.second;
             bool                  active  = false;
 
-            write.dstBinding     = binding_entry.first;
-            write.descriptorType = binding->type;
+            write.dstBinding = binding_entry.first;
 
             for (uint32_t i = 0; i < binding->count; ++i)
             {
-                bool write_descriptor = CheckDescriptorStatus(binding, i, state_table);
+                VkDescriptorType descriptor_type;
+                bool             write_descriptor = CheckDescriptorStatus(binding, i, state_table, &descriptor_type);
 
                 if (active != write_descriptor)
                 {
@@ -704,6 +704,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         // Start of an active descriptor write range.
                         active                = true;
                         write.dstArrayElement = i;
+                        write.descriptorType  = descriptor_type;
                     }
                     else
                     {
@@ -712,6 +713,16 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                         write.descriptorCount = i - write.dstArrayElement;
                         WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
                     }
+                }
+                else if (active && (descriptor_type != write.descriptorType))
+                {
+                    // Mutable descriptor type change within an active write range
+                    // End current range
+                    write.descriptorCount = i - write.dstArrayElement;
+                    WriteDescriptorUpdateCommand(GetWrappedId(wrapper->device), binding, &write);
+                    // Start new range
+                    write.descriptorType  = descriptor_type;
+                    write.dstArrayElement = i;
                 }
             }
 
@@ -2166,7 +2177,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
     // after VkWriteDescriptorSet is encoded.
     VkWriteDescriptorSetAccelerationStructureKHR write_accel_struct;
 
-    switch (binding->type)
+    switch (write->descriptorType)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -3506,15 +3517,25 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
 
 bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor,
                                               uint32_t                index,
-                                              const VulkanStateTable& state_table)
+                                              const VulkanStateTable& state_table,
+                                              VkDescriptorType*       descriptor_type)
 {
     bool valid = false;
+
+    if (descriptor->type == VK_DESCRIPTOR_TYPE_MUTABLE_VALVE)
+    {
+        *descriptor_type = descriptor->mutable_type[index];
+    }
+    else
+    {
+        *descriptor_type = descriptor->type;
+    }
 
     if (descriptor->written[index])
     {
         // Check for handles that may no longer exist, which indicates that this descriptor is stale and should
         // be ignored, as there is no valid handle to write into it.
-        switch (descriptor->type)
+        switch (*descriptor_type)
         {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
                 if (state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr)
@@ -3568,6 +3589,9 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 {
                     valid = true;
                 }
+                break;
+            case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
+                // Mutable descriptor still in initial state
                 break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");

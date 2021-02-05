@@ -779,6 +779,18 @@ inline void InitializePoolObjectState(VkDevice                           parent_
                 descriptor_info.acceleration_structures =
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 break;
+            case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
+                descriptor_info.sampler_ids        = std::make_unique<format::HandleId[]>(binding_info.count);
+                descriptor_info.images             = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.buffers            = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.acceleration_structures =
+                    std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
+                descriptor_info.mutable_type = std::make_unique<VkDescriptorType[]>(binding_info.count);
+                std::fill(descriptor_info.mutable_type.get(),
+                          descriptor_info.mutable_type.get() + binding_info.count,
+                          VK_DESCRIPTOR_TYPE_MUTABLE_VALVE);
+                break;
             default:
                 GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
                 break;
