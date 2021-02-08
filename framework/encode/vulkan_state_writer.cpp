@@ -557,7 +557,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesKHR)
         {
-            if ((wrapper->device_id != format::kNullHandleId) && !wrapper->shader_group_handle_data.empty())
+            if (wrapper->device_id != format::kNullHandleId)
             {
                 WriteSetRayTracingShaderGroupHandlesCommand(wrapper->device_id,
                                                             wrapper->handle_id,
@@ -925,7 +925,7 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        if (wrapper->device_id != format::kNullHandleId)
         {
             WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
         }

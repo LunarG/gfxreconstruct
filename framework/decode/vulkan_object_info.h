@@ -245,6 +245,9 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
 
+    // Map pipeline ID to ray tracing shader group handle capture replay data.
+    std::unordered_map<format::HandleId, const std::vector<uint8_t>> shader_group_handles;
+
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
