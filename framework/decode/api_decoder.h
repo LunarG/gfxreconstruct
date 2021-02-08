@@ -107,6 +107,12 @@ class ApiDecoder
                                                  format::HandleId buffer_id,
                                                  uint64_t         address) = 0;
 
+    virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
+                                                                format::HandleId device_id,
+                                                                format::HandleId buffer_id,
+                                                                size_t           data_size,
+                                                                const uint8_t*   data) = 0;
+
     virtual void
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
                                           format::HandleId                                    device_id,

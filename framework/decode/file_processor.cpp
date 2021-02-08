@@ -806,7 +806,36 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
         else
         {
-            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set buffer address meta-data block header");
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set opaque address meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetRayTracingShaderGroupHandlesCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.pipeline_id, sizeof(header.pipeline_id));
+        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+
+        // Read variable size shader group handle data into parameter_buffer_.
+        success = success && ReadParameterBuffer(header.data_size);
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchSetRayTracingShaderGroupHandlesCommand(
+                    header.thread_id, header.device_id, header.pipeline_id, header.data_size, parameter_buffer_.data());
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set ray tracing shader group handles meta-data block header");
         }
     }
     else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)

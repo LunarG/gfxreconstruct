@@ -604,15 +604,31 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
 }
 
 void VulkanReplayConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId device_id,
-                                                              format::HandleId buffer_id,
+                                                              format::HandleId object_id,
                                                               uint64_t         address)
 {
     DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
 
     if (device_info != nullptr)
     {
-        // Store the buffer address to use at device creation.
-        device_info->opaque_addresses[buffer_id] = address;
+        // Store the opaque address to use at object creation.
+        device_info->opaque_addresses[object_id] = address;
+    }
+}
+
+void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                                             format::HandleId pipeline_id,
+                                                                             size_t           data_size,
+                                                                             const uint8_t*   data)
+{
+    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    if (device_info != nullptr)
+    {
+        // There should only be one dataset per pipeline.
+        assert(device_info->shader_group_handles.find(pipeline_id) == device_info->shader_group_handles.end());
+
+        // Store the ray tracing shader group handle data to use at ray tracing pipeline creation.
+        device_info->shader_group_handles.emplace(pipeline_id, std::vector<uint8_t>(data, data + data_size));
     }
 }
 
@@ -5542,13 +5558,80 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
-    result = device_table->CreateRayTracingPipelinesKHR(device,
-                                                        in_deferredOperation,
-                                                        in_pipelineCache,
-                                                        createInfoCount,
-                                                        in_pCreateInfos,
-                                                        in_pAllocator,
-                                                        out_pPipelines);
+    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    {
+        // Modify pipeline create infos with capture replay flag and data.
+        std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
+        std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>> modified_pgroups;
+        modified_create_infos.reserve(createInfoCount);
+        modified_pgroups.resize(createInfoCount);
+        for (uint32_t create_info_i = 0; create_info_i < createInfoCount; ++create_info_i)
+        {
+            format::HandleId pipeline_capture_id = (*pPipelines[create_info_i].GetPointer());
+
+            // Enable capture replay flag.
+            modified_create_infos.push_back(in_pCreateInfos[create_info_i]);
+            modified_create_infos[create_info_i].flags |=
+                VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR;
+
+            uint32_t group_info_count = in_pCreateInfos[create_info_i].groupCount;
+            bool     has_data         = (device_info->shader_group_handles.find(pipeline_capture_id) !=
+                             device_info->shader_group_handles.end());
+
+            if (has_data)
+            {
+                assert(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
+                       (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                        group_info_count));
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Missing shader group handle data in for ray tracing pipeline (ID = %" PRIu64 ").",
+                                     pipeline_capture_id);
+            }
+
+            // Set pShaderGroupCaptureReplayHandle in shader group create infos.
+            std::vector<VkRayTracingShaderGroupCreateInfoKHR>& modified_group_infos = modified_pgroups[create_info_i];
+            modified_group_infos.reserve(group_info_count);
+
+            for (uint32_t group_info_i = 0; group_info_i < group_info_count; ++group_info_i)
+            {
+                modified_group_infos.push_back(in_pCreateInfos[create_info_i].pGroups[group_info_i]);
+
+                if (has_data)
+                {
+                    uint32_t byte_offset =
+                        device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize * group_info_i;
+                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle =
+                        device_info->shader_group_handles.at(pipeline_capture_id).data() + byte_offset;
+                }
+                else
+                {
+                    modified_group_infos[group_info_i].pShaderGroupCaptureReplayHandle = nullptr;
+                }
+            }
+
+            // Use modified shader group infos.
+            modified_create_infos[create_info_i].pGroups = modified_group_infos.data();
+        }
+        result = device_table->CreateRayTracingPipelinesKHR(device,
+                                                            in_deferredOperation,
+                                                            in_pipelineCache,
+                                                            createInfoCount,
+                                                            modified_create_infos.data(),
+                                                            in_pAllocator,
+                                                            out_pPipelines);
+    }
+    else
+    {
+        result = device_table->CreateRayTracingPipelinesKHR(device,
+                                                            in_deferredOperation,
+                                                            in_pipelineCache,
+                                                            createInfoCount,
+                                                            in_pCreateInfos,
+                                                            in_pAllocator,
+                                                            out_pPipelines);
+    }
 
     return result;
 }
