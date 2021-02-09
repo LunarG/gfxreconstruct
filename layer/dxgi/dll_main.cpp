@@ -34,70 +34,47 @@
 const wchar_t kSystemDllName[]  = L"dxgi_ms.dll";
 const wchar_t kCaptureDllName[] = L"d3d12_capture.dll";
 
-static HMODULE                             dxgi_dll    = nullptr;
-static HMODULE                             capture_dll = nullptr;
+static HMODULE dxgi_dll    = nullptr; // System DLL providing the DXGI API calls to wrap.
+static HMODULE capture_dll = nullptr; // DLL with capture implementation, which is only loaded when capture is enabled.
 static gfxrecon::encode::DxgiDispatchTable dispatch_table;
-
-EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory(REFIID riid, void** ppFactory)
-{
-    return dispatch_table.CreateDXGIFactory(riid, ppFactory);
-}
-
-EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory1(REFIID riid, void** ppFactory)
-{
-    return dispatch_table.CreateDXGIFactory1(riid, ppFactory);
-}
-
-EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
-{
-    return dispatch_table.CreateDXGIFactory2(Flags, riid, ppFactory);
-}
-
-EXTERN_C HRESULT WINAPI gfxrecon_DXGIDeclareAdapterRemovalSupport()
-{
-    return dispatch_table.DXGIDeclareAdapterRemovalSupport();
-}
-
-EXTERN_C HRESULT WINAPI gfxrecon_DXGIGetDebugInterface1(UINT Flags, REFIID riid, void** ppDebug)
-{
-    return dispatch_table.DXGIGetDebugInterface1(Flags, riid, ppDebug);
-}
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 static bool IsCaptureEnabled()
 {
-    // TODO: Read environment variable.
-    return false;
+    // TODO(GH-48): Read environment variable.
+    return true;
 }
 
-static void LoadDxgiCaptureProcs()
+static void LoadDxgiCaptureProcs(HMODULE system_dll)
 {
-    assert(dxgi_dll != nullptr);
-
-    dispatch_table.CreateDXGIFactory =
-        reinterpret_cast<decltype(CreateDXGIFactory)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory"));
-    dispatch_table.CreateDXGIFactory1 =
-        reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory1"));
-    dispatch_table.CreateDXGIFactory2 =
-        reinterpret_cast<decltype(CreateDXGIFactory2)*>(GetProcAddress(dxgi_dll, "CreateDXGIFactory2"));
-    dispatch_table.DXGIDeclareAdapterRemovalSupport = reinterpret_cast<decltype(DXGIDeclareAdapterRemovalSupport)*>(
-        GetProcAddress(dxgi_dll, "DXGIDeclareAdapterRemovalSupport"));
-    dispatch_table.DXGIGetDebugInterface1 =
-        reinterpret_cast<decltype(DXGIGetDebugInterface1)*>(GetProcAddress(dxgi_dll, "DXGIGetDebugInterface1"));
+    if (system_dll != nullptr)
+    {
+        dispatch_table.CreateDXGIFactory =
+            reinterpret_cast<decltype(CreateDXGIFactory)*>(GetProcAddress(system_dll, "CreateDXGIFactory"));
+        dispatch_table.CreateDXGIFactory1 =
+            reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(system_dll, "CreateDXGIFactory1"));
+        dispatch_table.CreateDXGIFactory2 =
+            reinterpret_cast<decltype(CreateDXGIFactory2)*>(GetProcAddress(system_dll, "CreateDXGIFactory2"));
+        dispatch_table.DXGIDeclareAdapterRemovalSupport = reinterpret_cast<decltype(DXGIDeclareAdapterRemovalSupport)*>(
+            GetProcAddress(system_dll, "DXGIDeclareAdapterRemovalSupport"));
+        dispatch_table.DXGIGetDebugInterface1 =
+            reinterpret_cast<decltype(DXGIGetDebugInterface1)*>(GetProcAddress(system_dll, "DXGIGetDebugInterface1"));
+    }
 }
 
-static BOOL Initialize(HINSTANCE instance)
+static bool Initialize()
 {
+    // The value of instance will be null when hooking is enabled.
     if (dxgi_dll == nullptr)
     {
         dxgi_dll = LoadLibraryW(kSystemDllName);
 
         if (dxgi_dll != nullptr)
         {
-            LoadDxgiCaptureProcs();
+            LoadDxgiCaptureProcs(dxgi_dll);
 
-            if (IsCaptureEnabled() && capture_dll == nullptr)
+            if (IsCaptureEnabled() && (capture_dll == nullptr))
             {
                 capture_dll = LoadLibraryW(kCaptureDllName);
                 if (capture_dll != nullptr)
@@ -108,6 +85,12 @@ static BOOL Initialize(HINSTANCE instance)
                     if (init_func != nullptr)
                     {
                         init_func(&dispatch_table);
+                    }
+                    else
+                    {
+                        OutputDebugStringA(
+                            "GFXRECON: Failed to retrieve InitializeDxgiCapture proc from GFXReconstruct capture DLL");
+                        OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
                     }
                 }
                 else
@@ -121,11 +104,11 @@ static BOOL Initialize(HINSTANCE instance)
         else
         {
             OutputDebugStringA("GFXRECON: Failed to load system DLL for dxgi.dll initialization");
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 static void Destroy()
@@ -163,25 +146,70 @@ extern "C" __declspec(dllexport) void UpdateHooks()
     }
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory(REFIID riid, void** ppFactory)
 {
-    BOOL success = TRUE;
-
-    if (gfxrecon::util::interception::UseDetoursHooking() == false)
+    if (gfxrecon::Initialize())
     {
-        switch (fdwReason)
-        {
-            case DLL_PROCESS_ATTACH:
-                success = gfxrecon::Initialize(hinstDLL);
-                break;
-            case DLL_PROCESS_DETACH:
-                if (lpvReserved == nullptr)
-                {
-                    gfxrecon::Destroy();
-                }
-                break;
-        }
+        return dispatch_table.CreateDXGIFactory(riid, ppFactory);
     }
 
-    return success;
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory1(REFIID riid, void** ppFactory)
+{
+    if (gfxrecon::Initialize())
+    {
+        return dispatch_table.CreateDXGIFactory1(riid, ppFactory);
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_CreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
+{
+    if (gfxrecon::Initialize())
+    {
+        return dispatch_table.CreateDXGIFactory2(Flags, riid, ppFactory);
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_DXGIDeclareAdapterRemovalSupport()
+{
+    if (gfxrecon::Initialize())
+    {
+        return dispatch_table.DXGIDeclareAdapterRemovalSupport();
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_DXGIGetDebugInterface1(UINT Flags, REFIID riid, void** ppDebug)
+{
+    if (gfxrecon::Initialize())
+    {
+        return dispatch_table.DXGIGetDebugInterface1(Flags, riid, ppDebug);
+    }
+
+    return E_FAIL;
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+    switch (fdwReason)
+    {
+        case DLL_PROCESS_DETACH:
+            // Only cleanup if the process is not exiting.
+            if (lpvReserved == nullptr)
+            {
+                gfxrecon::Destroy();
+            }
+            break;
+        default:
+            break;
+    }
+
+    return TRUE;
 }
