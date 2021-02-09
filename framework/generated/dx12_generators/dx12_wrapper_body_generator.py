@@ -121,6 +121,18 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         return create_values
 
+    # Check for input parameters that need to be unwrapped.
+    def get_wrapped_object_params(self, param_info):
+        wrapped_values = {}
+
+        # Check for input parameters with a class type.
+        for param in param_info:
+            value = self.get_value_info(param)
+            if self.is_class(value) and (value.pointer_count == 1):
+                wrapped_values[value.name] = value
+
+        return wrapped_values
+
     def gen_wrap_object(self, return_type, param_info, indent):
         expr = ''
         params = self.get_object_creation_params(param_info)
@@ -320,11 +332,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def make_arg_list(self, param_info, indent='    '):
         space_index = 0
         args = ''
+        wrappers = self.get_wrapped_object_params(param_info)
+
         for p in param_info:
+            name = p['name']
+            if name in wrappers:
+                name = 'encode::GetWrappedObject<{type}_Wrapper, {type}>'\
+                    '({})'.format(name, type=wrappers[name].base_type)
+
             if args:
                 args += ',\n'
             args += indent
-            args += p['name']
+            args += name
+
         return args
 
     def process_return_type(self, rt):
@@ -337,6 +357,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
         code += '#include "encode/d3d12_dispatch_table.h"\n'
+        code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
         code += '#include "encode/trace_manager.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'

@@ -28,6 +28,7 @@
 #include "generated/generated_dx12_wrappers.h"
 
 #include "encode/d3d12_dispatch_table.h"
+#include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/trace_manager.h"
 #include "generated/generated_dx12_wrapper_creators.h"
@@ -116,7 +117,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
 {
     auto result = object_->SetPrivateDataInterface(
         Name,
-        pUnknown);
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
 
     return result;
 }
@@ -365,7 +366,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
     auto result = object_->FindClosestMatchingMode(
         pModeToMatch,
         pClosestMatch,
-        pConcernedDevice);
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
 
     return result;
 }
@@ -382,7 +383,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
     BOOL Exclusive)
 {
     auto result = object_->TakeOwnership(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         Exclusive);
 
     return result;
@@ -424,7 +425,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
     IDXGISurface* pScanoutSurface)
 {
     auto result = object_->SetDisplaySurface(
-        pScanoutSurface);
+        encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
 
     return result;
 }
@@ -433,7 +434,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
     IDXGISurface* pDestination)
 {
     auto result = object_->GetDisplaySurfaceData(
-        pDestination);
+        encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
 
     return result;
 }
@@ -486,7 +487,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
 {
     auto result = object_->SetFullscreenState(
         Fullscreen,
-        pTarget);
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
 
     return result;
 }
@@ -620,7 +621,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
     IDXGISwapChain** ppSwapChain)
 {
     auto result = object_->CreateSwapChain(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         pDesc,
         ppSwapChain);
 
@@ -1131,11 +1132,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
     IDXGISwapChain1** ppSwapChain)
 {
     auto result = object_->CreateSwapChainForHwnd(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         hWnd,
         pDesc,
         pFullscreenDesc,
-        pRestrictToOutput,
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
         ppSwapChain);
 
     if (SUCCEEDED(result))
@@ -1154,10 +1155,10 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
     IDXGISwapChain1** ppSwapChain)
 {
     auto result = object_->CreateSwapChainForCoreWindow(
-        pDevice,
-        pWindow,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pWindow),
         pDesc,
-        pRestrictToOutput,
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
         ppSwapChain);
 
     if (SUCCEEDED(result))
@@ -1248,9 +1249,9 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
     IDXGISwapChain1** ppSwapChain)
 {
     auto result = object_->CreateSwapChainForComposition(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         pDesc,
-        pRestrictToOutput,
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
         ppSwapChain);
 
     if (SUCCEEDED(result))
@@ -1301,7 +1302,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
     auto result = object_->FindClosestMatchingMode1(
         pModeToMatch,
         pClosestMatch,
-        pConcernedDevice);
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
 
     return result;
 }
@@ -1310,7 +1311,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
     IDXGIResource* pDestination)
 {
     auto result = object_->GetDisplaySurfaceData1(
-        pDestination);
+        encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
 
     return result;
 }
@@ -1320,7 +1321,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
     IDXGIOutputDuplication** ppOutputDuplication)
 {
     auto result = object_->DuplicateOutput(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         ppOutputDuplication);
 
     if (SUCCEEDED(result))
@@ -1580,10 +1581,10 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
     IDXGISwapChain1** ppSwapChain)
 {
     auto result = object_->CreateSwapChainForCompositionSurfaceHandle(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         hSurface,
         pDesc,
-        pRestrictToOutput,
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
         ppSwapChain);
 
     if (SUCCEEDED(result))
@@ -1603,11 +1604,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
     IDXGIDecodeSwapChain** ppSwapChain)
 {
     auto result = object_->CreateDecodeSwapChainForCompositionSurfaceHandle(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         hSurface,
         pDesc,
-        pYuvDecodeBuffers,
-        pRestrictToOutput,
+        encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pYuvDecodeBuffers),
+        encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
         ppSwapChain);
 
     if (SUCCEEDED(result))
@@ -1664,7 +1665,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 {
     auto result = object_->CheckOverlaySupport(
         EnumFormat,
-        pConcernedDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
         pFlags);
 
     return result;
@@ -1741,7 +1742,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
     auto result = object_->CheckOverlayColorSpaceSupport(
         Format,
         ColorSpace,
-        pConcernedDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
         pFlags);
 
     return result;
@@ -1869,7 +1870,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
     IDXGIOutputDuplication** ppOutputDuplication)
 {
     auto result = object_->DuplicateOutput1(
-        pDevice,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
         Flags,
         SupportedFormatsCount,
         pSupportedFormats,
@@ -2168,7 +2169,7 @@ HRESULT WINAPI D3D12CreateDevice(
     auto manager = TraceManager::Get();
 
     auto result = manager->GetD3D12DispatchTable().D3D12CreateDevice(
-        pAdapter,
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pAdapter),
         MinimumFeatureLevel,
         riid,
         ppDevice);
@@ -2252,7 +2253,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
 {
     auto result = object_->SetPrivateDataInterface(
         guid,
-        pData);
+        encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
 
     return result;
 }
@@ -2554,8 +2555,8 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
     ID3D12PipelineState* pInitialState)
 {
     auto result = object_->Reset(
-        pAllocator,
-        pInitialState);
+        encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
+        encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
 
     return result;
 }
@@ -2564,7 +2565,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
     ID3D12PipelineState* pPipelineState)
 {
     object_->ClearState(
-        pPipelineState);
+        encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
@@ -2614,9 +2615,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
     UINT64 NumBytes)
 {
     object_->CopyBufferRegion(
-        pDstBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
         DstOffset,
-        pSrcBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
         SrcOffset,
         NumBytes);
 }
@@ -2643,8 +2644,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
     ID3D12Resource* pSrcResource)
 {
     object_->CopyResource(
-        pDstResource,
-        pSrcResource);
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
@@ -2656,10 +2657,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
     D3D12_TILE_COPY_FLAGS Flags)
 {
     object_->CopyTiles(
-        pTiledResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
         pTileRegionStartCoordinate,
         pTileRegionSize,
-        pBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
         BufferStartOffsetInBytes,
         Flags);
 }
@@ -2672,9 +2673,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
     DXGI_FORMAT Format)
 {
     object_->ResolveSubresource(
-        pDstResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
         DstSubresource,
-        pSrcResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
         SrcSubresource,
         Format);
 }
@@ -2722,7 +2723,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
     ID3D12PipelineState* pPipelineState)
 {
     object_->SetPipelineState(
-        pPipelineState);
+        encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
@@ -2738,7 +2739,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
     ID3D12GraphicsCommandList* pCommandList)
 {
     object_->ExecuteBundle(
-        pCommandList);
+        encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
@@ -2754,14 +2755,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
     ID3D12RootSignature* pRootSignature)
 {
     object_->SetComputeRootSignature(
-        pRootSignature);
+        encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignature(
     ID3D12RootSignature* pRootSignature)
 {
     object_->SetGraphicsRootSignature(
-        pRootSignature);
+        encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescriptorTable(
@@ -2967,7 +2968,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     object_->ClearUnorderedAccessViewUint(
         ViewGPUHandleInCurrentHeap,
         ViewCPUHandle,
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         Values,
         NumRects,
         pRects);
@@ -2984,7 +2985,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     object_->ClearUnorderedAccessViewFloat(
         ViewGPUHandleInCurrentHeap,
         ViewCPUHandle,
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         Values,
         NumRects,
         pRects);
@@ -2995,7 +2996,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
     const D3D12_DISCARD_REGION* pRegion)
 {
     object_->DiscardResource(
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         pRegion);
 }
 
@@ -3005,7 +3006,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
     UINT Index)
 {
     object_->BeginQuery(
-        pQueryHeap,
+        encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
         Type,
         Index);
 }
@@ -3016,7 +3017,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
     UINT Index)
 {
     object_->EndQuery(
-        pQueryHeap,
+        encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
         Type,
         Index);
 }
@@ -3030,11 +3031,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
     UINT64 AlignedDestinationBufferOffset)
 {
     object_->ResolveQueryData(
-        pQueryHeap,
+        encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
         Type,
         StartIndex,
         NumQueries,
-        pDestinationBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDestinationBuffer),
         AlignedDestinationBufferOffset);
 }
 
@@ -3044,7 +3045,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
     D3D12_PREDICATION_OP Operation)
 {
     object_->SetPredication(
-        pBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
         AlignedBufferOffset,
         Operation);
 }
@@ -3085,11 +3086,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
     UINT64 CountBufferOffset)
 {
     object_->ExecuteIndirect(
-        pCommandSignature,
+        encode::GetWrappedObject<ID3D12CommandSignature_Wrapper, ID3D12CommandSignature>(pCommandSignature),
         MaxCommandCount,
-        pArgumentBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pArgumentBuffer),
         ArgumentBufferOffset,
-        pCountBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCountBuffer),
         CountBufferOffset);
 }
 
@@ -3107,9 +3108,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges)
 {
     object_->AtomicCopyBufferUINT(
-        pDstBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
         DstOffset,
-        pSrcBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
         SrcOffset,
         Dependencies,
         ppDependentResources,
@@ -3126,9 +3127,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges)
 {
     object_->AtomicCopyBufferUINT64(
-        pDstBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
         DstOffset,
-        pSrcBuffer,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
         SrcOffset,
         Dependencies,
         ppDependentResources,
@@ -3167,11 +3168,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
     D3D12_RESOLVE_MODE ResolveMode)
 {
     object_->ResolveSubresourceRegion(
-        pDstResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
         DstSubresource,
         DstX,
         DstY,
-        pSrcResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
         SrcSubresource,
         pSrcRect,
         Format,
@@ -3217,11 +3218,11 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
     object_->UpdateTileMappings(
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         NumResourceRegions,
         pResourceRegionStartCoordinates,
         pResourceRegionSizes,
-        pHeap,
+        encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
         NumRanges,
         pRangeFlags,
         pHeapRangeStartOffsets,
@@ -3238,9 +3239,9 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
     object_->CopyTileMappings(
-        pDstResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
         pDstRegionStartCoordinate,
-        pSrcResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
         pSrcRegionStartCoordinate,
         pRegionSize,
         Flags);
@@ -3287,7 +3288,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
     UINT64 Value)
 {
     auto result = object_->Signal(
-        pFence,
+        encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
         Value);
 
     return result;
@@ -3298,7 +3299,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
     UINT64 Value)
 {
     auto result = object_->Wait(
-        pFence,
+        encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
         Value);
 
     return result;
@@ -3425,8 +3426,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
     auto result = object_->CreateCommandList(
         nodeMask,
         type,
-        pCommandAllocator,
-        pInitialState,
+        encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pCommandAllocator),
+        encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState),
         riid,
         ppCommandList);
 
@@ -3515,7 +3516,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     object_->CreateShaderResourceView(
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         pDesc,
         DestDescriptor);
 }
@@ -3527,8 +3528,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     object_->CreateUnorderedAccessView(
-        pResource,
-        pCounterResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
         pDesc,
         DestDescriptor);
 }
@@ -3539,7 +3540,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     object_->CreateRenderTargetView(
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         pDesc,
         DestDescriptor);
 }
@@ -3550,7 +3551,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     object_->CreateDepthStencilView(
-        pResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
         pDesc,
         DestDescriptor);
 }
@@ -3674,7 +3675,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
     void** ppvResource)
 {
     auto result = object_->CreatePlacedResource(
-        pHeap,
+        encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
         HeapOffset,
         pDesc,
         InitialState,
@@ -3720,7 +3721,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
     HANDLE* pHandle)
 {
     auto result = object_->CreateSharedHandle(
-        pObject,
+        encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
         pAttributes,
         Access,
         Name,
@@ -3865,7 +3866,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
 {
     auto result = object_->CreateCommandSignature(
         pDesc,
-        pRootSignature,
+        encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature),
         riid,
         ppvCommandSignature);
 
@@ -3887,7 +3888,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
     D3D12_SUBRESOURCE_TILING* pSubresourceTilingsForNonPackedMips)
 {
     object_->GetResourceTiling(
-        pTiledResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
         pNumTilesForEntireResource,
         pPackedMipDesc,
         pStandardTileShapeForNonPackedMips,
@@ -3913,7 +3914,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
 {
     auto result = object_->StorePipeline(
         pName,
-        pPipeline);
+        encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
 
     return result;
 }
@@ -4127,7 +4128,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
         Flags,
         NumObjects,
         ppObjects,
-        pFenceToSignal,
+        encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFenceToSignal),
         FenceValueToSignal);
 
     return result;
@@ -4231,7 +4232,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
         pDesc,
         InitialResourceState,
         pOptimizedClearValue,
-        pProtectedSession,
+        encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
         riidResource,
         ppvResource);
 
@@ -4251,7 +4252,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
 {
     auto result = object_->CreateHeap1(
         pDesc,
-        pProtectedSession,
+        encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
         riid,
         ppvHeap);
 
@@ -4275,7 +4276,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
         pDesc,
         InitialState,
         pOptimizedClearValue,
-        pProtectedSession,
+        encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
         riid,
         ppvResource);
 
@@ -4376,7 +4377,7 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
     ID3D12DeviceChild* pObject)
 {
     auto result = object_->DestroyOwnedObject(
-        pObject);
+        encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
 
     return result;
 }
@@ -4431,7 +4432,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
     void** ppvTracker)
 {
     auto result = object_->CreateLifetimeTracker(
-        pOwner,
+        encode::GetWrappedObject<ID3D12LifetimeOwner_Wrapper, ID3D12LifetimeOwner>(pOwner),
         riid,
         ppvTracker);
 
@@ -4660,7 +4661,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
 {
     auto result = object_->AddToStateObject(
         pAddition,
-        pStateObjectToGrowFrom,
+        encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObjectToGrowFrom),
         riid,
         ppNewStateObject);
 
@@ -4725,7 +4726,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
         pDesc,
         InitialResourceState,
         pOptimizedClearValue,
-        pProtectedSession,
+        encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
         riidResource,
         ppvResource);
 
@@ -4747,7 +4748,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
     void** ppvResource)
 {
     auto result = object_->CreatePlacedResource1(
-        pHeap,
+        encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
         HeapOffset,
         pDesc,
         InitialState,
@@ -4769,8 +4770,8 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     object_->CreateSamplerFeedbackUnorderedAccessView(
-        pTargetedResource,
-        pFeedbackResource,
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
         DestDescriptor);
 }
 
@@ -4854,7 +4855,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
     ID3D12ProtectedResourceSession* pProtectedResourceSession)
 {
     object_->SetProtectedResourceSession(
-        pProtectedResourceSession);
+        encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
 }
 
 ID3D12MetaCommand_Wrapper::ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources) : ID3D12Pageable_Wrapper(riid, object, resources), object_(object)
@@ -4900,7 +4901,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
     SIZE_T InitializationParametersDataSizeInBytes)
 {
     object_->InitializeMetaCommand(
-        pMetaCommand,
+        encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
         pInitializationParametersData,
         InitializationParametersDataSizeInBytes);
 }
@@ -4911,7 +4912,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
     SIZE_T ExecutionParametersDataSizeInBytes)
 {
     object_->ExecuteMetaCommand(
-        pMetaCommand,
+        encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
         pExecutionParametersData,
         ExecutionParametersDataSizeInBytes);
 }
@@ -4953,7 +4954,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
     ID3D12StateObject* pStateObject)
 {
     object_->SetPipelineState1(
-        pStateObject);
+        encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
 }
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
@@ -4998,7 +4999,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
     ID3D12Resource* shadingRateImage)
 {
     object_->RSSetShadingRateImage(
-        shadingRateImage);
+        encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
 }
 
 ID3D12GraphicsCommandList6_Wrapper::ID3D12GraphicsCommandList6_Wrapper(REFIID riid, ID3D12GraphicsCommandList6* object, DxWrapperResources* resources) : ID3D12GraphicsCommandList5_Wrapper(riid, object, resources), object_(object)
