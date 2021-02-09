@@ -69,6 +69,10 @@ LayerTable                                             TraceManager::layer_table
 
 std::atomic<format::HandleId> TraceManager::unique_id_counter_{ format::kNullHandleId };
 
+#if defined(WIN32)
+thread_local uint32_t TraceManager::call_scope_ = 0;
+#endif
+
 TraceManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
 {

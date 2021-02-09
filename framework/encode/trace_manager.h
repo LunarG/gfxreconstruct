@@ -98,7 +98,7 @@ class TraceManager
 // TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
     //----------------------------------------------------------------------------
-    /// Initializes the DXGI dispatch table.
+    /// \brief Initializes the DXGI dispatch table.
     ///
     /// Initializes the TraceManager's internal DXGI dispatch table with functions
     /// loaded from the DXGI system DLL.  This dispatch table will be used by the
@@ -111,7 +111,7 @@ class TraceManager
     void InitDxgiDispatchTable(const DxgiDispatchTable& dispatch_table) { dxgi_dispatch_table_ = dispatch_table; }
 
     //----------------------------------------------------------------------------
-    /// Initializes the D3D12 dispatch table.
+    /// \brief Initializes the D3D12 dispatch table.
     ///
     /// Initializes the TraceManager's internal D3D12 dispatch table with
     /// functions loaded from the D3D12 system DLL.  This dispatch table will be
@@ -124,26 +124,48 @@ class TraceManager
     void InitD3D12DispatchTable(const D3D12DispatchTable& dispatch_table) { d3d12_dispatch_table_ = dispatch_table; }
 
     //----------------------------------------------------------------------------
-    /// Retrieves the DXGI dispatch table.
+    /// \brief Retrieves the DXGI dispatch table.
     ///
     /// Retrieves the TraceManager's internal DXGI dispatch table. Intended to be
     /// used by the 'wrapper' functions when invoking the 'real' DXGI functions.
     ///
-    /// \return dispatch_table A DxgiDispatchTable object contiaining DXGI
-    ///                        function pointers retrieved from the system DLL.
+    /// \return A DxgiDispatchTable object contiaining DXGI function pointers
+    ///         retrieved from the system DLL.
     //----------------------------------------------------------------------------
     const DxgiDispatchTable& GetDxgiDispatchTable() const { return dxgi_dispatch_table_; }
 
     //----------------------------------------------------------------------------
-    /// Retrieves the D3D12 dispatch table.
+    /// \brief Retrieves the D3D12 dispatch table.
     ///
     /// Retrieves the TraceManager's internal D3D12 dispatch table. Intended to be
     /// used by the 'wrapper' functions when invoking the 'real' D3D12 functions.
     ///
-    /// \return dispatch_table A D3D12DispatchTable object contiaining D3D12
-    ///                        function pointers retrieved from the system DLL.
+    /// \return A D3D12DispatchTable object contiaining D3D12 function pointers
+    ///         retrieved from the system DLL.
     //----------------------------------------------------------------------------
     const D3D12DispatchTable& GetD3D12DispatchTable() const { return d3d12_dispatch_table_; }
+
+    //----------------------------------------------------------------------------
+    /// \brief Increments the scope count for the current thread.
+    ///
+    /// Increments a per-thread scope count that is intended to indicate if an
+    /// intercepted API call is being made directly by the application (count is
+    /// equal to 1) or by another API call (count is greater than 1).
+    ///
+    /// \return The scope count for the current thread.
+    //----------------------------------------------------------------------------
+    uint32_t IncrementCallScope() { return ++call_scope_; }
+
+    //----------------------------------------------------------------------------
+    /// \brief Decrements the scope count for the current thread.
+    ///
+    /// Decrements a per-thread scope count that is intended to indicate if an
+    /// intercepted API call is being made directly by the application (count is
+    /// equal to 1) or by another API call (count is greater than 1).
+    ///
+    /// \return The scope count for the current thread.
+    //----------------------------------------------------------------------------
+    uint32_t DecrementCallScope() { return --call_scope_; }
 #endif
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
@@ -1100,6 +1122,8 @@ class TraceManager
 #if defined(WIN32)
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
+    static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine whan an intercepted API call is
+                                              ///< being made directly by the application.
 #endif
 };
 

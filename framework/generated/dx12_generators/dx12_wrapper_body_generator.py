@@ -163,6 +163,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def write_function_def(self, function, indent=''):
         return_type = function['rtnType'].replace(' *', '*')
         name = function['name']
+        table = 'manager->GetD3D12DispatchTable()' if 'D3D12' in name\
+           else 'manager->GetDxgiDispatchTable()'
         parameters = function['parameters']
 
         expr = indent + '{} {}('.format(return_type, name)
@@ -180,33 +182,64 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # Begin function body
         indent = self.increment_indent(indent)
 
+        if return_type != 'void':
+            expr += indent + return_type + ' result{};\n'
+            expr += '\n'
+
         expr += indent + 'auto manager = TraceManager::Get();\n'
+        expr += indent + 'auto call_scope = manager->IncrementCallScope();\n'
         expr += '\n'
+
+        # Generate API call with input object unwrapping and output object wrapping
+        expr += indent + 'if (call_scope == 1)\n'
+        expr += indent + '{\n'
+        indent = self.increment_indent(indent)
 
         expr += indent
         if return_type != 'void':
             expr += 'auto result = '
 
-        if 'D3D12' in name:
-            expr += 'manager->GetD3D12DispatchTable().'
-        else:
-            expr += 'manager->GetDxgiDispatchTable().'
-
-        expr += '{}('.format(name)
+        expr += '{}.{}('.format(table, name)
         if parameters:
             expr += '\n'
             expr += self.make_arg_list(
-                parameters, self.increment_indent(indent)
+                parameters, True, self.increment_indent(indent)
             )
         expr += ');\n'
 
         expr += self.gen_wrap_object(return_type, parameters, indent)
 
+        indent = self.decrement_indent(indent)
+        expr += indent + '}\n'
+
+        # Generate API call without object wrapping/unwrapping
+        expr += indent + 'else\n'
+        expr += indent + '{\n'
+        indent = self.increment_indent(indent)
+
+        expr += indent
+        if return_type != 'void':
+            expr += 'auto result = '
+
+        expr += '{}.{}('.format(table, name)
+        if parameters:
+            expr += '\n'
+            expr += self.make_arg_list(
+                parameters, False, self.increment_indent(indent)
+            )
+        expr += ');\n'
+
+        indent = self.decrement_indent(indent)
+        expr += indent + '}\n'
+
+        # End method body
+        expr += '\n'
+        expr += indent + 'manager->DecrementCallScope();\n'
+
         if return_type != 'void':
             expr += '\n'
             expr += indent + 'return result;\n'
 
-        # End function body
         indent = self.decrement_indent(indent)
         expr += indent + '}\n'
 
@@ -257,26 +290,65 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             # Begin method body
             indent = self.increment_indent(indent)
-            expr += indent
 
             if return_type != 'void':
-                expr += 'auto result = '
+                expr += indent + return_type + ' result{};\n'
+                expr += '\n'
+
+            expr += indent + 'auto manager = TraceManager::Get();\n'
+            expr += indent + 'auto call_scope = manager->IncrementCallScope();\n'
+            expr += '\n'
+
+            # Generate API call with input object unwrapping and output object wrapping
+            expr += indent + 'if (call_scope == 1)\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+
+            expr += indent
+            if return_type != 'void':
+                expr += 'result = '
 
             expr += 'object_->{}('.format(method_name)
             if parameters:
                 expr += '\n'
                 expr += self.make_arg_list(
-                    parameters, self.increment_indent(indent)
+                    parameters, True, self.increment_indent(indent)
                 )
             expr += ');\n'
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
 
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+
+            # Generate API call without object wrapping/unwrapping
+            expr += indent + 'else\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+
+            expr += indent
+            if return_type != 'void':
+                expr += 'result = '
+
+            expr += 'object_->{}('.format(method_name)
+            if parameters:
+                expr += '\n'
+                expr += self.make_arg_list(
+                    parameters, False, self.increment_indent(indent)
+                )
+            expr += ');\n'
+
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+
+            # End method body
+            expr += '\n'
+            expr += indent + 'manager->DecrementCallScope();\n'
+
             if return_type != 'void':
                 expr += '\n'
                 expr += indent + 'return result;\n'
 
-            # End method body
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
 
@@ -329,14 +401,14 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     break
         return parameters
 
-    def make_arg_list(self, param_info, indent='    '):
+    def make_arg_list(self, param_info, unwrap_objects, indent='    '):
         space_index = 0
         args = ''
         wrappers = self.get_wrapped_object_params(param_info)
 
         for p in param_info:
             name = p['name']
-            if name in wrappers:
+            if unwrap_objects and (name in wrappers):
                 name = 'encode::GetWrappedObject<{type}_Wrapper, {type}>'\
                     '({})'.format(name, type=wrappers[name].base_type)
 

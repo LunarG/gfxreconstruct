@@ -60,12 +60,25 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
         return S_OK;
     }
 
-    auto result = object_->QueryInterface(riid, object);
+    HRESULT result     = E_FAIL;
+    auto    manager    = TraceManager::Get();
+    auto    call_scope = manager->IncrementCallScope();
 
-    if (SUCCEEDED(result))
+    if (call_scope == 1)
     {
-        WrapObject(riid, object, resources_);
+        result = object_->QueryInterface(riid, object);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, object, resources_);
+        }
     }
+    else
+    {
+        result = object_->QueryInterface(riid, object);
+    }
+
+    manager->DecrementCallScope();
 
     return result;
 }
