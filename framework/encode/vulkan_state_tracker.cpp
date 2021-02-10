@@ -373,6 +373,26 @@ void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_
     }
 }
 
+void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 command_buffer,
+                                                uint32_t                        image_barrier_count,
+                                                const VkImageMemoryBarrier2KHR* image_barriers)
+{
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    if ((image_barrier_count > 0) && (image_barriers != nullptr))
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
+
+        for (uint32_t i = 0; i < image_barrier_count; ++i)
+        {
+            auto image_wrapper                      = reinterpret_cast<ImageWrapper*>(image_barriers[i].image);
+            wrapper->pending_layouts[image_wrapper] = image_barriers[i].newLayout;
+        }
+    }
+}
+
 void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits)
 {
     if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferCount > 0))

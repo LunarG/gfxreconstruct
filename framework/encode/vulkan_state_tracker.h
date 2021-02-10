@@ -320,6 +320,10 @@ class VulkanStateTracker
                             uint32_t                    image_barrier_count,
                             const VkImageMemoryBarrier* image_barriers);
 
+    void TrackImageBarriers2KHR(VkCommandBuffer                 command_buffer,
+                                uint32_t                        image_barrier_count,
+                                const VkImageMemoryBarrier2KHR* image_barriers);
+
     void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
     void TrackUpdateDescriptorSets(uint32_t                    write_count,

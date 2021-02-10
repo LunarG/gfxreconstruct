@@ -411,6 +411,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPipelineBarrier2KHR(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>
 {
     template <typename... Args>
