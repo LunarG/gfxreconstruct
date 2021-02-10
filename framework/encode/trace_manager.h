@@ -666,6 +666,16 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkCmdPipelineBarrier2KHR(VkCommandBuffer commandBuffer, const VkDependencyInfoKHR* pDependencyInfo)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackImageBarriers2KHR(
+                commandBuffer, pDependencyInfo->imageMemoryBarrierCount, pDependencyInfo->pImageMemoryBarriers);
+        }
+    }
+
     void PostProcess_vkCmdExecuteCommands(VkCommandBuffer        commandBuffer,
                                           uint32_t               commandBufferCount,
                                           const VkCommandBuffer* pCommandBuffers)
