@@ -670,6 +670,46 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
     }
 };
 
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetAccelerationStructureDeviceAddressKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetRayTracingShaderGroupHandlesKHR(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
