@@ -4100,7 +4100,7 @@ void Encode_ID3D12Resource_Map(
     {
         encoder->EncodeUInt32Value(Subresource);
         EncodeStructPtr(encoder, pReadRange);
-        EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(&ppData));
+        encoder->EncodeVoidPtrPtr(ppData);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }

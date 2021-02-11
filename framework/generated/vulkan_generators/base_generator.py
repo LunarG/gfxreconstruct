@@ -95,7 +95,8 @@ class ValueInfo():
                  platformFullType = None,
                  bitfieldWidth = None,
                  isConst = False,
-                 unionMembers = None):
+                 unionMembers = None,
+                 is_com_outptr = False):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
@@ -113,6 +114,7 @@ class ValueInfo():
         self.isDynamic = True if not arrayCapacity else False
         self.isConst = isConst
         self.unionMembers = unionMembers
+        self.is_com_outptr = is_com_outptr
 
 # BaseGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -478,7 +480,7 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
-    def isClass(self, type):
+    def isClass(self, value):
         return False
 
     #
@@ -821,7 +823,7 @@ class BaseGenerator(OutputGenerator):
                     typeName = 'StructPointerDecoder<Decoded_{}*>'.format(typeName)
                 else:
                     typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
-            elif self.isClass(typeName):
+            elif self.isClass(value):
                 typeName = 'HandlePointerDecoder<{}*>'.format(typeName)
             elif typeName == 'wchar_t':
                 if count > 1:
@@ -875,7 +877,7 @@ class BaseGenerator(OutputGenerator):
 
         if returnType != 'void':
             if dx12_method:
-                return_value = self.get_value_info2('returnValue', returnType)
+                return_value = self.get_return_value_info('returnValue', returnType)
                 rtnType1 = self.makeDecodedParamType(return_value)
                 if rtnType1.find('Decoder') != -1:
                     rtnType1 += '*'

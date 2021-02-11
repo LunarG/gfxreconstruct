@@ -78,7 +78,7 @@ class DX12ConsumerHeaderGenerator(DX12BaseGenerator):
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_type1 = self.clean_type_define(rtn_type)
-            return_value = self.get_value_info2('returnValue', rtn_type1)
+            return_value = self.get_return_value_info('returnValue', rtn_type1)
             rtn_type1 = self.makeDecodedParamType(return_value)
             if rtn_type1.find('Decoder') != -1:
                 rtn_type1 += '*'

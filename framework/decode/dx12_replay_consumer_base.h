@@ -48,7 +48,10 @@ class DX12ReplayConsumerBase : public DX12Consumer
         return nullptr;
     }
 
-    void AddObject(format::HandleId id, IUnknown* object) { objects_.insert(std::make_pair(id, object)); }
+    void AddObject(format::HandleId id, void* object)
+    {
+        objects_.insert(std::make_pair(id, reinterpret_cast<IUnknown*>(object)));
+    }
 
     void RemoveObject(format::HandleId id) { objects_.erase(id); }
 

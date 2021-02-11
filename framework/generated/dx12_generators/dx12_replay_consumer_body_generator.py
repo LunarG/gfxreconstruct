@@ -137,7 +137,7 @@ class DX12ReplayConsumerBodyGenerator(
                     value_name = '_out_hp_{}'.format(value.name)
             else:
                 if value.pointerCount > 0 or value.isArray:
-                    if self.isClass(value.baseType):
+                    if self.isClass(value):
                         if value.pointerCount == 2:
                             value_name = 'MapObject<{}*>(*{}->GetPointer())'\
                                          .format(value.baseType, value.name)
@@ -150,8 +150,11 @@ class DX12ReplayConsumerBodyGenerator(
                         value_name = ('const_cast<const {}**>({}->GetPointer())'  # noqa
                                       .format(value.baseType, value.name))
                     elif value.baseType == 'void':
-                        value_name = 'reinterpret_cast<void*>({})'.format(
-                            value.name)
+                        if value.pointerCount == 1:
+                            value_name = 'reinterpret_cast<void*>({})'.format(
+                                value.name)
+                        elif value.pointerCount == 2:
+                            value_name = value.name + '->GetOutputPointer()'
                     else:
                         value_name = value.name + '->GetPointer()'
 
@@ -175,7 +178,7 @@ class DX12ReplayConsumerBodyGenerator(
                 if self.is_tracking_data(value):
                     code += ("    if (SUCCEEDED(replay_result) && (_out_p_{0} != nullptr) && (*_out_hp_{0} != nullptr))\n"  # noqa
                              "    {{\n".format(value.name))
-                    if self.isClass(value.baseType):
+                    if self.isClass(value):
                         code += ('        AddObject(*_out_p_{0}, *_out_hp_{0});\n'  # noqa
                                  .format(value.name))
                     elif self.isHandle(value.baseType):
@@ -190,7 +193,7 @@ class DX12ReplayConsumerBodyGenerator(
 
     def is_tracking_data(self, value):
         if value.fullType.find('_Out') != -1\
-            and (self.isClass(value.baseType)
+            and (self.isClass(value)
                  or self.isHandle(value.baseType)):
             return True
         return False

@@ -72,7 +72,7 @@ class BaseDecoderBodyGenerator():
         dx12_return_decodeType = None
         if returnType and returnType != 'void':
             if dx12_method:
-                dx12_return_value = self.get_value_info2('return_value', returnType)
+                dx12_return_value = self.get_return_value_info('return_value', returnType)
                 dx12_return_decodeType = self.makeDecodedParamType(dx12_return_value)
                 body += '    {} return_value;\n'.format(dx12_return_decodeType)
             else:
@@ -132,7 +132,7 @@ class BaseDecoderBodyGenerator():
 
         if self.isStruct(typeName):
             isStruct = True
-        elif self.isClass(typeName):
+        elif self.isClass(value):
             isClass = True
         elif typeName in ['String', 'WString']:
             isString = True
@@ -143,7 +143,7 @@ class BaseDecoderBodyGenerator():
 
         # isPointer will be False for static arrays.
         if value.isPointer or value.isArray:
-            if typeName in self.EXTERNAL_OBJECT_TYPES and not value.isArray:
+            if not isClass and typeName in self.EXTERNAL_OBJECT_TYPES and not value.isArray:
                 if value.pointerCount > 1:
                     # Pointer to a pointer to an unknown object type (void**), encoded as a pointer to a 64-bit integer ID.
                     body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(value.name, bufferArgs)

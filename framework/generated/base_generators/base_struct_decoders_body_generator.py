@@ -82,7 +82,7 @@ class BaseStructDecodersBodyGenerator():
 
         if self.isStruct(typeName):
             isStruct = True
-        elif self.isClass(typeName):
+        elif self.isClass(value):
             isClass = True
         elif typeName in ['String', 'WString']:
             isString = True

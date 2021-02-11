@@ -47,12 +47,12 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
     virtual void Process_CreateDXGIFactory(
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppFactory);
+        HandlePointerDecoder<void*>* ppFactory);
 
     virtual void Process_CreateDXGIFactory1(
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppFactory);
+        HandlePointerDecoder<void*>* ppFactory);
 
     virtual void Process_IDXGIObject_SetPrivateData(
         format::HandleId object_id,
@@ -78,13 +78,13 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppParent);
+        HandlePointerDecoder<void*>* ppParent);
 
     virtual void Process_IDXGIDeviceSubObject_GetDevice(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppDevice);
+        HandlePointerDecoder<void*>* ppDevice);
 
     virtual void Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
@@ -234,7 +234,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         UINT Buffer,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppSurface);
+        HandlePointerDecoder<void*>* ppSurface);
 
     virtual void Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId object_id,
@@ -430,7 +430,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppParentResource,
+        HandlePointerDecoder<void*>* ppParentResource,
         PointerDecoder<UINT>* pSubresourceIndex);
 
     virtual void Process_IDXGIResource1_CreateSubresourceSurface(
@@ -485,7 +485,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID refiid,
-        HandlePointerDecoder<IUnknown*>* ppUnk);
+        HandlePointerDecoder<void*>* ppUnk);
 
     virtual void Process_IDXGISwapChain1_Present1(
         format::HandleId object_id,
@@ -633,13 +633,13 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         UINT Flags,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppFactory);
+        HandlePointerDecoder<void*>* ppFactory);
 
     virtual void Process_DXGIGetDebugInterface1(
         HRESULT returnValue,
         UINT Flags,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* pDebug);
+        HandlePointerDecoder<void*>* pDebug);
 
     virtual void Process_IDXGIDevice3_Trim(
         format::HandleId object_id);
@@ -822,13 +822,13 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         Decoded_LUID AdapterLuid,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvAdapter);
+        HandlePointerDecoder<void*>* ppvAdapter);
 
     virtual void Process_IDXGIFactory4_EnumWarpAdapter(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvAdapter);
+        HandlePointerDecoder<void*>* ppvAdapter);
 
     virtual void Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
         format::HandleId object_id,
@@ -934,7 +934,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         UINT Adapter,
         DXGI_GPU_PREFERENCE GpuPreference,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvAdapter);
+        HandlePointerDecoder<void*>* ppvAdapter);
 
     virtual void Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         format::HandleId object_id,
@@ -963,7 +963,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         PointerDecoder<uint8_t>* pSrcData,
         SIZE_T SrcDataSizeInBytes,
         Decoded_GUID pRootSignatureDeserializerInterface,
-        HandlePointerDecoder<IUnknown*>* ppRootSignatureDeserializer);
+        HandlePointerDecoder<void*>* ppRootSignatureDeserializer);
 
     virtual void Process_D3D12SerializeVersionedRootSignature(
         HRESULT returnValue,
@@ -976,19 +976,19 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         PointerDecoder<uint8_t>* pSrcData,
         SIZE_T SrcDataSizeInBytes,
         Decoded_GUID pRootSignatureDeserializerInterface,
-        HandlePointerDecoder<IUnknown*>* ppRootSignatureDeserializer);
+        HandlePointerDecoder<void*>* ppRootSignatureDeserializer);
 
     virtual void Process_D3D12CreateDevice(
         HRESULT returnValue,
         HandlePointerDecoder<IUnknown*>* pAdapter,
         D3D_FEATURE_LEVEL MinimumFeatureLevel,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppDevice);
+        HandlePointerDecoder<void*>* ppDevice);
 
     virtual void Process_D3D12GetDebugInterface(
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvDebug);
+        HandlePointerDecoder<void*>* ppvDebug);
 
     virtual void Process_D3D12EnableExperimentalFeatures(
         HRESULT returnValue,
@@ -1026,7 +1026,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvDevice);
+        HandlePointerDecoder<void*>* ppvDevice);
 
     virtual void Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
         format::HandleId object_id,
@@ -1051,7 +1051,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         UINT Subresource,
         StructPointerDecoder<Decoded_D3D12_RANGE>* pReadRange,
-        HandlePointerDecoder<IUnknown*>* ppData);
+        PointerDecoder<uint64_t, void*>* ppData);
 
     virtual void Process_ID3D12Resource_Unmap(
         format::HandleId object_id,
@@ -1566,28 +1566,28 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppCommandQueue);
+        HandlePointerDecoder<void*>* ppCommandQueue);
 
     virtual void Process_ID3D12Device_CreateCommandAllocator(
         format::HandleId object_id,
         HRESULT returnValue,
         D3D12_COMMAND_LIST_TYPE type,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppCommandAllocator);
+        HandlePointerDecoder<void*>* ppCommandAllocator);
 
     virtual void Process_ID3D12Device_CreateGraphicsPipelineState(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12Device_CreateComputePipelineState(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12Device_CreateCommandList(
         format::HandleId object_id,
@@ -1597,7 +1597,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HandlePointerDecoder<ID3D12CommandAllocator*>* pCommandAllocator,
         HandlePointerDecoder<ID3D12PipelineState*>* pInitialState,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppCommandList);
+        HandlePointerDecoder<void*>* ppCommandList);
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(
         format::HandleId object_id,
@@ -1611,7 +1611,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* pDescriptorHeapDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device_GetDescriptorHandleIncrementSize(
         format::HandleId object_id,
@@ -1625,7 +1625,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         PointerDecoder<uint8_t>* pBlobWithRootSignature,
         SIZE_T blobLengthInBytes,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvRootSignature);
+        HandlePointerDecoder<void*>* ppvRootSignature);
 
     virtual void Process_ID3D12Device_CreateConstantBufferView(
         format::HandleId object_id,
@@ -1701,14 +1701,14 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         D3D12_RESOURCE_STATES InitialResourceState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         Decoded_GUID riidResource,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device_CreateHeap(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device_CreatePlacedResource(
         format::HandleId object_id,
@@ -1719,7 +1719,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device_CreateReservedResource(
         format::HandleId object_id,
@@ -1728,7 +1728,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device_CreateSharedHandle(
         format::HandleId object_id,
@@ -1744,7 +1744,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         format::HandleId NTHandle,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvObj);
+        HandlePointerDecoder<void*>* ppvObj);
 
     virtual void Process_ID3D12Device_OpenSharedHandleByName(
         format::HandleId object_id,
@@ -1771,7 +1771,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         UINT64 InitialValue,
         D3D12_FENCE_FLAGS Flags,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppFence);
+        HandlePointerDecoder<void*>* ppFence);
 
     virtual void Process_ID3D12Device_GetDeviceRemovedReason(
         format::HandleId object_id,
@@ -1793,7 +1793,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device_SetStablePowerState(
         format::HandleId object_id,
@@ -1806,7 +1806,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
         HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvCommandSignature);
+        HandlePointerDecoder<void*>* ppvCommandSignature);
 
     virtual void Process_ID3D12Device_GetResourceTiling(
         format::HandleId object_id,
@@ -1834,7 +1834,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12PipelineLibrary_LoadComputePipeline(
         format::HandleId object_id,
@@ -1842,7 +1842,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12PipelineLibrary_GetSerializedSize(
         format::HandleId object_id,
@@ -1860,7 +1860,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12Device1_CreatePipelineLibrary(
         format::HandleId object_id,
@@ -1868,7 +1868,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         PointerDecoder<uint8_t>* pLibraryBlob,
         SIZE_T BlobLength,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineLibrary);
+        HandlePointerDecoder<void*>* ppPipelineLibrary);
 
     virtual void Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         format::HandleId object_id,
@@ -1891,21 +1891,21 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppPipelineState);
+        HandlePointerDecoder<void*>* ppPipelineState);
 
     virtual void Process_ID3D12Device3_OpenExistingHeapFromAddress(
         format::HandleId object_id,
         HRESULT returnValue,
         uint64_t pAddress,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         format::HandleId object_id,
         HRESULT returnValue,
         format::HandleId hFileMapping,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device3_EnqueueMakeResident(
         format::HandleId object_id,
@@ -1920,7 +1920,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppFence);
+        HandlePointerDecoder<void*>* ppFence);
 
     virtual void Process_ID3D12ProtectedSession_GetSessionStatus(
         format::HandleId object_id,
@@ -1937,14 +1937,14 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         D3D12_COMMAND_LIST_TYPE type,
         D3D12_COMMAND_LIST_FLAGS flags,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppCommandList);
+        HandlePointerDecoder<void*>* ppCommandList);
 
     virtual void Process_ID3D12Device4_CreateProtectedResourceSession(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppSession);
+        HandlePointerDecoder<void*>* ppSession);
 
     virtual void Process_ID3D12Device4_CreateCommittedResource1(
         format::HandleId object_id,
@@ -1956,7 +1956,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
         Decoded_GUID riidResource,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device4_CreateHeap1(
         format::HandleId object_id,
@@ -1964,7 +1964,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
         HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvHeap);
+        HandlePointerDecoder<void*>* ppvHeap);
 
     virtual void Process_ID3D12Device4_CreateReservedResource1(
         format::HandleId object_id,
@@ -1974,7 +1974,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device4_GetResourceAllocationInfo1(
         format::HandleId object_id,
@@ -1996,15 +1996,15 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppv);
+        HandlePointerDecoder<void*>* ppv);
 
     virtual void Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riidResource,
-        HandlePointerDecoder<IUnknown*>* ppvResource,
+        HandlePointerDecoder<void*>* ppvResource,
         Decoded_GUID riidQueue,
-        HandlePointerDecoder<IUnknown*>* ppvQueue);
+        HandlePointerDecoder<void*>* ppvQueue);
 
     virtual void Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         format::HandleId object_id,
@@ -2038,7 +2038,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         HRESULT returnValue,
         HandlePointerDecoder<ID3D12LifetimeOwner*>* pOwner,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvTracker);
+        HandlePointerDecoder<void*>* ppvTracker);
 
     virtual void Process_ID3D12Device5_RemoveDevice(
         format::HandleId object_id);
@@ -2066,14 +2066,14 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         PointerDecoder<uint8_t>* pCreationParametersData,
         SIZE_T CreationParametersDataSizeInBytes,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppMetaCommand);
+        HandlePointerDecoder<void*>* ppMetaCommand);
 
     virtual void Process_ID3D12Device5_CreateStateObject(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppStateObject);
+        HandlePointerDecoder<void*>* ppStateObject);
 
     virtual void Process_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
         format::HandleId object_id,
@@ -2140,14 +2140,14 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pAddition,
         HandlePointerDecoder<ID3D12StateObject*>* pStateObjectToGrowFrom,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppNewStateObject);
+        HandlePointerDecoder<void*>* ppNewStateObject);
 
     virtual void Process_ID3D12Device7_CreateProtectedResourceSession1(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1>* pDesc,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppSession);
+        HandlePointerDecoder<void*>* ppSession);
 
     virtual void Process_ID3D12Device8_GetResourceAllocationInfo2(
         format::HandleId object_id,
@@ -2167,7 +2167,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
         Decoded_GUID riidResource,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device8_CreatePlacedResource1(
         format::HandleId object_id,
@@ -2178,7 +2178,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvResource);
+        HandlePointerDecoder<void*>* ppvResource);
 
     virtual void Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
         format::HandleId object_id,
@@ -2201,7 +2201,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppProtectedSession);
+        HandlePointerDecoder<void*>* ppProtectedSession);
 
     virtual void Process_ID3D12Resource2_GetDesc1(
         format::HandleId object_id,
@@ -2211,7 +2211,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppProtectedSession);
+        HandlePointerDecoder<void*>* ppProtectedSession);
 
     virtual void Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
         format::HandleId object_id,
@@ -2326,7 +2326,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID riid,
-        HandlePointerDecoder<IUnknown*>* ppvObject);
+        HandlePointerDecoder<void*>* ppvObject);
 
     virtual void Process_IUnknown_AddRef(
         format::HandleId object_id,

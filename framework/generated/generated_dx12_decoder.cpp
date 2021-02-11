@@ -1193,7 +1193,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory(const uint8_t* parameter_buffer, si
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppFactory;
+    HandlePointerDecoder<void*> ppFactory;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -1213,7 +1213,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory1(const uint8_t* parameter_buffer, s
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppFactory;
+    HandlePointerDecoder<void*> ppFactory;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -1234,7 +1234,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory2(const uint8_t* parameter_buffer, s
 
     UINT Flags;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppFactory;
+    HandlePointerDecoder<void*> ppFactory;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
@@ -1256,7 +1256,7 @@ size_t DX12Decoder::Decode_DXGIGetDebugInterface1(const uint8_t* parameter_buffe
 
     UINT Flags;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> pDebug;
+    HandlePointerDecoder<void*> pDebug;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
@@ -1319,7 +1319,7 @@ size_t DX12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const uint8_t* p
     PointerDecoder<uint8_t> pSrcData;
     SIZE_T SrcDataSizeInBytes;
     Decoded_GUID pRootSignatureDeserializerInterface;
-    HandlePointerDecoder<IUnknown*> ppRootSignatureDeserializer;
+    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
     HRESULT return_value;
 
     bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1365,7 +1365,7 @@ size_t DX12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const u
     PointerDecoder<uint8_t> pSrcData;
     SIZE_T SrcDataSizeInBytes;
     Decoded_GUID pRootSignatureDeserializerInterface;
-    HandlePointerDecoder<IUnknown*> ppRootSignatureDeserializer;
+    HandlePointerDecoder<void*> ppRootSignatureDeserializer;
     HRESULT return_value;
 
     bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1389,7 +1389,7 @@ size_t DX12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, si
     HandlePointerDecoder<IUnknown*> pAdapter;
     D3D_FEATURE_LEVEL MinimumFeatureLevel;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppDevice;
+    HandlePointerDecoder<void*> ppDevice;
     HRESULT return_value;
 
     bytes_read += pAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1411,7 +1411,7 @@ size_t DX12Decoder::Decode_D3D12GetDebugInterface(const uint8_t* parameter_buffe
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvDebug;
+    HandlePointerDecoder<void*> ppvDebug;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -1519,7 +1519,7 @@ size_t DX12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, con
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppParent;
+    HandlePointerDecoder<void*> ppParent;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -1539,7 +1539,7 @@ size_t DX12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId objec
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppDevice;
+    HandlePointerDecoder<void*> ppDevice;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -2062,7 +2062,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, 
 
     UINT Buffer;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppSurface;
+    HandlePointerDecoder<void*> ppSurface;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Buffer);
@@ -2719,7 +2719,7 @@ size_t DX12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id,
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppParentResource;
+    HandlePointerDecoder<void*> ppParentResource;
     PointerDecoder<UINT> pSubresourceIndex;
     HRESULT return_value;
 
@@ -2901,7 +2901,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object
     size_t bytes_read = 0;
 
     Decoded_GUID refiid;
-    HandlePointerDecoder<IUnknown*> ppUnk;
+    HandlePointerDecoder<void*> ppUnk;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &refiid);
@@ -3966,7 +3966,7 @@ size_t DX12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId obje
 
     Decoded_LUID AdapterLuid;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvAdapter;
+    HandlePointerDecoder<void*> ppvAdapter;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AdapterLuid);
@@ -3987,7 +3987,7 @@ size_t DX12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvAdapter;
+    HandlePointerDecoder<void*> ppvAdapter;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -4295,7 +4295,7 @@ size_t DX12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::Hand
     UINT Adapter;
     DXGI_GPU_PREFERENCE GpuPreference;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvAdapter;
+    HandlePointerDecoder<void*> ppvAdapter;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Adapter);
@@ -4437,7 +4437,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_i
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvDevice;
+    HandlePointerDecoder<void*> ppvDevice;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -4526,12 +4526,12 @@ size_t DX12Decoder::Decode_ID3D12Resource_Map(format::HandleId object_id, const 
 
     UINT Subresource;
     StructPointerDecoder<Decoded_D3D12_RANGE> pReadRange;
-    HandlePointerDecoder<IUnknown*> ppData;
+    PointerDecoder<uint64_t, void*> ppData;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Subresource);
     bytes_read += pReadRange.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ppData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppData.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -6252,7 +6252,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandQueue(format::HandleId obje
 
     StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppCommandQueue;
+    HandlePointerDecoder<void*> ppCommandQueue;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6274,7 +6274,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandAllocator(format::HandleId 
 
     D3D12_COMMAND_LIST_TYPE type;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppCommandAllocator;
+    HandlePointerDecoder<void*> ppCommandAllocator;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &type);
@@ -6296,7 +6296,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateGraphicsPipelineState(format::Hand
 
     StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6318,7 +6318,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateComputePipelineState(format::Handl
 
     StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6343,7 +6343,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId objec
     HandlePointerDecoder<ID3D12CommandAllocator*> pCommandAllocator;
     HandlePointerDecoder<ID3D12PipelineState*> pInitialState;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppCommandList;
+    HandlePointerDecoder<void*> ppCommandList;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
@@ -6390,7 +6390,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateDescriptorHeap(format::HandleId ob
 
     StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC> pDescriptorHeapDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += pDescriptorHeapDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6432,7 +6432,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateRootSignature(format::HandleId obj
     PointerDecoder<uint8_t> pBlobWithRootSignature;
     SIZE_T blobLengthInBytes;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvRootSignature;
+    HandlePointerDecoder<void*> ppvRootSignature;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
@@ -6670,7 +6670,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommittedResource(format::HandleId
     D3D12_RESOURCE_STATES InitialResourceState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     Decoded_GUID riidResource;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pHeapProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6696,7 +6696,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateHeap(format::HandleId object_id, c
 
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6722,7 +6722,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId ob
     D3D12_RESOURCE_STATES InitialState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6750,7 +6750,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateReservedResource(format::HandleId 
     D3D12_RESOURCE_STATES InitialState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6800,7 +6800,7 @@ size_t DX12Decoder::Decode_ID3D12Device_OpenSharedHandle(format::HandleId object
 
     format::HandleId NTHandle;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvObj;
+    HandlePointerDecoder<void*> ppvObj;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NTHandle);
@@ -6885,7 +6885,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateFence(format::HandleId object_id, 
     UINT64 InitialValue;
     D3D12_FENCE_FLAGS Flags;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppFence;
+    HandlePointerDecoder<void*> ppFence;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialValue);
@@ -6954,7 +6954,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateQueryHeap(format::HandleId object_
 
     StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6995,7 +6995,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId 
     StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC> pDesc;
     HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvCommandSignature;
+    HandlePointerDecoder<void*> ppvCommandSignature;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7083,7 +7083,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadGraphicsPipeline(format::Ha
     WStringDecoder pName;
     StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7107,7 +7107,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadComputePipeline(format::Han
     WStringDecoder pName;
     StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7167,7 +7167,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary1_LoadPipeline(format::HandleId 
     WStringDecoder pName;
     StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7191,7 +7191,7 @@ size_t DX12Decoder::Decode_ID3D12Device1_CreatePipelineLibrary(format::HandleId 
     PointerDecoder<uint8_t> pLibraryBlob;
     SIZE_T BlobLength;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineLibrary;
+    HandlePointerDecoder<void*> ppPipelineLibrary;
     HRESULT return_value;
 
     bytes_read += pLibraryBlob.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7262,7 +7262,7 @@ size_t DX12Decoder::Decode_ID3D12Device2_CreatePipelineState(format::HandleId ob
 
     StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppPipelineState;
+    HandlePointerDecoder<void*> ppPipelineState;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7284,7 +7284,7 @@ size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromAddress(format::Han
 
     uint64_t pAddress;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAddress);
@@ -7306,7 +7306,7 @@ size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromFileMapping(format:
 
     format::HandleId hFileMapping;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hFileMapping);
@@ -7353,7 +7353,7 @@ size_t DX12Decoder::Decode_ID3D12ProtectedSession_GetStatusFence(format::HandleI
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppFence;
+    HandlePointerDecoder<void*> ppFence;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -7408,7 +7408,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateCommandList1(format::HandleId obj
     D3D12_COMMAND_LIST_TYPE type;
     D3D12_COMMAND_LIST_FLAGS flags;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppCommandList;
+    HandlePointerDecoder<void*> ppCommandList;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
@@ -7432,7 +7432,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateProtectedResourceSession(format::
 
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppSession;
+    HandlePointerDecoder<void*> ppSession;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7459,7 +7459,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::Handle
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
     Decoded_GUID riidResource;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pHeapProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7487,7 +7487,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id,
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC> pDesc;
     HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvHeap;
+    HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7513,7 +7513,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleI
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7593,7 +7593,7 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetSwapChainObject(format::H
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppv;
+    HandlePointerDecoder<void*> ppv;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -7613,9 +7613,9 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommand
     size_t bytes_read = 0;
 
     Decoded_GUID riidResource;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     Decoded_GUID riidQueue;
-    HandlePointerDecoder<IUnknown*> ppvQueue;
+    HandlePointerDecoder<void*> ppvQueue;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riidResource);
@@ -7740,7 +7740,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId 
 
     HandlePointerDecoder<ID3D12LifetimeOwner*> pOwner;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvTracker;
+    HandlePointerDecoder<void*> ppvTracker;
     HRESULT return_value;
 
     bytes_read += pOwner.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7825,7 +7825,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateMetaCommand(format::HandleId obje
     PointerDecoder<uint8_t> pCreationParametersData;
     SIZE_T CreationParametersDataSizeInBytes;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppMetaCommand;
+    HandlePointerDecoder<void*> ppMetaCommand;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CommandId);
@@ -7850,7 +7850,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateStateObject(format::HandleId obje
 
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppStateObject;
+    HandlePointerDecoder<void*> ppStateObject;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -8087,7 +8087,7 @@ size_t DX12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId objec
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC> pAddition;
     HandlePointerDecoder<ID3D12StateObject*> pStateObjectToGrowFrom;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppNewStateObject;
+    HandlePointerDecoder<void*> ppNewStateObject;
     HRESULT return_value;
 
     bytes_read += pAddition.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -8110,7 +8110,7 @@ size_t DX12Decoder::Decode_ID3D12Device7_CreateProtectedResourceSession1(format:
 
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1> pDesc;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppSession;
+    HandlePointerDecoder<void*> ppSession;
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -8161,7 +8161,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::Handle
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
     Decoded_GUID riidResource;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pHeapProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -8192,7 +8192,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId 
     D3D12_RESOURCE_STATES InitialState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvResource;
+    HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
     bytes_read += pHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -8267,7 +8267,7 @@ size_t DX12Decoder::Decode_ID3D12Resource1_GetProtectedResourceSession(format::H
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppProtectedSession;
+    HandlePointerDecoder<void*> ppProtectedSession;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -8303,7 +8303,7 @@ size_t DX12Decoder::Decode_ID3D12Heap1_GetProtectedResourceSession(format::Handl
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppProtectedSession;
+    HandlePointerDecoder<void*> ppProtectedSession;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
@@ -8685,7 +8685,7 @@ size_t DX12Decoder::Decode_IUnknown_QueryInterface(format::HandleId object_id, c
     size_t bytes_read = 0;
 
     Decoded_GUID riid;
-    HandlePointerDecoder<IUnknown*> ppvObject;
+    HandlePointerDecoder<void*> ppvObject;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);

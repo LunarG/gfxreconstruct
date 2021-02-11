@@ -131,9 +131,9 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
                     function_name, write_parameter_value, value.name)
             else:
                 print(self.ERROR_MSG, 'ptr array', function_name, value.name)
-
-        elif value.pointerCount > 1:
-            print(self.ERROR_MSG, '**', function_name, value.name)
+        elif value.pointerCount == 2:
+            return 'encoder->Encode{}PtrPtr({}{});'.format(
+                    function_name, write_parameter_value, value.name)
 
         else:
             if value.arrayCapacity == 0:
@@ -178,7 +178,7 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
         elif self.isStruct(value.baseType):
             rtn.append(self.get_encode_struct(value, is_generating_struct))
 
-        elif self.isClass(value.baseType):
+        elif self.isClass(value):
             if value.arrayLength and type(value.arrayLength) == str:
                 if is_generating_struct:
                     if value.isConst:

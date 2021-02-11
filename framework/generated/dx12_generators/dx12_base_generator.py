@@ -106,6 +106,16 @@ class DX12BaseGenerator(BaseGenerator):
             'Flags', ':8'],
     ]
 
+    # Some functions annotate COM pointer parameters that have a void**
+    # with the '_Out_' token instead of '_COM_Outptr_'.  This table
+    # contains the COM pointer parameters that are not annotated as
+    # COM pointers.
+    COM_POINTER_PARAMS = {
+        'D3D12CreateRootSignatureDeserializer' :
+           ['ppRootSignatureDeserializer'],
+        'D3D12CreateVersionedRootSignatureDeserializer' :
+           ['ppRootSignatureDeserializer'] }
+
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout):
         BaseGenerator.__init__(
@@ -143,7 +153,7 @@ class DX12BaseGenerator(BaseGenerator):
                 rtn += t
         return rtn
 
-    def get_value_info2(self, param_name, param_type):
+    def get_return_value_info(self, param_name, param_type):
         pointer = 0
         const = False
         base_type = ''
@@ -200,11 +210,6 @@ class DX12BaseGenerator(BaseGenerator):
                 if base_type:
                     base_type += ' '
                 base_type += t
-
-        # convert 'void** pp' into 'IUnknown** pp'
-        # DXGIGetDebugInterface1 is an exception. It's pDebug, not ppDebug.
-        if base_type == 'void' and pointer == 2 and name[0] == 'p':
-            base_type = 'IUnknown'
 
         for e in self.CONVERT_DEFINE_LIST:
             for k in e[0]:
@@ -285,7 +290,8 @@ class DX12BaseGenerator(BaseGenerator):
             arrayCapacity=array_capacity,
             arrayDimension=array_dimension,
             bitfieldWidth=self.get_bit_field(struct_name, name),
-            isConst=const, unionMembers=union_members)
+            isConst=const, unionMembers=union_members,
+            is_com_outptr=self.is_com_outptr(struct_name, name, full_type))
 
     # Method override
     def genType(self, typeinfo, name, alias):
@@ -356,9 +362,13 @@ class DX12BaseGenerator(BaseGenerator):
         return False
 
     # Method override
-    def isClass(self, type):
+    def isClass(self, value):
+        """Use value, not type because it needs to check void** case."""
+        if value.baseType == 'void' and value.pointerCount == 2 and value.is_com_outptr:
+            return True
+
         class_list = self.source_dict['class_list']
-        if type in class_list:
+        if value.baseType in class_list:
             return True
         return False
 
@@ -421,5 +431,13 @@ class DX12BaseGenerator(BaseGenerator):
            and (not self.check_blacklist or not struct_source_data['name'] in self.STRUCT_BLACKLIST)\
            and struct_type[-4:] != 'Vtbl'\
            and struct_type.find("::<anon-union-") == -1:
+            return True
+        return False
+
+    def is_com_outptr(self, func_name, param_name, param_full_type):
+        if 'COM_Outptr' in param_full_type:
+            return True
+        elif (func_name in self.COM_POINTER_PARAMS and
+              param_name in self.COM_POINTER_PARAMS[func_name]):
             return True
         return False
