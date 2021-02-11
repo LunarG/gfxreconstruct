@@ -119,6 +119,7 @@ class DX12BaseGenerator(BaseGenerator):
         self.source_dict = source_dict
         self.dx12_prefix_strings = dx12_prefix_strings
         self.featureMethodParams = dict()
+        self.check_blacklist = False
 
     def clean_type_define(self, type):
         rtn = ''
@@ -342,7 +343,10 @@ class DX12BaseGenerator(BaseGenerator):
 
     # Method override
     def getFilteredStructNames(self):
-        return self.source_dict['struct_list']
+        if self.check_blacklist:
+            return [key for key in self.source_dict['struct_list'] if not self.isStructBlackListed(key)]
+        else:
+            return self.source_dict['struct_list']
 
     # Method override
     def isStruct(self, type):
@@ -414,6 +418,7 @@ class DX12BaseGenerator(BaseGenerator):
 
     def is_required_struct_data(self, struct_type, struct_source_data):
         if struct_source_data['declaration_method'] == 'struct'\
+           and (not self.check_blacklist or not struct_source_data['name'] in self.STRUCT_BLACKLIST)\
            and struct_type[-4:] != 'Vtbl'\
            and struct_type.find("::<anon-union-") == -1:
             return True

@@ -32,11 +32,24 @@ class DX12StructDecodersBodyGenerator(
         DX12DecoderHeaderGenerator,
         BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
 
+    def __init__(self, source_dict, dx12_prefix_strings,
+                 errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout):
+        DX12DecoderHeaderGenerator.__init__(
+            self,
+            source_dict,
+            dx12_prefix_strings,
+            errFile,
+            warnFile,
+            diagFile)
+        self.check_blacklist = True
+
     # Method override
     def write_include(self):
         code = ("\n"
                 "#include \"generated_dx12_struct_decoders.h\"\n"
                 "#include \"generated_dx12_struct_decoders_forward.h\"\n"
+                "#include \"decode/custom_dx12_struct_decoders.h\"\n"
+                "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
                 "\n")
         write(code, file=self.outFile)
 

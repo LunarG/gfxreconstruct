@@ -20,6 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import os
 import sys
 import threading
 
@@ -50,6 +51,10 @@ from dx12_ascii_consumer_body_generator\
     import DX12AsciiConsumerBodyGenerator
 
 
+# JSON files for customizing code generation
+default_blacklists = 'blacklists.json'
+
+
 # Returns a directory of [ generator function, generator options ] indexed
 # by specified short names. The generator options incorporate the following
 # parameters:
@@ -61,6 +66,9 @@ def make_gen_opts(args):
 
     # Output target directory
     directory = args.directory
+
+    # JSON configuration files
+    blacklists = os.path.join(args.configs, default_blacklists)
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -105,6 +113,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_api_call_encoders.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -117,6 +126,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_api_call_encoders.cpp',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
             protectFeature=False)
@@ -129,6 +139,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_struct_decoders_forward.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -141,6 +152,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_struct_decoders.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -153,6 +165,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_struct_decoders.cpp',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
             protectFeature=False)
@@ -165,6 +178,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_decoder.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -177,6 +191,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_decoder.cpp',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
             protectFeature=False)
@@ -189,6 +204,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_consumer.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -201,6 +217,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_replay_consumer.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -213,6 +230,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_replay_consumer.cpp',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
             protectFeature=False)
@@ -225,6 +243,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_ascii_consumer.h',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=True,
             protectFeature=False)
@@ -237,6 +256,7 @@ def make_gen_opts(args):
         DX12GeneratorOptions(
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
+            blacklists=blacklists,
             prefixText=prefix_strings + py_prefix_strings,
             protectFile=False,
             protectFeature=False)

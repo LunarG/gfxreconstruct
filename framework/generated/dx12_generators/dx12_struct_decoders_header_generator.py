@@ -37,6 +37,7 @@ class DX12StructDecodersHeaderGenerator(
         DX12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
+        self.check_blacklist = True
 
     # Method override
     def beginFile(self, gen_opts):

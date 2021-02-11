@@ -40,6 +40,7 @@ class DX12ApiCallEncodersHeaderGenerator(DX12BaseGenerator):
             errFile,
             warnFile,
             diagFile)
+        self.check_blacklist = True
 
     # Method override
     def beginFile(self, gen_opts):

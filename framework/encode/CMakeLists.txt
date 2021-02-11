@@ -38,6 +38,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_array_size_2d.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.cpp
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_dispatch_table.h>

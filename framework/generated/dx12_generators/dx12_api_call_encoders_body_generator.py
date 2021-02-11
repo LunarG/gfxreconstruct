@@ -35,10 +35,12 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
         DX12ApiCallEncodersHeaderGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
+        self.check_blacklist = True
 
     # Method override
     def write_include(self):
         code = ("#include \"generated/generated_dx12_api_call_encoders.h\"\n"
+                "#include \"encode/custom_dx12_struct_encoders.h\"\n"
                 "\n"
                 "#include \"encode/custom_encoder_commands.h\"\n"
                 "#include \"encode/parameter_encoder.h\"\n"

@@ -1250,8 +1250,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_DESC1& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_VALUE& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RANGE& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RANGE_UINT64& value);
@@ -1276,13 +1274,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALIASING_BARRI
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_UAV_BARRIER& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_BARRIER& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_FOOTPRINT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEXTURE_COPY_LOCATION& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLE_POSITION& value);
 
@@ -1312,8 +1306,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_ARRAY_SRV& valu
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_RESOURCE_VIEW_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CONSTANT_BUFFER_VIEW_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC& value);
@@ -1329,8 +1321,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2D_UAV& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2D_ARRAY_UAV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_UAV& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_RTV& value);
 
@@ -1348,8 +1338,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_ARRAY_RTV& valu
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_RTV& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_TARGET_VIEW_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX1D_DSV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX1D_ARRAY_DSV& value);
@@ -1362,8 +1350,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_DSV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_ARRAY_DSV& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_VIEW_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DESCRIPTOR_HEAP_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DESCRIPTOR_RANGE& value);
@@ -1373,8 +1359,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR_TABLE& 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_CONSTANTS& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_PARAMETER& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATIC_SAMPLER_DESC& value);
 
@@ -1386,11 +1370,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR_TABLE1&
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_PARAMETER1& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& value);
 
 void Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     format::HandleId wrapper_id,
@@ -1429,8 +1409,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_ARGUMENTS& val
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERTEX_BUFFER_VIEW& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_INDEX_BUFFER_VIEW& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_INDIRECT_ARGUMENT_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_SIGNATURE_DESC& value);
 
@@ -2495,10 +2473,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_INSTANCE_DESC& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO& value);
@@ -2579,8 +2553,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DRED_PAGE_FAULT_OUTPUT1
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA1& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA2& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
     format::HandleId wrapper_id,
@@ -2721,13 +2693,9 @@ void Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_RENDER_TARGET_DESC& value);
 

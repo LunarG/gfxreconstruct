@@ -28,6 +28,7 @@
 
 #include "generated_dx12_decoder.h"
 #include "generated_dx12_struct_decoders_forward.h"
+#include "decode/custom_dx12_struct_decoders_forward.h"
 
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

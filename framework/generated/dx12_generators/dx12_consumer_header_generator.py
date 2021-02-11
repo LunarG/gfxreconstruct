@@ -54,6 +54,7 @@ class DX12ConsumerHeaderGenerator(DX12BaseGenerator):
         code = ("\n"
                 "#include \"decode/dx12_consumer_base.h\"\n"
                 "#include \"generated_dx12_struct_decoders.h\"\n"
+                "#include \"decode/custom_dx12_struct_decoders.h\"\n"
                 "\n")
         write(code, file=self.outFile)
 

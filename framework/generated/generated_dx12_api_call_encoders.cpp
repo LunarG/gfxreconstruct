@@ -26,6 +26,7 @@
 */
 
 #include "generated/generated_dx12_api_call_encoders.h"
+#include "encode/custom_dx12_struct_encoders.h"
 
 #include "encode/custom_encoder_commands.h"
 #include "encode/parameter_encoder.h"
@@ -3492,16 +3493,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_VALUE& va
     encoder->EncodeUInt8Value(value.Stencil);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value)
-{
-    encoder->EncodeEnumValue(value.Format);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Color) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.DepthStencil) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Color), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RANGE& value)
 {
     encoder->EncodeUInt64Value(value.Begin);
@@ -3590,18 +3581,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_UAV_BARRIER& v
             (&value)->pResource));
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_BARRIER& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    encoder->EncodeEnumValue(value.Flags);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Transition) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Aliasing) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.UAV) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Transition), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_FOOTPRINT& value)
 {
     encoder->EncodeEnumValue(value.Format);
@@ -3615,18 +3594,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PLACED_SUBRESOURCE_FOOT
 {
     encoder->EncodeUInt64Value(value.Offset);
     EncodeStruct(encoder, value.Footprint);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEXTURE_COPY_LOCATION& value)
-{
-    EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(&const_cast<D3D12_TEXTURE_COPY_LOCATION*>
-            (&value)->pResource));
-    encoder->EncodeEnumValue(value.Type);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.PlacedFootprint) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.SubresourceIndex) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.PlacedFootprint), union_size_max);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLE_POSITION& value)
@@ -3729,27 +3696,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
     encoder->EncodeUInt64Value(value.Location);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_RESOURCE_VIEW_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Format);
-    encoder->EncodeEnumValue(value.ViewDimension);
-    encoder->EncodeUInt32Value(value.Shader4ComponentMapping);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture3D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.TextureCube) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.TextureCubeArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.RaytracingAccelerationStructure) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Buffer), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CONSTANT_BUFFER_VIEW_DESC& value)
 {
     encoder->EncodeUInt64Value(value.BufferLocation);
@@ -3812,21 +3758,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_UAV& value)
     encoder->EncodeUInt32Value(value.WSize);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Format);
-    encoder->EncodeEnumValue(value.ViewDimension);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture3D) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Buffer), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUFFER_RTV& value)
 {
     encoder->EncodeUInt64Value(value.FirstElement);
@@ -3877,23 +3808,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX3D_RTV& value)
     encoder->EncodeUInt32Value(value.WSize);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_TARGET_VIEW_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Format);
-    encoder->EncodeEnumValue(value.ViewDimension);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture3D) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Buffer), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX1D_DSV& value)
 {
     encoder->EncodeUInt32Value(value.MipSlice);
@@ -3927,22 +3841,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEX2DMS_ARRAY_DSV& valu
 {
     encoder->EncodeUInt32Value(value.FirstArraySlice);
     encoder->EncodeUInt32Value(value.ArraySize);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_VIEW_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Format);
-    encoder->EncodeEnumValue(value.ViewDimension);
-    encoder->EncodeEnumValue(value.Flags);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Texture1D), union_size_max);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DESCRIPTOR_HEAP_DESC& value)
@@ -3979,18 +3877,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR& value)
 {
     encoder->EncodeUInt32Value(value.ShaderRegister);
     encoder->EncodeUInt32Value(value.RegisterSpace);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_PARAMETER& value)
-{
-    encoder->EncodeEnumValue(value.ParameterType);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.DescriptorTable) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Constants) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Descriptor) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.DescriptorTable), union_size_max);
-    encoder->EncodeEnumValue(value.ShaderVisibility);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATIC_SAMPLER_DESC& value)
@@ -4042,18 +3928,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value
     encoder->EncodeEnumValue(value.Flags);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_PARAMETER1& value)
-{
-    encoder->EncodeEnumValue(value.ParameterType);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.DescriptorTable) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Constants) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Descriptor) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.DescriptorTable), union_size_max);
-    encoder->EncodeEnumValue(value.ShaderVisibility);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& value)
 {
     encoder->EncodeUInt32Value(value.NumParameters);
@@ -4061,16 +3935,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& v
     encoder->EncodeUInt32Value(value.NumStaticSamplers);
     EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers );
     encoder->EncodeEnumValue(value.Flags);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Version);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Desc_1_0) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Desc_1_1) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Desc_1_0), union_size_max);
 }
 
 void Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
@@ -4202,19 +4066,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_INDEX_BUFFER_VIEW& valu
     encoder->EncodeUInt64Value(value.BufferLocation);
     encoder->EncodeUInt32Value(value.SizeInBytes);
     encoder->EncodeEnumValue(value.Format);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_INDIRECT_ARGUMENT_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.VertexBuffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Constant) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.ConstantBufferView) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.ShaderResourceView) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.UnorderedAccessView) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.VertexBuffer), union_size_max);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_SIGNATURE_DESC& value)
@@ -7066,31 +6917,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_INSTANCE_DES
     encoder->EncodeUInt64Value(value.AccelerationStructure);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    encoder->EncodeEnumValue(value.Flags);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Triangles) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.AABBs) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Triangles), union_size_max);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    encoder->EncodeEnumValue(value.Flags);
-    encoder->EncodeUInt32Value(value.NumDescs);
-    encoder->EncodeEnumValue(value.DescsLayout);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.InstanceDescs) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.pGeometryDescs) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.ppGeometryDescs) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.InstanceDescs), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& value)
 {
     encoder->EncodeUInt64Value(value.DestAccelerationStructureData);
@@ -7344,17 +7170,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED
     encoder->EncodeInt32Value(value.DeviceRemovedReason);
     EncodeStruct(encoder, value.AutoBreadcrumbsOutput);
     EncodeStruct(encoder, value.PageFaultOutput);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value)
-{
-    encoder->EncodeEnumValue(value.Version);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Dred_1_0) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Dred_1_1) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value.Dred_1_2) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Dred_1_0), union_size_max);
 }
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
@@ -7728,15 +7543,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_A
     EncodeStruct(encoder, value.ClearValue);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Clear) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Clear), union_size_max);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS& value)
 {
     encoder->EncodeUInt32Value(value.SrcSubresource);
@@ -7757,15 +7563,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     encoder->EncodeEnumValue(value.Format);
     encoder->EncodeEnumValue(value.ResolveMode);
     encoder->EncodeInt32Value(value.PreserveResolveSource);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value.Resolve) > union_size_max) union_size_max = union_size;
-    encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.Resolve), union_size_max);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_RENDER_TARGET_DESC& value)

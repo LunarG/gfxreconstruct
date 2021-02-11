@@ -31,6 +31,7 @@
 
 #include "decode/dx12_consumer_base.h"
 #include "generated_dx12_struct_decoders.h"
+#include "decode/custom_dx12_struct_decoders.h"
 
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

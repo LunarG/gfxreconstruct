@@ -37,6 +37,7 @@ class DX12DecoderBodyGenerator(
         code = ("\n"
                 "#include \"generated_dx12_decoder.h\"\n"
                 "#include \"generated_dx12_struct_decoders_forward.h\"\n"
+                "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
                 "\n")
         write(code, file=self.outFile)
 

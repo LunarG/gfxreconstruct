@@ -1052,13 +1052,6 @@ struct Decoded_D3D12_DEPTH_STENCIL_VALUE
     D3D12_DEPTH_STENCIL_VALUE* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_CLEAR_VALUE
-{
-    using struct_type = D3D12_CLEAR_VALUE;
-
-    D3D12_CLEAR_VALUE* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_RANGE
 {
     using struct_type = D3D12_RANGE;
@@ -1152,13 +1145,6 @@ struct Decoded_D3D12_RESOURCE_UAV_BARRIER
     HandlePointerDecoder<ID3D12Resource*> pResource;
 };
 
-struct Decoded_D3D12_RESOURCE_BARRIER
-{
-    using struct_type = D3D12_RESOURCE_BARRIER;
-
-    D3D12_RESOURCE_BARRIER* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_SUBRESOURCE_FOOTPRINT
 {
     using struct_type = D3D12_SUBRESOURCE_FOOTPRINT;
@@ -1173,15 +1159,6 @@ struct Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT* decoded_value{ nullptr };
 
     Decoded_D3D12_SUBRESOURCE_FOOTPRINT* Footprint{ nullptr };
-};
-
-struct Decoded_D3D12_TEXTURE_COPY_LOCATION
-{
-    using struct_type = D3D12_TEXTURE_COPY_LOCATION;
-
-    D3D12_TEXTURE_COPY_LOCATION* decoded_value{ nullptr };
-
-    HandlePointerDecoder<ID3D12Resource*> pResource;
 };
 
 struct Decoded_D3D12_SAMPLE_POSITION
@@ -1284,13 +1261,6 @@ struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC
-{
-    using struct_type = D3D12_SHADER_RESOURCE_VIEW_DESC;
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC
 {
     using struct_type = D3D12_CONSTANT_BUFFER_VIEW_DESC;
@@ -1349,13 +1319,6 @@ struct Decoded_D3D12_TEX3D_UAV
     D3D12_TEX3D_UAV* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC
-{
-    using struct_type = D3D12_UNORDERED_ACCESS_VIEW_DESC;
-
-    D3D12_UNORDERED_ACCESS_VIEW_DESC* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_BUFFER_RTV
 {
     using struct_type = D3D12_BUFFER_RTV;
@@ -1412,13 +1375,6 @@ struct Decoded_D3D12_TEX3D_RTV
     D3D12_TEX3D_RTV* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_RENDER_TARGET_VIEW_DESC
-{
-    using struct_type = D3D12_RENDER_TARGET_VIEW_DESC;
-
-    D3D12_RENDER_TARGET_VIEW_DESC* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_TEX1D_DSV
 {
     using struct_type = D3D12_TEX1D_DSV;
@@ -1461,13 +1417,6 @@ struct Decoded_D3D12_TEX2DMS_ARRAY_DSV
     D3D12_TEX2DMS_ARRAY_DSV* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC
-{
-    using struct_type = D3D12_DEPTH_STENCIL_VIEW_DESC;
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_DESCRIPTOR_HEAP_DESC
 {
     using struct_type = D3D12_DESCRIPTOR_HEAP_DESC;
@@ -1503,13 +1452,6 @@ struct Decoded_D3D12_ROOT_DESCRIPTOR
     using struct_type = D3D12_ROOT_DESCRIPTOR;
 
     D3D12_ROOT_DESCRIPTOR* decoded_value{ nullptr };
-};
-
-struct Decoded_D3D12_ROOT_PARAMETER
-{
-    using struct_type = D3D12_ROOT_PARAMETER;
-
-    D3D12_ROOT_PARAMETER* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_STATIC_SAMPLER_DESC
@@ -1552,13 +1494,6 @@ struct Decoded_D3D12_ROOT_DESCRIPTOR1
     D3D12_ROOT_DESCRIPTOR1* decoded_value{ nullptr };
 };
 
-struct Decoded_D3D12_ROOT_PARAMETER1
-{
-    using struct_type = D3D12_ROOT_PARAMETER1;
-
-    D3D12_ROOT_PARAMETER1* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_ROOT_SIGNATURE_DESC1
 {
     using struct_type = D3D12_ROOT_SIGNATURE_DESC1;
@@ -1567,13 +1502,6 @@ struct Decoded_D3D12_ROOT_SIGNATURE_DESC1
 
     StructPointerDecoder<Decoded_D3D12_ROOT_PARAMETER1>* pParameters{ nullptr };
     StructPointerDecoder<Decoded_D3D12_STATIC_SAMPLER_DESC>* pStaticSamplers{ nullptr };
-};
-
-struct Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC
-{
-    using struct_type = D3D12_VERSIONED_ROOT_SIGNATURE_DESC;
-
-    D3D12_VERSIONED_ROOT_SIGNATURE_DESC* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_CPU_DESCRIPTOR_HANDLE
@@ -1660,13 +1588,6 @@ struct Decoded_D3D12_INDEX_BUFFER_VIEW
     using struct_type = D3D12_INDEX_BUFFER_VIEW;
 
     D3D12_INDEX_BUFFER_VIEW* decoded_value{ nullptr };
-};
-
-struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC
-{
-    using struct_type = D3D12_INDIRECT_ARGUMENT_DESC;
-
-    D3D12_INDIRECT_ARGUMENT_DESC* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_COMMAND_SIGNATURE_DESC
@@ -1967,20 +1888,6 @@ struct Decoded_D3D12_RAYTRACING_INSTANCE_DESC
     PointerDecoder<FLOAT> Transform;
 };
 
-struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC
-{
-    using struct_type = D3D12_RAYTRACING_GEOMETRY_DESC;
-
-    D3D12_RAYTRACING_GEOMETRY_DESC* decoded_value{ nullptr };
-};
-
-struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS
-{
-    using struct_type = D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
-
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC
 {
     using struct_type = D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC;
@@ -2131,13 +2038,6 @@ struct Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2
     Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* PageFaultOutput{ nullptr };
 };
 
-struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA
-{
-    using struct_type = D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA;
-
-    D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT
 {
     using struct_type = D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT;
@@ -2172,13 +2072,6 @@ struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS
     Decoded_D3D12_CLEAR_VALUE* ClearValue{ nullptr };
 };
 
-struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS
-{
-    using struct_type = D3D12_RENDER_PASS_BEGINNING_ACCESS;
-
-    D3D12_RENDER_PASS_BEGINNING_ACCESS* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS
 {
     using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS;
@@ -2197,13 +2090,6 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS
     HandlePointerDecoder<ID3D12Resource*> pSrcResource;
     HandlePointerDecoder<ID3D12Resource*> pDstResource;
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS>* pSubresourceParameters{ nullptr };
-};
-
-struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS
-{
-    using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS;
-
-    D3D12_RENDER_PASS_ENDING_ACCESS* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC

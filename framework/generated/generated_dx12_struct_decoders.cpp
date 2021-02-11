@@ -28,6 +28,8 @@
 
 #include "generated_dx12_struct_decoders.h"
 #include "generated_dx12_struct_decoders_forward.h"
+#include "decode/custom_dx12_struct_decoders.h"
+#include "decode/custom_dx12_struct_decoders_forward.h"
 
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1569,23 +1571,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEP
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CLEAR_VALUE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_CLEAR_VALUE* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Color) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->DepthStencil) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Color), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RANGE* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -1760,25 +1745,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RES
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RESOURCE_BARRIER* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_RESOURCE_BARRIER* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Transition) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Aliasing) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->UAV) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Transition), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBRESOURCE_FOOTPRINT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -1806,25 +1772,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PLA
     wrapper->Footprint = DecodeAllocator::Allocate<Decoded_D3D12_SUBRESOURCE_FOOTPRINT>();
     wrapper->Footprint->decoded_value = &(value->Footprint);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Footprint);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_TEXTURE_COPY_LOCATION* value = wrapper->decoded_value;
-
-    bytes_read += wrapper->pResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pResource = nullptr;
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->PlacedFootprint) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->SubresourceIndex) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->PlacedFootprint), union_size_max);
 
     return bytes_read;
 }
@@ -2029,34 +1976,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_SHADER_RESOURCE_VIEW_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Shader4ComponentMapping));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture3D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->TextureCube) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->TextureCubeArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->RaytracingAccelerationStructure) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Buffer), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2176,28 +2095,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_UNORDERED_ACCESS_VIEW_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture3D) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Buffer), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUFFER_RTV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2304,30 +2201,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_TARGET_VIEW_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_RENDER_TARGET_VIEW_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Buffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture3D) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Buffer), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX1D_DSV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2405,29 +2278,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_DEPTH_STENCIL_VIEW_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Texture1D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture1DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2D) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DArray) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMS) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Texture2DMSArray) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Texture1D), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DESCRIPTOR_HEAP_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2497,25 +2347,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ShaderRegister));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RegisterSpace));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROOT_PARAMETER* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_ROOT_PARAMETER* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ParameterType));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->DescriptorTable) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Constants) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Descriptor) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->DescriptorTable), union_size_max);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ShaderVisibility));
 
     return bytes_read;
 }
@@ -2610,25 +2441,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROOT_PARAMETER1* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_ROOT_PARAMETER1* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ParameterType));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->DescriptorTable) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Constants) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Descriptor) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->DescriptorTable), union_size_max);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ShaderVisibility));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROOT_SIGNATURE_DESC1* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2645,23 +2457,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
     bytes_read += wrapper->pStaticSamplers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pStaticSamplers = wrapper->pStaticSamplers->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_VERSIONED_ROOT_SIGNATURE_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Version));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Desc_1_0) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Desc_1_1) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Desc_1_0), union_size_max);
 
     return bytes_read;
 }
@@ -2839,26 +2634,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_IND
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferLocation));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeInBytes));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INDIRECT_ARGUMENT_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_INDIRECT_ARGUMENT_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->VertexBuffer) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Constant) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->ConstantBufferView) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->ShaderResourceView) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->UnorderedAccessView) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->VertexBuffer), union_size_max);
 
     return bytes_read;
 }
@@ -3402,45 +3177,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_RAYTRACING_GEOMETRY_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Triangles) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->AABBs) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Triangles), union_size_max);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumDescs));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DescsLayout));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->InstanceDescs) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->pGeometryDescs) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->ppGeometryDescs) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->InstanceDescs), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3707,24 +3443,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEV
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Version));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Dred_1_0) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Dred_1_1) > union_size_max) union_size_max = union_size;
-    if (union_size = sizeof(value->Dred_1_2) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Dred_1_0), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3784,22 +3502,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_RENDER_PASS_BEGINNING_ACCESS* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Clear) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Clear), union_size_max);
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3836,22 +3538,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ResolveMode));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PreserveResolveSource));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_RENDER_PASS_ENDING_ACCESS* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    // For Union, find the largest size in the member and encode it.
-    size_t union_size_max = 0, union_size = 0;
-    if (union_size = sizeof(value->Resolve) > union_size_max) union_size_max = union_size;
-    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<void*>(&value->Resolve), union_size_max);
 
     return bytes_read;
 }
