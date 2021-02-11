@@ -173,20 +173,18 @@ class DX12ReplayConsumerBodyGenerator(
             code += value_name
         code += ');\n'
 
-        if return_type == 'HRESULT':
+        if return_type == 'HRESULT' and len(values):
+            code += ("    if (SUCCEEDED(replay_result))\n"
+                     "    {\n")
             for value in values:
                 if self.is_tracking_data(value):
-                    code += ("    if (SUCCEEDED(replay_result) && (_out_p_{0} != nullptr) && (*_out_hp_{0} != nullptr))\n"  # noqa
-                             "    {{\n".format(value.name))
                     if self.isClass(value):
-                        code += ('        AddObject(*_out_p_{0}, *_out_hp_{0});\n'  # noqa
+                        code += ('        AddObject(_out_p_{0}, _out_hp_{0});\n'  # noqa
                                  .format(value.name))
                     elif self.isHandle(value.baseType):
-                        code += ('        AddHandle(*_out_p_{0}, *_out_hp_{0});\n'  # noqa
+                        code += ('        AddHandle(_out_p_{0}, _out_hp_{0});\n'  # noqa
                                  .format(value.name))
-                    code += ("        GFXRECON_LOG_INFO(\"Successfully {0} with {1} ID %\" PRIu64, *_out_p_{1});\n"  # noqa
-                             "    }}\n".format(name, value.name))
-
+            code += "    }\n"
             code += ('    CheckReplayResult("{}", returnValue, replay_result);\n'  # noqa
                      .format(name))
         return code

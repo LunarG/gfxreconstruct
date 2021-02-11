@@ -48,9 +48,13 @@ class DX12ReplayConsumerBase : public DX12Consumer
         return nullptr;
     }
 
-    void AddObject(format::HandleId id, void* object)
+    template <typename T>
+    void AddObject(const format::HandleId* p_id, T** pp_object)
     {
-        objects_.insert(std::make_pair(id, reinterpret_cast<IUnknown*>(object)));
+        if ((p_id != nullptr) && (*p_id != format::kNullHandleId) && (pp_object != nullptr) && (*pp_object != nullptr))
+        {
+            objects_.insert(std::make_pair(*p_id, reinterpret_cast<IUnknown*>(*pp_object)));
+        }
     }
 
     void RemoveObject(format::HandleId id) { objects_.erase(id); }
@@ -67,7 +71,14 @@ class DX12ReplayConsumerBase : public DX12Consumer
         return nullptr;
     }
 
-    void AddHandle(format::HandleId id, HANDLE handle_) { handles_.insert(std::make_pair(id, handle_)); }
+    template <typename T>
+    void AddHandle(const format::HandleId* p_id, T** pp_handle)
+    {
+        if ((p_id != nullptr) && (*p_id != format::kNullHandleId) && (pp_handle != nullptr) && (*pp_handle != nullptr))
+        {
+            handles_.insert(std::make_pair(*p_id, *pp_handle));
+        }
+    }
 
     void RemoveHandle(format::HandleId id) { handles_.erase(id); }
 
