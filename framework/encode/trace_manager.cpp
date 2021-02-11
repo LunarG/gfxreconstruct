@@ -1391,29 +1391,21 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
-    if ((pCreateInfo->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) == VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+    if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        uses_address = true;
-        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-    }
-    if ((pCreateInfo->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
-    {
-        uses_address = true;
-        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-        address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-    }
-
-    if (uses_address && !device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
-    {
-        // Don't enable and query opaque addresses if the feature was not enabled
-        uses_address = false;
-
-        // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
-        GFXRECON_LOG_ERROR_ONCE(
-            "The application is using the bufferDeviceAddress feature, which requires the "
-            "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The capture device does "
-            "not support this feature, so replay of the captured file may fail.");
+        if ((pCreateInfo->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
+            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+        {
+            uses_address = true;
+            address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        }
+        if ((pCreateInfo->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
+            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
+        {
+            uses_address = true;
+            address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+            address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+        }
     }
 
     // NOTE: VkBufferCreateInfo does not currently support pNext structures with handles, so does not have a handle
@@ -1500,12 +1492,6 @@ VkResult TraceManager::OverrideCreateAccelerationStructureKHR(VkDevice          
     {
         result = device_table->CreateAccelerationStructureKHR(
             device_unwrapped, pCreateInfo_unwrapped, pAllocator, pAccelerationStructureKHR);
-
-        // Log error if accelerationStructureCaptureReplay feature was not enabled
-        GFXRECON_LOG_ERROR_ONCE(
-            "The application is using the accelerationStructure feature, which requires the "
-            "accelerationStructureCaptureReplay feature for accurate capture and replay. The capture device does not "
-            "support this feature, so replay of the captured file may fail.");
     }
 
     if ((result == VK_SUCCESS) && (pAccelerationStructureKHR != nullptr))
@@ -1561,26 +1547,26 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     bool                   uses_address         = false;
     VkMemoryAllocateFlags* modified_alloc_flags = nullptr;
     VkMemoryAllocateFlags  incoming_alloc_flags;
-    VkBaseOutStructure*    current_struct = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped)->pNext;
-    while (current_struct != nullptr)
+    if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
+        VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped)->pNext;
+        while (current_struct != nullptr)
         {
-            auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
-            if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
-                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
+            if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
             {
-                if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+                auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
+                    VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
                 {
                     uses_address         = true;
                     incoming_alloc_flags = alloc_flags_info->flags;
                     alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
                     modified_alloc_flags = &(alloc_flags_info->flags);
                 }
+                break;
             }
-            break;
+            current_struct = current_struct->pNext;
         }
-        current_struct = current_struct->pNext;
     }
 
     if (page_guard_memory_mode_ == kMemoryModeExternal)
@@ -2539,6 +2525,44 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
         SetDescriptorUpdateTemplateInfo((*pDescriptorUpdateTemplate), pCreateInfo);
+    }
+}
+
+void TraceManager::PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE(
+            "The application is using vkGetBufferDeviceAddress, which requires the bufferDeviceAddressCaptureReplay "
+            "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
+            "the captured file may fail.");
+    }
+}
+
+void TraceManager::PreProcess_vkGetAccelerationStructureDeviceAddressKHR(
+    VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The application is using vkGetAccelerationStructureDeviceAddressKHR, which may require the "
+            "accelerationStructureCaptureReplay feature for accurate capture and replay. The capture device does not "
+            "support this feature, so replay of the captured file may fail.");
+    }
+}
+
+void TraceManager::PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
+    VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData)
+{
+    auto device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+    if (!device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The application is using vkGetRayTracingShaderGroupHandlesKHR, which may require the "
+            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The capture "
+            "device does not support this feature, so replay of the captured file may fail.");
     }
 }
 
