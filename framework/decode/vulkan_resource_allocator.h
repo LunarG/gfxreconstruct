@@ -252,6 +252,8 @@ class VulkanResourceAllocator
     virtual VkResult InvalidateMappedMemoryRangesDirect(uint32_t                   memory_range_count,
                                                         const VkMappedMemoryRange* memory_ranges,
                                                         const MemoryData*          allocator_datas) = 0;
+
+    virtual bool SupportsOpaqueDeviceAddresses() = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

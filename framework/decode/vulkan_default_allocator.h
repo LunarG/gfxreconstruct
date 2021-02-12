@@ -249,6 +249,8 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
         return InvalidateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas);
     }
 
+    virtual bool SupportsOpaqueDeviceAddresses() override { return true; }
+
   protected:
     struct ResourceAllocInfo
     {
