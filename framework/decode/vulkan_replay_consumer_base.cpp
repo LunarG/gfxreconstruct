@@ -3908,29 +3908,21 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
-    if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
-        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+    if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        uses_address = true;
-        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-    }
-    if ((replay_create_info->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
-    {
-        uses_address = true;
-        address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-        address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-    }
-
-    if (uses_address && !device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
-    {
-        // Don't enable and query opaque addresses if the feature was not enabled
-        uses_address = false;
-
-        // Log error if bufferDeviceAddressCaptureReplay feature was not enabled
-        GFXRECON_LOG_ERROR_ONCE("The captured application used the bufferDeviceAddress feature, which requires the "
-                                "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
-                                "replay device does not support this feature, so replay may fail.");
+        if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
+            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+        {
+            uses_address = true;
+            address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        }
+        if ((replay_create_info->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
+            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
+        {
+            uses_address = true;
+            address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+            address_usage_flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+        }
     }
 
     if (uses_address)
@@ -5520,11 +5512,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     }
     else
     {
-        // Log error if accelerationStructureCaptureReplay feature was not enabled
-        GFXRECON_LOG_ERROR_ONCE("The captured application used the accelerationStructure feature, which requires the "
-                                "accelerationStructureCaptureReplay feature for accurate capture and replay. The "
-                                "replay device does not support this feature, so replay may fail.");
-
         result = device_table->CreateAccelerationStructureKHR(
             device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
     }
@@ -5634,6 +5621,74 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     }
 
     return result;
+}
+
+VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
+    PFN_vkGetBufferDeviceAddress                                   func,
+    const DeviceInfo*                                              device_info,
+    const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+
+    if (!device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
+    {
+        GFXRECON_LOG_ERROR_ONCE("The captured application used vkGetBufferDeviceAddress, which requires the "
+                                "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
+                                "replay device does not support this feature, so replay may fail.");
+    }
+
+    VkDevice                         device       = device_info->handle;
+    const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
+
+    return func(device, address_info);
+}
+
+void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
+    PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+    const DeviceInfo*                                                                device_info,
+    const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
+{
+    assert((device_info != nullptr) && (pInfo != nullptr) && !pInfo->IsNull() && (pInfo->GetPointer() != nullptr));
+
+    if (!device_info->property_feature_info.feature_accelerationStructureCaptureReplay)
+    {
+        GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetAccelerationStructureDeviceAddressKHR, which may "
+                                  "require the accelerationStructureCaptureReplay feature for accurate capture and "
+                                  "replay. The replay device does not support this feature, so replay may fail.");
+    }
+
+    VkDevice                                           device       = device_info->handle;
+    const VkAccelerationStructureDeviceAddressInfoKHR* address_info = pInfo->GetPointer();
+
+    func(device, address_info);
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRayTracingShaderGroupHandlesKHR func,
+                                                                     VkResult                 original_result,
+                                                                     const DeviceInfo*        device_info,
+                                                                     const PipelineInfo*      pipeline_info,
+                                                                     uint32_t                 firstGroup,
+                                                                     uint32_t                 groupCount,
+                                                                     size_t                   dataSize,
+                                                                     PointerDecoder<uint8_t>* pData)
+{
+    assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
+           (pData->GetOutputPointer() != nullptr));
+
+    if (!device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The captured application used vkGetRayTracingShaderGroupHandlesKHR, which may require the "
+            "rayTracingPipelineShaderGroupHandleCaptureReplay feature for accurate capture and replay. The replay "
+            "device does not support this feature, so replay may fail.");
+    }
+
+    VkDevice   device      = device_info->handle;
+    VkPipeline pipeline    = pipeline_info->handle;
+    uint8_t*   output_data = pData->GetOutputPointer();
+
+    return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 }
 
 void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
