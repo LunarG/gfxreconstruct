@@ -5637,6 +5637,13 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
                                 "replay device does not support this feature, so replay may fail.");
     }
 
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The captured application used vkGetBufferDeviceAddress. The specified replay option '-m rebind' may not "
+            "support the replay of captured device addresses, so replay may fail.");
+    }
+
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
 
@@ -5655,6 +5662,13 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
         GFXRECON_LOG_WARNING_ONCE("The captured application used vkGetAccelerationStructureDeviceAddressKHR, which may "
                                   "require the accelerationStructureCaptureReplay feature for accurate capture and "
                                   "replay. The replay device does not support this feature, so replay may fail.");
+    }
+
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The captured application used vkGetAccelerationStructureDeviceAddressKHR. The specified replay option '-m "
+            "rebind' may not support the replay of captured device addresses, so replay may fail.");
     }
 
     VkDevice                                           device       = device_info->handle;
