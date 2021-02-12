@@ -820,6 +820,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                      pPipelines);
 
+    VkDeviceAddress
+    OverrideGetBufferDeviceAddress(PFN_vkGetBufferDeviceAddress                                   func,
+                                   const DeviceInfo*                                              device_info,
+                                   const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo);
+
+    void OverrideGetAccelerationStructureDeviceAddressKHR(
+        PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+        const DeviceInfo*                                                                device_info,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo);
+
+    VkResult OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRayTracingShaderGroupHandlesKHR func,
+                                                        VkResult                                 original_result,
+                                                        const DeviceInfo*                        device_info,
+                                                        const PipelineInfo*                      pipeline_info,
+                                                        uint32_t                                 firstGroup,
+                                                        uint32_t                                 groupCount,
+                                                        size_t                                   dataSize,
+                                                        PointerDecoder<uint8_t>*                 pData);
+
   private:
     void RaiseFatalError(const char* message) const;
 

@@ -71,6 +71,10 @@
     "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
     "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",
-    "vkCreateRayTracingPipelinesKHR": "OverrideCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR": "OverrideCreateRayTracingPipelinesKHR",
+    "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
+    "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
+    "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
+    "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR"
   }
 }
