@@ -69,13 +69,6 @@ WINAPI_SOURCE_LIST = [
 ]
 
 
-class CppHeader():
-    def __init__(self):
-        self.classes = {}
-        self.functions = []
-        self.enums = []
-
-
 if __name__ == '__main__':
     env = os.environ
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
@@ -108,7 +101,7 @@ if __name__ == '__main__':
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 
     from gencode import GenCode
-    from dx12_generators.dx12_CppHeaderParser import DX12CppHeader
+    from dx12_generators.dx12_CppHeaderParser import *
 
     header_dict = {}
     for source in DX12_SOURCE_LIST:
@@ -123,7 +116,7 @@ if __name__ == '__main__':
                                    + WINDOWS_SDK_VERSION, source[0])
         print('Parsing', source_file)
         header = DX12CppHeader(source_file)
-        header1 = CppHeader()
+        header1 = DX12CppClass()
 
         for k, v in header.classes.items():
             if k in source[1]:

@@ -108,6 +108,15 @@ CppHeaderParser.is_method_namestack = dx12_is_method_namestack
 CppHeaderParser.is_property_namestack = dx12_is_property_namestack
 
 
+class DX12CppClass():
+    """This struct is simliar to CppHeaderParser.CppClass. In order to add data into CppHeader manually."""
+
+    def __init__(self):
+        self.classes = {}
+        self.functions = []
+        self.enums = []
+
+
 class DX12CppHeader(CppHeader):
 
     # Method override
