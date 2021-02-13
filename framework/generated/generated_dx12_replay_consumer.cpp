@@ -580,7 +580,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                InterfaceName,
-    PointerDecoder<LARGE_INTEGER>*              pUMDVersion)
+    StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
     auto replay_object = MapObject<IDXGIAdapter>(object_id);
     if (replay_object != nullptr)

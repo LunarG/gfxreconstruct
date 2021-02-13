@@ -151,8 +151,8 @@ struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS
 {
     using struct_type = D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*  decoded_value{ nullptr };
-    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>* pGeometryDescs{ nullptr };
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*          decoded_value{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>*  pGeometryDescs{ nullptr };
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC*>* ppGeometryDescs{ nullptr };
 };
 
@@ -177,6 +177,12 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS
     using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS;
     D3D12_RENDER_PASS_ENDING_ACCESS*                            decoded_value{ nullptr };
     Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* Resolve{ nullptr };
+};
+
+struct Decoded_LARGE_INTEGER
+{
+    using struct_type = LARGE_INTEGER;
+    LARGE_INTEGER* decoded_value{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -158,7 +158,7 @@ class DX12ReplayConsumer : public DX12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID InterfaceName,
-        PointerDecoder<LARGE_INTEGER>* pUMDVersion);
+        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion);
 
     virtual void Process_IDXGIOutput_GetDesc(
         format::HandleId object_id,

@@ -227,7 +227,7 @@ void DX12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID InterfaceName,
-        PointerDecoder<LARGE_INTEGER>* pUMDVersion)
+        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
     fprintf(GetFile(), "%s\n", "IDXGIAdapter::CheckInterfaceSupport");
 }

@@ -1799,11 +1799,11 @@ size_t DX12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId o
     size_t bytes_read = 0;
 
     Decoded_GUID InterfaceName;
-    PointerDecoder<LARGE_INTEGER> pUMDVersion;
+    StructPointerDecoder<Decoded_LARGE_INTEGER> pUMDVersion;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InterfaceName);
-    bytes_read += pUMDVersion.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pUMDVersion.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())

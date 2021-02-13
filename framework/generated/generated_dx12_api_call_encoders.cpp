@@ -103,8 +103,8 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS& value)
     encoder->EncodeUInt32Value(value.PresentCount);
     encoder->EncodeUInt32Value(value.PresentRefreshCount);
     encoder->EncodeUInt32Value(value.SyncRefreshCount);
-    encoder->EncodeInt64Value(value.SyncQPCTime.QuadPart);
-    encoder->EncodeInt64Value(value.SyncGPUTime.QuadPart);
+    EncodeStruct(encoder, value.SyncQPCTime);
+    EncodeStruct(encoder, value.SyncGPUTime);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_MAPPED_RECT& value)
@@ -448,7 +448,7 @@ void Encode_IDXGIAdapter_CheckInterfaceSupport(
     if(encoder)
     {
         EncodeStruct(encoder, InterfaceName);
-        encoder->EncodeInt64Ptr(&pUMDVersion->QuadPart);
+        EncodeStructPtr(encoder, pUMDVersion);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -1098,8 +1098,8 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_SHAPE_IN
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_FRAME_INFO& value)
 {
-    encoder->EncodeInt64Value(value.LastPresentTime.QuadPart);
-    encoder->EncodeInt64Value(value.LastMouseUpdateTime.QuadPart);
+    EncodeStruct(encoder, value.LastPresentTime);
+    EncodeStruct(encoder, value.LastMouseUpdateTime);
     encoder->EncodeUInt32Value(value.AccumulatedFrames);
     encoder->EncodeInt32Value(value.RectsCoalesced);
     encoder->EncodeInt32Value(value.ProtectedContentMaskedOut);
@@ -2192,8 +2192,8 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS_MEDIA& 
     encoder->EncodeUInt32Value(value.PresentCount);
     encoder->EncodeUInt32Value(value.PresentRefreshCount);
     encoder->EncodeUInt32Value(value.SyncRefreshCount);
-    encoder->EncodeInt64Value(value.SyncQPCTime.QuadPart);
-    encoder->EncodeInt64Value(value.SyncGPUTime.QuadPart);
+    EncodeStruct(encoder, value.SyncQPCTime);
+    EncodeStruct(encoder, value.SyncGPUTime);
     encoder->EncodeEnumValue(value.CompositionMode);
     encoder->EncodeUInt32Value(value.ApprovedPresentDuration);
 }

@@ -45,8 +45,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAM
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncQPCTime.QuadPart));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncGPUTime.QuadPart));
+    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
+    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
 
     return bytes_read;
 }
@@ -287,8 +291,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTD
     size_t bytes_read = 0;
     DXGI_OUTDUPL_FRAME_INFO* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->LastPresentTime.QuadPart));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->LastMouseUpdateTime.QuadPart));
+    wrapper->LastPresentTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->LastPresentTime->decoded_value = &(value->LastPresentTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastPresentTime);
+    wrapper->LastMouseUpdateTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->LastMouseUpdateTime->decoded_value = &(value->LastMouseUpdateTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastMouseUpdateTime);
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AccumulatedFrames));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RectsCoalesced));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ProtectedContentMaskedOut));
@@ -448,8 +456,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAM
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncQPCTime.QuadPart));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncGPUTime.QuadPart));
+    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
+    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->CompositionMode));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ApprovedPresentDuration));
 

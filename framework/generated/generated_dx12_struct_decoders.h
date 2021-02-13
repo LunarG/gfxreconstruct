@@ -297,12 +297,16 @@ struct Decoded_GUID;
 struct Decoded_tagRECT;
 struct Decoded_tagPOINT;
 struct Decoded__SECURITY_ATTRIBUTES;
+struct Decoded_LARGE_INTEGER;
 
 struct Decoded_DXGI_FRAME_STATISTICS
 {
     using struct_type = DXGI_FRAME_STATISTICS;
 
     DXGI_FRAME_STATISTICS* decoded_value{ nullptr };
+
+    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
+    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
 };
 
 struct Decoded_DXGI_MAPPED_RECT
@@ -434,6 +438,8 @@ struct Decoded_DXGI_OUTDUPL_FRAME_INFO
 
     DXGI_OUTDUPL_FRAME_INFO* decoded_value{ nullptr };
 
+    Decoded_LARGE_INTEGER* LastPresentTime{ nullptr };
+    Decoded_LARGE_INTEGER* LastMouseUpdateTime{ nullptr };
     Decoded_DXGI_OUTDUPL_POINTER_POSITION* PointerPosition{ nullptr };
 };
 
@@ -504,6 +510,9 @@ struct Decoded_DXGI_FRAME_STATISTICS_MEDIA
     using struct_type = DXGI_FRAME_STATISTICS_MEDIA;
 
     DXGI_FRAME_STATISTICS_MEDIA* decoded_value{ nullptr };
+
+    Decoded_LARGE_INTEGER* SyncQPCTime{ nullptr };
+    Decoded_LARGE_INTEGER* SyncGPUTime{ nullptr };
 };
 
 struct Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO

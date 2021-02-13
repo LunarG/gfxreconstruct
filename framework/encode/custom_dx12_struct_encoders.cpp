@@ -368,5 +368,10 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     EncodeStruct(encoder, value.Resolve);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
+{
+    encoder->EncodeInt64Value(value.QuadPart);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -160,11 +160,6 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
 
         value = self.get_value_info(parameter)
 
-        # This union is from winnt.h
-        if value.baseType == 'LARGE_INTEGER':
-            if value.pointerCount == 1:
-                value.name = '&' + value.name + '->QuadPart'
-
         if value.unionMembers:
             rtn.append('// For Union, find the largest size in the member and encode it.')  # noqa
             rtn.append('size_t union_size_max = 0, union_size = 0;')

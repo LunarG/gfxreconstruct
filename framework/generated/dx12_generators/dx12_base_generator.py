@@ -86,7 +86,7 @@ class DX12BaseGenerator(BaseGenerator):
             'unsigned int', 'DXGI_USAGE'], 'UInt32'],
         [['HRESULT', 'LONG', 'BOOL', 'INT', 'int'], 'Int32'],
         [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS', 'SIZE_T'], 'UInt64'],
-        [['LARGE_INTEGER', 'LONG_PTR'], 'Int64'],
+        [['LONG_PTR'], 'Int64'],
         [['FLOAT', 'float'], 'Float'],
         [['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC'], 'Handle'],
         [['void'], 'Void'],
@@ -218,11 +218,6 @@ class DX12BaseGenerator(BaseGenerator):
                         const = True
                     base_type = e[1]
                     pointer += e[2]
-
-        # This union is from winnt.h
-        if base_type == 'LARGE_INTEGER':
-            if pointer == 0:
-                name += '.QuadPart'
 
         union = self.get_union(base_type)
         union_members = list()
@@ -356,6 +351,9 @@ class DX12BaseGenerator(BaseGenerator):
 
     # Method override
     def isStruct(self, type):
+        # This type is from winnt.h. It isn't parsed. It's in custom classes.
+        if type == 'LARGE_INTEGER':
+            return True
         struct_list = self.source_dict['struct_list']
         if type in struct_list:
             return True

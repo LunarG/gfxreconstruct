@@ -54,6 +54,7 @@ class DX12StructDecodersHeaderGenerator(
         struct_list = self.source_dict['struct_list']
         for name in struct_list:
             code += 'struct Decoded_{};\n'.format(name)
+        code += 'struct Decoded_LARGE_INTEGER;\n'.format(name)
         write(code, file=self.outFile)
 
         DX12BaseGenerator.generateFeature(self)
