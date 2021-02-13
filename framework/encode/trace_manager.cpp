@@ -1622,7 +1622,7 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
             VkDeviceMemoryOpaqueCaptureAddressInfo info{ VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
                                                          nullptr,
-                                                         *pMemory };
+                                                         memory_wrapper->handle };
             uint64_t address = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddress(device_unwrapped, &info);
 
             WriteSetOpaqueAddressCommand(device_wrapper->handle_id, memory_wrapper->handle_id, address);
