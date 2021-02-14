@@ -37,11 +37,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DX12Consumer : public DX12ConsumerBase
+class Dx12Consumer : public Dx12ConsumerBase
 {
   public:
-    DX12Consumer(){}
-    virtual ~DX12Consumer() override {}
+    Dx12Consumer(){}
+    virtual ~Dx12Consumer() override {}
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
 **

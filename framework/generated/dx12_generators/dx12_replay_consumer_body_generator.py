@@ -22,13 +22,13 @@
 
 from dx12_base_generator import *
 from dx12_replay_consumer_header_generator\
-    import DX12ReplayConsumerHeaderGenerator
+    import Dx12ReplayConsumerHeaderGenerator
 from base_replay_consumer_body_generator import *
 
 
-# Generates C++ functions responsible for consuming DX12 API calls
-class DX12ReplayConsumerBodyGenerator(
-        BaseReplayConsumerBodyGenerator, DX12ReplayConsumerHeaderGenerator):
+# Generates C++ functions responsible for consuming Dx12 API calls
+class Dx12ReplayConsumerBodyGenerator(
+        BaseReplayConsumerBodyGenerator, Dx12ReplayConsumerHeaderGenerator):
 
     # Override
     REPLAY_OVERRIDES = {}
@@ -43,8 +43,8 @@ class DX12ReplayConsumerBodyGenerator(
 
     # Method override
     def generateFeature(self):
-        DX12BaseGenerator.generateFeature(self)
-        BaseReplayConsumerBodyGenerator.generate_feature(self, 'DX12')
+        Dx12BaseGenerator.generateFeature(self)
+        BaseReplayConsumerBodyGenerator.generate_feature(self, 'Dx12')
         self.generate_dx12_method_feature()
 
     def generate_dx12_method_feature(self):
@@ -56,7 +56,7 @@ class DX12ReplayConsumerBodyGenerator(
 
             cmddef = '' if first else '\n'
             cmddef += self.makeConsumerFuncDecl(return_type,
-                                                'DX12ReplayConsumer::Process_'
+                                                'Dx12ReplayConsumer::Process_'
                                                 + method,
                                                 values,
                                                 True) + '\n'

@@ -22,17 +22,17 @@
 
 import sys
 from dx12_api_call_encoders_header_generator\
-    import DX12ApiCallEncodersHeaderGenerator, write
+    import Dx12ApiCallEncodersHeaderGenerator, write
 
 
-# Generates C++ functions responsible for encoding DX12 API call.
-class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
+# Generates C++ functions responsible for encoding Dx12 API call.
+class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
     ERROR_MSG = 'ERROR: Missing parameter type:'
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout):
-        DX12ApiCallEncodersHeaderGenerator.__init__(
+        Dx12ApiCallEncodersHeaderGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
         self.check_blacklist = True

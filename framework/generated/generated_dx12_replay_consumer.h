@@ -35,11 +35,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DX12ReplayConsumer : public DX12ReplayConsumerBase
+class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
 {
   public:
-    DX12ReplayConsumer(){}
-    virtual ~DX12ReplayConsumer() override {}
+    Dx12ReplayConsumer(){}
+    virtual ~Dx12ReplayConsumer() override {}
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0
 **

@@ -27,28 +27,28 @@ import threading
 
 # API Call Encoders
 from dx12_base_generator\
-    import DX12GeneratorOptions, write
+    import Dx12GeneratorOptions, write
 from dx12_api_call_encoders_header_generator\
-    import DX12ApiCallEncodersHeaderGenerator
+    import Dx12ApiCallEncodersHeaderGenerator
 from dx12_api_call_encoders_body_generator\
-    import DX12ApiCallEncodersBodyGenerator
+    import Dx12ApiCallEncodersBodyGenerator
 from dx12_struct_decoders_forward_generator\
-    import DX12StructDecodersForwardGenerator
+    import Dx12StructDecodersForwardGenerator
 from dx12_struct_decoders_header_generator\
-    import DX12StructDecodersHeaderGenerator
+    import Dx12StructDecodersHeaderGenerator
 from dx12_struct_decoders_body_generator\
-    import DX12StructDecodersBodyGenerator
-from dx12_decoder_header_generator import DX12DecoderHeaderGenerator
-from dx12_decoder_body_generator import DX12DecoderBodyGenerator
-from dx12_consumer_header_generator import DX12ConsumerHeaderGenerator
+    import Dx12StructDecodersBodyGenerator
+from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
+from dx12_decoder_body_generator import Dx12DecoderBodyGenerator
+from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
 from dx12_replay_consumer_header_generator\
-    import DX12ReplayConsumerHeaderGenerator
+    import Dx12ReplayConsumerHeaderGenerator
 from dx12_replay_consumer_body_generator\
-    import DX12ReplayConsumerBodyGenerator
+    import Dx12ReplayConsumerBodyGenerator
 from dx12_ascii_consumer_header_generator\
-    import DX12AsciiConsumerHeaderGenerator
+    import Dx12AsciiConsumerHeaderGenerator
 from dx12_ascii_consumer_body_generator\
-    import DX12AsciiConsumerBodyGenerator
+    import Dx12AsciiConsumerBodyGenerator
 
 
 # JSON files for customizing code generation
@@ -109,8 +109,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_api_call_encoders_header_generator.py')
     gen_opts['generated_dx12_api_call_encoders.h'] = [
-        DX12ApiCallEncodersHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12ApiCallEncodersHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_api_call_encoders.h',
             directory=directory,
             blacklists=blacklists,
@@ -122,8 +122,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_api_call_encoders_body_generator.py')
     gen_opts['generated_dx12_api_call_encoders.cpp'] = [
-        DX12ApiCallEncodersBodyGenerator,
-        DX12GeneratorOptions(
+        Dx12ApiCallEncodersBodyGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_api_call_encoders.cpp',
             directory=directory,
             blacklists=blacklists,
@@ -135,8 +135,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_struct_decoders_forward_generator.py')
     gen_opts['generated_dx12_struct_decoders_forward.h'] = [
-        DX12StructDecodersForwardGenerator,
-        DX12GeneratorOptions(
+        Dx12StructDecodersForwardGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_struct_decoders_forward.h',
             directory=directory,
             blacklists=blacklists,
@@ -148,8 +148,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_struct_decoders_header_generator.py')
     gen_opts['generated_dx12_struct_decoders.h'] = [
-        DX12StructDecodersHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12StructDecodersHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_struct_decoders.h',
             directory=directory,
             blacklists=blacklists,
@@ -161,8 +161,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_struct_decoders_body_generator.py')
     gen_opts['generated_dx12_struct_decoders.cpp'] = [
-        DX12StructDecodersBodyGenerator,
-        DX12GeneratorOptions(
+        Dx12StructDecodersBodyGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_struct_decoders.cpp',
             directory=directory,
             blacklists=blacklists,
@@ -174,8 +174,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_decoder_header_generator.py')
     gen_opts['generated_dx12_decoder.h'] = [
-        DX12DecoderHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12DecoderHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_decoder.h',
             directory=directory,
             blacklists=blacklists,
@@ -187,8 +187,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_decoder_body_generator.py')
     gen_opts['generated_dx12_decoder.cpp'] = [
-        DX12DecoderBodyGenerator,
-        DX12GeneratorOptions(
+        Dx12DecoderBodyGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_decoder.cpp',
             directory=directory,
             blacklists=blacklists,
@@ -200,8 +200,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_consumer_header_generator.py')
     gen_opts['generated_dx12_consumer.h'] = [
-        DX12ConsumerHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12ConsumerHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_consumer.h',
             directory=directory,
             blacklists=blacklists,
@@ -213,8 +213,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_replay_consumer_header_generator.py')
     gen_opts['generated_dx12_replay_consumer.h'] = [
-        DX12ReplayConsumerHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12ReplayConsumerHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_replay_consumer.h',
             directory=directory,
             blacklists=blacklists,
@@ -226,8 +226,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_replay_consumer_body_generator.py')
     gen_opts['generated_dx12_replay_consumer.cpp'] = [
-        DX12ReplayConsumerBodyGenerator,
-        DX12GeneratorOptions(
+        Dx12ReplayConsumerBodyGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_replay_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
@@ -239,8 +239,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_ascii_consumer_header_generator.py')
     gen_opts['generated_dx12_ascii_consumer.h'] = [
-        DX12AsciiConsumerHeaderGenerator,
-        DX12GeneratorOptions(
+        Dx12AsciiConsumerHeaderGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_ascii_consumer.h',
             directory=directory,
             blacklists=blacklists,
@@ -252,8 +252,8 @@ def make_gen_opts(args):
     py_prefix_strings[-4] = py_prefix_strings1.format(
         'dx12_ascii_consumer_body_generator.py')
     gen_opts['generated_dx12_ascii_consumer.cpp'] = [
-        DX12AsciiConsumerBodyGenerator,
-        DX12GeneratorOptions(
+        Dx12AsciiConsumerBodyGenerator,
+        Dx12GeneratorOptions(
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
             blacklists=blacklists,

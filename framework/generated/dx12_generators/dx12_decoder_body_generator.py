@@ -22,14 +22,14 @@
 
 from base_generator import *
 from dx12_base_generator import *
-from dx12_decoder_header_generator import DX12DecoderHeaderGenerator
+from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from base_struct_decoders_body_generator import *
 from base_decoder_body_generator import *
 
 
-# Generates C++ functions responsible for decoding DX12 API calls
-class DX12DecoderBodyGenerator(
-        DX12DecoderHeaderGenerator,
+# Generates C++ functions responsible for decoding Dx12 API calls
+class Dx12DecoderBodyGenerator(
+        Dx12DecoderHeaderGenerator,
         BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
 
     # Method override
@@ -45,9 +45,9 @@ class DX12DecoderBodyGenerator(
     def generateFeature(self):
         self.cmdNames = []
         self.methodNames = []
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         self.write_function_call()
-        BaseDecoderBodyGenerator.generate_feature(self, 'DX12')
+        BaseDecoderBodyGenerator.generate_feature(self, 'Dx12')
         self.newline()
         self.generate_dx12_method_feature()
 
@@ -61,7 +61,7 @@ class DX12DecoderBodyGenerator(
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += ('size_t DX12Decoder::Decode_{}(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)\n'  # noqa
+            cmddef += ('size_t Dx12Decoder::Decode_{}(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)\n'  # noqa
                        .format(method))
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
@@ -74,12 +74,12 @@ class DX12DecoderBodyGenerator(
             first = False
 
     def write_function_call(self):
-        code = ("void DX12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,\n"  # noqa
+        code = ("void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,\n"  # noqa
                 "                                     const ApiCallInfo& call_info,\n"  # noqa
                 "                                     const uint8_t*     parameter_buffer,\n"  # noqa
                 "                                     size_t             buffer_size){}\n"  # noqa
                 "\n"
-                "void DX12Decoder::DecodeMethodCall(format::ApiCallId  call_id,\n"  # noqa
+                "void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,\n"  # noqa
                 "                                   format::HandleId   object_id,\n"  # noqa
                 "                                   const ApiCallInfo& call_info,\n"  # noqa
                 "                                   const uint8_t*     parameter_buffer,\n"  # noqa

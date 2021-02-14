@@ -101,7 +101,7 @@ if __name__ == '__main__':
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 
     from gencode import GenCode
-    from dx12_generators.dx12_CppHeaderParser import *
+    from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
     header_dict = {}
     for source in DX12_SOURCE_LIST:
@@ -109,14 +109,14 @@ if __name__ == '__main__':
                                    + WINDOWS_SDK_VERSION, source)
         print('Parsing', source_file)
         header_dict[source[source.find('\\') +
-                           1:]] = DX12CppHeader(source_file)
+                           1:]] = Dx12CppHeader(source_file)
 
     for source in WINAPI_SOURCE_LIST:
         source_file = os.path.join(WINDOWS_SDK_DIR + 'Include\\'
                                    + WINDOWS_SDK_VERSION, source[0])
         print('Parsing', source_file)
-        header = DX12CppHeader(source_file)
-        header1 = DX12CppClass()
+        header = Dx12CppHeader(source_file)
+        header1 = Dx12CppClass()
 
         for k, v in header.classes.items():
             if k in source[1]:

@@ -25,14 +25,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DX12AsciiConsumerBase::DX12AsciiConsumerBase() : m_file(nullptr) {}
+Dx12AsciiConsumerBase::Dx12AsciiConsumerBase() : m_file(nullptr) {}
 
-DX12AsciiConsumerBase::~DX12AsciiConsumerBase()
+Dx12AsciiConsumerBase::~Dx12AsciiConsumerBase()
 {
     Destroy();
 }
 
-bool DX12AsciiConsumerBase::Initialize(const std::string& filename)
+bool Dx12AsciiConsumerBase::Initialize(const std::string& filename)
 {
     bool success = false;
 
@@ -49,7 +49,7 @@ bool DX12AsciiConsumerBase::Initialize(const std::string& filename)
     return success;
 }
 
-void DX12AsciiConsumerBase::Destroy()
+void Dx12AsciiConsumerBase::Destroy()
 {
     if (m_file != nullptr)
     {

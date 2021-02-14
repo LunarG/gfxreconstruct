@@ -29,7 +29,7 @@ class BaseDecoderBodyGenerator():
 
     #
     # Performs C++ code generation for the feature.
-    # type is 'Vulkan' or 'DX12'
+    # type is 'Vulkan' or 'Dx12'
     def generate_feature(self, type):
         first = True
         for cmd in self.getFilteredCmdNames():
@@ -67,7 +67,7 @@ class BaseDecoderBodyGenerator():
             else:
                 argNames.append(value.name)
 
-        # Vulkan return is very simple. Value is only for DX12 Method.
+        # Vulkan return is very simple. Value is only for Dx12 Method.
         dx12_return_value = None
         dx12_return_decodeType = None
         if returnType and returnType != 'void':

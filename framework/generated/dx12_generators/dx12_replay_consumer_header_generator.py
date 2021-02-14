@@ -21,15 +21,15 @@
 # IN THE SOFTWARE.
 
 from dx12_base_generator import *
-from dx12_consumer_header_generator import DX12ConsumerHeaderGenerator
+from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
 
 
-# Generates C++ functions responsible for consuming DX12 API calls
-class DX12ReplayConsumerHeaderGenerator(DX12ConsumerHeaderGenerator):
+# Generates C++ functions responsible for consuming Dx12 API calls
+class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
 
     # Method override
     def generateFeature(self):
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('Replay')
 
     def write_include(self):

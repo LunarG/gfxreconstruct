@@ -26,15 +26,15 @@ from dx12_base_generator import *
 from base_struct_decoders_header_generator import *
 
 
-# Generates C++ functions responsible for decoding DX12 API calls
-class DX12DecoderHeaderGenerator(
-        DX12BaseGenerator, BaseStructDecodersHeaderGenerator):
+# Generates C++ functions responsible for decoding Dx12 API calls
+class Dx12DecoderHeaderGenerator(
+        Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr,
                  warnFile=sys.stderr,
                  diagFile=sys.stdout):
-        DX12BaseGenerator.__init__(
+        Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
 
@@ -49,7 +49,7 @@ class DX12DecoderHeaderGenerator(
 
     # Method override
     def generateFeature(self):
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_decoder_class()
 
     # Method override
@@ -82,11 +82,11 @@ class DX12DecoderHeaderGenerator(
                         ))
 
     def get_decoder_class_define(self):
-        declaration = ("class DX12Decoder : public DX12DecoderBase\n"
+        declaration = ("class Dx12Decoder : public Dx12DecoderBase\n"
                        "{{\n"
                        "  public:\n"
-                       "    DX12Decoder(){{}}\n"
-                       "    virtual ~DX12Decoder() override {{}}\n"
+                       "    Dx12Decoder(){{}}\n"
+                       "    virtual ~Dx12Decoder() override {{}}\n"
                        "\n"
                        "    virtual void DecodeFunctionCall(format::ApiCallId  call_id,\n"  # noqa
                        "                                    const ApiCallInfo& call_options,\n"  # noqa

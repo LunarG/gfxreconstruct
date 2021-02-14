@@ -28,12 +28,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO: DX12ConsumerBase is very similar to VulkanConsumerBase. It might be able to merge into a shared class.
-class DX12ConsumerBase
+// TODO: Dx12ConsumerBase is very similar to VulkanConsumerBase. It might be able to merge into a shared class.
+class Dx12ConsumerBase
 {
   public:
-    DX12ConsumerBase() {}
-    virtual ~DX12ConsumerBase() {}
+    Dx12ConsumerBase() {}
+    virtual ~Dx12ConsumerBase() {}
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 

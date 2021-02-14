@@ -25,14 +25,14 @@ from base_generator import *
 from dx12_base_generator import *
 
 
-# Generates C++ functions responsible for consuming DX12 API calls
-class DX12ConsumerHeaderGenerator(DX12BaseGenerator):
+# Generates C++ functions responsible for consuming Dx12 API calls
+class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr,
                  warnFile=sys.stderr,
                  diagFile=sys.stdout):
-        DX12BaseGenerator.__init__(
+        Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
 
@@ -47,7 +47,7 @@ class DX12ConsumerHeaderGenerator(DX12BaseGenerator):
 
     # Method override
     def generateFeature(self):
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('')
 
     def write_include(self):
@@ -140,11 +140,11 @@ class DX12ConsumerHeaderGenerator(DX12BaseGenerator):
         return code
 
     def get_decoder_class_define(self, consumer_type):
-        declaration = 'class DX12{0}Consumer : public DX12{0}ConsumerBase\n'\
+        declaration = 'class Dx12{0}Consumer : public Dx12{0}ConsumerBase\n'\
                       '{{\n'\
                       '  public:\n'\
-                      '    DX12{0}Consumer(){{}}\n'\
-                      '    virtual ~DX12{0}Consumer() override {{}}\n'.format(
+                      '    Dx12{0}Consumer(){{}}\n'\
+                      '    virtual ~Dx12{0}Consumer() override {{}}\n'.format(
                           consumer_type)
 
         indent = '    virtual '

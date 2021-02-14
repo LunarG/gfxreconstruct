@@ -22,11 +22,11 @@
 
 from dx12_base_generator import *
 from dx12_ascii_consumer_header_generator\
-    import DX12AsciiConsumerHeaderGenerator
+    import Dx12AsciiConsumerHeaderGenerator
 
 
-# Generates C++ functions responsible for consuming DX12 API calls
-class DX12AsciiConsumerBodyGenerator(DX12AsciiConsumerHeaderGenerator):
+# Generates C++ functions responsible for consuming Dx12 API calls
+class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     # Method override
     def write_include(self):
@@ -34,14 +34,14 @@ class DX12AsciiConsumerBodyGenerator(DX12AsciiConsumerHeaderGenerator):
 
     # Method override
     def generateFeature(self):
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('Ascii')
 
     # Method override
     def get_decoder_class_define(self, consumer_type):
         declaration = ''
         indent = ''
-        function_class = 'DX12{}Consumer::'.format(consumer_type)
+        function_class = 'Dx12{}Consumer::'.format(consumer_type)
         class_end = ''
         return (declaration, indent, function_class, class_end)
 

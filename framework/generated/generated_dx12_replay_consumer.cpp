@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void DX12ReplayConsumer::Process_CreateDXGIFactory(
+void Dx12ReplayConsumer::Process_CreateDXGIFactory(
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFactory)
@@ -46,7 +46,7 @@ void DX12ReplayConsumer::Process_CreateDXGIFactory(
     CheckReplayResult("CreateDXGIFactory", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_CreateDXGIFactory1(
+void Dx12ReplayConsumer::Process_CreateDXGIFactory1(
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFactory)
@@ -63,7 +63,7 @@ void DX12ReplayConsumer::Process_CreateDXGIFactory1(
     CheckReplayResult("CreateDXGIFactory1", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_CreateDXGIFactory2(
+void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
     HRESULT                                     returnValue,
     UINT                                        Flags,
     Decoded_GUID                                riid,
@@ -82,7 +82,7 @@ void DX12ReplayConsumer::Process_CreateDXGIFactory2(
     CheckReplayResult("CreateDXGIFactory2", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_DXGIGetDebugInterface1(
+void Dx12ReplayConsumer::Process_DXGIGetDebugInterface1(
     HRESULT                                     returnValue,
     UINT                                        Flags,
     Decoded_GUID                                riid,
@@ -101,13 +101,13 @@ void DX12ReplayConsumer::Process_DXGIGetDebugInterface1(
     CheckReplayResult("DXGIGetDebugInterface1", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_DXGIDeclareAdapterRemovalSupport(
+void Dx12ReplayConsumer::Process_DXGIDeclareAdapterRemovalSupport(
     HRESULT                                     returnValue)
 {
     auto replay_result = DXGIDeclareAdapterRemovalSupport();
 }
 
-void DX12ReplayConsumer::Process_D3D12SerializeRootSignature(
+void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* pRootSignature,
     D3D_ROOT_SIGNATURE_VERSION                  Version,
@@ -132,7 +132,7 @@ void DX12ReplayConsumer::Process_D3D12SerializeRootSignature(
     CheckReplayResult("D3D12SerializeRootSignature", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
+void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
     HRESULT                                     returnValue,
     PointerDecoder<uint8_t>*                    pSrcData,
     SIZE_T                                      SrcDataSizeInBytes,
@@ -153,7 +153,7 @@ void DX12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
     CheckReplayResult("D3D12CreateRootSignatureDeserializer", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
+void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
     HandlePointerDecoder<ID3D10Blob*>*          ppBlob,
@@ -176,7 +176,7 @@ void DX12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
     CheckReplayResult("D3D12SerializeVersionedRootSignature", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
+void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     HRESULT                                     returnValue,
     PointerDecoder<uint8_t>*                    pSrcData,
     SIZE_T                                      SrcDataSizeInBytes,
@@ -197,7 +197,7 @@ void DX12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     CheckReplayResult("D3D12CreateVersionedRootSignatureDeserializer", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12CreateDevice(
+void Dx12ReplayConsumer::Process_D3D12CreateDevice(
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pAdapter,
     D3D_FEATURE_LEVEL                           MinimumFeatureLevel,
@@ -218,7 +218,7 @@ void DX12ReplayConsumer::Process_D3D12CreateDevice(
     CheckReplayResult("D3D12CreateDevice", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12GetDebugInterface(
+void Dx12ReplayConsumer::Process_D3D12GetDebugInterface(
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvDebug)
@@ -235,7 +235,7 @@ void DX12ReplayConsumer::Process_D3D12GetDebugInterface(
     CheckReplayResult("D3D12GetDebugInterface", returnValue, replay_result);
 }
 
-void DX12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
+void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
     HRESULT                                     returnValue,
     UINT                                        NumFeatures,
     StructPointerDecoder<Decoded_GUID>*         pIIDs,
@@ -251,7 +251,7 @@ void DX12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
     }
     CheckReplayResult("D3D12EnableExperimentalFeatures", returnValue, replay_result);
 }
-void DX12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
+void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                Name,
@@ -271,7 +271,7 @@ void DX12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
+void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                Name,
@@ -289,7 +289,7 @@ void DX12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
+void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                Name,
@@ -309,7 +309,7 @@ void DX12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIObject_GetParent(
+void Dx12ReplayConsumer::Process_IDXGIObject_GetParent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -331,7 +331,7 @@ void DX12ReplayConsumer::Process_IDXGIObject_GetParent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
+void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -353,7 +353,7 @@ void DX12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
+void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<HANDLE>*               pSharedHandle)
@@ -373,7 +373,7 @@ void DX12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource_GetUsage(
+void Dx12ReplayConsumer::Process_IDXGIResource_GetUsage(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<DXGI_USAGE>*                 pUsage)
@@ -389,7 +389,7 @@ void DX12ReplayConsumer::Process_IDXGIResource_GetUsage(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
+void Dx12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        EvictionPriority)
@@ -405,7 +405,7 @@ void DX12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
+void Dx12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pEvictionPriority)
@@ -421,7 +421,7 @@ void DX12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
+void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      Key,
@@ -439,7 +439,7 @@ void DX12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
+void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      Key)
@@ -455,7 +455,7 @@ void DX12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface_GetDesc(
+void Dx12ReplayConsumer::Process_IDXGISurface_GetDesc(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
@@ -471,7 +471,7 @@ void DX12ReplayConsumer::Process_IDXGISurface_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface_Map(
+void Dx12ReplayConsumer::Process_IDXGISurface_Map(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
@@ -489,7 +489,7 @@ void DX12ReplayConsumer::Process_IDXGISurface_Map(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface_Unmap(
+void Dx12ReplayConsumer::Process_IDXGISurface_Unmap(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -500,7 +500,7 @@ void DX12ReplayConsumer::Process_IDXGISurface_Unmap(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface1_GetDC(
+void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     BOOL                                        Discard,
@@ -522,7 +522,7 @@ void DX12ReplayConsumer::Process_IDXGISurface1_GetDC(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
+void Dx12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_tagRECT>*      pDirtyRect)
@@ -538,7 +538,7 @@ void DX12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
+void Dx12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Output,
@@ -560,7 +560,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
+void Dx12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
@@ -576,7 +576,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
+void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                InterfaceName,
@@ -594,7 +594,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetDesc(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetDesc(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
@@ -610,7 +610,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_FORMAT                                 EnumFormat,
@@ -632,7 +632,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
+void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
@@ -652,7 +652,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_WaitForVBlank(
+void Dx12ReplayConsumer::Process_IDXGIOutput_WaitForVBlank(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -663,7 +663,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_WaitForVBlank(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
+void Dx12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -681,7 +681,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_ReleaseOwnership(
+void Dx12ReplayConsumer::Process_IDXGIOutput_ReleaseOwnership(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
@@ -691,7 +691,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_ReleaseOwnership(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
@@ -707,7 +707,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
+void Dx12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
@@ -723,7 +723,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
@@ -739,7 +739,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
+void Dx12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGISurface*>*        pScanoutSurface)
@@ -755,7 +755,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGISurface*>*        pDestination)
@@ -771,7 +771,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
+void Dx12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
@@ -787,7 +787,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_Present(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        SyncInterval,
@@ -805,7 +805,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_Present(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Buffer,
@@ -829,7 +829,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     BOOL                                        Fullscreen,
@@ -847,7 +847,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<BOOL>*                       pFullscreen,
@@ -869,7 +869,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
@@ -885,7 +885,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        BufferCount,
@@ -909,7 +909,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
@@ -925,7 +925,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGIOutput*>*         ppOutput)
@@ -945,7 +945,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
@@ -961,7 +961,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
+void Dx12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pLastPresentCount)
@@ -977,7 +977,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
+void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Adapter,
@@ -999,7 +999,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
+void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            WindowHandle,
@@ -1017,7 +1017,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
+void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<HWND>*                 pWindowHandle)
@@ -1037,7 +1037,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
+void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -1061,7 +1061,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
+void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            Module,
@@ -1083,7 +1083,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
+void Dx12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGIAdapter*>*        pAdapter)
@@ -1103,7 +1103,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
+void Dx12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
@@ -1131,7 +1131,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
+void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            ppResources,
@@ -1151,7 +1151,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
+void Dx12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     INT                                         Priority)
@@ -1167,7 +1167,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
+void Dx12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<INT>*                        pPriority)
@@ -1183,7 +1183,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
+void Dx12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Adapter,
@@ -1205,7 +1205,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
+void Dx12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -1216,7 +1216,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
+void Dx12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
@@ -1232,7 +1232,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
+void Dx12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        MaxLatency)
@@ -1248,7 +1248,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
+void Dx12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pMaxLatency)
@@ -1264,7 +1264,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
+void Dx12ReplayConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -1275,7 +1275,7 @@ void DX12ReplayConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
+void Dx12ReplayConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
     format::HandleId                            object_id,
     BOOL                                        enabled)
 {
@@ -1286,7 +1286,7 @@ void DX12ReplayConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetDesc(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetDesc(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
 {
@@ -1297,7 +1297,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        TimeoutInMilliseconds,
@@ -1321,7 +1321,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        DirtyRectsBufferSize,
@@ -1341,7 +1341,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        MoveRectsBufferSize,
@@ -1361,7 +1361,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        PointerShapeBufferSize,
@@ -1383,7 +1383,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
@@ -1399,7 +1399,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -1410,7 +1410,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
+void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -1421,7 +1421,7 @@ void DX12ReplayConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISurface2_GetResource(
+void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -1445,7 +1445,7 @@ void DX12ReplayConsumer::Process_IDXGISurface2_GetResource(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
+void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        index,
@@ -1467,7 +1467,7 @@ void DX12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
+void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
@@ -1493,7 +1493,7 @@ void DX12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
+void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumResources,
@@ -1513,7 +1513,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
+void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumResources,
@@ -1533,7 +1533,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
+void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent)
@@ -1549,7 +1549,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
@@ -1565,7 +1565,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
@@ -1581,7 +1581,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<HWND>*                 pHwnd)
@@ -1601,7 +1601,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                refiid,
@@ -1623,7 +1623,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_Present1(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        SyncInterval,
@@ -1643,7 +1643,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_Present1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -1654,7 +1654,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGIOutput*>*         ppRestrictToOutput)
@@ -1674,7 +1674,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
@@ -1690,7 +1690,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
@@ -1706,7 +1706,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_MODE_ROTATION                          Rotation)
@@ -1722,7 +1722,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
+void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<DXGI_MODE_ROTATION>*         pRotation)
@@ -1738,7 +1738,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -1749,7 +1749,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -1779,7 +1779,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -1807,7 +1807,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hResource,
@@ -1825,7 +1825,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            WindowHandle,
@@ -1845,7 +1845,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent,
@@ -1863,7 +1863,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
     format::HandleId                            object_id,
     DWORD                                       dwCookie)
 {
@@ -1874,7 +1874,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            WindowHandle,
@@ -1894,7 +1894,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent,
@@ -1912,7 +1912,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
     format::HandleId                            object_id,
     DWORD                                       dwCookie)
 {
@@ -1923,7 +1923,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
+void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -1949,7 +1949,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
+void Dx12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
@@ -1965,7 +1965,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
+void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_FORMAT                                 EnumFormat,
@@ -1987,7 +1987,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
+void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
@@ -2007,7 +2007,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
+void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IDXGIResource*>*       pDestination)
@@ -2023,7 +2023,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
+void Dx12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -2045,7 +2045,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice3_Trim(
+void Dx12ReplayConsumer::Process_IDXGIDevice3_Trim(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<IDXGIDevice3>(object_id);
@@ -2055,7 +2055,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice3_Trim(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Width,
@@ -2073,7 +2073,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pWidth,
@@ -2091,7 +2091,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        MaxLatency)
@@ -2107,7 +2107,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pMaxLatency)
@@ -2123,7 +2123,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     format::HandleId                            object_id,
     format::HandleId                            returnValue)
 {
@@ -2134,7 +2134,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
@@ -2150,7 +2150,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
+void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
@@ -2166,7 +2166,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
+void Dx12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -2177,7 +2177,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
+void Dx12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
     format::HandleId                            object_id,
     UINT                                        returnValue)
 {
@@ -2188,7 +2188,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        BufferToPresent,
@@ -2208,7 +2208,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
@@ -2224,7 +2224,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
@@ -2240,7 +2240,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Width,
@@ -2258,7 +2258,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
@@ -2274,7 +2274,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
@@ -2290,7 +2290,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pWidth,
@@ -2308,7 +2308,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS         ColorSpace)
@@ -2324,7 +2324,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
+void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
     format::HandleId                            object_id,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS         returnValue)
 {
@@ -2335,7 +2335,7 @@ void DX12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
+void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -2363,7 +2363,7 @@ void DX12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
+void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -2393,7 +2393,7 @@ void DX12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
+void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
@@ -2409,7 +2409,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
+void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Duration)
@@ -2425,7 +2425,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
+void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        DesiredPresentDuration,
@@ -2445,7 +2445,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
+void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_FORMAT                                 EnumFormat,
@@ -2465,7 +2465,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
+void Dx12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
     format::HandleId                            object_id,
     UINT                                        returnValue)
 {
@@ -2476,7 +2476,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
+void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_COLOR_SPACE_TYPE                       ColorSpace,
@@ -2494,7 +2494,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
+void Dx12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_COLOR_SPACE_TYPE                       ColorSpace)
@@ -2510,7 +2510,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
+void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        BufferCount,
@@ -2538,7 +2538,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
+void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_FORMAT                                 Format,
@@ -2560,7 +2560,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
+void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_LUID                                AdapterLuid,
@@ -2584,7 +2584,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
+void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -2606,7 +2606,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent,
@@ -2624,7 +2624,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtection
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
     format::HandleId                            object_id,
     DWORD                                       dwCookie)
 {
@@ -2635,7 +2635,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtecti
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NodeIndex,
@@ -2655,7 +2655,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NodeIndex,
@@ -2675,7 +2675,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent,
@@ -2693,7 +2693,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNo
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
+void Dx12ReplayConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
     format::HandleId                            object_id,
     DWORD                                       dwCookie)
 {
@@ -2704,7 +2704,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChange
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
+void Dx12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
@@ -2732,7 +2732,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
+void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_HDR_METADATA_TYPE                      Type,
@@ -2752,7 +2752,7 @@ void DX12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
+void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumResources,
@@ -2774,7 +2774,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
+void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumResources,
@@ -2794,7 +2794,7 @@ void DX12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
+void Dx12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DXGI_FEATURE                                Feature,
@@ -2814,7 +2814,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
+void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
@@ -2830,7 +2830,7 @@ void DX12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
+void Dx12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
@@ -2846,7 +2846,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
+void Dx12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pFlags)
@@ -2862,7 +2862,7 @@ void DX12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
+void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Adapter,
@@ -2888,7 +2888,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
+void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hEvent,
@@ -2906,7 +2906,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
+void Dx12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     DWORD                                       dwCookie)
@@ -2922,7 +2922,7 @@ void DX12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
+void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                guid,
@@ -2942,7 +2942,7 @@ void DX12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
+void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                guid,
@@ -2962,7 +2962,7 @@ void DX12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
+void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                guid,
@@ -2980,7 +2980,7 @@ void DX12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Object_SetName(
+void Dx12ReplayConsumer::Process_ID3D12Object_SetName(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             Name)
@@ -2996,7 +2996,7 @@ void DX12ReplayConsumer::Process_ID3D12Object_SetName(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
+void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -3018,7 +3018,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
+void Dx12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* returnValue)
 {
@@ -3029,7 +3029,7 @@ void DX12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatur
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
+void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     D3D_ROOT_SIGNATURE_VERSION                  convertToVersion,
@@ -3047,7 +3047,7 @@ void DX12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
+void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* returnValue)
 {
@@ -3058,7 +3058,7 @@ void DX12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnc
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Heap_GetDesc(
+void Dx12ReplayConsumer::Process_ID3D12Heap_GetDesc(
     format::HandleId                            object_id,
     Decoded_D3D12_HEAP_DESC                     returnValue)
 {
@@ -3069,7 +3069,7 @@ void DX12ReplayConsumer::Process_ID3D12Heap_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_Map(
+void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        Subresource,
@@ -3089,7 +3089,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_Map(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_Unmap(
+void Dx12ReplayConsumer::Process_ID3D12Resource_Unmap(
     format::HandleId                            object_id,
     UINT                                        Subresource,
     StructPointerDecoder<Decoded_D3D12_RANGE>*  pWrittenRange)
@@ -3102,7 +3102,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_Unmap(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_GetDesc(
+void Dx12ReplayConsumer::Process_ID3D12Resource_GetDesc(
     format::HandleId                            object_id,
     Decoded_D3D12_RESOURCE_DESC                 returnValue)
 {
@@ -3113,7 +3113,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
+void Dx12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     format::HandleId                            object_id,
     D3D12_GPU_VIRTUAL_ADDRESS                   returnValue)
 {
@@ -3124,7 +3124,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
+void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        DstSubresource,
@@ -3148,7 +3148,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
+void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     uint64_t                                    pDstData,
@@ -3172,7 +3172,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
+void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
@@ -3190,7 +3190,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandAllocator_Reset(
+void Dx12ReplayConsumer::Process_ID3D12CommandAllocator_Reset(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -3201,7 +3201,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandAllocator_Reset(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
+void Dx12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
     format::HandleId                            object_id,
     UINT64                                      returnValue)
 {
@@ -3212,7 +3212,7 @@ void DX12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
+void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      Value,
@@ -3230,7 +3230,7 @@ void DX12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Fence_Signal(
+void Dx12ReplayConsumer::Process_ID3D12Fence_Signal(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      Value)
@@ -3246,7 +3246,7 @@ void DX12ReplayConsumer::Process_ID3D12Fence_Signal(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
+void Dx12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
     format::HandleId                            object_id,
     D3D12_FENCE_FLAGS                           returnValue)
 {
@@ -3257,7 +3257,7 @@ void DX12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
+void Dx12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D10Blob*>*          ppBlob)
@@ -3277,7 +3277,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
+void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
     format::HandleId                            object_id,
     Decoded_D3D12_DESCRIPTOR_HEAP_DESC          returnValue)
 {
@@ -3288,7 +3288,7 @@ void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
+void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
     format::HandleId                            object_id,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         returnValue)
 {
@@ -3299,7 +3299,7 @@ void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForH
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
+void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
     format::HandleId                            object_id,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         returnValue)
 {
@@ -3310,7 +3310,7 @@ void DX12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForH
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandList_GetType(
+void Dx12ReplayConsumer::Process_ID3D12CommandList_GetType(
     format::HandleId                            object_id,
     D3D12_COMMAND_LIST_TYPE                     returnValue)
 {
@@ -3321,7 +3321,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandList_GetType(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -3332,7 +3332,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12CommandAllocator*>* pAllocator,
@@ -3350,7 +3350,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearState(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearState(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12PipelineState*>* pPipelineState)
 {
@@ -3361,7 +3361,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
     format::HandleId                            object_id,
     UINT                                        VertexCountPerInstance,
     UINT                                        InstanceCount,
@@ -3378,7 +3378,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     format::HandleId                            object_id,
     UINT                                        IndexCountPerInstance,
     UINT                                        InstanceCount,
@@ -3397,7 +3397,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
     format::HandleId                            object_id,
     UINT                                        ThreadGroupCountX,
     UINT                                        ThreadGroupCountY,
@@ -3412,7 +3412,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstBuffer,
     UINT64                                      DstOffset,
@@ -3431,7 +3431,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_TEXTURE_COPY_LOCATION>* pDst,
     UINT                                        DstX,
@@ -3452,7 +3452,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstResource,
     HandlePointerDecoder<ID3D12Resource*>*      pSrcResource)
@@ -3465,7 +3465,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pTiledResource,
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pTileRegionStartCoordinate,
@@ -3486,7 +3486,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstResource,
     UINT                                        DstSubresource,
@@ -3505,7 +3505,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
     format::HandleId                            object_id,
     D3D_PRIMITIVE_TOPOLOGY                      PrimitiveTopology)
 {
@@ -3516,7 +3516,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopolog
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
     format::HandleId                            object_id,
     UINT                                        NumViewports,
     StructPointerDecoder<Decoded_D3D12_VIEWPORT>* pViewports)
@@ -3529,7 +3529,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
     format::HandleId                            object_id,
     UINT                                        NumRects,
     StructPointerDecoder<Decoded_tagRECT>*      pRects)
@@ -3542,7 +3542,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
     format::HandleId                            object_id,
     PointerDecoder<FLOAT>*                      BlendFactor)
 {
@@ -3553,7 +3553,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
     format::HandleId                            object_id,
     UINT                                        StencilRef)
 {
@@ -3564,7 +3564,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12PipelineState*>* pPipelineState)
 {
@@ -3575,7 +3575,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     format::HandleId                            object_id,
     UINT                                        NumBarriers,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
@@ -3588,7 +3588,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12GraphicsCommandList*>* pCommandList)
 {
@@ -3599,7 +3599,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     format::HandleId                            object_id,
     UINT                                        NumDescriptorHeaps,
     HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
@@ -3612,7 +3612,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignature(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignature(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature)
 {
@@ -3623,7 +3623,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatu
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature)
 {
@@ -3634,7 +3634,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignat
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         BaseDescriptor)
@@ -3647,7 +3647,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescrip
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         BaseDescriptor)
@@ -3660,7 +3660,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescri
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     UINT                                        SrcData,
@@ -3675,7 +3675,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     UINT                                        SrcData,
@@ -3690,7 +3690,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     UINT                                        Num32BitValuesToSet,
@@ -3707,7 +3707,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     UINT                                        Num32BitValuesToSet,
@@ -3724,7 +3724,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3737,7 +3737,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstan
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3750,7 +3750,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConsta
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3763,7 +3763,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderR
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3776,7 +3776,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShader
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3789,7 +3789,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorder
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
     format::HandleId                            object_id,
     UINT                                        RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS                   BufferLocation)
@@ -3802,7 +3802,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorde
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
@@ -3813,7 +3813,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     format::HandleId                            object_id,
     UINT                                        StartSlot,
     UINT                                        NumViews,
@@ -3828,7 +3828,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     format::HandleId                            object_id,
     UINT                                        StartSlot,
     UINT                                        NumViews,
@@ -3843,7 +3843,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     format::HandleId                            object_id,
     UINT                                        NumRenderTargetDescriptors,
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pRenderTargetDescriptors,
@@ -3860,7 +3860,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
     format::HandleId                            object_id,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DepthStencilView,
     D3D12_CLEAR_FLAGS                           ClearFlags,
@@ -3881,7 +3881,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
     format::HandleId                            object_id,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         RenderTargetView,
     PointerDecoder<FLOAT>*                      ColorRGBA,
@@ -3898,7 +3898,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
     format::HandleId                            object_id,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         ViewGPUHandleInCurrentHeap,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         ViewCPUHandle,
@@ -3919,7 +3919,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
     format::HandleId                            object_id,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         ViewGPUHandleInCurrentHeap,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         ViewCPUHandle,
@@ -3940,7 +3940,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     StructPointerDecoder<Decoded_D3D12_DISCARD_REGION>* pRegion)
@@ -3953,7 +3953,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12QueryHeap*>*     pQueryHeap,
     D3D12_QUERY_TYPE                            Type,
@@ -3968,7 +3968,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12QueryHeap*>*     pQueryHeap,
     D3D12_QUERY_TYPE                            Type,
@@ -3983,7 +3983,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12QueryHeap*>*     pQueryHeap,
     D3D12_QUERY_TYPE                            Type,
@@ -4004,7 +4004,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pBuffer,
     UINT64                                      AlignedBufferOffset,
@@ -4019,7 +4019,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     format::HandleId                            object_id,
     UINT                                        Metadata,
     PointerDecoder<uint8_t>*                    pData,
@@ -4034,7 +4034,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     format::HandleId                            object_id,
     UINT                                        Metadata,
     PointerDecoder<uint8_t>*                    pData,
@@ -4049,7 +4049,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
@@ -4059,7 +4059,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12CommandSignature*>* pCommandSignature,
     UINT                                        MaxCommandCount,
@@ -4080,7 +4080,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstBuffer,
     UINT64                                      DstOffset,
@@ -4103,7 +4103,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstBuffer,
     UINT64                                      DstOffset,
@@ -4126,7 +4126,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
     format::HandleId                            object_id,
     FLOAT                                       Min,
     FLOAT                                       Max)
@@ -4139,7 +4139,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
     format::HandleId                            object_id,
     UINT                                        NumSamplesPerPixel,
     UINT                                        NumPixels,
@@ -4154,7 +4154,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstResource,
     UINT                                        DstSubresource,
@@ -4181,7 +4181,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRe
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     format::HandleId                            object_id,
     UINT                                        Mask)
 {
@@ -4192,7 +4192,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
     format::HandleId                            object_id,
     UINT                                        Count,
     StructPointerDecoder<Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER>* pParams,
@@ -4207,7 +4207,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     UINT                                        NumResourceRegions,
@@ -4236,7 +4236,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pDstResource,
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pDstRegionStartCoordinate,
@@ -4257,7 +4257,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     format::HandleId                            object_id,
     UINT                                        NumCommandLists,
     HandlePointerDecoder<ID3D12CommandList*>*   ppCommandLists)
@@ -4270,7 +4270,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_SetMarker(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_SetMarker(
     format::HandleId                            object_id,
     UINT                                        Metadata,
     PointerDecoder<uint8_t>*                    pData,
@@ -4285,7 +4285,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_SetMarker(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_BeginEvent(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_BeginEvent(
     format::HandleId                            object_id,
     UINT                                        Metadata,
     PointerDecoder<uint8_t>*                    pData,
@@ -4300,7 +4300,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_BeginEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_EndEvent(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_EndEvent(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
@@ -4310,7 +4310,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_EndEvent(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12Fence*>*         pFence,
@@ -4328,7 +4328,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12Fence*>*         pFence,
@@ -4346,7 +4346,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT64>*                     pFrequency)
@@ -4362,7 +4362,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT64>*                     pGpuTimestamp,
@@ -4380,7 +4380,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
+void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
     format::HandleId                            object_id,
     Decoded_D3D12_COMMAND_QUEUE_DESC            returnValue)
 {
@@ -4391,7 +4391,7 @@ void DX12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
     format::HandleId                            object_id,
     UINT                                        returnValue)
 {
@@ -4402,7 +4402,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
@@ -4426,7 +4426,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     D3D12_COMMAND_LIST_TYPE                     type,
@@ -4450,7 +4450,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
@@ -4474,7 +4474,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
@@ -4498,7 +4498,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        nodeMask,
@@ -4528,7 +4528,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
+void Dx12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     D3D12_FEATURE                               Feature,
@@ -4548,7 +4548,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* pDescriptorHeapDesc,
@@ -4572,7 +4572,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     format::HandleId                            object_id,
     UINT                                        returnValue,
     D3D12_DESCRIPTOR_HEAP_TYPE                  DescriptorHeapType)
@@ -4584,7 +4584,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        nodeMask,
@@ -4612,7 +4612,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateConstantBufferView(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateConstantBufferView(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
@@ -4625,7 +4625,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateConstantBufferView(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateShaderResourceView(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateShaderResourceView(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
@@ -4640,7 +4640,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateShaderResourceView(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     HandlePointerDecoder<ID3D12Resource*>*      pCounterResource,
@@ -4657,7 +4657,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateRenderTargetView(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateRenderTargetView(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
@@ -4672,7 +4672,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateRenderTargetView(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateDepthStencilView(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateDepthStencilView(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pResource,
     StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
@@ -4687,7 +4687,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateDepthStencilView(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateSampler(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateSampler(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_SAMPLER_DESC>* pDesc,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptor)
@@ -4700,7 +4700,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateSampler(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CopyDescriptors(
+void Dx12ReplayConsumer::Process_ID3D12Device_CopyDescriptors(
     format::HandleId                            object_id,
     UINT                                        NumDestDescriptorRanges,
     StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
@@ -4723,7 +4723,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CopyDescriptors(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
+void Dx12ReplayConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     format::HandleId                            object_id,
     UINT                                        NumDescriptors,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         DestDescriptorRangeStart,
@@ -4740,7 +4740,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     format::HandleId                            object_id,
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
     UINT                                        visibleMask,
@@ -4756,7 +4756,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     format::HandleId                            object_id,
     Decoded_D3D12_HEAP_PROPERTIES               returnValue,
     UINT                                        nodeMask,
@@ -4770,7 +4770,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
@@ -4802,7 +4802,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateHeap(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
@@ -4826,7 +4826,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateHeap(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12Heap*>*          pHeap,
@@ -4858,7 +4858,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -4886,7 +4886,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12DeviceChild*>*   pObject,
@@ -4914,7 +4914,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
+void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            NTHandle,
@@ -4938,7 +4938,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
+void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             Name,
@@ -4962,7 +4962,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_MakeResident(
+void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumObjects,
@@ -4980,7 +4980,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_MakeResident(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_Evict(
+void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumObjects,
@@ -4998,7 +4998,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_Evict(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateFence(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      InitialValue,
@@ -5024,7 +5024,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateFence(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -5035,7 +5035,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetCopyableFootprints(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetCopyableFootprints(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDesc,
     UINT                                        FirstSubresource,
@@ -5060,7 +5060,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetCopyableFootprints(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
@@ -5084,7 +5084,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
+void Dx12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     BOOL                                        Enable)
@@ -5100,7 +5100,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
+void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
@@ -5126,7 +5126,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetResourceTiling(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceTiling(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pTiledResource,
     PointerDecoder<UINT>*                       pNumTilesForEntireResource,
@@ -5149,7 +5149,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetResourceTiling(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
+void Dx12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
     format::HandleId                            object_id,
     Decoded_LUID                                returnValue)
 {
@@ -5160,7 +5160,7 @@ void DX12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             pName,
@@ -5178,7 +5178,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             pName,
@@ -5204,7 +5204,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             pName,
@@ -5230,7 +5230,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
     format::HandleId                            object_id,
     SIZE_T                                      returnValue)
 {
@@ -5241,7 +5241,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<uint8_t>*                    pData,
@@ -5259,7 +5259,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
+void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     WStringDecoder*                             pName,
@@ -5285,7 +5285,7 @@ void DX12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
+void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<uint8_t>*                    pLibraryBlob,
@@ -5311,7 +5311,7 @@ void DX12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
+void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12Fence*>*         ppFences,
@@ -5335,7 +5335,7 @@ void DX12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
+void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        NumObjects,
@@ -5355,7 +5355,7 @@ void DX12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
+void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
@@ -5379,7 +5379,7 @@ void DX12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
+void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     uint64_t                                    pAddress,
@@ -5403,7 +5403,7 @@ void DX12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
+void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     format::HandleId                            hFileMapping,
@@ -5427,7 +5427,7 @@ void DX12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
+void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     D3D12_RESIDENCY_FLAGS                       Flags,
@@ -5451,7 +5451,7 @@ void DX12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
+void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -5473,7 +5473,7 @@ void DX12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
+void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
     format::HandleId                            object_id,
     D3D12_PROTECTED_SESSION_STATUS              returnValue)
 {
@@ -5484,7 +5484,7 @@ void DX12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
+void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
     format::HandleId                            object_id,
     Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC returnValue)
 {
@@ -5495,7 +5495,7 @@ void DX12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
+void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        nodeMask,
@@ -5523,7 +5523,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
+void Dx12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC>* pDesc,
@@ -5547,7 +5547,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
+void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
@@ -5581,7 +5581,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
+void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
@@ -5607,7 +5607,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
+void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -5637,7 +5637,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
+void Dx12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     format::HandleId                            object_id,
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
     UINT                                        visibleMask,
@@ -5655,7 +5655,7 @@ void DX12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
+void Dx12ReplayConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
     format::HandleId                            object_id,
     D3D12_LIFETIME_STATE                        NewState)
 {
@@ -5666,7 +5666,7 @@ void DX12ReplayConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
+void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
     format::HandleId                            object_id,
     Decoded_LUID                                returnValue)
 {
@@ -5677,7 +5677,7 @@ void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
+void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -5699,7 +5699,7 @@ void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
+void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riidResource,
@@ -5729,7 +5729,7 @@ void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndC
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
+void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
     format::HandleId                            object_id,
     HRESULT                                     returnValue)
 {
@@ -5740,7 +5740,7 @@ void DX12ReplayConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
+void Dx12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12DeviceChild*>*   pObject)
@@ -5756,7 +5756,7 @@ void DX12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
+void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     format::HandleId                            object_id,
     uint64_t                                    returnValue,
     WStringDecoder*                             pExportName)
@@ -5768,7 +5768,7 @@ void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
+void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     format::HandleId                            object_id,
     UINT64                                      returnValue,
     WStringDecoder*                             pExportName)
@@ -5780,7 +5780,7 @@ void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
+void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
     format::HandleId                            object_id,
     UINT64                                      returnValue)
 {
@@ -5791,7 +5791,7 @@ void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSiz
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize(
+void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize(
     format::HandleId                            object_id,
     UINT64                                      PipelineStackSizeInBytes)
 {
@@ -5802,7 +5802,7 @@ void DX12ReplayConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSiz
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
+void Dx12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12LifetimeOwner*>* pOwner,
@@ -5826,7 +5826,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_RemoveDevice(
+void Dx12ReplayConsumer::Process_ID3D12Device5_RemoveDevice(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<ID3D12Device5>(object_id);
@@ -5836,7 +5836,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_RemoveDevice(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
+void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     PointerDecoder<UINT>*                       pNumMetaCommands,
@@ -5854,7 +5854,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
+void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                CommandId,
@@ -5878,7 +5878,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
+void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                CommandId,
@@ -5908,7 +5908,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
+void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
@@ -5932,7 +5932,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
+void Dx12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* pDesc,
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* pInfo)
@@ -5945,7 +5945,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructur
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
+void Dx12ReplayConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     format::HandleId                            object_id,
     D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS     returnValue,
     D3D12_SERIALIZED_DATA_TYPE                  SerializedDataType,
@@ -5959,7 +5959,7 @@ void DX12ReplayConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
@@ -5970,7 +5970,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAuto
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
@@ -5981,7 +5981,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPage
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
@@ -5992,7 +5992,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWats
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
@@ -6003,7 +6003,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBre
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
@@ -6019,7 +6019,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
@@ -6035,7 +6035,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAll
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
@@ -6051,7 +6051,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
+void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
@@ -6067,7 +6067,7 @@ void DX12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
+void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     D3D12_BACKGROUND_PROCESSING_MODE            Mode,
@@ -6089,7 +6089,7 @@ void DX12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
+void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
     format::HandleId                            object_id,
     Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 returnValue)
 {
@@ -6100,7 +6100,7 @@ void DX12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
+void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pAddition,
@@ -6126,7 +6126,7 @@ void DX12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
+void Dx12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1>* pDesc,
@@ -6150,7 +6150,7 @@ void DX12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
+void Dx12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     format::HandleId                            object_id,
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
     UINT                                        visibleMask,
@@ -6168,7 +6168,7 @@ void DX12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
+void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
@@ -6202,7 +6202,7 @@ void DX12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
+void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<ID3D12Heap*>*          pHeap,
@@ -6234,7 +6234,7 @@ void DX12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
+void Dx12ReplayConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      pTargetedResource,
     HandlePointerDecoder<ID3D12Resource*>*      pFeedbackResource,
@@ -6249,7 +6249,7 @@ void DX12ReplayConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcc
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
+void Dx12ReplayConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDesc,
     UINT                                        FirstSubresource,
@@ -6274,7 +6274,7 @@ void DX12ReplayConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
+void Dx12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -6296,7 +6296,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
+void Dx12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
     format::HandleId                            object_id,
     Decoded_D3D12_RESOURCE_DESC1                returnValue)
 {
@@ -6307,7 +6307,7 @@ void DX12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
+void Dx12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -6329,7 +6329,7 @@ void DX12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedResourceSession)
 {
@@ -6340,7 +6340,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResource
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSize(
+void Dx12ReplayConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSize(
     format::HandleId                            object_id,
     UINT64                                      returnValue,
     D3D12_META_COMMAND_PARAMETER_STAGE          Stage,
@@ -6354,7 +6354,7 @@ void DX12ReplayConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceS
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     format::HandleId                            object_id,
     UINT                                        NumRenderTargets,
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,
@@ -6371,7 +6371,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
     format::HandleId                            object_id)
 {
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
@@ -6381,7 +6381,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12MetaCommand*>*   pMetaCommand,
     PointerDecoder<uint8_t>*                    pInitializationParametersData,
@@ -6396,7 +6396,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaComman
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12MetaCommand*>*   pMetaCommand,
     PointerDecoder<uint8_t>*                    pExecutionParametersData,
@@ -6411,7 +6411,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC>* pDesc,
     UINT                                        NumPostbuildInfoDescs,
@@ -6426,7 +6426,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccel
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pDesc,
     UINT                                        NumSourceAccelerationStructures,
@@ -6441,7 +6441,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccele
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
     format::HandleId                            object_id,
     D3D12_GPU_VIRTUAL_ADDRESS                   DestAccelerationStructureData,
     D3D12_GPU_VIRTUAL_ADDRESS                   SourceAccelerationStructureData,
@@ -6456,7 +6456,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccele
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12StateObject*>*   pStateObject)
 {
@@ -6467,7 +6467,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     format::HandleId                            object_id,
     StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc)
 {
@@ -6478,7 +6478,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
+void Dx12ReplayConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
     format::HandleId                            object_id,
     BOOL                                        bEnable)
 {
@@ -6489,7 +6489,7 @@ void DX12ReplayConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
+void Dx12ReplayConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
     format::HandleId                            object_id,
     BOOL                                        returnValue)
 {
@@ -6500,7 +6500,7 @@ void DX12ReplayConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
     format::HandleId                            object_id,
     D3D12_SHADING_RATE                          baseShadingRate,
     PointerDecoder<D3D12_SHADING_RATE_COMBINER>* combiners)
@@ -6513,7 +6513,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
     format::HandleId                            object_id,
     HandlePointerDecoder<ID3D12Resource*>*      shadingRateImage)
 {
@@ -6524,7 +6524,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImag
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
+void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
     format::HandleId                            object_id,
     UINT                                        ThreadGroupCountX,
     UINT                                        ThreadGroupCountY,
@@ -6539,7 +6539,7 @@ void DX12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
+void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
     format::HandleId                            object_id,
     uint64_t                                    returnValue)
 {
@@ -6550,7 +6550,7 @@ void DX12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
+void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
     format::HandleId                            object_id,
     SIZE_T                                      returnValue)
 {
@@ -6561,7 +6561,7 @@ void DX12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
     }
 }
 
-void DX12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallback(
+void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallback(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     uint64_t                                    callbackFn,
@@ -6581,7 +6581,7 @@ void DX12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
     }
 }
 
-void DX12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCallback(
+void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCallback(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT                                        callbackID)
@@ -6597,7 +6597,7 @@ void DX12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCa
     }
 }
 
-void DX12ReplayConsumer::Process_IUnknown_QueryInterface(
+void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     Decoded_GUID                                riid,
@@ -6619,7 +6619,7 @@ void DX12ReplayConsumer::Process_IUnknown_QueryInterface(
     }
 }
 
-void DX12ReplayConsumer::Process_IUnknown_AddRef(
+void Dx12ReplayConsumer::Process_IUnknown_AddRef(
     format::HandleId                            object_id,
     ULONG                                       returnValue)
 {
@@ -6630,7 +6630,7 @@ void DX12ReplayConsumer::Process_IUnknown_AddRef(
     }
 }
 
-void DX12ReplayConsumer::Process_IUnknown_Release(
+void Dx12ReplayConsumer::Process_IUnknown_Release(
     format::HandleId                            object_id,
     ULONG                                       returnValue)
 {

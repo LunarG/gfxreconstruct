@@ -35,11 +35,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DX12Decoder : public DX12DecoderBase
+class Dx12Decoder : public Dx12DecoderBase
 {
   public:
-    DX12Decoder(){}
-    virtual ~DX12Decoder() override {}
+    Dx12Decoder(){}
+    virtual ~Dx12Decoder() override {}
 
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_options,

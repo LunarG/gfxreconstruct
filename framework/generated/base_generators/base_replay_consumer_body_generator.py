@@ -30,7 +30,7 @@ class BaseReplayConsumerBodyGenerator():
 
     #
     # Performs C++ code generation for the feature.
-    # type is 'Vulkan' or 'DX12'
+    # type is 'Vulkan' or 'Dx12'
     def generate_feature(self, type):
         first = True
         for cmd in self.getFilteredCmdNames():

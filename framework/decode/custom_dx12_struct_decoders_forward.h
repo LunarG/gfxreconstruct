@@ -51,4 +51,4 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INT
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
+#endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H

@@ -29,11 +29,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DX12ReplayConsumerBase : public DX12Consumer
+class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
-    DX12ReplayConsumerBase() {}
-    virtual ~DX12ReplayConsumerBase() {}
+    Dx12ReplayConsumerBase() {}
+    virtual ~Dx12ReplayConsumerBase() {}
 
   protected:
     template <typename T>

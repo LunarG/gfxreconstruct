@@ -29,17 +29,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO: DX12DecoderBase is very similar to VulkanDecoderBase. It might be able to merge into a shared class.
-class DX12DecoderBase : public ApiDecoder
+// TODO: Dx12DecoderBase is very similar to VulkanDecoderBase. It might be able to merge into a shared class.
+class Dx12DecoderBase : public ApiDecoder
 {
   public:
-    DX12DecoderBase() {}
+    Dx12DecoderBase() {}
 
-    virtual ~DX12DecoderBase() override {}
+    virtual ~Dx12DecoderBase() override {}
 
-    void AddConsumer(DX12Consumer* consumer) { consumers_.push_back(consumer); }
+    void AddConsumer(Dx12Consumer* consumer) { consumers_.push_back(consumer); }
 
-    void RemoveConsumer(DX12Consumer* consumer)
+    void RemoveConsumer(Dx12Consumer* consumer)
     {
         consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
     }
@@ -149,10 +149,10 @@ class DX12DecoderBase : public ApiDecoder
                                           const uint8_t*               data) override;
 
   protected:
-    const std::vector<DX12Consumer*>& GetConsumers() const { return consumers_; }
+    const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
 
   private:
-    std::vector<DX12Consumer*> consumers_;
+    std::vector<Dx12Consumer*> consumers_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -28,11 +28,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class DX12AsciiConsumerBase : public DX12Consumer
+class Dx12AsciiConsumerBase : public Dx12Consumer
 {
   public:
-    DX12AsciiConsumerBase();
-    virtual ~DX12AsciiConsumerBase();
+    Dx12AsciiConsumerBase();
+    virtual ~Dx12AsciiConsumerBase();
 
     bool Initialize(const std::string& filename);
 

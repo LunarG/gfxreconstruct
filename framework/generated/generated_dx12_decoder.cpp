@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void DX12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
+void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
                                      const ApiCallInfo& call_info,
                                      const uint8_t*     parameter_buffer,
                                      size_t             buffer_size)
@@ -84,7 +84,7 @@ default:
 }
 
 
-void DX12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
+void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
                                    format::HandleId   object_id,
                                    const ApiCallInfo& call_info,
                                    const uint8_t*     parameter_buffer,
@@ -1188,7 +1188,7 @@ default:
 }
 
 
-size_t DX12Decoder::Decode_CreateDXGIFactory(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_CreateDXGIFactory(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1208,7 +1208,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory(const uint8_t* parameter_buffer, si
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_CreateDXGIFactory1(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_CreateDXGIFactory1(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1228,7 +1228,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory1(const uint8_t* parameter_buffer, s
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_CreateDXGIFactory2(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_CreateDXGIFactory2(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1250,7 +1250,7 @@ size_t DX12Decoder::Decode_CreateDXGIFactory2(const uint8_t* parameter_buffer, s
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_DXGIGetDebugInterface1(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_DXGIGetDebugInterface1(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1272,7 +1272,7 @@ size_t DX12Decoder::Decode_DXGIGetDebugInterface1(const uint8_t* parameter_buffe
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_DXGIDeclareAdapterRemovalSupport(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_DXGIDeclareAdapterRemovalSupport(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1288,7 +1288,7 @@ size_t DX12Decoder::Decode_DXGIDeclareAdapterRemovalSupport(const uint8_t* param
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12SerializeRootSignature(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12SerializeRootSignature(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1312,7 +1312,7 @@ size_t DX12Decoder::Decode_D3D12SerializeRootSignature(const uint8_t* parameter_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1336,7 +1336,7 @@ size_t DX12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const uint8_t* p
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12SerializeVersionedRootSignature(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12SerializeVersionedRootSignature(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1358,7 +1358,7 @@ size_t DX12Decoder::Decode_D3D12SerializeVersionedRootSignature(const uint8_t* p
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1382,7 +1382,7 @@ size_t DX12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const u
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1406,7 +1406,7 @@ size_t DX12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, si
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12GetDebugInterface(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12GetDebugInterface(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1426,7 +1426,7 @@ size_t DX12Decoder::Decode_D3D12GetDebugInterface(const uint8_t* parameter_buffe
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_D3D12EnableExperimentalFeatures(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_D3D12EnableExperimentalFeatures(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1450,7 +1450,7 @@ size_t DX12Decoder::Decode_D3D12EnableExperimentalFeatures(const uint8_t* parame
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIObject_SetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1472,7 +1472,7 @@ size_t DX12Decoder::Decode_IDXGIObject_SetPrivateData(format::HandleId object_id
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1492,7 +1492,7 @@ size_t DX12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIObject_GetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIObject_GetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1514,7 +1514,7 @@ size_t DX12Decoder::Decode_IDXGIObject_GetPrivateData(format::HandleId object_id
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1534,7 +1534,7 @@ size_t DX12Decoder::Decode_IDXGIObject_GetParent(format::HandleId object_id, con
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1554,7 +1554,7 @@ size_t DX12Decoder::Decode_IDXGIDeviceSubObject_GetDevice(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1572,7 +1572,7 @@ size_t DX12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource_GetUsage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource_GetUsage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1590,7 +1590,7 @@ size_t DX12Decoder::Decode_IDXGIResource_GetUsage(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource_SetEvictionPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource_SetEvictionPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1608,7 +1608,7 @@ size_t DX12Decoder::Decode_IDXGIResource_SetEvictionPriority(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource_GetEvictionPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource_GetEvictionPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1626,7 +1626,7 @@ size_t DX12Decoder::Decode_IDXGIResource_GetEvictionPriority(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIKeyedMutex_AcquireSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIKeyedMutex_AcquireSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1646,7 +1646,7 @@ size_t DX12Decoder::Decode_IDXGIKeyedMutex_AcquireSync(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIKeyedMutex_ReleaseSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIKeyedMutex_ReleaseSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1664,7 +1664,7 @@ size_t DX12Decoder::Decode_IDXGIKeyedMutex_ReleaseSync(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1682,7 +1682,7 @@ size_t DX12Decoder::Decode_IDXGISurface_GetDesc(format::HandleId object_id, cons
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface_Map(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface_Map(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1702,7 +1702,7 @@ size_t DX12Decoder::Decode_IDXGISurface_Map(format::HandleId object_id, const ui
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface_Unmap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface_Unmap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1718,7 +1718,7 @@ size_t DX12Decoder::Decode_IDXGISurface_Unmap(format::HandleId object_id, const 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1738,7 +1738,7 @@ size_t DX12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface1_ReleaseDC(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface1_ReleaseDC(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1756,7 +1756,7 @@ size_t DX12Decoder::Decode_IDXGISurface1_ReleaseDC(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter_EnumOutputs(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter_EnumOutputs(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1776,7 +1776,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter_EnumOutputs(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1794,7 +1794,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter_GetDesc(format::HandleId object_id, cons
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1814,7 +1814,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter_CheckInterfaceSupport(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1832,7 +1832,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetDesc(format::HandleId object_id, const
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetDisplayModeList(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplayModeList(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1856,7 +1856,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetDisplayModeList(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1878,7 +1878,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_WaitForVBlank(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_WaitForVBlank(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1894,7 +1894,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_WaitForVBlank(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1914,7 +1914,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_ReleaseOwnership(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_ReleaseOwnership(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1928,7 +1928,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_ReleaseOwnership(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetGammaControlCapabilities(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControlCapabilities(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1946,7 +1946,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetGammaControlCapabilities(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_SetGammaControl(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_SetGammaControl(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1964,7 +1964,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_SetGammaControl(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetGammaControl(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetGammaControl(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1982,7 +1982,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetGammaControl(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2000,7 +2000,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2018,7 +2018,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput_GetFrameStatistics(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput_GetFrameStatistics(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2036,7 +2036,7 @@ size_t DX12Decoder::Decode_IDXGIOutput_GetFrameStatistics(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_Present(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_Present(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2056,7 +2056,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_Present(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2078,7 +2078,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetBuffer(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2098,7 +2098,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetFullscreenState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetFullscreenState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2118,7 +2118,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetFullscreenState(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2136,7 +2136,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetDesc(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_ResizeBuffers(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeBuffers(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2162,7 +2162,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_ResizeBuffers(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_ResizeTarget(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_ResizeTarget(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2180,7 +2180,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_ResizeTarget(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetContainingOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetContainingOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2198,7 +2198,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetContainingOutput(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetFrameStatistics(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetFrameStatistics(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2216,7 +2216,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetFrameStatistics(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain_GetLastPresentCount(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain_GetLastPresentCount(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2234,7 +2234,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain_GetLastPresentCount(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory_EnumAdapters(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory_EnumAdapters(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2254,7 +2254,7 @@ size_t DX12Decoder::Decode_IDXGIFactory_EnumAdapters(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2274,7 +2274,7 @@ size_t DX12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2292,7 +2292,7 @@ size_t DX12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2314,7 +2314,7 @@ size_t DX12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2334,7 +2334,7 @@ size_t DX12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice_GetAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice_GetAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2352,7 +2352,7 @@ size_t DX12Decoder::Decode_IDXGIDevice_GetAdapter(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice_CreateSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice_CreateSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2378,7 +2378,7 @@ size_t DX12Decoder::Decode_IDXGIDevice_CreateSurface(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice_QueryResourceResidency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice_QueryResourceResidency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2400,7 +2400,7 @@ size_t DX12Decoder::Decode_IDXGIDevice_QueryResourceResidency(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice_SetGPUThreadPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice_SetGPUThreadPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2418,7 +2418,7 @@ size_t DX12Decoder::Decode_IDXGIDevice_SetGPUThreadPriority(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice_GetGPUThreadPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice_GetGPUThreadPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2436,7 +2436,7 @@ size_t DX12Decoder::Decode_IDXGIDevice_GetGPUThreadPriority(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory1_EnumAdapters1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory1_EnumAdapters1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2456,7 +2456,7 @@ size_t DX12Decoder::Decode_IDXGIFactory1_EnumAdapters1(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory1_IsCurrent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory1_IsCurrent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2472,7 +2472,7 @@ size_t DX12Decoder::Decode_IDXGIFactory1_IsCurrent(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2490,7 +2490,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter1_GetDesc1(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice1_SetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice1_SetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2508,7 +2508,7 @@ size_t DX12Decoder::Decode_IDXGIDevice1_SetMaximumFrameLatency(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2526,7 +2526,7 @@ size_t DX12Decoder::Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2542,7 +2542,7 @@ size_t DX12Decoder::Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDisplayControl_SetStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDisplayControl_SetStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2558,7 +2558,7 @@ size_t DX12Decoder::Decode_IDXGIDisplayControl_SetStereoEnabled(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2574,7 +2574,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetDesc(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_AcquireNextFrame(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_AcquireNextFrame(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2596,7 +2596,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_AcquireNextFrame(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFrameDirtyRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameDirtyRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2618,7 +2618,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFrameDirtyRects(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFrameMoveRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFrameMoveRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2640,7 +2640,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFrameMoveRects(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFramePointerShape(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_GetFramePointerShape(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2664,7 +2664,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_GetFramePointerShape(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_MapDesktopSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_MapDesktopSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2682,7 +2682,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_MapDesktopSurface(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_UnMapDesktopSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_UnMapDesktopSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2698,7 +2698,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_UnMapDesktopSurface(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutputDuplication_ReleaseFrame(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutputDuplication_ReleaseFrame(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2714,7 +2714,7 @@ size_t DX12Decoder::Decode_IDXGIOutputDuplication_ReleaseFrame(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2736,7 +2736,7 @@ size_t DX12Decoder::Decode_IDXGISurface2_GetResource(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource1_CreateSubresourceSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource1_CreateSubresourceSurface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2756,7 +2756,7 @@ size_t DX12Decoder::Decode_IDXGIResource1_CreateSubresourceSurface(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2780,7 +2780,7 @@ size_t DX12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice2_OfferResources(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice2_OfferResources(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2802,7 +2802,7 @@ size_t DX12Decoder::Decode_IDXGIDevice2_OfferResources(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice2_ReclaimResources(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice2_ReclaimResources(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2824,7 +2824,7 @@ size_t DX12Decoder::Decode_IDXGIDevice2_ReclaimResources(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2842,7 +2842,7 @@ size_t DX12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2860,7 +2860,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetDesc1(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetFullscreenDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetFullscreenDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2878,7 +2878,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetFullscreenDesc(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2896,7 +2896,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2916,7 +2916,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetCoreWindow(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_Present1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_Present1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2938,7 +2938,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_Present1(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_IsTemporaryMonoSupported(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_IsTemporaryMonoSupported(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2954,7 +2954,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_IsTemporaryMonoSupported(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetRestrictToOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRestrictToOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2972,7 +2972,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetRestrictToOutput(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_SetBackgroundColor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_SetBackgroundColor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2990,7 +2990,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_SetBackgroundColor(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetBackgroundColor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetBackgroundColor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3008,7 +3008,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetBackgroundColor(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_SetRotation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_SetRotation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3026,7 +3026,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_SetRotation(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain1_GetRotation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain1_GetRotation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3044,7 +3044,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain1_GetRotation(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_IsWindowedStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_IsWindowedStereoEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3060,7 +3060,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_IsWindowedStereoEnabled(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3088,7 +3088,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3114,7 +3114,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3134,7 +3134,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3156,7 +3156,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3176,7 +3176,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_UnregisterStereoStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterStereoStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3192,7 +3192,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_UnregisterStereoStatus(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3214,7 +3214,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3234,7 +3234,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_UnregisterOcclusionStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_UnregisterOcclusionStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3250,7 +3250,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_UnregisterOcclusionStatus(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3274,7 +3274,7 @@ size_t DX12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter2_GetDesc2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter2_GetDesc2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3292,7 +3292,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter2_GetDesc2(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput1_GetDisplayModeList1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplayModeList1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3316,7 +3316,7 @@ size_t DX12Decoder::Decode_IDXGIOutput1_GetDisplayModeList1(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3338,7 +3338,7 @@ size_t DX12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3356,7 +3356,7 @@ size_t DX12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3376,7 +3376,7 @@ size_t DX12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice3_Trim(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice3_Trim(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3390,7 +3390,7 @@ size_t DX12Decoder::Decode_IDXGIDevice3_Trim(format::HandleId object_id, const u
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_SetSourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetSourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3410,7 +3410,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_SetSourceSize(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_GetSourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetSourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3430,7 +3430,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_GetSourceSize(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_SetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3448,7 +3448,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_SetMaximumFrameLatency(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_GetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMaximumFrameLatency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3466,7 +3466,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_GetMaximumFrameLatency(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3482,7 +3482,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_SetMatrixTransform(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_SetMatrixTransform(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3500,7 +3500,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_SetMatrixTransform(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain2_GetMatrixTransform(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain2_GetMatrixTransform(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3518,7 +3518,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain2_GetMatrixTransform(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput2_SupportsOverlays(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput2_SupportsOverlays(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3534,7 +3534,7 @@ size_t DX12Decoder::Decode_IDXGIOutput2_SupportsOverlays(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory3_GetCreationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory3_GetCreationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3550,7 +3550,7 @@ size_t DX12Decoder::Decode_IDXGIFactory3_GetCreationFlags(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_PresentBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_PresentBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3572,7 +3572,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_PresentBuffer(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetSourceRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetSourceRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3590,7 +3590,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetSourceRect(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetTargetRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetTargetRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3608,7 +3608,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetTargetRect(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetDestSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetDestSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3628,7 +3628,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetDestSize(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetSourceRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetSourceRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3646,7 +3646,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetSourceRect(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetTargetRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetTargetRect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3664,7 +3664,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetTargetRect(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetDestSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetDestSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3684,7 +3684,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetDestSize(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetColorSpace(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_SetColorSpace(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3702,7 +3702,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_SetColorSpace(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetColorSpace(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDecodeSwapChain_GetColorSpace(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3718,7 +3718,7 @@ size_t DX12Decoder::Decode_IDXGIDecodeSwapChain_GetColorSpace(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3744,7 +3744,7 @@ size_t DX12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfac
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3772,7 +3772,7 @@ size_t DX12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForComposition
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3790,7 +3790,7 @@ size_t DX12Decoder::Decode_IDXGISwapChainMedia_GetFrameStatisticsMedia(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChainMedia_SetPresentDuration(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_SetPresentDuration(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3808,7 +3808,7 @@ size_t DX12Decoder::Decode_IDXGISwapChainMedia_SetPresentDuration(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3830,7 +3830,7 @@ size_t DX12Decoder::Decode_IDXGISwapChainMedia_CheckPresentDurationSupport(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3852,7 +3852,7 @@ size_t DX12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3868,7 +3868,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain3_CheckColorSpaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain3_CheckColorSpaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3888,7 +3888,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain3_CheckColorSpaceSupport(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain3_SetColorSpace1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain3_SetColorSpace1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3906,7 +3906,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain3_SetColorSpace1(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain3_ResizeBuffers1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain3_ResizeBuffers1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3936,7 +3936,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain3_ResizeBuffers1(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3960,7 +3960,7 @@ size_t DX12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3982,7 +3982,7 @@ size_t DX12Decoder::Decode_IDXGIFactory4_EnumAdapterByLuid(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4002,7 +4002,7 @@ size_t DX12Decoder::Decode_IDXGIFactory4_EnumWarpAdapter(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4022,7 +4022,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardo
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4038,7 +4038,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_UnregisterHardwareContentProtectionTear
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_QueryVideoMemoryInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_QueryVideoMemoryInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4060,7 +4060,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_QueryVideoMemoryInfo(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_SetVideoMemoryReservation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_SetVideoMemoryReservation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4082,7 +4082,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_SetVideoMemoryReservation(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4102,7 +4102,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotifica
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4118,7 +4118,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotifi
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4144,7 +4144,7 @@ size_t DX12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4166,7 +4166,7 @@ size_t DX12Decoder::Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice4_OfferResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice4_OfferResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4190,7 +4190,7 @@ size_t DX12Decoder::Decode_IDXGIDevice4_OfferResources1(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4212,7 +4212,7 @@ size_t DX12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4234,7 +4234,7 @@ size_t DX12Decoder::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4252,7 +4252,7 @@ size_t DX12Decoder::Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4270,7 +4270,7 @@ size_t DX12Decoder::Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, con
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4288,7 +4288,7 @@ size_t DX12Decoder::Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4312,7 +4312,7 @@ size_t DX12Decoder::Decode_IDXGIFactory6_EnumAdapterByGpuPreference(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4332,7 +4332,7 @@ size_t DX12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4350,7 +4350,7 @@ size_t DX12Decoder::Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Object_GetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Object_GetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4372,7 +4372,7 @@ size_t DX12Decoder::Decode_ID3D12Object_GetPrivateData(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Object_SetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Object_SetPrivateData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4394,7 +4394,7 @@ size_t DX12Decoder::Decode_ID3D12Object_SetPrivateData(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Object_SetPrivateDataInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Object_SetPrivateDataInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4414,7 +4414,7 @@ size_t DX12Decoder::Decode_ID3D12Object_SetPrivateDataInterface(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Object_SetName(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Object_SetName(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4432,7 +4432,7 @@ size_t DX12Decoder::Decode_ID3D12Object_SetName(format::HandleId object_id, cons
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4452,7 +4452,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceChild_GetDevice(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4468,7 +4468,7 @@ size_t DX12Decoder::Decode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4488,7 +4488,7 @@ size_t DX12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetRootSigna
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4504,7 +4504,7 @@ size_t DX12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetUnconvert
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Heap_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Heap_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4520,7 +4520,7 @@ size_t DX12Decoder::Decode_ID3D12Heap_GetDesc(format::HandleId object_id, const 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_Map(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_Map(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4542,7 +4542,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_Map(format::HandleId object_id, const 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_Unmap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_Unmap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4560,7 +4560,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_Unmap(format::HandleId object_id, cons
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4576,7 +4576,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_GetDesc(format::HandleId object_id, co
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_GetGPUVirtualAddress(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_GetGPUVirtualAddress(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4592,7 +4592,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_GetGPUVirtualAddress(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_WriteToSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_WriteToSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4618,7 +4618,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_WriteToSubresource(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_ReadFromSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_ReadFromSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4644,7 +4644,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_ReadFromSubresource(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource_GetHeapProperties(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource_GetHeapProperties(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4664,7 +4664,7 @@ size_t DX12Decoder::Decode_ID3D12Resource_GetHeapProperties(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandAllocator_Reset(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandAllocator_Reset(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4680,7 +4680,7 @@ size_t DX12Decoder::Decode_ID3D12CommandAllocator_Reset(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Fence_GetCompletedValue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Fence_GetCompletedValue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4696,7 +4696,7 @@ size_t DX12Decoder::Decode_ID3D12Fence_GetCompletedValue(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Fence_SetEventOnCompletion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Fence_SetEventOnCompletion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4716,7 +4716,7 @@ size_t DX12Decoder::Decode_ID3D12Fence_SetEventOnCompletion(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Fence_Signal(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Fence_Signal(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4734,7 +4734,7 @@ size_t DX12Decoder::Decode_ID3D12Fence_Signal(format::HandleId object_id, const 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Fence1_GetCreationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Fence1_GetCreationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4750,7 +4750,7 @@ size_t DX12Decoder::Decode_ID3D12Fence1_GetCreationFlags(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineState_GetCachedBlob(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineState_GetCachedBlob(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4768,7 +4768,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineState_GetCachedBlob(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4784,7 +4784,7 @@ size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetDesc(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4800,7 +4800,7 @@ size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapSta
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4816,7 +4816,7 @@ size_t DX12Decoder::Decode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapSta
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandList_GetType(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandList_GetType(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4832,7 +4832,7 @@ size_t DX12Decoder::Decode_ID3D12CommandList_GetType(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Close(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_Close(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4848,7 +4848,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Close(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Reset(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_Reset(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4868,7 +4868,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Reset(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4884,7 +4884,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearState(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DrawInstanced(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_DrawInstanced(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4906,7 +4906,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DrawInstanced(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DrawIndexedInstanced(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_DrawIndexedInstanced(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4930,7 +4930,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DrawIndexedInstanced(format
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Dispatch(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_Dispatch(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4950,7 +4950,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_Dispatch(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyBufferRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyBufferRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4974,7 +4974,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyBufferRegion(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyTextureRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyTextureRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5000,7 +5000,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyTextureRegion(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5018,7 +5018,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyResource(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyTiles(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyTiles(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5044,7 +5044,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_CopyTiles(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResolveSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ResolveSubresource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5068,7 +5068,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResolveSubresource(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5084,7 +5084,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(form
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_RSSetViewports(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_RSSetViewports(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5102,7 +5102,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_RSSetViewports(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_RSSetScissorRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_RSSetScissorRects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5120,7 +5120,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_RSSetScissorRects(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetBlendFactor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_OMSetBlendFactor(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5136,7 +5136,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetBlendFactor(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetStencilRef(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_OMSetStencilRef(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5152,7 +5152,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetStencilRef(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetPipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetPipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5168,7 +5168,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetPipelineState(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResourceBarrier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ResourceBarrier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5186,7 +5186,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResourceBarrier(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteBundle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteBundle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5202,7 +5202,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteBundle(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetDescriptorHeaps(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetDescriptorHeaps(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5220,7 +5220,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetDescriptorHeaps(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5236,7 +5236,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootSignature(for
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5252,7 +5252,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(fo
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5270,7 +5270,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTab
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5288,7 +5288,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTa
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5308,7 +5308,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5328,7 +5328,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstan
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5350,7 +5350,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5372,7 +5372,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstan
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5390,7 +5390,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootConstantBuffe
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5408,7 +5408,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBuff
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5426,7 +5426,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootShaderResourc
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5444,7 +5444,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResour
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5462,7 +5462,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAcce
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5480,7 +5480,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAcc
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetIndexBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_IASetIndexBuffer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5496,7 +5496,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetIndexBuffer(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetVertexBuffers(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_IASetVertexBuffers(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5516,7 +5516,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_IASetVertexBuffers(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SOSetTargets(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SOSetTargets(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5536,7 +5536,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SOSetTargets(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetRenderTargets(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_OMSetRenderTargets(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5558,7 +5558,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_OMSetRenderTargets(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearDepthStencilView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearDepthStencilView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5584,7 +5584,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearDepthStencilView(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearRenderTargetView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearRenderTargetView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5606,7 +5606,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearRenderTargetView(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5632,7 +5632,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUin
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5658,7 +5658,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFlo
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DiscardResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_DiscardResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5676,7 +5676,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_DiscardResource(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_BeginQuery(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_BeginQuery(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5696,7 +5696,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_BeginQuery(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_EndQuery(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_EndQuery(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5716,7 +5716,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_EndQuery(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResolveQueryData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ResolveQueryData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5742,7 +5742,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ResolveQueryData(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetPredication(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetPredication(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5762,7 +5762,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetPredication(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetMarker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetMarker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5782,7 +5782,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_SetMarker(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_BeginEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_BeginEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5802,7 +5802,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_BeginEvent(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_EndEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_EndEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5816,7 +5816,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_EndEvent(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteIndirect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteIndirect(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5842,7 +5842,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteIndirect(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5870,7 +5870,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5898,7 +5898,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(for
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_OMSetDepthBounds(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_OMSetDepthBounds(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5916,7 +5916,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_OMSetDepthBounds(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_SetSamplePositions(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_SetSamplePositions(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5936,7 +5936,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_SetSamplePositions(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5968,7 +5968,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(f
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_SetViewInstanceMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_SetViewInstanceMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5984,7 +5984,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList1_SetViewInstanceMask(format
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList2_WriteBufferImmediate(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList2_WriteBufferImmediate(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6004,7 +6004,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList2_WriteBufferImmediate(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_UpdateTileMappings(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_UpdateTileMappings(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6038,7 +6038,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_UpdateTileMappings(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_CopyTileMappings(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_CopyTileMappings(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6064,7 +6064,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_CopyTileMappings(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_ExecuteCommandLists(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_ExecuteCommandLists(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6082,7 +6082,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_ExecuteCommandLists(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_SetMarker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_SetMarker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6102,7 +6102,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_SetMarker(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_BeginEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_BeginEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6122,7 +6122,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_BeginEvent(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_EndEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_EndEvent(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6136,7 +6136,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_EndEvent(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_Signal(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_Signal(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6156,7 +6156,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_Signal(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_Wait(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_Wait(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6176,7 +6176,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_Wait(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_GetTimestampFrequency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_GetTimestampFrequency(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6194,7 +6194,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_GetTimestampFrequency(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_GetClockCalibration(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_GetClockCalibration(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6214,7 +6214,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_GetClockCalibration(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12CommandQueue_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12CommandQueue_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6230,7 +6230,7 @@ size_t DX12Decoder::Decode_ID3D12CommandQueue_GetDesc(format::HandleId object_id
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetNodeCount(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetNodeCount(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6246,7 +6246,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetNodeCount(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateCommandQueue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandQueue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6268,7 +6268,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandQueue(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateCommandAllocator(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandAllocator(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6290,7 +6290,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandAllocator(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateGraphicsPipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateGraphicsPipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6312,7 +6312,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateGraphicsPipelineState(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateComputePipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateComputePipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6334,7 +6334,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateComputePipelineState(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6362,7 +6362,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6384,7 +6384,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateDescriptorHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateDescriptorHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6406,7 +6406,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateDescriptorHeap(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetDescriptorHandleIncrementSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetDescriptorHandleIncrementSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6424,7 +6424,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetDescriptorHandleIncrementSize(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6450,7 +6450,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateRootSignature(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateConstantBufferView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6468,7 +6468,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateConstantBufferView(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateShaderResourceView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6488,7 +6488,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateShaderResourceView(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6510,7 +6510,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateUnorderedAccessView(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateRenderTargetView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateRenderTargetView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6530,7 +6530,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateRenderTargetView(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateDepthStencilView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateDepthStencilView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6550,7 +6550,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateDepthStencilView(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateSampler(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateSampler(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6568,7 +6568,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateSampler(format::HandleId object_id
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CopyDescriptors(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CopyDescriptors(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6596,7 +6596,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CopyDescriptors(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CopyDescriptorsSimple(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CopyDescriptorsSimple(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6618,7 +6618,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CopyDescriptorsSimple(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetResourceAllocationInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetResourceAllocationInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6640,7 +6640,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetResourceAllocationInfo(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetCustomHeapProperties(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetCustomHeapProperties(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6660,7 +6660,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetCustomHeapProperties(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateCommittedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateCommittedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6690,7 +6690,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommittedResource(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6712,7 +6712,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateHeap(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6742,7 +6742,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateReservedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateReservedResource(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6768,7 +6768,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateReservedResource(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6794,7 +6794,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_OpenSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_OpenSharedHandle(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6816,7 +6816,7 @@ size_t DX12Decoder::Decode_ID3D12Device_OpenSharedHandle(format::HandleId object
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_OpenSharedHandleByName(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_OpenSharedHandleByName(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6838,7 +6838,7 @@ size_t DX12Decoder::Decode_ID3D12Device_OpenSharedHandleByName(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_MakeResident(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_MakeResident(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6858,7 +6858,7 @@ size_t DX12Decoder::Decode_ID3D12Device_MakeResident(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_Evict(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_Evict(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6878,7 +6878,7 @@ size_t DX12Decoder::Decode_ID3D12Device_Evict(format::HandleId object_id, const 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateFence(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateFence(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6902,7 +6902,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateFence(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetDeviceRemovedReason(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetDeviceRemovedReason(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6918,7 +6918,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetDeviceRemovedReason(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetCopyableFootprints(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetCopyableFootprints(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6948,7 +6948,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetCopyableFootprints(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateQueryHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateQueryHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6970,7 +6970,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateQueryHeap(format::HandleId object_
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_SetStablePowerState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_SetStablePowerState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -6988,7 +6988,7 @@ size_t DX12Decoder::Decode_ID3D12Device_SetStablePowerState(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7012,7 +7012,7 @@ size_t DX12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7040,7 +7040,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device_GetAdapterLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device_GetAdapterLuid(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7056,7 +7056,7 @@ size_t DX12Decoder::Decode_ID3D12Device_GetAdapterLuid(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary_StorePipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_StorePipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7076,7 +7076,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_StorePipeline(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadGraphicsPipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_LoadGraphicsPipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7100,7 +7100,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadGraphicsPipeline(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadComputePipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_LoadComputePipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7124,7 +7124,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_LoadComputePipeline(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary_GetSerializedSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_GetSerializedSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7140,7 +7140,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_GetSerializedSize(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary_Serialize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_Serialize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7160,7 +7160,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary_Serialize(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12PipelineLibrary1_LoadPipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12PipelineLibrary1_LoadPipeline(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7184,7 +7184,7 @@ size_t DX12Decoder::Decode_ID3D12PipelineLibrary1_LoadPipeline(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device1_CreatePipelineLibrary(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device1_CreatePipelineLibrary(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7208,7 +7208,7 @@ size_t DX12Decoder::Decode_ID3D12Device1_CreatePipelineLibrary(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device1_SetEventOnMultipleFenceCompletion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device1_SetEventOnMultipleFenceCompletion(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7234,7 +7234,7 @@ size_t DX12Decoder::Decode_ID3D12Device1_SetEventOnMultipleFenceCompletion(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device1_SetResidencyPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device1_SetResidencyPriority(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7256,7 +7256,7 @@ size_t DX12Decoder::Decode_ID3D12Device1_SetResidencyPriority(format::HandleId o
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device2_CreatePipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device2_CreatePipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7278,7 +7278,7 @@ size_t DX12Decoder::Decode_ID3D12Device2_CreatePipelineState(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromAddress(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromAddress(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7300,7 +7300,7 @@ size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromAddress(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromFileMapping(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromFileMapping(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7322,7 +7322,7 @@ size_t DX12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromFileMapping(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device3_EnqueueMakeResident(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device3_EnqueueMakeResident(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7348,7 +7348,7 @@ size_t DX12Decoder::Decode_ID3D12Device3_EnqueueMakeResident(format::HandleId ob
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12ProtectedSession_GetStatusFence(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12ProtectedSession_GetStatusFence(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7368,7 +7368,7 @@ size_t DX12Decoder::Decode_ID3D12ProtectedSession_GetStatusFence(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12ProtectedSession_GetSessionStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12ProtectedSession_GetSessionStatus(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7384,7 +7384,7 @@ size_t DX12Decoder::Decode_ID3D12ProtectedSession_GetSessionStatus(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12ProtectedResourceSession_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12ProtectedResourceSession_GetDesc(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7400,7 +7400,7 @@ size_t DX12Decoder::Decode_ID3D12ProtectedResourceSession_GetDesc(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_CreateCommandList1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_CreateCommandList1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7426,7 +7426,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateCommandList1(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_CreateProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_CreateProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7448,7 +7448,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateProtectedResourceSession(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7480,7 +7480,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7504,7 +7504,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id,
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7532,7 +7532,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleI
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device4_GetResourceAllocationInfo1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device4_GetResourceAllocationInfo1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7556,7 +7556,7 @@ size_t DX12Decoder::Decode_ID3D12Device4_GetResourceAllocationInfo1(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12LifetimeOwner_LifetimeStateUpdated(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12LifetimeOwner_LifetimeStateUpdated(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7572,7 +7572,7 @@ size_t DX12Decoder::Decode_ID3D12LifetimeOwner_LifetimeStateUpdated(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetLUID(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12SwapChainAssistant_GetLUID(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7588,7 +7588,7 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetLUID(format::HandleId obj
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetSwapChainObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12SwapChainAssistant_GetSwapChainObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7608,7 +7608,7 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetSwapChainObject(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7632,7 +7632,7 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_InsertImplicitSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12SwapChainAssistant_InsertImplicitSync(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7648,7 +7648,7 @@ size_t DX12Decoder::Decode_ID3D12SwapChainAssistant_InsertImplicitSync(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12LifetimeTracker_DestroyOwnedObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12LifetimeTracker_DestroyOwnedObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7666,7 +7666,7 @@ size_t DX12Decoder::Decode_ID3D12LifetimeTracker_DestroyOwnedObject(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetShaderIdentifier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_GetShaderIdentifier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7684,7 +7684,7 @@ size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetShaderIdentifier(forma
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetShaderStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_GetShaderStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7702,7 +7702,7 @@ size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetShaderStackSize(format
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetPipelineStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_GetPipelineStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7718,7 +7718,7 @@ size_t DX12Decoder::Decode_ID3D12StateObjectProperties_GetPipelineStackSize(form
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12StateObjectProperties_SetPipelineStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_SetPipelineStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7734,7 +7734,7 @@ size_t DX12Decoder::Decode_ID3D12StateObjectProperties_SetPipelineStackSize(form
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7756,7 +7756,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_RemoveDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_RemoveDevice(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7770,7 +7770,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_RemoveDevice(format::HandleId object_id
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_EnumerateMetaCommands(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_EnumerateMetaCommands(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7790,7 +7790,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_EnumerateMetaCommands(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_EnumerateMetaCommandParameters(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_EnumerateMetaCommandParameters(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7816,7 +7816,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_EnumerateMetaCommandParameters(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_CreateMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_CreateMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7844,7 +7844,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateMetaCommand(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_CreateStateObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_CreateStateObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7866,7 +7866,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CreateStateObject(format::HandleId obje
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7884,7 +7884,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_GetRaytracingAccelerationStructurePrebu
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device5_CheckDriverMatchingIdentifier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device5_CheckDriverMatchingIdentifier(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7904,7 +7904,7 @@ size_t DX12Decoder::Decode_ID3D12Device5_CheckDriverMatchingIdentifier(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7920,7 +7920,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadc
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7936,7 +7936,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultE
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7952,7 +7952,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDump
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7968,7 +7968,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrum
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -7986,7 +7986,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOut
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8004,7 +8004,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocatio
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8022,7 +8022,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOu
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8040,7 +8040,7 @@ size_t DX12Decoder::Decode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocati
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device6_SetBackgroundProcessingMode(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device6_SetBackgroundProcessingMode(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8064,7 +8064,7 @@ size_t DX12Decoder::Decode_ID3D12Device6_SetBackgroundProcessingMode(format::Han
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12ProtectedResourceSession1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12ProtectedResourceSession1_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8080,7 +8080,7 @@ size_t DX12Decoder::Decode_ID3D12ProtectedResourceSession1_GetDesc1(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8104,7 +8104,7 @@ size_t DX12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId objec
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device7_CreateProtectedResourceSession1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device7_CreateProtectedResourceSession1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8126,7 +8126,7 @@ size_t DX12Decoder::Decode_ID3D12Device7_CreateProtectedResourceSession1(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device8_GetResourceAllocationInfo2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device8_GetResourceAllocationInfo2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8150,7 +8150,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_GetResourceAllocationInfo2(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8182,7 +8182,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::Handle
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8212,7 +8212,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8232,7 +8232,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessVie
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Device8_GetCopyableFootprints1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Device8_GetCopyableFootprints1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8262,7 +8262,7 @@ size_t DX12Decoder::Decode_ID3D12Device8_GetCopyableFootprints1(format::HandleId
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource1_GetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource1_GetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8282,7 +8282,7 @@ size_t DX12Decoder::Decode_ID3D12Resource1_GetProtectedResourceSession(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Resource2_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Resource2_GetDesc1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8298,7 +8298,7 @@ size_t DX12Decoder::Decode_ID3D12Resource2_GetDesc1(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Heap1_GetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Heap1_GetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8318,7 +8318,7 @@ size_t DX12Decoder::Decode_ID3D12Heap1_GetProtectedResourceSession(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8334,7 +8334,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList3_SetProtectedResourceSessio
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12MetaCommand_GetRequiredParameterResourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12MetaCommand_GetRequiredParameterResourceSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8354,7 +8354,7 @@ size_t DX12Decoder::Decode_ID3D12MetaCommand_GetRequiredParameterResourceSize(fo
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_BeginRenderPass(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_BeginRenderPass(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8376,7 +8376,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_BeginRenderPass(format::Ha
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_EndRenderPass(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_EndRenderPass(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8390,7 +8390,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_EndRenderPass(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_InitializeMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_InitializeMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8410,7 +8410,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_InitializeMetaCommand(form
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8430,7 +8430,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(format:
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8450,7 +8450,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_BuildRaytracingAcceleratio
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8470,7 +8470,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_EmitRaytracingAcceleration
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8490,7 +8490,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_CopyRaytracingAcceleration
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_SetPipelineState1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_SetPipelineState1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8506,7 +8506,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_SetPipelineState1(format::
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_DispatchRays(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_DispatchRays(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8522,7 +8522,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList4_DispatchRays(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Tools_EnableShaderInstrumentation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Tools_EnableShaderInstrumentation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8538,7 +8538,7 @@ size_t DX12Decoder::Decode_ID3D12Tools_EnableShaderInstrumentation(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8554,7 +8554,7 @@ size_t DX12Decoder::Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::Hand
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8572,7 +8572,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(format::H
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8588,7 +8588,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(form
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D12GraphicsCommandList6_DispatchMesh(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList6_DispatchMesh(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8608,7 +8608,7 @@ size_t DX12Decoder::Decode_ID3D12GraphicsCommandList6_DispatchMesh(format::Handl
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D10Blob_GetBufferPointer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D10Blob_GetBufferPointer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8624,7 +8624,7 @@ size_t DX12Decoder::Decode_ID3D10Blob_GetBufferPointer(format::HandleId object_i
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3D10Blob_GetBufferSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3D10Blob_GetBufferSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8640,7 +8640,7 @@ size_t DX12Decoder::Decode_ID3D10Blob_GetBufferSize(format::HandleId object_id, 
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3DDestructionNotifier_RegisterDestructionCallback(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3DDestructionNotifier_RegisterDestructionCallback(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8662,7 +8662,7 @@ size_t DX12Decoder::Decode_ID3DDestructionNotifier_RegisterDestructionCallback(f
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_ID3DDestructionNotifier_UnregisterDestructionCallback(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_ID3DDestructionNotifier_UnregisterDestructionCallback(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8680,7 +8680,7 @@ size_t DX12Decoder::Decode_ID3DDestructionNotifier_UnregisterDestructionCallback
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IUnknown_QueryInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IUnknown_QueryInterface(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8700,7 +8700,7 @@ size_t DX12Decoder::Decode_IUnknown_QueryInterface(format::HandleId object_id, c
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IUnknown_AddRef(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IUnknown_AddRef(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -8716,7 +8716,7 @@ size_t DX12Decoder::Decode_IUnknown_AddRef(format::HandleId object_id, const uin
     return bytes_read;
 }
 
-size_t DX12Decoder::Decode_IUnknown_Release(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t Dx12Decoder::Decode_IUnknown_Release(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 

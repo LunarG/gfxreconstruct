@@ -25,8 +25,8 @@ from base_generator\
     import BaseGenerator, BaseGeneratorOptions, ValueInfo, write
 
 
-class DX12GeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function declarations for DX12 API"""
+class Dx12GeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ function declarations for Dx12 API"""
 
     def __init__(self, blacklists=None, platformTypes=None, filename=None,
                  directory='.', prefixText='', protectFile=False,
@@ -42,7 +42,7 @@ class DX12GeneratorOptions(BaseGeneratorOptions):
             protectFeature)
 
 
-class DX12BaseGenerator(BaseGenerator):
+class Dx12BaseGenerator(BaseGenerator):
 
     ARRAY_SIZE_LIST = [
         ['D3D12_PIPELINE_STATE_STREAM_DESC',

@@ -26,15 +26,15 @@ from dx12_base_generator import *
 from base_struct_decoders_header_generator import *
 
 
-# Generates C++ functions responsible for decoding DX12 API calls
-class DX12StructDecodersHeaderGenerator(
-        DX12BaseGenerator, BaseStructDecodersHeaderGenerator):
+# Generates C++ functions responsible for decoding Dx12 API calls
+class Dx12StructDecodersHeaderGenerator(
+        Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr,
                  warnFile=sys.stderr,
                  diagFile=sys.stdout):
-        DX12BaseGenerator.__init__(
+        Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
         self.check_blacklist = True
@@ -57,7 +57,7 @@ class DX12StructDecodersHeaderGenerator(
         code += 'struct Decoded_LARGE_INTEGER;\n'.format(name)
         write(code, file=self.outFile)
 
-        DX12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generateFeature(self)
         BaseStructDecodersHeaderGenerator.generateFeature(self)
 
     # Method override
