@@ -43,6 +43,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             diag_file
         )
 
+        self.structs_with_objects = set()
+
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
@@ -64,6 +66,16 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         Dx12BaseGenerator.generate_feature(self)
 
+        # Find structs with COM object members, which will need to be
+        # unwrapped.
+        struct_list = self.source_dict['struct_list']
+        for s in struct_list:
+            members = self.feature_struct_members[s]
+            for member in members:
+                if self.is_struct_object_member(member):
+                    self.structs_with_objects.add(s)
+                    break
+
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             self.newline()
@@ -82,6 +94,28 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 if (v2['declaration_method'] == 'class')\
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_member_def(v2)
+
+    # Determine if a value is an object or a struct/union with an object.
+    def is_struct_object_member(self, member):
+        if self.is_class(member) or (
+            self.is_struct(member.base_type) and
+            (member.name in self.structs_with_objects)
+        ):
+            return True
+        elif 'anon-union' in member.base_type:
+            # Check the anonymous union for objects.  This step
+            # should not ignore blacklisted struct types.  It
+            # needs to process all struct types to build an
+            # accurate list of structs that contain objects.
+            for union_info in member.union_members:
+                if self.is_struct(union_info[1]):
+                    umembers = self.feature_struct_members[union_info[1]]
+                    for umember in umembers:
+                        if self.is_struct_object_member(umember):
+                            return True
+                elif union_info[1] in self.source_dict['class_list']:
+                    return True
+        return False
 
     # Check the parameter list for a pointer to an object that is being
     # created or retrieved, which needs to be wrapped.
@@ -195,16 +229,24 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
+        args = ''
+        if parameters:
+            args, need_unwrap_memory = self.make_arg_list(
+                parameters, True, self.increment_indent(indent)
+            )
+
+            if need_unwrap_memory:
+                expr += indent + 'auto unwrap_memory = '\
+                    'manager->GetHandleUnwrapMemory();\n'
+                expr += '\n'
+
         expr += indent
         if return_type != 'void':
             expr += 'auto result = '
-
         expr += '{}.{}('.format(table, name)
-        if parameters:
+        if args:
             expr += '\n'
-            expr += self.make_arg_list(
-                parameters, True, self.increment_indent(indent)
-            )
+            expr += args
         expr += ');\n'
 
         expr += self.gen_wrap_object(return_type, parameters, indent)
@@ -217,16 +259,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
+        args = ''
+        if parameters:
+            args, need_unwrap_memory = self.make_arg_list(
+                parameters, False, self.increment_indent(indent)
+            )
+
         expr += indent
         if return_type != 'void':
             expr += 'auto result = '
-
         expr += '{}.{}('.format(table, name)
-        if parameters:
+        if args:
             expr += '\n'
-            expr += self.make_arg_list(
-                parameters, False, self.increment_indent(indent)
-            )
+            expr += args
         expr += ');\n'
 
         indent = self.decrement_indent(indent)
@@ -304,16 +349,24 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
+            args = ''
+            if parameters:
+                args, need_unwrap_memory = self.make_arg_list(
+                    parameters, True, self.increment_indent(indent)
+                )
+
+                if need_unwrap_memory:
+                    expr += indent + 'auto unwrap_memory = '\
+                        'manager->GetHandleUnwrapMemory();\n'
+                    expr += '\n'
+
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
-
             expr += 'object_->{}('.format(method_name)
-            if parameters:
+            if args:
                 expr += '\n'
-                expr += self.make_arg_list(
-                    parameters, True, self.increment_indent(indent)
-                )
+                expr += args
             expr += ');\n'
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
@@ -326,16 +379,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
+            args = ''
+            if parameters:
+                args, need_unwrap_memory = self.make_arg_list(
+                    parameters, False, self.increment_indent(indent)
+                )
+
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
-
             expr += 'object_->{}('.format(method_name)
-            if parameters:
+            if args:
                 expr += '\n'
-                expr += self.make_arg_list(
-                    parameters, False, self.increment_indent(indent)
-                )
+                expr += args
             expr += ');\n'
 
             indent = self.decrement_indent(indent)
@@ -404,20 +460,35 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def make_arg_list(self, param_info, unwrap_objects, indent='    '):
         space_index = 0
         args = ''
+        need_unwrap_memory = False
         wrappers = self.get_wrapped_object_params(param_info)
 
         for p in param_info:
             name = p['name']
-            if unwrap_objects and (name in wrappers):
-                name = 'encode::GetWrappedObject<{type}_Wrapper, {type}>'\
-                    '({})'.format(name, type=wrappers[name].base_type)
+            if unwrap_objects:
+                if name in wrappers:
+                    name = 'encode::GetWrappedObject<{type}_Wrapper, {type}>'\
+                        '({})'.format(name, type=wrappers[name].base_type)
+                else:
+                    value = self.get_value_info(p)
+                    if value.base_type in self.structs_with_objects:
+                        need_unwrap_memory = True
+
+                        if value.array_length:
+                            name = 'UnwrapStructArrayObjects({}, {}'.format(
+                                name, value.array_length
+                            )
+                        else:
+                            name = 'UnwrapStructPtrObjects({}'.format(name)
+
+                        name += ', unwrap_memory)'
 
             if args:
                 args += ',\n'
             args += indent
             args += name
 
-        return args
+        return args, need_unwrap_memory
 
     def process_return_type(self, rt):
         return rt.replace('STDMETHODCALLTYPE', '').replace('WINAPI',
@@ -428,10 +499,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
+        code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
         code += '#include "encode/trace_manager.h"\n'
+        code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'
         code += '#include "util/defines.h"\n'
         code += '\n'

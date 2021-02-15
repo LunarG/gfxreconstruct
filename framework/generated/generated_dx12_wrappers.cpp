@@ -27,10 +27,12 @@
 
 #include "generated/generated_dx12_wrappers.h"
 
+#include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/trace_manager.h"
+#include "generated/generated_dx12_struct_unwrappers.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 #include "util/defines.h"
 
@@ -5648,12 +5650,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->CopyTextureRegion(
-            pDst,
+            UnwrapStructPtrObjects(pDst, unwrap_memory),
             DstX,
             DstY,
             DstZ,
-            pSrc,
+            UnwrapStructPtrObjects(pSrc, unwrap_memory),
             pSrcBox);
     }
     else
@@ -5895,9 +5899,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->ResourceBarrier(
             NumBarriers,
-            pBarriers);
+            UnwrapStructArrayObjects(pBarriers, NumBarriers , unwrap_memory));
     }
     else
     {
@@ -7395,8 +7401,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->CreateGraphicsPipelineState(
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
@@ -7430,8 +7438,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->CreateComputePipelineState(
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
@@ -8529,9 +8539,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->LoadGraphicsPipeline(
             pName,
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
@@ -8567,9 +8579,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->LoadComputePipeline(
             pName,
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
