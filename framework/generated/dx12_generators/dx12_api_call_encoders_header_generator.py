@@ -24,8 +24,8 @@ import sys
 from dx12_base_generator import Dx12BaseGenerator, write
 
 
-# Generates C++ functions responsible for encoding Dx12 API call.
 class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
+    """Generates C++ functions responsible for encoding Dx12 API call."""
 
     # SECURITY_ATTRIBUTES in minwinbase.h has been defined
     # in custom_vulkan_struct_encoders.h
@@ -42,8 +42,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
             diagFile)
         self.check_blacklist = True
 
-    # Method override
     def beginFile(self, gen_opts):
+        """Methond override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -52,8 +52,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
 
         self.write_encode_object()
@@ -180,8 +180,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
         self.newline()
 
-    # Method override
     def endFile(self):
+        """Methond override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

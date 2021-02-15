@@ -25,28 +25,28 @@ from dx12_ascii_consumer_header_generator\
     import Dx12AsciiConsumerHeaderGenerator
 
 
-# Generates C++ functions responsible for consuming Dx12 API calls
 class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
+    """Generates C++ functions responsible for consuming Dx12 API calls."""
 
-    # Method override
     def write_include(self):
+        """Methond override."""
         write('#include "generated_dx12_ascii_consumer.h"', file=self.outFile)
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('Ascii')
 
-    # Method override
     def get_decoder_class_define(self, consumer_type):
+        """Methond override."""
         declaration = ''
         indent = ''
         function_class = 'Dx12{}Consumer::'.format(consumer_type)
         class_end = ''
         return (declaration, indent, function_class, class_end)
 
-    # Method override
     def get_consumer_function_body(self, class_name, method_info):
+        """Methond override."""
         if class_name:
             code = '\n'\
                    '{{\n'\

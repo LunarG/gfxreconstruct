@@ -24,13 +24,13 @@
 from base_generator import *
 
 
-# Base class for generating decoder body code.
 class BaseDecoderBodyGenerator():
+    """Base class for generating decoder body code."""
 
-    #
-    # Performs C++ code generation for the feature.
-    # type is 'Vulkan' or 'Dx12'
     def generate_feature(self, type):
+        """Performs C++ code generation for the feature.
+        type: 'Vulkan' or 'Dx12'
+        """
         first = True
         for cmd in self.getFilteredCmdNames():
             self.cmdNames.append(cmd)
@@ -52,9 +52,8 @@ class BaseDecoderBodyGenerator():
             write(cmddef, file=self.outFile)
             first = False
 
-    #
-    # Generate C++ code for the decoder method body.
     def makeCmdBody(self, returnType, name, values, dx12_method = False):
+        """Generate C++ code for the decoder method body."""
         body = ''
         argNames = []
 
@@ -116,9 +115,8 @@ class BaseDecoderBodyGenerator():
 
         return body
 
-    #
-    # Generate parameter decode function/method invocation.
     def makeDecodeInvocation(self, value):
+        """Generate parameter decode function/method invocation."""
         bufferArgs = '(parameter_buffer + bytes_read), (buffer_size - bytes_read)'
         body = ''
 
@@ -167,9 +165,8 @@ class BaseDecoderBodyGenerator():
 
         return body
 
-    #
-    # Generate the VulkanDecoder::DecodeFunctionCall method.
     def generateDecodeCases(self):
+        """Generate the VulkanDecoder::DecodeFunctionCall method."""
         write('void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
         write('                                       const ApiCallInfo&            call_info,', file=self.outFile)
         write('                                       const uint8_t*                parameter_buffer,', file=self.outFile)

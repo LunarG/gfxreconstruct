@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating functions to map Vulkan struct member handles at file replay"""
+    """Options for generating functions to map Vulkan struct member handles at file replay."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructHandleMappersBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for mapping struct member handles
-# when replaying decoded Vulkan API call parameter data.
+
 class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan struct member handle mapping at file replay"""
+    """VulkanStructHandleMappersBodyGenerator - subclass of BaseGenerator.
+    Generates C++ functions responsible for mapping struct member handles
+    when replaying decoded Vulkan API call parameter data.
+    Generate C++ functions for Vulkan struct member handle mapping at file replay.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -60,8 +65,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
@@ -77,8 +82,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         # Generate the pNext handle mapping code.
         self.newline()
         write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table)', file=self.outFile)
@@ -118,9 +123,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
@@ -132,9 +136,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                     if sType:
                         self.pNextStructs[typename] = sType
 
-    #
-    # Method override
     def genCmd(self, cmdinfo, name, alias):
+        """Method override."""
         BaseGenerator.genCmd(self, cmdinfo, name, alias)
 
         # Look for output structs that contain handles and add to list
@@ -146,16 +149,14 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 (valueInfo.baseType not in self.outputStructsWithHandles):
                     self.outputStructsWithHandles.append(valueInfo.baseType)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.getFilteredStructNames():
             if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 handleMembers = dict()
@@ -195,9 +196,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
 
                 write(body, file=self.outFile)
 
-    #
-    # Generating expressions for mapping struct handles read from the capture file to handles created at replay.
     def makeStructHandleMappings(self, name, handleMembers, genericHandleMembers):
+        """Generating expressions for mapping struct handles read from the capture file to handles created at replay."""
         body = ''
 
         for member in handleMembers:
@@ -232,9 +232,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
 
         return body
 
-    #
-    # Generating expressions for adding mappings for handles created at replay that are embedded in structs
     def makeStructHandleAdditions(self, name, members):
+        """Generating expressions for adding mappings for handles created at replay that are embedded in structs."""
         body = 'void AddStructHandles(format::HandleId parent_id, const Decoded_{name}* id_wrapper, const {name}* handle_struct, VulkanObjectInfoTable* object_info_table)\n'.format(name=name)
         body +='{\n'
         body +='    if (id_wrapper != nullptr)\n'
@@ -269,11 +268,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         body += '}'
         return body
 
-    #
-    # Generate expressions to allocate memory for handles created at replay that are embedded in structs
     def makeStructHandleAllocations(self, name, members):
-        # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
-        # and does not need a temporary variable referencing the struct value.
+        """Generate expressions to allocate memory for handles created at replay that are embedded in structs.
+        Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
+        and does not need a temporary variable referencing the struct value.
+        """
         needsValuePtr = False
         for member in members:
             if self.isHandle(member.baseType) and not (member.isArray and not member.isDynamic):

@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function and forward type declarations for Vulkan struct decoding"""
+    """Options for generating C++ function and forward type declarations for Vulkan struct decoding."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,10 +40,13 @@ class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
-# Generates C++ type and function declarations for decoding Vulkan API structures.
+
 class VulkanStructDecodersForwardGenerator(BaseGenerator):
-    """Generate C++ function and forward type declarations for Vulkan struct decoding"""
+    """VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
+    Generates C++ type and function declarations for decoding Vulkan API structures.
+    Generate C++ function and forward type declarations for Vulkan struct decoding.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -50,8 +55,8 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
                                processCmds=False, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "util/defines.h"', file=self.outFile)
@@ -63,8 +68,8 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -72,16 +77,14 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.getFilteredStructNames():
             write('struct Decoded_{};'.format(struct), file=self.outFile)
 

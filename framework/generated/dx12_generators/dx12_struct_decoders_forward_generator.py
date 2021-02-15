@@ -26,9 +26,9 @@ from dx12_base_generator import *
 from base_struct_decoders_header_generator import *
 
 
-# Generates C++ functions responsible for decoding Dx12 API calls
 class Dx12StructDecodersForwardGenerator(
         Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
+    """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr,
@@ -39,8 +39,8 @@ class Dx12StructDecodersForwardGenerator(
             errFile, warnFile, diagFile)
         self.check_blacklist = True
 
-    # Method override
     def beginFile(self, gen_opts):
+        """Methond override."""
         BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -48,13 +48,13 @@ class Dx12StructDecodersForwardGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
         self.write_struct()
 
-    # Method override
     def write_include(self):
+        """Methond override."""
         code = ("\n"
                 "#include \"generated_dx12_struct_decoders.h\"\n"
                 "\n")
@@ -86,9 +86,9 @@ class Dx12StructDecodersForwardGenerator(
                         k) + '\n' + code[code_length:]
 
         write(code, file=self.outFile)
- 
-    # Method override
+
     def endFile(self):
+        """Methond override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

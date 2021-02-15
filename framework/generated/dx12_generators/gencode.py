@@ -55,12 +55,13 @@ from dx12_ascii_consumer_body_generator\
 default_blacklists = 'blacklists.json'
 
 
-# Returns a directory of [ generator function, generator options ] indexed
-# by specified short names. The generator options incorporate the following
-# parameters:
-#
-# args is an parsed argument object; see below for the fields that are used.
 def make_gen_opts(args):
+    """Returns a directory of [ generator function, generator options ] indexed
+    by specified short names. The generator options incorporate the following
+    parameters:
+
+    args is an parsed argument object; see below for the fields that are used.
+    """
     global gen_opts
     gen_opts = {}
 
@@ -263,16 +264,17 @@ def make_gen_opts(args):
     ]
 
 
-# Generate a target based on the options in the matching genOpts{} object.
-# This is encapsulated in a function so it can be profiled and/or timed.
-# The args parameter is an parsed argument object containing the following
-# fields that are used:
-#   target - target to generate
-#   directory - directory to generate it in
-#   protect - True if re-inclusion wrappers should be created
-#   extensions - list of additional extensions to include in generated
-#   interfaces
 def gen_target(args, source_dict):
+    """Generate a target based on the options in the matching gen_opts{} object.
+    This is encapsulated in a function so it can be profiled and/or timed.
+    The args parameter is an parsed argument object containing the following
+    fields that are used:
+      target - target to generate
+      directory - directory to generate it in
+      protect - True if re-inclusion wrappers should be created
+      extensions - list of additional extensions to include in generated
+      interfaces
+    """
     # Create generator options with specified parameters
     make_gen_opts(args)
 
@@ -301,6 +303,7 @@ def gen_target(args, source_dict):
 
 
 class GenCode (threading.Thread):
+
     def __init__(self, target, source_dict,
                  windows_sdk_version, directory, configs):
         threading.Thread.__init__(self)

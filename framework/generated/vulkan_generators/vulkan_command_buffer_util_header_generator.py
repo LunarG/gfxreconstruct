@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file replay"""
+    """Options for generating a C++ class for Vulkan capture file replay."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,13 @@ class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanReplayConsumer class responsible for
-# replaying decoded Vulkan API call parameter data.
+
 class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
-    """Generate a C++ class for Vulkan capture file replay"""
+    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanReplayConsumer class responsible for
+    replaying decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file replay.
+    """
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -56,8 +60,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         # member that contains handles).
         self.structsWithHandles = dict()
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
@@ -68,8 +72,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -77,24 +81,21 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
@@ -112,9 +113,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                     write(cmddef, file=self.outFile)
                     first = False
 
-    #
-    # Create list of parameters that have handle types or are structs that contain handles.
     def getParamListHandles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
             if self.isHandle(value.baseType):
@@ -123,8 +123,6 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                 handles.append(value)
         return handles
 
-    #
-    #
     def getArgList(self, values):
         args = []
         for value in values:

@@ -27,13 +27,13 @@ from base_struct_decoders_body_generator import *
 from base_decoder_body_generator import *
 
 
-# Generates C++ functions responsible for decoding Dx12 API calls
 class Dx12DecoderBodyGenerator(
         Dx12DecoderHeaderGenerator,
         BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
+    """Generates C++ functions responsible for decoding Dx12 API calls."""
 
-    # Method override
     def write_include(self):
+        """Methond override."""
         code = ("\n"
                 "#include \"generated_dx12_decoder.h\"\n"
                 "#include \"generated_dx12_struct_decoders_forward.h\"\n"
@@ -41,8 +41,8 @@ class Dx12DecoderBodyGenerator(
                 "\n")
         write(code, file=self.outFile)
 
-    # Met#include "util/defines.h"hod override
     def generateFeature(self):
+        """Methond override."""
         self.cmdNames = []
         self.methodNames = []
         Dx12BaseGenerator.generateFeature(self)
@@ -88,8 +88,8 @@ class Dx12DecoderBodyGenerator(
                         self.get_decode_method_call_body()))
         write(code, file=self.outFile)
 
-    # Method override
     def get_decode_function_call_body(self):
+        """Methond override."""
         code = '\n'\
                '{\n'\
                '    GFXRECON_UNREFERENCED_PARAMETER(call_info);\n'\
@@ -110,8 +110,8 @@ class Dx12DecoderBodyGenerator(
                 '}\n'
         return code
 
-    # Method override
     def get_decode_method_call_body(self):
+        """Methond override."""
         code = '\n'\
                '{\n'\
                '    GFXRECON_UNREFERENCED_PARAMETER(call_info);\n'\

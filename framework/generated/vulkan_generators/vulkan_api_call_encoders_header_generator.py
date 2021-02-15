@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,10 +40,13 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for encoding Vulkan API call parameter data.
+
 class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
-    """Generate C++ function declarations for Vulkan API parameter encoding"""
+    """VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ functions responsible for encoding Vulkan API call parameter data.
+    Generate C++ function declarations for Vulkan API parameter encoding
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -50,8 +55,8 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
@@ -62,8 +67,8 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -71,16 +76,14 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
@@ -94,9 +97,8 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
             write(cmddef, file=self.outFile)
             first = False
 
-    #
-    # Generate function declaration for a command
     def makeCmdDecl(self, proto, values):
+        """Generate function declaration for a command."""
         paramDecls = []
 
         for value in values:

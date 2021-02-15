@@ -23,8 +23,10 @@
 import os,re,sys,json
 from base_generator import *
 
+
 class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ code to alter Vulkan device createtion features"""
+    """Options for generating C++ code to alter Vulkan device createtion features."""
+
     def __init__(self,
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -40,10 +42,12 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
                                       protectFile=protectFile,
                                       protectFeature=protectFeature)
 
-# VulkanFeatureUtilBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions to alter Vulkan device creation features.
+
 class VulkanFeatureUtilBodyGenerator(BaseGenerator):
-    """Generate C++ code to alter Vulkan device creation features"""
+    """VulkanFeatureUtilBodyGenerator - subclass of BaseGenerator.
+    Generates C++ functions to alter Vulkan device creation features.
+    Generate C++ code to alter Vulkan device creation features.
+    """
 
     def __init__(self,
                  errFile = sys.stderr,
@@ -57,8 +61,8 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         # List of 1.0 features
         self.physicalDeviceFeatures = []
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/vulkan_feature_util.h"', file=self.outFile)
@@ -69,8 +73,8 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(feature_util)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write(self.makeFeatureHelper(), file=self.outFile)
         self.newline()
@@ -81,9 +85,8 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
@@ -106,14 +109,12 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
                 for member in self.featureStructMembers[typename]:
                     self.physicalDeviceFeatures.append(member.name)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         return False
 
-    #
-    # Generate help function for features on replaying at device creation time
     def makeFeatureHelper(self):
+        """Generate help function for features on replaying at device creation time."""
         result = 'void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysicalDeviceFeatures GetPhysicalDeviceFeatures, PFN_vkGetPhysicalDeviceFeatures2 GetPhysicalDeviceFeatures2, const void* pNext, const VkPhysicalDeviceFeatures* pEnabledFeatures)\n'
         result += '{\n'
         result += '    // If the pNext chain includes a VkPhysicalDeviceFeatures2 structure, then pEnabledFeatures must be NULL\n'

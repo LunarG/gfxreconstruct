@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructHandleWrappersBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating functions to wrap Vulkan struct member handles at API capture"""
+    """Options for generating functions to wrap Vulkan struct member handles at API capture."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanStructHandleWrappersBodyGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructHandleWrappersBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for wrapping struct member handles
-# when recording Vulkan API call parameter data.
+
 class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan struct member handle wrapping at API capture"""
+    """VulkanStructHandleWrappersBodyGenerator - subclass of BaseGenerator.
+    Generates C++ functions responsible for wrapping struct member handles
+    when recording Vulkan API call parameter data.
+    Generate C++ functions for Vulkan struct member handle wrapping at API capture.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -58,8 +63,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         self.pNextStructsWithHandles = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
         self.pNextStructsWithoutHandles = dict()       # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "generated/generated_vulkan_struct_handle_wrappers.h"', file=self.outFile)
@@ -69,8 +74,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
         self.newline()
         write('static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
@@ -134,9 +139,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
@@ -152,16 +156,14 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                     else:
                         self.pNextStructsWithoutHandles[typename] = sType
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.getFilteredStructNames():
             if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 handleMembers = dict()
@@ -183,9 +185,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
                 write(body, file=self.outFile)
 
-    #
-    # Generating expressions for unwrapping struct handles before an API call.
     def makeStructHandleUnwrappings(self, name, handleMembers, genericHandleMembers):
+        """Generating expressions for unwrapping struct handles before an API call."""
         body = ''
 
         for member in handleMembers:

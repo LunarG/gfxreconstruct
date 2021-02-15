@@ -24,10 +24,13 @@
 import os,re,sys
 from base_generator import *
 
-# Eliminates JSON blackLists and platformTypes files, which are not necessary for
-# pNext switch statement generation.
+
 class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API pNext structure decoding C++ code generation"""
+    """Eliminates JSON blackLists and platformTypes files, which are not necessary for
+    pNext switch statement generation.
+    Options for Vulkan API pNext structure decoding C++ code generation.
+    """
+
     def __init__(self,
                  filename = None,
                  directory = '.',
@@ -38,10 +41,13 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# DecodePNextStructGenerator - subclass of BaseGenerator.
-# Generates C++ code for Vulkan API pNext structure decoding.
+
 class DecodePNextStructGenerator(BaseGenerator):
-    """Generate pNext structure decoding C++ code"""
+    """DecodePNextStructGenerator - subclass of BaseGenerator.
+    Generates C++ code for Vulkan API pNext structure decoding.
+    Generate pNext structure decoding C++ code.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -53,8 +59,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         # Map to store VkStructureType enum values.
         self.sTypeValues = dict()
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
@@ -105,8 +111,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %d", (*sType));', file=self.outFile)
         write('                break;', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         write('            }', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
@@ -127,8 +133,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         if not alias:
             # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
             parentStructs = typeinfo.elem.get('structextends')
@@ -137,16 +143,14 @@ class DecodePNextStructGenerator(BaseGenerator):
                 if sType:
                     self.sTypeValues[typename] = sType
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.sTypeValues:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.sTypeValues:
             write('            case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
             write('                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'.format(struct), file=self.outFile)

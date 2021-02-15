@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating function prototypes to map Vulkan struct member handles at file replay"""
+    """Options for generating function prototypes to map Vulkan struct member handles at file replay."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructHandleMappersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ function prototypes for mapping struct member handles
-# when replaying decoded Vulkan API call parameter data.
+
 class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan struct member handle mapping at file replay"""
+    """VulkanStructHandleMappersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ function prototypes for mapping struct member handles
+    when replaying decoded Vulkan API call parameter data.
+    Generate C++ functions for Vulkan struct member handle mapping at file replay.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -59,8 +64,8 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/pnext_node.h"', file=self.outFile)
@@ -74,8 +79,8 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table);', file=self.outFile)
         self.newline()
@@ -135,17 +140,15 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
 
-    #
-    # Method override
     def genCmd(self, cmdinfo, name, alias):
+        """Method override."""
         BaseGenerator.genCmd(self, cmdinfo, name, alias)
 
         # Look for output structs that contain handles and add to list
@@ -157,16 +160,14 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
                 (valueInfo.baseType not in self.outputStructsWithHandles):
                     self.outputStructsWithHandles.append(valueInfo.baseType)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.getFilteredStructNames():
             if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 body = '\n'

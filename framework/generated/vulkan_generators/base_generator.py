@@ -42,9 +42,11 @@ import os,re,sys,json
 from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
 from vkconventions import VulkanConventions
 
-# Turn a list of strings into a regexp string matching exactly those strings.
-# From Khronos genvk.py
+
 def _makeREstring(list, default = None):
+    """Turn a list of strings into a regexp string matching exactly those strings.
+    From Khronos genvk.py
+    """
     if (len(list) > 0) or (default is None):
         return '^(' + '|'.join(list) + ')$'
     else:
@@ -64,24 +66,26 @@ _emitExtensionsPat    = _makeREstring(_emitExtensions, '.*')
 _featuresPat          = _makeREstring(_features, '.*')
 
 
-# ValueInfo - Class to store parameter/struct member information.
-#
-# Members:
-#   name - Parameter/struct member name of the value.
-#   baseType - Undecorated typename of the value.
-#   fullType - Fully qualified typename of the value.
-#   pointerCount - Number of '*' characters in the type declaration.
-#   arrayLength - The parameter that specifies the number of elements in an array, or None if the value is not an array.
-#   arrayCapacity - The max size of a statically allocated array, or None for a dynamically allocated array.
-#   arrayDimension - Number of the array dimension
-#   platformBaseType - For platform specific type definitions, stores the original baseType declaration before platform to trace type substitution.
-#   platformFullType - For platform specific type definitions, stores the original fullType declaration before platform to trace type substitution.
-#   isPointer - True if the value is a pointer.
-#   isArray - True if the member is an array.
-#   isDynamic - True if the memory for the member is an array and it is dynamically allocated.
-#   isConst - True if the member is a const.
 class ValueInfo():
-    """Contains information descripting Vulkan API call parameters and struct members"""
+    """ValueInfo - Class to store parameter/struct member information.
+    Contains information descripting Vulkan API call parameters and struct members.
+
+    Members:
+      name - Parameter/struct member name of the value.
+      base_type - Undecorated typename of the value.
+      full_type - Fully qualified typename of the value.
+      pointer_count - Number of '*' characters in the type declaration.
+      array_length - The parameter that specifies the number of elements in an array, or None if the value is not an array.
+      array_capacity - The max size of a statically allocated array, or None for a dynamically allocated array.
+      array_dimension - Number of the array dimension
+      platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
+      platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
+      is_pointer - True if the value is a pointer.
+      is_array - True if the member is an array.
+      is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
+      is_const - True if the member is a const.
+    """
+
     def __init__(self,
                  name,
                  baseType,
@@ -116,35 +120,38 @@ class ValueInfo():
         self.unionMembers = unionMembers
         self.is_com_outptr = is_com_outptr
 
-# BaseGeneratorOptions - subclass of GeneratorOptions.
-#
-# Adds options used by FrameworkGenerator objects during C++ language
-# code generation.
-#
-# Additional members
-#   blacklists - Path to JSON file listing apicalls and structs to ignore.
-#   platformTypes - Path to JSON file listing platform (WIN32, X11, etc.)
-#     specific types that are defined outside of the Vulkan header.
-#
-# Additional members (from Khronos Registry COptionsGenerator)
-#   prefixText - list of strings to prefix generated header with
-#     (usually a copyright statement + calling convention macros).
-#   protectFile - True if multiple inclusion protection should be
-#     generated (based on the filename) around the entire header.
-#   apicall - string to use for the function declaration prefix,
-#     such as APICALL on Windows.
-#   apientry - string to use for the calling convention macro,
-#     in typedefs, such as APIENTRY.
-#   apientryp - string to use for the calling convention macro
-#     in function pointer typedefs, such as APIENTRYP.
-#   indentFuncProto - True if prototype declarations should put each
-#     parameter on a separate line
-#   indentFuncPointer - True if typedefed function pointers should put each
-#     parameter on a separate line
-#   alignFuncParam - if nonzero and parameters are being put on a
-#     separate line, align parameter names at the specified column
+
 class BaseGeneratorOptions(GeneratorOptions):
-    """Options for Vulkan API parameter encoding and decoding C++ code generation"""
+    """BaseGeneratorOptions - subclass of GeneratorOptions.
+    Options for Vulkan API parameter encoding and decoding C++ code generation.
+
+    Adds options used by FrameworkGenerator objects during C++ language
+    code generation.
+
+    Additional members
+      blacklists - Path to JSON file listing apicalls and structs to ignore.
+      platform_types - Path to JSON file listing platform (WIN32, X11, etc.)
+        specific types that are defined outside of the Vulkan header.
+
+    Additional members (from Khronos Registry COptionsGenerator)
+      prefix_text - list of strings to prefix generated header with
+        (usually a copyright statement + calling convention macros).
+      protect_file - True if multiple inclusion protection should be
+        generated (based on the filename) around the entire header.
+      apicall - string to use for the function declaration prefix,
+        such as APICALL on Windows.
+      apientry - string to use for the calling convention macro,
+        in typedefs, such as APIENTRY.
+      apientryp - string to use for the calling convention macro
+        in function pointer typedefs, such as APIENTRYP.
+      indent_func_proto - True if prototype declarations should put each
+        parameter on a separate line
+      indent_func_pointer - True if typedefed function pointers should put each
+        parameter on a separate line
+      align_func_param - if nonzero and parameters are being put on a
+        separate line, align parameter names at the specified column
+    """
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -196,11 +203,13 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.codeGenerator   = True
 
 
-# BaseGenerator - subclass of OutputGenerator.
-# Base class providing common operations used to generate C++-language code for framework
-#   components that encode and decode Vulkan API parameters.
 class BaseGenerator(OutputGenerator):
-    """Base class for Vulkan API parameter encoding and decoding generators."""
+    """BaseGenerator - subclass of OutputGenerator.
+    Base class providing common operations used to generate C++-language code for framework
+      components that encode and decode Vulkan API parameters.
+    Base class for Vulkan API parameter encoding and decoding generators.
+    """
+
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
 
@@ -260,20 +269,18 @@ class BaseGenerator(OutputGenerator):
         if self.processCmds:
             self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate.
+        The subclass should override this method."""
         return False
 
-    #
-    # Performs C++ code generation for the feature.
-    # The subclass should override this method.
     def generateFeature(self):
+        """Performs C++ code generation for the feature.
+        The subclass should override this method."""
         pass
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         OutputGenerator.beginFile(self, genOpts)
 
         if genOpts.blacklists:
@@ -297,8 +304,8 @@ class BaseGenerator(OutputGenerator):
             write('#define ', headerSym, file=self.outFile)
             self.newline()
 
-    # Method override
     def endFile(self):
+        """Method override."""
         # Finish C++ wrapper and multiple inclusion protection
         if (self.genOpts.protectFile and self.genOpts.filename):
             self.newline()
@@ -307,9 +314,8 @@ class BaseGenerator(OutputGenerator):
         # Finish processing in superclass
         OutputGenerator.endFile(self)
 
-    # Method override
     def beginFeature(self, interface, emit):
-        # Start processing in superclass
+        """Method override. Start processing in superclass."""
         OutputGenerator.beginFeature(self, interface, emit)
 
         # Reset feature specific data sets
@@ -323,9 +329,8 @@ class BaseGenerator(OutputGenerator):
         if self.genOpts.protectFeature:
             self.featureExtraProtect = self.__getFeatureProtect(interface)
 
-    # Method override
     def endFeature(self):
-        # Generate code for the feature
+        """Method override. Generate code for the feature."""
         if self.emit and self.needFeatureGeneration():
             if self.featureBreak:
                 self.newline()
@@ -341,9 +346,8 @@ class BaseGenerator(OutputGenerator):
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
 
-    #
-    # Type generation
     def genType(self, typeinfo, name, alias):
+        """Method override. Type generation."""
         OutputGenerator.genType(self, typeinfo, name, alias)
         typeElem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags
@@ -359,13 +363,14 @@ class BaseGenerator(OutputGenerator):
         elif (category == 'bitmask'):
             self.flagsNames.add(name)
 
-    #
-    # Struct (e.g. C "struct" type) generation.
-    # This is a special case of the <type> tag where the contents are
-    # interpreted as a set of <member> tags instead of freeform C
-    # C type declarations. The <member> tags are just like <param>
-    # tags - they are a declaration of a struct or union member.
     def genStruct(self, typeinfo, typename, alias):
+        """Method override.
+        Struct (e.g. C "struct" type) generation.
+        This is a special case of the <type> tag where the contents are
+        interpreted as a set of <member> tags instead of freeform C
+        C type declarations. The <member> tags are just like <param>
+        tags - they are a declaration of a struct or union member.
+        """
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
@@ -375,22 +380,24 @@ class BaseGenerator(OutputGenerator):
             else:
                 self.featureStructAliases[typename] = alias
 
-    #
-    # Group (e.g. C "enum" type) generation.
-    # These are concatenated together with other types.
     def genGroup(self, groupinfo, groupName, alias):
+        """Method override.
+        Group (e.g. C "enum" type) generation.
+        These are concatenated together with other types.
+        """
         OutputGenerator.genGroup(self, groupinfo, groupName, alias)
         self.enumNames.add(groupName)
 
-    # Enumerant generation
-    # <enum> tags may specify their values in several ways, but are usually
-    # just integers.
     def genEnum(self, enuminfo, name, alias):
+        """Method override.
+        Enumerant generation
+        <enum> tags may specify their values in several ways, but are usually
+        just integers.
+        """
         OutputGenerator.genEnum(self, enuminfo, name, alias)
 
-    #
-    # Command generation
     def genCmd(self, cmdinfo, name, alias):
+        """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
         if self.processCmds:
             # Create the declaration for the function prototype
@@ -411,10 +418,10 @@ class BaseGenerator(OutputGenerator):
             # TODO: Define a class or namedtuple for the dictionary entry
             self.featureCmdParams[name] = (returnType, protoDecl, self.makeValueInfo(cmdinfo.elem.findall('param')))
 
-    #
-    # Generate a list of ValueInfo objects from a list of <param> or <member> tags
-    #  params - list of <param> or <member> tags to process
     def makeValueInfo(self, params):
+        """Generate a list of ValueInfo objects from a list of <param> or <member> tags
+         params - list of <param> or <member> tags to process
+        """
         values = []
         for param in params:
             # Get name
@@ -473,9 +480,8 @@ class BaseGenerator(OutputGenerator):
 
         return values
 
-    #
-    # Check for struct type
     def isStruct(self, baseType):
+        """Check for struct type."""
         if (baseType in self.structNames) or (baseType in self.PLATFORM_STRUCTS):
             return True
         return False
@@ -483,57 +489,49 @@ class BaseGenerator(OutputGenerator):
     def isClass(self, value):
         return False
 
-    #
-    # Check for handle type
     def isHandle(self, baseType):
+        """Check for handle type."""
         if baseType in self.handleNames:
             return True
         return False
 
-    #
-    # Check for dispatchable handle type
     def isDispatchableHandle(self, baseType):
+        """Check for dispatchable handle type."""
         if baseType in self.DISPATCHABLE_HANDLE_TYPES:
             return True
         return False
 
-    #
-    # Check for enum type
     def isEnum(self, baseType):
+        """Check for enum type."""
         if baseType in self.enumNames:
             return True
         return False
 
-    #
-    # Check for flags (bitmask) type
     def isFlags(self, baseType):
+        """Check for flags (bitmask) type."""
         if baseType in self.flagsNames:
             return True
         return False
 
-    #
-    # Check for function pointer type
     def isFunctionPtr(self, baseType):
+        """Check for function pointer type."""
         if baseType[:4] == 'PFN_':
             return True
         return False
 
-    #
-    # Determine if the value name specifies an array length
     def isArrayLen(self, name, values):
+        """Determine if the value name specifies an array length."""
         for value in values:
             if name == value.arrayLength:
                 return True
         return False
 
-    #
-    # Return the number of '*' in a type declaration
     def getPointerCount(self, fullType):
+        """Return the number of '*' in a type declaration."""
         return fullType.count('*')
 
-    #
-    # Determine if a pointer parameter is an input parameter
     def isInputPointer(self, value):
+        """Determine if a pointer parameter is an input parameter."""
         if 'const' in value.fullType:
             # Vulkan seems to follow a pattern where input pointers will be const and output pointers will not be const.
             return True
@@ -543,17 +541,15 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
-    #
-    # Determine if a parameter is an output parameter
     def isOutputParameter(self, value):
+        """Determine if a parameter is an output parameter."""
         # Check for an output pointer/array or an in-out pointer.
         if (value.isPointer or value.isArray) and not self.isInputPointer(value):
             return True
         return False
 
-    #
-    # Retrieve the length of an array defined by a <param> or <member> element
     def getArrayLen(self, param):
+        """Retrieve the length of an array defined by a <param> or <member> element."""
         result = None
         len = param.attrib.get('len')
         if len:
@@ -583,17 +579,15 @@ class BaseGenerator(OutputGenerator):
                     result = ', '.join(sizetokens)
         return result
 
-    #
-    # Check for a static array
     def isStaticArray(self, param):
+        """Check for a static array."""
         name = param.find('name')
         if (name.tail is not None) and ('[' in name.tail):
             return True
         return False
 
-    #
-    # Determine the length value of a static array (getArrayLen() returns the total capacity, not the actual length)
     def getStaticArrayLen(self, name, params, capacity):
+        """Determine the length value of a static array (get_array_len() returns the total capacity, not the actual length)."""
         # The XML registry does not provide a direct method for determining if a parameter provides the length
         # of a static array, but the parameter naming follows a pattern of array name = 'values' and length
         # name = 'valueCount'.  We will search the parameter list for a length parameter using this pattern.
@@ -605,33 +599,28 @@ class BaseGenerator(OutputGenerator):
         # Not all static arrays have an associated length parameter. These will use capacity as length.
         return capacity
 
-    #
-    # Determines if a struct with the specified typename is blacklisted.
     def isStructBlackListed(self, typename):
+        """Determines if a struct with the specified typename is blacklisted."""
         if typename in self.STRUCT_BLACKLIST:
             return True
         return False
 
-    #
-    # Determines if a struct with the specified typename is blacklisted.
     def isCmdBlackListed(self, name):
+        """Determines if a struct with the specified typename is blacklisted."""
         if name in self.APICALL_BLACKLIST:
             return True
         return False
 
-    #
-    # Retrieves a filtered list of keys from self.featureStructMemebers with blacklisted items removed.
     def getFilteredStructNames(self):
+        """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [key for key in self.featureStructMembers if not self.isStructBlackListed(key)]
 
-    #
-    # Retrieves a filtered list of keys from self.featureCmdParams with blacklisted items removed.
     def getFilteredCmdNames(self):
+        """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
         return [key for key in self.featureCmdParams if not self.isCmdBlackListed(key)]
 
-    #
-    # Determines if the specified struct type can reference pNext extension structs that contain handles.
     def checkStructPNextHandles(self, typename):
+        """Determines if the specified struct type can reference pNext extension structs that contain handles."""
         foundHandles = False
         foundHandlePtrs = False
         validExtensionStructs = self.registry.validextensionstructs.get(typename)
@@ -673,11 +662,11 @@ class BaseGenerator(OutputGenerator):
 
         return foundHandles, foundHandlePtrs
 
-    #
-    # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
-    # Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
-    # An optional list of structure types that contain handle members with pointer types may also be generated.
     def checkStructMemberHandles(self, typename, structsWithHandles, structsWithHandlePtrs = None):
+        """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
+        Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
+        An optional list of structure types that contain handle members with pointer types may also be generated.
+        """
         handles = []
         hasHandlePointer = False
         for value in self.featureStructMembers[typename]:
@@ -705,66 +694,66 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
-    #
-    # For a struct member that contains a generic handle value, retrieve the struct member
-    # containing an enum value defining the specific handle type.  Generic handles have an
-    # integer type such as uint64_t, with an associated enum value defining the specific
-    # type such as VkObjectType.
     def getGenericStructHandleTypeValue(self, structName, memberName):
+        """For a struct member that contains a generic handle value, retrieve the struct member
+        containing an enum value defining the specific handle type.  Generic handles have an
+        integer type such as uint64_t, with an associated enum value defining the specific
+        type such as VkObjectType.
+        """
         if structName in self.GENERIC_HANDLE_STRUCTS:
             structEntry = self.GENERIC_HANDLE_STRUCTS[structName]
             if memberName in structEntry:
                 return structEntry[memberName]
         return None
 
-    #
-    # For an API call parameter that contains a generic handle value, retrieve the parameter
-    # containing an enum value defining the specific handle type.  Generic handles have an
-    # integer type such as uint64_t, with an associated enum value defining the specific
-    # type such as VkObjectType.
     def getGenericCmdHandleTypeValue(self, cmdName, paramName):
+        """For an API call parameter that contains a generic handle value, retrieve the parameter
+        containing an enum value defining the specific handle type.  Generic handles have an
+        integer type such as uint64_t, with an associated enum value defining the specific
+        type such as VkObjectType.
+        """
         if cmdName in self.GENERIC_HANDLE_APICALLS:
             cmdEntry = self.GENERIC_HANDLE_APICALLS[cmdName]
             if paramName in cmdEntry:
                 return cmdEntry[paramName]
         return None
 
-    #
-    # Determine if a struct member contains a generic handle value.  Generic handles have an
-    # integer type such as uint64_t, with an associated enum value defining the specific
-    # type such as VkObjectType.
     def isGenericStructHandleValue(self, structName, memberName):
+        """Determine if a struct member contains a generic handle value.  Generic handles have an
+        integer type such as uint64_t, with an associated enum value defining the specific
+        type such as VkObjectType.
+        """
         if self.getGenericStructHandleTypeValue(structName, memberName):
             return True
         return False
 
-    #
-    # Determine if an API call parameter contains a generic handle value.  Generic handles have an
-    # integer type such as uint64_t, with an associated enum value defining the specific
-    # type such as VkObjectType.
     def isGenericCmdHandleValue(self, cmdName, paramName):
+        """Determine if an API call parameter contains a generic handle value.  Generic handles have an
+        integer type such as uint64_t, with an associated enum value defining the specific
+        type such as VkObjectType.
+        """
         if self.getGenericCmdHandleTypeValue(cmdName, paramName):
             return True
         return False
 
-    #
-    # Indent all lines in a string.
-    #  value - String to indent.
-    #  spaces - Number of spaces to indent.
     def indent(self, value, spaces):
+        """Indent all lines in a string.
+        value - String to indent.
+        spaces - Number of spaces to indent.
+        """
         prefix = ' ' * spaces
         return '\n'.join([prefix + v if v else v for v in value.split('\n')])
 
-    #
-    # Create a string containing a comma separated argument list from a list of ValueInfo values.
-    #  values - List of ValueInfo objects providing the parameter names for the argument list.
     def makeArgList(self, values):
+        """Create a string containing a comma separated argument list from a list of ValueInfo values.
+        values - List of ValueInfo objects providing the parameter names for the argument list.
+        """
         return ', '.join([value.name for value in values])
 
-    #
-    # makeAlignedParamDecl - return an indented parameter declaration string with the parameter
-    #  name aligned to the specified column.
     def makeAlignedParamDecl(self, paramType, paramName, indentColumn, alignColumn):
+        """make_aligned_param_decl - return an indented parameter declaration string with the parameter
+        name aligned to the specified column.
+        """
         paramDecl = ' ' * indentColumn
         paramDecl += paramType
 
@@ -776,9 +765,8 @@ class BaseGenerator(OutputGenerator):
 
         return paramDecl
 
-    #
-    # Convert a type name to a string to be used as part of an encoder/decoder function/method name.
     def makeInvocationTypeName(self, baseType):
+        """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
         if self.isStruct(baseType):
             return baseType
         elif self.isHandle(baseType):
@@ -809,9 +797,8 @@ class BaseGenerator(OutputGenerator):
 
         return baseType
 
-    #
-    # Create a type to use for a decoded parameter, using the decoder wrapper types for pointers.
     def makeDecodedParamType(self, value):
+        """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
         typeName = value.baseType
 
         # isPointer will be False for static arrays.
@@ -865,10 +852,10 @@ class BaseGenerator(OutputGenerator):
 
         return typeName
 
-    #
-    # makeConsumerDecl - return VulkanConsumer class member function declaration
     def makeConsumerFuncDecl(self, returnType, name, values, dx12_method = False):
-        """Generate VulkanConsumer class member function declaration"""
+        """make_consumer_decl - return VulkanConsumer class member function declaration.
+        Generate VulkanConsumer class member function declaration.
+        """
         paramDecls = []
 
         if dx12_method:
@@ -900,9 +887,8 @@ class BaseGenerator(OutputGenerator):
 
         return 'void {}()'.format(name)
 
-    #
-    # Generate the VkStructreType enumeration value for the specified structure type
     def makeStructureTypeEnum(self, typeinfo, typename):
+        """Generate the VkStructreType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
 
         for member in members:
@@ -924,9 +910,8 @@ class BaseGenerator(OutputGenerator):
                     return re.sub('VK_', 'VK_STRUCTURE_TYPE_', stype)
         return None
 
-    #
-    # Generate an expression for the length of a given array value
     def makeArrayLengthExpression(self, value, prefix=''):
+        """Generate an expression for the length of a given array value."""
         lengthExpr = value.arrayLength
         lengthValue = value.arrayLengthValue
 
@@ -963,9 +948,8 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    #
-    # Generate a parameter encoder method call invocation.
     def makeEncoderMethodCall(self, name, value, values, prefix, omitOutputParam=None):
+        """Generate a parameter encoder method call invocation."""
         argName = prefix + value.name
         if self.isGenericStructHandleValue(name, value.name) or self.isGenericCmdHandleValue(name, value.name):
             handleTypeName = prefix
@@ -1024,10 +1008,10 @@ class BaseGenerator(OutputGenerator):
 
         return '{}({})'.format(methodCall, ', '.join(args))
 
-    #
-    # Return appropriate feature protect string from 'platform' tag on feature.
-    # From Vulkan-ValidationLayers common_codegen.py
     def __getFeatureProtect(self, interface):
+        """Return appropriate feature protect string from 'platform' tag on feature.
+        From Vulkan-ValidationLayers common_codegen.py.
+        """
         # TODO: This should probably be in a JSON file.
         platform_dict = {
             'android' : 'VK_USE_PLATFORM_ANDROID_KHR',

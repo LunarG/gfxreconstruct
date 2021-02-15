@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating function prototypes to wrap Vulkan struct member handles at API capture"""
+    """Options for generating function prototypes to wrap Vulkan struct member handles at API capture."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructHandleWrappersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ function prototypes for wrapping struct member handles
-# when recording Vulkan API call parameter data.
+
 class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan struct member handle wrapping at API capture"""
+    """VulkanStructHandleWrappersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ function prototypes for wrapping struct member handles
+    when recording Vulkan API call parameter data.
+    Generate C++ functions for Vulkan struct member handle wrapping at API capture.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -57,8 +62,8 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         self.structsWithHandles = dict()
         self.outputStructs = []           # Output structures that retrieve handles, which need to be wrapped.
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/custom_vulkan_struct_handle_wrappers.h"', file=self.outFile)
@@ -72,8 +77,8 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);', file=self.outFile)
         self.newline()
@@ -140,24 +145,21 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Method override. Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers or self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         # Check for output structures, which retrieve handles that need to be wrapped.
         for cmd in self.featureCmdParams:
             info = self.featureCmdParams[cmd]
@@ -174,9 +176,8 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(struct)
                 write(body, file=self.outFile)
 
-    #
-    # Generates functions that wrap struct handle members.
     def generateCreateWrapperFuncs(self):
+        """Generates functions that wrap struct handle members."""
         for struct in self.outputStructs:
             body = 'template <typename ParentWrapper, typename CoParentWrapper>\n'
             body += 'void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(struct)

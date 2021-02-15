@@ -24,12 +24,11 @@
 from base_generator import *
 
 
-# Base class for generating struct decoder header code.
 class BaseStructDecodersHeaderGenerator():
+    """Base class for generating struct decoder header code."""
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
@@ -56,9 +55,10 @@ class BaseStructDecodersHeaderGenerator():
             write(body, file=self.outFile)
             first = False
 
-    #
-    # Determines if a Vulkan struct member needs an associated member delcaration in the decoded struct wrapper.
     def needsMemberDeclaration(self, name, value):
+        """Determines if a Vulkan struct member needs an associated member
+        delcaration in the decoded struct wrapper.
+        """
         if value.isPointer or value.isArray:
             return True
         elif self.isFunctionPtr(value.baseType):
@@ -71,9 +71,10 @@ class BaseStructDecodersHeaderGenerator():
             return True
         return False
 
-    #
-    # Determines if the struct member requires default initalization and determines the value to use.
     def getDefaultInitValue(self, type):
+        """Determines if the struct member requires default initalization and
+        determines the value to use.
+        """
         if type == 'format::HandleId':
             # These types represent values recorded for Vulkan handles.
             return 'format::kNullHandleId'
@@ -82,9 +83,8 @@ class BaseStructDecodersHeaderGenerator():
             return '0'
         return None
 
-    #
-    # Generate the struct member declarations for the decoded struct wrapper.
     def makeMemberDeclarations(self, name, values):
+        """Generate the struct member declarations for the decoded struct wrapper."""
         body = ''
 
         for value in values:

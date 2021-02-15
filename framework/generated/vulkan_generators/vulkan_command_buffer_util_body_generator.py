@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanCommandBufferUtilBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file replay"""
+    """Options for generating a C++ class for Vulkan capture file replay."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanCommandBufferUtilBodyGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanReplayConsumer class responsible for
-# replaying decoded Vulkan API call parameter data.
+
 class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
-    """Generate a C++ class for Vulkan capture file replay"""
+    """VulkanCommandBufferUtilBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanReplayConsumer class responsible for
+    replaying decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file replay.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -58,8 +63,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         self.pNextStructs = dict()    # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         self.commandInfo = dict()     # Map of Vulkan commands to parameter info
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
@@ -70,8 +75,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         for cmd, info in self.commandInfo.items():
             params = info[2]
             if params and params[0].baseType == 'VkCommandBuffer':
@@ -99,9 +104,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
@@ -114,22 +118,19 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                 if sType:
                     self.pNextStructs[typename] = sType
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for cmd in self.getFilteredCmdNames():
             self.commandInfo[cmd] = self.featureCmdParams[cmd]
 
-    #
-    # Create list of parameters that have handle types or are structs that contain handles.
     def getParamListHandles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
             if self.isHandle(value.baseType):
@@ -138,8 +139,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                 handles.append(value)
         return handles
 
-    #
-    #
     def getArgList(self, values):
         args = []
         for value in values:
@@ -148,8 +147,6 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             args.append('{} {}'.format(value.fullType, value.name))
         return ', '.join(args)
 
-    #
-    #
     def insertCommandHandle(self, index, value, valuePrefix='', indent=''):
         body = ''
         tail = ''

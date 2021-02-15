@@ -24,12 +24,11 @@
 from base_generator import *
 
 
-# Base class for generating struct docoder body code.
 class BaseStructDecodersBodyGenerator():
+    """Base class for generating struct docoder body code."""
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
@@ -48,9 +47,8 @@ class BaseStructDecodersBodyGenerator():
             write(body, file=self.outFile)
             first = False
 
-    #
-    # Generate C++ code for the decoder method body.
     def makeDecodeStructBody(self, name, values):
+        """Generate C++ code for the decoder method body."""
         body = ''
 
         for value in values:
@@ -63,9 +61,8 @@ class BaseStructDecodersBodyGenerator():
 
         return body
 
-    #
-    # Generate the struct member decoder function call invocation.
     def makeDecodeInvocation(self, name, value):
+        """Generate the struct member decoder function call invocation."""
         bufferArgs = '(buffer + bytes_read), (buffer_size - bytes_read)'
 
         body = ''

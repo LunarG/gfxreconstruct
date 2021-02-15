@@ -26,9 +26,9 @@ from dx12_replay_consumer_header_generator\
 from base_replay_consumer_body_generator import *
 
 
-# Generates C++ functions responsible for consuming Dx12 API calls
 class Dx12ReplayConsumerBodyGenerator(
         BaseReplayConsumerBodyGenerator, Dx12ReplayConsumerHeaderGenerator):
+    """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     # Override
     REPLAY_OVERRIDES = {}
@@ -37,12 +37,12 @@ class Dx12ReplayConsumerBodyGenerator(
     # Override
     sTypeValues = dict()
 
-    # Method override
     def write_include(self):
+        """Methond override."""
         write('#include "generated_dx12_replay_consumer.h"', file=self.outFile)
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
         BaseReplayConsumerBodyGenerator.generate_feature(self, 'Dx12')
         self.generate_dx12_method_feature()
@@ -79,8 +79,8 @@ class Dx12ReplayConsumerBodyGenerator(
             write(cmddef, file=self.outFile)
             first = False
 
-    # Method override
     def makeConsumerFuncBody(self, return_type, name, values):
+        """Methond override."""
         if name == 'IUnknown_AddRef':
             return '    replay_object->AddRef();\n'
         elif name == 'IUnknown_Release':

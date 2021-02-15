@@ -65,8 +65,8 @@ SAL_TOKENS = [
 original_warning_print = CppHeaderParser.warning_print
 
 
-# Override CppHeaderParser.warning_print
 def dx12_warning_print(fmt, *args):
+    """Override CppHeaderParser.warning_print."""
     # Silence warnings for unresolved SAL tokens.
     if (not fmt.startswith('WARN unresolved')) or (args[0] not in SAL_TOKENS):
         original_warning_print(fmt, *args)
@@ -79,8 +79,8 @@ original_is_method_namestack = CppHeaderParser.is_method_namestack
 original_is_property_namestack = CppHeaderParser.is_property_namestack
 
 
-# Function override
 def dx12_is_method_namestack(stack):
+    """Function override."""
     r = original_is_method_namestack(stack)
     # Additional check for D3D12 headers.
     if r:
@@ -92,8 +92,8 @@ def dx12_is_method_namestack(stack):
     return r
 
 
-# Function override
 def dx12_is_property_namestack(nameStack):
+    """Function override."""
     r = original_is_property_namestack(nameStack)
     if not r:
         if "(" in nameStack and ")" in nameStack:
@@ -119,9 +119,9 @@ class Dx12CppClass():
 
 class Dx12CppHeader(CppHeader):
 
-    # Method override
     def __init__(self, headerFileName, encoding=None, **kwargs):
-        """Custom CppHeader implementation to modify the content of the
+        """Method override.
+           Custom CppHeader implementation to modify the content of the
            header file to remove D3D12 specific syntax before parsing
            with the CppHeader base class.
         """
@@ -130,8 +130,8 @@ class Dx12CppHeader(CppHeader):
             source = self.preprocess_file(fd.readlines())
         CppHeader.__init__(self, source, "string", encoding, **kwargs)
 
-    # Preprocess header file to remove MIDL macros and CINTERACE declarations.
     def preprocess_file(self, lines):
+        """Preprocess header file to remove MIDL macros and CINTERACE declarations."""
         source = ''
         interface_scope = 0
         ignore_lines = False

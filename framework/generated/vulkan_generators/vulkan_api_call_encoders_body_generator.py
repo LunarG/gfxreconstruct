@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ functions for Vulkan API parameter encoding"""
+    """Options for generating C++ functions for Vulkan API parameter encoding."""
+ 
     def __init__(self,
                  captureOverrides = None,   # Path to JSON file listing Vulkan API calls to override on capture.
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
@@ -40,10 +42,13 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
                                       protectFile, protectFeature)
         self.captureOverrides = captureOverrides
 
-# VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for encoding Vulkan API call parameter data.
+
 class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
-    """Generate C++ functions for Vulkan API parameter encoding"""
+    """VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
+    Generates C++ functions responsible for encoding Vulkan API call
+    parameter data.
+    Generate C++ functions for Vulkan API parameter encoding.
+    """
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
     # will be replaced by the override value.
@@ -62,8 +67,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         # member that contains handles).
         self.structsWithHandles = dict()
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         if genOpts.captureOverrides:
@@ -88,8 +93,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -97,24 +102,21 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
@@ -131,9 +133,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             write(cmddef, file=self.outFile)
             first = False
 
-    #
-    # Generate function declaration for a command
     def makeCmdDecl(self, proto, values):
+        """Generate function declaration for a command."""
         paramDecls = []
 
         for value in values:
@@ -151,22 +152,19 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return '{}()\n'.format(proto)
 
-    #
-    # Check for dispatchable handle types associated with the instance dispatch table.
     def useInstanceTable(self, typename):
+        """Check for dispatchable handle types associated with the instance dispatch table."""
         if typename in ['VkInstance', 'VkPhysicalDevice']:
             return True
         return False
 
-    #
-    # Generate the layer dispatch call invocation.
     def makeLayerDispatchCall(self, name, values, argList):
+        """Generate the layer dispatch call invocation."""
         dispatchfunc = 'GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'GetDeviceTable'
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
-    #
-    # Command definition
     def makeCmdBody(self, returnType, name, values):
+        """Command definition."""
         indent = ' ' * self.INDENT_SIZE
         isOverride = name in self.CAPTURE_OVERRIDES
         encodeAfter = False
@@ -491,9 +489,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 expr += indent + 'DestroyWrappedHandle<{}Wrapper>({});\n'.format(handle.baseType[2:], handle.name)
         return expr
 
-    #
-    # Create list of parameters that have handle types or are structs that contain handles.
     def getParamListHandles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
             if self.isHandle(value.baseType):
@@ -502,9 +499,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 handles.append(value)
         return handles
 
-    #
-    # Generate an expression for a get command buffer handles utility function.
     def makeGetCommandHandlesExpr(self, cmd, values):
+        """Generate an expression for a get command buffer handles utility function."""
         handleParams = self.getParamListHandles(values)
         if handleParams:
             args = []
@@ -516,8 +512,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         else:
             return None
 
-    # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
     def retrievesHandles(self, values):
+        """Determine if an API call indirectly creates handles by retrieving them(e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)"""
         for value in values:
             if self.isOutputParameter(value) and (self.isHandle(value.baseType) or (value.baseType in self.structsWithHandles)):
                 return True

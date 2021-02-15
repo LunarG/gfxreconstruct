@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class declaration for Vulkan API parameter decoding"""
+    """Options for generating a C++ class declaration for Vulkan API parameter decoding."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,14 @@ class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ member declarations for the VulkanDecoder class responsible for decoding
-# Vulkan API call parameter data.
+
 class VulkanDecoderHeaderGenerator(BaseGenerator):
-    """Generate a C++ class declaration for Vulkan API parameter decoding"""
+    """VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ member declarations for the VulkanDecoder class responsible for decoding
+    Vulkan API call parameter data.
+    Generate a C++ class declaration for Vulkan API parameter decoding.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -51,8 +56,8 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/vulkan_decoder_base.h"', file=self.outFile)
@@ -74,8 +79,8 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         write('                                    size_t                        buffer_size) override;\n', file=self.outFile)
         write('  private:', end='', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -84,16 +89,14 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         first = True
         for cmd in self.getFilteredCmdNames():
             cmddef = '' if first else '\n'

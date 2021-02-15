@@ -24,11 +24,13 @@
 import os,re,sys
 from base_generator import *
 
-#
-# Eliminates JSON blackLists and platformTypes files, which are not necessary for
-# function table generation.
+
 class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan layer function table C++ code generation"""
+    """Eliminates JSON black_lists and platform_types files, which are not necessary for
+    function table generation.
+    Options for Vulkan layer function table C++ code generation.
+    """
+
     def __init__(self,
                  filename = None,
                  directory = '.',
@@ -39,10 +41,13 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# LayerFuncTableGenerator - subclass of BaseGenerator.
-# Generates C++ function table for the Vulkan API calls exported by the layer.
+
 class LayerFuncTableGenerator(BaseGenerator):
-    """Generate Vulkan layer function table C++ type declarations"""
+    """LayerFuncTableGenerator - subclass of BaseGenerator.
+    Generates C++ function table for the Vulkan API calls exported by the layer.
+    Generate Vulkan layer function table C++ type declarations.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -62,8 +67,8 @@ class LayerFuncTableGenerator(BaseGenerator):
                                 'vkEnumerateInstanceExtensionProperties',
                                 'vkEnumerateDeviceExtensionProperties']
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/custom_vulkan_api_call_encoders.h"', file=self.outFile)
@@ -79,8 +84,8 @@ class LayerFuncTableGenerator(BaseGenerator):
         self.newline()
         write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -88,16 +93,14 @@ class LayerFuncTableGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for cmd in self.getFilteredCmdNames():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):

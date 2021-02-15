@@ -25,8 +25,8 @@ from base_generator import *
 from dx12_base_generator import *
 
 
-# Generates C++ functions responsible for consuming Dx12 API calls
 class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
+    """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr,
@@ -36,8 +36,8 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             self, source_dict, dx12_prefix_strings,
             errFile, warnFile, diagFile)
 
-    # Method override
     def beginFile(self, gen_opts):
+        """Methond override."""
         BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
@@ -45,8 +45,8 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('')
 
@@ -183,8 +183,8 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         code += class_end
         write(code, file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Methond override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

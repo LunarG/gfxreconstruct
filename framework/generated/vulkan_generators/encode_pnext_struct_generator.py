@@ -24,10 +24,13 @@
 import os,re,sys
 from base_generator import *
 
-# Eliminates JSON blackLists and platformTypes files, which are not necessary for
-# pNext switch statement generation.
+
 class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API pNext structure encoding C++ code generation"""
+    """Eliminates JSON black_lists and platform_types files, which are not necessary for
+    pNext switch statement generation.
+    Options for Vulkan API pNext structure encoding C++ code generation.
+    """
+
     def __init__(self,
                  filename = None,
                  directory = '.',
@@ -38,10 +41,13 @@ class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# EncodePNextStructGenerator - subclass of BaseGenerator.
-# Generates C++ code for Vulkan API pNext structure encoding.
+
 class EncodePNextStructGenerator(BaseGenerator):
-    """Generate pNext structure encoding C++ code"""
+    """EncodePNextStructGenerator - subclass of BaseGenerator.
+    Generates C++ code for Vulkan API pNext structure encoding.
+    Generate pNext structure encoding C++ code.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -53,8 +59,8 @@ class EncodePNextStructGenerator(BaseGenerator):
         # Map to store VkStructureType enum values.
         self.sTypeValues = dict()
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "generated/generated_vulkan_struct_encoders.h"', file=self.outFile)
@@ -102,8 +108,8 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('            }', file=self.outFile)
         write('            break;', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('    else', file=self.outFile)
@@ -119,8 +125,8 @@ class EncodePNextStructGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         if not alias:
             # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
             parentStructs = typeinfo.elem.get('structextends')
@@ -129,16 +135,14 @@ class EncodePNextStructGenerator(BaseGenerator):
                 if sType:
                     self.sTypeValues[typename] = sType
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.sTypeValues:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.sTypeValues:
             write('        case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
             write('            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(base));'.format(struct), file=self.outFile)

@@ -26,7 +26,7 @@ from base_generator\
 
 
 class Dx12GeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function declarations for Dx12 API"""
+    """Options for generating C++ function declarations for Dx12 API."""
 
     def __init__(self, blacklists=None, platformTypes=None, filename=None,
                  directory='.', prefixText='', protectFile=False,
@@ -288,15 +288,15 @@ class Dx12BaseGenerator(BaseGenerator):
             isConst=const, unionMembers=union_members,
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type))
 
-    # Method override
     def genType(self, typeinfo, name, alias):
+        """Methond override."""
         self.genStruct(None, None, None)
         self.genCmd(None, None, None)
         self.genMethod()
         self.genHandle()
 
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Methond override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for k2, v2 in v.classes.items():
@@ -304,8 +304,8 @@ class Dx12BaseGenerator(BaseGenerator):
                     self.featureStructMembers[k2] = self.makeValueInfo(
                         v2['properties']['public'])
 
-    # Method override
     def genCmd(self, cmdinfo, name, alias):
+        """Methond override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for m in v.functions:
@@ -317,7 +317,7 @@ class Dx12BaseGenerator(BaseGenerator):
                             m['parameters']))
 
     def genHandle(self):
-        # override
+        # Member override
         self.handleNames = ['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC']
 
     def genMethod(self):
@@ -335,22 +335,22 @@ class Dx12BaseGenerator(BaseGenerator):
     def getFilteredMethodNames(self):
         return [key for key in self.featureMethodParams]
 
-    # Method override
     def makeValueInfo(self, params):
+        """Methond override."""
         values = []
         for p in params:
             values.append(self.get_value_info(p))
         return values
 
-    # Method override
     def getFilteredStructNames(self):
+        """Methond override."""
         if self.check_blacklist:
             return [key for key in self.source_dict['struct_list'] if not self.isStructBlackListed(key)]
         else:
             return self.source_dict['struct_list']
 
-    # Method override
     def isStruct(self, type):
+        """Methond override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
         if type == 'LARGE_INTEGER':
             return True
@@ -359,9 +359,8 @@ class Dx12BaseGenerator(BaseGenerator):
             return True
         return False
 
-    # Method override
     def isClass(self, value):
-        """Use value, not type because it needs to check void** case."""
+        """Methond override. Use value, not type because it needs to check void** case."""
         if value.baseType == 'void' and value.pointerCount == 2 and value.is_com_outptr:
             return True
 
@@ -376,8 +375,8 @@ class Dx12BaseGenerator(BaseGenerator):
                 return m[2]
         return ''
 
-    # Method override
     def isEnum(self, type):
+        """Methond override."""
         enum_set = self.source_dict['enum_set']
         if type in enum_set:
             return True
@@ -396,8 +395,8 @@ class Dx12BaseGenerator(BaseGenerator):
                     return e[1]
         return type
 
-    # Method override
     def makeInvocationTypeName(self, baseType):
+        """Methond override."""
         type = self.convert_function(baseType)
         type = BaseGenerator.makeInvocationTypeName(self, type)
         if type == 'Function':

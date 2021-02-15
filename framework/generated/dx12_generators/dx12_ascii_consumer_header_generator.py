@@ -24,11 +24,11 @@ from dx12_base_generator import *
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
 
 
-# Generates C++ functions responsible for consuming Dx12 API calls
 class Dx12AsciiConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
+    """Generates C++ functions responsible for consuming Dx12 API calls."""
 
-    # Method override
     def generateFeature(self):
+        """Methond override."""
         Dx12BaseGenerator.generateFeature(self)
         self.write_dx12_consumer_class('Ascii')
 

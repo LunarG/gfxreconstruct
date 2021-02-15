@@ -98,12 +98,14 @@ defaultPlatformTypes = 'platform_types.json'
 defaultReplayOverrides = 'replay_overrides.json'
 defaultCaptureOverrides = 'capture_overrides.json'
 
-# Returns a directory of [ generator function, generator options ] indexed
-# by specified short names. The generator options incorporate the following
-# parameters:
-#
-# args is an parsed argument object; see below for the fields that are used.
+
 def makeGenOpts(args):
+    """Returns a directory of [ generator function, generator options ] indexed
+    by specified short names. The generator options incorporate the following
+    parameters:
+
+    args is an parsed argument object; see below for the fields that are used.
+    """
     global genOpts
     genOpts = {}
 
@@ -485,16 +487,18 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
-# Generate a target based on the options in the matching genOpts{} object.
-# This is encapsulated in a function so it can be profiled and/or timed.
-# The args parameter is an parsed argument object containing the following
-# fields that are used:
-#   target - target to generate
-#   directory - directory to generate it in
-#   protect - True if re-inclusion wrappers should be created
-#   extensions - list of additional extensions to include in generated
-#   interfaces
+
 def genTarget(args):
+    """Generate a target based on the options in the matching gen_opts{} object.
+    This is encapsulated in a function so it can be profiled and/or timed.
+    The args parameter is an parsed argument object containing the following
+    fields that are used:
+      target - target to generate
+      directory - directory to generate it in
+      protect - True if re-inclusion wrappers should be created
+      extensions - list of additional extensions to include in generated
+      interfaces
+    """
     # Create generator options with specified parameters
     makeGenOpts(args)
 

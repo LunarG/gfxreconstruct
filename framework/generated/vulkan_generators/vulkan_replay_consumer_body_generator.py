@@ -24,8 +24,10 @@
 import os,re,sys,json
 from base_replay_consumer_body_generator import *
 
+
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan capture file replay"""
+    """Options for generating a C++ class for Vulkan capture file replay."""
+
     def __init__(self,
                  replayOverrides = None,    # Path to JSON file listing Vulkan API calls to override on replay.
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
@@ -40,11 +42,13 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
                                       protectFile, protectFeature)
         self.replayOverrides = replayOverrides
 
-# VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member definitions for the VulkanReplayConsumer class responsible for
-# replaying decoded Vulkan API call parameter data.
+
 class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGenerator):
-    """Generate a C++ class for Vulkan capture file replay"""
+    """VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member definitions for the VulkanReplayConsumer class responsible for
+    replaying decoded Vulkan API call parameter data.
+    Generate a C++ class for Vulkan capture file replay.
+    """
 
     # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
     # will be replaced by the override value.
@@ -71,8 +75,8 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
         self.sTypeValues = dict()
 
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         if genOpts.replayOverrides:
@@ -89,8 +93,8 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -98,9 +102,8 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Method override
     def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
@@ -110,42 +113,36 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
             if sType:
                 self.sTypeValues[typename] = sType
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         BaseReplayConsumerBodyGenerator.generate_feature(self, 'Vulkan')
 
-    #
-    # Check for dispatchable handle types associated with the instance dispatch table.
     def useInstanceTable(self, typename):
+        """Check for dispatchable handle types associated with the instance dispatch table."""
         if typename in ['VkInstance', 'VkPhysicalDevice']:
             return True
         return False
 
-    #
-    # Get the ID of the parent object when creating a Vulkan handle.  VkInstance is does not have a parent object.
     def getParentId(self, value, values):
+        """Get the ID of the parent object when creating a Vulkan handle.  VkInstance is does not have a parent object."""
         if value.baseType != "VkInstance":
             return values[0].name
         return 'format::kNullHandleId'
 
-    #
-    # Determine if an API call is perfroming a pool allocation.
     def isPoolAllocation(self, name):
+        """Determine if an API call is perfroming a pool allocation."""
         if name.startswith('vkAllocate') and (name != 'vkAllocateMemory'):
             return True
         return False
 
-    #
-    # Return VulkanReplayConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
+        """Return VulkanReplayConsumer class member function definition."""
         body = ''
         isOverride = name in self.REPLAY_OVERRIDES
 
@@ -192,9 +189,8 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
 
         return body
 
-    #
-    # Generate expressions to store the result of the count query for an array containing a variable number of values.
     def makeVariableLengthArrayPostExpr(self, name, value, values, lengthName):
+        """Generate expressions to store the result of the count query for an array containing a variable number of values."""
         handleValue = values[0]
         if self.isHandle(values[1].baseType):
             handleValue = values[1]
@@ -205,9 +201,8 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
 
         return 'if ({}->IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(value.name, handleType, handleValue.name, indexId, lengthName, infoFunc)
 
-    #
-    # Generate expressions to call a function that retrieves the count of an array containing a variable number of values.
     def makeVariableLengthArrayGetCountCall(self, returnType, name, value, values):
+        """Generate expressions to call a function that retrieves the count of an array containing a variable number of values."""
         returnValue = 'VK_SUCCESS'
         if (returnType == 'VkResult'):
             returnValue = 'returnValue'
@@ -230,11 +225,11 @@ class VulkanReplayConsumerBodyGenerator(BaseReplayConsumerBodyGenerator, BaseGen
 
         return 'GetOutputArrayCount<{}, {}>("{}", {}, {}, {}, {}, {}, {})'.format(value.baseType, handleType, name, returnValue, handleValue.name, indexId, value.name, arrayName, infoFunc)
 
-    #
-    # Generating expressions for mapping decoded parameters to arguments used in the API call
     def makeBodyExpressions(self, returnType, name, values, isOverride):
-        # For array lengths that are stored in pointers, this will map the original parameter name
-        # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
+        """"Generating expressions for mapping decoded parameters to arguments used in the API call.
+        For array lengths that are stored in pointers, this will map the original parameter name
+        to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
+        """
         arrayLengths = dict()
         isVariableLength = False
 

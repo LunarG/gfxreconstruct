@@ -27,10 +27,10 @@ from base_struct_decoders_body_generator import *
 from base_decoder_body_generator import *
 
 
-# Generates C++ functions responsible for decoding Dx12 API calls
 class Dx12StructDecodersBodyGenerator(
         Dx12DecoderHeaderGenerator,
         BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
+    """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
                  errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout):
@@ -43,8 +43,8 @@ class Dx12StructDecodersBodyGenerator(
             diagFile)
         self.check_blacklist = True
 
-    # Method override
     def write_include(self):
+        """Methond override."""
         code = ("\n"
                 "#include \"generated_dx12_struct_decoders.h\"\n"
                 "#include \"generated_dx12_struct_decoders_forward.h\"\n"

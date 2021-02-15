@@ -24,8 +24,10 @@
 import os,re,sys
 from base_decoder_body_generator import *
 
+
 class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating a C++ class for Vulkan API parameter decoding"""
+    """Options for generating a C++ class for Vulkan API parameter decoding."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,11 +40,13 @@ class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanDecoderBodyGenerator - subclass of BaseGenerator.
-# Generates C++ member functions for the VulkanDecoder class responsible for decoding
-# Vulkan API call parameter data.
+
 class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
-    """Generate a C++ class for Vulkan API parameter decoding"""
+    """VulkanDecoderBodyGenerator - subclass of BaseGenerator.
+    Generates C++ member functions for the VulkanDecoder class responsible for decoding
+    Vulkan API call parameter data.
+    Generate a C++ class for Vulkan API parameter decoding.
+    """
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -54,8 +58,8 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         # Names of all Vulkan commands processed by the generator.
         self.cmdNames = []
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
@@ -76,8 +80,8 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         # Generate the VulkanDecoder::DecodeFunctionCall method for all of the commands processed by the generator.
         self.generateDecodeCases()
@@ -88,14 +92,12 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureCmdParams:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         BaseDecoderBodyGenerator.generate_feature(self, 'Vulkan')

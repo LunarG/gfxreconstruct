@@ -25,13 +25,13 @@ import os,re,sys,json
 from base_generator import *
 
 
-# Base class for generating replay cousumers body code.
 class BaseReplayConsumerBodyGenerator():
+    """Base class for generating replay cousumers body code."""
 
-    #
-    # Performs C++ code generation for the feature.
-    # type is 'Vulkan' or 'Dx12'
     def generate_feature(self, type):
+        """Performs C++ code generation for the feature.
+        type: 'Vulkan' or 'Dx12'
+        """
         first = True
         for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]

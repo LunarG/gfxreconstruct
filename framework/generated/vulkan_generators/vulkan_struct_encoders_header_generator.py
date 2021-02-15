@@ -24,8 +24,10 @@
 import os,re,sys
 from base_generator import *
 
+
 class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function declarations for Vulkan struct encoding"""
+    """Options for generating C++ function declarations for Vulkan struct encoding."""
+
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -38,10 +40,13 @@ class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# VulkanStructEncodersHeaderGenerator - subclass of BaseGenerator.
-# Generates C++ type and function declarations for encoding Vulkan API structures.
+
 class VulkanStructEncodersHeaderGenerator(BaseGenerator):
-    """Generate C++ function declarations for Vulkan struct encoding"""
+    """VulkanStructEncodersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ type and function declarations for encoding Vulkan API structures.
+    Generate C++ function declarations for Vulkan struct encoding.
+    """
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -50,8 +55,8 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
                                processCmds=False, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
-    # Method override
     def beginFile(self, genOpts):
+        """Method override."""
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
@@ -67,8 +72,8 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         self.newline()
         write('void EncodePNextStruct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
-    # Method override
     def endFile(self):
+        """Method override."""
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -76,15 +81,13 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
+        """Indicates that the current feature has C++ code to generate."""
         if self.featureStructMembers:
             return True
         return False
 
-    #
-    # Performs C++ code generation for the feature.
     def generateFeature(self):
+        """Performs C++ code generation for the feature."""
         for struct in self.getFilteredStructNames():
             write('void EncodeStruct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
