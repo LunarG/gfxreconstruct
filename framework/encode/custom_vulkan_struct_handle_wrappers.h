@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_STRUCT_HANDLE_WRAPPERS_H
 #define GFXRECON_ENCODE_CUSTOM_STRUCT_HANDLE_WRAPPERS_H
 
+#include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "util/defines.h"
 

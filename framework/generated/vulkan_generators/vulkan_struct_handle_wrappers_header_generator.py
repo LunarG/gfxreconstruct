@@ -62,6 +62,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/custom_vulkan_struct_handle_wrappers.h"', file=self.outFile)
+        write('#include "encode/handle_unwrap_memory.h"', file=self.outFile)
         write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)

@@ -30,6 +30,7 @@
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_HANDLE_WRAPPERS_H
 
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
+#include "encode/handle_unwrap_memory.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "format/platform_types.h"
 #include "util/defines.h"

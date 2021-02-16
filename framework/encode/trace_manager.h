@@ -27,6 +27,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
+#include "encode/handle_unwrap_memory.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
