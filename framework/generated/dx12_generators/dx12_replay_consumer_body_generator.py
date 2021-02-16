@@ -81,7 +81,7 @@ class Dx12ReplayConsumerBodyGenerator(
                     "    if (replay_count == 0)\n"
                     "    {\n"
                     "        RemoveObject(object_id);\n"
-                    "        GFXRECON_LOG_INFO(\"Object with ID %\" PRIu64 \" has been destroyed\", object_id);\n"  # noqa
+                    "        GFXRECON_LOG_INFO(\"Object with ID %\" PRIu64 \" has been destroyed\", object_id);\n"
                     "    }\n")
 
         code = ''
@@ -140,7 +140,7 @@ class Dx12ReplayConsumerBodyGenerator(
                     elif self.is_struct(value.base_type)\
                             and value.pointer_count == 2\
                             and value.is_const:
-                        value_name = ('const_cast<const {}**>({}->GetPointer())'  # noqa
+                        value_name = ('const_cast<const {}**>({}->GetPointer())'
                                       .format(value.base_type, value.name))
                     elif value.base_type == 'void':
                         if value.pointer_count == 1:
@@ -158,7 +158,7 @@ class Dx12ReplayConsumerBodyGenerator(
                         value_name = 'MapHandle<{}>({})'.format(
                             value.base_type, value.name)
                     elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
-                        value_name = ('reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'  # noqa
+                        value_name = ('reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'
                                       .format(value.name))
 
             if not value_name:
@@ -172,13 +172,13 @@ class Dx12ReplayConsumerBodyGenerator(
             for value in values:
                 if self.is_tracking_data(value):
                     if self.is_class(value):
-                        code += ('        AddObject(_out_p_{0}, _out_hp_{0});\n'  # noqa
+                        code += ('        AddObject(_out_p_{0}, _out_hp_{0});\n'
                                  .format(value.name))
                     elif self.is_handle(value.base_type):
-                        code += ('        AddHandle(_out_p_{0}, _out_hp_{0});\n'  # noqa
+                        code += ('        AddHandle(_out_p_{0}, _out_hp_{0});\n'
                                  .format(value.name))
             code += "    }\n"
-            code += ('    CheckReplayResult("{}", returnValue, replay_result);\n'  # noqa
+            code += ('    CheckReplayResult("{}", returnValue, replay_result);\n'
                      .format(name))
         return code
 

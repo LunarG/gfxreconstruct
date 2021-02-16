@@ -75,7 +75,7 @@ class Dx12DecoderHeaderGenerator(
             class_name = '_' + class_name
             object_param = 'format::HandleId object_id, '
 
-        return ('{}size_t {}Decode{}_{}({}const uint8_t* parameter_buffer, size_t buffer_size){}\n'  # noqa
+        return ('{}size_t {}Decode{}_{}({}const uint8_t* parameter_buffer, size_t buffer_size){}\n'
                 .format(indent, function_class, class_name,
                         method_info['name'], object_param,
                         self.get_decoder_method_body(method_info['parameters'])
@@ -88,16 +88,16 @@ class Dx12DecoderHeaderGenerator(
                        "    Dx12Decoder(){{}}\n"
                        "    virtual ~Dx12Decoder() override {{}}\n"
                        "\n"
-                       "    virtual void DecodeFunctionCall(format::ApiCallId  call_id,\n"  # noqa
-                       "                                    const ApiCallInfo& call_options,\n"  # noqa
-                       "                                    const uint8_t*     parameter_buffer,\n"  # noqa
-                       "                                    size_t             buffer_size) override{}\n"  # noqa
+                       "    virtual void DecodeFunctionCall(format::ApiCallId  call_id,\n"
+                       "                                    const ApiCallInfo& call_options,\n"
+                       "                                    const uint8_t*     parameter_buffer,\n"
+                       "                                    size_t             buffer_size) override{}\n"
                        "\n"
-                       "    virtual void DecodeMethodCall(format::ApiCallId  call_id,\n"  # noqa
-                       "                                  format::HandleId   object_id,\n"  # noqa
-                       "                                  const ApiCallInfo& call_options,\n"  # noqa
-                       "                                  const uint8_t*     parameter_buffer,\n"  # noqa
-                       "                                  size_t             buffer_size) override{}\n"  # noqa
+                       "    virtual void DecodeMethodCall(format::ApiCallId  call_id,\n"
+                       "                                  format::HandleId   object_id,\n"
+                       "                                  const ApiCallInfo& call_options,\n"
+                       "                                  const uint8_t*     parameter_buffer,\n"
+                       "                                  size_t             buffer_size) override{}\n"
                        "  private:\n".format(
                           self.get_decode_function_call_body(),
                           self.get_decode_method_call_body()))

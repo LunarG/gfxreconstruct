@@ -76,22 +76,22 @@ def make_gen_opts(args):
         '/*',
         '** Copyright (c) 2021 LunarG, Inc.',
         '**',
-        '** Permission is hereby granted, free of charge, to any person obtaining a copy',  # noqa
-        '** of this software and associated documentation files (the "Software"), to',      # noqa
-        '** deal in the Software without restriction, including without limitation the',    # noqa
-        '** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or',   # noqa
-        '** sell copies of the Software, and to permit persons to whom the Software is',    # noqa
+        '** Permission is hereby granted, free of charge, to any person obtaining a copy',
+        '** of this software and associated documentation files (the "Software"), to',    
+        '** deal in the Software without restriction, including without limitation the',  
+        '** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or', 
+        '** sell copies of the Software, and to permit persons to whom the Software is',  
         '** furnished to do so, subject to the following conditions:',
         '**',
-        '** The above copyright notice and this permission notice shall be included in',    # noqa
+        '** The above copyright notice and this permission notice shall be included in',  
         '** all copies or substantial portions of the Software.',
         '**',
-        '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',    # noqa
-        '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',      # noqa
-        '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',   # noqa
-        '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',        # noqa
-        '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',       # noqa
-        '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS',  # noqa
+        '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',  
+        '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',    
+        '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE', 
+        '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',      
+        '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',     
+        '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS',
         '** IN THE SOFTWARE.',
         '*/',
         ''
@@ -284,7 +284,7 @@ def gen_target(args, source_dict):
 
         # Text specific to dx12 headers
         dx12_prefix_strings = ("/*\n"
-                               "** This part is generated from {} in Windows SDK: {}\n"  # noqa
+                               "** This part is generated from {} in Windows SDK: {}\n"
                                "**\n"
                                "*/").format('{}', args.windows_sdk_version)
 

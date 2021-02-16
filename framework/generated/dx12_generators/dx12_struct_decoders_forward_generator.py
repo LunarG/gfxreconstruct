@@ -64,7 +64,7 @@ class Dx12StructDecodersForwardGenerator(
         return ';'
 
     def get_struct_function(self, name, properties):
-        code = ('size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)'  # noqa
+        code = ('size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)'
                 .format(name))
         code += self.get_struct_function_body(properties)
         code += '\n\n'

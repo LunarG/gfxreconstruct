@@ -76,7 +76,7 @@ if __name__ == '__main__':
     if 'WindowsSDKVersion' in env:
         WINDOWS_SDK_VERSION = env['WindowsSDKVersion']
     else:
-        print('Please run in Visual Studio Developer Command Prompt to get environment variables, WindowsSDKVersion and WindowsSdkDir')  # noqa
+        print('Please run in Visual Studio Developer Command Prompt to get environment variables, WindowsSDKVersion and WindowsSdkDir')
         input("Press Enter to continue...")
         sys.exit()
 
@@ -105,8 +105,7 @@ if __name__ == '__main__':
 
     header_dict = {}
     for source in DX12_SOURCE_LIST:
-        source_file = os.path.join(WINDOWS_SDK_DIR + 'Include\\'
-                                   + WINDOWS_SDK_VERSION, source)
+        source_file = os.path.join(WINDOWS_SDK_DIR + 'Include\\'+ WINDOWS_SDK_VERSION, source)
         print('Parsing', source_file)
         header_dict[source[source.find('\\') +
                            1:]] = Dx12CppHeader(source_file)

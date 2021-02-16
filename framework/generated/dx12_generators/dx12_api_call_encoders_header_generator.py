@@ -89,8 +89,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
 
     def write_encode_object(self):
-        code = ("void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);\n"  # noqa
-                "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);\n")  # noqa
+        code = ("void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);\n"
+                "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);\n")
         write(code, file=self.outFile)
 
     def get_encode_struct_body(self, properties):
