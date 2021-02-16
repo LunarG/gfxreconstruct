@@ -160,17 +160,7 @@ class DX12ApiCallEncodersBodyGenerator(DX12ApiCallEncodersHeaderGenerator):
 
         value = self.get_value_info(parameter)
 
-        if value.unionMembers:
-            rtn.append('// For Union, find the largest size in the member and encode it.')  # noqa
-            rtn.append('size_t union_size_max = 0, union_size = 0;')
-
-            for m in value.unionMembers:
-                rtn.append('if (union_size = sizeof(value.{}) > union_size_max) union_size_max = union_size;'  # noqa
-                           .format(m[0]))
-            rtn.append('encoder->EncodeVoidArray(reinterpret_cast<const void*>(&value.{}), union_size_max);'  # noqa
-                       .format(value.unionMembers[0][0]))
-
-        elif self.isStruct(value.baseType):
+        if self.isStruct(value.baseType):
             rtn.append(self.get_encode_struct(value, is_generating_struct))
 
         elif self.isClass(value):

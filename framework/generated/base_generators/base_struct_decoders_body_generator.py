@@ -76,7 +76,6 @@ class BaseStructDecodersBodyGenerator():
         isFuncp = False
         isHandle = False
         isEnum = False
-        isUnion = False  # union is only for dx12
 
         typeName = self.makeInvocationTypeName(value.baseType)
 
@@ -92,8 +91,6 @@ class BaseStructDecodersBodyGenerator():
             isHandle = True
         elif typeName == 'Enum':
             isEnum = True
-        elif typeName == 'Union':
-            isUnion = True
 
         # isPointer will be False for static arrays.
         if value.isPointer or value.isArray:
@@ -161,15 +158,6 @@ class BaseStructDecodersBodyGenerator():
                 body += '    value->{} = {};\n'.format(value.name, tempParamName)
             elif isEnum:
                 body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(bufferArgs, value.name)
-            elif isUnion:
-                body += '    // For Union, find the largest size in the member and encode it.\n'\
-                        '    size_t union_size_max = 0, union_size = 0;\n'\
-
-                for m in value.unionMembers:
-                    body += '    if (union_size = sizeof(value->{}) > union_size_max) union_size_max = union_size;\n'.format(m[0])
-
-                body += '    ValueDecoder::DecodeVoidArray({}, reinterpret_cast<void*>(&value->{}), union_size_max);\n'.format(bufferArgs, value.unionMembers[0][0])
-
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
 
