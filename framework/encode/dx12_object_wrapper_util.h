@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_UTIL_H
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_UTIL_H
 
+#include "encode/handle_unwrap_memory.h"
 #include "encode/iunknown_wrapper.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -158,6 +159,29 @@ format::HandleId GetWrappedId(const Object* wrapped_object)
 //----------------------------------------------------------------------------
 template <>
 format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object);
+
+// Unwrap arrays of handles.
+template <typename Wrapper, typename Object>
+Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    if ((objects != nullptr) && (len > 0))
+    {
+        assert(unwrap_memory != nullptr);
+
+        size_t num_bytes         = len * sizeof(Object*);
+        auto   unwrapped_objects = reinterpret_cast<Object**>(unwrap_memory->GetBuffer(num_bytes));
+
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            unwrapped_objects[i] = GetWrappedObject<Wrapper, Object>(objects[i]);
+        }
+
+        return unwrapped_objects;
+    }
+
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return objects;
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
