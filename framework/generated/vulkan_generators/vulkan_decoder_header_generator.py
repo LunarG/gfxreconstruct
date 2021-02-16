@@ -30,15 +30,15 @@ class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanDecoderHeaderGenerator(BaseGenerator):
@@ -49,16 +49,16 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=False, feature_break=True,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/vulkan_decoder_base.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -89,16 +89,16 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureCmdParams:
+        if self.feature_cmd_params:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
         first = True
-        for cmd in self.getFilteredCmdNames():
+        for cmd in self.get_filtered_cmd_names():
             cmddef = '' if first else '\n'
             cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(cmd)
             write(cmddef, file=self.outFile)

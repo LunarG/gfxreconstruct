@@ -92,12 +92,12 @@ def dx12_is_method_namestack(stack):
     return r
 
 
-def dx12_is_property_namestack(nameStack):
+def dx12_is_property_namestack(name_stack):
     """Function override."""
-    r = original_is_property_namestack(nameStack)
+    r = original_is_property_namestack(name_stack)
     if not r:
-        if "(" in nameStack and ")" in nameStack:
-            index = nameStack.index("(")
+        if "(" in name_stack and ")" in name_stack:
+            index = name_stack.index("(")
             # if "(" index is less than 2, this is a property, not a method
             if index < 2:
                 r = True
@@ -119,14 +119,14 @@ class Dx12CppClass():
 
 class Dx12CppHeader(CppHeader):
 
-    def __init__(self, headerFileName, encoding=None, **kwargs):
+    def __init__(self, header_file_name, encoding=None, **kwargs):
         """Method override.
            Custom CppHeader implementation to modify the content of the
            header file to remove D3D12 specific syntax before parsing
            with the CppHeader base class.
         """
         source = ''
-        with open(headerFileName, 'r') as fd:
+        with open(header_file_name, 'r') as fd:
             source = self.preprocess_file(fd.readlines())
         CppHeader.__init__(self, source, "string", encoding, **kwargs)
 

@@ -32,9 +32,9 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         """Methond override."""
         write('#include "generated_dx12_ascii_consumer.h"', file=self.outFile)
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Methond override."""
-        Dx12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('Ascii')
 
     def get_decoder_class_define(self, consumer_type):

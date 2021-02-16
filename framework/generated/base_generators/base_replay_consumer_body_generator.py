@@ -33,15 +33,15 @@ class BaseReplayConsumerBodyGenerator():
         type: 'Vulkan' or 'Dx12'
         """
         first = True
-        for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
+        for cmd in self.get_filtered_cmd_names():
+            info = self.feature_cmd_params[cmd]
+            return_type = info[0]
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.makeConsumerFuncDecl(returnType, '{}ReplayConsumer::Process_'.format(type) + cmd, values) + '\n'
+            cmddef += self.make_consumer_func_decl(return_type, '{}ReplayConsumer::Process_'.format(type) + cmd, values) + '\n'
             cmddef += '{\n'
-            cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
+            cmddef += self.make_consumer_func_body(return_type, cmd, values)
             cmddef += '}'
 
             write(cmddef, file=self.outFile)

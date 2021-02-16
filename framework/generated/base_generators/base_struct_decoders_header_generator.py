@@ -27,10 +27,10 @@ from base_generator import *
 class BaseStructDecodersHeaderGenerator():
     """Base class for generating struct decoder header code."""
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
         first = True
-        for struct in self.getFilteredStructNames():
+        for struct in self.get_filtered_struct_names():
             body = '' if first else '\n'
             body += 'struct Decoded_{}\n'.format(struct)
             body += '{\n'
@@ -38,7 +38,7 @@ class BaseStructDecodersHeaderGenerator():
             body += '\n'
             body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
-            decls = self.makeMemberDeclarations(struct, self.featureStructMembers[struct])
+            decls = self.make_member_declarations(struct, self.feature_struct_members[struct])
             if decls:
                 body += '\n'
                 body += decls
@@ -49,29 +49,29 @@ class BaseStructDecodersHeaderGenerator():
             first = False
 
         # Write typedefs for any aliases
-        for struct in self.featureStructAliases:
+        for struct in self.feature_struct_aliases:
             body = '' if first else '\n'
-            body += 'typedef Decoded_{} Decoded_{};'.format(self.featureStructAliases[struct], struct)
+            body += 'typedef Decoded_{} Decoded_{};'.format(self.feature_struct_aliases[struct], struct)
             write(body, file=self.outFile)
             first = False
 
-    def needsMemberDeclaration(self, name, value):
+    def needs_member_declaration(self, name, value):
         """Determines if a Vulkan struct member needs an associated member
         delcaration in the decoded struct wrapper.
         """
-        if value.isPointer or value.isArray:
+        if value.is_pointer or value.is_array:
             return True
-        elif self.isFunctionPtr(value.baseType):
+        elif self.is_function_ptr(value.base_type):
             return True
-        elif self.isHandle(value.baseType):
+        elif self.is_handle(value.base_type):
             return True
-        elif self.isStruct(value.baseType):
+        elif self.is_struct(value.base_type):
             return True
-        elif self.isGenericStructHandleValue(name, value.name):
+        elif self.is_generic_struct_handle_value(name, value.name):
             return True
         return False
 
-    def getDefaultInitValue(self, type):
+    def get_default_init_value(self, type):
         """Determines if the struct member requires default initalization and
         determines the value to use.
         """
@@ -83,26 +83,26 @@ class BaseStructDecodersHeaderGenerator():
             return '0'
         return None
 
-    def makeMemberDeclarations(self, name, values):
+    def make_member_declarations(self, name, values):
         """Generate the struct member declarations for the decoded struct wrapper."""
         body = ''
 
         for value in values:
-            if value.name == 'pNext' and value.baseType == 'void':
+            if value.name == 'pNext' and value.base_type == 'void':
                 # We have a special type to store the pNext chain
                 body += '    PNextNode* pNext{ nullptr };\n'
-            elif self.needsMemberDeclaration(name, value):
-                typeName = self.makeDecodedParamType(value)
-                if self.isStruct(value.baseType):
-                    typeName = '{}*'.format(typeName)
+            elif self.needs_member_declaration(name, value):
+                type_name = self.make_decoded_param_type(value)
+                if self.is_struct(value.base_type):
+                    type_name = '{}*'.format(type_name)
 
-                defaultValue = self.getDefaultInitValue(typeName)
-                if defaultValue:
-                    body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)
+                default_value = self.get_default_init_value(type_name)
+                if default_value:
+                    body += '    {} {}{{ {} }};\n'.format(type_name, value.name, default_value)
                 else:
-                    if self.isStruct(value.baseType):
-                        body += '    {} {}{{ nullptr }};\n'.format(typeName, value.name)
+                    if self.is_struct(value.base_type):
+                        body += '    {} {}{{ nullptr }};\n'.format(type_name, value.name)
                     else:
-                        body += '    {} {};\n'.format(typeName, value.name)
+                        body += '    {} {};\n'.format(type_name, value.name)
 
         return body

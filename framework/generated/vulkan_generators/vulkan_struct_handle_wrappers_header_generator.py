@@ -30,15 +30,15 @@ class VulkanStructHandleWrappersHeaderGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
@@ -49,22 +49,22 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=True, feature_break=False,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
-        self.structsWithHandles = dict()
-        self.outputStructs = []           # Output structures that retrieve handles, which need to be wrapped.
+        self.structs_with_handles = dict()
+        self.output_structs = []           # Output structures that retrieve handles, which need to be wrapped.
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "encode/custom_vulkan_struct_handle_wrappers.h"', file=self.outFile)
         write('#include "encode/handle_unwrap_memory.h"', file=self.outFile)
@@ -82,7 +82,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         self.newline()
         write('const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);', file=self.outFile)
         self.newline()
-        self.generateCreateWrapperFuncs()
+        self.generate_create_wrapper_funcs()
         write('template <typename ParentWrapper, typename CoParentWrapper, typename T>', file=self.outFile)
         write('void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)', file=self.outFile)
         write('{', file=self.outFile)
@@ -150,57 +150,57 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.check_struct_member_handles(typename, self.structs_with_handles)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Method override. Indicates that the current feature has C++ code to generate."""
-        if self.featureStructMembers or self.featureCmdParams:
+        if self.feature_struct_members or self.feature_cmd_params:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
         # Check for output structures, which retrieve handles that need to be wrapped.
-        for cmd in self.featureCmdParams:
-            info = self.featureCmdParams[cmd]
+        for cmd in self.feature_cmd_params:
+            info = self.feature_cmd_params[cmd]
             values = info[2]
 
             for value in values:
-                if self.isOutputParameter(value) and self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles) and (value.baseType not in self.outputStructs):
-                    self.outputStructs.append(value.baseType)
+                if self.is_output_parameter(value) and self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles) and (value.base_type not in self.output_structs):
+                    self.output_structs.append(value.base_type)
 
         # Generate unwrap and rewrap code for input structures.
-        for struct in self.getFilteredStructNames():
-            if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
+        for struct in self.get_filtered_struct_names():
+            if (struct in self.structs_with_handles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(struct)
                 write(body, file=self.outFile)
 
-    def generateCreateWrapperFuncs(self):
+    def generate_create_wrapper_funcs(self):
         """Generates functions that wrap struct handle members."""
-        for struct in self.outputStructs:
+        for struct in self.output_structs:
             body = 'template <typename ParentWrapper, typename CoParentWrapper>\n'
             body += 'void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(struct)
             body += '{\n'
             body += '    if (value != nullptr)\n'
             body += '    {\n'
 
-            members = self.structsWithHandles[struct]
+            members = self.structs_with_handles[struct]
             for member in members:
-                if self.isStruct(member.baseType):
-                    if member.isArray:
-                        body += '        CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(member.baseType, member.name, member.arrayLength)
-                    elif member.isPointer:
+                if self.is_struct(member.base_type):
+                    if member.is_array:
+                        body += '        CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(member.base_type, member.name, member.array_length)
+                    elif member.is_pointer:
                         body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(member.name)
                     else:
                         body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(member.name)
                 else:
-                    if member.isArray:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(member.baseType[2:], member.name, member.arrayLength)
-                    elif member.isPointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(member.baseType[2:], member.name)
+                    if member.is_array:
+                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(member.base_type[2:], member.name, member.array_length)
+                    elif member.is_pointer:
+                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(member.base_type[2:], member.name)
                     else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(member.baseType[2:], member.name)
+                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(member.base_type[2:], member.name)
 
             body += '    }\n'
             body += '}\n'

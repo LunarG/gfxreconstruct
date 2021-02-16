@@ -30,15 +30,15 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
@@ -49,24 +49,24 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=True, feature_break=False,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
-        self.structsWithHandles = dict()
-        self.structsWithHandlePtrs = []
+        self.structs_with_handles = dict()
+        self.structs_with_handle_ptrs = []
         # List of structs containing handles that are also used as output parameters for a command
-        self.outputStructsWithHandles = []
+        self.output_structs_with_handles = []
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/vulkan_object_info_table.h"', file=self.outFile)
@@ -97,7 +97,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         write('}', file=self.outFile)
         self.newline()
 
-        for struct in self.outputStructsWithHandles:
+        for struct in self.output_structs_with_handles:
             write('void AddStructHandles(format::HandleId parent_id, const Decoded_{type}* id_wrapper, const {type}* handle_struct, VulkanObjectInfoTable* object_info_table);'.format(type=struct), file=self.outFile)
             self.newline()
 
@@ -116,8 +116,8 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         write('}', file=self.outFile)
         self.newline()
 
-        for struct in self.outputStructsWithHandles:
-            if struct in self.structsWithHandlePtrs:
+        for struct in self.output_structs_with_handles:
+            if struct in self.structs_with_handle_ptrs:
                 write('void SetStructHandleLengths(Decoded_{type}* wrapper);'.format(type=struct), file=self.outFile)
                 self.newline()
 
@@ -145,7 +145,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
+            self.check_struct_member_handles(typename, self.structs_with_handles, self.structs_with_handle_ptrs)
 
     def genCmd(self, cmdinfo, name, alias):
         """Method override."""
@@ -153,23 +153,23 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
 
         # Look for output structs that contain handles and add to list
         if not alias:
-            for valueInfo in self.featureCmdParams[name][2]:
-                if self.isOutputParameter(valueInfo) and \
-                (valueInfo.baseType in self.getFilteredStructNames()) and \
-                (valueInfo.baseType in self.structsWithHandles) and \
-                (valueInfo.baseType not in self.outputStructsWithHandles):
-                    self.outputStructsWithHandles.append(valueInfo.baseType)
+            for value_info in self.feature_cmd_params[name][2]:
+                if self.is_output_parameter(value_info) and \
+                (value_info.base_type in self.get_filtered_struct_names()) and \
+                (value_info.base_type in self.structs_with_handles) and \
+                (value_info.base_type not in self.output_structs_with_handles):
+                    self.output_structs_with_handles.append(value_info.base_type)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureStructMembers:
+        if self.feature_struct_members:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.getFilteredStructNames():
-            if (struct in self.structsWithHandles) or (struct in self.GENERIC_HANDLE_STRUCTS):
+        for struct in self.get_filtered_struct_names():
+            if (struct in self.structs_with_handles) or (struct in self.GENERIC_HANDLE_STRUCTS):
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectInfoTable& object_info_table);'.format(struct)
                 write(body, file=self.outFile)

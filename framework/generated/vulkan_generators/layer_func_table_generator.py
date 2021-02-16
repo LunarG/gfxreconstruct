@@ -34,12 +34,12 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
     def __init__(self,
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
         BaseGeneratorOptions.__init__(self, None, None,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class LayerFuncTableGenerator(BaseGenerator):
@@ -49,12 +49,12 @@ class LayerFuncTableGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=False, feature_break=False,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
         # The trace layer does not currently implement or export the instance version query
         self.APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
@@ -67,9 +67,9 @@ class LayerFuncTableGenerator(BaseGenerator):
                                 'vkEnumerateInstanceExtensionProperties',
                                 'vkEnumerateDeviceExtensionProperties']
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "encode/custom_vulkan_api_call_encoders.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
@@ -93,15 +93,15 @@ class LayerFuncTableGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureCmdParams:
+        if self.feature_cmd_params:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for cmd in self.getFilteredCmdNames():
+        for cmd in self.get_filtered_cmd_names():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):
                 body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])

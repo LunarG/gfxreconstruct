@@ -29,12 +29,12 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
-                 errFile=sys.stderr,
-                 warnFile=sys.stderr,
-                 diagFile=sys.stdout):
+                 err_file=sys.stderr,
+                 warn_file=sys.stderr,
+                 diag_file=sys.stdout):
         Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
-            errFile, warnFile, diagFile)
+            err_file, warn_file, diag_file)
 
     def beginFile(self, gen_opts):
         """Methond override."""
@@ -45,9 +45,9 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Methond override."""
-        Dx12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('')
 
     def write_include(self):
@@ -63,8 +63,8 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
 
     def change_param_type(self, param):
         value = self.get_value_info(param)
-        type_name = self.makeDecodedParamType(value)
-        if value.pointerCount > 0 and type_name.find('Decoder') != -1:
+        type_name = self.make_decoded_param_type(value)
+        if value.pointer_count > 0 and type_name.find('Decoder') != -1:
             type_name += '*'
         return type_name
 
@@ -79,7 +79,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_type1 = self.clean_type_define(rtn_type)
             return_value = self.get_return_value_info('returnValue', rtn_type1)
-            rtn_type1 = self.makeDecodedParamType(return_value)
+            rtn_type1 = self.make_decoded_param_type(return_value)
             if rtn_type1.find('Decoder') != -1:
                 rtn_type1 += '*'
 

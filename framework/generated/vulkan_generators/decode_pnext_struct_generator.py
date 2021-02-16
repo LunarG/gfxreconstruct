@@ -26,7 +26,7 @@ from base_generator import *
 
 
 class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
-    """Eliminates JSON blackLists and platformTypes files, which are not necessary for
+    """Eliminates JSON black_lists and platform_types files, which are not necessary for
     pNext switch statement generation.
     Options for Vulkan API pNext structure decoding C++ code generation.
     """
@@ -34,12 +34,12 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
     def __init__(self,
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
         BaseGeneratorOptions.__init__(self, None, None,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class DecodePNextStructGenerator(BaseGenerator):
@@ -49,19 +49,19 @@ class DecodePNextStructGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=False, process_structs=False, feature_break=False,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
         # Map to store VkStructureType enum values.
-        self.sTypeValues = dict()
+        self.stype_values = dict()
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "decode/decode_allocator.h"', file=self.outFile)
@@ -137,23 +137,23 @@ class DecodePNextStructGenerator(BaseGenerator):
         """Method override."""
         if not alias:
             # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
-            parentStructs = typeinfo.elem.get('structextends')
-            if parentStructs:
-                sType = self.makeStructureTypeEnum(typeinfo, typename)
-                if sType:
-                    self.sTypeValues[typename] = sType
+            parent_structs = typeinfo.elem.get('structextends')
+            if parent_structs:
+                stype = self.make_structure_type_enum(typeinfo, typename)
+                if stype:
+                    self.stype_values[typename] = stype
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.sTypeValues:
+        if self.stype_values:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.sTypeValues:
-            write('            case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
+        for struct in self.stype_values:
+            write('            case {}:'.format(self.stype_values[struct]), file=self.outFile)
             write('                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_{}>>();'.format(struct), file=self.outFile)
             write('                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);'.format(struct), file=self.outFile)
             write('                break;', file=self.outFile)
-        self.sTypeValues = dict()
+        self.stype_values = dict()

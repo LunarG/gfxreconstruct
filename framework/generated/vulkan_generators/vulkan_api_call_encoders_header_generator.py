@@ -30,15 +30,15 @@ class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
@@ -48,16 +48,16 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=False, feature_break=True,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -76,43 +76,43 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureCmdParams:
+        if self.feature_cmd_params:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
         first = True
-        for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
+        for cmd in self.get_filtered_cmd_names():
+            info = self.feature_cmd_params[cmd]
+            return_type = info[0]
             proto = info[1]
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.makeCmdDecl(proto, values)
+            cmddef += self.make_cmd_decl(proto, values)
 
             write(cmddef, file=self.outFile)
             first = False
 
-    def makeCmdDecl(self, proto, values):
+    def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""
-        paramDecls = []
+        param_decls = []
 
         for value in values:
-            valueName = value.name
-            valueType = value.fullType if not value.platformFullType else value.platformFullType
+            value_name = value.name
+            value_type = value.full_type if not value.platform_full_type else value.platform_full_type
 
-            if value.isArray and not value.isDynamic:
-                valueName += '[{}]'.format(value.arrayCapacity)
+            if value.is_array and not value.is_dynamic:
+                value_name += '[{}]'.format(value.array_capacity)
 
-            paramDecl = self.makeAlignedParamDecl(valueType, valueName, self.INDENT_SIZE, self.genOpts.alignFuncParam)
-            paramDecls.append(paramDecl)
+            param_decl = self.make_aligned_param_decl(value_type, value_name, self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decls.append(param_decl)
 
-        if paramDecls:
-            return '{}(\n{});'.format(proto, ',\n'.join(paramDecls))
+        if param_decls:
+            return '{}(\n{});'.format(proto, ',\n'.join(param_decls))
 
         return '{}();'.format(proto)
 

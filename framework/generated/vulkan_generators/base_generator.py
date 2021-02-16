@@ -43,7 +43,7 @@ from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatur
 from vkconventions import VulkanConventions
 
 
-def _makeREstring(list, default = None):
+def _make_re_string(list, default = None):
     """Turn a list of strings into a regexp string matching exactly those strings.
     From Khronos genvk.py
     """
@@ -54,16 +54,16 @@ def _makeREstring(list, default = None):
 
 # Descriptive names for various regexp patterns used to select versions and extensions.
 # From Khronos genvk.py
-_defaultExtensions  = 'vulkan'
+_default_extensions  = 'vulkan'
 _extensions         = _features         = []
-_removeExtensions   = _emitExtensions   = []
+_remove_extensions   = _emit_extensions   = []
 
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
-_addExtensionsPat     = _makeREstring(_extensions)
-_removeExtensionsPat  = _makeREstring(_removeExtensions)
-_emitExtensionsPat    = _makeREstring(_emitExtensions, '.*')
-_featuresPat          = _makeREstring(_features, '.*')
+_add_extensions_pat     = _make_re_string(_extensions)
+_remove_extensions_pat  = _make_re_string(_remove_extensions)
+_emit_extensions_pat    = _make_re_string(_emit_extensions, '.*')
+_features_pat          = _make_re_string(_features, '.*')
 
 
 class ValueInfo():
@@ -88,36 +88,36 @@ class ValueInfo():
 
     def __init__(self,
                  name,
-                 baseType,
-                 fullType,
-                 pointerCount = 0,
-                 arrayLength = None,
-                 arrayLengthValue = None,
-                 arrayCapacity = None,
-                 arrayDimension = None,
-                 platformBaseType = None,
-                 platformFullType = None,
-                 bitfieldWidth = None,
-                 isConst = False,
-                 unionMembers = None,
+                 base_type,
+                 full_type,
+                 pointer_count = 0,
+                 array_length = None,
+                 array_length_value = None,
+                 array_capacity = None,
+                 array_dimension = None,
+                 platform_base_type = None,
+                 platform_full_type = None,
+                 bitfield_width = None,
+                 is_const = False,
+                 union_members = None,
                  is_com_outptr = False):
         self.name = name
-        self.baseType = baseType
-        self.fullType = fullType
-        self.pointerCount = pointerCount
-        self.arrayLength = arrayLength
-        self.arrayLengthValue = arrayLengthValue
-        self.arrayCapacity = arrayCapacity
-        self.arrayDimension = arrayDimension
-        self.platformBaseType = platformBaseType
-        self.platformFullType = platformFullType
-        self.bitfieldWidth = bitfieldWidth
+        self.base_type = base_type
+        self.full_type = full_type
+        self.pointer_count = pointer_count
+        self.array_length = array_length
+        self.array_length_value = array_length_value
+        self.array_capacity = array_capacity
+        self.array_dimension = array_dimension
+        self.platform_base_type = platform_base_type
+        self.platform_full_type = platform_full_type
+        self.bitfield_width = bitfield_width
 
-        self.isPointer = True if pointerCount > 0 else False
-        self.isArray = True if arrayLength else False
-        self.isDynamic = True if not arrayCapacity else False
-        self.isConst = isConst
-        self.unionMembers = unionMembers
+        self.is_pointer = True if pointer_count > 0 else False
+        self.is_array = True if array_length else False
+        self.is_dynamic = True if not array_capacity else False
+        self.is_const = is_const
+        self.union_members = union_members
         self.is_com_outptr = is_com_outptr
 
 
@@ -154,28 +154,28 @@ class BaseGeneratorOptions(GeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  # Khronos CGeneratorOptions
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True,
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True,
                  conventions = VulkanConventions(),
                  apicall = 'VKAPI_ATTR ',
                  apientry = 'VKAPI_CALL ',
                  apientryp = 'VKAPI_PTR *',
-                 indentFuncProto = True,
-                 alignFuncParam = 48,
-                 sortProcedure = regSortFeatures,
+                 indent_func_proto = True,
+                 align_func_param = 48,
+                 sort_procedure = regSortFeatures,
                  apiname = 'vulkan',
                  profile = None,
-                 versions = _featuresPat,
-                 emitversions = _featuresPat,
-                 defaultExtensions = _defaultExtensions,
-                 addExtensions = _addExtensionsPat,
-                 removeExtensions = _removeExtensionsPat,
-                 emitExtensions = _emitExtensionsPat):
+                 versions = _features_pat,
+                 emitversions = _features_pat,
+                 default_extensions = _default_extensions,
+                 add_extensions = _add_extensions_pat,
+                 remove_extensions = _remove_extensions_pat,
+                 emit_extensions = _emit_extensions_pat):
         GeneratorOptions.__init__(self,
                                   conventions=conventions,
                                   filename=filename,
@@ -184,23 +184,23 @@ class BaseGeneratorOptions(GeneratorOptions):
                                   profile=profile,
                                   versions=versions,
                                   emitversions=emitversions,
-                                  defaultExtensions=defaultExtensions,
-                                  addExtensions=addExtensions,
-                                  removeExtensions=removeExtensions,
-                                  emitExtensions=emitExtensions,
-                                  sortProcedure=sortProcedure)
+                                  defaultExtensions=default_extensions,
+                                  addExtensions=add_extensions,
+                                  removeExtensions=remove_extensions,
+                                  emitExtensions=emit_extensions,
+                                  sortProcedure=sort_procedure)
         self.blacklists = blacklists
-        self.platformTypes = platformTypes
+        self.platform_types = platform_types
         # Khronos CGeneratorOptions
-        self.prefixText      = prefixText
-        self.protectFile     = protectFile
-        self.protectFeature  = protectFeature
+        self.prefix_text      = prefix_text
+        self.protect_file     = protect_file
+        self.protect_feature  = protect_feature
         self.apicall         = apicall
         self.apientry        = apientry                  # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
         self.apientryp       = apientryp                 # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
-        self.indentFuncProto = indentFuncProto
-        self.alignFuncParam  = alignFuncParam
-        self.codeGenerator   = True
+        self.indent_func_proto = indent_func_proto
+        self.align_func_param  = align_func_param
+        self.code_generator   = True
 
 
 class BaseGenerator(OutputGenerator):
@@ -241,73 +241,73 @@ class BaseGenerator(OutputGenerator):
     INDENT_SIZE = 4
 
     def __init__(self,
-                 processCmds,
-                 processStructs,
-                 featureBreak = True,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        OutputGenerator.__init__(self, errFile, warnFile, diagFile)
+                 process_cmds,
+                 process_structs,
+                 feature_break = True,
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
+        OutputGenerator.__init__(self, err_file, warn_file, diag_file)
 
         # Typenames
-        self.structNames = set()                          # Set of Vulkan struct typenames
-        self.handleNames = set()                          # Set of Vulkan handle typenames
-        self.flagsNames = set()                           # Set of bitmask (flags) typenames
-        self.enumNames = set()                            # Set of Vulkan enumeration typenames
+        self.struct_names = set()                          # Set of Vulkan struct typenames
+        self.handle_names = set()                          # Set of Vulkan handle typenames
+        self.flags_names = set()                           # Set of bitmask (flags) typenames
+        self.enum_names = set()                            # Set of Vulkan enumeration typenames
 
         # Type processing options
-        self.processCmds = processCmds                    # Populate the featureCmdParams map
-        self.processStructs = processStructs              # Populate the featureStructMembers map
-        self.featureBreak = featureBreak                  # Insert a line break between features
+        self.process_cmds = process_cmds                    # Populate the feature_cmd_params map
+        self.process_structs = process_structs              # Populate the feature_struct_members map
+        self.feature_break = feature_break                  # Insert a line break between features
 
         # Command parameter and struct member data for the current feature
-        if self.processStructs:
-            self.featureStructMembers = dict()            # Map of struct names to lists of per-member ValueInfo
-            self.featureStructAliases = dict()            # Map of struct names to aliases
-            self.extensionStructsWithHandles = dict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extensionStructsWithHandlePtrs = dict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
-        if self.processCmds:
-            self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
+        if self.process_structs:
+            self.feature_struct_members = dict()            # Map of struct names to lists of per-member ValueInfo
+            self.feature_struct_aliases = dict()            # Map of struct names to aliases
+            self.extension_structs_with_handles = dict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extension_structs_with_handle_ptrs = dict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
+        if self.process_cmds:
+            self.feature_cmd_params = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate.
         The subclass should override this method."""
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature.
         The subclass should override this method."""
         pass
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        OutputGenerator.beginFile(self, genOpts)
+        OutputGenerator.beginFile(self, gen_opts)
 
-        if genOpts.blacklists:
-            self.__loadBlacklists(genOpts.blacklists)
-        if genOpts.platformTypes:
-            self.__loadPlatformTypes(genOpts.platformTypes)
+        if gen_opts.blacklists:
+            self.__load_blacklists(gen_opts.blacklists)
+        if gen_opts.platform_types:
+            self.__load_platform_types(gen_opts.platform_types)
 
             # Platform defined struct processing must be implemented manually,
             # so these structs will be added to the blacklist.
             self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
 
         # User-supplied prefix text, if any (list of strings)
-        if (genOpts.prefixText):
-            for s in genOpts.prefixText:
+        if (gen_opts.prefix_text):
+            for s in gen_opts.prefix_text:
                 write(s, file=self.outFile)
 
         # Multiple inclusion protection & C++ wrappers.
-        if (genOpts.protectFile and self.genOpts.filename):
-            headerSym = 'GFXRECON_' + re.sub('\.h', '_H', os.path.basename(self.genOpts.filename)).upper()
-            write('#ifndef ', headerSym, file=self.outFile)
-            write('#define ', headerSym, file=self.outFile)
+        if (gen_opts.protect_file and self.genOpts.filename):
+            header_sym = 'GFXRECON_' + re.sub('\.h', '_h', os.path.basename(self.genOpts.filename)).upper()
+            write('#ifndef ', header_sym, file=self.outFile)
+            write('#define ', header_sym, file=self.outFile)
             self.newline()
 
     def endFile(self):
         """Method override."""
         # Finish C++ wrapper and multiple inclusion protection
-        if (self.genOpts.protectFile and self.genOpts.filename):
+        if (self.genOpts.protect_file and self.genOpts.filename):
             self.newline()
             write('#endif', file=self.outFile)
 
@@ -319,26 +319,26 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.beginFeature(self, interface, emit)
 
         # Reset feature specific data sets
-        if self.processStructs:
-            self.featureStructMembers = dict()
-            self.featureStructAliases = dict()
-        if self.processCmds:
-            self.featureCmdParams = dict()
+        if self.process_structs:
+            self.feature_struct_members = dict()
+            self.feature_struct_aliases = dict()
+        if self.process_cmds:
+            self.feature_cmd_params = dict()
 
         # Some generation cases require that extra feature protection be suppressed
-        if self.genOpts.protectFeature:
-            self.featureExtraProtect = self.__getFeatureProtect(interface)
+        if self.genOpts.protect_feature:
+            self.featureExtraProtect = self.__get_feature_protect(interface)
 
     def endFeature(self):
         """Method override. Generate code for the feature."""
-        if self.emit and self.needFeatureGeneration():
-            if self.featureBreak:
+        if self.emit and self.need_feature_generation():
+            if self.feature_break:
                 self.newline()
 
             if (self.featureExtraProtect is not None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
 
-            self.generateFeature()
+            self.generate_feature()
 
             if (self.featureExtraProtect is not None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
@@ -349,19 +349,19 @@ class BaseGenerator(OutputGenerator):
     def genType(self, typeinfo, name, alias):
         """Method override. Type generation."""
         OutputGenerator.genType(self, typeinfo, name, alias)
-        typeElem = typeinfo.elem
+        type_elem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags
         # generating a structure. Otherwise, emit the tag text.
-        category = typeElem.get('category')
+        category = type_elem.get('category')
         if (category == 'struct' or category == 'union'):
-            self.structNames.add(name)
+            self.struct_names.add(name)
             # Skip code generation for union encode/decode functions.
             if category == 'struct':
                 self.genStruct(typeinfo, name, alias)
         elif (category == 'handle'):
-            self.handleNames.add(name)
+            self.handle_names.add(name)
         elif (category == 'bitmask'):
-            self.flagsNames.add(name)
+            self.flags_names.add(name)
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override.
@@ -374,19 +374,19 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.processStructs:
+        if self.process_structs:
             if not alias:
-                self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
+                self.feature_struct_members[typename] = self.make_value_info(typeinfo.elem.findall('.//member'))
             else:
-                self.featureStructAliases[typename] = alias
+                self.feature_struct_aliases[typename] = alias
 
-    def genGroup(self, groupinfo, groupName, alias):
+    def genGroup(self, groupinfo, group_name, alias):
         """Method override.
         Group (e.g. C "enum" type) generation.
         These are concatenated together with other types.
         """
-        OutputGenerator.genGroup(self, groupinfo, groupName, alias)
-        self.enumNames.add(groupName)
+        OutputGenerator.genGroup(self, groupinfo, group_name, alias)
+        self.enum_names.add(group_name)
 
     def genEnum(self, enuminfo, name, alias):
         """Method override.
@@ -399,26 +399,26 @@ class BaseGenerator(OutputGenerator):
     def genCmd(self, cmdinfo, name, alias):
         """Method override. Command generation."""
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if self.processCmds:
+        if self.process_cmds:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
-            protoDecl = self.genOpts.apicall + noneStr(proto.text)
+            proto_decl = self.genOpts.apicall + noneStr(proto.text)
             for elem in proto:
                 text = noneStr(elem.text)
                 tail = noneStr(elem.tail)
                 if (elem.tag == 'name'):
                     if text.startswith('vk'):
                         text = text[2:]
-                    protoDecl += self.makeProtoName(text, tail)
+                    proto_decl += self.makeProtoName(text, tail)
                 else:
-                    protoDecl += text + tail
+                    proto_decl += text + tail
 
-            returnType = noneStr(proto.text) + noneStr(proto.find('type').text)
+            return_type = noneStr(proto.text) + noneStr(proto.find('type').text)
 
             # TODO: Define a class or namedtuple for the dictionary entry
-            self.featureCmdParams[name] = (returnType, protoDecl, self.makeValueInfo(cmdinfo.elem.findall('param')))
+            self.feature_cmd_params[name] = (return_type, proto_decl, self.make_value_info(cmdinfo.elem.findall('param')))
 
-    def makeValueInfo(self, params):
+    def make_value_info(self, params):
         """Generate a list of ValueInfo objects from a list of <param> or <member> tags
          params - list of <param> or <member> tags to process
         """
@@ -427,128 +427,128 @@ class BaseGenerator(OutputGenerator):
             # Get name
             elem = param.find('name')
             name = noneStr(elem.text)
-            nameTail = noneStr(elem.tail)
+            name_tail = noneStr(elem.tail)
 
             # Get type info
             elem = param.find('type')
-            baseType = noneStr(elem.text)
-            fullType = (noneStr(param.text) + baseType + noneStr(elem.tail)).strip()
+            base_type = noneStr(elem.text)
+            full_type = (noneStr(param.text) + base_type + noneStr(elem.tail)).strip()
 
             # Check for platform specific type definitions that need to be converted to a recognized trace format type.
-            platformBaseType = None
-            platformFullType = None
-            if baseType in self.PLATFORM_TYPES:
-                typeInfo = self.PLATFORM_TYPES[baseType]
-                platformBaseType = baseType
-                platformFullType = fullType
-                fullType = fullType.replace(baseType, typeInfo['replaceWith'])
-                baseType = typeInfo['baseType']
+            platform_base_type = None
+            platform_full_type = None
+            if base_type in self.PLATFORM_TYPES:
+                type_info = self.PLATFORM_TYPES[base_type]
+                platform_base_type = base_type
+                platform_full_type = full_type
+                full_type = full_type.replace(base_type, type_info['replaceWith'])
+                base_type = type_info['baseType']
 
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
-                arrayLength =  param.attrib.get('altlen')
+                array_length =  param.attrib.get('altlen')
             else:
-                arrayLength = self.getArrayLen(param)
+                array_length = self.get_array_len(param)
 
-            arrayCapacity = None
-            if self.isStaticArray(param):
-                arrayCapacity = arrayLength
-                arrayLength = self.getStaticArrayLen(name, params, arrayCapacity)
+            array_capacity = None
+            if self.is_static_array(param):
+                array_capacity = array_length
+                array_length = self.get_static_array_len(name, params, array_capacity)
 
             # Get bitfield width
-            bitfieldWidth = None
-            if ':' in nameTail:
-                bitfieldWidth = nameTail
+            bitfield_width = None
+            if ':' in name_tail:
+                bitfield_width = name_tail
 
             values.append(ValueInfo(
                 name = name,
-                baseType = baseType,
-                fullType = fullType,
-                pointerCount = self.getPointerCount(fullType),
-                arrayLength = arrayLength,
-                arrayCapacity = arrayCapacity,
-                platformBaseType = platformBaseType,
-                platformFullType = platformFullType,
-                bitfieldWidth = bitfieldWidth))
+                base_type = base_type,
+                full_type = full_type,
+                pointer_count = self.get_pointer_count(full_type),
+                array_length = array_length,
+                array_capacity = array_capacity,
+                platform_base_type = platform_base_type,
+                platform_full_type = platform_full_type,
+                bitfield_width = bitfield_width))
 
         # Link array values to their corresponding length values
-        for arrayValue in [v for v in values if v.arrayLength]:
+        for array_value in [v for v in values if v.array_length]:
             for v in values:
-                if re.search(r'\b{}\b'.format(v.name), arrayValue.arrayLength):
-                    arrayValue.arrayLengthValue = v
+                if re.search(r'\b{}\b'.format(v.name), array_value.array_length):
+                    array_value.array_length_value = v
                     break
 
         return values
 
-    def isStruct(self, baseType):
+    def is_struct(self, base_type):
         """Check for struct type."""
-        if (baseType in self.structNames) or (baseType in self.PLATFORM_STRUCTS):
+        if (base_type in self.struct_names) or (base_type in self.PLATFORM_STRUCTS):
             return True
         return False
 
-    def isClass(self, value):
+    def is_class(self, value):
         return False
 
-    def isHandle(self, baseType):
+    def is_handle(self, base_type):
         """Check for handle type."""
-        if baseType in self.handleNames:
+        if base_type in self.handle_names:
             return True
         return False
 
-    def isDispatchableHandle(self, baseType):
+    def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
-        if baseType in self.DISPATCHABLE_HANDLE_TYPES:
+        if base_type in self.DISPATCHABLE_HANDLE_TYPES:
             return True
         return False
 
-    def isEnum(self, baseType):
+    def is_enum(self, base_type):
         """Check for enum type."""
-        if baseType in self.enumNames:
+        if base_type in self.enum_names:
             return True
         return False
 
-    def isFlags(self, baseType):
+    def is_flags(self, base_type):
         """Check for flags (bitmask) type."""
-        if baseType in self.flagsNames:
+        if base_type in self.flags_names:
             return True
         return False
 
-    def isFunctionPtr(self, baseType):
+    def is_function_ptr(self, base_type):
         """Check for function pointer type."""
-        if baseType[:4] == 'PFN_':
+        if base_type[:4] == 'PFN_':
             return True
         return False
 
-    def isArrayLen(self, name, values):
+    def is_array_len(self, name, values):
         """Determine if the value name specifies an array length."""
         for value in values:
-            if name == value.arrayLength:
+            if name == value.array_length:
                 return True
         return False
 
-    def getPointerCount(self, fullType):
+    def get_pointer_count(self, full_type):
         """Return the number of '*' in a type declaration."""
-        return fullType.count('*')
+        return full_type.count('*')
 
-    def isInputPointer(self, value):
+    def is_input_pointer(self, value):
         """Determine if a pointer parameter is an input parameter."""
-        if 'const' in value.fullType:
+        if 'const' in value.full_type:
             # Vulkan seems to follow a pattern where input pointers will be const and output pointers will not be const.
             return True
-        elif value.platformBaseType and value.baseType == 'void' and value.pointerCount == 1:
+        elif value.platform_base_type and value.base_type == 'void' and value.pointer_count == 1:
             # For some extensions, platform specific handles are mapped to the 'void*' type without a const qualifier,
             # but need to be treated as an input (eg. if HANDLE is mapped to void*, it should not be treated as an output).
             return True
         return False
 
-    def isOutputParameter(self, value):
+    def is_output_parameter(self, value):
         """Determine if a parameter is an output parameter."""
         # Check for an output pointer/array or an in-out pointer.
-        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
+        if (value.is_pointer or value.is_array) and not self.is_input_pointer(value):
             return True
         return False
 
-    def getArrayLen(self, param):
+    def get_array_len(self, param):
         """Retrieve the length of an array defined by a <param> or <member> element."""
         result = None
         len = param.attrib.get('len')
@@ -579,160 +579,160 @@ class BaseGenerator(OutputGenerator):
                     result = ', '.join(sizetokens)
         return result
 
-    def isStaticArray(self, param):
+    def is_static_array(self, param):
         """Check for a static array."""
         name = param.find('name')
         if (name.tail is not None) and ('[' in name.tail):
             return True
         return False
 
-    def getStaticArrayLen(self, name, params, capacity):
+    def get_static_array_len(self, name, params, capacity):
         """Determine the length value of a static array (get_array_len() returns the total capacity, not the actual length)."""
         # The XML registry does not provide a direct method for determining if a parameter provides the length
         # of a static array, but the parameter naming follows a pattern of array name = 'values' and length
-        # name = 'valueCount'.  We will search the parameter list for a length parameter using this pattern.
-        lengthName = name[:-1] + 'Count'
+        # name = 'value_count'.  We will search the parameter list for a length parameter using this pattern.
+        length_name = name[:-1] + 'Count'
         for param in params:
-            if lengthName == noneStr(param.find('name').text):
-                return lengthName
+            if length_name == noneStr(param.find('name').text):
+                return length_name
 
         # Not all static arrays have an associated length parameter. These will use capacity as length.
         return capacity
 
-    def isStructBlackListed(self, typename):
+    def is_struct_black_listed(self, typename):
         """Determines if a struct with the specified typename is blacklisted."""
         if typename in self.STRUCT_BLACKLIST:
             return True
         return False
 
-    def isCmdBlackListed(self, name):
+    def is_cmd_black_listed(self, name):
         """Determines if a struct with the specified typename is blacklisted."""
         if name in self.APICALL_BLACKLIST:
             return True
         return False
 
-    def getFilteredStructNames(self):
+    def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
-        return [key for key in self.featureStructMembers if not self.isStructBlackListed(key)]
+        return [key for key in self.feature_struct_members if not self.is_struct_black_listed(key)]
 
-    def getFilteredCmdNames(self):
+    def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
-        return [key for key in self.featureCmdParams if not self.isCmdBlackListed(key)]
+        return [key for key in self.feature_cmd_params if not self.is_cmd_black_listed(key)]
 
-    def checkStructPNextHandles(self, typename):
+    def check_struct_pnext_handles(self, typename):
         """Determines if the specified struct type can reference pNext extension structs that contain handles."""
-        foundHandles = False
-        foundHandlePtrs = False
-        validExtensionStructs = self.registry.validextensionstructs.get(typename)
-        if validExtensionStructs:
+        found_handles = False
+        found_handle_ptrs = False
+        valid_extension_structs = self.registry.validextensionstructs.get(typename)
+        if valid_extension_structs:
             # Need to search the XML tree for pNext structures that have not been processed yet.
-            for structName in validExtensionStructs:
+            for struct_name in valid_extension_structs:
                 # Check for cached results from a previous check for this struct
-                if structName in self.extensionStructsWithHandles:
-                    if self.extensionStructsWithHandles[structName]:
-                        foundHandles = True
-                    if self.extensionStructsWithHandlePtrs[structName]:
-                        foundHandlePtrs = True
+                if struct_name in self.extension_structs_with_handles:
+                    if self.extension_structs_with_handles[struct_name]:
+                        found_handles = True
+                    if self.extension_structs_with_handle_ptrs[struct_name]:
+                        found_handle_ptrs = True
                 else:
                     # If a pre-existing result was not found, check the XML registry for the struct
-                    hasHandles = False
-                    hasHandlePtrs = False
-                    typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
-                    if typeInfo:
-                        memberInfos = [member for member in typeInfo.elem.findall('.//member/type')]
-                        if memberInfos:
-                            for memberInfo in memberInfos:
-                                found = self.registry.tree.find("types/type/[name='" + memberInfo.text + "'][@category='handle']")
+                    has_handles = False
+                    has_handle_ptrs = False
+                    type_info = self.registry.lookupElementInfo(struct_name, self.registry.typedict)
+                    if type_info:
+                        member_infos = [member for member in type_info.elem.findall('.//member/type')]
+                        if member_infos:
+                            for member_info in member_infos:
+                                found = self.registry.tree.find("types/type/[name='" + member_info.text + "'][@category='handle']")
                                 if found:
-                                    hasHandles = True
-                                    self.extensionStructsWithHandles[structName] = True
-                                    if memberInfo.tail and ('*' in memberInfo.tail):
-                                        self.extensionStructsWithHandlePtrs[structName] = True
-                                        hasHandlePtrs = True
+                                    has_handles = True
+                                    self.extension_structs_with_handles[struct_name] = True
+                                    if member_info.tail and ('*' in member_info.tail):
+                                        self.extension_structs_with_handle_ptrs[struct_name] = True
+                                        has_handle_ptrs = True
                                     else:
-                                        self.extensionStructsWithHandlePtrs[structName] = False
+                                        self.extension_structs_with_handle_ptrs[struct_name] = False
 
-                    if hasHandles:
-                        foundHandles = True
-                        if hasHandlePtrs:
-                            fountHandlePtrs = True
+                    if has_handles:
+                        found_handles = True
+                        if has_handle_ptrs:
+                            fount_handle_ptrs = True
                     else:
-                        self.extensionStructsWithHandles[structName] = False
-                        self.extensionStructsWithHandlePtrs[structName] = False
+                        self.extension_structs_with_handles[struct_name] = False
+                        self.extension_structs_with_handle_ptrs[struct_name] = False
 
-        return foundHandles, foundHandlePtrs
+        return found_handles, found_handle_ptrs
 
-    def checkStructMemberHandles(self, typename, structsWithHandles, structsWithHandlePtrs = None):
+    def check_struct_member_handles(self, typename, structs_with_handles, structs_with_handle_ptrs = None):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
         An optional list of structure types that contain handle members with pointer types may also be generated.
         """
         handles = []
-        hasHandlePointer = False
-        for value in self.featureStructMembers[typename]:
-            if self.isHandle(value.baseType):
+        has_handle_pointer = False
+        for value in self.feature_struct_members[typename]:
+            if self.is_handle(value.base_type):
                 # The member is a handle.
                 handles.append(value)
-                if (not structsWithHandlePtrs is None) and (value.isPointer or value.isArray):
-                    hasHandlePointer = True
-            elif self.isStruct(value.baseType) and (value.baseType in structsWithHandles):
+                if (not structs_with_handle_ptrs is None) and (value.is_pointer or value.is_array):
+                    has_handle_pointer = True
+            elif self.is_struct(value.base_type) and (value.base_type in structs_with_handles):
                 # The member is a struct that contains a handle.
                 handles.append(value)
-                if (not structsWithHandlePtrs is None)  and (value.name in structsWithHandlePtrs):
-                    hasHandlePointer = True
+                if (not structs_with_handle_ptrs is None)  and (value.name in structs_with_handle_ptrs):
+                    has_handle_pointer = True
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                hasPNextHandles, hasPNextHandlePtrs = self.checkStructPNextHandles(typename)
-                if hasPNextHandles:
+                has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(typename)
+                if has_pnext_handles:
                     handles.append(value)
-                    if (not structsWithHandlePtrs is None) and hasPNextHandlePtrs:
-                        hasHandlePointer = True
+                    if (not structs_with_handle_ptrs is None) and has_pnext_handle_ptrs:
+                        has_handle_pointer = True
         if handles:
-            structsWithHandles[typename] = handles
-            if (not structsWithHandlePtrs is None) and hasHandlePointer:
-                structsWithHandlePtrs.append(typename)
+            structs_with_handles[typename] = handles
+            if (not structs_with_handle_ptrs is None) and has_handle_pointer:
+                structs_with_handle_ptrs.append(typename)
             return True
         return False
 
-    def getGenericStructHandleTypeValue(self, structName, memberName):
+    def get_generic_struct_handle_type_value(self, struct_name, member_name):
         """For a struct member that contains a generic handle value, retrieve the struct member
         containing an enum value defining the specific handle type.  Generic handles have an
         integer type such as uint64_t, with an associated enum value defining the specific
         type such as VkObjectType.
         """
-        if structName in self.GENERIC_HANDLE_STRUCTS:
-            structEntry = self.GENERIC_HANDLE_STRUCTS[structName]
-            if memberName in structEntry:
-                return structEntry[memberName]
+        if struct_name in self.GENERIC_HANDLE_STRUCTS:
+            struct_entry = self.GENERIC_HANDLE_STRUCTS[struct_name]
+            if member_name in struct_entry:
+                return struct_entry[member_name]
         return None
 
-    def getGenericCmdHandleTypeValue(self, cmdName, paramName):
+    def get_generic_cmd_handle_type_value(self, cmd_name, param_name):
         """For an API call parameter that contains a generic handle value, retrieve the parameter
         containing an enum value defining the specific handle type.  Generic handles have an
         integer type such as uint64_t, with an associated enum value defining the specific
         type such as VkObjectType.
         """
-        if cmdName in self.GENERIC_HANDLE_APICALLS:
-            cmdEntry = self.GENERIC_HANDLE_APICALLS[cmdName]
-            if paramName in cmdEntry:
-                return cmdEntry[paramName]
+        if cmd_name in self.GENERIC_HANDLE_APICALLS:
+            cmd_entry = self.GENERIC_HANDLE_APICALLS[cmd_name]
+            if param_name in cmd_entry:
+                return cmd_entry[param_name]
         return None
 
-    def isGenericStructHandleValue(self, structName, memberName):
+    def is_generic_struct_handle_value(self, struct_name, member_name):
         """Determine if a struct member contains a generic handle value.  Generic handles have an
         integer type such as uint64_t, with an associated enum value defining the specific
         type such as VkObjectType.
         """
-        if self.getGenericStructHandleTypeValue(structName, memberName):
+        if self.get_generic_struct_handle_type_value(struct_name, member_name):
             return True
         return False
 
-    def isGenericCmdHandleValue(self, cmdName, paramName):
+    def is_generic_cmd_handle_value(self, cmd_name, param_name):
         """Determine if an API call parameter contains a generic handle value.  Generic handles have an
         integer type such as uint64_t, with an associated enum value defining the specific
         type such as VkObjectType.
         """
-        if self.getGenericCmdHandleTypeValue(cmdName, paramName):
+        if self.get_generic_cmd_handle_type_value(cmd_name, param_name):
             return True
         return False
 
@@ -744,150 +744,150 @@ class BaseGenerator(OutputGenerator):
         prefix = ' ' * spaces
         return '\n'.join([prefix + v if v else v for v in value.split('\n')])
 
-    def makeArgList(self, values):
+    def make_arg_list(self, values):
         """Create a string containing a comma separated argument list from a list of ValueInfo values.
         values - List of ValueInfo objects providing the parameter names for the argument list.
         """
         return ', '.join([value.name for value in values])
 
-    def makeAlignedParamDecl(self, paramType, paramName, indentColumn, alignColumn):
+    def make_aligned_param_decl(self, param_type, param_name, indent_column, align_column):
         """make_aligned_param_decl - return an indented parameter declaration string with the parameter
         name aligned to the specified column.
         """
-        paramDecl = ' ' * indentColumn
-        paramDecl += paramType
+        param_decl = ' ' * indent_column
+        param_decl += param_type
 
-        if alignColumn:
-            paramDecl = paramDecl.ljust(alignColumn - 1)
+        if align_column:
+            param_decl = param_decl.ljust(align_column - 1)
 
-        paramDecl += ' '
-        paramDecl += paramName
+        param_decl += ' '
+        param_decl += param_name
 
-        return paramDecl
+        return param_decl
 
-    def makeInvocationTypeName(self, baseType):
+    def make_invocation_type_name(self, base_type):
         """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
-        if self.isStruct(baseType):
-            return baseType
-        elif self.isHandle(baseType):
+        if self.is_struct(base_type):
+            return base_type
+        elif self.is_handle(base_type):
             return 'Handle'
-        elif self.isFlags(baseType):
+        elif self.is_flags(base_type):
             return 'Flags'
-        elif self.isEnum(baseType):
+        elif self.is_enum(base_type):
             return 'Enum'
-        elif baseType == 'wchar_t':
+        elif base_type == 'wchar_t':
             return 'WString'
-        elif baseType == 'char':
+        elif base_type == 'char':
             return 'String'
-        elif self.isFunctionPtr(baseType):
+        elif self.is_function_ptr(base_type):
             return 'FunctionPtr'
-        elif baseType == 'size_t':
+        elif base_type == 'size_t':
             return 'SizeT'
-        elif baseType == 'int':
+        elif base_type == 'int':
             # Extensions use the int type when dealing with file descriptors
             return 'Int32'
-        elif baseType.endswith('_t'):
-            if baseType[0] == 'u':
+        elif base_type.endswith('_t'):
+            if base_type[0] == 'u':
                 # For unsigned types, capitalize the first two characters.
-                return baseType[0].upper() + baseType[1].upper() + baseType[2:-2]
+                return base_type[0].upper() + base_type[1].upper() + base_type[2:-2]
             else:
-                return baseType[:-2].title()
-        elif baseType[0].islower():
-            return baseType.title()
+                return base_type[:-2].title()
+        elif base_type[0].islower():
+            return base_type.title()
 
-        return baseType
+        return base_type
 
-    def makeDecodedParamType(self, value):
+    def make_decoded_param_type(self, value):
         """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
-        typeName = value.baseType
+        type_name = value.base_type
 
-        # isPointer will be False for static arrays.
-        if value.isPointer or value.isArray:
-            count = value.pointerCount
+        # is_pointer will be False for static arrays.
+        if value.is_pointer or value.is_array:
+            count = value.pointer_count
 
-            if self.isStruct(typeName):
+            if self.is_struct(type_name):
                 if count > 1:
-                    typeName = 'StructPointerDecoder<Decoded_{}*>'.format(typeName)
+                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(type_name)
                 else:
-                    typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
-            elif self.isClass(value):
-                typeName = 'HandlePointerDecoder<{}*>'.format(typeName)
-            elif typeName == 'wchar_t':
+                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(type_name)
+            elif self.is_class(value):
+                type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
+            elif type_name == 'wchar_t':
                 if count > 1:
-                    typeName = 'WStringArrayDecoder'
+                    type_name = 'WStringArrayDecoder'
                 else:
-                    typeName = 'WStringDecoder'
-            elif typeName == 'char':
+                    type_name = 'WStringDecoder'
+            elif type_name == 'char':
                 if count > 1:
-                    typeName = 'StringArrayDecoder'
+                    type_name = 'StringArrayDecoder'
                 else:
-                    typeName = 'StringDecoder'
-            elif typeName == 'void':
-                if value.isArray:
+                    type_name = 'StringDecoder'
+            elif type_name == 'void':
+                if value.is_array:
                     # If this was an array (void*) it was encoded as an array of bytes.
-                    typeName = 'PointerDecoder<uint8_t>'
+                    type_name = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
                     # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.
-                    typeName = 'PointerDecoder<uint64_t, void*>'
+                    type_name = 'PointerDecoder<uint64_t, void*>'
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
-                    typeName = 'uint64_t'
-            elif self.isHandle(typeName):
-                typeName = 'HandlePointerDecoder<{}>'.format(typeName)
+                    type_name = 'uint64_t'
+            elif self.is_handle(type_name):
+                type_name = 'HandlePointerDecoder<{}>'.format(type_name)
             else:
                 if count > 1:
-                    typeName = 'PointerDecoder<{}*>'.format(typeName)
+                    type_name = 'PointerDecoder<{}*>'.format(type_name)
                 else:
-                    typeName = 'PointerDecoder<{}>'.format(typeName)
-        elif self.isFunctionPtr(typeName):
+                    type_name = 'PointerDecoder<{}>'.format(type_name)
+        elif self.is_function_ptr(type_name):
             # Function pointers are encoded as a 64-bit address value.
-            typeName ='uint64_t'
-        elif self.isStruct(typeName):
-            typeName = 'Decoded_{}'.format(typeName)
-        elif self.isHandle(typeName):
-            typeName = 'format::HandleId'
+            type_name ='uint64_t'
+        elif self.is_struct(type_name):
+            type_name = 'Decoded_{}'.format(type_name)
+        elif self.is_handle(type_name):
+            type_name = 'format::HandleId'
         else:
-            typeName = '{}'.format(typeName)
+            type_name = '{}'.format(type_name)
 
-        return typeName
+        return type_name
 
-    def makeConsumerFuncDecl(self, returnType, name, values, dx12_method = False):
+    def make_consumer_func_decl(self, return_type, name, values, dx12_method = False):
         """make_consumer_decl - return VulkanConsumer class member function declaration.
         Generate VulkanConsumer class member function declaration.
         """
-        paramDecls = []
+        param_decls = []
 
         if dx12_method:
-            paramDecl = self.makeAlignedParamDecl('format::HandleId', 'object_id', self.INDENT_SIZE, self.genOpts.alignFuncParam)
-            paramDecls.append(paramDecl)
+            param_decl = self.make_aligned_param_decl('format::HandleId', 'object_id', self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decls.append(param_decl)
 
-        if returnType != 'void':
+        if return_type != 'void':
             if dx12_method:
-                return_value = self.get_return_value_info('returnValue', returnType)
-                rtnType1 = self.makeDecodedParamType(return_value)
-                if rtnType1.find('Decoder') != -1:
-                    rtnType1 += '*'
-                paramDecl = self.makeAlignedParamDecl(rtnType1, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
+                return_value = self.get_return_value_info('returnValue', return_type)
+                rtn_type1 = self.make_decoded_param_type(return_value)
+                if rtn_type1.find('Decoder') != -1:
+                    rtn_type1 += '*'
+                param_decl = self.make_aligned_param_decl(rtn_type1, 'returnValue', self.INDENT_SIZE, self.genOpts.align_func_param)
             else:
-                paramDecl = self.makeAlignedParamDecl(returnType, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
-            paramDecls.append(paramDecl)
+                param_decl = self.make_aligned_param_decl(return_type, 'returnValue', self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decls.append(param_decl)
 
         for value in values:
-            paramType = self.makeDecodedParamType(value)
+            param_type = self.make_decoded_param_type(value)
 
-            if 'Decoder' in paramType:
-                paramType = '{}*'.format(paramType)
+            if 'Decoder' in param_type:
+                param_type = '{}*'.format(param_type)
 
-            paramDecl = self.makeAlignedParamDecl(paramType, value.name, self.INDENT_SIZE, self.genOpts.alignFuncParam)
-            paramDecls.append(paramDecl)
+            param_decl = self.make_aligned_param_decl(param_type, value.name, self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decls.append(param_decl)
 
-        if paramDecls:
-            return 'void {}(\n{})'.format(name, ',\n'.join(paramDecls))
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
 
         return 'void {}()'.format(name)
 
-    def makeStructureTypeEnum(self, typeinfo, typename):
+    def make_structure_type_enum(self, typeinfo, typename):
         """Generate the VkStructreType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
 
@@ -904,111 +904,111 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If the value was not specified by the XML element, process the struct type to create it.
                     stype = re.sub('([a-z0-9])([A-Z])', r'\1_\2', typename)
-                    stype = stype.replace('D3_D12', 'D3D12')
+                    stype = stype.replace('D3__d12', 'D3D12')
                     stype = stype.replace('Device_IDProp', 'Device_ID_Prop')
                     stype = stype.upper()
                     return re.sub('VK_', 'VK_STRUCTURE_TYPE_', stype)
         return None
 
-    def makeArrayLengthExpression(self, value, prefix=''):
+    def make_array_length_expression(self, value, prefix=''):
         """Generate an expression for the length of a given array value."""
-        lengthExpr = value.arrayLength
-        lengthValue = value.arrayLengthValue
+        length_expr = value.array_length
+        length_value = value.array_length_value
 
-        if lengthValue:
-            if lengthValue.isPointer:
+        if length_value:
+            if length_value.is_pointer:
                 # Add implicit dereference when length expr == pointer name
-                if lengthValue.name == lengthExpr:
-                    lengthExpr = '*' + lengthExpr
+                if length_value.name == length_expr:
+                    length_expr = '*' + length_expr
                 # Add null check to length value behind pointer
-                lengthExpr = '({lengthValue.name} != nullptr) ? ({lengthExpr}) : 0'.format(
-                    lengthValue=lengthValue, lengthExpr=lengthExpr)
-            elif lengthValue.baseType == 'VkDeviceSize':
+                length_expr = '({length_value.name} != nullptr) ? ({length_expr}) : 0'.format(
+                    length_value=length_value, length_expr=length_expr)
+            elif length_value.base_type == 'VkDeviceSize':
                 # Static cast 64-bit length expression to eliminate warning in 32-bit builds
-                lengthExpr = 'static_cast<size_t>({})'.format(lengthExpr)
+                length_expr = 'static_cast<size_t>({})'.format(length_expr)
             # Add prefix to parameter in the length expression
-            lengthExpr = lengthExpr.replace(lengthValue.name, prefix + lengthValue.name)
+            length_expr = length_expr.replace(length_value.name, prefix + length_value.name)
 
-        return lengthExpr
+        return length_expr
 
-    def makeArray2DLengthExpression(self, value, values, prefix=''):
-        lengthExprs = value.arrayLength.split(',')
-        if len(lengthExprs) == value.pointerCount:
+    def make_array2_d_length_expression(self, value, values, prefix=''):
+        length_exprs = value.array_length.split(',')
+        if len(length_exprs) == value.pointer_count:
             # All dimensions are provided in the xml
             lengths = []
-            for lengthExpr in lengthExprs:
+            for length_expr in length_exprs:
                 # Prefix members
                 for v in values:
-                    lengthExpr = re.sub(r'\b({})\b'.format(v.name), r'{}\1'.format(prefix), lengthExpr)
-                lengths.append(lengthExpr)
+                    length_expr = re.sub(r'\b({})\b'.format(v.name), r'{}\1'.format(prefix), length_expr)
+                lengths.append(length_expr)
             return lengths
         else:
             # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes
-            type_list = ', '.join([v.fullType for v in values])
+            type_list = ', '.join([v.full_type for v in values])
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def makeEncoderMethodCall(self, name, value, values, prefix, omitOutputParam=None):
+    def make_encoder_method_call(self, name, value, values, prefix, omit_output_param=None):
         """Generate a parameter encoder method call invocation."""
-        argName = prefix + value.name
-        if self.isGenericStructHandleValue(name, value.name) or self.isGenericCmdHandleValue(name, value.name):
-            handleTypeName = prefix
-            if self.isGenericStructHandleValue(name, value.name):
-                handleTypeName += self.getGenericStructHandleTypeValue(name, value.name)
+        arg_name = prefix + value.name
+        if self.is_generic_struct_handle_value(name, value.name) or self.is_generic_cmd_handle_value(name, value.name):
+            handle_type_name = prefix
+            if self.is_generic_struct_handle_value(name, value.name):
+                handle_type_name += self.get_generic_struct_handle_type_value(name, value.name)
             else:
-                handleTypeName += self.getGenericCmdHandleTypeValue(name, value.name)
-            argName = 'GetWrappedId({}, {})'.format(argName, handleTypeName)
+                handle_type_name += self.get_generic_cmd_handle_type_value(name, value.name)
+            arg_name = 'GetWrappedId({}, {})'.format(arg_name, handle_type_name)
 
-        args = [argName]
+        args = [arg_name]
 
-        isStruct = False
-        isString = False
-        isFuncp = False
+        is_struct = False
+        is_string = False
+        is_funcp = False
 
-        typeName = self.makeInvocationTypeName(value.baseType)
+        type_name = self.make_invocation_type_name(value.base_type)
 
-        if self.isStruct(typeName):
+        if self.is_struct(type_name):
             args = ['encoder'] + args
-            isStruct = True
-            methodCall = 'EncodeStruct'
+            is_struct = True
+            method_call = 'EncodeStruct'
         else:
-            if typeName in ['String', 'WString']:
-                isString = True
-            elif typeName == 'FunctionPtr':
-                isFuncp = True
+            if type_name in ['String', 'WString']:
+                is_string = True
+            elif type_name == 'FunctionPtr':
+                is_funcp = True
 
-            methodCall = 'encoder->Encode' + typeName
+            method_call = 'encoder->Encode' + type_name
 
-        if isString:
-            if value.isArray and value.isDynamic:
-                methodCall += 'Array'
-                args.append(self.makeArrayLengthExpression(value, prefix))
-        elif value.isArray:
-            if value.pointerCount > 1:
-                methodCall += 'Array{}D'.format(value.pointerCount)
-                args.extend(self.makeArray2DLengthExpression(value, values, prefix))
-            elif ',' in value.arrayLength:
-                methodCall += '{}DMatrix'.format(value.arrayLength.count(',') + 1)
-                args.append(self.makeArrayLengthExpression(value, prefix))
+        if is_string:
+            if value.is_array and value.is_dynamic:
+                method_call += 'Array'
+                args.append(self.make_array_length_expression(value, prefix))
+        elif value.is_array:
+            if value.pointer_count > 1:
+                method_call += 'Array{}D'.format(value.pointer_count)
+                args.extend(self.make_array2_d_length_expression(value, values, prefix))
+            elif ',' in value.array_length:
+                method_call += '{}DMatrix'.format(value.array_length.count(',') + 1)
+                args.append(self.make_array_length_expression(value, prefix))
             else:
-                methodCall += 'Array'
-                args.append(self.makeArrayLengthExpression(value, prefix))
-        elif isStruct:
-            if value.isPointer:
-                methodCall += 'Ptr'
-        elif not (isString or isFuncp):
+                method_call += 'Array'
+                args.append(self.make_array_length_expression(value, prefix))
+        elif is_struct:
+            if value.is_pointer:
+                method_call += 'Ptr'
+        elif not (is_string or is_funcp):
             # Ignore string and function names, which do not use the Ptr/Value suffix
-            if value.isPointer:
-                methodCall += 'Ptr' * value.pointerCount
+            if value.is_pointer:
+                method_call += 'Ptr' * value.pointer_count
             else:
-                methodCall += 'Value'
+                method_call += 'Value'
 
-        if self.isOutputParameter(value) and omitOutputParam:
-            args.append(omitOutputParam)
+        if self.is_output_parameter(value) and omit_output_param:
+            args.append(omit_output_param)
 
-        return '{}({})'.format(methodCall, ', '.join(args))
+        return '{}({})'.format(method_call, ', '.join(args))
 
-    def __getFeatureProtect(self, interface):
+    def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.
         From Vulkan-ValidationLayers common_codegen.py.
         """
@@ -1021,7 +1021,7 @@ class BaseGenerator(OutputGenerator):
             'mir' : 'VK_USE_PLATFORM_MIR_KHR',
             'vi' : 'VK_USE_PLATFORM_VI_NN',
             'wayland' : 'VK_USE_PLATFORM_WAYLAND_KHR',
-            'win32' : 'VK_USE_PLATFORM_WIN32_KHR',
+            'win32' : 'VK_USE_PLATFORM_WIN32__k_h_r',
             'xcb' : 'VK_USE_PLATFORM_XCB_KHR',
             'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
@@ -1034,12 +1034,12 @@ class BaseGenerator(OutputGenerator):
             return platform_dict[platform]
         return None
 
-    def __loadBlacklists(self, filename):
+    def __load_blacklists(self, filename):
         lists = json.loads(open(filename, 'r').read())
         self.APICALL_BLACKLIST += lists['functions']
         self.STRUCT_BLACKLIST += lists['structures']
 
-    def __loadPlatformTypes(self, filename):
+    def __load_platform_types(self, filename):
         platforms = json.loads(open(filename, 'r').read())
         for platform_name in platforms:
             platform = platforms[platform_name]

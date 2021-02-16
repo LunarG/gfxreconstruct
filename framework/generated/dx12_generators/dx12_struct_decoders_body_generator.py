@@ -33,14 +33,14 @@ class Dx12StructDecodersBodyGenerator(
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
-                 errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout):
+                 err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout):
         Dx12DecoderHeaderGenerator.__init__(
             self,
             source_dict,
             dx12_prefix_strings,
-            errFile,
-            warnFile,
-            diagFile)
+            err_file,
+            warn_file,
+            diag_file)
         self.check_blacklist = True
 
     def write_include(self):
@@ -54,6 +54,6 @@ class Dx12StructDecodersBodyGenerator(
         write(code, file=self.outFile)
 
     # Met#include "util/defines.h"hod override
-    def generateFeature(self):
-        Dx12BaseGenerator.generateFeature(self)
-        BaseStructDecodersBodyGenerator.generateFeature(self)
+    def generate_feature(self):
+        Dx12BaseGenerator.generate_feature(self)
+        BaseStructDecodersBodyGenerator.generate_feature(self)

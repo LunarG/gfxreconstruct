@@ -41,11 +41,11 @@ class Dx12DecoderBodyGenerator(
                 "\n")
         write(code, file=self.outFile)
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Methond override."""
-        self.cmdNames = []
-        self.methodNames = []
-        Dx12BaseGenerator.generateFeature(self)
+        self.cmd_names = []
+        self.method_names = []
+        Dx12BaseGenerator.generate_feature(self)
         self.write_function_call()
         BaseDecoderBodyGenerator.generate_feature(self, 'Dx12')
         self.newline()
@@ -53,10 +53,10 @@ class Dx12DecoderBodyGenerator(
 
     def generate_dx12_method_feature(self):
         first = True
-        for method in self.getFilteredMethodNames():
-            self.methodNames.append(method)
+        for method in self.get_filtered_method_names():
+            self.method_names.append(method)
 
-            info = self.featureMethodParams[method]
+            info = self.feature_method_params[method]
             return_type = info[0]
             values = info[2]
 
@@ -66,7 +66,7 @@ class Dx12DecoderBodyGenerator(
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
-            cmddef += self.makeCmdBody(return_type, method, values, True)
+            cmddef += self.make_cmd_body(return_type, method, values, True)
             cmddef += '\n'
             cmddef += '    return bytes_read;\n'
             cmddef += '}'

@@ -115,9 +115,9 @@ def make_gen_opts(args):
             filename='generated_dx12_api_call_encoders.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -128,9 +128,9 @@ def make_gen_opts(args):
             filename='generated_dx12_api_call_encoders.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=False,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -141,9 +141,9 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders_forward.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -154,9 +154,9 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -167,9 +167,9 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=False,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -180,9 +180,9 @@ def make_gen_opts(args):
             filename='generated_dx12_decoder.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -193,9 +193,9 @@ def make_gen_opts(args):
             filename='generated_dx12_decoder.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=False,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -206,9 +206,9 @@ def make_gen_opts(args):
             filename='generated_dx12_consumer.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -219,9 +219,9 @@ def make_gen_opts(args):
             filename='generated_dx12_replay_consumer.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -232,9 +232,9 @@ def make_gen_opts(args):
             filename='generated_dx12_replay_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=False,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -245,9 +245,9 @@ def make_gen_opts(args):
             filename='generated_dx12_ascii_consumer.h',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=True,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False)
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
@@ -258,9 +258,9 @@ def make_gen_opts(args):
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
-            prefixText=prefix_strings + py_prefix_strings,
-            protectFile=False,
-            protectFeature=False)
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False)
     ]
 
 
@@ -291,7 +291,7 @@ def gen_target(args, source_dict):
         gen = create_generator(
             source_dict,
             dx12_prefix_strings,
-            diagFile=None)
+            diag_file=None)
 
         return (gen, options)
     else:
@@ -318,7 +318,7 @@ class GenCode (threading.Thread):
 
         gen.beginFile(options)
         gen.beginFeature({}, False)
-        gen.genType(None, None, None)
-        gen.generateFeature()
+        gen.gen_type(None, None, None)
+        gen.generate_feature()
         gen.endFeature()
         gen.endFile()

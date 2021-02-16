@@ -28,19 +28,19 @@ class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ code to alter Vulkan device createtion features."""
 
     def __init__(self,
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
         BaseGeneratorOptions.__init__(self,
-                                      platformTypes=platformTypes,
+                                      platform_types=platform_types,
                                       filename=filename,
                                       directory=directory,
-                                      prefixText=prefixText,
-                                      protectFile=protectFile,
-                                      protectFeature=protectFeature)
+                                      prefix_text=prefix_text,
+                                      protect_file=protect_file,
+                                      protect_feature=protect_feature)
 
 
 class VulkanFeatureUtilBodyGenerator(BaseGenerator):
@@ -50,20 +50,20 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=False, process_structs=True, feature_break=True,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
-        self.physicalDeviceFeatures2sTypes = dict()
+        self.physical_device_features2_stypes = dict()
         # List of 1.0 features
-        self.physicalDeviceFeatures = []
+        self.physical_device_features = []
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/vulkan_feature_util.h"', file=self.outFile)
         self.newline()
@@ -76,7 +76,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         self.newline()
-        write(self.makeFeatureHelper(), file=self.outFile)
+        write(self.make_feature_helper(), file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(feature_util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -91,29 +91,29 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
         if not alias:
             # Track this struct if it can be present in a pNext chain for features
-            parentStructs = typeinfo.elem.get('structextends')
-            if parentStructs:
-                if "VkPhysicalDeviceFeatures2" in parentStructs:
+            parent_structs = typeinfo.elem.get('structextends')
+            if parent_structs:
+                if "VkPhysicalDeviceFeatures2" in parent_structs:
                     # Build list of all boolean members which are the feature bits
                     members = []
-                    for member in self.featureStructMembers[typename]:
-                        if member.baseType == "VkBool32":
+                    for member in self.feature_struct_members[typename]:
+                        if member.base_type == "VkBool32":
                             members.append(member.name)
-                    self.physicalDeviceFeatures2sTypes[typename] = {
-                        'sType' : self.makeStructureTypeEnum(typeinfo, typename),
+                    self.physical_device_features2_stypes[typename] = {
+                        'sType' : self.make_structure_type_enum(typeinfo, typename),
                         'members' : members
                     }
 
             #  Get all core 1.0 features
             if typename == "VkPhysicalDeviceFeatures":
-                for member in self.featureStructMembers[typename]:
-                    self.physicalDeviceFeatures.append(member.name)
+                for member in self.feature_struct_members[typename]:
+                    self.physical_device_features.append(member.name)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         return False
 
-    def makeFeatureHelper(self):
+    def make_feature_helper(self):
         """Generate help function for features on replaying at device creation time."""
         result = 'void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysicalDeviceFeatures GetPhysicalDeviceFeatures, PFN_vkGetPhysicalDeviceFeatures2 GetPhysicalDeviceFeatures2, const void* pNext, const VkPhysicalDeviceFeatures* pEnabledFeatures)\n'
         result += '{\n'
@@ -137,7 +137,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         result += '                physicalDeviceFeatures = &reinterpret_cast<const VkPhysicalDeviceFeatures2*>(next)->features;\n'
         result += '                break;\n'
 
-        for typename, info in self.physicalDeviceFeatures2sTypes.items():
+        for typename, info in self.physical_device_features2_stypes.items():
 
             result += '            case {}:\n'.format(info['sType'])
             result += '            {\n'
@@ -165,7 +165,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         result += '    {\n'
         result += '        VkPhysicalDeviceFeatures query = {};\n'
         result += '        GetPhysicalDeviceFeatures(physicalDevice, &query);\n'
-        for feature in self.physicalDeviceFeatures:
+        for feature in self.physical_device_features:
             result += '        if ((physicalDeviceFeatures->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(feature, feature)
             result += '        {\n'
             result += '            GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(feature)

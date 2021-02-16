@@ -30,15 +30,15 @@ class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanDispatchTableGenerator(BaseGenerator):
@@ -48,12 +48,12 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     """
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=True, process_structs=False, feature_break=False,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
         # Map of return types to default return values for no-op functions
         self.RETURN_DEFAULTS = { 'VkResult' : 'VK_SUCCESS',
                                  'VkBool32' : 'VK_TRUE',
@@ -63,12 +63,12 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                                  'uint32_t' : '0',
                                  'uint64_t' : '0' }
 
-        self.instanceCmdNames = dict()      # Map of API call names to no-op function declarations
-        self.deviceCmdNames = dict()        # Map of API call names to no-op function declarations
+        self.instance_cmd_names = dict()      # Map of API call names to no-op function declarations
+        self.device_cmd_names = dict()        # Map of API call names to no-op function declarations
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -104,7 +104,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
-        self.generateNoOpFuncs()
+        self.generate_no_op_funcs()
         self.newline()
 
         write('struct LayerTable', file=self.outFile)
@@ -114,9 +114,9 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('};', file=self.outFile)
 
         self.newline()
-        self.generateInstanceCmdTable()
+        self.generate_instance_cmd_table()
         self.newline()
-        self.generateDeviceCmdTable()
+        self.generate_device_cmd_table()
         self.newline()
 
         write('template <typename GetProcAddr, typename Handle, typename FuncP>', file=self.outFile)
@@ -130,9 +130,9 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
-        self.generateLoadInstanceTableFunc()
+        self.generate_load_instance_table_func()
         self.newline()
-        self.generateLoadDeviceTableFunc()
+        self.generate_load_device_table_func()
         self.newline()
 
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -141,75 +141,75 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureCmdParams:
+        if self.feature_cmd_params:
             return True
         return False
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for name in self.featureCmdParams:
+        for name in self.feature_cmd_params:
             # Ignore vkCreateInstance and vkCreateDevice, which are provided by the layer due to special handling requirements
             if name not in ['vkCreateInstance', 'vkCreateDevice']:
-                info = self.featureCmdParams[name]
+                info = self.feature_cmd_params[name]
                 values = info[2]
 
                 if values and values[0]:
-                    firstParam = values[0]
-                    if self.isHandle(firstParam.baseType):
-                        returnType = info[0]
+                    first_param = values[0]
+                    if self.is_handle(first_param.base_type):
+                        return_type = info[0]
                         proto = info[1]
 
-                        if not firstParam.baseType in ['VkInstance', 'VkPhysicalDevice']:
-                            self.deviceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                        if not first_param.base_type in ['VkInstance', 'VkPhysicalDevice']:
+                            self.device_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
                         else:
-                            self.instanceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                            self.instance_cmd_names[name] = self.make_cmd_decl(return_type, proto, values, name)
 
-    def generateInstanceCmdTable(self):
+    def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
         write('struct InstanceTable', file=self.outFile)
         write('{', file=self.outFile)
 
-        for name in self.instanceCmdNames:
+        for name in self.instance_cmd_names:
             decl = '    PFN_{} {}{{ noop::{} }};'.format(name, name[2:], name[2:])
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)
 
-    def generateDeviceCmdTable(self):
+    def generate_device_cmd_table(self):
         """Generate device dispatch table structure."""
         write('struct DeviceTable', file=self.outFile)
         write('{', file=self.outFile)
 
-        for name in self.deviceCmdNames:
+        for name in self.device_cmd_names:
             decl = '    PFN_{} {}{{ noop::{} }};'.format(name, name[2:], name[2:])
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)
 
-    def generateNoOpFuncs(self):
+    def generate_no_op_funcs(self):
         """Generate no-op function definitions."""
         write('GFXRECON_BEGIN_NAMESPACE(noop)', file=self.outFile)
         write('// clang-format off', file=self.outFile)
 
-        for name in self.instanceCmdNames:
-            write(self.instanceCmdNames[name], file=self.outFile)
+        for name in self.instance_cmd_names:
+            write(self.instance_cmd_names[name], file=self.outFile)
 
-        for name in self.deviceCmdNames:
-            write(self.deviceCmdNames[name], file=self.outFile)
+        for name in self.device_cmd_names:
+            write(self.device_cmd_names[name], file=self.outFile)
 
         write('// clang-format on', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(noop)', file=self.outFile)
 
-    def generateLoadInstanceTableFunc(self):
+    def generate_load_instance_table_func(self):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write('static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)', file=self.outFile)
         write('{', file=self.outFile)
         write('    assert(table != nullptr);', file=self.outFile)
         self.newline()
 
-        for name in self.instanceCmdNames:
+        for name in self.instance_cmd_names:
             if name == 'vkGetInstanceProcAddr':
                 write('    table->GetInstanceProcAddr = gpa;', file=self.outFile)
             else:
@@ -218,14 +218,14 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
         write('}', file=self.outFile)
 
-    def generateLoadDeviceTableFunc(self):
+    def generate_load_device_table_func(self):
         """Generate function to set the device table's functions with a getprocaddress routine."""
         write('static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)', file=self.outFile)
         write('{', file=self.outFile)
         write('    assert(table != nullptr);', file=self.outFile)
         self.newline()
 
-        for name in self.deviceCmdNames:
+        for name in self.device_cmd_names:
             if name == 'vkGetDeviceProcAddr':
                 write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
             else:
@@ -235,23 +235,23 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
 
-    def makeFullTypename(self, value):
+    def make_full_typename(self, value):
         """Generate the full typename for the NoOp function parameters; the array types need the [] moved from the parameter name to the parameter typename."""
-        if value.isArray and not value.isDynamic:
-            return '{}[{}]'.format(value.fullType, value.arrayCapacity)
+        if value.is_array and not value.is_dynamic:
+            return '{}[{}]'.format(value.full_type, value.array_capacity)
         else:
-            return value.fullType
+            return value.full_type
 
-    def makeCmdDecl(self, returnType, proto, values, name):
+    def make_cmd_decl(self, return_type, proto, values, name):
         """Generate a function prototype for the NoOp functions, with a parameter list that only includes types."""
-        params = ', '.join([self.makeFullTypename(value) for value in values])
-        if returnType == 'void':
+        params = ', '.join([self.make_full_typename(value) for value in values])
+        if return_type == 'void':
             return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(proto, params, name)
         else:
-            returnValue = ''
-            if returnType in self.RETURN_DEFAULTS:
-                returnValue = self.RETURN_DEFAULTS[returnType]
+            return_value = ''
+            if return_type in self.RETURN_DEFAULTS:
+                return_value = self.RETURN_DEFAULTS[return_type]
             else:
-                print('Unrecognized return type {} for no-op function generation; returning a zero initialized value'.format(returnType))
-                returnValue = '{}{{}}'.format(returnType)
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(proto, params, name, returnValue)
+                print('Unrecognized return type {} for no-op function generation; returning a zero initialized value'.format(return_type))
+                return_value = '{}{{}}'.format(return_type)
+            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(proto, params, name, return_value)

@@ -30,15 +30,15 @@ class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
 
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 prefix_text = '',
+                 protect_file = False,
+                 protect_feature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
+                                      filename, directory, prefix_text,
+                                      protect_file, protect_feature)
 
 
 class VulkanStructDecodersBodyGenerator(BaseStructDecodersBodyGenerator, BaseGenerator):
@@ -47,16 +47,16 @@ class VulkanStructDecodersBodyGenerator(BaseStructDecodersBodyGenerator, BaseGen
     Generate C++ functions for Vulkan struct decoding."""
 
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 err_file = sys.stderr,
+                 warn_file = sys.stderr,
+                 diag_file = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               process_cmds=False, process_structs=True, feature_break=True,
+                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
 
-    def beginFile(self, genOpts):
+    def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, genOpts)
+        BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
@@ -79,8 +79,8 @@ class VulkanStructDecodersBodyGenerator(BaseStructDecodersBodyGenerator, BaseGen
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def needFeatureGeneration(self):
+    def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.featureStructMembers:
+        if self.feature_struct_members:
             return True
         return False

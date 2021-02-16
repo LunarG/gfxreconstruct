@@ -31,12 +31,12 @@ class Dx12DecoderHeaderGenerator(
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
-                 errFile=sys.stderr,
-                 warnFile=sys.stderr,
-                 diagFile=sys.stdout):
+                 err_file=sys.stderr,
+                 warn_file=sys.stderr,
+                 diag_file=sys.stdout):
         Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
-            errFile, warnFile, diagFile)
+            err_file, warn_file, diag_file)
 
     def beginFile(self, gen_opts):
         """Methond override."""
@@ -47,9 +47,9 @@ class Dx12DecoderHeaderGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Methond override."""
-        Dx12BaseGenerator.generateFeature(self)
+        Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_decoder_class()
 
     def write_include(self):

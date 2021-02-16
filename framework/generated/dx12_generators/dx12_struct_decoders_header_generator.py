@@ -31,12 +31,12 @@ class Dx12StructDecodersHeaderGenerator(
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def __init__(self, source_dict, dx12_prefix_strings,
-                 errFile=sys.stderr,
-                 warnFile=sys.stderr,
-                 diagFile=sys.stdout):
+                 err_file=sys.stderr,
+                 warn_file=sys.stderr,
+                 diag_file=sys.stdout):
         Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings,
-            errFile, warnFile, diagFile)
+            err_file, warn_file, diag_file)
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
@@ -48,7 +48,7 @@ class Dx12StructDecodersHeaderGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
 
-    def generateFeature(self):
+    def generate_feature(self):
         """Methond override."""
         code = ''
         struct_list = self.source_dict['struct_list']
@@ -57,8 +57,8 @@ class Dx12StructDecodersHeaderGenerator(
         code += 'struct Decoded_LARGE_INTEGER;\n'.format(name)
         write(code, file=self.outFile)
 
-        Dx12BaseGenerator.generateFeature(self)
-        BaseStructDecodersHeaderGenerator.generateFeature(self)
+        Dx12BaseGenerator.generate_feature(self)
+        BaseStructDecodersHeaderGenerator.generate_feature(self)
 
     def write_include(self):
         """Methond override."""
