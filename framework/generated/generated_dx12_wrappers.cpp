@@ -1482,8 +1482,10 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->QueryResourceResidency(
-            ppResources,
+            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppResources, NumResources , unwrap_memory),
             pResidencyStatus,
             NumResources);
     }
@@ -2078,9 +2080,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->OfferResources(
             NumResources,
-            ppResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources , unwrap_memory),
             Priority);
     }
     else
@@ -2108,9 +2112,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->ReclaimResources(
             NumResources,
-            ppResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources , unwrap_memory),
             pDiscarded);
     }
     else
@@ -3768,6 +3774,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->ResizeBuffers1(
             BufferCount,
             Width,
@@ -3775,7 +3783,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
             Format,
             SwapChainFlags,
             pCreationNodeMask,
-            ppPresentQueue);
+            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppPresentQueue, BufferCount , unwrap_memory));
     }
     else
     {
@@ -4162,9 +4170,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->OfferResources1(
             NumResources,
-            ppResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources , unwrap_memory),
             Priority,
             Flags);
     }
@@ -4194,9 +4204,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->ReclaimResources1(
             NumResources,
-            ppResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources , unwrap_memory),
             pResults);
     }
     else
@@ -5944,9 +5956,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->SetDescriptorHeaps(
             NumDescriptorHeaps,
-            ppDescriptorHeaps);
+            UnwrapObjects<ID3D12DescriptorHeap_Wrapper, ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps , unwrap_memory));
     }
     else
     {
@@ -6785,13 +6799,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->AtomicCopyBufferUINT(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
             DstOffset,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
             SrcOffset,
             Dependencies,
-            ppDependentResources,
+            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies , unwrap_memory),
             pDependentSubresourceRanges);
     }
     else
@@ -6823,13 +6839,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->AtomicCopyBufferUINT64(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
             DstOffset,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
             SrcOffset,
             Dependencies,
-            ppDependentResources,
+            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies , unwrap_memory),
             pDependentSubresourceRanges);
     }
     else
@@ -7085,9 +7103,11 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->ExecuteCommandLists(
             NumCommandLists,
-            ppCommandLists);
+            UnwrapObjects<ID3D12CommandList_Wrapper, ID3D12CommandList>(ppCommandLists, NumCommandLists , unwrap_memory));
     }
     else
     {
@@ -8196,9 +8216,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->MakeResident(
             NumObjects,
-            ppObjects);
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects , unwrap_memory));
     }
     else
     {
@@ -8223,9 +8245,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->Evict(
             NumObjects,
-            ppObjects);
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects , unwrap_memory));
     }
     else
     {
@@ -8752,8 +8776,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->SetEventOnMultipleFenceCompletion(
-            ppFences,
+            UnwrapObjects<ID3D12Fence_Wrapper, ID3D12Fence>(ppFences, NumFences , unwrap_memory),
             pFenceValues,
             NumFences,
             Flags,
@@ -8786,9 +8812,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->SetResidencyPriority(
             NumObjects,
-            ppObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects , unwrap_memory),
             pPriorities);
     }
     else
@@ -8931,10 +8959,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
 
     if (call_scope == 1)
     {
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->EnqueueMakeResident(
             Flags,
             NumObjects,
-            ppObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects , unwrap_memory),
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFenceToSignal),
             FenceValueToSignal);
     }

@@ -162,7 +162,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # Check for input parameters with a class type.
         for param in param_info:
             value = self.get_value_info(param)
-            if self.is_class(value) and (value.pointer_count == 1):
+            if self.is_class(value) and (
+                (value.pointer_count == 1) or
+                ((value.pointer_count == 2) and value.is_const)
+            ):
                 wrapped_values[value.name] = value
 
         return wrapped_values
@@ -466,11 +469,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         for p in param_info:
             name = p['name']
             if unwrap_objects:
+                value = self.get_value_info(p)
                 if name in wrappers:
-                    name = 'encode::GetWrappedObject<{type}_Wrapper, {type}>'\
-                        '({})'.format(name, type=wrappers[name].base_type)
+                    if value.array_length:
+                        need_unwrap_memory = True
+
+                        name = 'UnwrapObjects<{type}_Wrapper, {type}>'\
+                            '({}, {}, unwrap_memory)'.format(
+                                name, value.array_length, type=wrappers[name].base_type)
+                    else:
+                        name = 'encode::GetWrappedObject<{type}_Wrapper,'\
+                            ' {type}>({})'.format(
+                                name, type=wrappers[name].base_type)
                 else:
-                    value = self.get_value_info(p)
                     if value.base_type in self.structs_with_objects:
                         need_unwrap_memory = True
 
