@@ -59,36 +59,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         )
         write(code, file=self.outFile)
 
-    def write_encode_object(self):
-        """Methond override."""
-        code = (
-            "void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data)\n"
-            "{\n"
-            "    format::HandleId  device_id = format::kNullHandleId;\n"
-            "    format::HandleId* device_id_ptr = nullptr;\n"
-            "    if ((object != nullptr) && (*object != nullptr))\n"
-            "    {\n"
-            "        //device_id = reinterpret_cast<const IUnknown_Wrapper*>(*object)->GetObjectId();\n"
-            "        device_id_ptr = &device_id;\n"
-            "    }\n"
-            "    // The final version of the encoder would use the address of object as the address that is encoded for the pointer value.\n"
-            "    encoder->EncodeHandleIdPtr(device_id_ptr, omit_output_data);\n"
-            "}\n"
-            "\n"
-            "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data, bool omit_addr)\n"
-            "{\n"
-            "    encoder->EncodeStructArrayPreamble(value, len, omit_data, omit_addr);\n"
-            "    if ((value != nullptr) && (len > 0) && !omit_data)\n"
-            "    {\n"
-            "        for (size_t i = 0; i < len; ++i)\n"
-            "        {\n"
-            "            EncodeDxObjectPtr(encoder, value[i]);\n"
-            "        }\n"
-            "    }\n"
-            "}"
-        )
-        write(code, file=self.outFile)
-
     def get_encode_struct(self, value, is_generating_struct):
         """Methond override."""
         write_parameter_value = ''
@@ -189,62 +159,14 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         elif self.is_class(value):
             if value.array_length and type(value.array_length) == str:
                 if is_generating_struct:
-                    if value.is_const:
-                        rtn.append(
-                            'EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(const_cast<{}***>\n'
-                            '            (&const_cast<{}*>(&value)->{})), value.{});'
-                            .format(
-                                value.base_type, struct_name, value.name,
-                                value.array_length
-                            )
-                        )
-                    else:
-                        rtn.append(
-                            'EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(&const_cast<{}**>\n'
-                            '            (&value)->{}), value.{});'.format(
-                                struct_name, value.name, value.array_length
-                            )
-                        )
+                    pass
                 else:
-                    if value.is_const:
-                        rtn.append(
-                            'EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(const_cast<{}***>(&{})), {});'
-                            .format(
-                                value.base_type, value.name, value.array_length
-                            )
-                        )
-                    else:
-                        rtn.append(
-                            'EncodeDxObjectPtrArray(encoder, reinterpret_cast<void***>(&{}), {});'
-                            .format(value.name, value.array_length)
-                        )
-
+                    rtn = 'EncodeDxObjectArray(encoder, {}, {});'.format(value.name, value.array_length)
             else:
                 if is_generating_struct:
-                    if value.is_const:
-                        rtn.append(
-                            'EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(const_cast<{}**>\n'
-                            '            (&const_cast<{}*>(&value)->{})));'.
-                            format(value.base_type, struct_name, value.name)
-                        )
-                    else:
-                        rtn.append(
-                            'EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(&const_cast<{}*>\n'
-                            '            (&value)->{}));'.format(
-                                struct_name, value.name
-                            )
-                        )
+                    rtn = 'EncodeDxObject(encoder, value.{});'.format(value.name)
                 else:
-                    if value.is_const:
-                        rtn.append(
-                            'EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(const_cast<{}**>(&{})));'
-                            .format(value.base_type, value.name)
-                        )
-                    else:
-                        rtn.append(
-                            'EncodeDxObjectPtr(encoder, reinterpret_cast<void**>(&{}));'
-                            .format(value.name)
-                        )
+                    rtn = 'EncodeDxObject(encoder, {});'.format(value.name)
 
         else:
             function_value = True

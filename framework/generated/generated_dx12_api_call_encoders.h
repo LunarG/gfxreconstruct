@@ -51,9 +51,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);
-void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);
-
 
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.19041.0

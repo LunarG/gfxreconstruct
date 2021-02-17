@@ -60,7 +60,6 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         """Methond override."""
         Dx12BaseGenerator.generate_feature(self)
 
-        self.write_encode_object()
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             self.newline()
@@ -92,13 +91,6 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
             "\n"
         )
 
-        write(code, file=self.outFile)
-
-    def write_encode_object(self):
-        code = (
-            "void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);\n"
-            "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);\n"
-        )
         write(code, file=self.outFile)
 
     def get_encode_struct_body(self, properties):
