@@ -28,8 +28,6 @@ from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGen
 class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
     """Generates C++ functions responsible for encoding Dx12 API call."""
 
-    ERROR_MSG = 'ERROR: Missing parameter type:'
-
     def __init__(
         self,
         source_dict,
@@ -76,8 +74,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 return 'EncodeStructPtr(encoder, {}{});'.format(
                     write_parameter_value, value.name
                 )
-            else:
-                print(self.ERROR_MSG, 'struct ptr array', value.name)
 
         elif value.pointer_count == 2:
             return 'EncodeStructPtr(encoder, *{}{});'.format(
@@ -118,8 +114,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 return 'encoder->Encode{}Ptr({}{});'.format(
                     function_name, write_parameter_value, value.name
                 )
-            else:
-                print(self.ERROR_MSG, 'ptr array', function_name, value.name)
+
         elif value.pointer_count == 2:
             return 'encoder->Encode{}PtrPtr({}{});'.format(
                 function_name, write_parameter_value, value.name
@@ -145,26 +140,25 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         return ''
 
     def get_encode_parameter(self, parameter, is_generating_struct):
-        """Methond override."""
-        rtn = []
-        struct_name = ''
-        if 'parent' in parameter and 'name' in parameter['parent']:
-            struct_name = parameter['parent']['name']
-
+        rtn = ''
         value = self.get_value_info(parameter)
 
         if self.is_struct(value.base_type):
-            rtn.append(self.get_encode_struct(value, is_generating_struct))
+            rtn = self.get_encode_struct(value, is_generating_struct)
 
         elif self.is_class(value):
             if value.array_length and type(value.array_length) == str:
                 if is_generating_struct:
                     pass
                 else:
-                    rtn = 'EncodeDxObjectArray(encoder, {}, {});'.format(value.name, value.array_length)
+                    rtn = 'EncodeDxObjectArray(encoder, {}, {});'.format(
+                        value.name, value.array_length
+                    )
             else:
                 if is_generating_struct:
-                    rtn = 'EncodeDxObject(encoder, value.{});'.format(value.name)
+                    rtn = 'EncodeDxObject(encoder, value.{});'.format(
+                        value.name
+                    )
                 else:
                     rtn = 'EncodeDxObject(encoder, {});'.format(value.name)
 
@@ -183,17 +177,18 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             elif encode_type == value.base_type:
                 if self.is_enum(value.base_type):
                     encode_type = 'Enum'
-
                 else:
-                    print(self.ERROR_MSG, value.base_type, value.name)
+                    encode_type = ''
 
             if encode_type:
-                rtn.append(
-                    self.get_encode_value(
-                        value, encode_type, function_value,
-                        is_generating_struct
-                    )
+                rtn = self.get_encode_value(
+                    value, encode_type, function_value, is_generating_struct
                 )
+
+        if not rtn:
+            print(
+                'ERROR: Missing parameter type:', value.full_type, value.name
+            )
         return rtn
 
     def get_encode_struct_body(self, properties):
@@ -202,9 +197,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         for k, v in properties.items():
             for p in v:
-                encodes = self.get_encode_parameter(p, True)
-                for code in encodes:
-                    body += '    {}\n'.format(code)
+                encode = self.get_encode_parameter(p, True)
+                body += '    {}\n'.format(encode)
 
         body += '}'
         return body
@@ -228,9 +222,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 '    {\n'
 
         for p in method_info['parameters']:
-            encodes = self.get_encode_parameter(p, False)
-            for code in encodes:
-                body += '        {}\n'.format(code)
+            encode = self.get_encode_parameter(p, False)
+            body += '        {}\n'.format(encode)
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
@@ -238,9 +231,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             rtn_parameter['name'] = 'result'
             rtn_parameter['type'] = rtn_type
 
-            encodes = self.get_encode_parameter(rtn_parameter, False)
-            for code in encodes:
-                body += '        {}\n'.format(code)
+            encode = self.get_encode_parameter(rtn_parameter, False)
+            body += '        {}\n'.format(encode)
 
         if class_name:
             body += '        TraceManager::Get()->EndMethodCallTrace(encoder);\n'
