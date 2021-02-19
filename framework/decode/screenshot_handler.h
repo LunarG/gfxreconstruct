@@ -104,6 +104,7 @@ class ScreenshotHandler
                                 const VkPhysicalDeviceMemoryProperties& memory_properties,
                                 VkDeviceSize                            buffer_size,
                                 VkFormat                                image_format,
+                                VkFormat                                screenshot_format,
                                 uint32_t                                width,
                                 uint32_t                                height,
                                 CopyResource*                           copy_resource) const;
