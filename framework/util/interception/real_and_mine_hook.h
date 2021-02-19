@@ -58,7 +58,7 @@ class RealAndMineHook
     //--------------------------------------------------------------------------
     bool Attach()
     {
-        hooked_ = HookAPICall((PVOID*)&real_hook_, mine_hook_) == NO_ERROR;
+        hooked_ = HookAPICall((PVOID*)&real_hook_, mine_hook_);
 
         return hooked_;
     }
@@ -71,7 +71,7 @@ class RealAndMineHook
     {
         if (true == hooked_)
         {
-            bool bResult = UnhookAPICall((PVOID*)&real_hook_, mine_hook_) == NO_ERROR;
+            UnhookAPICall((PVOID*)&real_hook_, mine_hook_);
         }
     }
 

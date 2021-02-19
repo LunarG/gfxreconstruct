@@ -190,6 +190,17 @@ static void Destroy()
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
+extern "C" __declspec(dllexport) void UpdateHooks()
+{
+    static bool hooked = false;
+
+    if (hooked == false)
+    {
+        Hook_D3D12::HookInterceptor();
+        hooked = true;
+    }
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     BOOL success = TRUE;
@@ -206,18 +217,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
                 {
                     gfxrecon::Destroy();
                 }
-                break;
-        }
-    }
-    else
-    {
-        switch (fdwReason)
-        {
-            case DLL_PROCESS_ATTACH:
-                // TODO (#32): This will call LoadLibrary and we will need to evaluate whether its safe
-                Hook_D3D12::HookInterceptor();
-                break;
-            case DLL_PROCESS_DETACH:
                 break;
         }
     }

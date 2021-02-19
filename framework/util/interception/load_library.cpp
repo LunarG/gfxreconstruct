@@ -48,23 +48,24 @@ static const wchar_t* dll_steam_overlay_64_W_ = L"C:\\Program Files (x86)\\Steam
 /// first call to LoadLibrary (reference count == 1).
 static RefTrackerCounter inside_load_library_;
 
+/// Function pointer typedef for UpdateHooks
+using UpdateHooksFunc = bool(*)(void);
+
 /// Function pointers and their typedefs to load library
-typedef int (*pFuncPtr)(void);
+using FreeLibraryFunc = BOOL(WINAPI*)(HMODULE);
+static FreeLibraryFunc real_free_library = FreeLibrary;
 
-typedef BOOL(WINAPI* FreeLibrary_type)(HMODULE lib_module);
-static FreeLibrary_type Real_FreeLibrary = FreeLibrary;
+using ReadlLoadLibraryAFunc = HMODULE(WINAPI*)(LPCSTR);
+static ReadlLoadLibraryAFunc real_load_library_a = LoadLibraryA;
 
-typedef HMODULE(WINAPI* LoadLibraryA_type)(LPCSTR lib_file_name);
-static LoadLibraryA_type Real_LoadLibraryA = LoadLibraryA;
+using RealLoadLibraryExAFunc = HMODULE(WINAPI*)(LPCSTR, HANDLE, DWORD);
+static RealLoadLibraryExAFunc real_load_library_ex_a = LoadLibraryExA;
 
-typedef HMODULE(WINAPI* LoadLibraryExA_type)(LPCSTR lib_file_name, HANDLE file, DWORD flags);
-static LoadLibraryExA_type Real_LoadLibraryExA = LoadLibraryExA;
+using RealLoadLibraryWFunc = HMODULE(WINAPI*)(LPCWSTR);
+static RealLoadLibraryWFunc real_load_library_w = LoadLibraryW;
 
-typedef HMODULE(WINAPI* LoadLibraryW_type)(LPCWSTR lib_file_name);
-static LoadLibraryW_type Real_LoadLibraryW = LoadLibraryW;
-
-typedef HMODULE(WINAPI* LoadLibraryExW_type)(LPCWSTR lib_file_name, HANDLE file, DWORD flags);
-static LoadLibraryExW_type Real_LoadLibraryExW = LoadLibraryExW;
+using RealLoadLibraryExWFunc = HMODULE(WINAPI*)(LPCWSTR, HANDLE, DWORD);
+static RealLoadLibraryExWFunc real_load_library_ex_w = LoadLibraryExW;
 
 //----------------------------------------------------------------------------
 /// Pause application to allow debugger to attach
@@ -184,57 +185,66 @@ static bool IsSteamOverlayDllW(const wchar_t* lib_file_name)
 }
 
 //----------------------------------------------------------------------------
-/// Load our custom DLL
-/// \param  lib_file_name DLL name
+/// Call into our own D3D12 and DXGI to update hooks
+/// \param  hLib Module to library to hookup.
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
-bool LoadCustomDll(LPCSTR lib_file_name)
+bool HookupLibrary(HMODULE hLib)
 {
-    HMODULE lib = LoadLibraryA(lib_file_name);
+    bool ret_val = false;
 
-    return lib != NULL;
+    UpdateHooksFunc func = reinterpret_cast<UpdateHooksFunc>(GetProcAddress(hLib, "UpdateHooks"));
+
+    if (func != nullptr)
+    {
+        ret_val = func();
+    }
+
+    return ret_val;
 }
 
 //----------------------------------------------------------------------------
-/// Load our library (A)
-/// \param  lib_file_name DLL name
+/// Load and hookup a GFXR library with a system library
+/// \param  system_lib The name of system library DLL
+/// \param  gfxr_lib_path The path to GFXR version of the library
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
-static bool LoadHookedDll(LPCSTR lib_file_name)
+HMODULE HookInterceptionLibrary(const char* system_lib, const char* gfxr_lib_path)
 {
-    bool success = false;
+    HMODULE gfxr_lib_handle = NULL;
 
-    if (strcmp(lib_file_name, "dxgi.dll") == 0)
+    HMODULE system_library = GetModuleHandleA(system_lib);
+
+    if (system_library != NULL)
     {
-        success = LoadCustomDll(GFXR_DXGI_PATH);
-    }
-    else if (strcmp(lib_file_name, "d3d12.dll") == 0)
-    {
-        success = LoadCustomDll(GFXR_D3D12_PATH);
+        gfxr_lib_handle = LoadLibraryA(gfxr_lib_path);
     }
 
-    return success;
+    if (gfxr_lib_handle != NULL)
+    {
+        HookupLibrary(gfxr_lib_handle);
+    }
+
+    return gfxr_lib_handle;
 }
 
 //----------------------------------------------------------------------------
-/// Load our library (W)
-/// \param  lib_file_name DLL name
-/// \return True if successful, false otherwise.
+/// Load and hook our own custom versions of D3D12 and DXGI
 //----------------------------------------------------------------------------
-static bool LoadHookedDllW(LPCWSTR lib_file_name)
+void HookInterceptionLibraries()
 {
-    bool success = false;
+    static HMODULE gfxr_d3d12_module = NULL;
+    static HMODULE gfxr_dxgi_module = NULL;
 
-    if (wcscmp(lib_file_name, L"dxgi.dll") == 0)
+    if (gfxr_d3d12_module == NULL)
     {
-        success = LoadCustomDll(GFXR_DXGI_PATH);
-    }
-    else if (wcscmp(lib_file_name, L"d3d12.dll") == 0)
-    {
-        success = LoadCustomDll(GFXR_D3D12_PATH);
+        gfxr_d3d12_module = HookInterceptionLibrary("d3d12.dll", GFXR_D3D12_PATH);
     }
 
-    return success;
+    if (gfxr_dxgi_module == NULL)
+    {
+        gfxr_dxgi_module = HookInterceptionLibrary("dxgi.dll", GFXR_DXGI_PATH);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -247,9 +257,7 @@ static BOOL WINAPI FreeLibrary(HMODULE lib_module)
     char module_name[MAX_PATH];
     GetModuleFileNameA(lib_module, module_name, MAX_PATH);
 
-    BOOL b = Real_FreeLibrary(lib_module);
-
-    return b;
+    return real_free_library(lib_module);
 }
 
 //----------------------------------------------------------------------------
@@ -265,7 +273,7 @@ static HMODULE WINAPI LoadLibraryA(LPCSTR lib_file_name)
     {
         RefTracker rf(&inside_load_library_);
 
-        res = Real_LoadLibraryA(lib_file_name);
+        res = real_load_library_a(lib_file_name);
 
         DWORD real_error = GetLastError();
 
@@ -276,7 +284,7 @@ static HMODULE WINAPI LoadLibraryA(LPCSTR lib_file_name)
 
         if (inside_load_library_ == 1)
         {
-            LoadHookedDll(lib_file_name);
+            HookInterceptionLibraries();
         }
 
         SetLastError(real_error);
@@ -300,7 +308,7 @@ static HMODULE WINAPI LoadLibraryExA(LPCSTR lib_file_name, HANDLE file, DWORD fl
     {
         RefTracker rf(&inside_load_library_);
 
-        res = Real_LoadLibraryExA(lib_file_name, file, flags);
+        res = real_load_library_ex_a(lib_file_name, file, flags);
 
         DWORD real_error = GetLastError();
 
@@ -311,7 +319,7 @@ static HMODULE WINAPI LoadLibraryExA(LPCSTR lib_file_name, HANDLE file, DWORD fl
 
         if (inside_load_library_ == 1)
         {
-            LoadHookedDll(lib_file_name);
+            HookInterceptionLibraries();
         }
 
         SetLastError(real_error);
@@ -333,7 +341,7 @@ static HMODULE WINAPI LoadLibraryW(LPCWSTR lib_file_name)
     {
         RefTracker rf(&inside_load_library_);
 
-        res = Real_LoadLibraryW(lib_file_name);
+        res = real_load_library_w(lib_file_name);
 
         DWORD real_error = GetLastError();
 
@@ -344,7 +352,7 @@ static HMODULE WINAPI LoadLibraryW(LPCWSTR lib_file_name)
 
         if (inside_load_library_ == 1)
         {
-            LoadHookedDllW(lib_file_name);
+            HookInterceptionLibraries();
         }
 
         SetLastError(real_error);
@@ -368,7 +376,7 @@ static HMODULE WINAPI LoadLibraryExW(LPCWSTR lib_file_name, HANDLE file, DWORD f
     {
         RefTracker rf(&inside_load_library_);
 
-        res = Real_LoadLibraryExW(lib_file_name, file, flags);
+        res = real_load_library_ex_w(lib_file_name, file, flags);
 
         DWORD real_error = GetLastError();
 
@@ -379,7 +387,7 @@ static HMODULE WINAPI LoadLibraryExW(LPCWSTR lib_file_name, HANDLE file, DWORD f
 
         if (inside_load_library_ == 1)
         {
-            LoadHookedDllW(lib_file_name);
+            HookInterceptionLibraries();
         }
 
         SetLastError(real_error);
@@ -393,22 +401,22 @@ static HMODULE WINAPI LoadLibraryExW(LPCWSTR lib_file_name, HANDLE file, DWORD f
 //----------------------------------------------------------------------------
 void HookLoadLibrary()
 {
-    bool hookSuccess = HookAPICall(&(PVOID&)Real_LoadLibraryA, gfxrecon::util::interception::LoadLibraryA);
+    bool hookSuccess = HookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
     assert(hookSuccess == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)Real_LoadLibraryExA, gfxrecon::util::interception::LoadLibraryExA);
+    hookSuccess = HookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
     assert(hookSuccess == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)Real_LoadLibraryW, gfxrecon::util::interception::LoadLibraryW);
+    hookSuccess = HookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
     assert(hookSuccess == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)Real_LoadLibraryExW, gfxrecon::util::interception::LoadLibraryExW);
+    hookSuccess = HookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
     assert(hookSuccess == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)Real_FreeLibrary, gfxrecon::util::interception::FreeLibrary);
+    hookSuccess = HookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
     assert(hookSuccess == true);
 
-    // Load "dxgi.dll" at the beginning since we sometimes miss loading it
+    // TODO(#32): Load "dxgi.dll" at the beginning since we sometimes miss loading it
     LoadLibraryA("dxgi.dll");
 }
 
@@ -417,27 +425,27 @@ void HookLoadLibrary()
 //----------------------------------------------------------------------------
 void UnhookLoadLibrary()
 {
-    bool unhookSuccess = UnhookAPICall(&(PVOID&)Real_LoadLibraryA, gfxrecon::util::interception::LoadLibraryA);
+    bool unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
     assert(unhookSuccess == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)Real_LoadLibraryExA, gfxrecon::util::interception::LoadLibraryExA);
+    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
     assert(unhookSuccess == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)Real_LoadLibraryW, gfxrecon::util::interception::LoadLibraryW);
+    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
     assert(unhookSuccess == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)Real_LoadLibraryExW, gfxrecon::util::interception::LoadLibraryExW);
+    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
     assert(unhookSuccess == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)Real_FreeLibrary, gfxrecon::util::interception::FreeLibrary);
+    unhookSuccess = UnhookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
     assert(unhookSuccess == true);
 
     // Restore Real functions to original values in case they aren't restored correctly by the unhook call
-    Real_LoadLibraryA   = LoadLibraryA;
-    Real_LoadLibraryExA = LoadLibraryExA;
-    Real_LoadLibraryW   = LoadLibraryW;
-    Real_LoadLibraryExW = LoadLibraryExW;
-    Real_FreeLibrary    = FreeLibrary;
+    real_load_library_a    = LoadLibraryA;
+    real_load_library_ex_a = LoadLibraryExA;
+    real_load_library_w    = LoadLibraryW;
+    real_load_library_ex_w = LoadLibraryExW;
+    real_free_library      = FreeLibrary;
 }
 
 GFXRECON_END_NAMESPACE(interception)
