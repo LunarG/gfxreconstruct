@@ -118,16 +118,17 @@ information.
 
 - Changes to the GFXReconstruct project's Python code should conform to the
   coding style defined by [PEP 8](https://www.python.org/dev/peps/pep-0008/)
-  - Python code formatting may be verified with tools like the following:
-    - [pycodestyle](https://pypi.org/project/pycodestyle/) (Doesn't check naming conventions)
-    - [flake8](https://pypi.org/project/flake8/) and
-      [pep8-naming](https://pypi.org/project/pep8-naming/) (Check naming conventions)
-  - Python code formatting may be corrected with tools like the following:
-    - [autoflake](https://pypi.org/project/autoflake/) and
-      [autopep8](https://pypi.org/project/autopep8/)
-    - Formatting tools may not be able to correct all formatting issues,
-      requiring additional manual correction after use.
-  - [More tools](https://github.com/pycqa/pycodestyle/wiki/RelatedTools)
+  - Python code formatting may be automatically applied with
+    [yapf](https://github.com/google/yapf), based on the rules specified in
+    the repository's .style.yapf file, using the following command:
+
+```bash
+# Apply formatting to files in place.
+$ yapf -i <files>
+
+# Apply formatting to all python files in this path.
+$ yapf -i -r <path>
+```
 
 ### **Testing Your Changes**
 
