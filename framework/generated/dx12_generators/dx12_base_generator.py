@@ -21,8 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator\
-    import BaseGenerator, BaseGeneratorOptions, ValueInfo, write
+from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo
 
 
 class Dx12GeneratorOptions(BaseGeneratorOptions):

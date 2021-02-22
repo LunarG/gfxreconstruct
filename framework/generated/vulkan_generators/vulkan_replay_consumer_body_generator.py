@@ -21,8 +21,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys, json
-from base_replay_consumer_body_generator import *
+import json
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
 
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):

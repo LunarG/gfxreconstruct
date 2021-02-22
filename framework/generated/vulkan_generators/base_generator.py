@@ -38,7 +38,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, re, sys, json
+import os
+import re
+import sys
+import json
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
 from vkconventions import VulkanConventions
 
@@ -312,7 +315,6 @@ class BaseGenerator(OutputGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature.
         The subclass should override this method."""
-        pass
 
     def beginFile(self, gen_opts):
         """Method override."""

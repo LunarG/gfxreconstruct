@@ -21,8 +21,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
-from base_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
 class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):

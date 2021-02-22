@@ -21,8 +21,8 @@
 # IN THE SOFTWARE.
 
 import sys
-from dx12_api_call_encoders_header_generator\
-    import Dx12ApiCallEncodersHeaderGenerator, write
+from base_generator import write
+from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGenerator
 
 
 class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):

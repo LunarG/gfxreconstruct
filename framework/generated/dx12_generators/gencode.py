@@ -25,29 +25,20 @@ import sys
 import threading
 
 # API Call Encoders
-from dx12_base_generator\
-    import Dx12GeneratorOptions, write
-from dx12_api_call_encoders_header_generator\
-    import Dx12ApiCallEncodersHeaderGenerator
-from dx12_api_call_encoders_body_generator\
-    import Dx12ApiCallEncodersBodyGenerator
-from dx12_struct_decoders_forward_generator\
-    import Dx12StructDecodersForwardGenerator
-from dx12_struct_decoders_header_generator\
-    import Dx12StructDecodersHeaderGenerator
-from dx12_struct_decoders_body_generator\
-    import Dx12StructDecodersBodyGenerator
+from base_generator import write
+from dx12_base_generator import Dx12GeneratorOptions
+from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGenerator
+from dx12_api_call_encoders_body_generator import Dx12ApiCallEncodersBodyGenerator
+from dx12_struct_decoders_forward_generator import Dx12StructDecodersForwardGenerator
+from dx12_struct_decoders_header_generator import Dx12StructDecodersHeaderGenerator
+from dx12_struct_decoders_body_generator import Dx12StructDecodersBodyGenerator
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from dx12_decoder_body_generator import Dx12DecoderBodyGenerator
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
-from dx12_replay_consumer_header_generator\
-    import Dx12ReplayConsumerHeaderGenerator
-from dx12_replay_consumer_body_generator\
-    import Dx12ReplayConsumerBodyGenerator
-from dx12_ascii_consumer_header_generator\
-    import Dx12AsciiConsumerHeaderGenerator
-from dx12_ascii_consumer_body_generator\
-    import Dx12AsciiConsumerBodyGenerator
+from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator
+from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator
+from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
+from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'

@@ -21,7 +21,8 @@
 # IN THE SOFTWARE.
 
 import sys
-from dx12_base_generator import Dx12BaseGenerator, write
+from base_generator import write
+from dx12_base_generator import Dx12BaseGenerator
 
 
 class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):

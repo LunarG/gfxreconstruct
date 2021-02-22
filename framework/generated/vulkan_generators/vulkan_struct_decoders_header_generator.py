@@ -21,8 +21,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
-from base_struct_decoders_header_generator import *
+import sys
+from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
 
 
 class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):

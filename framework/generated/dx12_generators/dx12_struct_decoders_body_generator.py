@@ -20,11 +20,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import *
-from dx12_base_generator import *
+import sys
+from base_generator import write
+from dx12_base_generator import Dx12BaseGenerator
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
-from base_struct_decoders_body_generator import *
-from base_decoder_body_generator import *
+from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
+from base_decoder_body_generator import BaseDecoderBodyGenerator
 
 
 class Dx12StructDecodersBodyGenerator(

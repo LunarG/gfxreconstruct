@@ -38,8 +38,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse, cProfile, pdb, os, string, sys, time
-from reg import *
+import argparse
+import os
+import pdb
+import sys
+import time
+from reg import Registry, etree
 from generator import write
 
 # API Call Decoders

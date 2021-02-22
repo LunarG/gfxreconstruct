@@ -20,9 +20,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from dx12_base_generator import *
-from dx12_ascii_consumer_header_generator\
-    import Dx12AsciiConsumerHeaderGenerator
+from base_generator import write
+from dx12_base_generator import Dx12BaseGenerator
+from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
 
 
 class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
