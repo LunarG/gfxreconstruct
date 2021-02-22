@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
@@ -47,13 +50,18 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     Generate C++ function declarations for Vulkan API parameter encoding
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=True, process_structs=False, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -108,11 +116,13 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
             if value.is_array and not value.is_dynamic:
                 value_name += '[{}]'.format(value.array_capacity)
 
-            param_decl = self.make_aligned_param_decl(value_type, value_name, self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decl = self.make_aligned_param_decl(
+                value_type, value_name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
             param_decls.append(param_decl)
 
         if param_decls:
             return '{}(\n{});'.format(proto, ',\n'.join(param_decls))
 
         return '{}();'.format(proto)
-

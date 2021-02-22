@@ -27,16 +27,22 @@ from base_struct_decoders_header_generator import *
 
 
 class Dx12StructDecodersForwardGenerator(
-        Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
+    Dx12BaseGenerator, BaseStructDecodersHeaderGenerator
+):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr,
-                 warn_file=sys.stderr,
-                 diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12BaseGenerator.__init__(
-            self, source_dict, dx12_prefix_strings,
-            err_file, warn_file, diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
@@ -55,17 +61,17 @@ class Dx12StructDecodersForwardGenerator(
 
     def write_include(self):
         """Methond override."""
-        code = ("\n"
-                "#include \"generated_dx12_struct_decoders.h\"\n"
-                "\n")
+        code = ("\n" "#include \"generated_dx12_struct_decoders.h\"\n" "\n")
         write(code, file=self.outFile)
 
     def get_struct_function_body(self, properties):
         return ';'
 
     def get_struct_function(self, name, properties):
-        code = ('size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)'
-                .format(name))
+        code = (
+            'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)'
+            .format(name)
+        )
         code += self.get_struct_function_body(properties)
         code += '\n\n'
         return code
@@ -81,9 +87,9 @@ class Dx12StructDecodersForwardGenerator(
 
             code_length2 = len(code)
             if code_length2 > code_length:
-                code = code[:code_length] + \
-                    self.dx12_prefix_strings.format(
-                        k) + '\n' + code[code_length:]
+                code = code[:code_length] + self.dx12_prefix_strings.format(
+                    k
+                ) + '\n' + code[code_length:]
 
         write(code, file=self.outFile)
 

@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function and forward type declarations for Vulkan struct decoding."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanStructDecodersForwardGenerator(BaseGenerator):
@@ -47,13 +50,18 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
     Generate C++ function and forward type declarations for Vulkan struct decoding.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=False, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -91,4 +99,8 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         self.newline()
 
         for struct in self.get_filtered_struct_names():
-            write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)
+            write(
+                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
+                .format(struct),
+                file=self.outFile
+            )

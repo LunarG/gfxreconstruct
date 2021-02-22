@@ -38,7 +38,9 @@ class BaseStructDecodersHeaderGenerator():
             body += '\n'
             body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
-            decls = self.make_member_declarations(struct, self.feature_struct_members[struct])
+            decls = self.make_member_declarations(
+                struct, self.feature_struct_members[struct]
+            )
             if decls:
                 body += '\n'
                 body += decls
@@ -51,7 +53,9 @@ class BaseStructDecodersHeaderGenerator():
         # Write typedefs for any aliases
         for struct in self.feature_struct_aliases:
             body = '' if first else '\n'
-            body += 'typedef Decoded_{} Decoded_{};'.format(self.feature_struct_aliases[struct], struct)
+            body += 'typedef Decoded_{} Decoded_{};'.format(
+                self.feature_struct_aliases[struct], struct
+            )
             write(body, file=self.outFile)
             first = False
 
@@ -98,10 +102,14 @@ class BaseStructDecodersHeaderGenerator():
 
                 default_value = self.get_default_init_value(type_name)
                 if default_value:
-                    body += '    {} {}{{ {} }};\n'.format(type_name, value.name, default_value)
+                    body += '    {} {}{{ {} }};\n'.format(
+                        type_name, value.name, default_value
+                    )
                 else:
                     if self.is_struct(value.base_type):
-                        body += '    {} {}{{ nullptr }};\n'.format(type_name, value.name)
+                        body += '    {} {}{{ nullptr }};\n'.format(
+                            type_name, value.name
+                        )
                     else:
                         body += '    {} {};\n'.format(type_name, value.name)
 

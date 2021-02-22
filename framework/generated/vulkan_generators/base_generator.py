@@ -38,12 +38,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os,re,sys,json
-from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
+import os, re, sys, json
+from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
 from vkconventions import VulkanConventions
 
 
-def _make_re_string(list, default = None):
+def _make_re_string(list, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings.
     From Khronos genvk.py
     """
@@ -52,18 +52,19 @@ def _make_re_string(list, default = None):
     else:
         return default
 
+
 # Descriptive names for various regexp patterns used to select versions and extensions.
 # From Khronos genvk.py
-_default_extensions  = 'vulkan'
-_extensions         = _features         = []
-_remove_extensions   = _emit_extensions   = []
+_default_extensions = 'vulkan'
+_extensions = _features = []
+_remove_extensions = _emit_extensions = []
 
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
-_add_extensions_pat     = _make_re_string(_extensions)
-_remove_extensions_pat  = _make_re_string(_remove_extensions)
-_emit_extensions_pat    = _make_re_string(_emit_extensions, '.*')
-_features_pat          = _make_re_string(_features, '.*')
+_add_extensions_pat = _make_re_string(_extensions)
+_remove_extensions_pat = _make_re_string(_remove_extensions)
+_emit_extensions_pat = _make_re_string(_emit_extensions, '.*')
+_features_pat = _make_re_string(_features, '.*')
 
 
 class ValueInfo():
@@ -86,21 +87,23 @@ class ValueInfo():
       is_const - True if the member is a const.
     """
 
-    def __init__(self,
-                 name,
-                 base_type,
-                 full_type,
-                 pointer_count = 0,
-                 array_length = None,
-                 array_length_value = None,
-                 array_capacity = None,
-                 array_dimension = None,
-                 platform_base_type = None,
-                 platform_full_type = None,
-                 bitfield_width = None,
-                 is_const = False,
-                 union_members = None,
-                 is_com_outptr = False):
+    def __init__(
+        self,
+        name,
+        base_type,
+        full_type,
+        pointer_count=0,
+        array_length=None,
+        array_length_value=None,
+        array_capacity=None,
+        array_dimension=None,
+        platform_base_type=None,
+        platform_full_type=None,
+        bitfield_width=None,
+        is_const=False,
+        union_members=None,
+        is_com_outptr=False
+    ):
         self.name = name
         self.base_type = base_type
         self.full_type = full_type
@@ -152,55 +155,59 @@ class BaseGeneratorOptions(GeneratorOptions):
         separate line, align parameter names at the specified column
     """
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 # Khronos CGeneratorOptions
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True,
-                 conventions = VulkanConventions(),
-                 apicall = 'VKAPI_ATTR ',
-                 apientry = 'VKAPI_CALL ',
-                 apientryp = 'VKAPI_PTR *',
-                 indent_func_proto = True,
-                 align_func_param = 48,
-                 sort_procedure = regSortFeatures,
-                 apiname = 'vulkan',
-                 profile = None,
-                 versions = _features_pat,
-                 emitversions = _features_pat,
-                 default_extensions = _default_extensions,
-                 add_extensions = _add_extensions_pat,
-                 remove_extensions = _remove_extensions_pat,
-                 emit_extensions = _emit_extensions_pat):
-        GeneratorOptions.__init__(self,
-                                  conventions=conventions,
-                                  filename=filename,
-                                  directory=directory,
-                                  apiname=apiname,
-                                  profile=profile,
-                                  versions=versions,
-                                  emitversions=emitversions,
-                                  defaultExtensions=default_extensions,
-                                  addExtensions=add_extensions,
-                                  removeExtensions=remove_extensions,
-                                  emitExtensions=emit_extensions,
-                                  sortProcedure=sort_procedure)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        # Khronos CGeneratorOptions
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True,
+        conventions=VulkanConventions(),
+        apicall='VKAPI_ATTR ',
+        apientry='VKAPI_CALL ',
+        apientryp='VKAPI_PTR *',
+        indent_func_proto=True,
+        align_func_param=48,
+        sort_procedure=regSortFeatures,
+        apiname='vulkan',
+        profile=None,
+        versions=_features_pat,
+        emitversions=_features_pat,
+        default_extensions=_default_extensions,
+        add_extensions=_add_extensions_pat,
+        remove_extensions=_remove_extensions_pat,
+        emit_extensions=_emit_extensions_pat
+    ):
+        GeneratorOptions.__init__(
+            self,
+            conventions=conventions,
+            filename=filename,
+            directory=directory,
+            apiname=apiname,
+            profile=profile,
+            versions=versions,
+            emitversions=emitversions,
+            defaultExtensions=default_extensions,
+            addExtensions=add_extensions,
+            removeExtensions=remove_extensions,
+            emitExtensions=emit_extensions,
+            sortProcedure=sort_procedure
+        )
         self.blacklists = blacklists
         self.platform_types = platform_types
         # Khronos CGeneratorOptions
-        self.prefix_text      = prefix_text
-        self.protect_file     = protect_file
-        self.protect_feature  = protect_feature
-        self.apicall         = apicall
-        self.apientry        = apientry                  # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
-        self.apientryp       = apientryp                 # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
+        self.prefix_text = prefix_text
+        self.protect_file = protect_file
+        self.protect_feature = protect_feature
+        self.apicall = apicall
+        self.apientry = apientry  # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
+        self.apientryp = apientryp  # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
         self.indent_func_proto = indent_func_proto
-        self.align_func_param  = align_func_param
-        self.code_generator   = True
+        self.align_func_param = align_func_param
+        self.code_generator = True
 
 
 class BaseGenerator(OutputGenerator):
@@ -222,52 +229,80 @@ class BaseGenerator(OutputGenerator):
     # Platform specific structure types that have been defined extarnally to the Vulkan header.
     PLATFORM_STRUCTS = []
 
-    GENERIC_HANDLE_APICALLS = {'vkDebugReportMessageEXT' : {'object' : 'objectType' },
-                               'vkSetPrivateDataEXT' : {'objectHandle' : 'objectType' },
-                               'vkGetPrivateDataEXT' : {'objectHandle' : 'objectType' }}
+    GENERIC_HANDLE_APICALLS = {
+        'vkDebugReportMessageEXT': {
+            'object': 'objectType'
+        },
+        'vkSetPrivateDataEXT': {
+            'objectHandle': 'objectType'
+        },
+        'vkGetPrivateDataEXT': {
+            'objectHandle': 'objectType'
+        }
+    }
 
-    GENERIC_HANDLE_STRUCTS = {'VkDebugMarkerObjectNameInfoEXT' : {'object' : 'objectType' },
-                              'VkDebugMarkerObjectTagInfoEXT' : {'object' : 'objectType' },
-                              'VkDebugUtilsObjectNameInfoEXT' : {'objectHandle' : 'objectType' },
-                              'VkDebugUtilsObjectTagInfoEXT' : {'objectHandle' : 'objectType' }}
+    GENERIC_HANDLE_STRUCTS = {
+        'VkDebugMarkerObjectNameInfoEXT': {
+            'object': 'objectType'
+        },
+        'VkDebugMarkerObjectTagInfoEXT': {
+            'object': 'objectType'
+        },
+        'VkDebugUtilsObjectNameInfoEXT': {
+            'objectHandle': 'objectType'
+        },
+        'VkDebugUtilsObjectTagInfoEXT': {
+            'objectHandle': 'objectType'
+        }
+    }
 
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     # Dispatchable handle types.
-    DISPATCHABLE_HANDLE_TYPES = ['VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue', 'VkCommandBuffer']
+    DISPATCHABLE_HANDLE_TYPES = [
+        'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',
+        'VkCommandBuffer'
+    ]
 
     # Default C++ code indentation size.
     INDENT_SIZE = 4
 
-    def __init__(self,
-                 process_cmds,
-                 process_structs,
-                 feature_break = True,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
+    def __init__(
+        self,
+        process_cmds,
+        process_structs,
+        feature_break=True,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         OutputGenerator.__init__(self, err_file, warn_file, diag_file)
 
         # Typenames
-        self.struct_names = set()                          # Set of Vulkan struct typenames
-        self.handle_names = set()                          # Set of Vulkan handle typenames
-        self.flags_names = set()                           # Set of bitmask (flags) typenames
-        self.enum_names = set()                            # Set of Vulkan enumeration typenames
+        self.struct_names = set()  # Set of Vulkan struct typenames
+        self.handle_names = set()  # Set of Vulkan handle typenames
+        self.flags_names = set()  # Set of bitmask (flags) typenames
+        self.enum_names = set()  # Set of Vulkan enumeration typenames
 
         # Type processing options
-        self.process_cmds = process_cmds                    # Populate the feature_cmd_params map
-        self.process_structs = process_structs              # Populate the feature_struct_members map
-        self.feature_break = feature_break                  # Insert a line break between features
+        self.process_cmds = process_cmds  # Populate the feature_cmd_params map
+        self.process_structs = process_structs  # Populate the feature_struct_members map
+        self.feature_break = feature_break  # Insert a line break between features
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.feature_struct_members = dict()            # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = dict()            # Map of struct names to aliases
-            self.extension_structs_with_handles = dict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = dict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
+            self.feature_struct_members = dict(
+            )  # Map of struct names to lists of per-member ValueInfo
+            self.feature_struct_aliases = dict(
+            )  # Map of struct names to aliases
+            self.extension_structs_with_handles = dict(
+            )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extension_structs_with_handle_ptrs = dict(
+            )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
-            self.feature_cmd_params = dict()                # Map of cmd names to lists of per-parameter ValueInfo
+            self.feature_cmd_params = dict(
+            )  # Map of cmd names to lists of per-parameter ValueInfo
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate.
@@ -299,7 +334,9 @@ class BaseGenerator(OutputGenerator):
 
         # Multiple inclusion protection & C++ wrappers.
         if (gen_opts.protect_file and self.genOpts.filename):
-            header_sym = 'GFXRECON_' + re.sub('\.h', '_h', os.path.basename(self.genOpts.filename)).upper()
+            header_sym = 'GFXRECON_' + re.sub(
+                '\.h', '_h', os.path.basename(self.genOpts.filename)
+            ).upper()
             write('#ifndef ', header_sym, file=self.outFile)
             write('#define ', header_sym, file=self.outFile)
             self.newline()
@@ -341,7 +378,12 @@ class BaseGenerator(OutputGenerator):
             self.generate_feature()
 
             if (self.featureExtraProtect is not None):
-                write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
+                write(
+                    '#endif /*',
+                    self.featureExtraProtect,
+                    '*/',
+                    file=self.outFile
+                )
 
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
@@ -376,7 +418,9 @@ class BaseGenerator(OutputGenerator):
         # would produce multiple definition errors for functions with struct parameters.
         if self.process_structs:
             if not alias:
-                self.feature_struct_members[typename] = self.make_value_info(typeinfo.elem.findall('.//member'))
+                self.feature_struct_members[typename] = self.make_value_info(
+                    typeinfo.elem.findall('.//member')
+                )
             else:
                 self.feature_struct_aliases[typename] = alias
 
@@ -413,10 +457,14 @@ class BaseGenerator(OutputGenerator):
                 else:
                     proto_decl += text + tail
 
-            return_type = noneStr(proto.text) + noneStr(proto.find('type').text)
+            return_type = noneStr(proto.text
+                                  ) + noneStr(proto.find('type').text)
 
             # TODO: Define a class or namedtuple for the dictionary entry
-            self.feature_cmd_params[name] = (return_type, proto_decl, self.make_value_info(cmdinfo.elem.findall('param')))
+            self.feature_cmd_params[name] = (
+                return_type, proto_decl,
+                self.make_value_info(cmdinfo.elem.findall('param'))
+            )
 
     def make_value_info(self, params):
         """Generate a list of ValueInfo objects from a list of <param> or <member> tags
@@ -432,7 +480,8 @@ class BaseGenerator(OutputGenerator):
             # Get type info
             elem = param.find('type')
             base_type = noneStr(elem.text)
-            full_type = (noneStr(param.text) + base_type + noneStr(elem.tail)).strip()
+            full_type = (noneStr(param.text) + base_type
+                         + noneStr(elem.tail)).strip()
 
             # Check for platform specific type definitions that need to be converted to a recognized trace format type.
             platform_base_type = None
@@ -441,40 +490,49 @@ class BaseGenerator(OutputGenerator):
                 type_info = self.PLATFORM_TYPES[base_type]
                 platform_base_type = base_type
                 platform_full_type = full_type
-                full_type = full_type.replace(base_type, type_info['replaceWith'])
+                full_type = full_type.replace(
+                    base_type, type_info['replaceWith']
+                )
                 base_type = type_info['baseType']
 
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
-                array_length =  param.attrib.get('altlen')
+                array_length = param.attrib.get('altlen')
             else:
                 array_length = self.get_array_len(param)
 
             array_capacity = None
             if self.is_static_array(param):
                 array_capacity = array_length
-                array_length = self.get_static_array_len(name, params, array_capacity)
+                array_length = self.get_static_array_len(
+                    name, params, array_capacity
+                )
 
             # Get bitfield width
             bitfield_width = None
             if ':' in name_tail:
                 bitfield_width = name_tail
 
-            values.append(ValueInfo(
-                name = name,
-                base_type = base_type,
-                full_type = full_type,
-                pointer_count = self.get_pointer_count(full_type),
-                array_length = array_length,
-                array_capacity = array_capacity,
-                platform_base_type = platform_base_type,
-                platform_full_type = platform_full_type,
-                bitfield_width = bitfield_width))
+            values.append(
+                ValueInfo(
+                    name=name,
+                    base_type=base_type,
+                    full_type=full_type,
+                    pointer_count=self.get_pointer_count(full_type),
+                    array_length=array_length,
+                    array_capacity=array_capacity,
+                    platform_base_type=platform_base_type,
+                    platform_full_type=platform_full_type,
+                    bitfield_width=bitfield_width
+                )
+            )
 
         # Link array values to their corresponding length values
         for array_value in [v for v in values if v.array_length]:
             for v in values:
-                if re.search(r'\b{}\b'.format(v.name), array_value.array_length):
+                if re.search(
+                    r'\b{}\b'.format(v.name), array_value.array_length
+                ):
                     array_value.array_length_value = v
                     break
 
@@ -482,7 +540,8 @@ class BaseGenerator(OutputGenerator):
 
     def is_struct(self, base_type):
         """Check for struct type."""
-        if (base_type in self.struct_names) or (base_type in self.PLATFORM_STRUCTS):
+        if (base_type
+            in self.struct_names) or (base_type in self.PLATFORM_STRUCTS):
             return True
         return False
 
@@ -544,7 +603,8 @@ class BaseGenerator(OutputGenerator):
     def is_output_parameter(self, value):
         """Determine if a parameter is an output parameter."""
         # Check for an output pointer/array or an in-out pointer.
-        if (value.is_pointer or value.is_array) and not self.is_input_pointer(value):
+        if (value.is_pointer
+            or value.is_array) and not self.is_input_pointer(value):
             return True
         return False
 
@@ -613,17 +673,25 @@ class BaseGenerator(OutputGenerator):
 
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
-        return [key for key in self.feature_struct_members if not self.is_struct_black_listed(key)]
+        return [
+            key for key in self.feature_struct_members
+            if not self.is_struct_black_listed(key)
+        ]
 
     def get_filtered_cmd_names(self):
         """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
-        return [key for key in self.feature_cmd_params if not self.is_cmd_black_listed(key)]
+        return [
+            key for key in self.feature_cmd_params
+            if not self.is_cmd_black_listed(key)
+        ]
 
     def check_struct_pnext_handles(self, typename):
         """Determines if the specified struct type can reference pNext extension structs that contain handles."""
         found_handles = False
         found_handle_ptrs = False
-        valid_extension_structs = self.registry.validextensionstructs.get(typename)
+        valid_extension_structs = self.registry.validextensionstructs.get(
+            typename
+        )
         if valid_extension_structs:
             # Need to search the XML tree for pNext structures that have not been processed yet.
             for struct_name in valid_extension_structs:
@@ -637,32 +705,49 @@ class BaseGenerator(OutputGenerator):
                     # If a pre-existing result was not found, check the XML registry for the struct
                     has_handles = False
                     has_handle_ptrs = False
-                    type_info = self.registry.lookupElementInfo(struct_name, self.registry.typedict)
+                    type_info = self.registry.lookupElementInfo(
+                        struct_name, self.registry.typedict
+                    )
                     if type_info:
-                        member_infos = [member for member in type_info.elem.findall('.//member/type')]
+                        member_infos = [
+                            member for member in
+                            type_info.elem.findall('.//member/type')
+                        ]
                         if member_infos:
                             for member_info in member_infos:
-                                found = self.registry.tree.find("types/type/[name='" + member_info.text + "'][@category='handle']")
+                                found = self.registry.tree.find(
+                                    "types/type/[name='" + member_info.text
+                                    + "'][@category='handle']"
+                                )
                                 if found:
                                     has_handles = True
-                                    self.extension_structs_with_handles[struct_name] = True
-                                    if member_info.tail and ('*' in member_info.tail):
-                                        self.extension_structs_with_handle_ptrs[struct_name] = True
+                                    self.extension_structs_with_handles[
+                                        struct_name] = True
+                                    if member_info.tail and (
+                                        '*' in member_info.tail
+                                    ):
+                                        self.extension_structs_with_handle_ptrs[
+                                            struct_name] = True
                                         has_handle_ptrs = True
                                     else:
-                                        self.extension_structs_with_handle_ptrs[struct_name] = False
+                                        self.extension_structs_with_handle_ptrs[
+                                            struct_name] = False
 
                     if has_handles:
                         found_handles = True
                         if has_handle_ptrs:
                             fount_handle_ptrs = True
                     else:
-                        self.extension_structs_with_handles[struct_name] = False
-                        self.extension_structs_with_handle_ptrs[struct_name] = False
+                        self.extension_structs_with_handles[struct_name
+                                                            ] = False
+                        self.extension_structs_with_handle_ptrs[struct_name
+                                                                ] = False
 
         return found_handles, found_handle_ptrs
 
-    def check_struct_member_handles(self, typename, structs_with_handles, structs_with_handle_ptrs = None):
+    def check_struct_member_handles(
+        self, typename, structs_with_handles, structs_with_handle_ptrs=None
+    ):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
         An optional list of structure types that contain handle members with pointer types may also be generated.
@@ -673,19 +758,27 @@ class BaseGenerator(OutputGenerator):
             if self.is_handle(value.base_type):
                 # The member is a handle.
                 handles.append(value)
-                if (not structs_with_handle_ptrs is None) and (value.is_pointer or value.is_array):
+                if (not structs_with_handle_ptrs is None
+                    ) and (value.is_pointer or value.is_array):
                     has_handle_pointer = True
-            elif self.is_struct(value.base_type) and (value.base_type in structs_with_handles):
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in structs_with_handles):
                 # The member is a struct that contains a handle.
                 handles.append(value)
-                if (not structs_with_handle_ptrs is None)  and (value.name in structs_with_handle_ptrs):
+                if (not structs_with_handle_ptrs is None
+                    ) and (value.name in structs_with_handle_ptrs):
                     has_handle_pointer = True
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(typename)
+                has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
+                    typename
+                )
                 if has_pnext_handles:
                     handles.append(value)
-                    if (not structs_with_handle_ptrs is None) and has_pnext_handle_ptrs:
+                    if (
+                        not structs_with_handle_ptrs is None
+                    ) and has_pnext_handle_ptrs:
                         has_handle_pointer = True
         if handles:
             structs_with_handles[typename] = handles
@@ -750,7 +843,9 @@ class BaseGenerator(OutputGenerator):
         """
         return ', '.join([value.name for value in values])
 
-    def make_aligned_param_decl(self, param_type, param_name, indent_column, align_column):
+    def make_aligned_param_decl(
+        self, param_type, param_name, indent_column, align_column
+    ):
         """make_aligned_param_decl - return an indented parameter declaration string with the parameter
         name aligned to the specified column.
         """
@@ -789,7 +884,8 @@ class BaseGenerator(OutputGenerator):
         elif base_type.endswith('_t'):
             if base_type[0] == 'u':
                 # For unsigned types, capitalize the first two characters.
-                return base_type[0].upper() + base_type[1].upper() + base_type[2:-2]
+                return base_type[0].upper() + base_type[1].upper(
+                ) + base_type[2:-2]
             else:
                 return base_type[:-2].title()
         elif base_type[0].islower():
@@ -807,9 +903,13 @@ class BaseGenerator(OutputGenerator):
 
             if self.is_struct(type_name):
                 if count > 1:
-                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(type_name)
+                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
+                        type_name
+                    )
                 else:
-                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(type_name)
+                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(
+                        type_name
+                    )
             elif self.is_class(value):
                 type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
             elif type_name == 'wchar_t':
@@ -842,7 +942,7 @@ class BaseGenerator(OutputGenerator):
                     type_name = 'PointerDecoder<{}>'.format(type_name)
         elif self.is_function_ptr(type_name):
             # Function pointers are encoded as a 64-bit address value.
-            type_name ='uint64_t'
+            type_name = 'uint64_t'
         elif self.is_struct(type_name):
             type_name = 'Decoded_{}'.format(type_name)
         elif self.is_handle(type_name):
@@ -852,25 +952,38 @@ class BaseGenerator(OutputGenerator):
 
         return type_name
 
-    def make_consumer_func_decl(self, return_type, name, values, dx12_method = False):
+    def make_consumer_func_decl(
+        self, return_type, name, values, dx12_method=False
+    ):
         """make_consumer_decl - return VulkanConsumer class member function declaration.
         Generate VulkanConsumer class member function declaration.
         """
         param_decls = []
 
         if dx12_method:
-            param_decl = self.make_aligned_param_decl('format::HandleId', 'object_id', self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decl = self.make_aligned_param_decl(
+                'format::HandleId', 'object_id', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
             param_decls.append(param_decl)
 
         if return_type != 'void':
             if dx12_method:
-                return_value = self.get_return_value_info('returnValue', return_type)
+                return_value = self.get_return_value_info(
+                    'returnValue', return_type
+                )
                 rtn_type1 = self.make_decoded_param_type(return_value)
                 if rtn_type1.find('Decoder') != -1:
                     rtn_type1 += '*'
-                param_decl = self.make_aligned_param_decl(rtn_type1, 'returnValue', self.INDENT_SIZE, self.genOpts.align_func_param)
+                param_decl = self.make_aligned_param_decl(
+                    rtn_type1, 'returnValue', self.INDENT_SIZE,
+                    self.genOpts.align_func_param
+                )
             else:
-                param_decl = self.make_aligned_param_decl(return_type, 'returnValue', self.INDENT_SIZE, self.genOpts.align_func_param)
+                param_decl = self.make_aligned_param_decl(
+                    return_type, 'returnValue', self.INDENT_SIZE,
+                    self.genOpts.align_func_param
+                )
             param_decls.append(param_decl)
 
         for value in values:
@@ -879,7 +992,10 @@ class BaseGenerator(OutputGenerator):
             if 'Decoder' in param_type:
                 param_type = '{}*'.format(param_type)
 
-            param_decl = self.make_aligned_param_decl(param_type, value.name, self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
             param_decls.append(param_decl)
 
         if param_decls:
@@ -922,12 +1038,15 @@ class BaseGenerator(OutputGenerator):
                     length_expr = '*' + length_expr
                 # Add null check to length value behind pointer
                 length_expr = '({length_value.name} != nullptr) ? ({length_expr}) : 0'.format(
-                    length_value=length_value, length_expr=length_expr)
+                    length_value=length_value, length_expr=length_expr
+                )
             elif length_value.base_type == 'VkDeviceSize':
                 # Static cast 64-bit length expression to eliminate warning in 32-bit builds
                 length_expr = 'static_cast<size_t>({})'.format(length_expr)
             # Add prefix to parameter in the length expression
-            length_expr = length_expr.replace(length_value.name, prefix + length_value.name)
+            length_expr = length_expr.replace(
+                length_value.name, prefix + length_value.name
+            )
 
         return length_expr
 
@@ -939,7 +1058,10 @@ class BaseGenerator(OutputGenerator):
             for length_expr in length_exprs:
                 # Prefix members
                 for v in values:
-                    length_expr = re.sub(r'\b({})\b'.format(v.name), r'{}\1'.format(prefix), length_expr)
+                    length_expr = re.sub(
+                        r'\b({})\b'.format(v.name), r'{}\1'.format(prefix),
+                        length_expr
+                    )
                 lengths.append(length_expr)
             return lengths
         else:
@@ -948,16 +1070,26 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def make_encoder_method_call(self, name, value, values, prefix, omit_output_param=None):
+    def make_encoder_method_call(
+        self, name, value, values, prefix, omit_output_param=None
+    ):
         """Generate a parameter encoder method call invocation."""
         arg_name = prefix + value.name
-        if self.is_generic_struct_handle_value(name, value.name) or self.is_generic_cmd_handle_value(name, value.name):
+        if self.is_generic_struct_handle_value(
+            name, value.name
+        ) or self.is_generic_cmd_handle_value(name, value.name):
             handle_type_name = prefix
             if self.is_generic_struct_handle_value(name, value.name):
-                handle_type_name += self.get_generic_struct_handle_type_value(name, value.name)
+                handle_type_name += self.get_generic_struct_handle_type_value(
+                    name, value.name
+                )
             else:
-                handle_type_name += self.get_generic_cmd_handle_type_value(name, value.name)
-            arg_name = 'GetWrappedId({}, {})'.format(arg_name, handle_type_name)
+                handle_type_name += self.get_generic_cmd_handle_type_value(
+                    name, value.name
+                )
+            arg_name = 'GetWrappedId({}, {})'.format(
+                arg_name, handle_type_name
+            )
 
         args = [arg_name]
 
@@ -986,9 +1118,15 @@ class BaseGenerator(OutputGenerator):
         elif value.is_array:
             if value.pointer_count > 1:
                 method_call += 'Array{}D'.format(value.pointer_count)
-                args.extend(self.make_array2_d_length_expression(value, values, prefix))
+                args.extend(
+                    self.make_array2_d_length_expression(
+                        value, values, prefix
+                    )
+                )
             elif ',' in value.array_length:
-                method_call += '{}DMatrix'.format(value.array_length.count(',') + 1)
+                method_call += '{}DMatrix'.format(
+                    value.array_length.count(',') + 1
+                )
                 args.append(self.make_array_length_expression(value, prefix))
             else:
                 method_call += 'Array'
@@ -1014,19 +1152,19 @@ class BaseGenerator(OutputGenerator):
         """
         # TODO: This should probably be in a JSON file.
         platform_dict = {
-            'android' : 'VK_USE_PLATFORM_ANDROID_KHR',
-            'fuchsia' : 'VK_USE_PLATFORM_FUCHSIA',
-            'ios' : 'VK_USE_PLATFORM_IOS_MVK',
-            'macos' : 'VK_USE_PLATFORM_MACOS_MVK',
-            'mir' : 'VK_USE_PLATFORM_MIR_KHR',
-            'vi' : 'VK_USE_PLATFORM_VI_NN',
-            'wayland' : 'VK_USE_PLATFORM_WAYLAND_KHR',
-            'win32' : 'VK_USE_PLATFORM_WIN32__k_h_r',
-            'xcb' : 'VK_USE_PLATFORM_XCB_KHR',
-            'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
-            'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
-            'ggp' : 'VK_USE_PLATFORM_GGP',
-            'directfb' : 'VK_USE_PLATFORM_DIRECTFB_EXT'
+            'android': 'VK_USE_PLATFORM_ANDROID_KHR',
+            'fuchsia': 'VK_USE_PLATFORM_FUCHSIA',
+            'ios': 'VK_USE_PLATFORM_IOS_MVK',
+            'macos': 'VK_USE_PLATFORM_MACOS_MVK',
+            'mir': 'VK_USE_PLATFORM_MIR_KHR',
+            'vi': 'VK_USE_PLATFORM_VI_NN',
+            'wayland': 'VK_USE_PLATFORM_WAYLAND_KHR',
+            'win32': 'VK_USE_PLATFORM_WIN32__k_h_r',
+            'xcb': 'VK_USE_PLATFORM_XCB_KHR',
+            'xlib': 'VK_USE_PLATFORM_XLIB_KHR',
+            'xlib_xrandr': 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
+            'ggp': 'VK_USE_PLATFORM_GGP',
+            'directfb': 'VK_USE_PLATFORM_DIRECTFB_EXT'
         }
 
         platform = interface.get('platform')

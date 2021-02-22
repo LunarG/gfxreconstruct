@@ -28,13 +28,18 @@ from dx12_base_generator import *
 class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr,
-                 warn_file=sys.stderr,
-                 diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12BaseGenerator.__init__(
-            self, source_dict, dx12_prefix_strings,
-            err_file, warn_file, diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Methond override."""
@@ -51,11 +56,13 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         self.write_dx12_consumer_class('')
 
     def write_include(self):
-        code = ("\n"
-                "#include \"decode/dx12_consumer_base.h\"\n"
-                "#include \"generated_dx12_struct_decoders.h\"\n"
-                "#include \"decode/custom_dx12_struct_decoders.h\"\n"
-                "\n")
+        code = (
+            "\n"
+            "#include \"decode/dx12_consumer_base.h\"\n"
+            "#include \"generated_dx12_struct_decoders.h\"\n"
+            "#include \"decode/custom_dx12_struct_decoders.h\"\n"
+            "\n"
+        )
         write(code, file=self.outFile)
 
     def get_consumer_function_body(self, class_name, method_info):
@@ -68,8 +75,9 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             type_name += '*'
         return type_name
 
-    def get_consumer_function(self, class_name, method_info,
-                              consumer_type, indent, function_class):
+    def get_consumer_function(
+        self, class_name, method_info, consumer_type, indent, function_class
+    ):
         parameters = ''
         if class_name:
             parameters = '        format::HandleId object_id'
@@ -104,8 +112,8 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                     p['multi_dimensional_array']
 
                     if 'multi_dimensional_array_size' in p:
-                        multi_dimensional_array_size =\
-                            p['multi_dimensional_array_size']
+                        multi_dimensional_array_size = p[
+                            'multi_dimensional_array_size']
 
                         array_sizes = multi_dimensional_array_size.split("x")
                         for size in array_sizes:
@@ -120,12 +128,14 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             while True:
                 space_index = parameters.find(' ', space_index) + 1
 
-                if space_index != 0 and (parameters[space_index] == '*'
-                                         or parameters[space_index - 2] == '('
-                                         or parameters[space_index] == '('
-                                         or parameters[space_index] == ')'):
-                    parameters = parameters[:space_index -
-                                            1] + parameters[space_index:]
+                if space_index != 0 and (
+                    parameters[space_index] == '*'
+                    or parameters[space_index - 2] == '('
+                    or parameters[space_index] == '('
+                    or parameters[space_index] == ')'
+                ):
+                    parameters = parameters[:space_index
+                                            - 1] + parameters[space_index:]
                 elif space_index == 0:
                     break
 
@@ -153,8 +163,9 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         return (declaration, indent, function_class, class_end)
 
     def write_dx12_consumer_class(self, consumer_type):
-        declaration, indent, function_class, class_end =\
-            self.get_decoder_class_define(consumer_type)
+        declaration, indent, function_class, class_end = self.get_decoder_class_define(
+            consumer_type
+        )
         code = declaration
 
         header_dict = self.source_dict['header_dict']
@@ -162,23 +173,22 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             code_length = len(code)
             for m in v.functions:
                 if self.is_required_function_data(m):
-                    code += self.get_consumer_function('',
-                                                       m,
-                                                       consumer_type,
-                                                       indent,
-                                                       function_class)
+                    code += self.get_consumer_function(
+                        '', m, consumer_type, indent, function_class
+                    )
 
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
                         code += self.get_consumer_function(
-                            k2, m, consumer_type, indent, function_class)
+                            k2, m, consumer_type, indent, function_class
+                        )
 
             code_length2 = len(code)
             if code_length2 > code_length:
-                code = code[:code_length] + \
-                    self.dx12_prefix_strings.format(
-                        k) + '\n' + code[code_length:]
+                code = code[:code_length] + self.dx12_prefix_strings.format(
+                    k
+                ) + '\n' + code[code_length:]
 
         code += class_end
         write(code, file=self.outFile)

@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanCommandBufferUtilHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
@@ -47,13 +50,19 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
     replaying decoded Vulkan API call parameter data.
     Generate a C++ class for Vulkan capture file replay.
     """
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=True, process_structs=True, feature_break=False,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=True,
+            feature_break=False,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
@@ -86,7 +95,9 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.check_struct_member_handles(typename, self.structs_with_handles)
+            self.check_struct_member_handles(
+                typename, self.structs_with_handles
+            )
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
@@ -102,14 +113,17 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
             return_type = info[0]
             values = info[2]
 
-            if values and (len(values) > 1) and (values[0].base_type == 'VkCommandBuffer'):
+            if values and (len(values) >
+                           1) and (values[0].base_type == 'VkCommandBuffer'):
                 # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
                 handles = self.get_param_list_handles(values[1:])
 
                 if (handles):
                     # Generate a function to build a list of handle types and values.
                     cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {});'.format(cmd[2:], self.get_arg_list(handles))
+                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {});'.format(
+                        cmd[2:], self.get_arg_list(handles)
+                    )
                     write(cmddef, file=self.outFile)
                     first = False
 
@@ -119,7 +133,9 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         for value in values:
             if self.is_handle(value.base_type):
                 handles.append(value)
-            elif self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles):
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 

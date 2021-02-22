@@ -21,25 +21,28 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding."""
- 
-    def __init__(self,
-                 capture_overrides = None,   # Path to JSON file listing Vulkan API calls to override on capture.
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+
+    def __init__(
+        self,
+        capture_overrides=None,  # Path to JSON file listing Vulkan API calls to override on capture.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
         self.capture_overrides = capture_overrides
 
 
@@ -54,13 +57,18 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # will be replaced by the override value.
     CAPTURE_OVERRIDES = {}
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=True, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
@@ -74,18 +82,33 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if gen_opts.capture_overrides:
             self.__load_capture_overrides(gen_opts.capture_overrides)
 
-        write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_api_call_encoders.h"',
+            file=self.outFile
+        )
         self.newline()
         write('#include "encode/custom_encoder_commands.h"', file=self.outFile)
-        write('#include "encode/custom_vulkan_array_size_2d.h"', file=self.outFile)
+        write(
+            '#include "encode/custom_vulkan_array_size_2d.h"',
+            file=self.outFile
+        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)
-        write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
+        write(
+            '#include "encode/vulkan_handle_wrapper_util.h"',
+            file=self.outFile
+        )
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_struct_handle_wrappers.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_command_buffer_util.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -107,7 +130,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.check_struct_member_handles(typename, self.structs_with_handles)
+            self.check_struct_member_handles(
+                typename, self.structs_with_handles
+            )
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
@@ -144,7 +169,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             if value.is_array and not value.is_dynamic:
                 value_name += '[{}]'.format(value.array_capacity)
 
-            param_decl = self.make_aligned_param_decl(value_type, value_name, self.INDENT_SIZE, self.genOpts.align_func_param)
+            param_decl = self.make_aligned_param_decl(
+                value_type, value_name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
             param_decls.append(param_decl)
 
         if param_decls:
@@ -160,8 +188,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_layer_dispatch_call(self, name, values, arg_list):
         """Generate the layer dispatch call invocation."""
-        dispatchfunc = 'GetInstanceTable' if self.use_instance_table(values[0].base_type) else 'GetDeviceTable'
-        return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], arg_list)
+        dispatchfunc = 'GetInstanceTable' if self.use_instance_table(
+            values[0].base_type
+        ) else 'GetDeviceTable'
+        return '{}({})->{}({})'.format(
+            dispatchfunc, values[0].name, name[2:], arg_list
+        )
 
     def make_cmd_body(self, return_type, name, values):
         """Command definition."""
@@ -182,19 +214,27 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'bool omit_output_data = false;\n'
             body += '\n'
 
-        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, arg_list)
+        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(
+            name, arg_list
+        )
 
         if not encode_after:
-            body += self.make_parameter_encoding(name, values, return_type, indent, omit_output_param)
+            body += self.make_parameter_encoding(
+                name, values, return_type, indent, omit_output_param
+            )
 
         body += '\n'
 
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
             # Construct the function call to dispatch to the next layer.
-            call_expr = '{}({})'.format(self.CAPTURE_OVERRIDES[name], self.make_arg_list(values))
+            call_expr = '{}({})'.format(
+                self.CAPTURE_OVERRIDES[name], self.make_arg_list(values)
+            )
             if return_type and return_type != 'void':
-                body += indent + '{} result = {};\n'.format(return_type, call_expr)
+                body += indent + '{} result = {};\n'.format(
+                    return_type, call_expr
+                )
             else:
                 body += indent + '{};\n'.format(call_expr)
 
@@ -205,7 +245,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += indent + '}\n'
         else:
             # Check for handles that need unwrapping.
-            unwrap_expr, unwrapped_arg_list, need_unwrap_memory = self.make_handle_unwrapping(name, values, indent)
+            unwrap_expr, unwrapped_arg_list, need_unwrap_memory = self.make_handle_unwrapping(
+                name, values, indent
+            )
             if unwrap_expr:
                 if need_unwrap_memory:
                     body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
@@ -213,9 +255,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += '\n'
 
             # Construct the function call to dispatch to the next layer.
-            call_expr = self.make_layer_dispatch_call(name, values, unwrapped_arg_list)
+            call_expr = self.make_layer_dispatch_call(
+                name, values, unwrapped_arg_list
+            )
             if return_type and return_type != 'void':
-                body += indent + '{} result = {};\n'.format(return_type, call_expr)
+                body += indent + '{} result = {};\n'.format(
+                    return_type, call_expr
+                )
             else:
                 body += indent + '{};\n'.format(call_expr)
 
@@ -242,13 +288,19 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += indent + '}\n'
 
         if encode_after:
-            body += self.make_parameter_encoding(name, values, return_type, indent, omit_output_param)
+            body += self.make_parameter_encoding(
+                name, values, return_type, indent, omit_output_param
+            )
 
         body += '\n'
         if return_type and return_type != 'void':
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), result, {});\n'.format(name, arg_list)
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), result, {});\n'.format(
+                name, arg_list
+            )
         else:
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, arg_list)
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(
+                name, arg_list
+            )
 
         cleanup_expr = self.make_handle_cleanup(name, values, indent)
         if cleanup_expr:
@@ -261,7 +313,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return body
 
-    def make_parameter_encoding(self, name, values, return_type, indent, omit_output_param):
+    def make_parameter_encoding(
+        self, name, values, return_type, indent, omit_output_param
+    ):
         body = '\n'
         body += indent + self.make_begin_api_call(name, values)
         body += indent + 'if (encoder)\n'
@@ -269,11 +323,15 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         indent += ' ' * self.INDENT_SIZE
 
         for value in values:
-            method_call = self.make_encoder_method_call(name, value, values, '', omit_output_param)
+            method_call = self.make_encoder_method_call(
+                name, value, values, '', omit_output_param
+            )
             body += indent + '{};\n'.format(method_call)
 
         if return_type and return_type != 'void':
-            method_call = self.make_encoder_method_call(name, ValueInfo('result', return_type, return_type), [], '')
+            method_call = self.make_encoder_method_call(
+                name, ValueInfo('result', return_type, return_type), [], ''
+            )
             body += indent + '{};\n'.format(method_call)
 
         # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
@@ -283,10 +341,20 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return body
 
     def make_begin_api_call(self, name, values):
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrieves_handles(values) or (values[0].base_type == 'VkCommandBuffer') or (name == 'vkReleasePerformanceConfigurationINTEL'):
-            return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        if name.startswith('vkCreate') or name.startswith(
+            'vkAllocate'
+        ) or name.startswith('vkDestroy') or name.startswith(
+            'vkFree'
+        ) or self.retrieves_handles(values) or (
+            values[0].base_type == 'VkCommandBuffer'
+        ) or (name == 'vkReleasePerformanceConfigurationINTEL'):
+            return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
+                name
+            )
         else:
-            return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+            return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
+                name
+            )
 
     def get_struct_handle_member_info(self, members):
         member_handle_type = None
@@ -302,29 +370,43 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 break
             elif self.is_struct(member.base_type):
                 # This can't handle the case where 'member' is an array of structs
-                member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(self.structs_with_handles[member.base_type])
-                member_handle_name = '{}.{}'.format(member.name, member_handle_name)
+                member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
+                    self.structs_with_handles[member.base_type]
+                )
+                member_handle_name = '{}.{}'.format(
+                    member.name, member_handle_name
+                )
 
         return member_handle_type, member_handle_name, member_array_length
 
     def make_end_api_call(self, name, values, return_type):
         decl = 'TraceManager::Get()->'
 
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or self.retrieves_handles(values):
+        if name.startswith('vkCreate') or name.startswith(
+            'vkAllocate'
+        ) or self.retrieves_handles(values):
             # The handle is the last parameter.
             handle = values[-1]
-            parent_handle = values[0] if self.is_handle(values[0].base_type) else None
+            parent_handle = values[0] if self.is_handle(
+                values[0].base_type
+            ) else None
 
             #  Search for the create info struct
             info_base_type = 'void'
             info_name = 'nullptr'
             for value in values:
-                if ('CreateInfo' in value.base_type) or ('AllocateInfo' in value.base_type):
+                if ('CreateInfo' in value.base_type
+                    ) or ('AllocateInfo' in value.base_type):
                     info_base_type = value.base_type
                     info_name = value.name
                     # Confirm array counts match
-                    if value.is_array and (handle.array_length != value.array_length):
-                        print('WARNING: {} has separate array counts for create info structures ({}) and handles ({})'.format(name, value.array_length, count))
+                    if value.is_array and (
+                        handle.array_length != value.array_length
+                    ):
+                        print(
+                            'WARNING: {} has separate array counts for create info structures ({}) and handles ({})'
+                            .format(name, value.array_length, count)
+                        )
 
             return_value = 'VK_SUCCESS'
             if return_type == 'VkResult':
@@ -335,7 +417,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
                 if 'pAllocateInfo->' in length_name:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
-                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parent_handle.base_type, handle.base_type[2:], info_base_type, return_value, parent_handle.name, length_name, handle.name, info_name)
+                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(
+                        parent_handle.base_type, handle.base_type[2:],
+                        info_base_type, return_value, parent_handle.name,
+                        length_name, handle.name, info_name
+                    )
                 else:
                     # This is a multi-object creation call (e.g. pipeline creation, or swapchain image retrieval), which receives
                     # separate create info structures for each object being created. Many multi-object creation calls receive a
@@ -345,29 +431,57 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     if handle.base_type in self.struct_names:
                         # "handle" is actually a struct with embedded handles
                         unwrap_handle_def = 'nullptr'
-                        member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(self.structs_with_handles[handle.base_type])
+                        member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
+                            self.structs_with_handles[handle.base_type]
+                        )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(handle.base_type, member_handle_name, wrapper=member_handle_type[2:])
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(
+                                handle.base_type,
+                                member_handle_name,
+                                wrapper=member_handle_type[2:]
+                            )
 
-                        decl += 'EndStructGroupCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parent_handle.base_type, member_handle_type[2:], handle.base_type, return_value, parent_handle.name, length_name, handle.name, unwrap_handle_def)
+                        decl += 'EndStructGroupCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(
+                            parent_handle.base_type, member_handle_type[2:],
+                            handle.base_type, return_value, parent_handle.name,
+                            length_name, handle.name, unwrap_handle_def
+                        )
                     elif self.is_handle(values[1].base_type):
                         second_handle = values[1]
-                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(parent_handle.base_type, second_handle.base_type, handle.base_type[2:], info_base_type, return_value, parent_handle.name, second_handle.name, length_name, handle.name, info_name)
+                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(
+                            parent_handle.base_type, second_handle.base_type,
+                            handle.base_type[2:], info_base_type, return_value,
+                            parent_handle.name, second_handle.name,
+                            length_name, handle.name, info_name
+                        )
                     else:
-                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(parent_handle.base_type, handle.base_type[2:], info_base_type, return_value, parent_handle.name, length_name, handle.name, info_name)
+                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(
+                            parent_handle.base_type, handle.base_type[2:],
+                            info_base_type, return_value, parent_handle.name,
+                            length_name, handle.name, info_name
+                        )
 
             else:
                 if handle.base_type in self.struct_names:
                     # TODO: No cases in current Vulkan spec of handle inside non-array output structure
                     raise NotImplementedError
                 elif parent_handle:
-                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parent_handle.base_type, handle.base_type[2:], info_base_type, return_value, parent_handle.name, handle.name, info_name)
+                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(
+                        parent_handle.base_type, handle.base_type[2:],
+                        info_base_type, return_value, parent_handle.name,
+                        handle.name, info_name
+                    )
                 else:
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
-                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.base_type[2:], info_base_type, return_value, handle.name, info_name)
+                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(
+                        handle.base_type[2:], info_base_type, return_value,
+                        handle.name, info_name
+                    )
 
-        elif name.startswith('vkDestroy') or name.startswith('vkFree') or (name == 'vkReleasePerformanceConfigurationINTEL'):
+        elif name.startswith('vkDestroy') or name.startswith('vkFree') or (
+            name == 'vkReleasePerformanceConfigurationINTEL'
+        ):
             handle = None
             if name in ['vkDestroyInstance', 'vkDestroyDevice']:
                 # Instance/device destroy calls are special case where the target handle is the first parameter
@@ -379,16 +493,26 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     handle = values[3]
 
             if handle.is_array:
-                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {}, encoder)'.format(handle.base_type[2:], handle.array_length, handle.name)
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {}, encoder)'.format(
+                    handle.base_type[2:], handle.array_length, handle.name
+                )
             else:
-                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.base_type[2:], handle.name)
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(
+                    handle.base_type[2:], handle.name
+                )
 
         elif values[0].base_type == 'VkCommandBuffer':
-            get_handles_expr = self.make_get_command_handles_expr(name, values[1:])
+            get_handles_expr = self.make_get_command_handles_expr(
+                name, values[1:]
+            )
             if get_handles_expr:
-                decl += 'EndCommandApiCallTrace({}, encoder, {})'.format(values[0].name, get_handles_expr)
+                decl += 'EndCommandApiCallTrace({}, encoder, {})'.format(
+                    values[0].name, get_handles_expr
+                )
             else:
-                decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
+                decl += 'EndCommandApiCallTrace({}, encoder)'.format(
+                    values[0].name
+                )
         else:
             decl += 'EndApiCallTrace(encoder)'
 
@@ -398,7 +522,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def make_handle_wrapping(self, values, indent):
         expr = ''
         for value in values:
-            if self.is_output_parameter(value) and (self.is_handle(value.base_type) or (self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles))):
+            if self.is_output_parameter(value) and (
+                self.is_handle(value.base_type) or (
+                    self.is_struct(value.base_type) and
+                    (value.base_type in self.structs_with_handles)
+                )
+            ):
                 # The VkInstance handle does not have parent, so the 'unused'
                 # values will be provided to the wrapper creation function.
                 parent_type = 'NoParentWrapper'
@@ -414,31 +543,54 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if self.is_handle(values[1].base_type):
                     co_parent_type = values[1].base_type[2:] + 'Wrapper'
                     co_parent_value = values[1].name
-                elif values[1].base_type.endswith('AllocateInfo') and value.is_array and ('->' in value.array_length):
+                elif values[1].base_type.endswith(
+                    'AllocateInfo'
+                ) and value.is_array and ('->' in value.array_length):
                     # An array of handles with length specified by an AllocateInfo structure (there is a -> in the length name) is a pool allocation.
                     # Extract the pool handle from the AllocateInfo structure, which is currently the first and only handle member.
                     members = self.structs_with_handles[values[1].base_type]
                     for member in members:
                         if self.is_handle(member.base_type):
                             co_parent_type = member.base_type[2:] + 'Wrapper'
-                            co_parent_value = values[1].name + '->' + member.name
+                            co_parent_value = values[
+                                1].name + '->' + member.name
                             break
 
                 if value.is_array:
                     length_name = value.array_length
                     for len in values:
                         if (len.name == length_name) and len.is_pointer:
-                            length_name = '({name} != nullptr) ? (*{name}) : 0'.format(name=length_name)
+                            length_name = '({name} != nullptr) ? (*{name}) : 0'.format(
+                                name=length_name
+                            )
                             break
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parent_type, co_parent_type, value.base_type[2:], parent_value, co_parent_value, value.name, length_name)
-                    elif self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parent_type, co_parent_type, value.base_type, parent_value, co_parent_value, value.name, length_name)
+                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, value.base_type[2:],
+                            parent_value, co_parent_value, value.name,
+                            length_name
+                        )
+                    elif self.is_struct(
+                        value.base_type
+                    ) and (value.base_type in self.structs_with_handles):
+                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, value.base_type,
+                            parent_value, co_parent_value, value.name,
+                            length_name
+                        )
                 else:
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parent_type, co_parent_type, value.base_type[2:], parent_value, co_parent_value, value.name)
-                    elif self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parent_type, co_parent_type, parent_value, co_parent_value, value.name)
+                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, value.base_type[2:],
+                            parent_value, co_parent_value, value.name
+                        )
+                    elif self.is_struct(
+                        value.base_type
+                    ) and (value.base_type in self.structs_with_handles):
+                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(
+                            parent_type, co_parent_type, parent_value,
+                            co_parent_value, value.name
+                        )
         return expr
 
     def make_handle_unwrapping(self, name, values, indent):
@@ -453,26 +605,48 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         array_length = value.array_length if value.is_array else 1  # At this time, all pointer unwrap cases are arrays
-                        expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(value.full_type, value.base_type, array_length, name=value.name)
-                    elif (value.base_type in self.structs_with_handles) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
+                        expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(
+                            value.full_type,
+                            value.base_type,
+                            array_length,
+                            name=value.name
+                        )
+                    elif (value.base_type in self.structs_with_handles) or (
+                        value.base_type in self.GENERIC_HANDLE_STRUCTS
+                    ):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         if value.is_array:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(value.full_type, value.array_length, name=value.name)
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
+                                value.full_type,
+                                value.array_length,
+                                name=value.name
+                            )
                         else:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(value.full_type, name=value.name)
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
+                                value.full_type, name=value.name
+                            )
             elif self.is_handle(value.base_type):
                 arg_name += '_unwrapped'
-                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(type=value.base_type, name=value.name)
+                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(
+                    type=value.base_type, name=value.name
+                )
             elif self.is_generic_cmd_handle_value(name, value.name):
                 arg_name += '_unwrapped'
-                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle({name}, {type_value});\n'.format(type=value.base_type, name=value.name, type_value=self.get_generic_cmd_handle_type_value(name, value.name))
+                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle({name}, {type_value});\n'.format(
+                    type=value.base_type,
+                    name=value.name,
+                    type_value=self.
+                    get_generic_cmd_handle_type_value(name, value.name)
+                )
             args.append(arg_name)
         return expr, ', '.join(args), need_unwrap_memory
 
     def make_handle_cleanup(self, name, values, indent):
         expr = ''
-        if name.startswith('vkDestroy') or name.startswith('vkFree') or (name == 'vkReleasePerformanceConfigurationINTEL'):
+        if name.startswith('vkDestroy') or name.startswith('vkFree') or (
+            name == 'vkReleasePerformanceConfigurationINTEL'
+        ):
             handle = None
             if name in ['vkDestroyInstance', 'vkDestroyDevice']:
                 # Instance/device destroy calls are special case where the target handle is the first parameter
@@ -484,9 +658,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     handle = values[3]
 
             if handle.is_array:
-                expr += indent + 'DestroyWrappedHandles<{}Wrapper>({}, {});\n'.format(handle.base_type[2:], handle.name, handle.array_length)
+                expr += indent + 'DestroyWrappedHandles<{}Wrapper>({}, {});\n'.format(
+                    handle.base_type[2:], handle.name, handle.array_length
+                )
             else:
-                expr += indent + 'DestroyWrappedHandle<{}Wrapper>({});\n'.format(handle.base_type[2:], handle.name)
+                expr += indent + 'DestroyWrappedHandle<{}Wrapper>({});\n'.format(
+                    handle.base_type[2:], handle.name
+                )
         return expr
 
     def get_param_list_handles(self, values):
@@ -495,7 +673,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         for value in values:
             if self.is_handle(value.base_type):
                 handles.append(value)
-            elif self.is_struct(value.base_type) and (value.base_type in self.structs_with_handles):
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in self.structs_with_handles):
                 handles.append(value)
         return handles
 
@@ -515,7 +695,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def retrieves_handles(self, values):
         """Determine if an API call indirectly creates handles by retrieving them(e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)"""
         for value in values:
-            if self.is_output_parameter(value) and (self.is_handle(value.base_type) or (value.base_type in self.structs_with_handles)):
+            if self.is_output_parameter(value) and (
+                self.is_handle(value.base_type) or
+                (value.base_type in self.structs_with_handles)
+            ):
                 return True
         return False
 

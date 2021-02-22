@@ -20,27 +20,31 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,json
+import os, re, sys, json
 from base_generator import *
 
 
 class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ code to alter Vulkan device createtion features."""
 
-    def __init__(self,
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self,
-                                      platform_types=platform_types,
-                                      filename=filename,
-                                      directory=directory,
-                                      prefix_text=prefix_text,
-                                      protect_file=protect_file,
-                                      protect_feature=protect_feature)
+    def __init__(
+        self,
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self,
+            platform_types=platform_types,
+            filename=filename,
+            directory=directory,
+            prefix_text=prefix_text,
+            protect_file=protect_file,
+            protect_feature=protect_feature
+        )
 
 
 class VulkanFeatureUtilBodyGenerator(BaseGenerator):
@@ -49,13 +53,18 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     Generate C++ code to alter Vulkan device creation features.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=False, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         self.physical_device_features2_stypes = dict()
         # List of 1.0 features
@@ -100,8 +109,9 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
                         if member.base_type == "VkBool32":
                             members.append(member.name)
                     self.physical_device_features2_stypes[typename] = {
-                        'sType' : self.make_structure_type_enum(typeinfo, typename),
-                        'members' : members
+                        'sType':
+                        self.make_structure_type_enum(typeinfo, typename),
+                        'members': members
                     }
 
             #  Get all core 1.0 features
@@ -141,15 +151,25 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
             result += '            case {}:\n'.format(info['sType'])
             result += '            {\n'
-            result += '                const {}* currentNext = reinterpret_cast<const {}*>(next);\n'.format(typename, typename)
-            result += '                {} query = {{ {}, nullptr }};\n'.format(typename, info['sType'])
+            result += '                const {}* currentNext = reinterpret_cast<const {}*>(next);\n'.format(
+                typename, typename
+            )
+            result += '                {} query = {{ {}, nullptr }};\n'.format(
+                typename, info['sType']
+            )
             result += '                physicalDeviceFeatures2.pNext = &query;\n'
             result += '                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);\n'
             for member in info['members']:
-                result += '                if ((currentNext->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(member, member)
+                result += '                if ((currentNext->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(
+                    member, member
+                )
                 result += '                {\n'
-                result += '                    GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(member)
-                result += '                    const_cast<{}*>(currentNext)->{} = VK_FALSE;\n'.format(typename, member)
+                result += '                    GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(
+                    member
+                )
+                result += '                    const_cast<{}*>(currentNext)->{} = VK_FALSE;\n'.format(
+                    typename, member
+                )
                 result += '                }\n'
             result += '                break;\n'
             result += '             }\n'
@@ -166,10 +186,16 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         result += '        VkPhysicalDeviceFeatures query = {};\n'
         result += '        GetPhysicalDeviceFeatures(physicalDevice, &query);\n'
         for feature in self.physical_device_features:
-            result += '        if ((physicalDeviceFeatures->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(feature, feature)
+            result += '        if ((physicalDeviceFeatures->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(
+                feature, feature
+            )
             result += '        {\n'
-            result += '            GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(feature)
-            result += '            const_cast<VkPhysicalDeviceFeatures*>(physicalDeviceFeatures)->{} = VK_FALSE;\n'.format(feature)
+            result += '            GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(
+                feature
+            )
+            result += '            const_cast<VkPhysicalDeviceFeatures*>(physicalDeviceFeatures)->{} = VK_FALSE;\n'.format(
+                feature
+            )
             result += '        }\n'
         result += '    }\n'
         result += '}'

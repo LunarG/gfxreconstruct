@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanStructEncodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan struct encoding."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanStructEncodersBodyGenerator(BaseGenerator):
@@ -47,21 +50,32 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
     Generate C++ functions for Vulkan struct encoding.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=False, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "generated/generated_vulkan_struct_encoders.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_encoders.h"',
+            file=self.outFile
+        )
         self.newline()
-        write('#include "encode/custom_vulkan_struct_encoders.h"', file=self.outFile)
+        write(
+            '#include "encode/custom_vulkan_struct_encoders.h"',
+            file=self.outFile
+        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -91,9 +105,13 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         first = True
         for struct in self.get_filtered_struct_names():
             body = '' if first else '\n'
-            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(struct)
+            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(
+                struct
+            )
             body += '{\n'
-            body += self.make_struct_body(struct, self.feature_struct_members[struct], 'value.')
+            body += self.make_struct_body(
+                struct, self.feature_struct_members[struct], 'value.'
+            )
             body += '}'
             write(body, file=self.outFile)
 
@@ -107,9 +125,13 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
-                body += '    EncodePNextStruct(encoder, {});\n'.format(prefix + value.name)
+                body += '    EncodePNextStruct(encoder, {});\n'.format(
+                    prefix + value.name
+                )
             else:
-                method_call = self.make_encoder_method_call(name, value, values, prefix)
+                method_call = self.make_encoder_method_call(
+                    name, value, values, prefix
+                )
                 body += '    {};\n'.format(method_call)
 
         return body

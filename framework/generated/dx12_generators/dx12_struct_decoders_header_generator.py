@@ -27,16 +27,22 @@ from base_struct_decoders_header_generator import *
 
 
 class Dx12StructDecodersHeaderGenerator(
-        Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
+    Dx12BaseGenerator, BaseStructDecodersHeaderGenerator
+):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr,
-                 warn_file=sys.stderr,
-                 diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12BaseGenerator.__init__(
-            self, source_dict, dx12_prefix_strings,
-            err_file, warn_file, diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
@@ -67,12 +73,14 @@ class Dx12StructDecodersHeaderGenerator(
         for k, v in header_dict.items():
             code += '#include <{}>\n'.format(k)
 
-        code += ("\n"
-                 "#include \"decode/handle_pointer_decoder.h\"\n"
-                 "#include \"decode/string_array_decoder.h\"\n"
-                 "#include \"decode/string_decoder.h\"\n"
-                 "#include \"decode/struct_pointer_decoder.h\"\n"
-                 "\n")
+        code += (
+            "\n"
+            "#include \"decode/handle_pointer_decoder.h\"\n"
+            "#include \"decode/string_array_decoder.h\"\n"
+            "#include \"decode/string_decoder.h\"\n"
+            "#include \"decode/struct_pointer_decoder.h\"\n"
+            "\n"
+        )
         write(code, file=self.outFile)
 
     def endFile(self):

@@ -68,7 +68,6 @@ WINAPI_SOURCE_LIST = [
     ['um\\minwinbase.h', ['_SECURITY_ATTRIBUTES']],
 ]
 
-
 if __name__ == '__main__':
     env = os.environ
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
@@ -76,7 +75,9 @@ if __name__ == '__main__':
     if 'WindowsSDKVersion' in env:
         WINDOWS_SDK_VERSION = env['WindowsSDKVersion']
     else:
-        print('Please run in Visual Studio Developer Command Prompt to get environment variables, WindowsSDKVersion and WindowsSdkDir')
+        print(
+            'Please run in Visual Studio Developer Command Prompt to get environment variables, WindowsSDKVersion and WindowsSdkDir'
+        )
         input("Press Enter to continue...")
         sys.exit()
 
@@ -86,13 +87,17 @@ if __name__ == '__main__':
     CURRENT_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
     GENERATOR_DIR = os.path.normpath(os.path.join(CURRENT_DIR, GENERATOR_PATH))
     BASE_GENERATOR_DIR = os.path.normpath(
-        os.path.join(CURRENT_DIR, BASE_GENERATOR_PATH))
+        os.path.join(CURRENT_DIR, BASE_GENERATOR_PATH)
+    )
     VULKAN_GENERATOR_DIR = os.path.normpath(
-        os.path.join(CURRENT_DIR, VULKAN_GENERATOR_PATH))
+        os.path.join(CURRENT_DIR, VULKAN_GENERATOR_PATH)
+    )
     LIB_REGISTRY_DIR = os.path.normpath(
-        os.path.join(CURRENT_DIR, LIB_REGISTRY_PATH))
+        os.path.join(CURRENT_DIR, LIB_REGISTRY_PATH)
+    )
     LIB_CPPHEADERPARSER_DIR = os.path.normpath(
-        os.path.join(CURRENT_DIR, LIB_CPPHEADERPARSER_PATH))
+        os.path.join(CURRENT_DIR, LIB_CPPHEADERPARSER_PATH)
+    )
 
     sys.path.append(GENERATOR_DIR)
     sys.path.append(BASE_GENERATOR_DIR)
@@ -105,14 +110,17 @@ if __name__ == '__main__':
 
     header_dict = {}
     for source in DX12_SOURCE_LIST:
-        source_file = os.path.join(WINDOWS_SDK_DIR + 'Include\\'+ WINDOWS_SDK_VERSION, source)
+        source_file = os.path.join(
+            WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
+        )
         print('Parsing', source_file)
-        header_dict[source[source.find('\\') +
-                           1:]] = Dx12CppHeader(source_file)
+        header_dict[source[source.find('\\') + 1:]
+                    ] = Dx12CppHeader(source_file)
 
     for source in WINAPI_SOURCE_LIST:
-        source_file = os.path.join(WINDOWS_SDK_DIR + 'Include\\'
-                                   + WINDOWS_SDK_VERSION, source[0])
+        source_file = os.path.join(
+            WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source[0]
+        )
         print('Parsing', source_file)
         header = Dx12CppHeader(source_file)
         header1 = Dx12CppClass()
@@ -137,8 +145,8 @@ if __name__ == '__main__':
     for k, v in header_dict.items():
         for k2 in list(v.classes):
             v2 = v.classes[k2]
-            if v2['declaration_method'] == 'struct' and k2[-4:] != 'Vtbl'\
-               and k2.find("::<anon-union-") == -1:
+            if v2['declaration_method'] == 'struct' and k2[
+                -4:] != 'Vtbl' and k2.find("::<anon-union-") == -1:
                 if k2 in struct_list:
                     # print('WARNING:', k2, 'is duplicated.')
                     del v.classes[k2]
@@ -163,6 +171,8 @@ if __name__ == '__main__':
 
     for target in GENERATE_TARGETS:
         print('Generating', target)
-        thread = GenCode(target, source_dict, WINDOWS_SDK_VERSION[:-1],
-                         CURRENT_DIR, GENERATOR_DIR)
+        thread = GenCode(
+            target, source_dict, WINDOWS_SDK_VERSION[:-1], CURRENT_DIR,
+            GENERATOR_DIR
+        )
         thread.start()

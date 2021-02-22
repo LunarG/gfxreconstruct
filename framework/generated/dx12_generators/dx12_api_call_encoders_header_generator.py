@@ -31,15 +31,18 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
     # in custom_vulkan_struct_encoders.h
     BLOCK_LIST = ['_SECURITY_ATTRIBUTES']
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12BaseGenerator.__init__(
-            self,
-            source_dict,
-            dx12_prefix_strings,
-            err_file,
-            warn_file,
-            diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
         self.check_blacklist = True
 
     def beginFile(self, gen_opts):
@@ -81,16 +84,20 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         for k, v in header_dict.items():
             code += '#include <{}>\n'.format(k)
 
-        code += ("\n"
-                 "#include \"encode/parameter_encoder.h\"\n"
-                 "#include \"util/defines.h\"\n"
-                 "\n")
+        code += (
+            "\n"
+            "#include \"encode/parameter_encoder.h\"\n"
+            "#include \"util/defines.h\"\n"
+            "\n"
+        )
 
         write(code, file=self.outFile)
 
     def write_encode_object(self):
-        code = ("void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);\n"
-                "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);\n")
+        code = (
+            "void EncodeDxObjectPtr(ParameterEncoder* encoder, void** object, bool omit_output_data = false);\n"
+            "void EncodeDxObjectPtrArray(ParameterEncoder* encoder, void*** value, size_t len, bool omit_data = false, bool omit_addr = false);\n"
+        )
         write(code, file=self.outFile)
 
     def get_encode_struct_body(self, properties):
@@ -100,8 +107,10 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         if self.is_block('', name):
             return
 
-        code = ('void EncodeStruct(ParameterEncoder* encoder, const {}& value)'
-                .format(name))
+        code = (
+            'void EncodeStruct(ParameterEncoder* encoder, const {}& value)'.
+            format(name)
+        )
 
         code += self.get_encode_struct_body(properties)
         write(code, file=self.outFile)
@@ -148,8 +157,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
                     p['multi_dimensional_array']
 
                     if 'multi_dimensional_array_size' in p:
-                        multi_dimensional_array_size = \
-                            p['multi_dimensional_array_size']
+                        multi_dimensional_array_size = p[
+                            'multi_dimensional_array_size']
 
                         array_sizes = multi_dimensional_array_size.split("x")
                         for size in array_sizes:
@@ -164,12 +173,14 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
             while True:
                 space_index = parameters.find(' ', space_index) + 1
 
-                if space_index != 0 and (parameters[space_index] == '*'
-                                         or parameters[space_index - 2] == '('
-                                         or parameters[space_index] == '('
-                                         or parameters[space_index] == ')'):
-                    parameters = parameters[:space_index -
-                                            1] + parameters[space_index:]
+                if space_index != 0 and (
+                    parameters[space_index] == '*'
+                    or parameters[space_index - 2] == '('
+                    or parameters[space_index] == '('
+                    or parameters[space_index] == ')'
+                ):
+                    parameters = parameters[:space_index
+                                            - 1] + parameters[space_index:]
                 elif space_index == 0:
                     break
 

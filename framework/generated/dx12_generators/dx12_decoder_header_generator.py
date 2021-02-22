@@ -27,16 +27,22 @@ from base_struct_decoders_header_generator import *
 
 
 class Dx12DecoderHeaderGenerator(
-        Dx12BaseGenerator, BaseStructDecodersHeaderGenerator):
+    Dx12BaseGenerator, BaseStructDecodersHeaderGenerator
+):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr,
-                 warn_file=sys.stderr,
-                 diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12BaseGenerator.__init__(
-            self, source_dict, dx12_prefix_strings,
-            err_file, warn_file, diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Methond override."""
@@ -54,9 +60,7 @@ class Dx12DecoderHeaderGenerator(
 
     def write_include(self):
         """Methond override."""
-        code = ("\n"
-                "#include \"decode/dx12_decoder_base.h\"\n"
-                "\n")
+        code = ("\n" "#include \"decode/dx12_decoder_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
     def get_decoder_method_body(self, params):
@@ -68,39 +72,46 @@ class Dx12DecoderHeaderGenerator(
     def get_decode_method_call_body(self):
         return ';'
 
-    def get_decoder_function(self, class_name, method_info,
-                             indent, function_class):
+    def get_decoder_function(
+        self, class_name, method_info, indent, function_class
+    ):
         object_param = ''
         if class_name:
             class_name = '_' + class_name
             object_param = 'format::HandleId object_id, '
 
-        return ('{}size_t {}Decode{}_{}({}const uint8_t* parameter_buffer, size_t buffer_size){}\n'
-                .format(indent, function_class, class_name,
-                        method_info['name'], object_param,
-                        self.get_decoder_method_body(method_info['parameters'])
-                        ))
+        return (
+            '{}size_t {}Decode{}_{}({}const uint8_t* parameter_buffer, size_t buffer_size){}\n'
+            .format(
+                indent, function_class, class_name, method_info['name'],
+                object_param,
+                self.get_decoder_method_body(method_info['parameters'])
+            )
+        )
 
     def get_decoder_class_define(self):
-        declaration = ("class Dx12Decoder : public Dx12DecoderBase\n"
-                       "{{\n"
-                       "  public:\n"
-                       "    Dx12Decoder(){{}}\n"
-                       "    virtual ~Dx12Decoder() override {{}}\n"
-                       "\n"
-                       "    virtual void DecodeFunctionCall(format::ApiCallId  call_id,\n"
-                       "                                    const ApiCallInfo& call_options,\n"
-                       "                                    const uint8_t*     parameter_buffer,\n"
-                       "                                    size_t             buffer_size) override{}\n"
-                       "\n"
-                       "    virtual void DecodeMethodCall(format::ApiCallId  call_id,\n"
-                       "                                  format::HandleId   object_id,\n"
-                       "                                  const ApiCallInfo& call_options,\n"
-                       "                                  const uint8_t*     parameter_buffer,\n"
-                       "                                  size_t             buffer_size) override{}\n"
-                       "  private:\n".format(
-                          self.get_decode_function_call_body(),
-                          self.get_decode_method_call_body()))
+        declaration = (
+            "class Dx12Decoder : public Dx12DecoderBase\n"
+            "{{\n"
+            "  public:\n"
+            "    Dx12Decoder(){{}}\n"
+            "    virtual ~Dx12Decoder() override {{}}\n"
+            "\n"
+            "    virtual void DecodeFunctionCall(format::ApiCallId  call_id,\n"
+            "                                    const ApiCallInfo& call_options,\n"
+            "                                    const uint8_t*     parameter_buffer,\n"
+            "                                    size_t             buffer_size) override{}\n"
+            "\n"
+            "    virtual void DecodeMethodCall(format::ApiCallId  call_id,\n"
+            "                                  format::HandleId   object_id,\n"
+            "                                  const ApiCallInfo& call_options,\n"
+            "                                  const uint8_t*     parameter_buffer,\n"
+            "                                  size_t             buffer_size) override{}\n"
+            "  private:\n".format(
+                self.get_decode_function_call_body(),
+                self.get_decode_method_call_body()
+            )
+        )
 
         indent = '    '
         function_class = ''
@@ -108,8 +119,8 @@ class Dx12DecoderHeaderGenerator(
         return (declaration, indent, function_class, class_end)
 
     def write_dx12_decoder_class(self):
-        declaration, indent, function_class, class_end =\
-            self.get_decoder_class_define()
+        declaration, indent, function_class, class_end = self.get_decoder_class_define(
+        )
         code = declaration
 
         header_dict = self.source_dict['header_dict']
@@ -119,19 +130,23 @@ class Dx12DecoderHeaderGenerator(
             for m in v.functions:
                 if self.is_required_function_data(m):
                     code += self.get_decoder_function(
-                        '', m, indent, function_class)
+                        '', m, indent, function_class
+                    )
 
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
                         code += self.get_decoder_function(
-                            k2, m, indent, function_class)
+                            k2, m, indent, function_class
+                        )
 
             code_length2 = len(code)
             if code_length2 > code_length:
-                code = code[:code_length] + '\n' + \
-                    self.dx12_prefix_strings.format(
-                        k) + '\n' + code[code_length:]
+                code = (
+                    code[:code_length] + '\n'
+                    + self.dx12_prefix_strings.format(k) + '\n'
+                    + code[code_length:]
+                )
 
         code += class_end
         write(code, file=self.outFile)

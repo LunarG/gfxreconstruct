@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_decoder_body_generator import *
 
 
 class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan API parameter decoding."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
@@ -47,13 +50,19 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
     Vulkan API call parameter data.
     Generate a C++ class for Vulkan API parameter decoding.
     """
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=True, process_structs=False, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
         # Names of all Vulkan commands processed by the generator.
         self.cmd_names = []
@@ -69,8 +78,14 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         write('#include "decode/string_decoder.h"', file=self.outFile)
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/value_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_decoder.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)

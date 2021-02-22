@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan struct encoding."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanStructEncodersHeaderGenerator(BaseGenerator):
@@ -47,13 +50,18 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     Generate C++ function declarations for Vulkan struct encoding.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=False, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -70,7 +78,10 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write('void EncodePNextStruct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write(
+            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value);',
+            file=self.outFile
+        )
 
     def endFile(self):
         """Method override."""
@@ -90,4 +101,8 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         for struct in self.get_filtered_struct_names():
-            write('void EncodeStruct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
+            write(
+                'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
+                .format(struct),
+                file=self.outFile
+            )

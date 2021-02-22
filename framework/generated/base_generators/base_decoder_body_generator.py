@@ -40,7 +40,9 @@ class BaseDecoderBodyGenerator():
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += 'size_t {}Decoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(type, cmd)
+            cmddef += 'size_t {}Decoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(
+                type, cmd
+            )
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
@@ -52,7 +54,7 @@ class BaseDecoderBodyGenerator():
             write(cmddef, file=self.outFile)
             first = False
 
-    def make_cmd_body(self, return_type, name, values, dx12_method = False):
+    def make_cmd_body(self, return_type, name, values, dx12_method=False):
         """Generate C++ code for the decoder method body."""
         body = ''
         arg_names = []
@@ -71,9 +73,15 @@ class BaseDecoderBodyGenerator():
         dx12_return_decode_type = None
         if return_type and return_type != 'void':
             if dx12_method:
-                dx12_return_value = self.get_return_value_info('return_value', return_type)
-                dx12_return_decode_type = self.make_decoded_param_type(dx12_return_value)
-                body += '    {} return_value;\n'.format(dx12_return_decode_type)
+                dx12_return_value = self.get_return_value_info(
+                    'return_value', return_type
+                )
+                dx12_return_decode_type = self.make_decoded_param_type(
+                    dx12_return_value
+                )
+                body += '    {} return_value;\n'.format(
+                    dx12_return_decode_type
+                )
             else:
                 body += '    {} return_value;\n'.format(return_type)
 
@@ -83,12 +91,18 @@ class BaseDecoderBodyGenerator():
 
         # Decode() method calls for pointer decoder wrappers.
         for value in values:
-            body += BaseDecoderBodyGenerator.make_decode_invocation(self, value)
+            body += BaseDecoderBodyGenerator.make_decode_invocation(
+                self, value
+            )
         if return_type and return_type != 'void':
             if dx12_method:
-                body += BaseDecoderBodyGenerator.make_decode_invocation(self, dx12_return_value)
+                body += BaseDecoderBodyGenerator.make_decode_invocation(
+                    self, dx12_return_value
+                )
             else:
-                body += BaseDecoderBodyGenerator.make_decode_invocation(self, ValueInfo('return_value', return_type, return_type))
+                body += BaseDecoderBodyGenerator.make_decode_invocation(
+                    self, ValueInfo('return_value', return_type, return_type)
+                )
 
         # Blank line after Decode() method invocations.
         if values or return_type:
@@ -144,43 +158,76 @@ class BaseDecoderBodyGenerator():
             if not is_class and type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
                 if value.pointer_count > 1:
                     # Pointer to a pointer to an unknown object type (void**), encoded as a pointer to a 64-bit integer ID.
-                    body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(value.name, buffer_args)
+                    body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(
+                        value.name, buffer_args
+                    )
                 else:
                     # Pointer to an unknown object type, encoded as a 64-bit integer ID.
-                    body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(buffer_args, value.name)
+                    body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
+                        buffer_args, value.name
+                    )
             else:
                 if is_struct or is_string or is_handle or is_class:
-                    body += '    bytes_read += {}.Decode({});\n'.format(value.name, buffer_args)
+                    body += '    bytes_read += {}.Decode({});\n'.format(
+                        value.name, buffer_args
+                    )
                 else:
-                    body += '    bytes_read += {}.Decode{}({});\n'.format(value.name, type_name, buffer_args)
+                    body += '    bytes_read += {}.Decode{}({});\n'.format(
+                        value.name, type_name, buffer_args
+                    )
         else:
             if is_struct:
-                body += '    bytes_read += DecodeStruct({}, &{});\n'.format(buffer_args, value.name)
+                body += '    bytes_read += DecodeStruct({}, &{});\n'.format(
+                    buffer_args, value.name
+                )
             elif is_funcp:
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
+                    buffer_args, value.name
+                )
             elif is_handle:
-                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
+                    buffer_args, value.name
+                )
             else:
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(type_name, buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    type_name, buffer_args, value.name
+                )
 
         return body
 
     def generate_decode_cases(self):
         """Generate the VulkanDecoder::DecodeFunctionCall method."""
-        write('void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
-        write('                                       const ApiCallInfo&            call_info,', file=self.outFile)
-        write('                                       const uint8_t*                parameter_buffer,', file=self.outFile)
-        write('                                       size_t                        buffer_size)', file=self.outFile)
+        write(
+            'void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,',
+            file=self.outFile
+        )
+        write(
+            '                                       const ApiCallInfo&            call_info,',
+            file=self.outFile
+        )
+        write(
+            '                                       const uint8_t*                parameter_buffer,',
+            file=self.outFile
+        )
+        write(
+            '                                       size_t                        buffer_size)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    switch(call_id)', file=self.outFile)
         write('    {', file=self.outFile)
         write('    default:', file=self.outFile)
-        write('        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);', file=self.outFile)
+        write(
+            '        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);',
+            file=self.outFile
+        )
         write('        break;', file=self.outFile)
 
         for cmd in self.cmd_names:
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
-            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(cmd)
+            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(
+                cmd
+            )
             cmddef += '        break;'
             write(cmddef, file=self.outFile)
 

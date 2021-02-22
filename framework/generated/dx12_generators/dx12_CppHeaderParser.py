@@ -22,44 +22,18 @@
 
 from CppHeaderParser import CppHeader, CppHeaderParser
 
-
 SAL_TOKENS = [
-    '__in_ecount',
-    '__in_ecount_opt',
-    '__RPC__deref_out',
-    '__RPC__deref_out_opt',
-    '__RPC__in',
-    '_Always_',
-    '_COM_Outptr_',
-    '_COM_Outptr_opt_',
-    '_COM_Outptr_opt_result_maybenull_',
-    '_Field_size_bytes_full_',
-    '_Field_size_bytes_full_opt_',
-    '_Field_size_full_',
-    '_Field_size_full_opt_',
-    '_Field_z_',
-    '_In_',
-    '_In_opt_',
-    '_In_range_',
-    '_In_reads_',
-    '_In_reads_bytes_',
-    '_In_reads_bytes_opt_',
-    '_In_reads_opt_',
-    '_In_z_',
-    '_Inout_',
-    '_Inout_opt_',
-    '_Inout_updates_bytes_',
-    '_Out_',
-    '_Out_opt_',
-    '_Out_writes_',
-    '_Out_writes_all_',
-    '_Out_writes_all_opt_',
-    '_Out_writes_bytes_',
-    '_Out_writes_bytes_opt_',
-    '_Out_writes_bytes_to_',
-    '_Out_writes_opt_',
-    '_Out_writes_to_opt_',
-    '_Outptr_opt_result_bytebuffer_'
+    '__in_ecount', '__in_ecount_opt', '__RPC__deref_out',
+    '__RPC__deref_out_opt', '__RPC__in', '_Always_', '_COM_Outptr_',
+    '_COM_Outptr_opt_', '_COM_Outptr_opt_result_maybenull_',
+    '_Field_size_bytes_full_', '_Field_size_bytes_full_opt_',
+    '_Field_size_full_', '_Field_size_full_opt_', '_Field_z_', '_In_',
+    '_In_opt_', '_In_range_', '_In_reads_', '_In_reads_bytes_',
+    '_In_reads_bytes_opt_', '_In_reads_opt_', '_In_z_', '_Inout_',
+    '_Inout_opt_', '_Inout_updates_bytes_', '_Out_', '_Out_opt_',
+    '_Out_writes_', '_Out_writes_all_', '_Out_writes_all_opt_',
+    '_Out_writes_bytes_', '_Out_writes_bytes_opt_', '_Out_writes_bytes_to_',
+    '_Out_writes_opt_', '_Out_writes_to_opt_', '_Outptr_opt_result_bytebuffer_'
 ]
 
 original_warning_print = CppHeaderParser.warning_print
@@ -73,7 +47,6 @@ def dx12_warning_print(fmt, *args):
 
 
 CppHeaderParser.warning_print = dx12_warning_print
-
 
 original_is_method_namestack = CppHeaderParser.is_method_namestack
 original_is_property_namestack = CppHeaderParser.is_property_namestack
@@ -141,8 +114,10 @@ class Dx12CppHeader(CppHeader):
             if interface_scope == 0:
                 source += line
                 enum_scope = line.startswith('typedef enum ')
-                if (line.startswith('#if') and (
-                        '!defined(CINTERFACE)' in line)) or enum_scope:
+                if (
+                    line.startswith('#if') and
+                    ('!defined(CINTERFACE)' in line)
+                ) or enum_scope:
                     interface_scope = 1
             else:
                 if enum_scope:
@@ -173,10 +148,13 @@ class Dx12CppHeader(CppHeader):
                         # INTERFACE macros only appear within the !CINTERFACE
                         # scope.
                         new_line = new_line.replace(
-                            'MIDL_INTERFACE', 'class //MIDL_INTERFACE')
+                            'MIDL_INTERFACE', 'class //MIDL_INTERFACE'
+                        )
                         new_line = new_line.replace(
-                            'BEGIN_INTERFACE', '//BEGIN_INTERFACE')
+                            'BEGIN_INTERFACE', '//BEGIN_INTERFACE'
+                        )
                         new_line = new_line.replace(
-                            'END_INTERFACE', '//END_INTERFACE')
+                            'END_INTERFACE', '//END_INTERFACE'
+                        )
                     source += new_line
         return source

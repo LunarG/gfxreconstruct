@@ -21,44 +21,58 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_struct_decoders_header_generator import *
 
 
 class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ type declarations for Vulkan struct decoding."""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
-class VulkanStructDecodersHeaderGenerator(BaseStructDecodersHeaderGenerator, BaseGenerator):
+class VulkanStructDecodersHeaderGenerator(
+    BaseStructDecodersHeaderGenerator, BaseGenerator
+):
     """VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ type declarations for the decoded Vulkan API structure wrappers.
     Generate C++ type declarations for Vulkan struct decoding.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=False, process_structs=True, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=False,
+            process_structs=True,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "decode/custom_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write(
+            '#include "decode/custom_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
@@ -67,7 +81,10 @@ class VulkanStructDecodersHeaderGenerator(BaseStructDecodersHeaderGenerator, Bas
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/format.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)

@@ -28,33 +28,39 @@ from base_generator\
 class Dx12GeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Dx12 API."""
 
-    def __init__(self, blacklists=None, platform_types=None, filename=None,
-                 directory='.', prefix_text='', protect_file=False,
-                 protect_feature=True):
+    def __init__(
+        self,
+        blacklists=None,
+        platform_types=None,
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
         BaseGeneratorOptions.__init__(
-            self,
-            blacklists,
-            platform_types,
-            filename,
-            directory,
-            prefix_text,
-            protect_file,
-            protect_feature)
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class Dx12BaseGenerator(BaseGenerator):
 
     ARRAY_SIZE_LIST = [
-        ['D3D12_PIPELINE_STATE_STREAM_DESC',
-            'pPipelineStateSubobjectStream', 'SizeInBytes'],
-        ['D3D12_AUTO_BREADCRUMB_NODE',
-            'pCommandHistory', 'BreadcrumbCount'],
-        ['D3D12_AUTO_BREADCRUMB_NODE1',
-            'pCommandHistory', 'BreadcrumbCount'],
-        ['D3D12_AUTO_BREADCRUMB_NODE1',
-            'pBreadcrumbContexts', 'BreadcrumbContextsCount'],
-        ['D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES',
-            'pTypes', 'Count'],
+        [
+            'D3D12_PIPELINE_STATE_STREAM_DESC',
+            'pPipelineStateSubobjectStream', 'SizeInBytes'
+        ],
+        ['D3D12_AUTO_BREADCRUMB_NODE', 'pCommandHistory', 'BreadcrumbCount'],
+        ['D3D12_AUTO_BREADCRUMB_NODE1', 'pCommandHistory', 'BreadcrumbCount'],
+        [
+            'D3D12_AUTO_BREADCRUMB_NODE1', 'pBreadcrumbContexts',
+            'BreadcrumbContextsCount'
+        ],
+        [
+            'D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES', 'pTypes',
+            'Count'
+        ],
     ]
 
     # convert struct, class, or union type into the parsed type or convert
@@ -82,8 +88,12 @@ class Dx12BaseGenerator(BaseGenerator):
         [['INT8'], 'Int8'],
         [['UINT16', 'unsigned short'], 'UInt16'],
         [['SHORT'], 'Int16'],
-        [['unsigned long', 'ULONG', 'DWORD', 'UINT', 'UINT32',
-            'unsigned int', 'DXGI_USAGE'], 'UInt32'],
+        [
+            [
+                'unsigned long', 'ULONG', 'DWORD', 'UINT', 'UINT32',
+                'unsigned int', 'DXGI_USAGE'
+            ], 'UInt32'
+        ],
         [['HRESULT', 'LONG', 'BOOL', 'INT', 'int'], 'Int32'],
         [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS', 'SIZE_T'], 'UInt64'],
         [['LONG_PTR'], 'Int64'],
@@ -96,14 +106,13 @@ class Dx12BaseGenerator(BaseGenerator):
     ]
 
     BIT_FIELD_LIST = [
-        ['D3D12_RAYTRACING_INSTANCE_DESC',
-            'InstanceID', ':24'],
-        ['D3D12_RAYTRACING_INSTANCE_DESC',
-            'InstanceMask', ':8'],
-        ['D3D12_RAYTRACING_INSTANCE_DESC',
-            'InstanceContributionToHitGroupIndex', ':24'],
-        ['D3D12_RAYTRACING_INSTANCE_DESC',
-            'Flags', ':8'],
+        ['D3D12_RAYTRACING_INSTANCE_DESC', 'InstanceID', ':24'],
+        ['D3D12_RAYTRACING_INSTANCE_DESC', 'InstanceMask', ':8'],
+        [
+            'D3D12_RAYTRACING_INSTANCE_DESC',
+            'InstanceContributionToHitGroupIndex', ':24'
+        ],
+        ['D3D12_RAYTRACING_INSTANCE_DESC', 'Flags', ':8'],
     ]
 
     # Some functions annotate COM pointer parameters that have a void**
@@ -111,13 +120,20 @@ class Dx12BaseGenerator(BaseGenerator):
     # contains the COM pointer parameters that are not annotated as
     # COM pointers.
     COM_POINTER_PARAMS = {
-        'D3D12CreateRootSignatureDeserializer' :
-           ['ppRootSignatureDeserializer'],
-        'D3D12CreateVersionedRootSignatureDeserializer' :
-           ['ppRootSignatureDeserializer'] }
+        'D3D12CreateRootSignatureDeserializer':
+        ['ppRootSignatureDeserializer'],
+        'D3D12CreateVersionedRootSignatureDeserializer':
+        ['ppRootSignatureDeserializer']
+    }
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
@@ -125,7 +141,8 @@ class Dx12BaseGenerator(BaseGenerator):
             feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
-            diag_file=diag_file)
+            diag_file=diag_file
+        )
         self.source_dict = source_dict
         self.dx12_prefix_strings = dx12_prefix_strings
         self.feature_method_params = dict()
@@ -145,9 +162,10 @@ class Dx12BaseGenerator(BaseGenerator):
                 continue
             elif skip:
                 continue
-            elif t == '_SECURITY_ATTRIBUTES'\
-                    or (t[0] != '_' and t != 'STDMETHODCALLTYPE'
-                        and t != 'WINAPI' and t != 'IN' and t != 'OUT'):
+            elif t == '_SECURITY_ATTRIBUTES' or (
+                t[0] != '_' and t != 'STDMETHODCALLTYPE' and t != 'WINAPI'
+                and t != 'IN' and t != 'OUT'
+            ):
                 if rtn:
                     rtn += ' '
                 rtn += t
@@ -186,7 +204,8 @@ class Dx12BaseGenerator(BaseGenerator):
             base_type=base_type,
             full_type=param_type,
             pointer_count=pointer,
-            is_const=const)
+            is_const=const
+        )
 
     def get_value_info(self, param):
         struct_name = ''
@@ -243,16 +262,15 @@ class Dx12BaseGenerator(BaseGenerator):
             if not array_length:
                 index_parentheses1 = full_type.find('(')
                 if index_parentheses1 != -1:
-                    index_parentheses2 = full_type[index_parentheses1 +
-                                                   1:
-                                                   ].find(')') +\
-                                                   index_parentheses1
+                    index_parentheses2 = full_type[
+                        index_parentheses1
+                        + 1:].find(')') + index_parentheses1
                     index_parentheses11 = index_parentheses1
                     parentheses = 0
 
                     while True:
-                        index_parentheses111 = full_type[index_parentheses11 +
-                                                         1:index_parentheses2
+                        index_parentheses111 = full_type[index_parentheses11
+                                                         + 1:index_parentheses2
                                                          ].find('(')
                         if index_parentheses111 == -1:
                             break
@@ -260,20 +278,21 @@ class Dx12BaseGenerator(BaseGenerator):
                         parentheses += 1
 
                     while parentheses > -1:
-                        index_parentheses22 = full_type[index_parentheses2 + 1:
-                                                        ].find(')')
+                        index_parentheses22 = full_type[index_parentheses2
+                                                        + 1:].find(')')
                         if index_parentheses22 == -1:
                             break
                         index_parentheses2 += index_parentheses22 + 1
                         parentheses -= 1
 
-                    param = full_type[index_parentheses1 +
-                                      2:index_parentheses2]
+                    param = full_type[index_parentheses1
+                                      + 2:index_parentheses2]
                     if param[0] != '_':
                         param_list = param.split(', ')
                         array_length = param_list[0]
-                        if array_length.find('Size') != - \
-                                1 and base_type.find('void') == -1:
+                        if array_length.find('Size') != -1 and base_type.find(
+                            'void'
+                        ) == -1:
                             array_length += ('/sizeof ' + base_type)
 
         return ValueInfo(
@@ -285,8 +304,10 @@ class Dx12BaseGenerator(BaseGenerator):
             array_capacity=array_capacity,
             array_dimension=array_dimension,
             bitfield_width=self.get_bit_field(struct_name, name),
-            is_const=const, union_members=union_members,
-            is_com_outptr=self.is_com_outptr(struct_name, name, full_type))
+            is_const=const,
+            union_members=union_members,
+            is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
+        )
 
     def gen_type(self, typeinfo, name, alias):
         """Methond override."""
@@ -302,7 +323,8 @@ class Dx12BaseGenerator(BaseGenerator):
             for k2, v2 in v.classes.items():
                 if self.is_required_struct_data(k2, v2):
                     self.feature_struct_members[k2] = self.make_value_info(
-                        v2['properties']['public'])
+                        v2['properties']['public']
+                    )
 
     def gen_cmd(self, cmdinfo, name, alias):
         """Methond override."""
@@ -312,9 +334,9 @@ class Dx12BaseGenerator(BaseGenerator):
                 if self.is_required_function_data(m):
                     name = m['name']
                     self.feature_cmd_params[name] = (
-                        self.clean_type_define(
-                            m['rtnType']), '', self.make_value_info(
-                            m['parameters']))
+                        self.clean_type_define(m['rtnType']), '',
+                        self.make_value_info(m['parameters'])
+                    )
 
     def gen_handle(self):
         # Member override
@@ -328,9 +350,9 @@ class Dx12BaseGenerator(BaseGenerator):
                     for m in v['methods']['public']:
                         name = k + '_' + m['name']
                         self.feature_method_params[name] = (
-                            self.clean_type_define(
-                                m['rtnType']), '', self.make_value_info(
-                                m['parameters']))
+                            self.clean_type_define(m['rtnType']), '',
+                            self.make_value_info(m['parameters'])
+                        )
 
     def get_filtered_method_names(self):
         return [key for key in self.feature_method_params]
@@ -345,7 +367,10 @@ class Dx12BaseGenerator(BaseGenerator):
     def get_filtered_struct_names(self):
         """Methond override."""
         if self.check_blacklist:
-            return [key for key in self.source_dict['struct_list'] if not self.is_struct_black_listed(key)]
+            return [
+                key for key in self.source_dict['struct_list']
+                if not self.is_struct_black_listed(key)
+            ]
         else:
             return self.source_dict['struct_list']
 
@@ -409,12 +434,11 @@ class Dx12BaseGenerator(BaseGenerator):
 
     def is_required_function_data(self, function_source_data):
         name = function_source_data['name']
-        if function_source_data['parent'] is None\
-           and name[:7] != 'DEFINE_'\
-           and name[:8] != 'DECLARE_'\
-           and name != 'InlineIsEqualGUID'\
-           and name != 'IsEqualGUID'\
-           and name[:8] != 'operator':
+        if (
+            function_source_data['parent'] is None and name[:7] != 'DEFINE_'
+            and name[:8] != 'DECLARE_' and name != 'InlineIsEqualGUID'
+            and name != 'IsEqualGUID' and name[:8] != 'operator'
+        ):
             return True
         return False
 
@@ -424,17 +448,21 @@ class Dx12BaseGenerator(BaseGenerator):
         return False
 
     def is_required_struct_data(self, struct_type, struct_source_data):
-        if struct_source_data['declaration_method'] == 'struct'\
-           and (not self.check_blacklist or not struct_source_data['name'] in self.STRUCT_BLACKLIST)\
-           and struct_type[-4:] != 'Vtbl'\
-           and struct_type.find("::<anon-union-") == -1:
+        if struct_source_data['declaration_method'] == 'struct' and (
+            not self.check_blacklist
+            or not struct_source_data['name'] in self.STRUCT_BLACKLIST
+        ) and struct_type[-4:] != 'Vtbl' and struct_type.find(
+            "::<anon-union-"
+        ) == -1:
             return True
         return False
 
     def is_com_outptr(self, func_name, param_name, param_full_type):
         if 'COM_Outptr' in param_full_type:
             return True
-        elif (func_name in self.COM_POINTER_PARAMS and
-              param_name in self.COM_POINTER_PARAMS[func_name]):
+        elif (
+            func_name in self.COM_POINTER_PARAMS
+            and param_name in self.COM_POINTER_PARAMS[func_name]
+        ):
             return True
         return False

@@ -27,7 +27,8 @@ from base_replay_consumer_body_generator import *
 
 
 class Dx12ReplayConsumerBodyGenerator(
-        BaseReplayConsumerBodyGenerator, Dx12ReplayConsumerHeaderGenerator):
+    BaseReplayConsumerBodyGenerator, Dx12ReplayConsumerHeaderGenerator
+):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
 
     def write_include(self):
@@ -48,17 +49,18 @@ class Dx12ReplayConsumerBodyGenerator(
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.make_consumer_func_decl(return_type,
-                                                'Dx12ReplayConsumer::Process_'
-                                                + method,
-                                                values,
-                                                True) + '\n'
+            cmddef += self.make_consumer_func_decl(
+                return_type, 'Dx12ReplayConsumer::Process_' + method, values,
+                True
+            ) + '\n'
             cmddef += '{\n'
 
             class_name = method[:method.find('_')]
-            cmddef += ("    auto replay_object = MapObject<{}>(object_id);\n"
-                       "    if (replay_object != nullptr)\n"
-                       "    {{\n".format(class_name))
+            cmddef += (
+                "    auto replay_object = MapObject<{}>(object_id);\n"
+                "    if (replay_object != nullptr)\n"
+                "    {{\n".format(class_name)
+            )
 
             body = self.make_consumer_func_body(return_type, method, values)
             code_list = body.split('\n')
@@ -77,12 +79,14 @@ class Dx12ReplayConsumerBodyGenerator(
         if name == 'IUnknown_AddRef':
             return '    replay_object->AddRef();\n'
         elif name == 'IUnknown_Release':
-            return ("    auto replay_count = replay_object->Release();\n"
-                    "    if (replay_count == 0)\n"
-                    "    {\n"
-                    "        RemoveObject(object_id);\n"
-                    "        GFXRECON_LOG_INFO(\"Object with ID %\" PRIu64 \" has been destroyed\", object_id);\n"
-                    "    }\n")
+            return (
+                "    auto replay_count = replay_object->Release();\n"
+                "    if (replay_count == 0)\n"
+                "    {\n"
+                "        RemoveObject(object_id);\n"
+                "        GFXRECON_LOG_INFO(\"Object with ID %\" PRIu64 \" has been destroyed\", object_id);\n"
+                "    }\n"
+            )
 
         code = ''
         for value in values:
@@ -93,9 +97,8 @@ class Dx12ReplayConsumerBodyGenerator(
                     # so just print a warning for now.
                     print(
                         'WARNING: Skipping code generation for unsupported output array parameter',
-                        name,
-                        '::',
-                        value.name)
+                        name, '::', value.name
+                    )
                 else:
                     array_length = 1
                 code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
@@ -124,28 +127,35 @@ class Dx12ReplayConsumerBodyGenerator(
             value_name = None
             if self.is_tracking_data(value):
                 if value.full_type.find('void') != -1:
-                    value_name = 'reinterpret_cast<void**>(_out_hp_{})'\
-                        .format(value.name)
+                    value_name = 'reinterpret_cast<void**>(_out_hp_{})'.format(
+                        value.name
+                    )
                 else:
                     value_name = '_out_hp_{}'.format(value.name)
             else:
                 if value.pointer_count > 0 or value.is_array:
                     if self.is_class(value):
                         if value.pointer_count == 2:
-                            value_name = 'MapObject<{}*>(*{}->GetPointer())'\
-                                         .format(value.base_type, value.name)
+                            value_name = 'MapObject<{}*>(*{}->GetPointer())'.format(
+                                value.base_type, value.name
+                            )
                         elif value.pointer_count == 1:
-                            value_name = 'MapObject<{}>(*{}->GetPointer())'\
-                                         .format(value.base_type, value.name)
-                    elif self.is_struct(value.base_type)\
-                            and value.pointer_count == 2\
-                            and value.is_const:
-                        value_name = ('const_cast<const {}**>({}->GetPointer())'
-                                      .format(value.base_type, value.name))
+                            value_name = 'MapObject<{}>(*{}->GetPointer())'.format(
+                                value.base_type, value.name
+                            )
+                    elif self.is_struct(
+                        value.base_type
+                    ) and value.pointer_count == 2 and value.is_const:
+                        value_name = (
+                            'const_cast<const {}**>({}->GetPointer())'.format(
+                                value.base_type, value.name
+                            )
+                        )
                     elif value.base_type == 'void':
                         if value.pointer_count == 1:
                             value_name = 'reinterpret_cast<void*>({})'.format(
-                                value.name)
+                                value.name
+                            )
                         elif value.pointer_count == 2:
                             value_name = value.name + '->GetOutputPointer()'
                     else:
@@ -156,10 +166,13 @@ class Dx12ReplayConsumerBodyGenerator(
                         value_name = '*' + value.name + '.decoded_value'
                     elif self.is_handle(value.base_type):
                         value_name = 'MapHandle<{}>({})'.format(
-                            value.base_type, value.name)
+                            value.base_type, value.name
+                        )
                     elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
-                        value_name = ('reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'
-                                      .format(value.name))
+                        value_name = (
+                            'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
+                            format(value.name)
+                        )
 
             if not value_name:
                 value_name = value.name
@@ -167,24 +180,29 @@ class Dx12ReplayConsumerBodyGenerator(
         code += ');\n'
 
         if return_type == 'HRESULT' and len(values):
-            code += ("    if (SUCCEEDED(replay_result))\n"
-                     "    {\n")
+            code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
             for value in values:
                 if self.is_tracking_data(value):
                     if self.is_class(value):
-                        code += ('        AddObject(_out_p_{0}, _out_hp_{0});\n'
-                                 .format(value.name))
+                        code += (
+                            '        AddObject(_out_p_{0}, _out_hp_{0});\n'.
+                            format(value.name)
+                        )
                     elif self.is_handle(value.base_type):
-                        code += ('        AddHandle(_out_p_{0}, _out_hp_{0});\n'
-                                 .format(value.name))
+                        code += (
+                            '        AddHandle(_out_p_{0}, _out_hp_{0});\n'.
+                            format(value.name)
+                        )
             code += "    }\n"
-            code += ('    CheckReplayResult("{}", returnValue, replay_result);\n'
-                     .format(name))
+            code += (
+                '    CheckReplayResult("{}", returnValue, replay_result);\n'.
+                format(name)
+            )
         return code
 
     def is_tracking_data(self, value):
-        if value.full_type.find('_Out') != -1\
-            and (self.is_class(value)
-                 or self.is_handle(value.base_type)):
+        if value.full_type.find('_Out') != -1 and (
+            self.is_class(value) or self.is_handle(value.base_type)
+        ):
             return True
         return False

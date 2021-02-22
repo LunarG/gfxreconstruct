@@ -24,7 +24,6 @@ import os
 import sys
 import threading
 
-
 # API Call Encoders
 from dx12_base_generator\
     import Dx12GeneratorOptions, write
@@ -50,7 +49,6 @@ from dx12_ascii_consumer_header_generator\
 from dx12_ascii_consumer_body_generator\
     import Dx12AsciiConsumerBodyGenerator
 
-
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
 
@@ -73,42 +71,33 @@ def make_gen_opts(args):
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
-        '/*',
-        '** Copyright (c) 2021 LunarG, Inc.',
-        '**',
+        '/*', '** Copyright (c) 2021 LunarG, Inc.', '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a copy',
-        '** of this software and associated documentation files (the "Software"), to',    
-        '** deal in the Software without restriction, including without limitation the',  
-        '** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or', 
-        '** sell copies of the Software, and to permit persons to whom the Software is',  
-        '** furnished to do so, subject to the following conditions:',
-        '**',
-        '** The above copyright notice and this permission notice shall be included in',  
-        '** all copies or substantial portions of the Software.',
-        '**',
-        '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',  
-        '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',    
-        '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE', 
-        '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',      
-        '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',     
+        '** of this software and associated documentation files (the "Software"), to',
+        '** deal in the Software without restriction, including without limitation the',
+        '** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or',
+        '** sell copies of the Software, and to permit persons to whom the Software is',
+        '** furnished to do so, subject to the following conditions:', '**',
+        '** The above copyright notice and this permission notice shall be included in',
+        '** all copies or substantial portions of the Software.', '**',
+        '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
+        '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
+        '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
+        '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
+        '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',
         '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS',
-        '** IN THE SOFTWARE.',
-        '*/',
-        ''
+        '** IN THE SOFTWARE.', '*/', ''
     ]
 
     py_prefix_strings = [
-        '/*',
-        '** This file is generated from {}.',
-        '**',
-        '*/',
-        ''
+        '/*', '** This file is generated from {}.', '**', '*/', ''
     ]
 
     # API call encoder generators
     py_prefix_strings1 = py_prefix_strings[-4]
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_api_call_encoders_header_generator.py')
+        'dx12_api_call_encoders_header_generator.py'
+    )
     gen_opts['generated_dx12_api_call_encoders.h'] = [
         Dx12ApiCallEncodersHeaderGenerator,
         Dx12GeneratorOptions(
@@ -117,11 +106,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_api_call_encoders_body_generator.py')
+        'dx12_api_call_encoders_body_generator.py'
+    )
     gen_opts['generated_dx12_api_call_encoders.cpp'] = [
         Dx12ApiCallEncodersBodyGenerator,
         Dx12GeneratorOptions(
@@ -130,11 +121,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_decoders_forward_generator.py')
+        'dx12_struct_decoders_forward_generator.py'
+    )
     gen_opts['generated_dx12_struct_decoders_forward.h'] = [
         Dx12StructDecodersForwardGenerator,
         Dx12GeneratorOptions(
@@ -143,11 +136,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_decoders_header_generator.py')
+        'dx12_struct_decoders_header_generator.py'
+    )
     gen_opts['generated_dx12_struct_decoders.h'] = [
         Dx12StructDecodersHeaderGenerator,
         Dx12GeneratorOptions(
@@ -156,11 +151,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_struct_decoders_body_generator.py')
+        'dx12_struct_decoders_body_generator.py'
+    )
     gen_opts['generated_dx12_struct_decoders.cpp'] = [
         Dx12StructDecodersBodyGenerator,
         Dx12GeneratorOptions(
@@ -169,11 +166,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_decoder_header_generator.py')
+        'dx12_decoder_header_generator.py'
+    )
     gen_opts['generated_dx12_decoder.h'] = [
         Dx12DecoderHeaderGenerator,
         Dx12GeneratorOptions(
@@ -182,11 +181,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_decoder_body_generator.py')
+        'dx12_decoder_body_generator.py'
+    )
     gen_opts['generated_dx12_decoder.cpp'] = [
         Dx12DecoderBodyGenerator,
         Dx12GeneratorOptions(
@@ -195,11 +196,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_consumer_header_generator.py')
+        'dx12_consumer_header_generator.py'
+    )
     gen_opts['generated_dx12_consumer.h'] = [
         Dx12ConsumerHeaderGenerator,
         Dx12GeneratorOptions(
@@ -208,11 +211,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_replay_consumer_header_generator.py')
+        'dx12_replay_consumer_header_generator.py'
+    )
     gen_opts['generated_dx12_replay_consumer.h'] = [
         Dx12ReplayConsumerHeaderGenerator,
         Dx12GeneratorOptions(
@@ -221,11 +226,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_replay_consumer_body_generator.py')
+        'dx12_replay_consumer_body_generator.py'
+    )
     gen_opts['generated_dx12_replay_consumer.cpp'] = [
         Dx12ReplayConsumerBodyGenerator,
         Dx12GeneratorOptions(
@@ -234,11 +241,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_ascii_consumer_header_generator.py')
+        'dx12_ascii_consumer_header_generator.py'
+    )
     gen_opts['generated_dx12_ascii_consumer.h'] = [
         Dx12AsciiConsumerHeaderGenerator,
         Dx12GeneratorOptions(
@@ -247,11 +256,13 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
     py_prefix_strings[-4] = py_prefix_strings1.format(
-        'dx12_ascii_consumer_body_generator.py')
+        'dx12_ascii_consumer_body_generator.py'
+    )
     gen_opts['generated_dx12_ascii_consumer.cpp'] = [
         Dx12AsciiConsumerBodyGenerator,
         Dx12GeneratorOptions(
@@ -260,7 +271,8 @@ def make_gen_opts(args):
             blacklists=blacklists,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
-            protect_feature=False)
+            protect_feature=False
+        )
     ]
 
 
@@ -283,29 +295,32 @@ def gen_target(args, source_dict):
         options = gen_opts[args.target][1]
 
         # Text specific to dx12 headers
-        dx12_prefix_strings = ("/*\n"
-                               "** This part is generated from {} in Windows SDK: {}\n"
-                               "**\n"
-                               "*/").format('{}', args.windows_sdk_version)
+        dx12_prefix_strings = (
+            "/*\n"
+            "** This part is generated from {} in Windows SDK: {}\n"
+            "**\n"
+            "*/"
+        ).format('{}', args.windows_sdk_version)
 
         gen = create_generator(
-            source_dict,
-            dx12_prefix_strings,
-            diag_file=None)
+            source_dict, dx12_prefix_strings, diag_file=None
+        )
 
         return (gen, options)
     else:
         write(
             'No generator options for unknown target:',
             args.target,
-            file=sys.stderr)
+            file=sys.stderr
+        )
         return None
 
 
-class GenCode (threading.Thread):
+class GenCode(threading.Thread):
 
-    def __init__(self, target, source_dict,
-                 windows_sdk_version, directory, configs):
+    def __init__(
+        self, target, source_dict, windows_sdk_version, directory, configs
+    ):
         threading.Thread.__init__(self)
         self.target = target
         self.source_dict = source_dict

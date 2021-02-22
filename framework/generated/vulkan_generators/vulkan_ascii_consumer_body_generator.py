@@ -21,24 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
 
 
 class VulkanAsciiConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to ASCII file generation."""
 
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platform_types = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefix_text = '',
-                 protect_file = False,
-                 protect_feature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platform_types,
-                                      filename, directory, prefix_text,
-                                      protect_file, protect_feature)
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
@@ -48,19 +51,27 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     Generate a C++ class for Vulkan capture file to ASCII file generation.
     """
 
-    def __init__(self,
-                 err_file = sys.stderr,
-                 warn_file = sys.stderr,
-                 diag_file = sys.stdout):
-        BaseGenerator.__init__(self,
-                               process_cmds=True, process_structs=False, feature_break=True,
-                               err_file=err_file, warn_file=warn_file, diag_file=diag_file)
+    def __init__(
+        self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            process_cmds=True,
+            process_structs=False,
+            feature_break=True,
+            err_file=err_file,
+            warn_file=warn_file,
+            diag_file=diag_file
+        )
 
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "generated/generated_vulkan_ascii_consumer.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_ascii_consumer.h"',
+            file=self.outFile
+        )
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -93,7 +104,9 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.make_consumer_func_decl(return_type, 'VulkanAsciiConsumer::Process_' + cmd, values) + '\n'
+            cmddef += self.make_consumer_func_decl(
+                return_type, 'VulkanAsciiConsumer::Process_' + cmd, values
+            ) + '\n'
             cmddef += '{\n'
             cmddef += self.make_consumer_func_body(return_type, cmd, values)
             cmddef += '}'

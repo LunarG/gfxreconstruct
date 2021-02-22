@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,json
+import os, re, sys, json
 from base_generator import *
 
 
@@ -39,7 +39,10 @@ class BaseReplayConsumerBodyGenerator():
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.make_consumer_func_decl(return_type, '{}ReplayConsumer::Process_'.format(type) + cmd, values) + '\n'
+            cmddef += self.make_consumer_func_decl(
+                return_type, '{}ReplayConsumer::Process_'.format(type) + cmd,
+                values
+            ) + '\n'
             cmddef += '{\n'
             cmddef += self.make_consumer_func_body(return_type, cmd, values)
             cmddef += '}'

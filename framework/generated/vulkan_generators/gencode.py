@@ -43,47 +43,49 @@ from reg import *
 from generator import write
 
 # API Call Decoders
-from vulkan_decoder_body_generator import VulkanDecoderBodyGenerator,VulkanDecoderBodyGeneratorOptions
-from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator,VulkanDecoderHeaderGeneratorOptions
+from vulkan_decoder_body_generator import VulkanDecoderBodyGenerator, VulkanDecoderBodyGeneratorOptions
+from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator, VulkanDecoderHeaderGeneratorOptions
 
 # Struct Decoders
-from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator,VulkanStructDecodersBodyGeneratorOptions
-from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator,VulkanStructDecodersForwardGeneratorOptions
-from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator,VulkanStructDecodersHeaderGeneratorOptions
-from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNextStructGeneratorOptions
+from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator, VulkanStructDecodersBodyGeneratorOptions
+from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator, VulkanStructDecodersForwardGeneratorOptions
+from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator, VulkanStructDecodersHeaderGeneratorOptions
+from decode_pnext_struct_generator import DecodePNextStructGenerator, DecodePNextStructGeneratorOptions
 
 # Consumers
-from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator,VulkanConsumerHeaderGeneratorOptions
-from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator,VulkanAsciiConsumerBodyGeneratorOptions
-from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator,VulkanReplayConsumerBodyGeneratorOptions
-from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator,VulkanReferencedResourceHeaderGeneratorOptions
-from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator,VulkanReferencedResourceBodyGeneratorOptions
-from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator,VulkanStructHandleMappersHeaderGeneratorOptions
-from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator,VulkanStructHandleMappersBodyGeneratorOptions
-from vulkan_feature_util_body_generator import VulkanFeatureUtilBodyGenerator,VulkanFeatureUtilBodyGeneratorOptions
+from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions
+from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator, VulkanAsciiConsumerBodyGeneratorOptions
+from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
+from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
+from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
+from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator, VulkanStructHandleMappersHeaderGeneratorOptions
+from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator, VulkanStructHandleMappersBodyGeneratorOptions
+from vulkan_feature_util_body_generator import VulkanFeatureUtilBodyGenerator, VulkanFeatureUtilBodyGeneratorOptions
 
 # API Call Encoders
-from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
-from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator,VulkanApiCallEncodersHeaderGeneratorOptions
-from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator,VulkanCommandBufferUtilBodyGeneratorOptions
-from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator,VulkanCommandBufferUtilHeaderGeneratorOptions
+from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator, VulkanApiCallEncodersBodyGeneratorOptions
+from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator, VulkanApiCallEncodersHeaderGeneratorOptions
+from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator, VulkanCommandBufferUtilBodyGeneratorOptions
+from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator, VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
-from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
+from layer_func_table_generator import LayerFuncTableGenerator, LayerFuncTableGeneratorOptions
 
 # Struct Encoders
-from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator,VulkanStructEncodersBodyGeneratorOptions
-from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator,VulkanStructEncodersHeaderGeneratorOptions
-from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
-from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator,VulkanStructHandleWrappersHeaderGeneratorOptions
-from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator,VulkanStructHandleWrappersBodyGeneratorOptions
+from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator, VulkanStructEncodersBodyGeneratorOptions
+from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator, VulkanStructEncodersHeaderGeneratorOptions
+from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNextStructGeneratorOptions
+from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
+from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
+
 
 def start_timer(timeit):
     global start_time
     if timeit:
         start_time = time.process_time()
+
 
 def end_timer(timeit, msg):
     global start_time
@@ -91,6 +93,7 @@ def end_timer(timeit, msg):
         end_time = time.process_time()
         write(msg, end_time - start_time, file=sys.stderr)
         start_time = None
+
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -120,10 +123,8 @@ def make_gen_opts(args):
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
-        '/*',
-        '** Copyright (c) 2018-2020 Valve Corporation',
-        '** Copyright (c) 2018-2020 LunarG, Inc.',
-        '**',
+        '/*', '** Copyright (c) 2018-2020 Valve Corporation',
+        '** Copyright (c) 2018-2020 LunarG, Inc.', '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a',
         '** copy of this software and associated documentation files (the "Software"),',
         '** to deal in the Software without restriction, including without limitation',
@@ -132,360 +133,383 @@ def make_gen_opts(args):
         '** Software is furnished to do so, subject to the following conditions:',
         '**',
         '** The above copyright notice and this permission notice shall be included in',
-        '** all copies or substantial portions of the Software.',
-        '**',
+        '** all copies or substantial portions of the Software.', '**',
         '** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
         '** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
         '** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
         '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
         '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',
         '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER',
-        '** DEALINGS IN THE SOFTWARE.',
-        '*/',
-        ''
+        '** DEALINGS IN THE SOFTWARE.', '*/', ''
     ]
 
     # Text specific to Vulkan headers
     vk_prefix_strings = [
         '/*',
         '** This file is generated from the Khronos Vulkan XML API Registry.',
-        '**',
-        '*/',
-        ''
+        '**', '*/', ''
     ]
 
     #
     # API call decoder generators
     gen_opts['generated_vulkan_decoder.cpp'] = [
-          VulkanDecoderBodyGenerator,
-          VulkanDecoderBodyGeneratorOptions(
-            filename          = 'generated_vulkan_decoder.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanDecoderBodyGenerator,
+        VulkanDecoderBodyGeneratorOptions(
+            filename='generated_vulkan_decoder.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_decoder.h'] = [
-          VulkanDecoderHeaderGenerator,
-          VulkanDecoderHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_decoder.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanDecoderHeaderGenerator,
+        VulkanDecoderHeaderGeneratorOptions(
+            filename='generated_vulkan_decoder.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     #
     # Struct decoder generators
     gen_opts['generated_vulkan_struct_decoders.cpp'] = [
-          VulkanStructDecodersBodyGenerator,
-          VulkanStructDecodersBodyGeneratorOptions(
-            filename          = 'generated_vulkan_struct_decoders.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanStructDecodersBodyGenerator,
+        VulkanStructDecodersBodyGeneratorOptions(
+            filename='generated_vulkan_struct_decoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_decoders_forward.h'] = [
-          VulkanStructDecodersForwardGenerator,
-          VulkanStructDecodersForwardGeneratorOptions(
-            filename          = 'generated_vulkan_struct_decoders_forward.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanStructDecodersForwardGenerator,
+        VulkanStructDecodersForwardGeneratorOptions(
+            filename='generated_vulkan_struct_decoders_forward.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_decoders.h'] = [
-          VulkanStructDecodersHeaderGenerator,
-          VulkanStructDecodersHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_struct_decoders.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanStructDecodersHeaderGenerator,
+        VulkanStructDecodersHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_decoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_decode_pnext_struct.cpp'] = [
-          DecodePNextStructGenerator,
-          DecodePNextStructGeneratorOptions(
-            filename          = 'generated_decode_pnext_struct.cpp',
-            directory         = directory,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        DecodePNextStructGenerator,
+        DecodePNextStructGeneratorOptions(
+            filename='generated_decode_pnext_struct.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     #
     # Consumer generation
     gen_opts['generated_vulkan_consumer.h'] = [
         VulkanConsumerHeaderGenerator,
         VulkanConsumerHeaderGeneratorOptions(
-        class_name         = 'VulkanConsumer',
-        base_class_header   = 'vulkan_consumer_base.h',
-        is_override        = False,
-        filename          = 'generated_vulkan_consumer.h',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = True,
-        protect_feature    = False)
+            class_name='VulkanConsumer',
+            base_class_header='vulkan_consumer_base.h',
+            is_override=False,
+            filename='generated_vulkan_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_ascii_consumer.h'] = [
         VulkanConsumerHeaderGenerator,
         VulkanConsumerHeaderGeneratorOptions(
-        class_name         = 'VulkanAsciiConsumer',
-        base_class_header   = 'vulkan_ascii_consumer_base.h',
-        is_override        = True,
-        filename          = 'generated_vulkan_ascii_consumer.h',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = True,
-        protect_feature    = False)
+            class_name='VulkanAsciiConsumer',
+            base_class_header='vulkan_ascii_consumer_base.h',
+            is_override=True,
+            filename='generated_vulkan_ascii_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_referenced_resource_consumer.h'] = [
         VulkanReferencedResourceHeaderGenerator,
         VulkanReferencedResourceHeaderGeneratorOptions(
-        filename          = 'generated_vulkan_referenced_resource_consumer.h',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename='generated_vulkan_referenced_resource_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_replay_consumer.h'] = [
         VulkanConsumerHeaderGenerator,
         VulkanConsumerHeaderGeneratorOptions(
-        class_name         = 'VulkanReplayConsumer',
-        base_class_header   = 'vulkan_replay_consumer_base.h',
-        is_override        = True,
-        constructor_args   = 'WindowFactory* window_factory, const ReplayOptions& options',
-        filename          = 'generated_vulkan_replay_consumer.h',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = True,
-        protect_feature    = False)
+            class_name='VulkanReplayConsumer',
+            base_class_header='vulkan_replay_consumer_base.h',
+            is_override=True,
+            constructor_args=
+            'WindowFactory* window_factory, const ReplayOptions& options',
+            filename='generated_vulkan_replay_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_ascii_consumer.cpp'] = [
         VulkanAsciiConsumerBodyGenerator,
         VulkanAsciiConsumerBodyGeneratorOptions(
-        filename          = 'generated_vulkan_ascii_consumer.cpp',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename='generated_vulkan_ascii_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_replay_consumer.cpp'] = [
         VulkanReplayConsumerBodyGenerator,
         VulkanReplayConsumerBodyGeneratorOptions(
-        filename          = 'generated_vulkan_replay_consumer.cpp',
-        directory         = directory,
-        blacklists        = blacklists,
-        replay_overrides   = replay_overrides,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename='generated_vulkan_replay_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            replay_overrides=replay_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_referenced_resource_consumer.cpp'] = [
         VulkanReferencedResourceBodyGenerator,
         VulkanReferencedResourceBodyGeneratorOptions(
-        filename          = 'generated_vulkan_referenced_resource_consumer.cpp',
-        directory         = directory,
-        blacklists        = blacklists,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename='generated_vulkan_referenced_resource_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
     ]
 
     gen_opts['generated_vulkan_struct_handle_mappers.h'] = [
-          VulkanStructHandleMappersHeaderGenerator,
-          VulkanStructHandleMappersHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_struct_handle_mappers.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanStructHandleMappersHeaderGenerator,
+        VulkanStructHandleMappersHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_handle_mappers.h',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_handle_mappers.cpp'] = [
-          VulkanStructHandleMappersBodyGenerator,
-          VulkanStructHandleMappersBodyGeneratorOptions(
-            filename          = 'generated_vulkan_struct_handle_mappers.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanStructHandleMappersBodyGenerator,
+        VulkanStructHandleMappersBodyGeneratorOptions(
+            filename='generated_vulkan_struct_handle_mappers.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_feature_util.cpp'] = [
         VulkanFeatureUtilBodyGenerator,
         VulkanFeatureUtilBodyGeneratorOptions(
-        filename          = 'generated_vulkan_feature_util.cpp',
-        directory         = directory,
-        platform_types     = platform_types,
-        prefix_text        = prefix_strings + vk_prefix_strings,
-        protect_file       = False,
-        protect_feature    = False)
+            filename='generated_vulkan_feature_util.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
     ]
 
     #
     # API call encoder generators
     gen_opts['generated_vulkan_api_call_encoders.h'] = [
-          VulkanApiCallEncodersHeaderGenerator,
-          VulkanApiCallEncodersHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_api_call_encoders.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanApiCallEncodersHeaderGenerator,
+        VulkanApiCallEncodersHeaderGeneratorOptions(
+            filename='generated_vulkan_api_call_encoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_api_call_encoders.cpp'] = [
-          VulkanApiCallEncodersBodyGenerator,
-          VulkanApiCallEncodersBodyGeneratorOptions(
-            filename          = 'generated_vulkan_api_call_encoders.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            capture_overrides  = capture_overrides,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanApiCallEncodersBodyGenerator,
+        VulkanApiCallEncodersBodyGeneratorOptions(
+            filename='generated_vulkan_api_call_encoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            capture_overrides=capture_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_command_buffer_util.h'] = [
-          VulkanCommandBufferUtilHeaderGenerator,
-          VulkanCommandBufferUtilHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_command_buffer_util.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanCommandBufferUtilHeaderGenerator,
+        VulkanCommandBufferUtilHeaderGeneratorOptions(
+            filename='generated_vulkan_command_buffer_util.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_command_buffer_util.cpp'] = [
-          VulkanCommandBufferUtilBodyGenerator,
-          VulkanCommandBufferUtilBodyGeneratorOptions(
-            filename          = 'generated_vulkan_command_buffer_util.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanCommandBufferUtilBodyGenerator,
+        VulkanCommandBufferUtilBodyGeneratorOptions(
+            filename='generated_vulkan_command_buffer_util.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_dispatch_table.h'] = [
-            VulkanDispatchTableGenerator,
-            VulkanDispatchTableGeneratorOptions(
-            filename          = 'generated_vulkan_dispatch_table.h',
-            directory         = directory,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanDispatchTableGenerator,
+        VulkanDispatchTableGeneratorOptions(
+            filename='generated_vulkan_dispatch_table.h',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_layer_func_table.h'] = [
-          LayerFuncTableGenerator,
-          LayerFuncTableGeneratorOptions(
-            filename          = 'generated_layer_func_table.h',
-            directory         = directory,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        LayerFuncTableGenerator,
+        LayerFuncTableGeneratorOptions(
+            filename='generated_layer_func_table.h',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     #
     # Struct encoder generators
     gen_opts['generated_vulkan_struct_encoders.cpp'] = [
-          VulkanStructEncodersBodyGenerator,
-          VulkanStructEncodersBodyGeneratorOptions(
-            filename          = 'generated_vulkan_struct_encoders.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanStructEncodersBodyGenerator,
+        VulkanStructEncodersBodyGeneratorOptions(
+            filename='generated_vulkan_struct_encoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_encoders.h'] = [
-          VulkanStructEncodersHeaderGenerator,
-          VulkanStructEncodersHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_struct_encoders.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            platform_types     = platform_types,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanStructEncodersHeaderGenerator,
+        VulkanStructEncodersHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_encoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_encode_pnext_struct.cpp'] = [
-          EncodePNextStructGenerator,
-          EncodePNextStructGeneratorOptions(
-            filename          = 'generated_encode_pnext_struct.cpp',
-            directory         = directory,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        EncodePNextStructGenerator,
+        EncodePNextStructGeneratorOptions(
+            filename='generated_encode_pnext_struct.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_handle_wrappers.h'] = [
-          VulkanStructHandleWrappersHeaderGenerator,
-          VulkanStructHandleWrappersHeaderGeneratorOptions(
-            filename          = 'generated_vulkan_struct_handle_wrappers.h',
-            directory         = directory,
-            blacklists        = blacklists,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = True,
-            protect_feature    = False)
-        ]
+        VulkanStructHandleWrappersHeaderGenerator,
+        VulkanStructHandleWrappersHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_handle_wrappers.h',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
 
     gen_opts['generated_vulkan_struct_handle_wrappers.cpp'] = [
-          VulkanStructHandleWrappersBodyGenerator,
-          VulkanStructHandleWrappersBodyGeneratorOptions(
-            filename          = 'generated_vulkan_struct_handle_wrappers.cpp',
-            directory         = directory,
-            blacklists        = blacklists,
-            prefix_text        = prefix_strings + vk_prefix_strings,
-            protect_file       = False,
-            protect_feature    = False)
-        ]
+        VulkanStructHandleWrappersBodyGenerator,
+        VulkanStructHandleWrappersBodyGeneratorOptions(
+            filename='generated_vulkan_struct_handle_wrappers.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
 
 
 def gen_target(args):
@@ -508,22 +532,50 @@ def gen_target(args):
 
         if not args.quiet:
             write('* Building', options.filename, file=sys.stderr)
-            write('* options.versions          =', options.versions, file=sys.stderr)
-            write('* options.emitversions      =', options.emitversions, file=sys.stderr)
-            write('* options.default_extensions =', options.default_extensions, file=sys.stderr)
-            write('* options.add_extensions     =', options.add_extensions, file=sys.stderr)
-            write('* options.remove_extensions  =', options.remove_extensions, file=sys.stderr)
-            write('* options.emit_extensions    =', options.emit_extensions, file=sys.stderr)
+            write(
+                '* options.versions          =',
+                options.versions,
+                file=sys.stderr
+            )
+            write(
+                '* options.emitversions      =',
+                options.emitversions,
+                file=sys.stderr
+            )
+            write(
+                '* options.default_extensions =',
+                options.default_extensions,
+                file=sys.stderr
+            )
+            write(
+                '* options.add_extensions     =',
+                options.add_extensions,
+                file=sys.stderr
+            )
+            write(
+                '* options.remove_extensions  =',
+                options.remove_extensions,
+                file=sys.stderr
+            )
+            write(
+                '* options.emit_extensions    =',
+                options.emit_extensions,
+                file=sys.stderr
+            )
 
-        gen = create_generator(err_file=err_warn,
-                              warn_file=err_warn,
-                              diag_file=diag)
+        gen = create_generator(
+            err_file=err_warn, warn_file=err_warn, diag_file=diag
+        )
 
         return (gen, options)
     else:
-        write('No generator options for unknown target:',
-              args.target, file=sys.stderr)
+        write(
+            'No generator options for unknown target:',
+            args.target,
+            file=sys.stderr
+        )
         return None
+
 
 # -feature name
 # -extension name
@@ -532,39 +584,72 @@ def gen_target(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-debug', action='store_true',
-                        help='Enable debugging')
-    parser.add_argument('-dump', action='store_true',
-                        help='Enable dump to stderr')
-    parser.add_argument('-diagfile', action='store',
-                        default=None,
-                        help='Write diagnostics to specified file')
-    parser.add_argument('-errfile', action='store',
-                        default=None,
-                        help='Write errors and warnings to specified file instead of stderr')
-    parser.add_argument('-noprotect', dest='protect', action='store_false',
-                        help='Disable inclusion protection in output headers')
-    parser.add_argument('-profile', action='store_true',
-                        help='Enable profiling')
-    parser.add_argument('-registry', action='store',
-                        default='vk.xml',
-                        help='Use specified registry file instead of vk.xml')
-    parser.add_argument('-time', action='store_true',
-                        help='Enable timing')
-    parser.add_argument('-validate', action='store_true',
-                        help='Enable group validation')
-    parser.add_argument('-o', action='store', dest='directory',
-                        default='.',
-                        help='Create target and related files in specified directory')
-    parser.add_argument('target', metavar='target', nargs='?',
-                        help='Specify target')
-    parser.add_argument('-quiet', action='store_true', default=True,
-                        help='Suppress script output during normal execution.')
-    parser.add_argument('-verbose', action='store_false', dest='quiet', default=True,
-                        help='Enable script output during normal execution.')
-    parser.add_argument('-configs', action='store', dest='configs',
-                        default='.',
-                        help='Specify directory containing JSON configuration files for generators')
+    parser.add_argument('-debug', action='store_true', help='Enable debugging')
+    parser.add_argument(
+        '-dump', action='store_true', help='Enable dump to stderr'
+    )
+    parser.add_argument(
+        '-diagfile',
+        action='store',
+        default=None,
+        help='Write diagnostics to specified file'
+    )
+    parser.add_argument(
+        '-errfile',
+        action='store',
+        default=None,
+        help='Write errors and warnings to specified file instead of stderr'
+    )
+    parser.add_argument(
+        '-noprotect',
+        dest='protect',
+        action='store_false',
+        help='Disable inclusion protection in output headers'
+    )
+    parser.add_argument(
+        '-profile', action='store_true', help='Enable profiling'
+    )
+    parser.add_argument(
+        '-registry',
+        action='store',
+        default='vk.xml',
+        help='Use specified registry file instead of vk.xml'
+    )
+    parser.add_argument('-time', action='store_true', help='Enable timing')
+    parser.add_argument(
+        '-validate', action='store_true', help='Enable group validation'
+    )
+    parser.add_argument(
+        '-o',
+        action='store',
+        dest='directory',
+        default='.',
+        help='Create target and related files in specified directory'
+    )
+    parser.add_argument(
+        'target', metavar='target', nargs='?', help='Specify target'
+    )
+    parser.add_argument(
+        '-quiet',
+        action='store_true',
+        default=True,
+        help='Suppress script output during normal execution.'
+    )
+    parser.add_argument(
+        '-verbose',
+        action='store_false',
+        dest='quiet',
+        default=True,
+        help='Enable script output during normal execution.'
+    )
+    parser.add_argument(
+        '-configs',
+        action='store',
+        dest='configs',
+        default='.',
+        help=
+        'Specify directory containing JSON configuration files for generators'
+    )
 
     args = parser.parse_args()
 
@@ -596,7 +681,7 @@ if __name__ == '__main__':
 
     if (args.dump):
         write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle = open('regdump.txt', 'w', encoding='utf-8'))
+        reg.dumpReg(filehandle=open('regdump.txt', 'w', encoding='utf-8'))
 
     if (args.debug):
         pdb.run('reg.api_gen()')

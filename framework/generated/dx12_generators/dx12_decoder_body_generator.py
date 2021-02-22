@@ -28,17 +28,20 @@ from base_decoder_body_generator import *
 
 
 class Dx12DecoderBodyGenerator(
-        Dx12DecoderHeaderGenerator,
-        BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
+    Dx12DecoderHeaderGenerator, BaseStructDecodersBodyGenerator,
+    BaseDecoderBodyGenerator
+):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
     def write_include(self):
         """Methond override."""
-        code = ("\n"
-                "#include \"generated_dx12_decoder.h\"\n"
-                "#include \"generated_dx12_struct_decoders_forward.h\"\n"
-                "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
-                "\n")
+        code = (
+            "\n"
+            "#include \"generated_dx12_decoder.h\"\n"
+            "#include \"generated_dx12_struct_decoders_forward.h\"\n"
+            "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
+            "\n"
+        )
         write(code, file=self.outFile)
 
     def generate_feature(self):
@@ -61,8 +64,10 @@ class Dx12DecoderBodyGenerator(
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += ('size_t Dx12Decoder::Decode_{}(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)\n'
-                       .format(method))
+            cmddef += (
+                'size_t Dx12Decoder::Decode_{}(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)\n'
+                .format(method)
+            )
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
@@ -74,18 +79,22 @@ class Dx12DecoderBodyGenerator(
             first = False
 
     def write_function_call(self):
-        code = ("void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,\n"
-                "                                     const ApiCallInfo& call_info,\n"
-                "                                     const uint8_t*     parameter_buffer,\n"
-                "                                     size_t             buffer_size){}\n"
-                "\n"
-                "void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,\n"
-                "                                   format::HandleId   object_id,\n"
-                "                                   const ApiCallInfo& call_info,\n"
-                "                                   const uint8_t*     parameter_buffer,\n"
-                "                                   size_t             buffer_size) {}\n"
-                .format(self.get_decode_function_call_body(),
-                        self.get_decode_method_call_body()))
+        code = (
+            "void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,\n"
+            "                                     const ApiCallInfo& call_info,\n"
+            "                                     const uint8_t*     parameter_buffer,\n"
+            "                                     size_t             buffer_size){}\n"
+            "\n"
+            "void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,\n"
+            "                                   format::HandleId   object_id,\n"
+            "                                   const ApiCallInfo& call_info,\n"
+            "                                   const uint8_t*     parameter_buffer,\n"
+            "                                   size_t             buffer_size) {}\n"
+            .format(
+                self.get_decode_function_call_body(),
+                self.get_decode_method_call_body()
+            )
+        )
         write(code, file=self.outFile)
 
     def get_decode_function_call_body(self):
@@ -100,9 +109,11 @@ class Dx12DecoderBodyGenerator(
         for k, v in header_dict.items():
             for m in v.functions:
                 if self.is_required_function_data(m):
-                    code += ("    case format::ApiCallId::ApiCall_{0}:\n"
-                             "        Decode_{0}(parameter_buffer, buffer_size);\n"
-                             "        break;\n".format(m['name']))
+                    code += (
+                        "    case format::ApiCallId::ApiCall_{0}:\n"
+                        "        Decode_{0}(parameter_buffer, buffer_size);\n"
+                        "        break;\n".format(m['name'])
+                    )
 
         code += 'default:\n'\
                 '    break;\n'\
@@ -123,9 +134,11 @@ class Dx12DecoderBodyGenerator(
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
-                        code += ("    case format::ApiCallId::ApiCall_{0}_{1}:\n"
-                                 "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
-                                 "        break;\n".format(k2, m['name']))
+                        code += (
+                            "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
+                            "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
+                            "        break;\n".format(k2, m['name'])
+                        )
 
         code += 'default:\n'\
                 '    break;\n'\

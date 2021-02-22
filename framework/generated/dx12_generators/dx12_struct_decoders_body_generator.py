@@ -28,29 +28,35 @@ from base_decoder_body_generator import *
 
 
 class Dx12StructDecodersBodyGenerator(
-        Dx12DecoderHeaderGenerator,
-        BaseStructDecodersBodyGenerator, BaseDecoderBodyGenerator):
+    Dx12DecoderHeaderGenerator, BaseStructDecodersBodyGenerator,
+    BaseDecoderBodyGenerator
+):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
 
-    def __init__(self, source_dict, dx12_prefix_strings,
-                 err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout):
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
         Dx12DecoderHeaderGenerator.__init__(
-            self,
-            source_dict,
-            dx12_prefix_strings,
-            err_file,
-            warn_file,
-            diag_file)
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
         self.check_blacklist = True
 
     def write_include(self):
         """Methond override."""
-        code = ("\n"
-                "#include \"generated_dx12_struct_decoders.h\"\n"
-                "#include \"generated_dx12_struct_decoders_forward.h\"\n"
-                "#include \"decode/custom_dx12_struct_decoders.h\"\n"
-                "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
-                "\n")
+        code = (
+            "\n"
+            "#include \"generated_dx12_struct_decoders.h\"\n"
+            "#include \"generated_dx12_struct_decoders_forward.h\"\n"
+            "#include \"decode/custom_dx12_struct_decoders.h\"\n"
+            "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
+            "\n"
+        )
         write(code, file=self.outFile)
 
     # Met#include "util/defines.h"hod override

@@ -33,9 +33,7 @@ class Dx12AsciiConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
         self.write_dx12_consumer_class('Ascii')
 
     def write_include(self):
-        code = ("\n"
-                "#include \"decode/dx12_ascii_consumer_base.h\"\n"
-                "\n")
+        code = ("\n" "#include \"decode/dx12_ascii_consumer_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
     def get_consumer_function_body(self, class_name, method_info):

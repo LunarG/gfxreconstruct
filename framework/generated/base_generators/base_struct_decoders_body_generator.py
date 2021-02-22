@@ -32,14 +32,18 @@ class BaseStructDecodersBodyGenerator():
         first = True
         for struct in self.get_filtered_struct_names():
             body = '' if first else '\n'
-            body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
+            body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
+                struct
+            )
             body += '{\n'
             body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
             body += '\n'
             body += '    size_t bytes_read = 0;\n'
             body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
-            body += self.make_decode_struct_body(struct, self.feature_struct_members[struct])
+            body += self.make_decode_struct_body(
+                struct, self.feature_struct_members[struct]
+            )
             body += '\n'
             body += '    return bytes_read;\n'
             body += '}'
@@ -54,10 +58,14 @@ class BaseStructDecodersBodyGenerator():
         for value in values:
             # pNext fields require special treatment and are not processed by type name
             if 'pNext' in value.name and value.base_type == 'void':
-                body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
+                body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+                    value.name
+                )
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
-                body += BaseStructDecodersBodyGenerator.make_decode_invocation(self, name, value)
+                body += BaseStructDecodersBodyGenerator.make_decode_invocation(
+                    self, name, value
+                )
 
         return body
 
@@ -93,14 +101,20 @@ class BaseStructDecodersBodyGenerator():
         if value.is_pointer or value.is_array:
             if type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
                 # Pointer to an unknown object type, encoded as a 64-bit integer ID.
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(
+                    buffer_args, value.name
+                )
                 body += '    value->{} = nullptr;\n'.format(value.name)
             else:
-                is_static_array = True if (value.is_array and not value.is_dynamic) else False
+                is_static_array = True if (
+                    value.is_array and not value.is_dynamic
+                ) else False
                 access_op = '.'
 
                 if is_struct:
-                    body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(value.name, self.make_decoded_param_type(value))
+                    body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
+                        value.name, self.make_decoded_param_type(value)
+                    )
                     access_op = '->'
 
                 if is_static_array:
@@ -108,12 +122,21 @@ class BaseStructDecodersBodyGenerator():
                     if value.array_dimension and value.array_dimension > 0:
                         array_dimension = '*'
                     # The pointer decoder will write directly to the struct member's memory.
-                    body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(access_op, array_dimension, name=value.name, arraylen=value.array_capacity)
+                    body += '    wrapper->{name}{}SetExternalMemory({}value->{name}, {arraylen});\n'.format(
+                        access_op,
+                        array_dimension,
+                        name=value.name,
+                        arraylen=value.array_capacity
+                    )
 
                 if is_struct or is_string or is_handle or is_class:
-                    body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(value.name, access_op, buffer_args)
+                    body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
+                        value.name, access_op, buffer_args
+                    )
                 else:
-                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, type_name, buffer_args)
+                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
+                        value.name, type_name, buffer_args
+                    )
 
                 if not is_static_array:
                     if is_handle or is_class:
@@ -132,30 +155,55 @@ class BaseStructDecodersBodyGenerator():
                             convert_const_cast_end = ')'
                             convert_const_cast_begin = 'const_cast<LPCSTR*>('
 
-                        body += '    value->{name} = {}wrapper->{name}{}GetPointer(){};\n'.format(convert_const_cast_begin, access_op, convert_const_cast_end, name=value.name)
+                        body += '    value->{name} = {}wrapper->{name}{}GetPointer(){};\n'.format(
+                            convert_const_cast_begin,
+                            access_op,
+                            convert_const_cast_end,
+                            name=value.name
+                        )
         else:
             if is_struct:
-                body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(value.name, self.make_decoded_param_type(value))
-                body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(name=value.name)
-                body += '    bytes_read += DecodeStruct({}, wrapper->{});\n'.format(buffer_args, value.name)
+                body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
+                    value.name, self.make_decoded_param_type(value)
+                )
+                body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(
+                    name=value.name
+                )
+                body += '    bytes_read += DecodeStruct({}, wrapper->{});\n'.format(
+                    buffer_args, value.name
+                )
             elif is_funcp:
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(
+                    buffer_args, value.name
+                )
                 body += '    value->{} = nullptr;\n'.format(value.name)
             elif is_handle:
-                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
+                    buffer_args, value.name
+                )
                 body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
             elif self.is_generic_struct_handle_value(name, value.name):
-                body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(
+                    buffer_args, value.name
+                )
                 body += '    value->{} = 0;\n'.format(value.name)
             elif value.bitfield_width:
                 # Bit fields need to be read into a tempoaray and then assigned to the struct member.
                 temp_param_name = 'temp_{}'.format(value.name)
                 body += '    {} {};\n'.format(value.base_type, temp_param_name)
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(type_name, buffer_args, temp_param_name)
-                body += '    value->{} = {};\n'.format(value.name, temp_param_name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    type_name, buffer_args, temp_param_name
+                )
+                body += '    value->{} = {};\n'.format(
+                    value.name, temp_param_name
+                )
             elif is_enum:
-                body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(
+                    buffer_args, value.name
+                )
             else:
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(type_name, buffer_args, value.name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
+                    type_name, buffer_args, value.name
+                )
 
         return body
