@@ -125,7 +125,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                     # Add unreferenced parameter macros.
                     unref_count = 0
                     for param in params[1:]:
-                        if not param in handles:
+                        if param not in handles:
                             cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
                                 param.name
                             )

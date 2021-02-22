@@ -197,7 +197,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                         return_type = info[0]
                         proto = info[1]
 
-                        if not first_param.base_type in [
+                        if first_param.base_type not in [
                             'VkInstance', 'VkPhysicalDevice'
                         ]:
                             self.device_cmd_names[name] = self.make_cmd_decl(

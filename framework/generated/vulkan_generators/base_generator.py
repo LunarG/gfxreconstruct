@@ -335,7 +335,7 @@ class BaseGenerator(OutputGenerator):
         # Multiple inclusion protection & C++ wrappers.
         if (gen_opts.protect_file and self.genOpts.filename):
             header_sym = 'GFXRECON_' + re.sub(
-                '\.h', '_h', os.path.basename(self.genOpts.filename)
+                r'\.h', '_h', os.path.basename(self.genOpts.filename)
             ).upper()
             write('#ifndef ', header_sym, file=self.outFile)
             write('#define ', header_sym, file=self.outFile)
@@ -540,8 +540,10 @@ class BaseGenerator(OutputGenerator):
 
     def is_struct(self, base_type):
         """Check for struct type."""
-        if (base_type
-            in self.struct_names) or (base_type in self.PLATFORM_STRUCTS):
+        if (
+            (base_type in self.struct_names)
+            or (base_type in self.PLATFORM_STRUCTS)
+        ):
             return True
         return False
 
@@ -603,8 +605,10 @@ class BaseGenerator(OutputGenerator):
     def is_output_parameter(self, value):
         """Determine if a parameter is an output parameter."""
         # Check for an output pointer/array or an in-out pointer.
-        if (value.is_pointer
-            or value.is_array) and not self.is_input_pointer(value):
+        if (
+            (value.is_pointer or value.is_array)
+            and not self.is_input_pointer(value)
+        ):
             return True
         return False
 
@@ -704,7 +708,6 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If a pre-existing result was not found, check the XML registry for the struct
                     has_handles = False
-                    has_handle_ptrs = False
                     type_info = self.registry.lookupElementInfo(
                         struct_name, self.registry.typedict
                     )
@@ -728,15 +731,12 @@ class BaseGenerator(OutputGenerator):
                                     ):
                                         self.extension_structs_with_handle_ptrs[
                                             struct_name] = True
-                                        has_handle_ptrs = True
                                     else:
                                         self.extension_structs_with_handle_ptrs[
                                             struct_name] = False
 
                     if has_handles:
                         found_handles = True
-                        if has_handle_ptrs:
-                            fount_handle_ptrs = True
                     else:
                         self.extension_structs_with_handles[struct_name
                                                             ] = False
@@ -758,16 +758,20 @@ class BaseGenerator(OutputGenerator):
             if self.is_handle(value.base_type):
                 # The member is a handle.
                 handles.append(value)
-                if (not structs_with_handle_ptrs is None
-                    ) and (value.is_pointer or value.is_array):
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.is_pointer or value.is_array)
+                ):
                     has_handle_pointer = True
             elif self.is_struct(
                 value.base_type
             ) and (value.base_type in structs_with_handles):
                 # The member is a struct that contains a handle.
                 handles.append(value)
-                if (not structs_with_handle_ptrs is None
-                    ) and (value.name in structs_with_handle_ptrs):
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.name in structs_with_handle_ptrs)
+                ):
                     has_handle_pointer = True
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
@@ -777,12 +781,12 @@ class BaseGenerator(OutputGenerator):
                 if has_pnext_handles:
                     handles.append(value)
                     if (
-                        not structs_with_handle_ptrs is None
+                        structs_with_handle_ptrs is not None
                     ) and has_pnext_handle_ptrs:
                         has_handle_pointer = True
         if handles:
             structs_with_handles[typename] = handles
-            if (not structs_with_handle_ptrs is None) and has_handle_pointer:
+            if (structs_with_handle_ptrs is not None) and has_handle_pointer:
                 structs_with_handle_ptrs.append(typename)
             return True
         return False

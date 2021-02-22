@@ -231,8 +231,10 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         for struct in self.get_filtered_struct_names():
-            if (struct in self.structs_with_handles
-                ) or (struct in self.GENERIC_HANDLE_STRUCTS):
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ):
                 handle_members = dict()
                 generic_handle_members = dict()
 

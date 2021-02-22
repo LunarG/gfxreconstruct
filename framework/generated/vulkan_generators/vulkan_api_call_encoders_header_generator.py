@@ -95,7 +95,6 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
-            return_type = info[0]
             proto = info[1]
             values = info[2]
 

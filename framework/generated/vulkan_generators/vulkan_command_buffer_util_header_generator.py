@@ -107,10 +107,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
-            return_type = info[0]
             values = info[2]
 
             if values and (len(values) >
@@ -125,7 +123,6 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
                         cmd[2:], self.get_arg_list(handles)
                     )
                     write(cmddef, file=self.outFile)
-                    first = False
 
     def get_param_list_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""

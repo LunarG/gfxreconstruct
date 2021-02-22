@@ -218,8 +218,7 @@ class DecodePNextStructGenerator(BaseGenerator):
                 file=self.outFile
             )
             write(
-                '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);'
-                .format(struct),
+                '                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);',
                 file=self.outFile
             )
             write('                break;', file=self.outFile)

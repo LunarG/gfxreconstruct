@@ -239,8 +239,10 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
 
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_filtered_struct_names():
-            if (struct in self.structs_with_handles
-                ) or (struct in self.GENERIC_HANDLE_STRUCTS):
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ):
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
                     struct

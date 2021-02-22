@@ -395,8 +395,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             info_base_type = 'void'
             info_name = 'nullptr'
             for value in values:
-                if ('CreateInfo' in value.base_type
-                    ) or ('AllocateInfo' in value.base_type):
+                if (
+                    ('CreateInfo' in value.base_type)
+                    or ('AllocateInfo' in value.base_type)
+                ):
                     info_base_type = value.base_type
                     info_name = value.name
                     # Confirm array counts match
