@@ -31,53 +31,6 @@
 #include <assert.h>
 #include <iostream>
 
-//----------------------------------------------------------------------------
-/// Surrounds a string with quotes if it has any spaces
-/// \param  str_app String to modify
-/// \return The original quoted string
-//----------------------------------------------------------------------------
-std::string AddQuotesIfStringHasSpaces(const std::string& str_app)
-{
-    std::string out_str = str_app;
-
-    // if the argument has a space add quotes
-    if (out_str.find(" ") != std::string::npos)
-    {
-        std::string quotes = "\"";
-        std::string str    = quotes;
-        str += out_str;
-        str += quotes;
-
-        out_str = str;
-    }
-
-    return out_str;
-}
-
-//----------------------------------------------------------------------------
-/// Given a path to an executable, figure out its root
-/// \param  str_app
-/// \return App directory str
-//----------------------------------------------------------------------------
-std::string ConstructAppDir(const std::string& str_app)
-{
-    std::string str_dir = "";
-
-    size_t pos = str_app.find_last_of("\\");
-
-    if (pos != std::string::npos)
-    {
-        str_dir = str_app.substr(0, (int)pos);
-
-        if (str_app[0] == '\"')
-        {
-            str_dir += "\"";
-        }
-    }
-
-    return str_dir;
-}
-
 // ---------------------------------------------------------------------------
 /// Print launcher usage
 /// \param launcher_name The name of the launcher
@@ -86,7 +39,38 @@ void PrintUsage(const std::string& launcher_name)
 {
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to launch applications for GFXR capture.\n", launcher_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s <application>", launcher_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s <app path (and its arguments) surrounded by quotes>", launcher_name.c_str());
+}
+
+//----------------------------------------------------------------------------
+/// Given some positional arguments, fill in a CreateProcessInfo struct that
+/// contains everything needed for launching an app with CreateProcess()
+/// \param  positional_arguments GFXR positional arguments
+/// \param  process_info outgoing CreateProcessInfo struct
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool GetProcessInfo(const std::vector<std::string>& positional_arguments, CreateProcessInfo& process_info)
+{
+    bool success = false;
+
+    if (positional_arguments.size() > 0)
+    {
+        const std::string user_app = positional_arguments.front();
+
+        const size_t exeLoc = user_app.find(".exe");
+
+        if (exeLoc != std::string::npos)
+        {
+            const size_t argsLoc = exeLoc + 4;
+            process_info.app_path = user_app.substr(0, argsLoc);
+            process_info.app_path_plus_args = process_info.app_path + user_app.substr(argsLoc);
+            process_info.app_dir = user_app.substr(0, user_app.rfind("\\"));
+
+            success = true;
+        }
+    }
+
+    return success;
 }
 
 //----------------------------------------------------------------------------
@@ -110,32 +94,28 @@ int main(int argc, const char** argv)
         {
             const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
 
-            std::string str_app      = positional_arguments.front();
-            std::string str_dir      = ConstructAppDir(str_app);
-            std::string str_cmd_line = AddQuotesIfStringHasSpaces(str_app.c_str());
+            CreateProcessInfo process_info = {};
+            bool success = GetProcessInfo(positional_arguments, process_info);
 
-            PROCESS_INFORMATION pi = {};
-            ZeroMemory(&pi, sizeof(pi));
+            if (success == true)
+            {
+                STARTUPINFOA si = {};
+                si.cb = sizeof(si);
 
-            STARTUPINFOA si = {};
-            si.cb           = sizeof(si);
+                PROCESS_INFORMATION pi = {};
+                ZeroMemory(&pi, sizeof(pi));
 
-            CreateProcessA(str_app.c_str(),
-                           const_cast<LPSTR>(str_cmd_line.c_str()),
-                           nullptr,
-                           nullptr,
-                           TRUE,
-                           CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
-                           nullptr,
-                           str_dir.c_str(),
-                           &si,
-                           &pi);
-
-            const std::string interceptor_path = GFXR_INTERCEPTOR_PATH;
-
-            gfxrecon::util::interception::InjectDllIntoProcess(interceptor_path.c_str(), pi.hProcess);
-
-            ResumeThread(pi.hThread);
+                gfxrecon::util::interception::LaunchAndInjectA(process_info.app_path.c_str(),
+                    const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
+                    nullptr,
+                    nullptr,
+                    TRUE,
+                    CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED,
+                    nullptr,
+                    process_info.app_dir.c_str(),
+                    &si,
+                    &pi);
+            }
         }
         catch (std::runtime_error error)
         {

@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INTERCEPTION_UTILS_LOAD_LIBRARY_H
-#define GFXRECON_INTERCEPTION_UTILS_LOAD_LIBRARY_H
+#ifndef GFXRECON_INTERCEPTION_UTILS_CREATE_PROCESS_H
+#define GFXRECON_INTERCEPTION_UTILS_CREATE_PROCESS_H
 
 #include "util/defines.h"
 
@@ -30,17 +30,19 @@ GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)
 
 //----------------------------------------------------------------------------
-/// Hook the load library functions
+/// Hook the create process
+/// \return True if success, false if fail.
 //----------------------------------------------------------------------------
-void HookLoadLibrary();
+bool HookCreateProcess();
 
 //----------------------------------------------------------------------------
-/// Unhook the load library functions
+/// Unhook the create process
+/// \return True if success, false if fail.
 //----------------------------------------------------------------------------
-void UnhookLoadLibrary();
+bool UnhookCreateProcess();
 
 GFXRECON_END_NAMESPACE(interception)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INTERCEPTION_UTILS_LOAD_LIBRARY_H
+#endif  // GFXRECON_INTERCEPTION_UTILS_CREATE_PROCESS_H

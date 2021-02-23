@@ -21,6 +21,7 @@
 */
 
 #include "util/interception/load_library.h"
+#include "util/interception/create_process.h"
 
 #include <Windows.h>
 #include <string>
@@ -39,6 +40,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD ul_reason_for_call, LPVOID reserved)
     switch (ul_reason_for_call)
     {
         case DLL_PROCESS_ATTACH:
+            gfxrecon::util::interception::HookCreateProcess();
             gfxrecon::util::interception::HookLoadLibrary();
         case DLL_THREAD_ATTACH:
         case DLL_THREAD_DETACH:

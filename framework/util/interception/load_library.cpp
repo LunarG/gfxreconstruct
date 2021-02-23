@@ -396,49 +396,43 @@ static HMODULE WINAPI LoadLibraryExW(LPCWSTR lib_file_name, HANDLE file, DWORD f
     return res;
 }
 
-//----------------------------------------------------------------------------
-/// Hook the load library functions
-//----------------------------------------------------------------------------
 void HookLoadLibrary()
 {
-    bool hookSuccess = HookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
-    assert(hookSuccess == true);
+    bool hook_success = HookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
+    assert(hook_success == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
-    assert(hookSuccess == true);
+    hook_success = HookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
+    assert(hook_success == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
-    assert(hookSuccess == true);
+    hook_success = HookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
+    assert(hook_success == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
-    assert(hookSuccess == true);
+    hook_success = HookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
+    assert(hook_success == true);
 
-    hookSuccess = HookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
-    assert(hookSuccess == true);
+    hook_success = HookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
+    assert(hook_success == true);
 
     // TODO(#32): Load "dxgi.dll" at the beginning since we sometimes miss loading it
     LoadLibraryA("dxgi.dll");
 }
 
-//----------------------------------------------------------------------------
-/// Unhook the load library functions
-//----------------------------------------------------------------------------
 void UnhookLoadLibrary()
 {
-    bool unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
-    assert(unhookSuccess == true);
+    bool unhook_success = UnhookAPICall(&(PVOID&)real_load_library_a, gfxrecon::util::interception::LoadLibraryA);
+    assert(unhook_success == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
-    assert(unhookSuccess == true);
+    unhook_success = UnhookAPICall(&(PVOID&)real_load_library_ex_a, gfxrecon::util::interception::LoadLibraryExA);
+    assert(unhook_success == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
-    assert(unhookSuccess == true);
+    unhook_success = UnhookAPICall(&(PVOID&)real_load_library_w, gfxrecon::util::interception::LoadLibraryW);
+    assert(unhook_success == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
-    assert(unhookSuccess == true);
+    unhook_success = UnhookAPICall(&(PVOID&)real_load_library_ex_w, gfxrecon::util::interception::LoadLibraryExW);
+    assert(unhook_success == true);
 
-    unhookSuccess = UnhookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
-    assert(unhookSuccess == true);
+    unhook_success = UnhookAPICall(&(PVOID&)real_free_library, gfxrecon::util::interception::FreeLibrary);
+    assert(unhook_success == true);
 
     // Restore Real functions to original values in case they aren't restored correctly by the unhook call
     real_load_library_a    = LoadLibraryA;

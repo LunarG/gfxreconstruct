@@ -28,11 +28,6 @@ GFXRECON_BEGIN_NAMESPACE(interception)
 
 static void* target_memory_address_ = nullptr;
 
-//----------------------------------------------------------------------------
-/// Loads the DLL into the target process.
-/// \param target_proc_handle Handle to target application process
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle)
 {
     // TODO: LoadLibraryW will fail since everything else in this file is ASCII
@@ -87,13 +82,6 @@ static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle)
     return ret_val;
 }
 
-//----------------------------------------------------------------------------
-/// Allocated memory that will contain the injected memory.
-/// This memory will be accessible by the target process.
-/// \param target_proc_handle Handle to target application process
-/// \param size_of_memory_to_inject Size of memory to inject, in bytes
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 static bool AllocateSpaceForInjectedMemory(HANDLE target_proc_handle, size_t size_of_memory_to_inject)
 {
     target_memory_address_ = VirtualAllocEx(
@@ -102,18 +90,9 @@ static bool AllocateSpaceForInjectedMemory(HANDLE target_proc_handle, size_t siz
     return target_memory_address_ != nullptr;
 }
 
-//----------------------------------------------------------------------------
-/// Injects the memory into the target process.
-/// This function should be called after allocateSpaceForInjectedMemory()
-/// was called.
-/// \param target_proc_handle Handle to target application process
-/// \param dll_path Full path and name of dll to be injected
-/// \param size_of_memory_to_inject Size of memory to inject, in bytes
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 static bool InjectMemory(HANDLE target_proc_handle, LPCSTR dll_path, size_t size_of_memory_to_inject)
 {
-    bool retVal = false;
+    bool ret_val = false;
 
     // Verify that we have allocated space for the memory to inject:
     if (target_memory_address_)
@@ -123,53 +102,105 @@ static bool InjectMemory(HANDLE target_proc_handle, LPCSTR dll_path, size_t size
 
         int rc = WriteProcessMemory(
             target_proc_handle, target_memory_address_, dll_path, size_of_memory_to_inject, &number_of_bytes_written);
-        retVal = ((rc != 0) && (number_of_bytes_written == size_of_memory_to_inject));
+        ret_val = ((rc != 0) && (number_of_bytes_written == size_of_memory_to_inject));
     }
 
-    return retVal;
+    return ret_val;
 }
 
-//----------------------------------------------------------------------------
-/// Injects the DLL path into the target process.
-/// \param target_proc_handle Handle to target application process
-/// \param dll_path Full path and name of dll to be injected
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 static bool InjectDllPathIntoTargetProcess(HANDLE target_proc_handle, LPCSTR dll_path)
 {
-    bool retVal = false;
+    bool ret_val = false;
 
     size_t size_of_memory_to_inject = strlen(dll_path);
 
     if (size_of_memory_to_inject > 0)
     {
-        retVal = AllocateSpaceForInjectedMemory(target_proc_handle, size_of_memory_to_inject);
+        ret_val = AllocateSpaceForInjectedMemory(target_proc_handle, size_of_memory_to_inject);
 
-        if (retVal)
+        if (ret_val)
         {
-            retVal = InjectMemory(target_proc_handle, dll_path, size_of_memory_to_inject);
+            ret_val = InjectMemory(target_proc_handle, dll_path, size_of_memory_to_inject);
         }
     }
 
-    return retVal;
+    return ret_val;
 }
 
-//----------------------------------------------------------------------------
-/// Loads the DLL into the target process via a process handle
-/// \param dllPath Full path and name of dll to be injected
-/// \param process_handle Handle to target application process into.
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 bool InjectDllIntoProcess(LPCSTR dll_path, HANDLE process_handle)
 {
-    bool retVal = InjectDllPathIntoTargetProcess(process_handle, dll_path);
+    bool ret_val = InjectDllPathIntoTargetProcess(process_handle, dll_path);
 
-    if (retVal)
+    if (ret_val)
     {
-        retVal = LoadDllIntoTargetProcess(process_handle);
+        ret_val = LoadDllIntoTargetProcess(process_handle);
     }
 
-    return retVal;
+    return ret_val;
+}
+
+bool LaunchAndInjectA(LPCSTR                application_name,
+                      LPSTR                 command_line,
+                      LPSECURITY_ATTRIBUTES process_attributes,
+                      LPSECURITY_ATTRIBUTES thread_attributes,
+                      BOOL                  inherit_handles,
+                      DWORD                 creation_flags,
+                      LPVOID                environment,
+                      LPCSTR                current_directory,
+                      LPSTARTUPINFOA        startup_info,
+                      LPPROCESS_INFORMATION process_information)
+{
+    bool ret_val = true;
+
+    CreateProcessA(
+        application_name,
+        command_line,
+        process_attributes,
+        thread_attributes,
+        inherit_handles,
+        creation_flags,
+        environment,
+        current_directory,
+        startup_info,
+        process_information);
+
+    InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
+
+    ResumeThread(process_information->hThread);
+
+    return ret_val;
+}
+
+bool LaunchAndInjectW(LPCWSTR               application_name,
+                      LPWSTR                command_line,
+                      LPSECURITY_ATTRIBUTES process_attributes,
+                      LPSECURITY_ATTRIBUTES thread_attributes,
+                      BOOL                  inherit_handles,
+                      DWORD                 creation_flags,
+                      LPVOID                environment,
+                      LPCWSTR               current_directory,
+                      LPSTARTUPINFOW        startup_info,
+                      LPPROCESS_INFORMATION process_information)
+{
+    bool ret_val = true;
+
+    CreateProcessW(
+        application_name,
+        command_line,
+        process_attributes,
+        thread_attributes,
+        inherit_handles,
+        creation_flags,
+        environment,
+        current_directory,
+        startup_info,
+        process_information);
+
+    InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
+
+    ResumeThread(process_information->hThread);
+
+    return ret_val;
 }
 
 GFXRECON_END_NAMESPACE(interception)
