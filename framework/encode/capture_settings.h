@@ -92,7 +92,11 @@ class CaptureSettings
 
     const util::Log::Settings& GetLogSettings() const { return log_settings_; }
 
+    // Load all settings.
     static void LoadSettings(CaptureSettings* settings);
+
+    // Load only log settings.
+    static void LoadLogSettings(CaptureSettings* settings);
 
   private:
     typedef std::unordered_map<std::string, std::string> OptionsMap;
@@ -106,6 +110,8 @@ class CaptureSettings
     static void LoadOptionsFile(OptionsMap* options);
 
     static void ProcessOptions(OptionsMap* options, CaptureSettings* settings);
+
+    static void ProcessLogOptions(OptionsMap* options, CaptureSettings* settings);
 
     static std::string FindOption(OptionsMap* options, const std::string& key, const std::string& default_value = "");
 

@@ -53,9 +53,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// Default log level to use prior to loading settings.
-const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
-
 // One based frame count.
 const uint32_t kFirstFrame = 1;
 
@@ -129,16 +126,22 @@ bool TraceManager::CreateInstance()
     {
         assert(instance_ == nullptr);
 
-        // Default initialize logging to report issues while loading settings.
-        util::Log::Init(kDefaultLogLevel);
+        // Initialize logging to report only errors (to stderr).
+        util::Log::Settings stderr_only_log_settings;
+        stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
+        stderr_only_log_settings.output_errors_to_stderr = true;
+        util::Log::Init(stderr_only_log_settings);
 
+        // Load log settings.
         CaptureSettings settings = {};
-        CaptureSettings::LoadSettings(&settings);
+        CaptureSettings::LoadLogSettings(&settings);
 
         // Reinitialize logging with values retrieved from settings.
-        const util::Log::Settings& log_settings = settings.GetLogSettings();
         util::Log::Release();
-        util::Log::Init(log_settings);
+        util::Log::Init(settings.GetLogSettings());
+
+        // Load all settings with final logging settings active.
+        CaptureSettings::LoadSettings(&settings);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
