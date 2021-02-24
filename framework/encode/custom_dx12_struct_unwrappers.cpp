@@ -58,6 +58,8 @@ void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwr
 
 void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory* unwrap_memory)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
+
     if (value != nullptr)
     {
         value->pResource = encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResource);
