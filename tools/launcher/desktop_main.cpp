@@ -61,10 +61,10 @@ bool GetProcessInfo(const std::vector<std::string>& positional_arguments, Create
 
         if (exe_loc != std::string::npos)
         {
-            const size_t args_loc = exe_loc + 4;
-            process_info.app_path = user_app.substr(0, args_loc);
+            const size_t args_loc           = exe_loc + 4;
+            process_info.app_path           = user_app.substr(0, args_loc);
             process_info.app_path_plus_args = process_info.app_path + user_app.substr(args_loc);
-            process_info.app_dir = user_app.substr(0, user_app.rfind("\\"));
+            process_info.app_dir            = user_app.substr(0, user_app.rfind("\\"));
 
             success = true;
         }
@@ -95,17 +95,18 @@ int main(int argc, const char** argv)
             const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
 
             CreateProcessInfo process_info = {};
-            bool success = GetProcessInfo(positional_arguments, process_info);
+            bool              success      = GetProcessInfo(positional_arguments, process_info);
 
             if (success == true)
             {
                 STARTUPINFOA si = {};
-                si.cb = sizeof(si);
+                si.cb           = sizeof(si);
 
                 PROCESS_INFORMATION pi = {};
                 ZeroMemory(&pi, sizeof(pi));
 
-                gfxrecon::util::interception::LaunchAndInjectA(process_info.app_path.c_str(),
+                gfxrecon::util::interception::LaunchAndInjectA(
+                    process_info.app_path.c_str(),
                     const_cast<LPSTR>(process_info.app_path_plus_args.c_str()),
                     nullptr,
                     nullptr,

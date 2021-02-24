@@ -38,20 +38,38 @@ static gfxrecon::util::interception::RefTrackerCounter nested_count_;
 
 /// List of all applications which we should not inject into, in lower case
 const static LPCSTR kBlackList[] = {
-    {"fxc.exe"},
-    {"cmd.exe"},
-    {"dev.exe"},
+    { "fxc.exe" },
+    { "cmd.exe" },
+    { "dev.exe" },
 };
 
 /// Function pointers and their typedefs to create process
-using CreateProcessAFunc = BOOL(WINAPI*)(LPCSTR,LPSTR,LPSECURITY_ATTRIBUTES,LPSECURITY_ATTRIBUTES,BOOL,DWORD,LPVOID,LPCSTR,LPSTARTUPINFOA,LPPROCESS_INFORMATION);
+using CreateProcessAFunc                 = BOOL(WINAPI*)(LPCSTR,
+                                         LPSTR,
+                                         LPSECURITY_ATTRIBUTES,
+                                         LPSECURITY_ATTRIBUTES,
+                                         BOOL,
+                                         DWORD,
+                                         LPVOID,
+                                         LPCSTR,
+                                         LPSTARTUPINFOA,
+                                         LPPROCESS_INFORMATION);
 CreateProcessAFunc real_create_process_a = CreateProcessA;
-using CreateProcessWFunc = BOOL(WINAPI*)(LPCWSTR,LPWSTR,LPSECURITY_ATTRIBUTES,LPSECURITY_ATTRIBUTES,BOOL,DWORD,LPVOID,LPCWSTR,LPSTARTUPINFOW,LPPROCESS_INFORMATION);
+using CreateProcessWFunc                 = BOOL(WINAPI*)(LPCWSTR,
+                                         LPWSTR,
+                                         LPSECURITY_ATTRIBUTES,
+                                         LPSECURITY_ATTRIBUTES,
+                                         BOOL,
+                                         DWORD,
+                                         LPVOID,
+                                         LPCWSTR,
+                                         LPSTARTUPINFOW,
+                                         LPPROCESS_INFORMATION);
 CreateProcessWFunc real_create_process_w = CreateProcessW;
 
 /// Counters to track injection hopping
 const static int k_max_hop_count_ = 20;
-static int total_hop_count_ = 0;
+static int       total_hop_count_ = 0;
 
 //----------------------------------------------------------------------------
 /// Utility function to convert string to lowercase
@@ -233,15 +251,15 @@ BOOL WINAPI Mine_CreateProcessA(LPCSTR                application_name,
         if ((hop_count >= k_max_hop_count_) || (block_load == true))
         {
             ret_val = real_create_process_a(application_name,
-                                       command_line,
-                                       process_attributes,
-                                       thread_attributes,
-                                       inherit_handles,
-                                       creation_flags,
-                                       environment,
-                                       current_directory,
-                                       startup_info,
-                                       process_information);
+                                            command_line,
+                                            process_attributes,
+                                            thread_attributes,
+                                            inherit_handles,
+                                            creation_flags,
+                                            environment,
+                                            current_directory,
+                                            startup_info,
+                                            process_information);
         }
         else
         {
@@ -249,29 +267,29 @@ BOOL WINAPI Mine_CreateProcessA(LPCSTR                application_name,
             total_hop_count_ = hop_count + 1;
 
             ret_val = gfxrecon::util::interception::LaunchAndInjectA(application_name,
-                                                    command_line,
-                                                    process_attributes,
-                                                    thread_attributes,
-                                                    inherit_handles,
-                                                    creation_flags,
-                                                    environment,
-                                                    current_directory,
-                                                    startup_info,
-                                                    process_information);
+                                                                     command_line,
+                                                                     process_attributes,
+                                                                     thread_attributes,
+                                                                     inherit_handles,
+                                                                     creation_flags,
+                                                                     environment,
+                                                                     current_directory,
+                                                                     startup_info,
+                                                                     process_information);
         }
     }
     else
     {
         ret_val = real_create_process_a(application_name,
-                                   command_line,
-                                   process_attributes,
-                                   thread_attributes,
-                                   inherit_handles,
-                                   creation_flags,
-                                   environment,
-                                   current_directory,
-                                   startup_info,
-                                   process_information);
+                                        command_line,
+                                        process_attributes,
+                                        thread_attributes,
+                                        inherit_handles,
+                                        creation_flags,
+                                        environment,
+                                        current_directory,
+                                        startup_info,
+                                        process_information);
     }
 
     return ret_val;
@@ -317,15 +335,15 @@ BOOL WINAPI Mine_CreateProcessW(LPCWSTR               application_name,
         if ((hop_count >= k_max_hop_count_) || (block_load == true))
         {
             ret_val = real_create_process_w(application_name,
-                                       command_line,
-                                       process_attributes,
-                                       thread_attributes,
-                                       inherit_handles,
-                                       creation_flags,
-                                       environment,
-                                       current_directory,
-                                       startup_info,
-                                       process_information);
+                                            command_line,
+                                            process_attributes,
+                                            thread_attributes,
+                                            inherit_handles,
+                                            creation_flags,
+                                            environment,
+                                            current_directory,
+                                            startup_info,
+                                            process_information);
         }
         else
         {
@@ -333,29 +351,29 @@ BOOL WINAPI Mine_CreateProcessW(LPCWSTR               application_name,
             total_hop_count_ = hop_count + 1;
 
             ret_val = gfxrecon::util::interception::LaunchAndInjectW(application_name,
-                                                    command_line,
-                                                    process_attributes,
-                                                    thread_attributes,
-                                                    inherit_handles,
-                                                    creation_flags,
-                                                    environment,
-                                                    current_directory,
-                                                    startup_info,
-                                                    process_information);
+                                                                     command_line,
+                                                                     process_attributes,
+                                                                     thread_attributes,
+                                                                     inherit_handles,
+                                                                     creation_flags,
+                                                                     environment,
+                                                                     current_directory,
+                                                                     startup_info,
+                                                                     process_information);
         }
     }
     else
     {
         ret_val = real_create_process_w(application_name,
-                                   command_line,
-                                   process_attributes,
-                                   thread_attributes,
-                                   inherit_handles,
-                                   creation_flags,
-                                   environment,
-                                   current_directory,
-                                   startup_info,
-                                   process_information);
+                                        command_line,
+                                        process_attributes,
+                                        thread_attributes,
+                                        inherit_handles,
+                                        creation_flags,
+                                        environment,
+                                        current_directory,
+                                        startup_info,
+                                        process_information);
     }
 
     return ret_val;
@@ -374,7 +392,8 @@ bool HookCreateProcess()
 
 bool UnhookCreateProcess()
 {
-    bool unhook_success = gfxrecon::util::interception::UnhookAPICall(&(PVOID&)real_create_process_a, Mine_CreateProcessA);
+    bool unhook_success =
+        gfxrecon::util::interception::UnhookAPICall(&(PVOID&)real_create_process_a, Mine_CreateProcessA);
     assert(unhook_success == true);
 
     unhook_success = gfxrecon::util::interception::UnhookAPICall(&(PVOID&)real_create_process_w, Mine_CreateProcessW);

@@ -152,17 +152,16 @@ bool LaunchAndInjectA(LPCSTR                application_name,
 {
     bool ret_val = true;
 
-    CreateProcessA(
-        application_name,
-        command_line,
-        process_attributes,
-        thread_attributes,
-        inherit_handles,
-        creation_flags,
-        environment,
-        current_directory,
-        startup_info,
-        process_information);
+    CreateProcessA(application_name,
+                   command_line,
+                   process_attributes,
+                   thread_attributes,
+                   inherit_handles,
+                   creation_flags,
+                   environment,
+                   current_directory,
+                   startup_info,
+                   process_information);
 
     InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
 
@@ -184,17 +183,16 @@ bool LaunchAndInjectW(LPCWSTR               application_name,
 {
     bool ret_val = true;
 
-    CreateProcessW(
-        application_name,
-        command_line,
-        process_attributes,
-        thread_attributes,
-        inherit_handles,
-        creation_flags,
-        environment,
-        current_directory,
-        startup_info,
-        process_information);
+    CreateProcessW(application_name,
+                   command_line,
+                   process_attributes,
+                   thread_attributes,
+                   inherit_handles,
+                   creation_flags,
+                   environment,
+                   current_directory,
+                   startup_info,
+                   process_information);
 
     InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
 
