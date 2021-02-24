@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(interception)
 static gfxrecon::util::interception::RefTrackerCounter nested_count_;
 
 /// List of all applications which we should not inject into, in lower case
-const static LPCSTR k_black_list_[] = {
+const static LPCSTR kBlackList[] = {
     {"fxc.exe"},
     {"cmd.exe"},
     {"dev.exe"},
@@ -73,14 +73,14 @@ static std::string WideStringToString(const std::wstring& src)
 
     if (src.empty() == false)
     {
-        const int srcLen = (int)src.length();
-        const int outLen = ::WideCharToMultiByte(CP_UTF8, 0, src.data(), srcLen, nullptr, 0, nullptr, nullptr);
+        const int src_len = static_cast<int>(src.length());
+        const int out_len = ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, nullptr, 0, nullptr, nullptr);
 
-        if (outLen > 0)
+        if (out_len > 0)
         {
-            out.resize(outLen);
+            out.resize(out_len);
 
-            ::WideCharToMultiByte(CP_UTF8, 0, src.data(), srcLen, &out[0], outLen, nullptr, nullptr);
+            ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, &out[0], out_len, nullptr, nullptr);
         }
     }
 
@@ -98,11 +98,11 @@ static bool CheckBlackList(std::string app_name)
 
     std::string black_list_file;
 
-    const int count = sizeof(k_black_list_) / sizeof(k_black_list_[0]);
+    const int count = sizeof(kBlackList) / sizeof(kBlackList[0]);
 
     for (int i = 0; i < count; ++i)
     {
-        black_list_file += k_black_list_[i];
+        black_list_file += kBlackList[i];
 
         if (strstr(app_name.c_str(), black_list_file.c_str()) != nullptr)
         {
@@ -225,12 +225,12 @@ BOOL WINAPI Mine_CreateProcessA(LPCSTR                application_name,
         gfxrecon::util::interception::RefTracker rf(&nested_count_);
 
         // Get the current hop count
-        int hopCount = total_hop_count_;
+        int hop_count = total_hop_count_;
 
         const bool block_load = BlockInjectionA(application_name, command_line);
 
         // Decide if we need to inject into the new process
-        if ((hopCount >= k_max_hop_count_) || (block_load == true))
+        if ((hop_count >= k_max_hop_count_) || (block_load == true))
         {
             ret_val = real_create_process_a(application_name,
                                        command_line,
@@ -246,7 +246,7 @@ BOOL WINAPI Mine_CreateProcessA(LPCSTR                application_name,
         else
         {
             // Update the current hop count
-            total_hop_count_ = hopCount + 1;
+            total_hop_count_ = hop_count + 1;
 
             ret_val = gfxrecon::util::interception::LaunchAndInjectA(application_name,
                                                     command_line,

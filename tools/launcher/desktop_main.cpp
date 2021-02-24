@@ -57,13 +57,13 @@ bool GetProcessInfo(const std::vector<std::string>& positional_arguments, Create
     {
         const std::string user_app = positional_arguments.front();
 
-        const size_t exeLoc = user_app.find(".exe");
+        const size_t exe_loc = user_app.find(".exe");
 
-        if (exeLoc != std::string::npos)
+        if (exe_loc != std::string::npos)
         {
-            const size_t argsLoc = exeLoc + 4;
-            process_info.app_path = user_app.substr(0, argsLoc);
-            process_info.app_path_plus_args = process_info.app_path + user_app.substr(argsLoc);
+            const size_t args_loc = exe_loc + 4;
+            process_info.app_path = user_app.substr(0, args_loc);
+            process_info.app_path_plus_args = process_info.app_path + user_app.substr(args_loc);
             process_info.app_dir = user_app.substr(0, user_app.rfind("\\"));
 
             success = true;
