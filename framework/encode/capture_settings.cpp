@@ -217,6 +217,18 @@ void CaptureSettings::LoadSettings(CaptureSettings* settings)
     }
 }
 
+void CaptureSettings::LoadLogSettings(CaptureSettings* settings)
+{
+    if (settings != nullptr)
+    {
+        OptionsMap capture_settings;
+
+        LoadOptionsFile(&capture_settings);
+        LoadOptionsEnvVar(&capture_settings);
+        ProcessLogOptions(&capture_settings, settings);
+    }
+}
+
 void CaptureSettings::LoadSingleOptionEnvVar(OptionsMap*        options,
                                              const std::string& environment_variable,
                                              const std::string& option_key)
@@ -345,6 +357,11 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.page_guard_external_memory = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardExternalMemory), settings->trace_settings_.page_guard_external_memory);
 
+    ProcessLogOptions(options, settings);
+}
+
+void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
+{
     // Log options
     settings->log_settings_.use_indent =
         ParseBoolString(FindOption(options, kOptionKeyLogAllowIndents), settings->log_settings_.use_indent);
