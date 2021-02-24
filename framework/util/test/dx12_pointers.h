@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2018-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,5 +20,27 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#ifndef GFXRECON_DX12_POINTERS_H
+#define GFXRECON_DX12_POINTERS_H
+
+#include "util/defines.h"
+
+#include <d3d12.h>
+
+#include <Windows.h>
+#include <comdef.h>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(test)
+
+using Dx12DevicePtr   = _com_ptr_t<_com_IIID<ID3D12Device5, &__uuidof(ID3D12Device5)>>;
+using Dx12HeapPtr     = _com_ptr_t<_com_IIID<ID3D12Heap, &__uuidof(ID3D12Heap)>>;
+using Dx12ResourcePtr = _com_ptr_t<_com_IIID<ID3D12Resource, &__uuidof(ID3D12Resource)>>;
+using Dx12Debug       = _com_ptr_t<_com_IIID<ID3D12Debug1, &__uuidof(ID3D12Debug1)>>;
+
+GFXRECON_END_NAMESPACE(test)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif

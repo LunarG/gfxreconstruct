@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2018-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,5 +20,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#ifndef GFXRECON_DX_POINTERS_H
+#define GFXRECON_DX_POINTERS_H
+
+#include "util/defines.h"
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(test)
+
+typedef _com_ptr_t<_com_IIID<ID3DBlob, &__uuidof(ID3DBlob)>> DxBlobPtr;
+
+GFXRECON_END_NAMESPACE(test)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_DX_POINTERS_H

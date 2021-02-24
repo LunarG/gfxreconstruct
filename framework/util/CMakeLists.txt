@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2018-2021 Advanced Micro Devices, Inc. All rights reserved
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -77,8 +77,15 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/ref_tracker_counter.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/interception/create_process.h>
+                    ${CMAKE_CURRENT_LIST_DIR}/gpu_va_map.h
+                    ${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.h
+                    ${CMAKE_CURRENT_LIST_DIR}/gpu_va_range.cpp
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -156,8 +163,17 @@ common_build_directives(gfxrecon_util)
 if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
     target_sources(gfxrecon_util_test PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
-    target_link_libraries(gfxrecon_util_test PRIVATE gfxrecon_util)
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/main.cpp>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)
+    target_link_libraries(gfxrecon_util_test
+                        PRIVATE
+                            gfxrecon_util
+                            $<$<BOOL:${BUILD_D3D12}>:d3d12.lib>
+                            $<$<BOOL:${BUILD_D3D12}>:dxgi.lib>)
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()

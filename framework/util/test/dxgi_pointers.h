@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2018-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,5 +20,23 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include "util/defines.h"
+
+#include <Windows.h>
+#include <comdef.h>
+#include <dxgi1_4.h>
+
+#ifndef GFXRECON_DXGI_POINTERS_H
+#define GFXRECON_DXGI_POINTERS_H
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(test)
+
+typedef _com_ptr_t<_com_IIID<IDXGIFactory4, &__uuidof(IDXGIFactory4)>> DxgiFactoryPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>   DxgiAdapterPtr;
+
+GFXRECON_END_NAMESPACE(test)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
+#endif
