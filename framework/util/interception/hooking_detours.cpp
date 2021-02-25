@@ -54,12 +54,6 @@ static void Initialize()
     }
 }
 
-//----------------------------------------------------------------------------
-/// Hook a single API call
-/// \param  real_fn Pointer to real function (i.e. driver)
-/// \param  mine_fn Pointer to our internal function
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 bool WINAPI HookAPICall(PVOID* real_fn, PVOID mine_fn)
 {
     Initialize();
@@ -72,12 +66,6 @@ bool WINAPI HookAPICall(PVOID* real_fn, PVOID mine_fn)
     return error == NO_ERROR;
 }
 
-//----------------------------------------------------------------------------
-/// Unhook a single API call
-/// \param  real_fn Pointer to real function (i.e. driver)
-/// \param  mine_fn Pointer to our internal function
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 bool WINAPI UnhookAPICall(PVOID* real_fn, PVOID mine_fn)
 {
     Initialize();
@@ -90,10 +78,6 @@ bool WINAPI UnhookAPICall(PVOID* real_fn, PVOID mine_fn)
     return error == NO_ERROR;
 }
 
-//----------------------------------------------------------------------------
-/// Check environment variable to see if we should use detours hooking
-/// \return True if successful, false otherwise.
-//----------------------------------------------------------------------------
 bool UseDetoursHooking()
 {
     bool use_detours = false;

@@ -31,9 +31,27 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)
 
-bool        UseDetoursHooking();
+//----------------------------------------------------------------------------
+/// Hook a single API call
+/// \param  real_fn Pointer to real function (i.e. driver)
+/// \param  mine_fn Pointer to our internal function
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
 bool WINAPI HookAPICall(PVOID* real_fn, PVOID mine_fn);
+
+//----------------------------------------------------------------------------
+/// Unhook a single API call
+/// \param  real_fn Pointer to real function (i.e. driver)
+/// \param  mine_fn Pointer to our internal function
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
 bool WINAPI UnhookAPICall(PVOID* real_fn, PVOID mine_fn);
+
+//----------------------------------------------------------------------------
+/// Check environment variable to see if we should use detours hooking
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool UseDetoursHooking();
 
 GFXRECON_END_NAMESPACE(interception)
 GFXRECON_END_NAMESPACE(util)

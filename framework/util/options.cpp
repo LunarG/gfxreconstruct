@@ -29,12 +29,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-//----------------------------------------------------------------------------
-/// Read a boolean value out of a string
-/// \param  value_string Input string
-/// \param  default_value Default value in case it couldn't be read
-/// \return True or false interpretation of input string
-//----------------------------------------------------------------------------
 bool ParseBoolString(const std::string& value_string, bool default_value)
 {
     bool result = default_value;

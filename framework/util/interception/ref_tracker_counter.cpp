@@ -26,18 +26,12 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)
 
-//-----------------------------------------------------------------------------
-/// Default constructor.
-//-----------------------------------------------------------------------------
 RefTrackerCounter::RefTrackerCounter()
 {
     is_using_external_mutex_ = false;
     mutex_                   = new std::mutex();
 }
 
-//-----------------------------------------------------------------------------
-/// Destructor.
-//-----------------------------------------------------------------------------
 RefTrackerCounter::~RefTrackerCounter()
 {
     if (is_using_external_mutex_ == false)
@@ -46,10 +40,6 @@ RefTrackerCounter::~RefTrackerCounter()
     }
 }
 
-//-----------------------------------------------------------------------------
-/// Constructor taking a mutex pointer.
-/// \param pM The mutex pointer.
-//-----------------------------------------------------------------------------
 RefTrackerCounter::RefTrackerCounter(std::mutex* pM)
 {
     is_using_external_mutex_ = true;
@@ -57,10 +47,6 @@ RefTrackerCounter::RefTrackerCounter(std::mutex* pM)
     mutex_ = pM;
 }
 
-//-----------------------------------------------------------------------------
-/// Use an external mutex rather than once created by this class.
-/// \param pM The external mutex to use.
-//-----------------------------------------------------------------------------
 void RefTrackerCounter::UseExternalMutex(std::mutex* pM)
 {
     if (is_using_external_mutex_ == false)
@@ -73,43 +59,26 @@ void RefTrackerCounter::UseExternalMutex(std::mutex* pM)
     mutex_ = pM;
 }
 
-//-----------------------------------------------------------------------------
-/// Pre-increment operator.
-//-----------------------------------------------------------------------------
 void RefTrackerCounter::operator++()
 {
     Increment();
 }
 
-//-----------------------------------------------------------------------------
-/// Pre-decrement operator.
-//-----------------------------------------------------------------------------
 void RefTrackerCounter::operator--()
 {
     Decrement();
 }
 
-//-----------------------------------------------------------------------------
-/// Post-increment operator.
-//-----------------------------------------------------------------------------
 void RefTrackerCounter::operator++(int)
 {
     Increment();
 }
 
-//-----------------------------------------------------------------------------
-/// Post-decrement operator.
-//-----------------------------------------------------------------------------
 void RefTrackerCounter::operator--(int)
 {
     Decrement();
 }
 
-//-----------------------------------------------------------------------------
-/// Equality operator.
-/// \param v The other RefTrackerCounter's count.
-/// \return True if this count is equal to the other's.
-//-----------------------------------------------------------------------------
 bool RefTrackerCounter::operator==(UINT32 v)
 {
     std::lock_guard<std::mutex> guard(*mutex_);
@@ -126,11 +95,6 @@ bool RefTrackerCounter::operator==(UINT32 v)
     return (v == 0);
 }
 
-//-----------------------------------------------------------------------------
-/// Greater than operator.
-/// \param v The other RefTrackerCounter's count.
-/// \return True if this count is greater than the other's.
-//-----------------------------------------------------------------------------
 bool RefTrackerCounter::operator>(UINT32 v)
 {
     std::lock_guard<std::mutex> guard(*mutex_);
@@ -146,10 +110,6 @@ bool RefTrackerCounter::operator>(UINT32 v)
     return false;
 }
 
-//-----------------------------------------------------------------------------
-/// Return the current reference count.
-/// \return The current reference count.
-//-----------------------------------------------------------------------------
 UINT32 RefTrackerCounter::GetRef()
 {
     std::lock_guard<std::mutex> guard(*mutex_);

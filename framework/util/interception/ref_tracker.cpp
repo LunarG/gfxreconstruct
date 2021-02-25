@@ -26,10 +26,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)
 
-//----------------------------------------------------------------------------
-/// increments dwVal on creation
-/// \param  val
-//----------------------------------------------------------------------------
 RefTracker::RefTracker(RefTrackerCounter* val)
 {
     val_ = val;
@@ -37,9 +33,6 @@ RefTracker::RefTracker(RefTrackerCounter* val)
     ++(*val_);
 }
 
-//-----------------------------------------------------------------------------
-/// decrements dwVal on destruction
-//-----------------------------------------------------------------------------
 RefTracker::~RefTracker()
 {
     // Protect against releasing a resource more than once
