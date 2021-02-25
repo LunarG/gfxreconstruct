@@ -57,7 +57,7 @@ const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wra
 }
 
 template <>
-inline format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object)
+format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object)
 {
     // Need to remove const for QueryInterface.
     IUnknown*         object  = const_cast<IUnknown*>(wrapped_object);

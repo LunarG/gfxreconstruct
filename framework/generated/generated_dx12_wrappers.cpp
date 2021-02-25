@@ -32,6 +32,7 @@
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/trace_manager.h"
+#include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_struct_unwrappers.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 #include "util/defines.h"
@@ -79,6 +80,11 @@ HRESULT WINAPI CreateDXGIFactory(
         {
             WrapObject(riid, ppFactory, nullptr);
         }
+
+        Encode_CreateDXGIFactory(
+            result,
+            riid,
+            ppFactory);
     }
     else
     {
@@ -111,6 +117,11 @@ HRESULT WINAPI CreateDXGIFactory1(
         {
             WrapObject(riid, ppFactory, nullptr);
         }
+
+        Encode_CreateDXGIFactory1(
+            result,
+            riid,
+            ppFactory);
     }
     else
     {
@@ -144,6 +155,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
             Name,
             DataSize,
             pData);
+
+        Encode_IDXGIObject_SetPrivateData(
+            GetCaptureId(),
+            result,
+            Name,
+            DataSize,
+            pData);
     }
     else
     {
@@ -172,6 +190,12 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
         result = object_->SetPrivateDataInterface(
             Name,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
+
+        Encode_IDXGIObject_SetPrivateDataInterface(
+            GetCaptureId(),
+            result,
+            Name,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
     }
     else
     {
@@ -198,6 +222,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
     if (call_scope == 1)
     {
         result = object_->GetPrivateData(
+            Name,
+            pDataSize,
+            pData);
+
+        Encode_IDXGIObject_GetPrivateData(
+            GetCaptureId(),
+            result,
             Name,
             pDataSize,
             pData);
@@ -234,6 +265,12 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
         {
             WrapObject(riid, ppParent, nullptr);
         }
+
+        Encode_IDXGIObject_GetParent(
+            GetCaptureId(),
+            result,
+            riid,
+            ppParent);
     }
     else
     {
@@ -270,6 +307,12 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
         {
             WrapObject(riid, ppDevice, nullptr);
         }
+
+        Encode_IDXGIDeviceSubObject_GetDevice(
+            GetCaptureId(),
+            result,
+            riid,
+            ppDevice);
     }
     else
     {
@@ -299,6 +342,11 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
     {
         result = object_->GetSharedHandle(
             pSharedHandle);
+
+        Encode_IDXGIResource_GetSharedHandle(
+            GetCaptureId(),
+            result,
+            pSharedHandle);
     }
     else
     {
@@ -322,6 +370,11 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetUsage(
     if (call_scope == 1)
     {
         result = object_->GetUsage(
+            pUsage);
+
+        Encode_IDXGIResource_GetUsage(
+            GetCaptureId(),
+            result,
             pUsage);
     }
     else
@@ -347,6 +400,11 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::SetEvictionPriority(
     {
         result = object_->SetEvictionPriority(
             EvictionPriority);
+
+        Encode_IDXGIResource_SetEvictionPriority(
+            GetCaptureId(),
+            result,
+            EvictionPriority);
     }
     else
     {
@@ -370,6 +428,11 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
     if (call_scope == 1)
     {
         result = object_->GetEvictionPriority(
+            pEvictionPriority);
+
+        Encode_IDXGIResource_GetEvictionPriority(
+            GetCaptureId(),
+            result,
             pEvictionPriority);
     }
     else
@@ -401,6 +464,12 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
         result = object_->AcquireSync(
             Key,
             dwMilliseconds);
+
+        Encode_IDXGIKeyedMutex_AcquireSync(
+            GetCaptureId(),
+            result,
+            Key,
+            dwMilliseconds);
     }
     else
     {
@@ -425,6 +494,11 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
     if (call_scope == 1)
     {
         result = object_->ReleaseSync(
+            Key);
+
+        Encode_IDXGIKeyedMutex_ReleaseSync(
+            GetCaptureId(),
+            result,
             Key);
     }
     else
@@ -454,6 +528,11 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
     {
         result = object_->GetDesc(
             pDesc);
+
+        Encode_IDXGISurface_GetDesc(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -480,6 +559,12 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Map(
         result = object_->Map(
             pLockedRect,
             MapFlags);
+
+        Encode_IDXGISurface_Map(
+            GetCaptureId(),
+            result,
+            pLockedRect,
+            MapFlags);
     }
     else
     {
@@ -503,6 +588,10 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Unmap()
     if (call_scope == 1)
     {
         result = object_->Unmap();
+
+        Encode_IDXGISurface_Unmap(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -532,6 +621,12 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::GetDC(
         result = object_->GetDC(
             Discard,
             phdc);
+
+        Encode_IDXGISurface1_GetDC(
+            GetCaptureId(),
+            result,
+            Discard,
+            phdc);
     }
     else
     {
@@ -556,6 +651,11 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
     if (call_scope == 1)
     {
         result = object_->ReleaseDC(
+            pDirtyRect);
+
+        Encode_IDXGISurface1_ReleaseDC(
+            GetCaptureId(),
+            result,
             pDirtyRect);
     }
     else
@@ -592,6 +692,12 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
         {
             WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), nullptr);
         }
+
+        Encode_IDXGIAdapter_EnumOutputs(
+            GetCaptureId(),
+            result,
+            Output,
+            ppOutput);
     }
     else
     {
@@ -617,6 +723,11 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::GetDesc(
     {
         result = object_->GetDesc(
             pDesc);
+
+        Encode_IDXGIAdapter_GetDesc(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -641,6 +752,12 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
     if (call_scope == 1)
     {
         result = object_->CheckInterfaceSupport(
+            InterfaceName,
+            pUMDVersion);
+
+        Encode_IDXGIAdapter_CheckInterfaceSupport(
+            GetCaptureId(),
+            result,
             InterfaceName,
             pUMDVersion);
     }
@@ -672,6 +789,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
     {
         result = object_->GetDesc(
             pDesc);
+
+        Encode_IDXGIOutput_GetDesc(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -698,6 +820,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
     if (call_scope == 1)
     {
         result = object_->GetDisplayModeList(
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
+
+        Encode_IDXGIOutput_GetDisplayModeList(
+            GetCaptureId(),
+            result,
             EnumFormat,
             Flags,
             pNumModes,
@@ -733,6 +863,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
             pModeToMatch,
             pClosestMatch,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+
+        Encode_IDXGIOutput_FindClosestMatchingMode(
+            GetCaptureId(),
+            result,
+            pModeToMatch,
+            pClosestMatch,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
     }
     else
     {
@@ -757,6 +894,10 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::WaitForVBlank()
     if (call_scope == 1)
     {
         result = object_->WaitForVBlank();
+
+        Encode_IDXGIOutput_WaitForVBlank(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -782,6 +923,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
         result = object_->TakeOwnership(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             Exclusive);
+
+        Encode_IDXGIOutput_TakeOwnership(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            Exclusive);
     }
     else
     {
@@ -803,6 +950,9 @@ void STDMETHODCALLTYPE IDXGIOutput_Wrapper::ReleaseOwnership()
     if (call_scope == 1)
     {
         object_->ReleaseOwnership();
+
+        Encode_IDXGIOutput_ReleaseOwnership(
+            GetCaptureId());
     }
     else
     {
@@ -823,6 +973,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControlCapabilities(
     if (call_scope == 1)
     {
         result = object_->GetGammaControlCapabilities(
+            pGammaCaps);
+
+        Encode_IDXGIOutput_GetGammaControlCapabilities(
+            GetCaptureId(),
+            result,
             pGammaCaps);
     }
     else
@@ -848,6 +1003,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetGammaControl(
     {
         result = object_->SetGammaControl(
             pArray);
+
+        Encode_IDXGIOutput_SetGammaControl(
+            GetCaptureId(),
+            result,
+            pArray);
     }
     else
     {
@@ -871,6 +1031,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControl(
     if (call_scope == 1)
     {
         result = object_->GetGammaControl(
+            pArray);
+
+        Encode_IDXGIOutput_GetGammaControl(
+            GetCaptureId(),
+            result,
             pArray);
     }
     else
@@ -896,6 +1061,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
     {
         result = object_->SetDisplaySurface(
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
+
+        Encode_IDXGIOutput_SetDisplaySurface(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
     }
     else
     {
@@ -920,6 +1090,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
     {
         result = object_->GetDisplaySurfaceData(
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
+
+        Encode_IDXGIOutput_GetDisplaySurfaceData(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
     }
     else
     {
@@ -943,6 +1118,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
     if (call_scope == 1)
     {
         result = object_->GetFrameStatistics(
+            pStats);
+
+        Encode_IDXGIOutput_GetFrameStatistics(
+            GetCaptureId(),
+            result,
             pStats);
     }
     else
@@ -972,6 +1152,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
     if (call_scope == 1)
     {
         result = object_->Present(
+            SyncInterval,
+            Flags);
+
+        Encode_IDXGISwapChain_Present(
+            GetCaptureId(),
+            result,
             SyncInterval,
             Flags);
     }
@@ -1008,6 +1194,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
         {
             WrapObject(riid, ppSurface, nullptr);
         }
+
+        Encode_IDXGISwapChain_GetBuffer(
+            GetCaptureId(),
+            result,
+            Buffer,
+            riid,
+            ppSurface);
     }
     else
     {
@@ -1034,6 +1227,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
     if (call_scope == 1)
     {
         result = object_->SetFullscreenState(
+            Fullscreen,
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
+
+        Encode_IDXGISwapChain_SetFullscreenState(
+            GetCaptureId(),
+            result,
             Fullscreen,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
     }
@@ -1068,6 +1267,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
         {
             WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppTarget), nullptr);
         }
+
+        Encode_IDXGISwapChain_GetFullscreenState(
+            GetCaptureId(),
+            result,
+            pFullscreen,
+            ppTarget);
     }
     else
     {
@@ -1092,6 +1297,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         result = object_->GetDesc(
+            pDesc);
+
+        Encode_IDXGISwapChain_GetDesc(
+            GetCaptureId(),
+            result,
             pDesc);
     }
     else
@@ -1125,6 +1335,15 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
             Height,
             NewFormat,
             SwapChainFlags);
+
+        Encode_IDXGISwapChain_ResizeBuffers(
+            GetCaptureId(),
+            result,
+            BufferCount,
+            Width,
+            Height,
+            NewFormat,
+            SwapChainFlags);
     }
     else
     {
@@ -1152,6 +1371,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeTarget(
     if (call_scope == 1)
     {
         result = object_->ResizeTarget(
+            pNewTargetParameters);
+
+        Encode_IDXGISwapChain_ResizeTarget(
+            GetCaptureId(),
+            result,
             pNewTargetParameters);
     }
     else
@@ -1182,6 +1406,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
         {
             WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), nullptr);
         }
+
+        Encode_IDXGISwapChain_GetContainingOutput(
+            GetCaptureId(),
+            result,
+            ppOutput);
     }
     else
     {
@@ -1206,6 +1435,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFrameStatistics(
     {
         result = object_->GetFrameStatistics(
             pStats);
+
+        Encode_IDXGISwapChain_GetFrameStatistics(
+            GetCaptureId(),
+            result,
+            pStats);
     }
     else
     {
@@ -1229,6 +1463,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
     if (call_scope == 1)
     {
         result = object_->GetLastPresentCount(
+            pLastPresentCount);
+
+        Encode_IDXGISwapChain_GetLastPresentCount(
+            GetCaptureId(),
+            result,
             pLastPresentCount);
     }
     else
@@ -1265,6 +1504,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
         {
             WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), nullptr);
         }
+
+        Encode_IDXGIFactory_EnumAdapters(
+            GetCaptureId(),
+            result,
+            Adapter,
+            ppAdapter);
     }
     else
     {
@@ -1292,6 +1537,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::MakeWindowAssociation(
         result = object_->MakeWindowAssociation(
             WindowHandle,
             Flags);
+
+        Encode_IDXGIFactory_MakeWindowAssociation(
+            GetCaptureId(),
+            result,
+            WindowHandle,
+            Flags);
     }
     else
     {
@@ -1316,6 +1567,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::GetWindowAssociation(
     if (call_scope == 1)
     {
         result = object_->GetWindowAssociation(
+            pWindowHandle);
+
+        Encode_IDXGIFactory_GetWindowAssociation(
+            GetCaptureId(),
+            result,
             pWindowHandle);
     }
     else
@@ -1350,6 +1606,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
         {
             WrapObject(IID_IDXGISwapChain, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactory_CreateSwapChain(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDesc,
+            ppSwapChain);
     }
     else
     {
@@ -1383,6 +1646,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
         {
             WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), nullptr);
         }
+
+        Encode_IDXGIFactory_CreateSoftwareAdapter(
+            GetCaptureId(),
+            result,
+            Module,
+            ppAdapter);
     }
     else
     {
@@ -1417,6 +1686,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
         {
             WrapObject(IID_IDXGIAdapter, reinterpret_cast<void**>(pAdapter), nullptr);
         }
+
+        Encode_IDXGIDevice_GetAdapter(
+            GetCaptureId(),
+            result,
+            pAdapter);
     }
     else
     {
@@ -1454,6 +1728,15 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
         {
             WrapObject(IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), nullptr);
         }
+
+        Encode_IDXGIDevice_CreateSurface(
+            GetCaptureId(),
+            result,
+            pDesc,
+            NumSurfaces,
+            Usage,
+            pSharedResource,
+            ppSurface);
     }
     else
     {
@@ -1488,6 +1771,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
             UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppResources, NumResources, unwrap_memory),
             pResidencyStatus,
             NumResources);
+
+        Encode_IDXGIDevice_QueryResourceResidency(
+            GetCaptureId(),
+            result,
+            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppResources, NumResources, unwrap_memory),
+            pResidencyStatus,
+            NumResources);
     }
     else
     {
@@ -1514,6 +1804,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::SetGPUThreadPriority(
     {
         result = object_->SetGPUThreadPriority(
             Priority);
+
+        Encode_IDXGIDevice_SetGPUThreadPriority(
+            GetCaptureId(),
+            result,
+            Priority);
     }
     else
     {
@@ -1537,6 +1832,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetGPUThreadPriority(
     if (call_scope == 1)
     {
         result = object_->GetGPUThreadPriority(
+            pPriority);
+
+        Encode_IDXGIDevice_GetGPUThreadPriority(
+            GetCaptureId(),
+            result,
             pPriority);
     }
     else
@@ -1573,6 +1873,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
         {
             WrapObject(IID_IDXGIAdapter1, reinterpret_cast<void**>(ppAdapter), nullptr);
         }
+
+        Encode_IDXGIFactory1_EnumAdapters1(
+            GetCaptureId(),
+            result,
+            Adapter,
+            ppAdapter);
     }
     else
     {
@@ -1596,6 +1902,10 @@ BOOL STDMETHODCALLTYPE IDXGIFactory1_Wrapper::IsCurrent()
     if (call_scope == 1)
     {
         result = object_->IsCurrent();
+
+        Encode_IDXGIFactory1_IsCurrent(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -1622,6 +1932,11 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter1_Wrapper::GetDesc1(
     if (call_scope == 1)
     {
         result = object_->GetDesc1(
+            pDesc);
+
+        Encode_IDXGIAdapter1_GetDesc1(
+            GetCaptureId(),
+            result,
             pDesc);
     }
     else
@@ -1651,6 +1966,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::SetMaximumFrameLatency(
     {
         result = object_->SetMaximumFrameLatency(
             MaxLatency);
+
+        Encode_IDXGIDevice1_SetMaximumFrameLatency(
+            GetCaptureId(),
+            result,
+            MaxLatency);
     }
     else
     {
@@ -1674,6 +1994,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
     if (call_scope == 1)
     {
         result = object_->GetMaximumFrameLatency(
+            pMaxLatency);
+
+        Encode_IDXGIDevice1_GetMaximumFrameLatency(
+            GetCaptureId(),
+            result,
             pMaxLatency);
     }
     else
@@ -1707,6 +2032,10 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
     if (call_scope == 1)
     {
         result = object_->IsStereoEnabled();
+
+        Encode_IDXGIDisplayControl_IsStereoEnabled(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -1727,6 +2056,10 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
     if (call_scope == 1)
     {
         object_->SetStereoEnabled(
+            enabled);
+
+        Encode_IDXGIDisplayControl_SetStereoEnabled(
+            GetCaptureId(),
             enabled);
     }
     else
@@ -1751,6 +2084,10 @@ void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
     if (call_scope == 1)
     {
         object_->GetDesc(
+            pDesc);
+
+        Encode_IDXGIOutputDuplication_GetDesc(
+            GetCaptureId(),
             pDesc);
     }
     else
@@ -1783,6 +2120,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
         {
             WrapObject(IID_IDXGIResource, reinterpret_cast<void**>(ppDesktopResource), nullptr);
         }
+
+        Encode_IDXGIOutputDuplication_AcquireNextFrame(
+            GetCaptureId(),
+            result,
+            TimeoutInMilliseconds,
+            pFrameInfo,
+            ppDesktopResource);
     }
     else
     {
@@ -1813,6 +2157,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
             DirtyRectsBufferSize,
             pDirtyRectsBuffer,
             pDirtyRectsBufferSizeRequired);
+
+        Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
+            GetCaptureId(),
+            result,
+            DirtyRectsBufferSize,
+            pDirtyRectsBuffer,
+            pDirtyRectsBufferSizeRequired);
     }
     else
     {
@@ -1840,6 +2191,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
     if (call_scope == 1)
     {
         result = object_->GetFrameMoveRects(
+            MoveRectsBufferSize,
+            pMoveRectBuffer,
+            pMoveRectsBufferSizeRequired);
+
+        Encode_IDXGIOutputDuplication_GetFrameMoveRects(
+            GetCaptureId(),
+            result,
             MoveRectsBufferSize,
             pMoveRectBuffer,
             pMoveRectsBufferSizeRequired);
@@ -1875,6 +2233,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
             pPointerShapeBuffer,
             pPointerShapeBufferSizeRequired,
             pPointerShapeInfo);
+
+        Encode_IDXGIOutputDuplication_GetFramePointerShape(
+            GetCaptureId(),
+            result,
+            PointerShapeBufferSize,
+            pPointerShapeBuffer,
+            pPointerShapeBufferSizeRequired,
+            pPointerShapeInfo);
     }
     else
     {
@@ -1902,6 +2268,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::MapDesktopSurface(
     {
         result = object_->MapDesktopSurface(
             pLockedRect);
+
+        Encode_IDXGIOutputDuplication_MapDesktopSurface(
+            GetCaptureId(),
+            result,
+            pLockedRect);
     }
     else
     {
@@ -1924,6 +2295,10 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::UnMapDesktopSurface()
     if (call_scope == 1)
     {
         result = object_->UnMapDesktopSurface();
+
+        Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -1945,6 +2320,10 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::ReleaseFrame()
     if (call_scope == 1)
     {
         result = object_->ReleaseFrame();
+
+        Encode_IDXGIOutputDuplication_ReleaseFrame(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -1981,6 +2360,13 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
         {
             WrapObject(riid, ppParentResource, nullptr);
         }
+
+        Encode_IDXGISurface2_GetResource(
+            GetCaptureId(),
+            result,
+            riid,
+            ppParentResource,
+            pSubresourceIndex);
     }
     else
     {
@@ -2018,6 +2404,12 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
         {
             WrapObject(IID_IDXGISurface2, reinterpret_cast<void**>(ppSurface), nullptr);
         }
+
+        Encode_IDXGIResource1_CreateSubresourceSurface(
+            GetCaptureId(),
+            result,
+            index,
+            ppSurface);
     }
     else
     {
@@ -2045,6 +2437,14 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
     if (call_scope == 1)
     {
         result = object_->CreateSharedHandle(
+            pAttributes,
+            dwAccess,
+            lpName,
+            pHandle);
+
+        Encode_IDXGIResource1_CreateSharedHandle(
+            GetCaptureId(),
+            result,
             pAttributes,
             dwAccess,
             lpName,
@@ -2086,6 +2486,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
             Priority);
+
+        Encode_IDXGIDevice2_OfferResources(
+            GetCaptureId(),
+            result,
+            NumResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            Priority);
     }
     else
     {
@@ -2118,6 +2525,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
             pDiscarded);
+
+        Encode_IDXGIDevice2_ReclaimResources(
+            GetCaptureId(),
+            result,
+            NumResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            pDiscarded);
     }
     else
     {
@@ -2143,6 +2557,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::EnqueueSetEvent(
     if (call_scope == 1)
     {
         result = object_->EnqueueSetEvent(
+            hEvent);
+
+        Encode_IDXGIDevice2_EnqueueSetEvent(
+            GetCaptureId(),
+            result,
             hEvent);
     }
     else
@@ -2172,6 +2591,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetDesc1(
     {
         result = object_->GetDesc1(
             pDesc);
+
+        Encode_IDXGISwapChain1_GetDesc1(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -2196,6 +2620,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetFullscreenDesc(
     {
         result = object_->GetFullscreenDesc(
             pDesc);
+
+        Encode_IDXGISwapChain1_GetFullscreenDesc(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -2219,6 +2648,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetHwnd(
     if (call_scope == 1)
     {
         result = object_->GetHwnd(
+            pHwnd);
+
+        Encode_IDXGISwapChain1_GetHwnd(
+            GetCaptureId(),
+            result,
             pHwnd);
     }
     else
@@ -2251,6 +2685,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
         {
             WrapObject(refiid, ppUnk, nullptr);
         }
+
+        Encode_IDXGISwapChain1_GetCoreWindow(
+            GetCaptureId(),
+            result,
+            refiid,
+            ppUnk);
     }
     else
     {
@@ -2280,6 +2720,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
             SyncInterval,
             PresentFlags,
             pPresentParameters);
+
+        Encode_IDXGISwapChain1_Present1(
+            GetCaptureId(),
+            result,
+            SyncInterval,
+            PresentFlags,
+            pPresentParameters);
     }
     else
     {
@@ -2304,6 +2751,10 @@ BOOL STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::IsTemporaryMonoSupported()
     if (call_scope == 1)
     {
         result = object_->IsTemporaryMonoSupported();
+
+        Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -2332,6 +2783,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
         {
             WrapObject(IID_IDXGIOutput, reinterpret_cast<void**>(ppRestrictToOutput), nullptr);
         }
+
+        Encode_IDXGISwapChain1_GetRestrictToOutput(
+            GetCaptureId(),
+            result,
+            ppRestrictToOutput);
     }
     else
     {
@@ -2355,6 +2811,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetBackgroundColor(
     if (call_scope == 1)
     {
         result = object_->SetBackgroundColor(
+            pColor);
+
+        Encode_IDXGISwapChain1_SetBackgroundColor(
+            GetCaptureId(),
+            result,
             pColor);
     }
     else
@@ -2380,6 +2841,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetBackgroundColor(
     {
         result = object_->GetBackgroundColor(
             pColor);
+
+        Encode_IDXGISwapChain1_GetBackgroundColor(
+            GetCaptureId(),
+            result,
+            pColor);
     }
     else
     {
@@ -2404,6 +2870,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetRotation(
     {
         result = object_->SetRotation(
             Rotation);
+
+        Encode_IDXGISwapChain1_SetRotation(
+            GetCaptureId(),
+            result,
+            Rotation);
     }
     else
     {
@@ -2427,6 +2898,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRotation(
     if (call_scope == 1)
     {
         result = object_->GetRotation(
+            pRotation);
+
+        Encode_IDXGISwapChain1_GetRotation(
+            GetCaptureId(),
+            result,
             pRotation);
     }
     else
@@ -2454,6 +2930,10 @@ BOOL STDMETHODCALLTYPE IDXGIFactory2_Wrapper::IsWindowedStereoEnabled()
     if (call_scope == 1)
     {
         result = object_->IsWindowedStereoEnabled();
+
+        Encode_IDXGIFactory2_IsWindowedStereoEnabled(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -2492,6 +2972,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
         {
             WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactory2_CreateSwapChainForHwnd(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            hWnd,
+            pDesc,
+            pFullscreenDesc,
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
     }
     else
     {
@@ -2534,6 +3024,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
         {
             WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pWindow),
+            pDesc,
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
     }
     else
     {
@@ -2562,6 +3061,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::GetSharedResourceAdapterLuid(
     if (call_scope == 1)
     {
         result = object_->GetSharedResourceAdapterLuid(
+            hResource,
+            pLuid);
+
+        Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
+            GetCaptureId(),
+            result,
             hResource,
             pLuid);
     }
@@ -2593,6 +3098,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
             WindowHandle,
             wMsg,
             pdwCookie);
+
+        Encode_IDXGIFactory2_RegisterStereoStatusWindow(
+            GetCaptureId(),
+            result,
+            WindowHandle,
+            wMsg,
+            pdwCookie);
     }
     else
     {
@@ -2621,6 +3133,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
         result = object_->RegisterStereoStatusEvent(
             hEvent,
             pdwCookie);
+
+        Encode_IDXGIFactory2_RegisterStereoStatusEvent(
+            GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
     }
     else
     {
@@ -2643,6 +3161,10 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterStereoStatus(
     if (call_scope == 1)
     {
         object_->UnregisterStereoStatus(
+            dwCookie);
+
+        Encode_IDXGIFactory2_UnregisterStereoStatus(
+            GetCaptureId(),
             dwCookie);
     }
     else
@@ -2667,6 +3189,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
     if (call_scope == 1)
     {
         result = object_->RegisterOcclusionStatusWindow(
+            WindowHandle,
+            wMsg,
+            pdwCookie);
+
+        Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
+            GetCaptureId(),
+            result,
             WindowHandle,
             wMsg,
             pdwCookie);
@@ -2698,6 +3227,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
         result = object_->RegisterOcclusionStatusEvent(
             hEvent,
             pdwCookie);
+
+        Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
+            GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
     }
     else
     {
@@ -2720,6 +3255,10 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterOcclusionStatus(
     if (call_scope == 1)
     {
         object_->UnregisterOcclusionStatus(
+            dwCookie);
+
+        Encode_IDXGIFactory2_UnregisterOcclusionStatus(
+            GetCaptureId(),
             dwCookie);
     }
     else
@@ -2754,6 +3293,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
         {
             WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactory2_CreateSwapChainForComposition(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDesc,
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
     }
     else
     {
@@ -2784,6 +3331,11 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter2_Wrapper::GetDesc2(
     if (call_scope == 1)
     {
         result = object_->GetDesc2(
+            pDesc);
+
+        Encode_IDXGIAdapter2_GetDesc2(
+            GetCaptureId(),
+            result,
             pDesc);
     }
     else
@@ -2819,6 +3371,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
             Flags,
             pNumModes,
             pDesc);
+
+        Encode_IDXGIOutput1_GetDisplayModeList1(
+            GetCaptureId(),
+            result,
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
     }
     else
     {
@@ -2850,6 +3410,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
             pModeToMatch,
             pClosestMatch,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+
+        Encode_IDXGIOutput1_FindClosestMatchingMode1(
+            GetCaptureId(),
+            result,
+            pModeToMatch,
+            pClosestMatch,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
     }
     else
     {
@@ -2875,6 +3442,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
     if (call_scope == 1)
     {
         result = object_->GetDisplaySurfaceData1(
+            encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
+
+        Encode_IDXGIOutput1_GetDisplaySurfaceData1(
+            GetCaptureId(),
+            result,
             encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
     }
     else
@@ -2907,6 +3479,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
         {
             WrapObject(IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), nullptr);
         }
+
+        Encode_IDXGIOutput1_DuplicateOutput(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            ppOutputDuplication);
     }
     else
     {
@@ -2947,6 +3525,12 @@ HRESULT WINAPI CreateDXGIFactory2(
         {
             WrapObject(riid, ppFactory, nullptr);
         }
+
+        Encode_CreateDXGIFactory2(
+            result,
+            Flags,
+            riid,
+            ppFactory);
     }
     else
     {
@@ -2982,6 +3566,12 @@ HRESULT WINAPI DXGIGetDebugInterface1(
         {
             WrapObject(riid, pDebug, nullptr);
         }
+
+        Encode_DXGIGetDebugInterface1(
+            result,
+            Flags,
+            riid,
+            pDebug);
     }
     else
     {
@@ -3008,6 +3598,9 @@ void STDMETHODCALLTYPE IDXGIDevice3_Wrapper::Trim()
     if (call_scope == 1)
     {
         object_->Trim();
+
+        Encode_IDXGIDevice3_Trim(
+            GetCaptureId());
     }
     else
     {
@@ -3033,6 +3626,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetSourceSize(
     if (call_scope == 1)
     {
         result = object_->SetSourceSize(
+            Width,
+            Height);
+
+        Encode_IDXGISwapChain2_SetSourceSize(
+            GetCaptureId(),
+            result,
             Width,
             Height);
     }
@@ -3062,6 +3661,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetSourceSize(
         result = object_->GetSourceSize(
             pWidth,
             pHeight);
+
+        Encode_IDXGISwapChain2_GetSourceSize(
+            GetCaptureId(),
+            result,
+            pWidth,
+            pHeight);
     }
     else
     {
@@ -3087,6 +3692,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMaximumFrameLatency(
     {
         result = object_->SetMaximumFrameLatency(
             MaxLatency);
+
+        Encode_IDXGISwapChain2_SetMaximumFrameLatency(
+            GetCaptureId(),
+            result,
+            MaxLatency);
     }
     else
     {
@@ -3111,6 +3721,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMaximumFrameLatency(
     {
         result = object_->GetMaximumFrameLatency(
             pMaxLatency);
+
+        Encode_IDXGISwapChain2_GetMaximumFrameLatency(
+            GetCaptureId(),
+            result,
+            pMaxLatency);
     }
     else
     {
@@ -3133,6 +3748,10 @@ HANDLE STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetFrameLatencyWaitableObject(
     if (call_scope == 1)
     {
         result = object_->GetFrameLatencyWaitableObject();
+
+        Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -3155,6 +3774,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMatrixTransform(
     if (call_scope == 1)
     {
         result = object_->SetMatrixTransform(
+            pMatrix);
+
+        Encode_IDXGISwapChain2_SetMatrixTransform(
+            GetCaptureId(),
+            result,
             pMatrix);
     }
     else
@@ -3179,6 +3803,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMatrixTransform(
     if (call_scope == 1)
     {
         result = object_->GetMatrixTransform(
+            pMatrix);
+
+        Encode_IDXGISwapChain2_GetMatrixTransform(
+            GetCaptureId(),
+            result,
             pMatrix);
     }
     else
@@ -3206,6 +3835,10 @@ BOOL STDMETHODCALLTYPE IDXGIOutput2_Wrapper::SupportsOverlays()
     if (call_scope == 1)
     {
         result = object_->SupportsOverlays();
+
+        Encode_IDXGIOutput2_SupportsOverlays(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -3231,6 +3864,10 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
     if (call_scope == 1)
     {
         result = object_->GetCreationFlags();
+
+        Encode_IDXGIFactory3_GetCreationFlags(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -3262,6 +3899,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
             BufferToPresent,
             SyncInterval,
             Flags);
+
+        Encode_IDXGIDecodeSwapChain_PresentBuffer(
+            GetCaptureId(),
+            result,
+            BufferToPresent,
+            SyncInterval,
+            Flags);
     }
     else
     {
@@ -3288,6 +3932,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetSourceRect(
     {
         result = object_->SetSourceRect(
             pRect);
+
+        Encode_IDXGIDecodeSwapChain_SetSourceRect(
+            GetCaptureId(),
+            result,
+            pRect);
     }
     else
     {
@@ -3311,6 +3960,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetTargetRect(
     if (call_scope == 1)
     {
         result = object_->SetTargetRect(
+            pRect);
+
+        Encode_IDXGIDecodeSwapChain_SetTargetRect(
+            GetCaptureId(),
+            result,
             pRect);
     }
     else
@@ -3338,6 +3992,12 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetDestSize(
         result = object_->SetDestSize(
             Width,
             Height);
+
+        Encode_IDXGIDecodeSwapChain_SetDestSize(
+            GetCaptureId(),
+            result,
+            Width,
+            Height);
     }
     else
     {
@@ -3363,6 +4023,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetSourceRect(
     {
         result = object_->GetSourceRect(
             pRect);
+
+        Encode_IDXGIDecodeSwapChain_GetSourceRect(
+            GetCaptureId(),
+            result,
+            pRect);
     }
     else
     {
@@ -3386,6 +4051,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetTargetRect(
     if (call_scope == 1)
     {
         result = object_->GetTargetRect(
+            pRect);
+
+        Encode_IDXGIDecodeSwapChain_GetTargetRect(
+            GetCaptureId(),
+            result,
             pRect);
     }
     else
@@ -3413,6 +4083,12 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetDestSize(
         result = object_->GetDestSize(
             pWidth,
             pHeight);
+
+        Encode_IDXGIDecodeSwapChain_GetDestSize(
+            GetCaptureId(),
+            result,
+            pWidth,
+            pHeight);
     }
     else
     {
@@ -3438,6 +4114,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetColorSpace(
     {
         result = object_->SetColorSpace(
             ColorSpace);
+
+        Encode_IDXGIDecodeSwapChain_SetColorSpace(
+            GetCaptureId(),
+            result,
+            ColorSpace);
     }
     else
     {
@@ -3460,6 +4141,10 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
     if (call_scope == 1)
     {
         result = object_->GetColorSpace();
+
+        Encode_IDXGIDecodeSwapChain_GetColorSpace(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -3500,6 +4185,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
         {
             WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            hSurface,
+            pDesc,
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
     }
     else
     {
@@ -3543,6 +4237,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
         {
             WrapObject(IID_IDXGIDecodeSwapChain, reinterpret_cast<void**>(ppSwapChain), nullptr);
         }
+
+        Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            hSurface,
+            pDesc,
+            encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pYuvDecodeBuffers),
+            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
     }
     else
     {
@@ -3576,6 +4280,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
     {
         result = object_->GetFrameStatisticsMedia(
             pStats);
+
+        Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
+            GetCaptureId(),
+            result,
+            pStats);
     }
     else
     {
@@ -3599,6 +4308,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::SetPresentDuration(
     if (call_scope == 1)
     {
         result = object_->SetPresentDuration(
+            Duration);
+
+        Encode_IDXGISwapChainMedia_SetPresentDuration(
+            GetCaptureId(),
+            result,
             Duration);
     }
     else
@@ -3625,6 +4339,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
     if (call_scope == 1)
     {
         result = object_->CheckPresentDurationSupport(
+            DesiredPresentDuration,
+            pClosestSmallerPresentDuration,
+            pClosestLargerPresentDuration);
+
+        Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
+            GetCaptureId(),
+            result,
             DesiredPresentDuration,
             pClosestSmallerPresentDuration,
             pClosestLargerPresentDuration);
@@ -3662,6 +4383,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
             EnumFormat,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
             pFlags);
+
+        Encode_IDXGIOutput3_CheckOverlaySupport(
+            GetCaptureId(),
+            result,
+            EnumFormat,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pFlags);
     }
     else
     {
@@ -3696,6 +4424,10 @@ UINT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::GetCurrentBackBufferIndex()
     if (call_scope == 1)
     {
         result = object_->GetCurrentBackBufferIndex();
+
+        Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -3719,6 +4451,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::CheckColorSpaceSupport(
     if (call_scope == 1)
     {
         result = object_->CheckColorSpaceSupport(
+            ColorSpace,
+            pColorSpaceSupport);
+
+        Encode_IDXGISwapChain3_CheckColorSpaceSupport(
+            GetCaptureId(),
+            result,
             ColorSpace,
             pColorSpaceSupport);
     }
@@ -3745,6 +4483,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::SetColorSpace1(
     if (call_scope == 1)
     {
         result = object_->SetColorSpace1(
+            ColorSpace);
+
+        Encode_IDXGISwapChain3_SetColorSpace1(
+            GetCaptureId(),
+            result,
             ColorSpace);
     }
     else
@@ -3777,6 +4520,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->ResizeBuffers1(
+            BufferCount,
+            Width,
+            Height,
+            Format,
+            SwapChainFlags,
+            pCreationNodeMask,
+            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppPresentQueue, BufferCount, unwrap_memory));
+
+        Encode_IDXGISwapChain3_ResizeBuffers1(
+            GetCaptureId(),
+            result,
             BufferCount,
             Width,
             Height,
@@ -3824,6 +4578,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
             ColorSpace,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
             pFlags);
+
+        Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
+            GetCaptureId(),
+            result,
+            Format,
+            ColorSpace,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pFlags);
     }
     else
     {
@@ -3864,6 +4626,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
         {
             WrapObject(riid, ppvAdapter, nullptr);
         }
+
+        Encode_IDXGIFactory4_EnumAdapterByLuid(
+            GetCaptureId(),
+            result,
+            AdapterLuid,
+            riid,
+            ppvAdapter);
     }
     else
     {
@@ -3897,6 +4666,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
         {
             WrapObject(riid, ppvAdapter, nullptr);
         }
+
+        Encode_IDXGIFactory4_EnumWarpAdapter(
+            GetCaptureId(),
+            result,
+            riid,
+            ppvAdapter);
     }
     else
     {
@@ -3928,6 +4703,12 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
         result = object_->RegisterHardwareContentProtectionTeardownStatusEvent(
             hEvent,
             pdwCookie);
+
+        Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
+            GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
     }
     else
     {
@@ -3950,6 +4731,10 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterHardwareContentProtectio
     if (call_scope == 1)
     {
         object_->UnregisterHardwareContentProtectionTeardownStatus(
+            dwCookie);
+
+        Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
+            GetCaptureId(),
             dwCookie);
     }
     else
@@ -3974,6 +4759,13 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
     if (call_scope == 1)
     {
         result = object_->QueryVideoMemoryInfo(
+            NodeIndex,
+            MemorySegmentGroup,
+            pVideoMemoryInfo);
+
+        Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
+            GetCaptureId(),
+            result,
             NodeIndex,
             MemorySegmentGroup,
             pVideoMemoryInfo);
@@ -4007,6 +4799,13 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
             NodeIndex,
             MemorySegmentGroup,
             Reservation);
+
+        Encode_IDXGIAdapter3_SetVideoMemoryReservation(
+            GetCaptureId(),
+            result,
+            NodeIndex,
+            MemorySegmentGroup,
+            Reservation);
     }
     else
     {
@@ -4035,6 +4834,12 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
         result = object_->RegisterVideoMemoryBudgetChangeNotificationEvent(
             hEvent,
             pdwCookie);
+
+        Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
+            GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
     }
     else
     {
@@ -4057,6 +4862,10 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
     if (call_scope == 1)
     {
         object_->UnregisterVideoMemoryBudgetChangeNotification(
+            dwCookie);
+
+        Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
+            GetCaptureId(),
             dwCookie);
     }
     else
@@ -4103,6 +4912,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
         {
             WrapObject(IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), nullptr);
         }
+
+        Encode_IDXGIOutput5_DuplicateOutput1(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            Flags,
+            SupportedFormatsCount,
+            pSupportedFormats,
+            ppOutputDuplication);
     }
     else
     {
@@ -4136,6 +4954,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
     if (call_scope == 1)
     {
         result = object_->SetHDRMetaData(
+            Type,
+            Size,
+            pMetaData);
+
+        Encode_IDXGISwapChain4_SetHDRMetaData(
+            GetCaptureId(),
+            result,
             Type,
             Size,
             pMetaData);
@@ -4177,6 +5002,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
             Priority,
             Flags);
+
+        Encode_IDXGIDevice4_OfferResources1(
+            GetCaptureId(),
+            result,
+            NumResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            Priority,
+            Flags);
     }
     else
     {
@@ -4207,6 +5040,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->ReclaimResources1(
+            NumResources,
+            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            pResults);
+
+        Encode_IDXGIDevice4_ReclaimResources1(
+            GetCaptureId(),
+            result,
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
             pResults);
@@ -4244,6 +5084,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
             Feature,
             pFeatureSupportData,
             FeatureSupportDataSize);
+
+        Encode_IDXGIFactory5_CheckFeatureSupport(
+            GetCaptureId(),
+            result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
     }
     else
     {
@@ -4274,6 +5121,9 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
     if (call_scope == 1)
     {
         auto result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
+
+        Encode_DXGIDeclareAdapterRemovalSupport(
+            result);
     }
     else
     {
@@ -4300,6 +5150,11 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter4_Wrapper::GetDesc3(
     if (call_scope == 1)
     {
         result = object_->GetDesc3(
+            pDesc);
+
+        Encode_IDXGIAdapter4_GetDesc3(
+            GetCaptureId(),
+            result,
             pDesc);
     }
     else
@@ -4329,6 +5184,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::GetDesc1(
     {
         result = object_->GetDesc1(
             pDesc);
+
+        Encode_IDXGIOutput6_GetDesc1(
+            GetCaptureId(),
+            result,
+            pDesc);
     }
     else
     {
@@ -4352,6 +5212,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::CheckHardwareCompositionSupport(
     if (call_scope == 1)
     {
         result = object_->CheckHardwareCompositionSupport(
+            pFlags);
+
+        Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
+            GetCaptureId(),
+            result,
             pFlags);
     }
     else
@@ -4392,6 +5257,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
         {
             WrapObject(riid, ppvAdapter, nullptr);
         }
+
+        Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
+            GetCaptureId(),
+            result,
+            Adapter,
+            GpuPreference,
+            riid,
+            ppvAdapter);
     }
     else
     {
@@ -4425,6 +5298,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::RegisterAdaptersChangedEvent(
         result = object_->RegisterAdaptersChangedEvent(
             hEvent,
             pdwCookie);
+
+        Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
+            GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
     }
     else
     {
@@ -4449,6 +5328,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
     if (call_scope == 1)
     {
         result = object_->UnregisterAdaptersChangedEvent(
+            dwCookie);
+
+        Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
+            GetCaptureId(),
+            result,
             dwCookie);
     }
     else
@@ -4510,6 +5394,13 @@ HRESULT WINAPI D3D12SerializeRootSignature(
             WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
             WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppErrorBlob), nullptr);
         }
+
+        Encode_D3D12SerializeRootSignature(
+            result,
+            pRootSignature,
+            Version,
+            ppBlob,
+            ppErrorBlob);
     }
     else
     {
@@ -4548,6 +5439,13 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
         {
             WrapObject(pRootSignatureDeserializerInterface, ppRootSignatureDeserializer, nullptr);
         }
+
+        Encode_D3D12CreateRootSignatureDeserializer(
+            result,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
     }
     else
     {
@@ -4585,6 +5483,12 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
             WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
             WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppErrorBlob), nullptr);
         }
+
+        Encode_D3D12SerializeVersionedRootSignature(
+            result,
+            pRootSignature,
+            ppBlob,
+            ppErrorBlob);
     }
     else
     {
@@ -4622,6 +5526,13 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
         {
             WrapObject(pRootSignatureDeserializerInterface, ppRootSignatureDeserializer, nullptr);
         }
+
+        Encode_D3D12CreateVersionedRootSignatureDeserializer(
+            result,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
     }
     else
     {
@@ -4660,6 +5571,13 @@ HRESULT WINAPI D3D12CreateDevice(
         {
             WrapObject(riid, ppDevice, nullptr);
         }
+
+        Encode_D3D12CreateDevice(
+            result,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pAdapter),
+            MinimumFeatureLevel,
+            riid,
+            ppDevice);
     }
     else
     {
@@ -4694,6 +5612,11 @@ HRESULT WINAPI D3D12GetDebugInterface(
         {
             WrapObject(riid, ppvDebug, nullptr);
         }
+
+        Encode_D3D12GetDebugInterface(
+            result,
+            riid,
+            ppvDebug);
     }
     else
     {
@@ -4721,6 +5644,13 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
     if (call_scope == 1)
     {
         auto result = manager->GetD3D12DispatchTable().D3D12EnableExperimentalFeatures(
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+
+        Encode_D3D12EnableExperimentalFeatures(
+            result,
             NumFeatures,
             pIIDs,
             pConfigurationStructs,
@@ -4760,6 +5690,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
             guid,
             pDataSize,
             pData);
+
+        Encode_ID3D12Object_GetPrivateData(
+            GetCaptureId(),
+            result,
+            guid,
+            pDataSize,
+            pData);
     }
     else
     {
@@ -4787,6 +5724,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
     if (call_scope == 1)
     {
         result = object_->SetPrivateData(
+            guid,
+            DataSize,
+            pData);
+
+        Encode_ID3D12Object_SetPrivateData(
+            GetCaptureId(),
+            result,
             guid,
             DataSize,
             pData);
@@ -4818,6 +5762,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
         result = object_->SetPrivateDataInterface(
             guid,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
+
+        Encode_ID3D12Object_SetPrivateDataInterface(
+            GetCaptureId(),
+            result,
+            guid,
+            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
     }
     else
     {
@@ -4842,6 +5792,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetName(
     if (call_scope == 1)
     {
         result = object_->SetName(
+            Name);
+
+        Encode_ID3D12Object_SetName(
+            GetCaptureId(),
+            result,
             Name);
     }
     else
@@ -4878,6 +5833,12 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
         {
             WrapObject(riid, ppvDevice, nullptr);
         }
+
+        Encode_ID3D12DeviceChild_GetDevice(
+            GetCaptureId(),
+            result,
+            riid,
+            ppvDevice);
     }
     else
     {
@@ -4909,6 +5870,10 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
     if (call_scope == 1)
     {
         result = object_->GetRootSignatureDesc();
+
+        Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -4938,6 +5903,12 @@ HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetR
         result = object_->GetRootSignatureDescAtVersion(
             convertToVersion,
             ppDesc);
+
+        Encode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
+            GetCaptureId(),
+            result,
+            convertToVersion,
+            ppDesc);
     }
     else
     {
@@ -4961,6 +5932,10 @@ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12VersionedRoot
     if (call_scope == 1)
     {
         result = object_->GetUnconvertedRootSignatureDesc();
+
+        Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -4990,6 +5965,10 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         result = object_->GetDesc();
+
+        Encode_ID3D12Heap_GetDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5021,6 +6000,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
             Subresource,
             pReadRange,
             ppData);
+
+        Encode_ID3D12Resource_Map(
+            GetCaptureId(),
+            result,
+            Subresource,
+            pReadRange,
+            ppData);
     }
     else
     {
@@ -5047,6 +6033,11 @@ void STDMETHODCALLTYPE ID3D12Resource_Wrapper::Unmap(
         object_->Unmap(
             Subresource,
             pWrittenRange);
+
+        Encode_ID3D12Resource_Unmap(
+            GetCaptureId(),
+            Subresource,
+            pWrittenRange);
     }
     else
     {
@@ -5068,6 +6059,10 @@ D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         result = object_->GetDesc();
+
+        Encode_ID3D12Resource_GetDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5089,6 +6084,10 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
     if (call_scope == 1)
     {
         result = object_->GetGPUVirtualAddress();
+
+        Encode_ID3D12Resource_GetGPUVirtualAddress(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5115,6 +6114,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
     if (call_scope == 1)
     {
         result = object_->WriteToSubresource(
+            DstSubresource,
+            pDstBox,
+            pSrcData,
+            SrcRowPitch,
+            SrcDepthPitch);
+
+        Encode_ID3D12Resource_WriteToSubresource(
+            GetCaptureId(),
+            result,
             DstSubresource,
             pDstBox,
             pSrcData,
@@ -5156,6 +6164,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
             DstDepthPitch,
             SrcSubresource,
             pSrcBox);
+
+        Encode_ID3D12Resource_ReadFromSubresource(
+            GetCaptureId(),
+            result,
+            pDstData,
+            DstRowPitch,
+            DstDepthPitch,
+            SrcSubresource,
+            pSrcBox);
     }
     else
     {
@@ -5186,6 +6203,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
         result = object_->GetHeapProperties(
             pHeapProperties,
             pHeapFlags);
+
+        Encode_ID3D12Resource_GetHeapProperties(
+            GetCaptureId(),
+            result,
+            pHeapProperties,
+            pHeapFlags);
     }
     else
     {
@@ -5213,6 +6236,10 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
     if (call_scope == 1)
     {
         result = object_->Reset();
+
+        Encode_ID3D12CommandAllocator_Reset(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5238,6 +6265,10 @@ UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
     if (call_scope == 1)
     {
         result = object_->GetCompletedValue();
+
+        Encode_ID3D12Fence_GetCompletedValue(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5261,6 +6292,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::SetEventOnCompletion(
     if (call_scope == 1)
     {
         result = object_->SetEventOnCompletion(
+            Value,
+            hEvent);
+
+        Encode_ID3D12Fence_SetEventOnCompletion(
+            GetCaptureId(),
+            result,
             Value,
             hEvent);
     }
@@ -5288,6 +6325,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::Signal(
     {
         result = object_->Signal(
             Value);
+
+        Encode_ID3D12Fence_Signal(
+            GetCaptureId(),
+            result,
+            Value);
     }
     else
     {
@@ -5314,6 +6356,10 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
     if (call_scope == 1)
     {
         result = object_->GetCreationFlags();
+
+        Encode_ID3D12Fence1_GetCreationFlags(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5346,6 +6392,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
         {
             WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
         }
+
+        Encode_ID3D12PipelineState_GetCachedBlob(
+            GetCaptureId(),
+            result,
+            ppBlob);
     }
     else
     {
@@ -5372,6 +6423,10 @@ D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDe
     if (call_scope == 1)
     {
         result = object_->GetDesc();
+
+        Encode_ID3D12DescriptorHeap_GetDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5393,6 +6448,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
     if (call_scope == 1)
     {
         result = object_->GetCPUDescriptorHandleForHeapStart();
+
+        Encode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5414,6 +6473,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
     if (call_scope == 1)
     {
         result = object_->GetGPUDescriptorHandleForHeapStart();
+
+        Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5447,6 +6510,10 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
     if (call_scope == 1)
     {
         result = object_->GetType();
+
+        Encode_ID3D12CommandList_GetType(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5472,6 +6539,10 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
     if (call_scope == 1)
     {
         result = object_->Close();
+
+        Encode_ID3D12GraphicsCommandList_Close(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -5497,6 +6568,12 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
         result = object_->Reset(
             encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
+
+        Encode_ID3D12GraphicsCommandList_Reset(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
+            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
     }
     else
     {
@@ -5520,6 +6597,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
     {
         object_->ClearState(
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+
+        Encode_ID3D12GraphicsCommandList_ClearState(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
     }
     else
     {
@@ -5542,6 +6623,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
     if (call_scope == 1)
     {
         object_->DrawInstanced(
+            VertexCountPerInstance,
+            InstanceCount,
+            StartVertexLocation,
+            StartInstanceLocation);
+
+        Encode_ID3D12GraphicsCommandList_DrawInstanced(
+            GetCaptureId(),
             VertexCountPerInstance,
             InstanceCount,
             StartVertexLocation,
@@ -5577,6 +6665,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
             StartIndexLocation,
             BaseVertexLocation,
             StartInstanceLocation);
+
+        Encode_ID3D12GraphicsCommandList_DrawIndexedInstanced(
+            GetCaptureId(),
+            IndexCountPerInstance,
+            InstanceCount,
+            StartIndexLocation,
+            BaseVertexLocation,
+            StartInstanceLocation);
     }
     else
     {
@@ -5605,6 +6701,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
             ThreadGroupCountX,
             ThreadGroupCountY,
             ThreadGroupCountZ);
+
+        Encode_ID3D12GraphicsCommandList_Dispatch(
+            GetCaptureId(),
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
     }
     else
     {
@@ -5630,6 +6732,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
     if (call_scope == 1)
     {
         object_->CopyBufferRegion(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            DstOffset,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            SrcOffset,
+            NumBytes);
+
+        Encode_ID3D12GraphicsCommandList_CopyBufferRegion(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
             DstOffset,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
@@ -5671,6 +6781,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
             DstZ,
             UnwrapStructPtrObjects(pSrc, unwrap_memory),
             pSrcBox);
+
+        Encode_ID3D12GraphicsCommandList_CopyTextureRegion(
+            GetCaptureId(),
+            UnwrapStructPtrObjects(pDst, unwrap_memory),
+            DstX,
+            DstY,
+            DstZ,
+            UnwrapStructPtrObjects(pSrc, unwrap_memory),
+            pSrcBox);
     }
     else
     {
@@ -5698,6 +6817,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
         object_->CopyResource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
+
+        Encode_ID3D12GraphicsCommandList_CopyResource(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
     }
     else
     {
@@ -5723,6 +6847,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
     if (call_scope == 1)
     {
         object_->CopyTiles(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
+            pTileRegionStartCoordinate,
+            pTileRegionSize,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            BufferStartOffsetInBytes,
+            Flags);
+
+        Encode_ID3D12GraphicsCommandList_CopyTiles(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
             pTileRegionStartCoordinate,
             pTileRegionSize,
@@ -5762,6 +6895,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
             SrcSubresource,
             Format);
+
+        Encode_ID3D12GraphicsCommandList_ResolveSubresource(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            DstSubresource,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            SrcSubresource,
+            Format);
     }
     else
     {
@@ -5786,6 +6927,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
     {
         object_->IASetPrimitiveTopology(
             PrimitiveTopology);
+
+        Encode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
+            GetCaptureId(),
+            PrimitiveTopology);
     }
     else
     {
@@ -5806,6 +6951,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
     if (call_scope == 1)
     {
         object_->RSSetViewports(
+            NumViewports,
+            pViewports);
+
+        Encode_ID3D12GraphicsCommandList_RSSetViewports(
+            GetCaptureId(),
             NumViewports,
             pViewports);
     }
@@ -5831,6 +6981,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
         object_->RSSetScissorRects(
             NumRects,
             pRects);
+
+        Encode_ID3D12GraphicsCommandList_RSSetScissorRects(
+            GetCaptureId(),
+            NumRects,
+            pRects);
     }
     else
     {
@@ -5852,6 +7007,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
     {
         object_->OMSetBlendFactor(
             BlendFactor);
+
+        Encode_ID3D12GraphicsCommandList_OMSetBlendFactor(
+            GetCaptureId(),
+            BlendFactor);
     }
     else
     {
@@ -5872,6 +7031,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
     {
         object_->OMSetStencilRef(
             StencilRef);
+
+        Encode_ID3D12GraphicsCommandList_OMSetStencilRef(
+            GetCaptureId(),
+            StencilRef);
     }
     else
     {
@@ -5891,6 +7054,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
     if (call_scope == 1)
     {
         object_->SetPipelineState(
+            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+
+        Encode_ID3D12GraphicsCommandList_SetPipelineState(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
     }
     else
@@ -5916,6 +7083,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
         object_->ResourceBarrier(
             NumBarriers,
             UnwrapStructArrayObjects(pBarriers, NumBarriers, unwrap_memory));
+
+        Encode_ID3D12GraphicsCommandList_ResourceBarrier(
+            GetCaptureId(),
+            NumBarriers,
+            UnwrapStructArrayObjects(pBarriers, NumBarriers, unwrap_memory));
     }
     else
     {
@@ -5936,6 +7108,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
     if (call_scope == 1)
     {
         object_->ExecuteBundle(
+            encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
+
+        Encode_ID3D12GraphicsCommandList_ExecuteBundle(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
     }
     else
@@ -5961,6 +7137,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
         object_->SetDescriptorHeaps(
             NumDescriptorHeaps,
             UnwrapObjects<ID3D12DescriptorHeap_Wrapper, ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps, unwrap_memory));
+
+        Encode_ID3D12GraphicsCommandList_SetDescriptorHeaps(
+            GetCaptureId(),
+            NumDescriptorHeaps,
+            UnwrapObjects<ID3D12DescriptorHeap_Wrapper, ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps, unwrap_memory));
     }
     else
     {
@@ -5982,6 +7163,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
     {
         object_->SetComputeRootSignature(
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRootSignature(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
     }
     else
     {
@@ -6001,6 +7186,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
     if (call_scope == 1)
     {
         object_->SetGraphicsRootSignature(
+            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
     }
     else
@@ -6022,6 +7211,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
     if (call_scope == 1)
     {
         object_->SetComputeRootDescriptorTable(
+            RootParameterIndex,
+            BaseDescriptor);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
+            GetCaptureId(),
             RootParameterIndex,
             BaseDescriptor);
     }
@@ -6047,6 +7241,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
         object_->SetGraphicsRootDescriptorTable(
             RootParameterIndex,
             BaseDescriptor);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
+            GetCaptureId(),
+            RootParameterIndex,
+            BaseDescriptor);
     }
     else
     {
@@ -6069,6 +7268,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     if (call_scope == 1)
     {
         object_->SetComputeRoot32BitConstant(
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
+            GetCaptureId(),
             RootParameterIndex,
             SrcData,
             DestOffsetIn32BitValues);
@@ -6098,6 +7303,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
             RootParameterIndex,
             SrcData,
             DestOffsetIn32BitValues);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
+            GetCaptureId(),
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
     }
     else
     {
@@ -6122,6 +7333,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     if (call_scope == 1)
     {
         object_->SetComputeRoot32BitConstants(
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
+            GetCaptureId(),
             RootParameterIndex,
             Num32BitValuesToSet,
             pSrcData,
@@ -6155,6 +7373,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
             Num32BitValuesToSet,
             pSrcData,
             DestOffsetIn32BitValues);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
+            GetCaptureId(),
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
     }
     else
     {
@@ -6180,6 +7405,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
         object_->SetComputeRootConstantBufferView(
             RootParameterIndex,
             BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
+            GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
     }
     else
     {
@@ -6201,6 +7431,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
     if (call_scope == 1)
     {
         object_->SetGraphicsRootConstantBufferView(
+            RootParameterIndex,
+            BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
+            GetCaptureId(),
             RootParameterIndex,
             BufferLocation);
     }
@@ -6226,6 +7461,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
         object_->SetComputeRootShaderResourceView(
             RootParameterIndex,
             BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
+            GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
     }
     else
     {
@@ -6247,6 +7487,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
     if (call_scope == 1)
     {
         object_->SetGraphicsRootShaderResourceView(
+            RootParameterIndex,
+            BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
+            GetCaptureId(),
             RootParameterIndex,
             BufferLocation);
     }
@@ -6272,6 +7517,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
         object_->SetComputeRootUnorderedAccessView(
             RootParameterIndex,
             BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
+            GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
     }
     else
     {
@@ -6295,6 +7545,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
         object_->SetGraphicsRootUnorderedAccessView(
             RootParameterIndex,
             BufferLocation);
+
+        Encode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
+            GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
     }
     else
     {
@@ -6315,6 +7570,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
     if (call_scope == 1)
     {
         object_->IASetIndexBuffer(
+            pView);
+
+        Encode_ID3D12GraphicsCommandList_IASetIndexBuffer(
+            GetCaptureId(),
             pView);
     }
     else
@@ -6337,6 +7596,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
     if (call_scope == 1)
     {
         object_->IASetVertexBuffers(
+            StartSlot,
+            NumViews,
+            pViews);
+
+        Encode_ID3D12GraphicsCommandList_IASetVertexBuffers(
+            GetCaptureId(),
             StartSlot,
             NumViews,
             pViews);
@@ -6366,6 +7631,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
             StartSlot,
             NumViews,
             pViews);
+
+        Encode_ID3D12GraphicsCommandList_SOSetTargets(
+            GetCaptureId(),
+            StartSlot,
+            NumViews,
+            pViews);
     }
     else
     {
@@ -6390,6 +7661,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
     if (call_scope == 1)
     {
         object_->OMSetRenderTargets(
+            NumRenderTargetDescriptors,
+            pRenderTargetDescriptors,
+            RTsSingleHandleToDescriptorRange,
+            pDepthStencilDescriptor);
+
+        Encode_ID3D12GraphicsCommandList_OMSetRenderTargets(
+            GetCaptureId(),
             NumRenderTargetDescriptors,
             pRenderTargetDescriptors,
             RTsSingleHandleToDescriptorRange,
@@ -6427,6 +7705,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
             Stencil,
             NumRects,
             pRects);
+
+        Encode_ID3D12GraphicsCommandList_ClearDepthStencilView(
+            GetCaptureId(),
+            DepthStencilView,
+            ClearFlags,
+            Depth,
+            Stencil,
+            NumRects,
+            pRects);
     }
     else
     {
@@ -6458,6 +7745,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
             ColorRGBA,
             NumRects,
             pRects);
+
+        Encode_ID3D12GraphicsCommandList_ClearRenderTargetView(
+            GetCaptureId(),
+            RenderTargetView,
+            ColorRGBA,
+            NumRects,
+            pRects);
     }
     else
     {
@@ -6485,6 +7779,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     if (call_scope == 1)
     {
         object_->ClearUnorderedAccessViewUint(
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            Values,
+            NumRects,
+            pRects);
+
+        Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
+            GetCaptureId(),
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
@@ -6526,6 +7829,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             Values,
             NumRects,
             pRects);
+
+        Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
+            GetCaptureId(),
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            Values,
+            NumRects,
+            pRects);
     }
     else
     {
@@ -6553,6 +7865,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
         object_->DiscardResource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pRegion);
+
+        Encode_ID3D12GraphicsCommandList_DiscardResource(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pRegion);
     }
     else
     {
@@ -6575,6 +7892,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
     if (call_scope == 1)
     {
         object_->BeginQuery(
+            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            Type,
+            Index);
+
+        Encode_ID3D12GraphicsCommandList_BeginQuery(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
             Type,
             Index);
@@ -6601,6 +7924,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
     if (call_scope == 1)
     {
         object_->EndQuery(
+            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            Type,
+            Index);
+
+        Encode_ID3D12GraphicsCommandList_EndQuery(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
             Type,
             Index);
@@ -6636,6 +7965,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
             NumQueries,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDestinationBuffer),
             AlignedDestinationBufferOffset);
+
+        Encode_ID3D12GraphicsCommandList_ResolveQueryData(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            Type,
+            StartIndex,
+            NumQueries,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDestinationBuffer),
+            AlignedDestinationBufferOffset);
     }
     else
     {
@@ -6665,6 +8003,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
             AlignedBufferOffset,
             Operation);
+
+        Encode_ID3D12GraphicsCommandList_SetPredication(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            AlignedBufferOffset,
+            Operation);
     }
     else
     {
@@ -6688,6 +8032,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
     if (call_scope == 1)
     {
         object_->SetMarker(
+            Metadata,
+            pData,
+            Size);
+
+        Encode_ID3D12GraphicsCommandList_SetMarker(
+            GetCaptureId(),
             Metadata,
             pData,
             Size);
@@ -6717,6 +8067,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
             Metadata,
             pData,
             Size);
+
+        Encode_ID3D12GraphicsCommandList_BeginEvent(
+            GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
     }
     else
     {
@@ -6737,6 +8093,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
     if (call_scope == 1)
     {
         object_->EndEvent();
+
+        Encode_ID3D12GraphicsCommandList_EndEvent(
+            GetCaptureId());
     }
     else
     {
@@ -6760,6 +8119,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
     if (call_scope == 1)
     {
         object_->ExecuteIndirect(
+            encode::GetWrappedObject<ID3D12CommandSignature_Wrapper, ID3D12CommandSignature>(pCommandSignature),
+            MaxCommandCount,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pArgumentBuffer),
+            ArgumentBufferOffset,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCountBuffer),
+            CountBufferOffset);
+
+        Encode_ID3D12GraphicsCommandList_ExecuteIndirect(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12CommandSignature_Wrapper, ID3D12CommandSignature>(pCommandSignature),
             MaxCommandCount,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pArgumentBuffer),
@@ -6809,6 +8177,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
             Dependencies,
             UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
             pDependentSubresourceRanges);
+
+        Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            DstOffset,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            SrcOffset,
+            Dependencies,
+            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            pDependentSubresourceRanges);
     }
     else
     {
@@ -6849,6 +8227,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
             Dependencies,
             UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
             pDependentSubresourceRanges);
+
+        Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            DstOffset,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            SrcOffset,
+            Dependencies,
+            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            pDependentSubresourceRanges);
     }
     else
     {
@@ -6877,6 +8265,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
         object_->OMSetDepthBounds(
             Min,
             Max);
+
+        Encode_ID3D12GraphicsCommandList1_OMSetDepthBounds(
+            GetCaptureId(),
+            Min,
+            Max);
     }
     else
     {
@@ -6899,6 +8292,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
     if (call_scope == 1)
     {
         object_->SetSamplePositions(
+            NumSamplesPerPixel,
+            NumPixels,
+            pSamplePositions);
+
+        Encode_ID3D12GraphicsCommandList1_SetSamplePositions(
+            GetCaptureId(),
             NumSamplesPerPixel,
             NumPixels,
             pSamplePositions);
@@ -6940,6 +8339,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
             pSrcRect,
             Format,
             ResolveMode);
+
+        Encode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            DstSubresource,
+            DstX,
+            DstY,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            SrcSubresource,
+            pSrcRect,
+            Format,
+            ResolveMode);
     }
     else
     {
@@ -6968,6 +8379,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
     {
         object_->SetViewInstanceMask(
             Mask);
+
+        Encode_ID3D12GraphicsCommandList1_SetViewInstanceMask(
+            GetCaptureId(),
+            Mask);
     }
     else
     {
@@ -6993,6 +8408,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
     if (call_scope == 1)
     {
         object_->WriteBufferImmediate(
+            Count,
+            pParams,
+            pModes);
+
+        Encode_ID3D12GraphicsCommandList2_WriteBufferImmediate(
+            GetCaptureId(),
             Count,
             pParams,
             pModes);
@@ -7030,6 +8451,19 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
     if (call_scope == 1)
     {
         object_->UpdateTileMappings(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            NumResourceRegions,
+            pResourceRegionStartCoordinates,
+            pResourceRegionSizes,
+            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            NumRanges,
+            pRangeFlags,
+            pHeapRangeStartOffsets,
+            pRangeTileCounts,
+            Flags);
+
+        Encode_ID3D12CommandQueue_UpdateTileMappings(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             NumResourceRegions,
             pResourceRegionStartCoordinates,
@@ -7079,6 +8513,15 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
             pSrcRegionStartCoordinate,
             pRegionSize,
             Flags);
+
+        Encode_ID3D12CommandQueue_CopyTileMappings(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            pDstRegionStartCoordinate,
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            pSrcRegionStartCoordinate,
+            pRegionSize,
+            Flags);
     }
     else
     {
@@ -7108,6 +8551,11 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
         object_->ExecuteCommandLists(
             NumCommandLists,
             UnwrapObjects<ID3D12CommandList_Wrapper, ID3D12CommandList>(ppCommandLists, NumCommandLists, unwrap_memory));
+
+        Encode_ID3D12CommandQueue_ExecuteCommandLists(
+            GetCaptureId(),
+            NumCommandLists,
+            UnwrapObjects<ID3D12CommandList_Wrapper, ID3D12CommandList>(ppCommandLists, NumCommandLists, unwrap_memory));
     }
     else
     {
@@ -7130,6 +8578,12 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
     if (call_scope == 1)
     {
         object_->SetMarker(
+            Metadata,
+            pData,
+            Size);
+
+        Encode_ID3D12CommandQueue_SetMarker(
+            GetCaptureId(),
             Metadata,
             pData,
             Size);
@@ -7159,6 +8613,12 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
             Metadata,
             pData,
             Size);
+
+        Encode_ID3D12CommandQueue_BeginEvent(
+            GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
     }
     else
     {
@@ -7179,6 +8639,9 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::EndEvent()
     if (call_scope == 1)
     {
         object_->EndEvent();
+
+        Encode_ID3D12CommandQueue_EndEvent(
+            GetCaptureId());
     }
     else
     {
@@ -7200,6 +8663,12 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
     if (call_scope == 1)
     {
         result = object_->Signal(
+            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            Value);
+
+        Encode_ID3D12CommandQueue_Signal(
+            GetCaptureId(),
+            result,
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
             Value);
     }
@@ -7229,6 +8698,12 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
         result = object_->Wait(
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
             Value);
+
+        Encode_ID3D12CommandQueue_Wait(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            Value);
     }
     else
     {
@@ -7253,6 +8728,11 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetTimestampFrequency(
     if (call_scope == 1)
     {
         result = object_->GetTimestampFrequency(
+            pFrequency);
+
+        Encode_ID3D12CommandQueue_GetTimestampFrequency(
+            GetCaptureId(),
+            result,
             pFrequency);
     }
     else
@@ -7280,6 +8760,12 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetClockCalibration(
         result = object_->GetClockCalibration(
             pGpuTimestamp,
             pCpuTimestamp);
+
+        Encode_ID3D12CommandQueue_GetClockCalibration(
+            GetCaptureId(),
+            result,
+            pGpuTimestamp,
+            pCpuTimestamp);
     }
     else
     {
@@ -7303,6 +8789,10 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
     if (call_scope == 1)
     {
         result = object_->GetDesc();
+
+        Encode_ID3D12CommandQueue_GetDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -7328,6 +8818,10 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
     if (call_scope == 1)
     {
         result = object_->GetNodeCount();
+
+        Encode_ID3D12Device_GetNodeCount(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -7360,6 +8854,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
         {
             WrapObject(riid, ppCommandQueue, nullptr);
         }
+
+        Encode_ID3D12Device_CreateCommandQueue(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppCommandQueue);
     }
     else
     {
@@ -7395,6 +8896,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
         {
             WrapObject(riid, ppCommandAllocator, nullptr);
         }
+
+        Encode_ID3D12Device_CreateCommandAllocator(
+            GetCaptureId(),
+            result,
+            type,
+            riid,
+            ppCommandAllocator);
     }
     else
     {
@@ -7432,6 +8940,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12Device_CreateGraphicsPipelineState(
+            GetCaptureId(),
+            result,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -7469,6 +8984,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12Device_CreateComputePipelineState(
+            GetCaptureId(),
+            result,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -7510,6 +9032,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
         {
             WrapObject(riid, ppCommandList, nullptr);
         }
+
+        Encode_ID3D12Device_CreateCommandList(
+            GetCaptureId(),
+            result,
+            nodeMask,
+            type,
+            encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pCommandAllocator),
+            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState),
+            riid,
+            ppCommandList);
     }
     else
     {
@@ -7540,6 +9072,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
     if (call_scope == 1)
     {
         result = object_->CheckFeatureSupport(
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        Encode_ID3D12Device_CheckFeatureSupport(
+            GetCaptureId(),
+            result,
             Feature,
             pFeatureSupportData,
             FeatureSupportDataSize);
@@ -7578,6 +9117,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device_CreateDescriptorHeap(
+            GetCaptureId(),
+            result,
+            pDescriptorHeapDesc,
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -7603,6 +9149,11 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDescriptorHandleIncrementSize(
     if (call_scope == 1)
     {
         result = object_->GetDescriptorHandleIncrementSize(
+            DescriptorHeapType);
+
+        Encode_ID3D12Device_GetDescriptorHandleIncrementSize(
+            GetCaptureId(),
+            result,
             DescriptorHeapType);
     }
     else
@@ -7641,6 +9192,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
         {
             WrapObject(riid, ppvRootSignature, nullptr);
         }
+
+        Encode_ID3D12Device_CreateRootSignature(
+            GetCaptureId(),
+            result,
+            nodeMask,
+            pBlobWithRootSignature,
+            blobLengthInBytes,
+            riid,
+            ppvRootSignature);
     }
     else
     {
@@ -7669,6 +9229,11 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
         object_->CreateConstantBufferView(
             pDesc,
             DestDescriptor);
+
+        Encode_ID3D12Device_CreateConstantBufferView(
+            GetCaptureId(),
+            pDesc,
+            DestDescriptor);
     }
     else
     {
@@ -7691,6 +9256,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
     if (call_scope == 1)
     {
         object_->CreateShaderResourceView(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
+
+        Encode_ID3D12Device_CreateShaderResourceView(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
             DestDescriptor);
@@ -7722,6 +9293,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
             pDesc,
             DestDescriptor);
+
+        Encode_ID3D12Device_CreateUnorderedAccessView(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
+            pDesc,
+            DestDescriptor);
     }
     else
     {
@@ -7746,6 +9324,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
     if (call_scope == 1)
     {
         object_->CreateRenderTargetView(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
+
+        Encode_ID3D12Device_CreateRenderTargetView(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
             DestDescriptor);
@@ -7775,6 +9359,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
             DestDescriptor);
+
+        Encode_ID3D12Device_CreateDepthStencilView(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
     }
     else
     {
@@ -7797,6 +9387,11 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
     if (call_scope == 1)
     {
         object_->CreateSampler(
+            pDesc,
+            DestDescriptor);
+
+        Encode_ID3D12Device_CreateSampler(
+            GetCaptureId(),
             pDesc,
             DestDescriptor);
     }
@@ -7825,6 +9420,16 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
     if (call_scope == 1)
     {
         object_->CopyDescriptors(
+            NumDestDescriptorRanges,
+            pDestDescriptorRangeStarts,
+            pDestDescriptorRangeSizes,
+            NumSrcDescriptorRanges,
+            pSrcDescriptorRangeStarts,
+            pSrcDescriptorRangeSizes,
+            DescriptorHeapsType);
+
+        Encode_ID3D12Device_CopyDescriptors(
+            GetCaptureId(),
             NumDestDescriptorRanges,
             pDestDescriptorRangeStarts,
             pDestDescriptorRangeSizes,
@@ -7864,6 +9469,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
             DestDescriptorRangeStart,
             SrcDescriptorRangeStart,
             DescriptorHeapsType);
+
+        Encode_ID3D12Device_CopyDescriptorsSimple(
+            GetCaptureId(),
+            NumDescriptors,
+            DestDescriptorRangeStart,
+            SrcDescriptorRangeStart,
+            DescriptorHeapsType);
     }
     else
     {
@@ -7893,6 +9505,13 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
             visibleMask,
             numResourceDescs,
             pResourceDescs);
+
+        Encode_ID3D12Device_GetResourceAllocationInfo(
+            GetCaptureId(),
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs);
     }
     else
     {
@@ -7919,6 +9538,12 @@ D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCustomHeapPrope
     if (call_scope == 1)
     {
         result = object_->GetCustomHeapProperties(
+            nodeMask,
+            heapType);
+
+        Encode_ID3D12Device_GetCustomHeapProperties(
+            GetCaptureId(),
+            result,
             nodeMask,
             heapType);
     }
@@ -7963,6 +9588,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
         {
             WrapObject(riidResource, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device_CreateCommittedResource(
+            GetCaptureId(),
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            riidResource,
+            ppvResource);
     }
     else
     {
@@ -8002,6 +9638,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device_CreateHeap(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -8045,6 +9688,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
         {
             WrapObject(riid, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device_CreatePlacedResource(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
     }
     else
     {
@@ -8088,6 +9742,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
         {
             WrapObject(riid, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device_CreateReservedResource(
+            GetCaptureId(),
+            result,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
     }
     else
     {
@@ -8119,6 +9782,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
     if (call_scope == 1)
     {
         result = object_->CreateSharedHandle(
+            encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
+            pAttributes,
+            Access,
+            Name,
+            pHandle);
+
+        Encode_ID3D12Device_CreateSharedHandle(
+            GetCaptureId(),
+            result,
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
             pAttributes,
             Access,
@@ -8161,6 +9833,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
         {
             WrapObject(riid, ppvObj, nullptr);
         }
+
+        Encode_ID3D12Device_OpenSharedHandle(
+            GetCaptureId(),
+            result,
+            NTHandle,
+            riid,
+            ppvObj);
     }
     else
     {
@@ -8188,6 +9867,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
     if (call_scope == 1)
     {
         result = object_->OpenSharedHandleByName(
+            Name,
+            Access,
+            pNTHandle);
+
+        Encode_ID3D12Device_OpenSharedHandleByName(
+            GetCaptureId(),
+            result,
             Name,
             Access,
             pNTHandle);
@@ -8221,6 +9907,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
         result = object_->MakeResident(
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+
+        Encode_ID3D12Device_MakeResident(
+            GetCaptureId(),
+            result,
+            NumObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
     }
     else
     {
@@ -8248,6 +9940,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->Evict(
+            NumObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+
+        Encode_ID3D12Device_Evict(
+            GetCaptureId(),
+            result,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
     }
@@ -8286,6 +9984,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
         {
             WrapObject(riid, ppFence, nullptr);
         }
+
+        Encode_ID3D12Device_CreateFence(
+            GetCaptureId(),
+            result,
+            InitialValue,
+            Flags,
+            riid,
+            ppFence);
     }
     else
     {
@@ -8311,6 +10017,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDeviceRemovedReason()
     if (call_scope == 1)
     {
         result = object_->GetDeviceRemovedReason();
+
+        Encode_ID3D12Device_GetDeviceRemovedReason(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -8338,6 +10048,17 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
     if (call_scope == 1)
     {
         object_->GetCopyableFootprints(
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
+        Encode_ID3D12Device_GetCopyableFootprints(
+            GetCaptureId(),
             pResourceDesc,
             FirstSubresource,
             NumSubresources,
@@ -8384,6 +10105,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device_CreateQueryHeap(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -8409,6 +10137,11 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::SetStablePowerState(
     if (call_scope == 1)
     {
         result = object_->SetStablePowerState(
+            Enable);
+
+        Encode_ID3D12Device_SetStablePowerState(
+            GetCaptureId(),
+            result,
             Enable);
     }
     else
@@ -8445,6 +10178,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
         {
             WrapObject(riid, ppvCommandSignature, nullptr);
         }
+
+        Encode_ID3D12Device_CreateCommandSignature(
+            GetCaptureId(),
+            result,
+            pDesc,
+            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature),
+            riid,
+            ppvCommandSignature);
     }
     else
     {
@@ -8482,6 +10223,16 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
             pNumSubresourceTilings,
             FirstSubresourceTilingToGet,
             pSubresourceTilingsForNonPackedMips);
+
+        Encode_ID3D12Device_GetResourceTiling(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
+            pNumTilesForEntireResource,
+            pPackedMipDesc,
+            pStandardTileShapeForNonPackedMips,
+            pNumSubresourceTilings,
+            FirstSubresourceTilingToGet,
+            pSubresourceTilingsForNonPackedMips);
     }
     else
     {
@@ -8508,6 +10259,10 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
     if (call_scope == 1)
     {
         result = object_->GetAdapterLuid();
+
+        Encode_ID3D12Device_GetAdapterLuid(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -8535,6 +10290,12 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
     if (call_scope == 1)
     {
         result = object_->StorePipeline(
+            pName,
+            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
+
+        Encode_ID3D12PipelineLibrary_StorePipeline(
+            GetCaptureId(),
+            result,
             pName,
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
     }
@@ -8575,6 +10336,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
+            GetCaptureId(),
+            result,
+            pName,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -8615,6 +10384,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12PipelineLibrary_LoadComputePipeline(
+            GetCaptureId(),
+            result,
+            pName,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -8640,6 +10417,10 @@ SIZE_T STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::GetSerializedSize()
     if (call_scope == 1)
     {
         result = object_->GetSerializedSize();
+
+        Encode_ID3D12PipelineLibrary_GetSerializedSize(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -8663,6 +10444,12 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::Serialize(
     if (call_scope == 1)
     {
         result = object_->Serialize(
+            pData,
+            DataSizeInBytes);
+
+        Encode_ID3D12PipelineLibrary_Serialize(
+            GetCaptureId(),
+            result,
             pData,
             DataSizeInBytes);
     }
@@ -8705,6 +10492,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12PipelineLibrary1_LoadPipeline(
+            GetCaptureId(),
+            result,
+            pName,
+            pDesc,
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -8747,6 +10542,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
         {
             WrapObject(riid, ppPipelineLibrary, nullptr);
         }
+
+        Encode_ID3D12Device1_CreatePipelineLibrary(
+            GetCaptureId(),
+            result,
+            pLibraryBlob,
+            BlobLength,
+            riid,
+            ppPipelineLibrary);
     }
     else
     {
@@ -8784,6 +10587,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
             NumFences,
             Flags,
             hEvent);
+
+        Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
+            GetCaptureId(),
+            result,
+            UnwrapObjects<ID3D12Fence_Wrapper, ID3D12Fence>(ppFences, NumFences, unwrap_memory),
+            pFenceValues,
+            NumFences,
+            Flags,
+            hEvent);
     }
     else
     {
@@ -8815,6 +10627,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->SetResidencyPriority(
+            NumObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
+            pPriorities);
+
+        Encode_ID3D12Device1_SetResidencyPriority(
+            GetCaptureId(),
+            result,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
             pPriorities);
@@ -8857,6 +10676,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
         {
             WrapObject(riid, ppPipelineState, nullptr);
         }
+
+        Encode_ID3D12Device2_CreatePipelineState(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppPipelineState);
     }
     else
     {
@@ -8896,6 +10722,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device3_OpenExistingHeapFromAddress(
+            GetCaptureId(),
+            result,
+            pAddress,
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -8931,6 +10764,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
+            GetCaptureId(),
+            result,
+            hFileMapping,
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -8962,6 +10802,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->EnqueueMakeResident(
+            Flags,
+            NumObjects,
+            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
+            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFenceToSignal),
+            FenceValueToSignal);
+
+        Encode_ID3D12Device3_EnqueueMakeResident(
+            GetCaptureId(),
+            result,
             Flags,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
@@ -9006,6 +10855,12 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
         {
             WrapObject(riid, ppFence, nullptr);
         }
+
+        Encode_ID3D12ProtectedSession_GetStatusFence(
+            GetCaptureId(),
+            result,
+            riid,
+            ppFence);
     }
     else
     {
@@ -9029,6 +10884,10 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
     if (call_scope == 1)
     {
         result = object_->GetSessionStatus();
+
+        Encode_ID3D12ProtectedSession_GetSessionStatus(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -9054,6 +10913,10 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceS
     if (call_scope == 1)
     {
         result = object_->GetDesc();
+
+        Encode_ID3D12ProtectedResourceSession_GetDesc(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -9094,6 +10957,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
         {
             WrapObject(riid, ppCommandList, nullptr);
         }
+
+        Encode_ID3D12Device4_CreateCommandList1(
+            GetCaptureId(),
+            result,
+            nodeMask,
+            type,
+            flags,
+            riid,
+            ppCommandList);
     }
     else
     {
@@ -9131,6 +11003,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
         {
             WrapObject(riid, ppSession, nullptr);
         }
+
+        Encode_ID3D12Device4_CreateProtectedResourceSession(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppSession);
     }
     else
     {
@@ -9176,6 +11055,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
         {
             WrapObject(riidResource, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device4_CreateCommittedResource1(
+            GetCaptureId(),
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riidResource,
+            ppvResource);
     }
     else
     {
@@ -9218,6 +11109,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
         {
             WrapObject(riid, ppvHeap, nullptr);
         }
+
+        Encode_ID3D12Device4_CreateHeap1(
+            GetCaptureId(),
+            result,
+            pDesc,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riid,
+            ppvHeap);
     }
     else
     {
@@ -9260,6 +11159,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
         {
             WrapObject(riid, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device4_CreateReservedResource1(
+            GetCaptureId(),
+            result,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riid,
+            ppvResource);
     }
     else
     {
@@ -9295,6 +11204,14 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
             numResourceDescs,
             pResourceDescs,
             pResourceAllocationInfo1);
+
+        Encode_ID3D12Device4_GetResourceAllocationInfo1(
+            GetCaptureId(),
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
     }
     else
     {
@@ -9324,6 +11241,10 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
     {
         object_->LifetimeStateUpdated(
             NewState);
+
+        Encode_ID3D12LifetimeOwner_LifetimeStateUpdated(
+            GetCaptureId(),
+            NewState);
     }
     else
     {
@@ -9348,6 +11269,10 @@ LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
     if (call_scope == 1)
     {
         result = object_->GetLUID();
+
+        Encode_ID3D12SwapChainAssistant_GetLUID(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -9378,6 +11303,12 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
         {
             WrapObject(riid, ppv, nullptr);
         }
+
+        Encode_ID3D12SwapChainAssistant_GetSwapChainObject(
+            GetCaptureId(),
+            result,
+            riid,
+            ppv);
     }
     else
     {
@@ -9415,6 +11346,14 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
             WrapObject(riidResource, ppvResource, nullptr);
             WrapObject(riidQueue, ppvQueue, nullptr);
         }
+
+        Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
+            GetCaptureId(),
+            result,
+            riidResource,
+            ppvResource,
+            riidQueue,
+            ppvQueue);
     }
     else
     {
@@ -9440,6 +11379,10 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
     if (call_scope == 1)
     {
         result = object_->InsertImplicitSync();
+
+        Encode_ID3D12SwapChainAssistant_InsertImplicitSync(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -9466,6 +11409,11 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
     if (call_scope == 1)
     {
         result = object_->DestroyOwnedObject(
+            encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
+
+        Encode_ID3D12LifetimeTracker_DestroyOwnedObject(
+            GetCaptureId(),
+            result,
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
     }
     else
@@ -9499,6 +11447,11 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
     {
         result = object_->GetShaderIdentifier(
             pExportName);
+
+        Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
+            GetCaptureId(),
+            result,
+            pExportName);
     }
     else
     {
@@ -9523,6 +11476,11 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderStackSize
     {
         result = object_->GetShaderStackSize(
             pExportName);
+
+        Encode_ID3D12StateObjectProperties_GetShaderStackSize(
+            GetCaptureId(),
+            result,
+            pExportName);
     }
     else
     {
@@ -9545,6 +11503,10 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
     if (call_scope == 1)
     {
         result = object_->GetPipelineStackSize();
+
+        Encode_ID3D12StateObjectProperties_GetPipelineStackSize(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -9565,6 +11527,10 @@ void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize
     if (call_scope == 1)
     {
         object_->SetPipelineStackSize(
+            PipelineStackSizeInBytes);
+
+        Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
+            GetCaptureId(),
             PipelineStackSizeInBytes);
     }
     else
@@ -9601,6 +11567,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
         {
             WrapObject(riid, ppvTracker, nullptr);
         }
+
+        Encode_ID3D12Device5_CreateLifetimeTracker(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<ID3D12LifetimeOwner_Wrapper, ID3D12LifetimeOwner>(pOwner),
+            riid,
+            ppvTracker);
     }
     else
     {
@@ -9623,6 +11596,9 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::RemoveDevice()
     if (call_scope == 1)
     {
         object_->RemoveDevice();
+
+        Encode_ID3D12Device5_RemoveDevice(
+            GetCaptureId());
     }
     else
     {
@@ -9644,6 +11620,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommands(
     if (call_scope == 1)
     {
         result = object_->EnumerateMetaCommands(
+            pNumMetaCommands,
+            pDescs);
+
+        Encode_ID3D12Device5_EnumerateMetaCommands(
+            GetCaptureId(),
+            result,
             pNumMetaCommands,
             pDescs);
     }
@@ -9674,6 +11656,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
     if (call_scope == 1)
     {
         result = object_->EnumerateMetaCommandParameters(
+            CommandId,
+            Stage,
+            pTotalStructureSizeInBytes,
+            pParameterCount,
+            pParameterDescs);
+
+        Encode_ID3D12Device5_EnumerateMetaCommandParameters(
+            GetCaptureId(),
+            result,
             CommandId,
             Stage,
             pTotalStructureSizeInBytes,
@@ -9722,6 +11713,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
         {
             WrapObject(riid, ppMetaCommand, nullptr);
         }
+
+        Encode_ID3D12Device5_CreateMetaCommand(
+            GetCaptureId(),
+            result,
+            CommandId,
+            NodeMask,
+            pCreationParametersData,
+            CreationParametersDataSizeInBytes,
+            riid,
+            ppMetaCommand);
     }
     else
     {
@@ -9760,6 +11761,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
         {
             WrapObject(riid, ppStateObject, nullptr);
         }
+
+        Encode_ID3D12Device5_CreateStateObject(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppStateObject);
     }
     else
     {
@@ -9786,6 +11794,11 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
         object_->GetRaytracingAccelerationStructurePrebuildInfo(
             pDesc,
             pInfo);
+
+        Encode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
+            GetCaptureId(),
+            pDesc,
+            pInfo);
     }
     else
     {
@@ -9809,6 +11822,12 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
     if (call_scope == 1)
     {
         result = object_->CheckDriverMatchingIdentifier(
+            SerializedDataType,
+            pIdentifierToCheck);
+
+        Encode_ID3D12Device5_CheckDriverMatchingIdentifier(
+            GetCaptureId(),
+            result,
             SerializedDataType,
             pIdentifierToCheck);
     }
@@ -9838,6 +11857,10 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoB
     {
         object_->SetAutoBreadcrumbsEnablement(
             Enablement);
+
+        Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
+            GetCaptureId(),
+            Enablement);
     }
     else
     {
@@ -9858,6 +11881,10 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageF
     {
         object_->SetPageFaultEnablement(
             Enablement);
+
+        Encode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
+            GetCaptureId(),
+            Enablement);
     }
     else
     {
@@ -9877,6 +11904,10 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetWatso
     if (call_scope == 1)
     {
         object_->SetWatsonDumpEnablement(
+            Enablement);
+
+        Encode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
+            GetCaptureId(),
             Enablement);
     }
     else
@@ -9901,6 +11932,10 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
     if (call_scope == 1)
     {
         object_->SetBreadcrumbContextEnablement(
+            Enablement);
+
+        Encode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
+            GetCaptureId(),
             Enablement);
     }
     else
@@ -9928,6 +11963,11 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadc
     {
         result = object_->GetAutoBreadcrumbsOutput(
             pOutput);
+
+        Encode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
+            GetCaptureId(),
+            result,
+            pOutput);
     }
     else
     {
@@ -9951,6 +11991,11 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetPageFaultA
     if (call_scope == 1)
     {
         result = object_->GetPageFaultAllocationOutput(
+            pOutput);
+
+        Encode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
+            GetCaptureId(),
+            result,
             pOutput);
     }
     else
@@ -9980,6 +12025,11 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetAutoBread
     {
         result = object_->GetAutoBreadcrumbsOutput1(
             pOutput);
+
+        Encode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
+            GetCaptureId(),
+            result,
+            pOutput);
     }
     else
     {
@@ -10003,6 +12053,11 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
     if (call_scope == 1)
     {
         result = object_->GetPageFaultAllocationOutput1(
+            pOutput);
+
+        Encode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
+            GetCaptureId(),
+            result,
             pOutput);
     }
     else
@@ -10038,6 +12093,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
             MeasurementsAction,
             hEventToSignalUponCompletion,
             pbFurtherMeasurementsDesired);
+
+        Encode_ID3D12Device6_SetBackgroundProcessingMode(
+            GetCaptureId(),
+            result,
+            Mode,
+            MeasurementsAction,
+            hEventToSignalUponCompletion,
+            pbFurtherMeasurementsDesired);
     }
     else
     {
@@ -10067,6 +12130,10 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResource
     if (call_scope == 1)
     {
         result = object_->GetDesc1();
+
+        Encode_ID3D12ProtectedResourceSession1_GetDesc1(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -10105,6 +12172,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
         {
             WrapObject(riid, ppNewStateObject, nullptr);
         }
+
+        Encode_ID3D12Device7_AddToStateObject(
+            GetCaptureId(),
+            result,
+            pAddition,
+            encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObjectToGrowFrom),
+            riid,
+            ppNewStateObject);
     }
     else
     {
@@ -10141,6 +12216,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
         {
             WrapObject(riid, ppSession, nullptr);
         }
+
+        Encode_ID3D12Device7_CreateProtectedResourceSession1(
+            GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppSession);
     }
     else
     {
@@ -10173,6 +12255,14 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
     if (call_scope == 1)
     {
         result = object_->GetResourceAllocationInfo2(
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
+
+        Encode_ID3D12Device8_GetResourceAllocationInfo2(
+            GetCaptureId(),
+            result,
             visibleMask,
             numResourceDescs,
             pResourceDescs,
@@ -10223,6 +12313,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
         {
             WrapObject(riidResource, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device8_CreateCommittedResource2(
+            GetCaptureId(),
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riidResource,
+            ppvResource);
     }
     else
     {
@@ -10271,6 +12373,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
         {
             WrapObject(riid, ppvResource, nullptr);
         }
+
+        Encode_ID3D12Device8_CreatePlacedResource1(
+            GetCaptureId(),
+            result,
+            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
     }
     else
     {
@@ -10303,6 +12416,12 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
             DestDescriptor);
+
+        Encode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
+            DestDescriptor);
     }
     else
     {
@@ -10331,6 +12450,17 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
     if (call_scope == 1)
     {
         object_->GetCopyableFootprints1(
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
+        Encode_ID3D12Device8_GetCopyableFootprints1(
+            GetCaptureId(),
             pResourceDesc,
             FirstSubresource,
             NumSubresources,
@@ -10379,6 +12509,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
         {
             WrapObject(riid, ppProtectedSession, nullptr);
         }
+
+        Encode_ID3D12Resource1_GetProtectedResourceSession(
+            GetCaptureId(),
+            result,
+            riid,
+            ppProtectedSession);
     }
     else
     {
@@ -10406,6 +12542,10 @@ D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_Wrapper::GetDesc1()
     if (call_scope == 1)
     {
         result = object_->GetDesc1();
+
+        Encode_ID3D12Resource2_GetDesc1(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -10440,6 +12580,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
         {
             WrapObject(riid, ppProtectedSession, nullptr);
         }
+
+        Encode_ID3D12Heap1_GetProtectedResourceSession(
+            GetCaptureId(),
+            result,
+            riid,
+            ppProtectedSession);
     }
     else
     {
@@ -10467,6 +12613,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
     {
         object_->SetProtectedResourceSession(
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
+
+        Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
     }
     else
     {
@@ -10493,6 +12643,12 @@ UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResource
     if (call_scope == 1)
     {
         result = object_->GetRequiredParameterResourceSize(
+            Stage,
+            ParameterIndex);
+
+        Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
+            GetCaptureId(),
+            result,
             Stage,
             ParameterIndex);
     }
@@ -10528,6 +12684,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
             pRenderTargets,
             pDepthStencil,
             Flags);
+
+        Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
+            GetCaptureId(),
+            NumRenderTargets,
+            pRenderTargets,
+            pDepthStencil,
+            Flags);
     }
     else
     {
@@ -10549,6 +12712,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
     if (call_scope == 1)
     {
         object_->EndRenderPass();
+
+        Encode_ID3D12GraphicsCommandList4_EndRenderPass(
+            GetCaptureId());
     }
     else
     {
@@ -10569,6 +12735,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
     if (call_scope == 1)
     {
         object_->InitializeMetaCommand(
+            encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pInitializationParametersData,
+            InitializationParametersDataSizeInBytes);
+
+        Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
             pInitializationParametersData,
             InitializationParametersDataSizeInBytes);
@@ -10598,6 +12770,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
             pExecutionParametersData,
             ExecutionParametersDataSizeInBytes);
+
+        Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pExecutionParametersData,
+            ExecutionParametersDataSizeInBytes);
     }
     else
     {
@@ -10621,6 +12799,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
     if (call_scope == 1)
     {
         object_->BuildRaytracingAccelerationStructure(
+            pDesc,
+            NumPostbuildInfoDescs,
+            pPostbuildInfoDescs);
+
+        Encode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+            GetCaptureId(),
             pDesc,
             NumPostbuildInfoDescs,
             pPostbuildInfoDescs);
@@ -10650,6 +12834,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
             pDesc,
             NumSourceAccelerationStructures,
             pSourceAccelerationStructureData);
+
+        Encode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
+            GetCaptureId(),
+            pDesc,
+            NumSourceAccelerationStructures,
+            pSourceAccelerationStructureData);
     }
     else
     {
@@ -10676,6 +12866,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
             DestAccelerationStructureData,
             SourceAccelerationStructureData,
             Mode);
+
+        Encode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
+            GetCaptureId(),
+            DestAccelerationStructureData,
+            SourceAccelerationStructureData,
+            Mode);
     }
     else
     {
@@ -10698,6 +12894,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
     {
         object_->SetPipelineState1(
             encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
+
+        Encode_ID3D12GraphicsCommandList4_SetPipelineState1(
+            GetCaptureId(),
+            encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
     }
     else
     {
@@ -10717,6 +12917,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
     if (call_scope == 1)
     {
         object_->DispatchRays(
+            pDesc);
+
+        Encode_ID3D12GraphicsCommandList4_DispatchRays(
+            GetCaptureId(),
             pDesc);
     }
     else
@@ -10742,6 +12946,10 @@ void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
     {
         object_->EnableShaderInstrumentation(
             bEnable);
+
+        Encode_ID3D12Tools_EnableShaderInstrumentation(
+            GetCaptureId(),
+            bEnable);
     }
     else
     {
@@ -10762,6 +12970,10 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
     if (call_scope == 1)
     {
         result = object_->ShaderInstrumentationEnabled();
+
+        Encode_ID3D12Tools_ShaderInstrumentationEnabled(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -10789,6 +13001,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
         object_->RSSetShadingRate(
             baseShadingRate,
             combiners);
+
+        Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
+            GetCaptureId(),
+            baseShadingRate,
+            combiners);
     }
     else
     {
@@ -10809,6 +13026,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
     if (call_scope == 1)
     {
         object_->RSSetShadingRateImage(
+            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
+
+        Encode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
+            GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
     }
     else
@@ -10835,6 +13056,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
     if (call_scope == 1)
     {
         object_->DispatchMesh(
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
+
+        Encode_ID3D12GraphicsCommandList6_DispatchMesh(
+            GetCaptureId(),
             ThreadGroupCountX,
             ThreadGroupCountY,
             ThreadGroupCountZ);
@@ -10870,6 +13097,10 @@ LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
     if (call_scope == 1)
     {
         result = object_->GetBufferPointer();
+
+        Encode_ID3D10Blob_GetBufferPointer(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -10891,6 +13122,10 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
     if (call_scope == 1)
     {
         result = object_->GetBufferSize();
+
+        Encode_ID3D10Blob_GetBufferSize(
+            GetCaptureId(),
+            result);
     }
     else
     {
@@ -10922,6 +13157,13 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
             callbackFn,
             pData,
             pCallbackID);
+
+        Encode_ID3DDestructionNotifier_RegisterDestructionCallback(
+            GetCaptureId(),
+            result,
+            callbackFn,
+            pData,
+            pCallbackID);
     }
     else
     {
@@ -10947,6 +13189,11 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
     if (call_scope == 1)
     {
         result = object_->UnregisterDestructionCallback(
+            callbackID);
+
+        Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
+            GetCaptureId(),
+            result,
             callbackID);
     }
     else

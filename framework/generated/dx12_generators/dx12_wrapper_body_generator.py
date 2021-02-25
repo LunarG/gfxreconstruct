@@ -254,6 +254,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         expr += self.gen_wrap_object(return_type, parameters, indent)
 
+        expr += '\n'
+        expr += indent + 'Encode_{}('.format(name)
+        encode_args = ''
+        if args or (return_type != 'void'):
+            expr += '\n'
+            if return_type != 'void':
+                encode_args += self.increment_indent(indent) + 'result'
+            if args:
+                if encode_args:
+                    encode_args += ',\n'
+                encode_args += args
+        expr += encode_args + ');\n'
+
         indent = self.decrement_indent(indent)
         expr += indent + '}\n'
 
@@ -373,6 +386,18 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += ');\n'
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
+
+            expr += '\n'
+            expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
+            encode_args = self.increment_indent(indent) + 'GetCaptureId()'
+            if args or (return_type != 'void'):
+                if return_type != 'void':
+                    encode_args += ',\n'
+                    encode_args += self.increment_indent(indent) + 'result'
+                if args:
+                    encode_args += ',\n'
+                    encode_args += args
+            expr += encode_args + ');\n'
 
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
@@ -515,6 +540,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
         code += '#include "encode/trace_manager.h"\n'
+        code += '#include "generated/generated_dx12_api_call_encoders.h"\n'
         code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'
         code += '#include "util/defines.h"\n'
