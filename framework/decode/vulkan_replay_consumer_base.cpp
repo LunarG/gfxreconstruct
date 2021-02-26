@@ -145,7 +145,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false),
-    create_surface_count_(0)
+    create_surface_count_(0), fps_info_(nullptr)
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -211,6 +211,10 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
     GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
     loading_trim_state_ = false;
+    if (fps_info_ != nullptr)
+    {
+        fps_info_->ProcessStateEndMarker(frame_number);
+    }
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)

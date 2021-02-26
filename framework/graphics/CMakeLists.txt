@@ -29,6 +29,8 @@ add_library(gfxrecon_graphics STATIC "")
 
 target_sources(gfxrecon_graphics
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
