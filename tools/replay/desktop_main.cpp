@@ -29,8 +29,8 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "graphics/fps_info.h"
 #include "util/argument_parser.h"
-#include "util/date_time.h"
 #include "util/logging.h"
 
 #include <exception>
@@ -211,12 +211,14 @@ int main(int argc, const char** argv)
             }
             else
             {
+                gfxrecon::graphics::FpsInfo                    fps_info;
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
                     window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
                 gfxrecon::decode::VulkanDecoder decoder;
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
@@ -225,29 +227,14 @@ int main(int argc, const char** argv)
                 // Warn if the capture layer is active.
                 CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
 
-                // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = 1;
-                int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
+                fps_info.Begin();
 
                 application->Run();
 
                 if ((file_processor.GetCurrentFrameNumber() > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    // Grab the end frame/time information and calculate FPS.
-                    int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
-                    double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
-                        gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
-                    uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
-                    uint32_t total_frames = (end_frame - start_frame) + 1;
-                    double   fps          = static_cast<double>(total_frames) / diff_time_sec;
-                    GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
-                                           fps,
-                                           diff_time_sec,
-                                           total_frames,
-                                           total_frames > 1 ? "s" : "",
-                                           start_frame,
-                                           end_frame);
+                    fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
                 }
                 else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
                 {
