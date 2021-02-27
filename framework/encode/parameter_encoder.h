@@ -25,6 +25,9 @@
 #define GFXRECON_ENCODE_PARAMETER_ENCODER_H
 
 #include "encode/vulkan_handle_wrapper_util.h"
+#if defined(WIN32)
+#include "encode/dx12_object_wrapper_util.h"
+#endif
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/output_stream.h"
@@ -201,6 +204,60 @@ class ParameterEncoder
             EncodeSizeTValue(len);
         }
     }
+
+#if defined(WIN32)
+    template <typename T, typename U>
+    void EncodeObjectValue(const U* value)
+    {
+        EncodeHandleIdValue(GetWrappedId<T, U>(value));
+    }
+
+    template <typename U>
+    void EncodeObjectValue(const U* value)
+    {
+        EncodeHandleIdValue(GetWrappedId<IUnknown_Wrapper, U>(value));
+    }
+
+    template <typename T, typename U>
+    void EncodeObjectArray(U* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeWrappedObjectArray<T, U>(arr, len, omit_data, omit_addr);
+    }
+
+    template <typename U>
+    void EncodeObjectArray(U* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeWrappedObjectArray<IUnknown_Wrapper, U>(arr, len, omit_data, omit_addr);
+    }
+
+    template <typename T, typename SrcT>
+    void EncodeWrappedObjectArray(SrcT* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    {
+        uint32_t pointer_attrib =
+            format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
+
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            EncodeSizeTValue(len);
+
+            if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    EncodeObjectValue(arr[i]);
+                }
+            }
+        }
+    }
+#endif
 
   private:
     uint32_t GetPointerAttributeMask(const void* ptr, bool omit_data, bool omit_addr)

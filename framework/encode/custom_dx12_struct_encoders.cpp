@@ -28,43 +28,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeDxObject(ParameterEncoder* encoder, const IUnknown* const object)
-{
-    encoder->EncodeHandleIdValue(GetWrappedId<IUnknown_Wrapper, IUnknown>(object));
-}
-
-template <typename T>
-void EncodeDxObject(ParameterEncoder* encoder, T** const object)
-{
-    EncodeDxObject(encoder, *object);
-}
-
-void EncodeDxObject(ParameterEncoder* encoder, void** object)
-{
-    if ((object == nullptr) || (*object == nullptr))
-    {
-        const IUnknown* const null_object = nullptr;
-        EncodeDxObject(encoder, null_object);
-    }
-    else
-    {
-        EncodeDxObject(encoder, reinterpret_cast<IUnknown*>(*object));
-    }
-}
-
-template <typename T>
-void EncodeDxObjectArray(ParameterEncoder* encoder, T* const* value, size_t len, bool omit_data, bool omit_addr)
-{
-    encoder->EncodeStructArrayPreamble(value, len, omit_data, omit_addr);
-    if ((value != nullptr) && (len > 0) && !omit_data)
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            EncodeDxObject(encoder, value[i]);
-        }
-    }
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value)
 {
     encoder->EncodeEnumValue(value.Format);
@@ -94,7 +57,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_BARRIER& value
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_TEXTURE_COPY_LOCATION& value)
 {
-    EncodeDxObject(encoder, value.pResource);
+    encoder->EncodeObjectValue(value.pResource);
     encoder->EncodeEnumValue(value.Type);
 
     switch (value.Type)

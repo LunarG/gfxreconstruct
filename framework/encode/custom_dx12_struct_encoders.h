@@ -30,14 +30,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeDxObject(ParameterEncoder* encoder, const IUnknown* const object);
-template <typename T>
-void EncodeDxObject(ParameterEncoder* encoder, T** object);
-void EncodeDxObject(ParameterEncoder* encoder, void** object);
-template <typename T>
-void EncodeDxObjectArray(
-    ParameterEncoder* encoder, T* const* value, size_t len, bool omit_data = false, bool omit_addr = false);
-
 // Unions.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_BARRIER& value);

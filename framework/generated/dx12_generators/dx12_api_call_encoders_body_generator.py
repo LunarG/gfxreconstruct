@@ -151,16 +151,16 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 if is_generating_struct:
                     pass
                 else:
-                    rtn = 'EncodeDxObjectArray(encoder, {}, {});'.format(
+                    rtn = 'encoder->EncodeObjectArray({}, {});'.format(
                         value.name, value.array_length
                     )
             else:
                 if is_generating_struct:
-                    rtn = 'EncodeDxObject(encoder, value.{});'.format(
+                    rtn = 'encoder->EncodeObjectValue(value.{});'.format(
                         value.name
                     )
                 else:
-                    rtn = 'EncodeDxObject(encoder, {});'.format(value.name)
+                    rtn = 'encoder->EncodeObjectValue({});'.format(value.name)
 
         else:
             function_value = True
