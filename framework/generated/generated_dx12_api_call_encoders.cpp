@@ -154,7 +154,7 @@ void Encode_IDXGIObject_SetPrivateData(
     {
         EncodeStruct(encoder, Name);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeVoidArray(pData, DataSize );
+        encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -188,7 +188,7 @@ void Encode_IDXGIObject_GetPrivateData(
     {
         EncodeStruct(encoder, Name);
         encoder->EncodeUInt32Ptr(pDataSize);
-        encoder->EncodeVoidArray(pData, * pDataSize );
+        encoder->EncodeVoidArray(pData, * pDataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -888,8 +888,8 @@ void Encode_IDXGIDevice_QueryResourceResidency(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency, wrapper_id);
     if(encoder)
     {
-        EncodeDxObjectArray(encoder, ppResources, NumResources );
-        encoder->EncodeEnumArray(pResidencyStatus, NumResources );
+        EncodeDxObjectArray(encoder, ppResources, NumResources);
+        encoder->EncodeEnumArray(pResidencyStatus, NumResources);
         encoder->EncodeUInt32Value(NumResources);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1273,7 +1273,7 @@ void Encode_IDXGIDevice2_OfferResources(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumResources);
-        EncodeDxObjectArray(encoder, ppResources, NumResources );
+        EncodeDxObjectArray(encoder, ppResources, NumResources);
         encoder->EncodeEnumValue(Priority);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1291,8 +1291,8 @@ void Encode_IDXGIDevice2_ReclaimResources(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumResources);
-        EncodeDxObjectArray(encoder, ppResources, NumResources );
-        encoder->EncodeInt32Array(pDiscarded, NumResources );
+        EncodeDxObjectArray(encoder, ppResources, NumResources);
+        encoder->EncodeInt32Array(pDiscarded, NumResources);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -1349,7 +1349,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_FULLSCREEN_DE
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_PRESENT_PARAMETERS& value)
 {
     encoder->EncodeUInt32Value(value.DirtyRectsCount);
-    EncodeStructArray(encoder, value.pDirtyRects, value.DirtyRectsCount );
+    EncodeStructArray(encoder, value.pDirtyRects, value.DirtyRectsCount);
     EncodeStructPtr(encoder, value.pScrollRect);
     EncodeStructPtr(encoder, value.pScrollOffset);
 }
@@ -2305,8 +2305,8 @@ void Encode_IDXGISwapChain3_ResizeBuffers1(
         encoder->EncodeUInt32Value(Height);
         encoder->EncodeEnumValue(Format);
         encoder->EncodeUInt32Value(SwapChainFlags);
-        encoder->EncodeUInt32Array(pCreationNodeMask, BufferCount );
-        EncodeDxObjectArray(encoder, ppPresentQueue, BufferCount );
+        encoder->EncodeUInt32Array(pCreationNodeMask, BufferCount);
+        EncodeDxObjectArray(encoder, ppPresentQueue, BufferCount);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -2487,7 +2487,7 @@ void Encode_IDXGIOutput5_DuplicateOutput1(
         EncodeDxObject(encoder, pDevice);
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeUInt32Value(SupportedFormatsCount);
-        encoder->EncodeEnumArray(pSupportedFormats, SupportedFormatsCount );
+        encoder->EncodeEnumArray(pSupportedFormats, SupportedFormatsCount);
         EncodeDxObject(encoder, ppOutputDuplication);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -2523,7 +2523,7 @@ void Encode_IDXGISwapChain4_SetHDRMetaData(
     {
         encoder->EncodeEnumValue(Type);
         encoder->EncodeUInt32Value(Size);
-        encoder->EncodeVoidArray(pMetaData, Size );
+        encoder->EncodeVoidArray(pMetaData, Size);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -2541,7 +2541,7 @@ void Encode_IDXGIDevice4_OfferResources1(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumResources);
-        EncodeDxObjectArray(encoder, ppResources, NumResources );
+        EncodeDxObjectArray(encoder, ppResources, NumResources);
         encoder->EncodeEnumValue(Priority);
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeInt32Value(result);
@@ -2560,8 +2560,8 @@ void Encode_IDXGIDevice4_ReclaimResources1(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumResources);
-        EncodeDxObjectArray(encoder, ppResources, NumResources );
-        encoder->EncodeEnumArray(pResults, NumResources );
+        EncodeDxObjectArray(encoder, ppResources, NumResources);
+        encoder->EncodeEnumArray(pResults, NumResources);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -2578,7 +2578,7 @@ void Encode_IDXGIFactory5_CheckFeatureSupport(
     if(encoder)
     {
         encoder->EncodeEnumValue(Feature);
-        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize );
+        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize);
         encoder->EncodeUInt32Value(FeatureSupportDataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -2851,7 +2851,7 @@ void Encode_D3D12CreateRootSignatureDeserializer(
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer);
     if(encoder)
     {
-        encoder->EncodeVoidArray(pSrcData, SrcDataSizeInBytes );
+        encoder->EncodeVoidArray(pSrcData, SrcDataSizeInBytes);
         encoder->EncodeUInt64Value(SrcDataSizeInBytes);
         EncodeStruct(encoder, pRootSignatureDeserializerInterface);
         EncodeDxObject(encoder, ppRootSignatureDeserializer);
@@ -2887,7 +2887,7 @@ void Encode_D3D12CreateVersionedRootSignatureDeserializer(
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer);
     if(encoder)
     {
-        encoder->EncodeVoidArray(pSrcData, SrcDataSizeInBytes );
+        encoder->EncodeVoidArray(pSrcData, SrcDataSizeInBytes);
         encoder->EncodeUInt64Value(SrcDataSizeInBytes);
         EncodeStruct(encoder, pRootSignatureDeserializerInterface);
         EncodeDxObject(encoder, ppRootSignatureDeserializer);
@@ -2941,9 +2941,9 @@ void Encode_D3D12EnableExperimentalFeatures(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumFeatures);
-        EncodeStructArray(encoder, pIIDs, NumFeatures );
-        encoder->EncodeVoidArray(pConfigurationStructs, NumFeatures );
-        encoder->EncodeUInt32Array(pConfigurationStructSizes, NumFeatures );
+        EncodeStructArray(encoder, pIIDs, NumFeatures);
+        encoder->EncodeVoidArray(pConfigurationStructs, NumFeatures);
+        encoder->EncodeUInt32Array(pConfigurationStructSizes, NumFeatures);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
@@ -3079,7 +3079,7 @@ void Encode_ID3D12Object_GetPrivateData(
     {
         EncodeStruct(encoder, guid);
         encoder->EncodeUInt32Ptr(pDataSize);
-        encoder->EncodeVoidArray(pData, * pDataSize );
+        encoder->EncodeVoidArray(pData, * pDataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -3097,7 +3097,7 @@ void Encode_ID3D12Object_SetPrivateData(
     {
         EncodeStruct(encoder, guid);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeVoidArray(pData, DataSize );
+        encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -3151,28 +3151,28 @@ void Encode_ID3D12DeviceChild_GetDevice(
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_BYTECODE& value)
 {
-    encoder->EncodeVoidArray(value.pShaderBytecode, value.BytecodeLength );
+    encoder->EncodeVoidArray(value.pShaderBytecode, value.BytecodeLength);
     encoder->EncodeUInt64Value(value.BytecodeLength);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STREAM_OUTPUT_DESC& value)
 {
-    EncodeStructArray(encoder, value.pSODeclaration, value.NumEntries );
+    EncodeStructArray(encoder, value.pSODeclaration, value.NumEntries);
     encoder->EncodeUInt32Value(value.NumEntries);
-    encoder->EncodeUInt32Array(value.pBufferStrides, value.NumStrides );
+    encoder->EncodeUInt32Array(value.pBufferStrides, value.NumStrides);
     encoder->EncodeUInt32Value(value.NumStrides);
     encoder->EncodeUInt32Value(value.RasterizedStream);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_INPUT_LAYOUT_DESC& value)
 {
-    EncodeStructArray(encoder, value.pInputElementDescs, value.NumElements );
+    EncodeStructArray(encoder, value.pInputElementDescs, value.NumElements);
     encoder->EncodeUInt32Value(value.NumElements);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CACHED_PIPELINE_STATE& value)
 {
-    encoder->EncodeVoidArray(value.pCachedBlob, value.CachedBlobSizeInBytes );
+    encoder->EncodeVoidArray(value.pCachedBlob, value.CachedBlobSizeInBytes);
     encoder->EncodeUInt64Value(value.CachedBlobSizeInBytes);
 }
 
@@ -3282,7 +3282,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_ARCHITECTU
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_FEATURE_LEVELS& value)
 {
     encoder->EncodeUInt32Value(value.NumFeatureLevels);
-    encoder->EncodeEnumArray(value.pFeatureLevelsRequested, value.NumFeatureLevels );
+    encoder->EncodeEnumArray(value.pFeatureLevelsRequested, value.NumFeatureLevels);
     encoder->EncodeEnumValue(value.MaxSupportedFeatureLevel);
 }
 
@@ -3389,9 +3389,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_QUERY_META
 {
     EncodeStruct(encoder, value.CommandId);
     encoder->EncodeUInt32Value(value.NodeMask);
-    encoder->EncodeVoidArray(value.pQueryInputData, value.QueryInputDataSizeInBytes );
+    encoder->EncodeVoidArray(value.pQueryInputData, value.QueryInputDataSizeInBytes);
     encoder->EncodeUInt64Value(value.QueryInputDataSizeInBytes);
-    encoder->EncodeVoidArray(value.pQueryOutputData, value.QueryOutputDataSizeInBytes );
+    encoder->EncodeVoidArray(value.pQueryOutputData, value.QueryOutputDataSizeInBytes);
     encoder->EncodeUInt64Value(value.QueryOutputDataSizeInBytes);
 }
 
@@ -3581,7 +3581,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_VIEW_INSTANCE_LOCATION&
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VIEW_INSTANCING_DESC& value)
 {
     encoder->EncodeUInt32Value(value.ViewInstanceCount);
-    EncodeStructArray(encoder, value.pViewInstanceLocations, value.ViewInstanceCount );
+    EncodeStructArray(encoder, value.pViewInstanceLocations, value.ViewInstanceCount);
     encoder->EncodeEnumValue(value.Flags);
 }
 
@@ -3833,7 +3833,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DESCRIPTOR_RANGE& value
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR_TABLE& value)
 {
     encoder->EncodeUInt32Value(value.NumDescriptorRanges);
-    EncodeStructArray(encoder, value.pDescriptorRanges, value.NumDescriptorRanges );
+    EncodeStructArray(encoder, value.pDescriptorRanges, value.NumDescriptorRanges);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_CONSTANTS& value)
@@ -3869,9 +3869,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATIC_SAMPLER_DESC& va
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC& value)
 {
     encoder->EncodeUInt32Value(value.NumParameters);
-    EncodeStructArray(encoder, value.pParameters, value.NumParameters );
+    EncodeStructArray(encoder, value.pParameters, value.NumParameters);
     encoder->EncodeUInt32Value(value.NumStaticSamplers);
-    EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers );
+    EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers);
     encoder->EncodeEnumValue(value.Flags);
 }
 
@@ -3888,7 +3888,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DESCRIPTOR_RANGE1& valu
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR_TABLE1& value)
 {
     encoder->EncodeUInt32Value(value.NumDescriptorRanges);
-    EncodeStructArray(encoder, value.pDescriptorRanges, value.NumDescriptorRanges );
+    EncodeStructArray(encoder, value.pDescriptorRanges, value.NumDescriptorRanges);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value)
@@ -3901,9 +3901,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& value)
 {
     encoder->EncodeUInt32Value(value.NumParameters);
-    EncodeStructArray(encoder, value.pParameters, value.NumParameters );
+    EncodeStructArray(encoder, value.pParameters, value.NumParameters);
     encoder->EncodeUInt32Value(value.NumStaticSamplers);
-    EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers );
+    EncodeStructArray(encoder, value.pStaticSamplers, value.NumStaticSamplers);
     encoder->EncodeEnumValue(value.Flags);
 }
 
@@ -3960,7 +3960,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISCARD_REGION& value)
 {
     encoder->EncodeUInt32Value(value.NumRects);
-    EncodeStructArray(encoder, value.pRects, value.NumRects );
+    EncodeStructArray(encoder, value.pRects, value.NumRects);
     encoder->EncodeUInt32Value(value.FirstSubresource);
     encoder->EncodeUInt32Value(value.NumSubresources);
 }
@@ -4042,7 +4042,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_SIGNATURE_DESC&
 {
     encoder->EncodeUInt32Value(value.ByteStride);
     encoder->EncodeUInt32Value(value.NumArgumentDescs);
-    EncodeStructArray(encoder, value.pArgumentDescs, value.NumArgumentDescs );
+    EncodeStructArray(encoder, value.pArgumentDescs, value.NumArgumentDescs);
     encoder->EncodeUInt32Value(value.NodeMask);
 }
 
@@ -4515,7 +4515,7 @@ void Encode_ID3D12GraphicsCommandList_RSSetViewports(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumViewports);
-        EncodeStructArray(encoder, pViewports, NumViewports );
+        EncodeStructArray(encoder, pViewports, NumViewports);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4529,7 +4529,7 @@ void Encode_ID3D12GraphicsCommandList_RSSetScissorRects(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumRects);
-        EncodeStructArray(encoder, pRects, NumRects );
+        EncodeStructArray(encoder, pRects, NumRects);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4579,7 +4579,7 @@ void Encode_ID3D12GraphicsCommandList_ResourceBarrier(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumBarriers);
-        EncodeStructArray(encoder, pBarriers, NumBarriers );
+        EncodeStructArray(encoder, pBarriers, NumBarriers);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4605,7 +4605,7 @@ void Encode_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumDescriptorHeaps);
-        EncodeDxObjectArray(encoder, ppDescriptorHeaps, NumDescriptorHeaps );
+        EncodeDxObjectArray(encoder, ppDescriptorHeaps, NumDescriptorHeaps);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4706,7 +4706,7 @@ void Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
     {
         encoder->EncodeUInt32Value(RootParameterIndex);
         encoder->EncodeUInt32Value(Num32BitValuesToSet);
-        encoder->EncodeVoidArray(pSrcData, Num32BitValuesToSet * sizeof ( UINT ) );
+        encoder->EncodeVoidArray(pSrcData, Num32BitValuesToSet * sizeof ( UINT ));
         encoder->EncodeUInt32Value(DestOffsetIn32BitValues);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -4724,7 +4724,7 @@ void Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
     {
         encoder->EncodeUInt32Value(RootParameterIndex);
         encoder->EncodeUInt32Value(Num32BitValuesToSet);
-        encoder->EncodeVoidArray(pSrcData, Num32BitValuesToSet * sizeof ( UINT ) );
+        encoder->EncodeVoidArray(pSrcData, Num32BitValuesToSet * sizeof ( UINT ));
         encoder->EncodeUInt32Value(DestOffsetIn32BitValues);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -4837,7 +4837,7 @@ void Encode_ID3D12GraphicsCommandList_IASetVertexBuffers(
     {
         encoder->EncodeUInt32Value(StartSlot);
         encoder->EncodeUInt32Value(NumViews);
-        EncodeStructArray(encoder, pViews, NumViews );
+        EncodeStructArray(encoder, pViews, NumViews);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4853,7 +4853,7 @@ void Encode_ID3D12GraphicsCommandList_SOSetTargets(
     {
         encoder->EncodeUInt32Value(StartSlot);
         encoder->EncodeUInt32Value(NumViews);
-        EncodeStructArray(encoder, pViews, NumViews );
+        EncodeStructArray(encoder, pViews, NumViews);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4893,7 +4893,7 @@ void Encode_ID3D12GraphicsCommandList_ClearDepthStencilView(
         encoder->EncodeFloatValue(Depth);
         encoder->EncodeUInt8Value(Stencil);
         encoder->EncodeUInt32Value(NumRects);
-        EncodeStructArray(encoder, pRects, NumRects );
+        EncodeStructArray(encoder, pRects, NumRects);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4911,7 +4911,7 @@ void Encode_ID3D12GraphicsCommandList_ClearRenderTargetView(
         EncodeStruct(encoder, RenderTargetView);
         encoder->EncodeFloatArray(ColorRGBA, 4);
         encoder->EncodeUInt32Value(NumRects);
-        EncodeStructArray(encoder, pRects, NumRects );
+        EncodeStructArray(encoder, pRects, NumRects);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4933,7 +4933,7 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
         EncodeDxObject(encoder, pResource);
         encoder->EncodeUInt32Array(Values, 4);
         encoder->EncodeUInt32Value(NumRects);
-        EncodeStructArray(encoder, pRects, NumRects );
+        EncodeStructArray(encoder, pRects, NumRects);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -4955,7 +4955,7 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
         EncodeDxObject(encoder, pResource);
         encoder->EncodeFloatArray(Values, 4);
         encoder->EncodeUInt32Value(NumRects);
-        EncodeStructArray(encoder, pRects, NumRects );
+        EncodeStructArray(encoder, pRects, NumRects);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5054,7 +5054,7 @@ void Encode_ID3D12GraphicsCommandList_SetMarker(
     if(encoder)
     {
         encoder->EncodeUInt32Value(Metadata);
-        encoder->EncodeVoidArray(pData, Size );
+        encoder->EncodeVoidArray(pData, Size);
         encoder->EncodeUInt32Value(Size);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5070,7 +5070,7 @@ void Encode_ID3D12GraphicsCommandList_BeginEvent(
     if(encoder)
     {
         encoder->EncodeUInt32Value(Metadata);
-        encoder->EncodeVoidArray(pData, Size );
+        encoder->EncodeVoidArray(pData, Size);
         encoder->EncodeUInt32Value(Size);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5126,8 +5126,8 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         EncodeDxObject(encoder, pSrcBuffer);
         encoder->EncodeUInt64Value(SrcOffset);
         encoder->EncodeUInt32Value(Dependencies);
-        EncodeDxObjectArray(encoder, ppDependentResources, Dependencies );
-        EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies );
+        EncodeDxObjectArray(encoder, ppDependentResources, Dependencies);
+        EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5150,8 +5150,8 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
         EncodeDxObject(encoder, pSrcBuffer);
         encoder->EncodeUInt64Value(SrcOffset);
         encoder->EncodeUInt32Value(Dependencies);
-        EncodeDxObjectArray(encoder, ppDependentResources, Dependencies );
-        EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies );
+        EncodeDxObjectArray(encoder, ppDependentResources, Dependencies);
+        EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5181,7 +5181,7 @@ void Encode_ID3D12GraphicsCommandList1_SetSamplePositions(
     {
         encoder->EncodeUInt32Value(NumSamplesPerPixel);
         encoder->EncodeUInt32Value(NumPixels);
-        EncodeStructArray(encoder, pSamplePositions, NumSamplesPerPixel * NumPixels );
+        EncodeStructArray(encoder, pSamplePositions, NumSamplesPerPixel * NumPixels);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5242,8 +5242,8 @@ void Encode_ID3D12GraphicsCommandList2_WriteBufferImmediate(
     if(encoder)
     {
         encoder->EncodeUInt32Value(Count);
-        EncodeStructArray(encoder, pParams, Count );
-        encoder->EncodeEnumArray(pModes, Count );
+        EncodeStructArray(encoder, pParams, Count);
+        encoder->EncodeEnumArray(pModes, Count);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5266,13 +5266,13 @@ void Encode_ID3D12CommandQueue_UpdateTileMappings(
     {
         EncodeDxObject(encoder, pResource);
         encoder->EncodeUInt32Value(NumResourceRegions);
-        EncodeStructArray(encoder, pResourceRegionStartCoordinates, NumResourceRegions );
-        EncodeStructArray(encoder, pResourceRegionSizes, NumResourceRegions );
+        EncodeStructArray(encoder, pResourceRegionStartCoordinates, NumResourceRegions);
+        EncodeStructArray(encoder, pResourceRegionSizes, NumResourceRegions);
         EncodeDxObject(encoder, pHeap);
         encoder->EncodeUInt32Value(NumRanges);
-        encoder->EncodeEnumArray(pRangeFlags, NumRanges );
-        encoder->EncodeUInt32Array(pHeapRangeStartOffsets, NumRanges );
-        encoder->EncodeUInt32Array(pRangeTileCounts, NumRanges );
+        encoder->EncodeEnumArray(pRangeFlags, NumRanges);
+        encoder->EncodeUInt32Array(pHeapRangeStartOffsets, NumRanges);
+        encoder->EncodeUInt32Array(pRangeTileCounts, NumRanges);
         encoder->EncodeEnumValue(Flags);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5309,7 +5309,7 @@ void Encode_ID3D12CommandQueue_ExecuteCommandLists(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumCommandLists);
-        EncodeDxObjectArray(encoder, ppCommandLists, NumCommandLists );
+        EncodeDxObjectArray(encoder, ppCommandLists, NumCommandLists);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -5324,7 +5324,7 @@ void Encode_ID3D12CommandQueue_SetMarker(
     if(encoder)
     {
         encoder->EncodeUInt32Value(Metadata);
-        encoder->EncodeVoidArray(pData, Size );
+        encoder->EncodeVoidArray(pData, Size);
         encoder->EncodeUInt32Value(Size);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5340,7 +5340,7 @@ void Encode_ID3D12CommandQueue_BeginEvent(
     if(encoder)
     {
         encoder->EncodeUInt32Value(Metadata);
-        encoder->EncodeVoidArray(pData, Size );
+        encoder->EncodeVoidArray(pData, Size);
         encoder->EncodeUInt32Value(Size);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5549,7 +5549,7 @@ void Encode_ID3D12Device_CheckFeatureSupport(
     if(encoder)
     {
         encoder->EncodeEnumValue(Feature);
-        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize );
+        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize);
         encoder->EncodeUInt32Value(FeatureSupportDataSize);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -5601,7 +5601,7 @@ void Encode_ID3D12Device_CreateRootSignature(
     if(encoder)
     {
         encoder->EncodeUInt32Value(nodeMask);
-        encoder->EncodeVoidArray(pBlobWithRootSignature, blobLengthInBytes );
+        encoder->EncodeVoidArray(pBlobWithRootSignature, blobLengthInBytes);
         encoder->EncodeUInt64Value(blobLengthInBytes);
         EncodeStruct(encoder, riid);
         EncodeDxObject(encoder, ppvRootSignature);
@@ -5718,11 +5718,11 @@ void Encode_ID3D12Device_CopyDescriptors(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumDestDescriptorRanges);
-        EncodeStructArray(encoder, pDestDescriptorRangeStarts, NumDestDescriptorRanges );
-        encoder->EncodeUInt32Array(pDestDescriptorRangeSizes, NumDestDescriptorRanges );
+        EncodeStructArray(encoder, pDestDescriptorRangeStarts, NumDestDescriptorRanges);
+        encoder->EncodeUInt32Array(pDestDescriptorRangeSizes, NumDestDescriptorRanges);
         encoder->EncodeUInt32Value(NumSrcDescriptorRanges);
-        EncodeStructArray(encoder, pSrcDescriptorRangeStarts, NumSrcDescriptorRanges );
-        encoder->EncodeUInt32Array(pSrcDescriptorRangeSizes, NumSrcDescriptorRanges );
+        EncodeStructArray(encoder, pSrcDescriptorRangeStarts, NumSrcDescriptorRanges);
+        encoder->EncodeUInt32Array(pSrcDescriptorRangeSizes, NumSrcDescriptorRanges);
         encoder->EncodeEnumValue(DescriptorHeapsType);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5758,7 +5758,7 @@ void Encode_ID3D12Device_GetResourceAllocationInfo(
     {
         encoder->EncodeUInt32Value(visibleMask);
         encoder->EncodeUInt32Value(numResourceDescs);
-        EncodeStructArray(encoder, pResourceDescs, numResourceDescs );
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
         EncodeStruct(encoder, result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5940,7 +5940,7 @@ void Encode_ID3D12Device_MakeResident(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumObjects);
-        EncodeDxObjectArray(encoder, ppObjects, NumObjects );
+        EncodeDxObjectArray(encoder, ppObjects, NumObjects);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5956,7 +5956,7 @@ void Encode_ID3D12Device_Evict(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumObjects);
-        EncodeDxObjectArray(encoder, ppObjects, NumObjects );
+        EncodeDxObjectArray(encoder, ppObjects, NumObjects);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6012,9 +6012,9 @@ void Encode_ID3D12Device_GetCopyableFootprints(
         encoder->EncodeUInt32Value(FirstSubresource);
         encoder->EncodeUInt32Value(NumSubresources);
         encoder->EncodeUInt64Value(BaseOffset);
-        EncodeStructArray(encoder, pLayouts, NumSubresources );
-        encoder->EncodeUInt32Array(pNumRows, NumSubresources );
-        encoder->EncodeUInt64Array(pRowSizeInBytes, NumSubresources );
+        EncodeStructArray(encoder, pLayouts, NumSubresources);
+        encoder->EncodeUInt32Array(pNumRows, NumSubresources);
+        encoder->EncodeUInt64Array(pRowSizeInBytes, NumSubresources);
         encoder->EncodeUInt64Ptr(pTotalBytes);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6091,7 +6091,7 @@ void Encode_ID3D12Device_GetResourceTiling(
         EncodeStructPtr(encoder, pStandardTileShapeForNonPackedMips);
         encoder->EncodeUInt32Ptr(pNumSubresourceTilings);
         encoder->EncodeUInt32Value(FirstSubresourceTilingToGet);
-        EncodeStructArray(encoder, pSubresourceTilingsForNonPackedMips, * pNumSubresourceTilings );
+        EncodeStructArray(encoder, pSubresourceTilingsForNonPackedMips, * pNumSubresourceTilings);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -6185,7 +6185,7 @@ void Encode_ID3D12PipelineLibrary_Serialize(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeVoidArray(pData, DataSizeInBytes );
+        encoder->EncodeVoidArray(pData, DataSizeInBytes);
         encoder->EncodeUInt64Value(DataSizeInBytes);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -6223,7 +6223,7 @@ void Encode_ID3D12Device1_CreatePipelineLibrary(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_ID3D12Device1_CreatePipelineLibrary, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeVoidArray(pLibraryBlob, BlobLength );
+        encoder->EncodeVoidArray(pLibraryBlob, BlobLength);
         encoder->EncodeUInt64Value(BlobLength);
         EncodeStruct(encoder, riid);
         EncodeDxObject(encoder, ppPipelineLibrary);
@@ -6244,8 +6244,8 @@ void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion, wrapper_id);
     if(encoder)
     {
-        EncodeDxObjectArray(encoder, ppFences, NumFences );
-        encoder->EncodeUInt64Array(pFenceValues, NumFences );
+        EncodeDxObjectArray(encoder, ppFences, NumFences);
+        encoder->EncodeUInt64Array(pFenceValues, NumFences);
         encoder->EncodeUInt32Value(NumFences);
         encoder->EncodeEnumValue(Flags);
         encoder->EncodeHandleValue(hEvent);
@@ -6265,8 +6265,8 @@ void Encode_ID3D12Device1_SetResidencyPriority(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumObjects);
-        EncodeDxObjectArray(encoder, ppObjects, NumObjects );
-        encoder->EncodeEnumArray(pPriorities, NumObjects );
+        EncodeDxObjectArray(encoder, ppObjects, NumObjects);
+        encoder->EncodeEnumArray(pPriorities, NumObjects);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6340,7 +6340,7 @@ void Encode_ID3D12Device3_EnqueueMakeResident(
     {
         encoder->EncodeEnumValue(Flags);
         encoder->EncodeUInt32Value(NumObjects);
-        EncodeDxObjectArray(encoder, ppObjects, NumObjects );
+        EncodeDxObjectArray(encoder, ppObjects, NumObjects);
         EncodeDxObject(encoder, pFenceToSignal);
         encoder->EncodeUInt64Value(FenceValueToSignal);
         encoder->EncodeInt32Value(result);
@@ -6525,8 +6525,8 @@ void Encode_ID3D12Device4_GetResourceAllocationInfo1(
     {
         encoder->EncodeUInt32Value(visibleMask);
         encoder->EncodeUInt32Value(numResourceDescs);
-        EncodeStructArray(encoder, pResourceDescs, numResourceDescs );
-        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs );
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
+        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
         EncodeStruct(encoder, result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6724,28 +6724,28 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DXIL_LIBRARY_DESC& valu
 {
     EncodeStruct(encoder, value.DXILLibrary);
     encoder->EncodeUInt32Value(value.NumExports);
-    EncodeStructArray(encoder, value.pExports, value.NumExports );
+    EncodeStructArray(encoder, value.pExports, value.NumExports);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_DESC& value)
 {
     EncodeDxObject(encoder, value.pExistingCollection);
     encoder->EncodeUInt32Value(value.NumExports);
-    EncodeStructArray(encoder, value.pExports, value.NumExports );
+    EncodeStructArray(encoder, value.pExports, value.NumExports);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value)
 {
     EncodeStructPtr(encoder, value.pSubobjectToAssociate);
     encoder->EncodeUInt32Value(value.NumExports);
-    encoder->EncodeWStringArray(value.pExports, value.NumExports );
+    encoder->EncodeWStringArray(value.pExports, value.NumExports);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value)
 {
     encoder->EncodeWString(value.SubobjectToAssociate);
     encoder->EncodeUInt32Value(value.NumExports);
-    encoder->EncodeWStringArray(value.pExports, value.NumExports );
+    encoder->EncodeWStringArray(value.pExports, value.NumExports);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_HIT_GROUP_DESC& value)
@@ -6778,7 +6778,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& valu
 {
     encoder->EncodeEnumValue(value.Type);
     encoder->EncodeUInt32Value(value.NumSubobjects);
-    EncodeStructArray(encoder, value.pSubobjects, value.NumSubobjects );
+    EncodeStructArray(encoder, value.pSubobjects, value.NumSubobjects);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value)
@@ -6937,7 +6937,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommands(
     if(encoder)
     {
         encoder->EncodeUInt32Ptr(pNumMetaCommands);
-        EncodeStructArray(encoder, pDescs, * pNumMetaCommands );
+        EncodeStructArray(encoder, pDescs, * pNumMetaCommands);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6959,7 +6959,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
         encoder->EncodeEnumValue(Stage);
         encoder->EncodeUInt32Ptr(pTotalStructureSizeInBytes);
         encoder->EncodeUInt32Ptr(pParameterCount);
-        EncodeStructArray(encoder, pParameterDescs, * pParameterCount );
+        EncodeStructArray(encoder, pParameterDescs, * pParameterCount);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6980,7 +6980,7 @@ void Encode_ID3D12Device5_CreateMetaCommand(
     {
         EncodeStruct(encoder, CommandId);
         encoder->EncodeUInt32Value(NodeMask);
-        encoder->EncodeVoidArray(pCreationParametersData, CreationParametersDataSizeInBytes );
+        encoder->EncodeVoidArray(pCreationParametersData, CreationParametersDataSizeInBytes);
         encoder->EncodeUInt64Value(CreationParametersDataSizeInBytes);
         EncodeStruct(encoder, riid);
         EncodeDxObject(encoder, ppMetaCommand);
@@ -7341,8 +7341,8 @@ void Encode_ID3D12Device8_GetResourceAllocationInfo2(
     {
         encoder->EncodeUInt32Value(visibleMask);
         encoder->EncodeUInt32Value(numResourceDescs);
-        EncodeStructArray(encoder, pResourceDescs, numResourceDescs );
-        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs );
+        EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
+        EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
         EncodeStruct(encoder, result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -7436,9 +7436,9 @@ void Encode_ID3D12Device8_GetCopyableFootprints1(
         encoder->EncodeUInt32Value(FirstSubresource);
         encoder->EncodeUInt32Value(NumSubresources);
         encoder->EncodeUInt64Value(BaseOffset);
-        EncodeStructArray(encoder, pLayouts, NumSubresources );
-        encoder->EncodeUInt32Array(pNumRows, NumSubresources );
-        encoder->EncodeUInt64Array(pRowSizeInBytes, NumSubresources );
+        EncodeStructArray(encoder, pLayouts, NumSubresources);
+        encoder->EncodeUInt32Array(pNumRows, NumSubresources);
+        encoder->EncodeUInt64Array(pRowSizeInBytes, NumSubresources);
         encoder->EncodeUInt64Ptr(pTotalBytes);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -7519,7 +7519,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     EncodeDxObject(encoder, value.pSrcResource);
     EncodeDxObject(encoder, value.pDstResource);
     encoder->EncodeUInt32Value(value.SubresourceCount);
-    EncodeStructArray(encoder, value.pSubresourceParameters, value.SubresourceCount );
+    EncodeStructArray(encoder, value.pSubresourceParameters, value.SubresourceCount);
     encoder->EncodeEnumValue(value.Format);
     encoder->EncodeEnumValue(value.ResolveMode);
     encoder->EncodeInt32Value(value.PreserveResolveSource);
@@ -7579,7 +7579,7 @@ void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumRenderTargets);
-        EncodeStructArray(encoder, pRenderTargets, NumRenderTargets );
+        EncodeStructArray(encoder, pRenderTargets, NumRenderTargets);
         EncodeStructPtr(encoder, pDepthStencil);
         encoder->EncodeEnumValue(Flags);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -7606,7 +7606,7 @@ void Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
     if(encoder)
     {
         EncodeDxObject(encoder, pMetaCommand);
-        encoder->EncodeVoidArray(pInitializationParametersData, InitializationParametersDataSizeInBytes );
+        encoder->EncodeVoidArray(pInitializationParametersData, InitializationParametersDataSizeInBytes);
         encoder->EncodeUInt64Value(InitializationParametersDataSizeInBytes);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -7622,7 +7622,7 @@ void Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     if(encoder)
     {
         EncodeDxObject(encoder, pMetaCommand);
-        encoder->EncodeVoidArray(pExecutionParametersData, ExecutionParametersDataSizeInBytes );
+        encoder->EncodeVoidArray(pExecutionParametersData, ExecutionParametersDataSizeInBytes);
         encoder->EncodeUInt64Value(ExecutionParametersDataSizeInBytes);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -7639,7 +7639,7 @@ void Encode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
     {
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeUInt32Value(NumPostbuildInfoDescs);
-        EncodeStructArray(encoder, pPostbuildInfoDescs, NumPostbuildInfoDescs );
+        EncodeStructArray(encoder, pPostbuildInfoDescs, NumPostbuildInfoDescs);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -7655,7 +7655,7 @@ void Encode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbu
     {
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeUInt32Value(NumSourceAccelerationStructures);
-        encoder->EncodeUInt64Array(pSourceAccelerationStructureData, NumSourceAccelerationStructures );
+        encoder->EncodeUInt64Array(pSourceAccelerationStructureData, NumSourceAccelerationStructures);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -7747,7 +7747,7 @@ void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     if(encoder)
     {
         encoder->EncodeEnumValue(baseShadingRate);
-        encoder->EncodeEnumArray(combiners, D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT );
+        encoder->EncodeEnumArray(combiners, D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }

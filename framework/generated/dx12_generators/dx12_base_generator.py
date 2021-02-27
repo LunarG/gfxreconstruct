@@ -289,10 +289,13 @@ class Dx12BaseGenerator(BaseGenerator):
                     if param[0] != '_':
                         param_list = param.split(', ')
                         array_length = param_list[0]
-                        if array_length.find('Size') != -1 and base_type.find(
-                            'void'
-                        ) == -1:
+                        if (
+                            array_length.find('Size') != -1
+                            and base_type.find('void') == -1
+                        ):
                             array_length += ('/sizeof ' + base_type)
+                        elif array_length[-1] == ' ':
+                            array_length = array_length[:-1]
 
         return ValueInfo(
             name=name,
