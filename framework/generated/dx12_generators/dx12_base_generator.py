@@ -97,7 +97,6 @@ class Dx12BaseGenerator(BaseGenerator):
         [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS', 'SIZE_T'], 'UInt64'],
         [['LONG_PTR'], 'Int64'],
         [['FLOAT', 'float'], 'Float'],
-        [['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC'], 'Handle'],
         [['void'], 'Void'],
         [['char'], 'String'],
         [['wchar_t'], 'WString'],
@@ -316,7 +315,7 @@ class Dx12BaseGenerator(BaseGenerator):
         self.genStruct(None, None, None)
         self.genCmd(None, None, None)
         self.gen_method()
-        self.gen_handle()
+        self.gen_win32_handle()
 
     def genStruct(self, typeinfo, typename, alias):
         """Methond override."""
@@ -340,8 +339,10 @@ class Dx12BaseGenerator(BaseGenerator):
                         self.make_value_info(m['parameters'])
                     )
 
-    def gen_handle(self):
-        self.handle_names = ['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC']
+    def gen_win32_handle(self):
+        self.win32_handle_names = [
+            'HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC'
+        ]
 
     def gen_method(self):
         header_dict = self.source_dict['header_dict']
@@ -405,6 +406,12 @@ class Dx12BaseGenerator(BaseGenerator):
         """Methond override."""
         enum_set = self.source_dict['enum_set']
         if type in enum_set:
+            return True
+        return False
+
+    def is_win32_handle(self, type):
+        """Methond override."""
+        if type in self.win32_handle_names:
             return True
         return False
 

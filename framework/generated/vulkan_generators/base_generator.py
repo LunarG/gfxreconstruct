@@ -558,6 +558,10 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_win32_handle(self, base_type):
+        """This's for Dx12. For VK, win32 handles define in platform_types.json."""
+        return False
+
     def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
         if base_type in self.DISPATCHABLE_HANDLE_TYPES:
@@ -941,6 +945,8 @@ class BaseGenerator(OutputGenerator):
                     type_name = 'uint64_t'
             elif self.is_handle(type_name):
                 type_name = 'HandlePointerDecoder<{}>'.format(type_name)
+            elif self.is_win32_handle(type_name):
+                type_name = 'PointerDecoder<uint64_t, {}>'.format(type_name)
             else:
                 if count > 1:
                     type_name = 'PointerDecoder<{}*>'.format(type_name)
@@ -953,6 +959,8 @@ class BaseGenerator(OutputGenerator):
             type_name = 'Decoded_{}'.format(type_name)
         elif self.is_handle(type_name):
             type_name = 'format::HandleId'
+        elif self.is_win32_handle(type_name):
+            type_name = 'uint64_t'
         else:
             type_name = '{}'.format(type_name)
 

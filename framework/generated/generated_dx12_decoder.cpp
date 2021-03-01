@@ -1558,10 +1558,10 @@ size_t Dx12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<HANDLE> pSharedHandle;
+    PointerDecoder<uint64_t, HANDLE> pSharedHandle;
     HRESULT return_value;
 
-    bytes_read += pSharedHandle.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSharedHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -1723,11 +1723,11 @@ size_t Dx12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const
     size_t bytes_read = 0;
 
     BOOL Discard;
-    HandlePointerDecoder<HDC> phdc;
+    PointerDecoder<uint64_t, HDC> phdc;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Discard);
-    bytes_read += phdc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += phdc.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -2258,11 +2258,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory_MakeWindowAssociation(format::HandleId o
 {
     size_t bytes_read = 0;
 
-    format::HandleId WindowHandle;
+    uint64_t WindowHandle;
     UINT Flags;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -2278,10 +2278,10 @@ size_t Dx12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId ob
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<HWND> pWindowHandle;
+    PointerDecoder<uint64_t, HWND> pWindowHandle;
     HRESULT return_value;
 
-    bytes_read += pWindowHandle.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pWindowHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -2318,11 +2318,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory_CreateSoftwareAdapter(format::HandleId o
 {
     size_t bytes_read = 0;
 
-    format::HandleId Module;
+    uint64_t Module;
     HandlePointerDecoder<IDXGIAdapter*> ppAdapter;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Module);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Module);
     bytes_read += ppAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -2763,13 +2763,13 @@ size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId ob
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
     DWORD dwAccess;
     WStringDecoder lpName;
-    HandlePointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t, HANDLE> pHandle;
     HRESULT return_value;
 
     bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dwAccess);
     bytes_read += lpName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -2828,10 +2828,10 @@ size_t Dx12Decoder::Decode_IDXGIDevice2_EnqueueSetEvent(format::HandleId object_
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -2882,10 +2882,10 @@ size_t Dx12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, c
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<HWND> pHwnd;
+    PointerDecoder<uint64_t, HWND> pHwnd;
     HRESULT return_value;
 
-    bytes_read += pHwnd.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHwnd.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -3065,7 +3065,7 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId
     size_t bytes_read = 0;
 
     HandlePointerDecoder<IUnknown*> pDevice;
-    format::HandleId hWnd;
+    uint64_t hWnd;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pFullscreenDesc;
     HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
@@ -3073,7 +3073,7 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId
     HRESULT return_value;
 
     bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hWnd);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hWnd);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFullscreenDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -3118,11 +3118,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_GetSharedResourceAdapterLuid(format::Ha
 {
     size_t bytes_read = 0;
 
-    format::HandleId hResource;
+    uint64_t hResource;
     StructPointerDecoder<Decoded_LUID> pLuid;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hResource);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hResource);
     bytes_read += pLuid.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3138,12 +3138,12 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusWindow(format::Hand
 {
     size_t bytes_read = 0;
 
-    format::HandleId WindowHandle;
+    uint64_t WindowHandle;
     UINT wMsg;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -3160,11 +3160,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterStereoStatusEvent(format::Handl
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3196,12 +3196,12 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusWindow(format::H
 {
     size_t bytes_read = 0;
 
-    format::HandleId WindowHandle;
+    uint64_t WindowHandle;
     UINT wMsg;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &WindowHandle);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &wMsg);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -3218,11 +3218,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_RegisterOcclusionStatusEvent(format::Ha
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3470,9 +3470,9 @@ size_t Dx12Decoder::Decode_IDXGISwapChain2_GetFrameLatencyWaitableObject(format:
 {
     size_t bytes_read = 0;
 
-    format::HandleId return_value;
+    uint64_t return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
@@ -3723,14 +3723,14 @@ size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfac
     size_t bytes_read = 0;
 
     HandlePointerDecoder<IUnknown*> pDevice;
-    format::HandleId hSurface;
+    uint64_t hSurface;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
     HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
     HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
     HRESULT return_value;
 
     bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -3749,7 +3749,7 @@ size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForComposition
     size_t bytes_read = 0;
 
     HandlePointerDecoder<IUnknown*> pDevice;
-    format::HandleId hSurface;
+    uint64_t hSurface;
     StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC> pDesc;
     HandlePointerDecoder<IDXGIResource*> pYuvDecodeBuffers;
     HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
@@ -3757,7 +3757,7 @@ size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForComposition
     HRESULT return_value;
 
     bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pYuvDecodeBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -4006,11 +4006,11 @@ size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardo
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4086,11 +4086,11 @@ size_t Dx12Decoder::Decode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotifica
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4316,11 +4316,11 @@ size_t Dx12Decoder::Decode_IDXGIFactory7_RegisterAdaptersChangedEvent(format::Ha
 {
     size_t bytes_read = 0;
 
-    format::HandleId hEvent;
+    uint64_t hEvent;
     PointerDecoder<DWORD> pdwCookie;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += pdwCookie.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4701,11 +4701,11 @@ size_t Dx12Decoder::Decode_ID3D12Fence_SetEventOnCompletion(format::HandleId obj
     size_t bytes_read = 0;
 
     UINT64 Value;
-    format::HandleId hEvent;
+    uint64_t hEvent;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Value);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -6776,14 +6776,14 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
     DWORD Access;
     WStringDecoder Name;
-    HandlePointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t, HANDLE> pHandle;
     HRESULT return_value;
 
     bytes_read += pObject.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Access);
     bytes_read += Name.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -6798,12 +6798,12 @@ size_t Dx12Decoder::Decode_ID3D12Device_OpenSharedHandle(format::HandleId object
 {
     size_t bytes_read = 0;
 
-    format::HandleId NTHandle;
+    uint64_t NTHandle;
     Decoded_GUID riid;
     HandlePointerDecoder<void*> ppvObj;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NTHandle);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NTHandle);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvObj.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -6822,12 +6822,12 @@ size_t Dx12Decoder::Decode_ID3D12Device_OpenSharedHandleByName(format::HandleId 
 
     WStringDecoder Name;
     DWORD Access;
-    HandlePointerDecoder<HANDLE> pNTHandle;
+    PointerDecoder<uint64_t, HANDLE> pNTHandle;
     HRESULT return_value;
 
     bytes_read += Name.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Access);
-    bytes_read += pNTHandle.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pNTHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -7216,14 +7216,14 @@ size_t Dx12Decoder::Decode_ID3D12Device1_SetEventOnMultipleFenceCompletion(forma
     PointerDecoder<UINT64> pFenceValues;
     UINT NumFences;
     D3D12_MULTIPLE_FENCE_WAIT_FLAGS Flags;
-    format::HandleId hEvent;
+    uint64_t hEvent;
     HRESULT return_value;
 
     bytes_read += ppFences.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFenceValues.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumFences);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEvent);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -7304,12 +7304,12 @@ size_t Dx12Decoder::Decode_ID3D12Device3_OpenExistingHeapFromFileMapping(format:
 {
     size_t bytes_read = 0;
 
-    format::HandleId hFileMapping;
+    uint64_t hFileMapping;
     Decoded_GUID riid;
     HandlePointerDecoder<void*> ppvHeap;
     HRESULT return_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hFileMapping);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hFileMapping);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -8046,13 +8046,13 @@ size_t Dx12Decoder::Decode_ID3D12Device6_SetBackgroundProcessingMode(format::Han
 
     D3D12_BACKGROUND_PROCESSING_MODE Mode;
     D3D12_MEASUREMENTS_ACTION MeasurementsAction;
-    format::HandleId hEventToSignalUponCompletion;
+    uint64_t hEventToSignalUponCompletion;
     PointerDecoder<BOOL> pbFurtherMeasurementsDesired;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Mode);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MeasurementsAction);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEventToSignalUponCompletion);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hEventToSignalUponCompletion);
     bytes_read += pbFurtherMeasurementsDesired.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 

@@ -90,21 +90,18 @@ class Dx12ReplayConsumerBodyGenerator(
 
         code = ''
         for value in values:
-            if self.is_tracking_data(value):
-                array_length = None
-                if value.is_array:
-                    # TODO: There are currently no output array parameters,
-                    # so just print a warning for now.
-                    print(
-                        'WARNING: Skipping code generation for unsupported output array parameter',
-                        name, '::', value.name
-                    )
-                else:
-                    array_length = 1
-                code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
+            is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
+                value
+            )
+            if is_tracking_class:
+                code += '    if(!{0}->IsNull()) {0}->SetHandleLength(1);\n'\
                         '    auto _out_p_{0}    = {0}->GetPointer();\n'\
                         '    auto _out_hp_{0}   = {0}->GetHandlePointer();\n'\
-                        .format(value.name, array_length)
+                        .format(value.name)
+            elif is_tracking_win32_handle:
+                code += '    auto _out_p_{0}    = {0}->GetPointer();\n'\
+                        '    auto _out_op_{0}   = {0}->GetOutputPointer();\n'\
+                        .format(value.name)
 
         is_object = True if name.find('_') != -1 else False
         function_name = name if not is_object else name[name.find('_') + 1:]
@@ -125,13 +122,19 @@ class Dx12ReplayConsumerBodyGenerator(
             first = False
 
             value_name = None
-            if self.is_tracking_data(value):
+            is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
+                value
+            )
+            if is_tracking_class or is_tracking_win32_handle:
                 if value.full_type.find('void') != -1:
                     value_name = 'reinterpret_cast<void**>(_out_hp_{})'.format(
                         value.name
                     )
                 else:
-                    value_name = '_out_hp_{}'.format(value.name)
+                    if is_tracking_class:
+                        value_name = '_out_hp_{}'.format(value.name)
+                    elif is_tracking_win32_handle:
+                        value_name = '_out_op_{}'.format(value.name)
             else:
                 if value.pointer_count > 0 or value.is_array:
                     if self.is_class(value):
@@ -151,6 +154,8 @@ class Dx12ReplayConsumerBodyGenerator(
                                 value.base_type, value.name
                             )
                         )
+                    elif self.is_win32_handle(value.base_type):
+                        value_name = value.name + '->GetOutputPointer()'
                     elif value.base_type == 'void':
                         if value.pointer_count == 1:
                             value_name = 'reinterpret_cast<void*>({})'.format(
@@ -164,8 +169,8 @@ class Dx12ReplayConsumerBodyGenerator(
                 else:
                     if self.is_struct(value.base_type):
                         value_name = '*' + value.name + '.decoded_value'
-                    elif self.is_handle(value.base_type):
-                        value_name = 'MapHandle<{}>({})'.format(
+                    elif self.is_win32_handle(value.base_type):
+                        value_name = 'MapWin32Handle<{}>({})'.format(
                             value.base_type, value.name
                         )
                     elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
@@ -182,17 +187,20 @@ class Dx12ReplayConsumerBodyGenerator(
         if return_type == 'HRESULT' and len(values):
             code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
             for value in values:
-                if self.is_tracking_data(value):
-                    if self.is_class(value):
-                        code += (
-                            '        AddObject(_out_p_{0}, _out_hp_{0});\n'.
-                            format(value.name)
+                is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
+                    value
+                )
+                if is_tracking_class:
+                    code += (
+                        '        AddObject(_out_p_{0}, _out_hp_{0});\n'.format(
+                            value.name
                         )
-                    elif self.is_handle(value.base_type):
-                        code += (
-                            '        AddHandle(_out_p_{0}, _out_hp_{0});\n'.
-                            format(value.name)
-                        )
+                    )
+                elif is_tracking_win32_handle:
+                    code += (
+                        '        AddWin32Handle(_out_p_{0}, _out_op_{0});\n'.
+                        format(value.name)
+                    )
             code += "    }\n"
             code += (
                 '    CheckReplayResult("{}", returnValue, replay_result);\n'.
@@ -201,8 +209,10 @@ class Dx12ReplayConsumerBodyGenerator(
         return code
 
     def is_tracking_data(self, value):
-        if value.full_type.find('_Out') != -1 and (
-            self.is_class(value) or self.is_handle(value.base_type)
-        ):
-            return True
-        return False
+        is_tracking_class = False
+        is_tracking_win32_handle = False
+        if value.full_type.find('_Out') != -1:
+            is_tracking_class = self.is_class(value)
+            is_tracking_win32_handle = self.is_win32_handle(value.base_type)
+
+        return is_tracking_class, is_tracking_win32_handle

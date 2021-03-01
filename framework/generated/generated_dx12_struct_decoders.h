@@ -343,7 +343,7 @@ struct Decoded_DXGI_OUTPUT_DESC
 
     WStringDecoder DeviceName;
     Decoded_tagRECT* DesktopCoordinates{ nullptr };
-    format::HandleId Monitor{ format::kNullHandleId };
+    uint64_t Monitor{ 0 };
 };
 
 struct Decoded_DXGI_SHARED_RESOURCE
@@ -352,7 +352,7 @@ struct Decoded_DXGI_SHARED_RESOURCE
 
     DXGI_SHARED_RESOURCE* decoded_value{ nullptr };
 
-    format::HandleId Handle{ format::kNullHandleId };
+    uint64_t Handle{ 0 };
 };
 
 struct Decoded_DXGI_SURFACE_DESC
@@ -372,7 +372,7 @@ struct Decoded_DXGI_SWAP_CHAIN_DESC
 
     Decoded_DXGI_MODE_DESC* BufferDesc{ nullptr };
     Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
-    format::HandleId OutputWindow{ format::kNullHandleId };
+    uint64_t OutputWindow{ 0 };
 };
 
 struct Decoded_DXGI_ADAPTER_DESC1
@@ -561,7 +561,7 @@ struct Decoded_DXGI_OUTPUT_DESC1
 
     WStringDecoder DeviceName;
     Decoded_tagRECT* DesktopCoordinates{ nullptr };
-    format::HandleId Monitor{ format::kNullHandleId };
+    uint64_t Monitor{ 0 };
     PointerDecoder<FLOAT> RedPrimary;
     PointerDecoder<FLOAT> GreenPrimary;
     PointerDecoder<FLOAT> BluePrimary;

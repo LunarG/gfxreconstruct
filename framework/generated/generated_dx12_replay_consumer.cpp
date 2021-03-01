@@ -356,18 +356,17 @@ void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    HandlePointerDecoder<HANDLE>*               pSharedHandle)
+    PointerDecoder<uint64_t, HANDLE>*           pSharedHandle)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pSharedHandle->IsNull()) pSharedHandle->SetHandleLength(1);
         auto _out_p_pSharedHandle    = pSharedHandle->GetPointer();
-        auto _out_hp_pSharedHandle   = pSharedHandle->GetHandlePointer();
-        auto replay_result = replay_object->GetSharedHandle(_out_hp_pSharedHandle);
+        auto _out_op_pSharedHandle   = pSharedHandle->GetOutputPointer();
+        auto replay_result = replay_object->GetSharedHandle(_out_op_pSharedHandle);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pSharedHandle, _out_hp_pSharedHandle);
+            AddWin32Handle(_out_p_pSharedHandle, _out_op_pSharedHandle);
         }
         CheckReplayResult("IDXGIResource_GetSharedHandle", returnValue, replay_result);
     }
@@ -504,19 +503,18 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     BOOL                                        Discard,
-    HandlePointerDecoder<HDC>*                  phdc)
+    PointerDecoder<uint64_t, HDC>*              phdc)
 {
     auto replay_object = MapObject<IDXGISurface1>(object_id);
     if (replay_object != nullptr)
     {
-        if(!phdc->IsNull()) phdc->SetHandleLength(1);
         auto _out_p_phdc    = phdc->GetPointer();
-        auto _out_hp_phdc   = phdc->GetHandlePointer();
+        auto _out_op_phdc   = phdc->GetOutputPointer();
         auto replay_result = replay_object->GetDC(Discard,
-                                                  _out_hp_phdc);
+                                                  _out_op_phdc);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_phdc, _out_hp_phdc);
+            AddWin32Handle(_out_p_phdc, _out_op_phdc);
         }
         CheckReplayResult("IDXGISurface1_GetDC", returnValue, replay_result);
     }
@@ -1002,13 +1000,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
 void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            WindowHandle,
+    uint64_t                                    WindowHandle,
     UINT                                        Flags)
 {
     auto replay_object = MapObject<IDXGIFactory>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->MakeWindowAssociation(MapHandle<HWND>(WindowHandle),
+        auto replay_result = replay_object->MakeWindowAssociation(MapWin32Handle<HWND>(WindowHandle),
                                                                   Flags);
         if (SUCCEEDED(replay_result))
         {
@@ -1020,18 +1018,17 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
 void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    HandlePointerDecoder<HWND>*                 pWindowHandle)
+    PointerDecoder<uint64_t, HWND>*             pWindowHandle)
 {
     auto replay_object = MapObject<IDXGIFactory>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pWindowHandle->IsNull()) pWindowHandle->SetHandleLength(1);
         auto _out_p_pWindowHandle    = pWindowHandle->GetPointer();
-        auto _out_hp_pWindowHandle   = pWindowHandle->GetHandlePointer();
-        auto replay_result = replay_object->GetWindowAssociation(_out_hp_pWindowHandle);
+        auto _out_op_pWindowHandle   = pWindowHandle->GetOutputPointer();
+        auto replay_result = replay_object->GetWindowAssociation(_out_op_pWindowHandle);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pWindowHandle, _out_hp_pWindowHandle);
+            AddWin32Handle(_out_p_pWindowHandle, _out_op_pWindowHandle);
         }
         CheckReplayResult("IDXGIFactory_GetWindowAssociation", returnValue, replay_result);
     }
@@ -1064,7 +1061,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
 void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            Module,
+    uint64_t                                    Module,
     HandlePointerDecoder<IDXGIAdapter*>*        ppAdapter)
 {
     auto replay_object = MapObject<IDXGIFactory>(object_id);
@@ -1073,7 +1070,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         if(!ppAdapter->IsNull()) ppAdapter->SetHandleLength(1);
         auto _out_p_ppAdapter    = ppAdapter->GetPointer();
         auto _out_hp_ppAdapter   = ppAdapter->GetHandlePointer();
-        auto replay_result = replay_object->CreateSoftwareAdapter(MapHandle<HMODULE>(Module),
+        auto replay_result = replay_object->CreateSoftwareAdapter(MapWin32Handle<HMODULE>(Module),
                                                                   _out_hp_ppAdapter);
         if (SUCCEEDED(replay_result))
         {
@@ -1473,21 +1470,20 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       dwAccess,
     WStringDecoder*                             lpName,
-    HandlePointerDecoder<HANDLE>*               pHandle)
+    PointerDecoder<uint64_t, HANDLE>*           pHandle)
 {
     auto replay_object = MapObject<IDXGIResource1>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pHandle->IsNull()) pHandle->SetHandleLength(1);
         auto _out_p_pHandle    = pHandle->GetPointer();
-        auto _out_hp_pHandle   = pHandle->GetHandlePointer();
+        auto _out_op_pHandle   = pHandle->GetOutputPointer();
         auto replay_result = replay_object->CreateSharedHandle(pAttributes->GetPointer(),
                                                                dwAccess,
                                                                lpName->GetPointer(),
-                                                               _out_hp_pHandle);
+                                                               _out_op_pHandle);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pHandle, _out_hp_pHandle);
+            AddWin32Handle(_out_p_pHandle, _out_op_pHandle);
         }
         CheckReplayResult("IDXGIResource1_CreateSharedHandle", returnValue, replay_result);
     }
@@ -1536,12 +1532,12 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
 void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent)
+    uint64_t                                    hEvent)
 {
     auto replay_object = MapObject<IDXGIDevice2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->EnqueueSetEvent(MapHandle<HANDLE>(hEvent));
+        auto replay_result = replay_object->EnqueueSetEvent(MapWin32Handle<HANDLE>(hEvent));
         if (SUCCEEDED(replay_result))
         {
         }
@@ -1584,18 +1580,17 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    HandlePointerDecoder<HWND>*                 pHwnd)
+    PointerDecoder<uint64_t, HWND>*             pHwnd)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pHwnd->IsNull()) pHwnd->SetHandleLength(1);
         auto _out_p_pHwnd    = pHwnd->GetPointer();
-        auto _out_hp_pHwnd   = pHwnd->GetHandlePointer();
-        auto replay_result = replay_object->GetHwnd(_out_hp_pHwnd);
+        auto _out_op_pHwnd   = pHwnd->GetOutputPointer();
+        auto replay_result = replay_object->GetHwnd(_out_op_pHwnd);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pHwnd, _out_hp_pHwnd);
+            AddWin32Handle(_out_p_pHwnd, _out_op_pHwnd);
         }
         CheckReplayResult("IDXGISwapChain1_GetHwnd", returnValue, replay_result);
     }
@@ -1753,7 +1748,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
-    format::HandleId                            hWnd,
+    uint64_t                                    hWnd,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
     HandlePointerDecoder<IDXGIOutput*>*         pRestrictToOutput,
@@ -1766,7 +1761,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         auto _out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto _out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
         auto replay_result = replay_object->CreateSwapChainForHwnd(MapObject<IUnknown>(*pDevice->GetPointer()),
-                                                                   MapHandle<HWND>(hWnd),
+                                                                   MapWin32Handle<HWND>(hWnd),
                                                                    pDesc->GetPointer(),
                                                                    pFullscreenDesc->GetPointer(),
                                                                    MapObject<IDXGIOutput>(*pRestrictToOutput->GetPointer()),
@@ -1810,13 +1805,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
 void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hResource,
+    uint64_t                                    hResource,
     StructPointerDecoder<Decoded_LUID>*         pLuid)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->GetSharedResourceAdapterLuid(MapHandle<HANDLE>(hResource),
+        auto replay_result = replay_object->GetSharedResourceAdapterLuid(MapWin32Handle<HANDLE>(hResource),
                                                                          pLuid->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -1828,14 +1823,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            WindowHandle,
+    uint64_t                                    WindowHandle,
     UINT                                        wMsg,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterStereoStatusWindow(MapHandle<HWND>(WindowHandle),
+        auto replay_result = replay_object->RegisterStereoStatusWindow(MapWin32Handle<HWND>(WindowHandle),
                                                                        wMsg,
                                                                        pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
@@ -1848,13 +1843,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent,
+    uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterStereoStatusEvent(MapHandle<HANDLE>(hEvent),
+        auto replay_result = replay_object->RegisterStereoStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                       pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -1877,14 +1872,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            WindowHandle,
+    uint64_t                                    WindowHandle,
     UINT                                        wMsg,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterOcclusionStatusWindow(MapHandle<HWND>(WindowHandle),
+        auto replay_result = replay_object->RegisterOcclusionStatusWindow(MapWin32Handle<HWND>(WindowHandle),
                                                                           wMsg,
                                                                           pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
@@ -1897,13 +1892,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent,
+    uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterOcclusionStatusEvent(MapHandle<HANDLE>(hEvent),
+        auto replay_result = replay_object->RegisterOcclusionStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                          pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -2125,7 +2120,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     format::HandleId                            object_id,
-    format::HandleId                            returnValue)
+    uint64_t                                    returnValue)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
@@ -2339,7 +2334,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
-    format::HandleId                            hSurface,
+    uint64_t                                    hSurface,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
     HandlePointerDecoder<IDXGIOutput*>*         pRestrictToOutput,
     HandlePointerDecoder<IDXGISwapChain1*>*     ppSwapChain)
@@ -2351,7 +2346,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
         auto _out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto _out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
         auto replay_result = replay_object->CreateSwapChainForCompositionSurfaceHandle(MapObject<IUnknown>(*pDevice->GetPointer()),
-                                                                                       MapHandle<HANDLE>(hSurface),
+                                                                                       MapWin32Handle<HANDLE>(hSurface),
                                                                                        pDesc->GetPointer(),
                                                                                        MapObject<IDXGIOutput>(*pRestrictToOutput->GetPointer()),
                                                                                        _out_hp_ppSwapChain);
@@ -2367,7 +2362,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     HandlePointerDecoder<IUnknown*>*            pDevice,
-    format::HandleId                            hSurface,
+    uint64_t                                    hSurface,
     StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
     HandlePointerDecoder<IDXGIResource*>*       pYuvDecodeBuffers,
     HandlePointerDecoder<IDXGIOutput*>*         pRestrictToOutput,
@@ -2380,7 +2375,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
         auto _out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto _out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
         auto replay_result = replay_object->CreateDecodeSwapChainForCompositionSurfaceHandle(MapObject<IUnknown>(*pDevice->GetPointer()),
-                                                                                             MapHandle<HANDLE>(hSurface),
+                                                                                             MapWin32Handle<HANDLE>(hSurface),
                                                                                              pDesc->GetPointer(),
                                                                                              MapObject<IDXGIResource>(*pYuvDecodeBuffers->GetPointer()),
                                                                                              MapObject<IDXGIOutput>(*pRestrictToOutput->GetPointer()),
@@ -2609,13 +2604,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent,
+    uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIAdapter3>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterHardwareContentProtectionTeardownStatusEvent(MapHandle<HANDLE>(hEvent),
+        auto replay_result = replay_object->RegisterHardwareContentProtectionTeardownStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                                                  pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -2678,13 +2673,13 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent,
+    uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIAdapter3>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterVideoMemoryBudgetChangeNotificationEvent(MapHandle<HANDLE>(hEvent),
+        auto replay_result = replay_object->RegisterVideoMemoryBudgetChangeNotificationEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                                              pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -2891,13 +2886,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
 void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hEvent,
+    uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory7>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->RegisterAdaptersChangedEvent(MapHandle<HANDLE>(hEvent),
+        auto replay_result = replay_object->RegisterAdaptersChangedEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                          pdwCookie->GetPointer());
         if (SUCCEEDED(replay_result))
         {
@@ -3216,13 +3211,13 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     UINT64                                      Value,
-    format::HandleId                            hEvent)
+    uint64_t                                    hEvent)
 {
     auto replay_object = MapObject<ID3D12Fence>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetEventOnCompletion(Value,
-                                                                 MapHandle<HANDLE>(hEvent));
+                                                                 MapWin32Handle<HANDLE>(hEvent));
         if (SUCCEEDED(replay_result))
         {
         }
@@ -4893,22 +4888,21 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       Access,
     WStringDecoder*                             Name,
-    HandlePointerDecoder<HANDLE>*               pHandle)
+    PointerDecoder<uint64_t, HANDLE>*           pHandle)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pHandle->IsNull()) pHandle->SetHandleLength(1);
         auto _out_p_pHandle    = pHandle->GetPointer();
-        auto _out_hp_pHandle   = pHandle->GetHandlePointer();
+        auto _out_op_pHandle   = pHandle->GetOutputPointer();
         auto replay_result = replay_object->CreateSharedHandle(MapObject<ID3D12DeviceChild>(*pObject->GetPointer()),
                                                                pAttributes->GetPointer(),
                                                                Access,
                                                                Name->GetPointer(),
-                                                               _out_hp_pHandle);
+                                                               _out_op_pHandle);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pHandle, _out_hp_pHandle);
+            AddWin32Handle(_out_p_pHandle, _out_op_pHandle);
         }
         CheckReplayResult("ID3D12Device_CreateSharedHandle", returnValue, replay_result);
     }
@@ -4917,7 +4911,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
 void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            NTHandle,
+    uint64_t                                    NTHandle,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvObj)
 {
@@ -4927,7 +4921,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
         if(!ppvObj->IsNull()) ppvObj->SetHandleLength(1);
         auto _out_p_ppvObj    = ppvObj->GetPointer();
         auto _out_hp_ppvObj   = ppvObj->GetHandlePointer();
-        auto replay_result = replay_object->OpenSharedHandle(MapHandle<HANDLE>(NTHandle),
+        auto replay_result = replay_object->OpenSharedHandle(MapWin32Handle<HANDLE>(NTHandle),
                                                              *riid.decoded_value,
                                                              reinterpret_cast<void**>(_out_hp_ppvObj));
         if (SUCCEEDED(replay_result))
@@ -4943,20 +4937,19 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     HRESULT                                     returnValue,
     WStringDecoder*                             Name,
     DWORD                                       Access,
-    HandlePointerDecoder<HANDLE>*               pNTHandle)
+    PointerDecoder<uint64_t, HANDLE>*           pNTHandle)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        if(!pNTHandle->IsNull()) pNTHandle->SetHandleLength(1);
         auto _out_p_pNTHandle    = pNTHandle->GetPointer();
-        auto _out_hp_pNTHandle   = pNTHandle->GetHandlePointer();
+        auto _out_op_pNTHandle   = pNTHandle->GetOutputPointer();
         auto replay_result = replay_object->OpenSharedHandleByName(Name->GetPointer(),
                                                                    Access,
-                                                                   _out_hp_pNTHandle);
+                                                                   _out_op_pNTHandle);
         if (SUCCEEDED(replay_result))
         {
-            AddHandle(_out_p_pNTHandle, _out_hp_pNTHandle);
+            AddWin32Handle(_out_p_pNTHandle, _out_op_pNTHandle);
         }
         CheckReplayResult("ID3D12Device_OpenSharedHandleByName", returnValue, replay_result);
     }
@@ -5318,7 +5311,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
     PointerDecoder<UINT64>*                     pFenceValues,
     UINT                                        NumFences,
     D3D12_MULTIPLE_FENCE_WAIT_FLAGS             Flags,
-    format::HandleId                            hEvent)
+    uint64_t                                    hEvent)
 {
     auto replay_object = MapObject<ID3D12Device1>(object_id);
     if (replay_object != nullptr)
@@ -5327,7 +5320,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
                                                                               pFenceValues->GetPointer(),
                                                                               NumFences,
                                                                               Flags,
-                                                                              MapHandle<HANDLE>(hEvent));
+                                                                              MapWin32Handle<HANDLE>(hEvent));
         if (SUCCEEDED(replay_result))
         {
         }
@@ -5406,7 +5399,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
 void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    format::HandleId                            hFileMapping,
+    uint64_t                                    hFileMapping,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
 {
@@ -5416,7 +5409,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
         auto _out_p_ppvHeap    = ppvHeap->GetPointer();
         auto _out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
-        auto replay_result = replay_object->OpenExistingHeapFromFileMapping(MapHandle<HANDLE>(hFileMapping),
+        auto replay_result = replay_object->OpenExistingHeapFromFileMapping(MapWin32Handle<HANDLE>(hFileMapping),
                                                                             *riid.decoded_value,
                                                                             reinterpret_cast<void**>(_out_hp_ppvHeap));
         if (SUCCEEDED(replay_result))
@@ -6072,7 +6065,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     HRESULT                                     returnValue,
     D3D12_BACKGROUND_PROCESSING_MODE            Mode,
     D3D12_MEASUREMENTS_ACTION                   MeasurementsAction,
-    format::HandleId                            hEventToSignalUponCompletion,
+    uint64_t                                    hEventToSignalUponCompletion,
     PointerDecoder<BOOL>*                       pbFurtherMeasurementsDesired)
 {
     auto replay_object = MapObject<ID3D12Device6>(object_id);
@@ -6080,7 +6073,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     {
         auto replay_result = replay_object->SetBackgroundProcessingMode(Mode,
                                                                         MeasurementsAction,
-                                                                        MapHandle<HANDLE>(hEventToSignalUponCompletion),
+                                                                        MapWin32Handle<HANDLE>(hEventToSignalUponCompletion),
                                                                         pbFurtherMeasurementsDesired->GetPointer());
         if (SUCCEEDED(replay_result))
         {

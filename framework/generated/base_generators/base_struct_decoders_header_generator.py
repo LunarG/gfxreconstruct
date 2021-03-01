@@ -69,6 +69,8 @@ class BaseStructDecodersHeaderGenerator():
             return True
         elif self.is_handle(value.base_type):
             return True
+        elif self.is_win32_handle(value.base_type):
+            return True
         elif self.is_struct(value.base_type):
             return True
         elif self.is_generic_struct_handle_value(name, value.name):

@@ -81,6 +81,7 @@ class BaseStructDecodersBodyGenerator():
         is_funcp = False
         is_handle = False
         is_enum = False
+        is_win32_handle = False  # Only for Dx12.
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -96,6 +97,8 @@ class BaseStructDecodersBodyGenerator():
             is_handle = True
         elif type_name == 'Enum':
             is_enum = True
+        elif self.is_win32_handle(type_name):
+            is_win32_handle = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -172,7 +175,7 @@ class BaseStructDecodersBodyGenerator():
                 body += '    bytes_read += DecodeStruct({}, wrapper->{});\n'.format(
                     buffer_args, value.name
                 )
-            elif is_funcp:
+            elif is_funcp or is_win32_handle:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
                 )

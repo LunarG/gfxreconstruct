@@ -91,7 +91,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<HANDLE>* pSharedHandle){}
+        PointerDecoder<uint64_t, HANDLE>* pSharedHandle){}
 
     virtual void Process_IDXGIResource_GetUsage(
         format::HandleId object_id,
@@ -138,7 +138,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         BOOL Discard,
-        HandlePointerDecoder<HDC>* phdc){}
+        PointerDecoder<uint64_t, HDC>* phdc){}
 
     virtual void Process_IDXGISurface1_ReleaseDC(
         format::HandleId object_id,
@@ -293,13 +293,13 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory_MakeWindowAssociation(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId WindowHandle,
+        uint64_t WindowHandle,
         UINT Flags){}
 
     virtual void Process_IDXGIFactory_GetWindowAssociation(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<HWND>* pWindowHandle){}
+        PointerDecoder<uint64_t, HWND>* pWindowHandle){}
 
     virtual void Process_IDXGIFactory_CreateSwapChain(
         format::HandleId object_id,
@@ -311,7 +311,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory_CreateSoftwareAdapter(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId Module,
+        uint64_t Module,
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter){}
 
     virtual void Process_IDXGIDevice_GetAdapter(
@@ -447,7 +447,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
-        HandlePointerDecoder<HANDLE>* pHandle){}
+        PointerDecoder<uint64_t, HANDLE>* pHandle){}
 
     virtual void Process_IDXGIDevice2_OfferResources(
         format::HandleId object_id,
@@ -466,7 +466,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIDevice2_EnqueueSetEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent){}
+        uint64_t hEvent){}
 
     virtual void Process_IDXGISwapChain1_GetDesc1(
         format::HandleId object_id,
@@ -481,7 +481,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGISwapChain1_GetHwnd(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<HWND>* pHwnd){}
+        PointerDecoder<uint64_t, HWND>* pHwnd){}
 
     virtual void Process_IDXGISwapChain1_GetCoreWindow(
         format::HandleId object_id,
@@ -533,7 +533,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         HandlePointerDecoder<IUnknown*>* pDevice,
-        format::HandleId hWnd,
+        uint64_t hWnd,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
         HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
@@ -551,20 +551,20 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hResource,
+        uint64_t hResource,
         StructPointerDecoder<Decoded_LUID>* pLuid){}
 
     virtual void Process_IDXGIFactory2_RegisterStereoStatusWindow(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId WindowHandle,
+        uint64_t WindowHandle,
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIFactory2_RegisterStereoStatusEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent,
+        uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIFactory2_UnregisterStereoStatus(
@@ -574,14 +574,14 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId WindowHandle,
+        uint64_t WindowHandle,
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent,
+        uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIFactory2_UnregisterOcclusionStatus(
@@ -670,7 +670,7 @@ class Dx12Consumer : public Dx12ConsumerBase
 
     virtual void Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         format::HandleId object_id,
-        format::HandleId returnValue){}
+        uint64_t returnValue){}
 
     virtual void Process_IDXGISwapChain2_SetMatrixTransform(
         format::HandleId object_id,
@@ -742,7 +742,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         HandlePointerDecoder<IUnknown*>* pDevice,
-        format::HandleId hSurface,
+        uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
         HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain){}
@@ -751,7 +751,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         HandlePointerDecoder<IUnknown*>* pDevice,
-        format::HandleId hSurface,
+        uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
         HandlePointerDecoder<IDXGIResource*>* pYuvDecodeBuffers,
         HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
@@ -835,7 +835,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent,
+        uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
@@ -859,7 +859,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent,
+        uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
@@ -941,7 +941,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hEvent,
+        uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie){}
 
     virtual void Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
@@ -1104,7 +1104,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         UINT64 Value,
-        format::HandleId hEvent){}
+        uint64_t hEvent){}
 
     virtual void Process_ID3D12Fence_Signal(
         format::HandleId object_id,
@@ -1739,12 +1739,12 @@ class Dx12Consumer : public Dx12ConsumerBase
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
-        HandlePointerDecoder<HANDLE>* pHandle){}
+        PointerDecoder<uint64_t, HANDLE>* pHandle){}
 
     virtual void Process_ID3D12Device_OpenSharedHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId NTHandle,
+        uint64_t NTHandle,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvObj){}
 
@@ -1753,7 +1753,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT returnValue,
         WStringDecoder* Name,
         DWORD Access,
-        HandlePointerDecoder<HANDLE>* pNTHandle){}
+        PointerDecoder<uint64_t, HANDLE>* pNTHandle){}
 
     virtual void Process_ID3D12Device_MakeResident(
         format::HandleId object_id,
@@ -1879,7 +1879,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         PointerDecoder<UINT64>* pFenceValues,
         UINT NumFences,
         D3D12_MULTIPLE_FENCE_WAIT_FLAGS Flags,
-        format::HandleId hEvent){}
+        uint64_t hEvent){}
 
     virtual void Process_ID3D12Device1_SetResidencyPriority(
         format::HandleId object_id,
@@ -1905,7 +1905,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         format::HandleId object_id,
         HRESULT returnValue,
-        format::HandleId hFileMapping,
+        uint64_t hFileMapping,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap){}
 
@@ -2129,7 +2129,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT returnValue,
         D3D12_BACKGROUND_PROCESSING_MODE Mode,
         D3D12_MEASUREMENTS_ACTION MeasurementsAction,
-        format::HandleId hEventToSignalUponCompletion,
+        uint64_t hEventToSignalUponCompletion,
         PointerDecoder<BOOL>* pbFurtherMeasurementsDesired){}
 
     virtual void Process_ID3D12ProtectedResourceSession1_GetDesc1(

@@ -114,12 +114,12 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC& value)
     EncodeStruct(encoder, value.DesktopCoordinates);
     encoder->EncodeInt32Value(value.AttachedToDesktop);
     encoder->EncodeEnumValue(value.Rotation);
-    encoder->EncodeHandleValue(value.Monitor);
+    encoder->EncodeVoidPtr(value.Monitor);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_SHARED_RESOURCE& value)
 {
-    encoder->EncodeHandleValue(value.Handle);
+    encoder->EncodeVoidPtr(value.Handle);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_SURFACE_DESC& value)
@@ -136,7 +136,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC& value)
     EncodeStruct(encoder, value.SampleDesc);
     encoder->EncodeUInt32Value(value.BufferUsage);
     encoder->EncodeUInt32Value(value.BufferCount);
-    encoder->EncodeHandleValue(value.OutputWindow);
+    encoder->EncodeVoidPtr(value.OutputWindow);
     encoder->EncodeInt32Value(value.Windowed);
     encoder->EncodeEnumValue(value.SwapEffect);
     encoder->EncodeUInt32Value(value.Flags);
@@ -234,7 +234,7 @@ void Encode_IDXGIResource_GetSharedHandle(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandlePtr(pSharedHandle);
+        encoder->EncodeVoidPtrPtr(pSharedHandle);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -364,7 +364,7 @@ void Encode_IDXGISurface1_GetDC(
     if(encoder)
     {
         encoder->EncodeInt32Value(Discard);
-        encoder->EncodeHandlePtr(phdc);
+        encoder->EncodeVoidPtrPtr(phdc);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -787,7 +787,7 @@ void Encode_IDXGIFactory_MakeWindowAssociation(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(WindowHandle);
+        encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -802,7 +802,7 @@ void Encode_IDXGIFactory_GetWindowAssociation(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandlePtr(pWindowHandle);
+        encoder->EncodeVoidPtrPtr(pWindowHandle);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -835,7 +835,7 @@ void Encode_IDXGIFactory_CreateSoftwareAdapter(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(Module);
+        encoder->EncodeVoidPtr(Module);
         encoder->EncodeObjectValue(ppAdapter);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1256,7 +1256,7 @@ void Encode_IDXGIResource1_CreateSharedHandle(
         EncodeStructPtr(encoder, pAttributes);
         encoder->EncodeUInt32Value(dwAccess);
         encoder->EncodeWString(lpName);
-        encoder->EncodeHandlePtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -1306,7 +1306,7 @@ void Encode_IDXGIDevice2_EnqueueSetEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -1390,7 +1390,7 @@ void Encode_IDXGISwapChain1_GetHwnd(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandlePtr(pHwnd);
+        encoder->EncodeVoidPtrPtr(pHwnd);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -1538,7 +1538,7 @@ void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
     if(encoder)
     {
         encoder->EncodeObjectValue(pDevice);
-        encoder->EncodeHandleValue(hWnd);
+        encoder->EncodeVoidPtr(hWnd);
         EncodeStructPtr(encoder, pDesc);
         EncodeStructPtr(encoder, pFullscreenDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
@@ -1579,7 +1579,7 @@ void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hResource);
+        encoder->EncodeVoidPtr(hResource);
         EncodeStructPtr(encoder, pLuid);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1596,7 +1596,7 @@ void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(WindowHandle);
+        encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(wMsg);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
@@ -1613,7 +1613,7 @@ void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1642,7 +1642,7 @@ void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(WindowHandle);
+        encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(wMsg);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
@@ -1659,7 +1659,7 @@ void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -1923,7 +1923,7 @@ void Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(result);
+        encoder->EncodeVoidPtr(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
 }
@@ -2130,7 +2130,7 @@ void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     if(encoder)
     {
         encoder->EncodeObjectValue(pDevice);
-        encoder->EncodeHandleValue(hSurface);
+        encoder->EncodeVoidPtr(hSurface);
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectValue(ppSwapChain);
@@ -2153,7 +2153,7 @@ void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
     if(encoder)
     {
         encoder->EncodeObjectValue(pDevice);
-        encoder->EncodeHandleValue(hSurface);
+        encoder->EncodeVoidPtr(hSurface);
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectValue(pYuvDecodeBuffers);
         encoder->EncodeObjectValue(pRestrictToOutput);
@@ -2383,7 +2383,7 @@ void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -2447,7 +2447,7 @@ void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -2638,7 +2638,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC1& value)
     EncodeStruct(encoder, value.DesktopCoordinates);
     encoder->EncodeInt32Value(value.AttachedToDesktop);
     encoder->EncodeEnumValue(value.Rotation);
-    encoder->EncodeHandleValue(value.Monitor);
+    encoder->EncodeVoidPtr(value.Monitor);
     encoder->EncodeUInt32Value(value.BitsPerColor);
     encoder->EncodeEnumValue(value.ColorSpace);
     encoder->EncodeFloatArray(value.RedPrimary, 2);
@@ -2707,7 +2707,7 @@ void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
@@ -4208,7 +4208,7 @@ void Encode_ID3D12Fence_SetEventOnCompletion(
     if(encoder)
     {
         encoder->EncodeUInt64Value(Value);
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5888,7 +5888,7 @@ void Encode_ID3D12Device_CreateSharedHandle(
         EncodeStructPtr(encoder, pAttributes);
         encoder->EncodeUInt32Value(Access);
         encoder->EncodeWString(Name);
-        encoder->EncodeHandlePtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -5904,7 +5904,7 @@ void Encode_ID3D12Device_OpenSharedHandle(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(NTHandle);
+        encoder->EncodeVoidPtr(NTHandle);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectValue(ppvObj);
         encoder->EncodeInt32Value(result);
@@ -5924,7 +5924,7 @@ void Encode_ID3D12Device_OpenSharedHandleByName(
     {
         encoder->EncodeWString(Name);
         encoder->EncodeUInt32Value(Access);
-        encoder->EncodeHandlePtr(pNTHandle);
+        encoder->EncodeVoidPtrPtr(pNTHandle);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6248,7 +6248,7 @@ void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         encoder->EncodeUInt64Array(pFenceValues, NumFences);
         encoder->EncodeUInt32Value(NumFences);
         encoder->EncodeEnumValue(Flags);
-        encoder->EncodeHandleValue(hEvent);
+        encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);
     }
@@ -6318,7 +6318,7 @@ void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
     auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping, wrapper_id);
     if(encoder)
     {
-        encoder->EncodeHandleValue(hFileMapping);
+        encoder->EncodeVoidPtr(hFileMapping);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectValue(ppvHeap);
         encoder->EncodeInt32Value(result);
@@ -7251,7 +7251,7 @@ void Encode_ID3D12Device6_SetBackgroundProcessingMode(
     {
         encoder->EncodeEnumValue(Mode);
         encoder->EncodeEnumValue(MeasurementsAction);
-        encoder->EncodeHandleValue(hEventToSignalUponCompletion);
+        encoder->EncodeVoidPtr(hEventToSignalUponCompletion);
         encoder->EncodeInt32Ptr(pbFurtherMeasurementsDesired);
         encoder->EncodeInt32Value(result);
         TraceManager::Get()->EndMethodCallTrace(encoder);

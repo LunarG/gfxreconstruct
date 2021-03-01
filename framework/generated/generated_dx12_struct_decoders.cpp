@@ -119,8 +119,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTP
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
-    value->Monitor = VK_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
+    value->Monitor = nullptr;
 
     return bytes_read;
 }
@@ -132,8 +132,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SHAR
     size_t bytes_read = 0;
     DXGI_SHARED_RESOURCE* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Handle));
-    value->Handle = VK_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Handle));
+    value->Handle = nullptr;
 
     return bytes_read;
 }
@@ -170,8 +170,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferUsage));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferCount));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->OutputWindow));
-    value->OutputWindow = VK_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->OutputWindow));
+    value->OutputWindow = nullptr;
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Windowed));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SwapEffect));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
@@ -559,8 +559,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTP
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
-    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
-    value->Monitor = VK_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
+    value->Monitor = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BitsPerColor));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ColorSpace));
     wrapper->RedPrimary.SetExternalMemory(value->RedPrimary, 2);

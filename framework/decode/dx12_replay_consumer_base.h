@@ -60,10 +60,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void RemoveObject(format::HandleId id) { objects_.erase(id); }
 
     template <typename T>
-    T MapHandle(format::HandleId id)
+    T MapWin32Handle(uint64_t handle)
     {
-        auto entry = handles_.find(id);
-        if (entry != handles_.end())
+        auto entry = win32_handles_.find(handle);
+        if (entry != win32_handles_.end())
         {
             return static_cast<T>(entry->second);
         }
@@ -72,15 +72,16 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
-    void AddHandle(const format::HandleId* p_id, T** pp_handle)
+    void AddWin32Handle(const uint64_t* p_handle, T** pp_handle)
     {
-        if ((p_id != nullptr) && (*p_id != format::kNullHandleId) && (pp_handle != nullptr) && (*pp_handle != nullptr))
+        if ((p_handle != nullptr) && (*p_handle != format::kNullHandleId) && (pp_handle != nullptr) &&
+            (*pp_handle != nullptr))
         {
-            handles_.insert(std::make_pair(*p_id, *pp_handle));
+            win32_handles_.insert(std::make_pair(*p_handle, *pp_handle));
         }
     }
 
-    void RemoveHandle(format::HandleId id) { handles_.erase(id); }
+    void RemoveWin32Handle(uint64_t handle) { win32_handles_.erase(handle); }
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
     {
@@ -95,7 +96,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
   private:
     std::unordered_map<format::HandleId, IUnknown*> objects_;
-    std::unordered_map<format::HandleId, HANDLE>    handles_;
+    std::unordered_map<uint64_t, void*>             win32_handles_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
