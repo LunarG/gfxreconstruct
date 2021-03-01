@@ -78,6 +78,7 @@ void TestDx12BufferNotInMap(GpuVaMap& gpu_va_map, const Dx12ResourcePtr& dx12_bu
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get tests", "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -90,12 +91,14 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get tests", "[gpu_va_map][pre_submit]")
     {
         TestDx12BufferInMap(gpu_va_map, dx12_buffer);
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
           "D3D12_RESOURCE_DESC*) override and GpuVaMap::Get tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -110,12 +113,14 @@ TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
     {
         TestDx12BufferInMap(gpu_va_map, dx12_buffer);
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get equal range overlapping buffer "
           "tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferBoundCount   = 16;
     static constexpr int         kBufferOverlapCount = 2;
@@ -130,12 +135,14 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get equal range overlapping buffer "
     {
         TestDx12BufferInMap(gpu_va_map, dx12_buffer);
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
           "sequential buffer tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kListsize        = 8;
     static constexpr int         kBufferSize      = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT + 2048;
@@ -160,12 +167,14 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
             TestDx12BufferInMap(gpu_va_map, dx12_buffer);
         }
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
           "non sequential buffer tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kListsize        = 16;
     static constexpr int         kBufferSize      = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT + 2048;
@@ -180,10 +189,12 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
         const D3D12_GPU_VIRTUAL_ADDRESS gpu_va_end   = dx12_buffer->GetGPUVirtualAddress() + buffer_desc.Width;
         REQUIRE(true == gpu_va_map.Add((ID3D12Resource*)dx12_buffer));
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get negative tests", "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 2;
     static constexpr int         kBufferSize      = 1024;
@@ -206,12 +217,14 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get negative tests", "[gpu_va_map][pre_su
                                             /* resource_index */ 0,
                                             &dx12_resource));
     REQUIRE(false == gpu_va_map.GetResource(0, /* resource_index */ 0, &dx12_resource));
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
           "D3D12_RESOURCE_DESC*) override and GpuVaMap::Get negative tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 2;
     static constexpr int         kBufferSize      = 1024;
@@ -239,10 +252,12 @@ TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
                                             /* resource_index */ 0,
                                             &dx12_resource));
     REQUIRE(false == gpu_va_map.GetResource(0, /* resource_index */ 0, &dx12_resource));
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Remove tests", "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -281,12 +296,14 @@ TEST_CASE("GpuVaMap::Remove tests", "[gpu_va_map][pre_submit]")
             REQUIRE(true == gpu_va_map.Add((ID3D12Resource*)dx12_buffer));
         }
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get capture to replay GPU VA mapping "
           "tests",
           "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize          = 1;
     static constexpr int         kBufferSize              = 1024;
@@ -315,10 +332,12 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get capture to replay GPU VA mapping "
             REQUIRE(expected_replay_gpu_va + offset == replay_gpu_va);
         }
     }
+    gfxrecon::util::Log::Release();
 }
 
 TEST_CASE("GpuVaMap::GetReplayGpuVa 4K page tests", "[gpu_va_map][pre_submit]")
 {
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     GpuVaMap                                   gpu_va_map;
     static constexpr int                       kBufferListSize  = 4;
     static constexpr int                       kBufferSize      = 1024;
@@ -341,6 +360,7 @@ TEST_CASE("GpuVaMap::GetReplayGpuVa 4K page tests", "[gpu_va_map][pre_submit]")
         REQUIRE(replay_gpu_va + kBufferOffset ==
                 gpu_va_map.GetReplayGpuVa(kCaptureGPUVa + index * kPageSize + kBufferOffset));
     }
+    gfxrecon::util::Log::Release();
 }
 GFXRECON_END_NAMESPACE(test)
 GFXRECON_END_NAMESPACE(util)
