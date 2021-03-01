@@ -311,14 +311,14 @@ class Dx12BaseGenerator(BaseGenerator):
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
         )
 
-    def gen_type(self, typeinfo, name, alias):
+    def genType(self, typeinfo, name, alias):
         """Methond override."""
-        self.gen_struct(None, None, None)
-        self.gen_cmd(None, None, None)
+        self.genStruct(None, None, None)
+        self.genCmd(None, None, None)
         self.gen_method()
         self.gen_handle()
 
-    def gen_struct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias):
         """Methond override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
@@ -328,7 +328,7 @@ class Dx12BaseGenerator(BaseGenerator):
                         v2['properties']['public']
                     )
 
-    def gen_cmd(self, cmdinfo, name, alias):
+    def genCmd(self, cmdinfo, name, alias):
         """Methond override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
@@ -341,7 +341,6 @@ class Dx12BaseGenerator(BaseGenerator):
                     )
 
     def gen_handle(self):
-        # Member override
         self.handle_names = ['HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC']
 
     def gen_method(self):

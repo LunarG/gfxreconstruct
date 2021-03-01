@@ -415,7 +415,7 @@ class GenCode(threading.Thread):
 
         gen.beginFile(options)
         gen.beginFeature({}, False)
-        gen.gen_type(None, None, None)
+        gen.genType(None, None, None)
         gen.generate_feature()
         gen.endFeature()
         gen.endFile()
