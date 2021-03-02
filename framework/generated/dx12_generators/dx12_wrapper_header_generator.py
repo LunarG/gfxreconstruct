@@ -130,7 +130,12 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
         # Constructor
         expr += indent + '{name}_Wrapper(REFIID riid, {name}* object,'\
-            ' DxWrapperResources* resources = nullptr);\n'.format(name=name)
+            ' DxWrapperResources* resources = nullptr,' \
+            ' const std::function<void(IUnknown_Wrapper*)>& destructor' \
+            ' = [](IUnknown_Wrapper* u){{' \
+            ' delete reinterpret_cast<{name}_Wrapper*>(u); }});\n'.format(
+                    name=name
+            )
 
         # Object "getter"
         expr += '\n'

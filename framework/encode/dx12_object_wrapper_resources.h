@@ -27,6 +27,7 @@
 #include "util/defines.h"
 
 #include <atomic>
+#include <functional>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -48,12 +49,8 @@ class DxWrapperResources
   public:
     //----------------------------------------------------------------------------
     /// Constructor receiving a pointer to an object to track.
-    ///
-    /// \param wrapper  Pointer to an IUnknown_Wrapper object to be added to the
-    ///                 internal list of referenced objects.  Typically a pointer
-    ///                 to the object creating the DXWrapperResources object.
     //----------------------------------------------------------------------------
-    DxWrapperResources(IUnknown_Wrapper* wrapper);
+    DxWrapperResources();
 
     //----------------------------------------------------------------------------
     /// Destructor responsible for destroying tracked IUnknown_Wrapper objects.
@@ -66,10 +63,15 @@ class DxWrapperResources
     /// Adds an IUnknown_Wrapper object to the list of tracked objects, without
     /// altering the shared reference count.
     ///
-    /// \param wrapper  Pointer to an IUnknown_Wrapper object to be added to the
-    ///                 internal list of referenced objects.
+    /// \param wrapper    Pointer to an IUnknown_Wrapper object to be added to
+    ///                   the internal list of referenced objects.
+    /// \param destructor Function to destroy the IUnknown_Wrapper object
+    ///                   referenced by #wrapper.
     //----------------------------------------------------------------------------
-    void AddWrapper(IUnknown_Wrapper* wrapper) { wrappers_.push_back(wrapper); }
+    void AddWrapper(IUnknown_Wrapper* wrapper, const std::function<void(IUnknown_Wrapper*)>& destructor)
+    {
+        wrappers_.emplace_back(WrapperEntry{ wrapper, destructor });
+    }
 
     //----------------------------------------------------------------------------
     /// Increments the shared reference count.
@@ -86,9 +88,16 @@ class DxWrapperResources
     unsigned long DecrementSharedCount() { return --shared_count_; }
 
   private:
+    struct WrapperEntry
+    {
+        IUnknown_Wrapper*                      wrapper;
+        std::function<void(IUnknown_Wrapper*)> destructor;
+    };
+
+  private:
     std::atomic<unsigned long> shared_count_; ///< Shared reference count, representing the combined reference count of
                                               ///< all tracked IUnknown_Wrapper objects.
-    std::vector<IUnknown_Wrapper*> wrappers_; ///< List of tracked IUnknown_Wrapper objects.
+    std::vector<WrapperEntry> wrappers_;      ///< List of tracked IUnknown_Wrapper objects.
 };
 
 GFXRECON_END_NAMESPACE(encode)

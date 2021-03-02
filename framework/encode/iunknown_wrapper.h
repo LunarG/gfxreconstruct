@@ -28,6 +28,7 @@
 
 #include <atomic>
 #include <comdef.h>
+#include <functional>
 #include <guiddef.h>
 #include <Unknwn.h>
 
@@ -65,8 +66,16 @@ IUnknown_Wrapper : public IUnknown
     /// \param resources      Pointer to a DxWrapperResources object that is
     ///                       responsible for maintaining a shared reference
     ///                       count between related objects.
+    /// \param destructor     Function that should be used to destroy the
+    ///                       wrapper object being constructed.  The wrapper
+    ///                       classes must maintain vtable compatibility with
+    ///                       the actual Direct3D class types, and adding a
+    ///                       virtual destructor would break that compatibility.
+    ///                       This function is used in place of a virtual
+    ///                       destructor to ensrue that the object is properly
+    ///                       destroyed.
     //----------------------------------------------------------------------------
-    IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrapperResources* resources = nullptr);
+    IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor);
 
     //----------------------------------------------------------------------------
     /// \brief QueryInterface implementation.
@@ -146,21 +155,12 @@ IUnknown_Wrapper : public IUnknown
         }
     }
 
-    //----------------------------------------------------------------------------
-    /// \brief Destroy the object wrapper.
-    ///
-    /// Releases the wrapped object and destroys the current wrapper.  Intended
-    /// to be called by #resources_ when the shared reference count reaches zero.
-    //----------------------------------------------------------------------------
-    void Destroy()
-    {
-        resources_ = nullptr;
-        object_    = nullptr;
-        delete this;
-    }
-
   protected:
-    ~IUnknown_Wrapper() {}
+    ~IUnknown_Wrapper()
+    {
+        resources_ = nullptr; // resources_ is currently deleting this object.
+        object_    = nullptr; // Release the reference to the wrapped object.
+    }
 
   private:
     typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownPtr;

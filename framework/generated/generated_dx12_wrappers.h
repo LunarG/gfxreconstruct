@@ -66,7 +66,7 @@ HRESULT WINAPI CreateDXGIFactory1(
 class IDXGIObject_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIObject_Wrapper(REFIID riid, IDXGIObject* object, DxWrapperResources* resources = nullptr);
+    IDXGIObject_Wrapper(REFIID riid, IDXGIObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIObject_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIObject** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -97,7 +97,7 @@ class IDXGIObject_Wrapper : public IUnknown_Wrapper
 class IDXGIDeviceSubObject_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIDeviceSubObject_Wrapper(REFIID riid, IDXGIDeviceSubObject* object, DxWrapperResources* resources = nullptr);
+    IDXGIDeviceSubObject_Wrapper(REFIID riid, IDXGIDeviceSubObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDeviceSubObject_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDeviceSubObject** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -114,7 +114,7 @@ class IDXGIDeviceSubObject_Wrapper : public IDXGIObject_Wrapper
 class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGIResource_Wrapper(REFIID riid, IDXGIResource* object, DxWrapperResources* resources = nullptr);
+    IDXGIResource_Wrapper(REFIID riid, IDXGIResource* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIResource** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -139,7 +139,7 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
 class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGIKeyedMutex_Wrapper(REFIID riid, IDXGIKeyedMutex* object, DxWrapperResources* resources = nullptr);
+    IDXGIKeyedMutex_Wrapper(REFIID riid, IDXGIKeyedMutex* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIKeyedMutex** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -159,7 +159,7 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
 class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGISurface_Wrapper(REFIID riid, IDXGISurface* object, DxWrapperResources* resources = nullptr);
+    IDXGISurface_Wrapper(REFIID riid, IDXGISurface* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISurface** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -181,7 +181,7 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
 class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
 {
   public:
-    IDXGISurface1_Wrapper(REFIID riid, IDXGISurface1* object, DxWrapperResources* resources = nullptr);
+    IDXGISurface1_Wrapper(REFIID riid, IDXGISurface1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISurface1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -201,7 +201,7 @@ class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
 class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIAdapter_Wrapper(REFIID riid, IDXGIAdapter* object, DxWrapperResources* resources = nullptr);
+    IDXGIAdapter_Wrapper(REFIID riid, IDXGIAdapter* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIAdapter** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -225,7 +225,7 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
 class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIOutput_Wrapper(REFIID riid, IDXGIOutput* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput_Wrapper(REFIID riid, IDXGIOutput* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -278,7 +278,7 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
 class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGISwapChain_Wrapper(REFIID riid, IDXGISwapChain* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChain_Wrapper(REFIID riid, IDXGISwapChain* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -330,7 +330,7 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
 class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIFactory_Wrapper(REFIID riid, IDXGIFactory* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory_Wrapper(REFIID riid, IDXGIFactory* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -363,7 +363,7 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
 class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIDevice_Wrapper(REFIID riid, IDXGIDevice* object, DxWrapperResources* resources = nullptr);
+    IDXGIDevice_Wrapper(REFIID riid, IDXGIDevice* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDevice** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -397,7 +397,7 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
 class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
 {
   public:
-    IDXGIFactory1_Wrapper(REFIID riid, IDXGIFactory1* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory1_Wrapper(REFIID riid, IDXGIFactory1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -416,7 +416,7 @@ class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
 class IDXGIAdapter1_Wrapper : public IDXGIAdapter_Wrapper
 {
   public:
-    IDXGIAdapter1_Wrapper(REFIID riid, IDXGIAdapter1* object, DxWrapperResources* resources = nullptr);
+    IDXGIAdapter1_Wrapper(REFIID riid, IDXGIAdapter1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIAdapter1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -432,7 +432,7 @@ class IDXGIAdapter1_Wrapper : public IDXGIAdapter_Wrapper
 class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 {
   public:
-    IDXGIDevice1_Wrapper(REFIID riid, IDXGIDevice1* object, DxWrapperResources* resources = nullptr);
+    IDXGIDevice1_Wrapper(REFIID riid, IDXGIDevice1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDevice1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -457,7 +457,7 @@ class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIDisplayControl_Wrapper(REFIID riid, IDXGIDisplayControl* object, DxWrapperResources* resources = nullptr);
+    IDXGIDisplayControl_Wrapper(REFIID riid, IDXGIDisplayControl* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDisplayControl_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDisplayControl** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -475,7 +475,7 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
 class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIOutputDuplication_Wrapper(REFIID riid, IDXGIOutputDuplication* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutputDuplication_Wrapper(REFIID riid, IDXGIOutputDuplication* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutputDuplication** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -519,7 +519,7 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
 class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
 {
   public:
-    IDXGISurface2_Wrapper(REFIID riid, IDXGISurface2* object, DxWrapperResources* resources = nullptr);
+    IDXGISurface2_Wrapper(REFIID riid, IDXGISurface2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISurface2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -537,7 +537,7 @@ class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
 class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
 {
   public:
-    IDXGIResource1_Wrapper(REFIID riid, IDXGIResource1* object, DxWrapperResources* resources = nullptr);
+    IDXGIResource1_Wrapper(REFIID riid, IDXGIResource1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIResource1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -560,7 +560,7 @@ class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
 class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
 {
   public:
-    IDXGIDevice2_Wrapper(REFIID riid, IDXGIDevice2* object, DxWrapperResources* resources = nullptr);
+    IDXGIDevice2_Wrapper(REFIID riid, IDXGIDevice2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDevice2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -586,7 +586,7 @@ class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
 class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
 {
   public:
-    IDXGISwapChain1_Wrapper(REFIID riid, IDXGISwapChain1* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChain1_Wrapper(REFIID riid, IDXGISwapChain1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChain1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -634,7 +634,7 @@ class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
 class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
 {
   public:
-    IDXGIFactory2_Wrapper(REFIID riid, IDXGIFactory2* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory2_Wrapper(REFIID riid, IDXGIFactory2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -698,7 +698,7 @@ class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
 class IDXGIAdapter2_Wrapper : public IDXGIAdapter1_Wrapper
 {
   public:
-    IDXGIAdapter2_Wrapper(REFIID riid, IDXGIAdapter2* object, DxWrapperResources* resources = nullptr);
+    IDXGIAdapter2_Wrapper(REFIID riid, IDXGIAdapter2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIAdapter2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -714,7 +714,7 @@ class IDXGIAdapter2_Wrapper : public IDXGIAdapter1_Wrapper
 class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
 {
   public:
-    IDXGIOutput1_Wrapper(REFIID riid, IDXGIOutput1* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput1_Wrapper(REFIID riid, IDXGIOutput1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput1_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -761,7 +761,7 @@ HRESULT WINAPI DXGIGetDebugInterface1(
 class IDXGIDevice3_Wrapper : public IDXGIDevice2_Wrapper
 {
   public:
-    IDXGIDevice3_Wrapper(REFIID riid, IDXGIDevice3* object, DxWrapperResources* resources = nullptr);
+    IDXGIDevice3_Wrapper(REFIID riid, IDXGIDevice3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice3_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDevice3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -776,7 +776,7 @@ class IDXGIDevice3_Wrapper : public IDXGIDevice2_Wrapper
 class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
 {
   public:
-    IDXGISwapChain2_Wrapper(REFIID riid, IDXGISwapChain2* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChain2_Wrapper(REFIID riid, IDXGISwapChain2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChain2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -811,7 +811,7 @@ class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
 class IDXGIOutput2_Wrapper : public IDXGIOutput1_Wrapper
 {
   public:
-    IDXGIOutput2_Wrapper(REFIID riid, IDXGIOutput2* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput2_Wrapper(REFIID riid, IDXGIOutput2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput2_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -826,7 +826,7 @@ class IDXGIOutput2_Wrapper : public IDXGIOutput1_Wrapper
 class IDXGIFactory3_Wrapper : public IDXGIFactory2_Wrapper
 {
   public:
-    IDXGIFactory3_Wrapper(REFIID riid, IDXGIFactory3* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory3_Wrapper(REFIID riid, IDXGIFactory3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory3_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -841,7 +841,7 @@ class IDXGIFactory3_Wrapper : public IDXGIFactory2_Wrapper
 class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IDXGIDecodeSwapChain* object, DxWrapperResources* resources = nullptr);
+    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IDXGIDecodeSwapChain* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDecodeSwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -884,7 +884,7 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
 class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIFactoryMedia_Wrapper(REFIID riid, IDXGIFactoryMedia* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactoryMedia_Wrapper(REFIID riid, IDXGIFactoryMedia* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactoryMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -912,7 +912,7 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
 class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGISwapChainMedia_Wrapper(REFIID riid, IDXGISwapChainMedia* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChainMedia_Wrapper(REFIID riid, IDXGISwapChainMedia* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChainMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -936,7 +936,7 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
 class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 {
   public:
-    IDXGIOutput3_Wrapper(REFIID riid, IDXGIOutput3* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput3_Wrapper(REFIID riid, IDXGIOutput3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput3_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -960,7 +960,7 @@ class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
 {
   public:
-    IDXGISwapChain3_Wrapper(REFIID riid, IDXGISwapChain3* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChain3_Wrapper(REFIID riid, IDXGISwapChain3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain3_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChain3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -991,7 +991,7 @@ class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
 class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
 {
   public:
-    IDXGIOutput4_Wrapper(REFIID riid, IDXGIOutput4* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput4_Wrapper(REFIID riid, IDXGIOutput4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput4_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1010,7 +1010,7 @@ class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
 class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
 {
   public:
-    IDXGIFactory4_Wrapper(REFIID riid, IDXGIFactory4* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory4_Wrapper(REFIID riid, IDXGIFactory4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory4_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1032,7 +1032,7 @@ class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
 class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 {
   public:
-    IDXGIAdapter3_Wrapper(REFIID riid, IDXGIAdapter3* object, DxWrapperResources* resources = nullptr);
+    IDXGIAdapter3_Wrapper(REFIID riid, IDXGIAdapter3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter3_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIAdapter3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1075,7 +1075,7 @@ class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
 {
   public:
-    IDXGIOutput5_Wrapper(REFIID riid, IDXGIOutput5* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput5_Wrapper(REFIID riid, IDXGIOutput5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput5_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput5** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1095,7 +1095,7 @@ class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
 class IDXGISwapChain4_Wrapper : public IDXGISwapChain3_Wrapper
 {
   public:
-    IDXGISwapChain4_Wrapper(REFIID riid, IDXGISwapChain4* object, DxWrapperResources* resources = nullptr);
+    IDXGISwapChain4_Wrapper(REFIID riid, IDXGISwapChain4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain4_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGISwapChain4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1113,7 +1113,7 @@ class IDXGISwapChain4_Wrapper : public IDXGISwapChain3_Wrapper
 class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
 {
   public:
-    IDXGIDevice4_Wrapper(REFIID riid, IDXGIDevice4* object, DxWrapperResources* resources = nullptr);
+    IDXGIDevice4_Wrapper(REFIID riid, IDXGIDevice4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice4_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIDevice4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1137,7 +1137,7 @@ class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
 class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
 {
   public:
-    IDXGIFactory5_Wrapper(REFIID riid, IDXGIFactory5* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory5_Wrapper(REFIID riid, IDXGIFactory5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory5_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory5** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1163,7 +1163,7 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport();
 class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
 {
   public:
-    IDXGIAdapter4_Wrapper(REFIID riid, IDXGIAdapter4* object, DxWrapperResources* resources = nullptr);
+    IDXGIAdapter4_Wrapper(REFIID riid, IDXGIAdapter4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter4_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIAdapter4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1179,7 +1179,7 @@ class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
 class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
 {
   public:
-    IDXGIOutput6_Wrapper(REFIID riid, IDXGIOutput6* object, DxWrapperResources* resources = nullptr);
+    IDXGIOutput6_Wrapper(REFIID riid, IDXGIOutput6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput6_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIOutput6** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1198,7 +1198,7 @@ class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
 class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
 {
   public:
-    IDXGIFactory6_Wrapper(REFIID riid, IDXGIFactory6* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory6_Wrapper(REFIID riid, IDXGIFactory6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory6_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory6** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1217,7 +1217,7 @@ class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
 class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
 {
   public:
-    IDXGIFactory7_Wrapper(REFIID riid, IDXGIFactory7* object, DxWrapperResources* resources = nullptr);
+    IDXGIFactory7_Wrapper(REFIID riid, IDXGIFactory7* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory7_Wrapper*>(u); });
 
     void GetWrappedObject(IDXGIFactory7** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1300,7 +1300,7 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
 class ID3D12Object_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12Object_Wrapper(REFIID riid, ID3D12Object* object, DxWrapperResources* resources = nullptr);
+    ID3D12Object_Wrapper(REFIID riid, ID3D12Object* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Object_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Object** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1330,7 +1330,7 @@ class ID3D12Object_Wrapper : public IUnknown_Wrapper
 class ID3D12DeviceChild_Wrapper : public ID3D12Object_Wrapper
 {
   public:
-    ID3D12DeviceChild_Wrapper(REFIID riid, ID3D12DeviceChild* object, DxWrapperResources* resources = nullptr);
+    ID3D12DeviceChild_Wrapper(REFIID riid, ID3D12DeviceChild* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceChild_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DeviceChild** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1347,7 +1347,7 @@ class ID3D12DeviceChild_Wrapper : public ID3D12Object_Wrapper
 class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12RootSignature_Wrapper(REFIID riid, ID3D12RootSignature* object, DxWrapperResources* resources = nullptr);
+    ID3D12RootSignature_Wrapper(REFIID riid, ID3D12RootSignature* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignature_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12RootSignature** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1360,7 +1360,7 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, ID3D12RootSignatureDeserializer* object, DxWrapperResources* resources = nullptr);
+    ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, ID3D12RootSignatureDeserializer* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignatureDeserializer_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12RootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1375,7 +1375,7 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, ID3D12VersionedRootSignatureDeserializer* object, DxWrapperResources* resources = nullptr);
+    ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, ID3D12VersionedRootSignatureDeserializer* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12VersionedRootSignatureDeserializer_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12VersionedRootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1394,7 +1394,7 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 class ID3D12Pageable_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12Pageable_Wrapper(REFIID riid, ID3D12Pageable* object, DxWrapperResources* resources = nullptr);
+    ID3D12Pageable_Wrapper(REFIID riid, ID3D12Pageable* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Pageable_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Pageable** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1407,7 +1407,7 @@ class ID3D12Pageable_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Heap_Wrapper(REFIID riid, ID3D12Heap* object, DxWrapperResources* resources = nullptr);
+    ID3D12Heap_Wrapper(REFIID riid, ID3D12Heap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Heap** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1422,7 +1422,7 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Resource_Wrapper(REFIID riid, ID3D12Resource* object, DxWrapperResources* resources = nullptr);
+    ID3D12Resource_Wrapper(REFIID riid, ID3D12Resource* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Resource** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1466,7 +1466,7 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandAllocator_Wrapper(REFIID riid, ID3D12CommandAllocator* object, DxWrapperResources* resources = nullptr);
+    ID3D12CommandAllocator_Wrapper(REFIID riid, ID3D12CommandAllocator* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12CommandAllocator** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1481,7 +1481,7 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Fence_Wrapper(REFIID riid, ID3D12Fence* object, DxWrapperResources* resources = nullptr);
+    ID3D12Fence_Wrapper(REFIID riid, ID3D12Fence* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Fence** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1503,7 +1503,7 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12Fence1_Wrapper : public ID3D12Fence_Wrapper
 {
   public:
-    ID3D12Fence1_Wrapper(REFIID riid, ID3D12Fence1* object, DxWrapperResources* resources = nullptr);
+    ID3D12Fence1_Wrapper(REFIID riid, ID3D12Fence1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Fence1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1518,7 +1518,7 @@ class ID3D12Fence1_Wrapper : public ID3D12Fence_Wrapper
 class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12PipelineState_Wrapper(REFIID riid, ID3D12PipelineState* object, DxWrapperResources* resources = nullptr);
+    ID3D12PipelineState_Wrapper(REFIID riid, ID3D12PipelineState* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineState_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12PipelineState** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1534,7 +1534,7 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12DescriptorHeap_Wrapper(REFIID riid, ID3D12DescriptorHeap* object, DxWrapperResources* resources = nullptr);
+    ID3D12DescriptorHeap_Wrapper(REFIID riid, ID3D12DescriptorHeap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DescriptorHeap** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1553,7 +1553,7 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12QueryHeap_Wrapper(REFIID riid, ID3D12QueryHeap* object, DxWrapperResources* resources = nullptr);
+    ID3D12QueryHeap_Wrapper(REFIID riid, ID3D12QueryHeap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12QueryHeap_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12QueryHeap** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1566,7 +1566,7 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandSignature_Wrapper(REFIID riid, ID3D12CommandSignature* object, DxWrapperResources* resources = nullptr);
+    ID3D12CommandSignature_Wrapper(REFIID riid, ID3D12CommandSignature* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandSignature_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12CommandSignature** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1579,7 +1579,7 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12CommandList_Wrapper(REFIID riid, ID3D12CommandList* object, DxWrapperResources* resources = nullptr);
+    ID3D12CommandList_Wrapper(REFIID riid, ID3D12CommandList* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandList_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12CommandList** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1594,7 +1594,7 @@ class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList_Wrapper(REFIID riid, ID3D12GraphicsCommandList* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList_Wrapper(REFIID riid, ID3D12GraphicsCommandList* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1855,7 +1855,7 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList1_Wrapper(REFIID riid, ID3D12GraphicsCommandList1* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList1_Wrapper(REFIID riid, ID3D12GraphicsCommandList1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1909,7 +1909,7 @@ class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrap
 class ID3D12GraphicsCommandList2_Wrapper : public ID3D12GraphicsCommandList1_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList2_Wrapper(REFIID riid, ID3D12GraphicsCommandList2* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList2_Wrapper(REFIID riid, ID3D12GraphicsCommandList2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList2_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1927,7 +1927,7 @@ class ID3D12GraphicsCommandList2_Wrapper : public ID3D12GraphicsCommandList1_Wra
 class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandQueue_Wrapper(REFIID riid, ID3D12CommandQueue* object, DxWrapperResources* resources = nullptr);
+    ID3D12CommandQueue_Wrapper(REFIID riid, ID3D12CommandQueue* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandQueue_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12CommandQueue** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -1993,7 +1993,7 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
 {
   public:
-    ID3D12Device_Wrapper(REFIID riid, ID3D12Device* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device_Wrapper(REFIID riid, ID3D12Device* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2207,7 +2207,7 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
 class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12PipelineLibrary_Wrapper(REFIID riid, ID3D12PipelineLibrary* object, DxWrapperResources* resources = nullptr);
+    ID3D12PipelineLibrary_Wrapper(REFIID riid, ID3D12PipelineLibrary* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12PipelineLibrary** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2242,7 +2242,7 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
 {
   public:
-    ID3D12PipelineLibrary1_Wrapper(REFIID riid, ID3D12PipelineLibrary1* object, DxWrapperResources* resources = nullptr);
+    ID3D12PipelineLibrary1_Wrapper(REFIID riid, ID3D12PipelineLibrary1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12PipelineLibrary1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2261,7 +2261,7 @@ class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
 class ID3D12Device1_Wrapper : public ID3D12Device_Wrapper
 {
   public:
-    ID3D12Device1_Wrapper(REFIID riid, ID3D12Device1* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device1_Wrapper(REFIID riid, ID3D12Device1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2292,7 +2292,7 @@ class ID3D12Device1_Wrapper : public ID3D12Device_Wrapper
 class ID3D12Device2_Wrapper : public ID3D12Device1_Wrapper
 {
   public:
-    ID3D12Device2_Wrapper(REFIID riid, ID3D12Device2* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device2_Wrapper(REFIID riid, ID3D12Device2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device2_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2310,7 +2310,7 @@ class ID3D12Device2_Wrapper : public ID3D12Device1_Wrapper
 class ID3D12Device3_Wrapper : public ID3D12Device2_Wrapper
 {
   public:
-    ID3D12Device3_Wrapper(REFIID riid, ID3D12Device3* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device3_Wrapper(REFIID riid, ID3D12Device3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device3_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2340,7 +2340,7 @@ class ID3D12Device3_Wrapper : public ID3D12Device2_Wrapper
 class ID3D12ProtectedSession_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12ProtectedSession_Wrapper(REFIID riid, ID3D12ProtectedSession* object, DxWrapperResources* resources = nullptr);
+    ID3D12ProtectedSession_Wrapper(REFIID riid, ID3D12ProtectedSession* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedSession_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12ProtectedSession** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2359,7 +2359,7 @@ class ID3D12ProtectedSession_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wrapper
 {
   public:
-    ID3D12ProtectedResourceSession_Wrapper(REFIID riid, ID3D12ProtectedResourceSession* object, DxWrapperResources* resources = nullptr);
+    ID3D12ProtectedResourceSession_Wrapper(REFIID riid, ID3D12ProtectedResourceSession* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12ProtectedResourceSession** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2374,7 +2374,7 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
 class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
 {
   public:
-    ID3D12Device4_Wrapper(REFIID riid, ID3D12Device4* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device4_Wrapper(REFIID riid, ID3D12Device4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device4_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2429,7 +2429,7 @@ class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
 class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12LifetimeOwner_Wrapper(REFIID riid, ID3D12LifetimeOwner* object, DxWrapperResources* resources = nullptr);
+    ID3D12LifetimeOwner_Wrapper(REFIID riid, ID3D12LifetimeOwner* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeOwner_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12LifetimeOwner** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2445,7 +2445,7 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
 class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12SwapChainAssistant_Wrapper(REFIID riid, ID3D12SwapChainAssistant* object, DxWrapperResources* resources = nullptr);
+    ID3D12SwapChainAssistant_Wrapper(REFIID riid, ID3D12SwapChainAssistant* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SwapChainAssistant_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12SwapChainAssistant** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2472,7 +2472,7 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
 class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12LifetimeTracker_Wrapper(REFIID riid, ID3D12LifetimeTracker* object, DxWrapperResources* resources = nullptr);
+    ID3D12LifetimeTracker_Wrapper(REFIID riid, ID3D12LifetimeTracker* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeTracker_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12LifetimeTracker** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2488,7 +2488,7 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
 class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12StateObject_Wrapper(REFIID riid, ID3D12StateObject* object, DxWrapperResources* resources = nullptr);
+    ID3D12StateObject_Wrapper(REFIID riid, ID3D12StateObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObject_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12StateObject** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2501,7 +2501,7 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12StateObjectProperties_Wrapper(REFIID riid, ID3D12StateObjectProperties* object, DxWrapperResources* resources = nullptr);
+    ID3D12StateObjectProperties_Wrapper(REFIID riid, ID3D12StateObjectProperties* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12StateObjectProperties** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2525,7 +2525,7 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
 {
   public:
-    ID3D12Device5_Wrapper(REFIID riid, ID3D12Device5* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device5_Wrapper(REFIID riid, ID3D12Device5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device5_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device5** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2577,7 +2577,7 @@ class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
 class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings* object, DxWrapperResources* resources = nullptr);
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DeviceRemovedExtendedDataSettings** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2599,7 +2599,7 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
 class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemovedExtendedDataSettings_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings1* object, DxWrapperResources* resources = nullptr);
+    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DeviceRemovedExtendedDataSettings1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2615,7 +2615,7 @@ class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemo
 class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData* object, DxWrapperResources* resources = nullptr);
+    ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DeviceRemovedExtendedData** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2634,7 +2634,7 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
 class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExtendedData_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedData1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData1* object, DxWrapperResources* resources = nullptr);
+    ID3D12DeviceRemovedExtendedData1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12DeviceRemovedExtendedData1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2653,7 +2653,7 @@ class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExten
 class ID3D12Device6_Wrapper : public ID3D12Device5_Wrapper
 {
   public:
-    ID3D12Device6_Wrapper(REFIID riid, ID3D12Device6* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device6_Wrapper(REFIID riid, ID3D12Device6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device6_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device6** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2672,7 +2672,7 @@ class ID3D12Device6_Wrapper : public ID3D12Device5_Wrapper
 class ID3D12ProtectedResourceSession1_Wrapper : public ID3D12ProtectedResourceSession_Wrapper
 {
   public:
-    ID3D12ProtectedResourceSession1_Wrapper(REFIID riid, ID3D12ProtectedResourceSession1* object, DxWrapperResources* resources = nullptr);
+    ID3D12ProtectedResourceSession1_Wrapper(REFIID riid, ID3D12ProtectedResourceSession1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12ProtectedResourceSession1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2687,7 +2687,7 @@ class ID3D12ProtectedResourceSession1_Wrapper : public ID3D12ProtectedResourceSe
 class ID3D12Device7_Wrapper : public ID3D12Device6_Wrapper
 {
   public:
-    ID3D12Device7_Wrapper(REFIID riid, ID3D12Device7* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device7_Wrapper(REFIID riid, ID3D12Device7* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device7_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device7** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2711,7 +2711,7 @@ class ID3D12Device7_Wrapper : public ID3D12Device6_Wrapper
 class ID3D12Device8_Wrapper : public ID3D12Device7_Wrapper
 {
   public:
-    ID3D12Device8_Wrapper(REFIID riid, ID3D12Device8* object, DxWrapperResources* resources = nullptr);
+    ID3D12Device8_Wrapper(REFIID riid, ID3D12Device8* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device8_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Device8** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2764,7 +2764,7 @@ class ID3D12Device8_Wrapper : public ID3D12Device7_Wrapper
 class ID3D12Resource1_Wrapper : public ID3D12Resource_Wrapper
 {
   public:
-    ID3D12Resource1_Wrapper(REFIID riid, ID3D12Resource1* object, DxWrapperResources* resources = nullptr);
+    ID3D12Resource1_Wrapper(REFIID riid, ID3D12Resource1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Resource1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2781,7 +2781,7 @@ class ID3D12Resource1_Wrapper : public ID3D12Resource_Wrapper
 class ID3D12Resource2_Wrapper : public ID3D12Resource1_Wrapper
 {
   public:
-    ID3D12Resource2_Wrapper(REFIID riid, ID3D12Resource2* object, DxWrapperResources* resources = nullptr);
+    ID3D12Resource2_Wrapper(REFIID riid, ID3D12Resource2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource2_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Resource2** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2796,7 +2796,7 @@ class ID3D12Resource2_Wrapper : public ID3D12Resource1_Wrapper
 class ID3D12Heap1_Wrapper : public ID3D12Heap_Wrapper
 {
   public:
-    ID3D12Heap1_Wrapper(REFIID riid, ID3D12Heap1* object, DxWrapperResources* resources = nullptr);
+    ID3D12Heap1_Wrapper(REFIID riid, ID3D12Heap1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap1_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Heap1** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2813,7 +2813,7 @@ class ID3D12Heap1_Wrapper : public ID3D12Heap_Wrapper
 class ID3D12GraphicsCommandList3_Wrapper : public ID3D12GraphicsCommandList2_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList3_Wrapper(REFIID riid, ID3D12GraphicsCommandList3* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList3_Wrapper(REFIID riid, ID3D12GraphicsCommandList3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList3_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList3** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2829,7 +2829,7 @@ class ID3D12GraphicsCommandList3_Wrapper : public ID3D12GraphicsCommandList2_Wra
 class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources = nullptr);
+    ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12MetaCommand_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12MetaCommand** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2846,7 +2846,7 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
 class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList4_Wrapper(REFIID riid, ID3D12GraphicsCommandList4* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList4_Wrapper(REFIID riid, ID3D12GraphicsCommandList4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList4** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2898,7 +2898,7 @@ class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wra
 class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12Tools_Wrapper(REFIID riid, ID3D12Tools* object, DxWrapperResources* resources = nullptr);
+    ID3D12Tools_Wrapper(REFIID riid, ID3D12Tools* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12Tools** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2916,7 +2916,7 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList5_Wrapper(REFIID riid, ID3D12GraphicsCommandList5* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList5_Wrapper(REFIID riid, ID3D12GraphicsCommandList5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList5_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList5** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2936,7 +2936,7 @@ class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wra
 class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList6_Wrapper(REFIID riid, ID3D12GraphicsCommandList6* object, DxWrapperResources* resources = nullptr);
+    ID3D12GraphicsCommandList6_Wrapper(REFIID riid, ID3D12GraphicsCommandList6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList6_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D12GraphicsCommandList6** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2960,7 +2960,7 @@ class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wra
 class ID3D10Blob_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D10Blob_Wrapper(REFIID riid, ID3D10Blob* object, DxWrapperResources* resources = nullptr);
+    ID3D10Blob_Wrapper(REFIID riid, ID3D10Blob* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D10Blob_Wrapper*>(u); });
 
     void GetWrappedObject(ID3D10Blob** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2977,7 +2977,7 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
 class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3DDestructionNotifier_Wrapper(REFIID riid, ID3DDestructionNotifier* object, DxWrapperResources* resources = nullptr);
+    ID3DDestructionNotifier_Wrapper(REFIID riid, ID3DDestructionNotifier* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3DDestructionNotifier_Wrapper*>(u); });
 
     void GetWrappedObject(ID3DDestructionNotifier** object) const { if (object != nullptr) { (*object) = object_; } }
 

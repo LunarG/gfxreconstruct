@@ -30,8 +30,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-IUnknown_Wrapper::IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrapperResources* resources) :
-    riid_(riid), object_(wrapped_object, false), capture_id_(TraceManager::GetUniqueId()), ref_count_(1)
+IUnknown_Wrapper::IUnknown_Wrapper(REFIID                                        riid,
+                                   IUnknown*                                     wrapped_object,
+                                   DxWrapperResources*                           resources,
+                                   const std::function<void(IUnknown_Wrapper*)>& destructor) :
+    riid_(riid),
+    object_(wrapped_object, false), capture_id_(TraceManager::GetUniqueId()), ref_count_(1)
 {
     assert(wrapped_object != nullptr);
 
@@ -41,12 +45,13 @@ IUnknown_Wrapper::IUnknown_Wrapper(REFIID riid, IUnknown* wrapped_object, DxWrap
     if (resources != nullptr)
     {
         resources_ = resources;
-        resources_->AddWrapper(this);
+        resources_->AddWrapper(this, destructor);
         resources_->IncrementSharedCount();
     }
     else
     {
-        resources_ = new DxWrapperResources(this);
+        resources_ = new DxWrapperResources();
+        resources_->AddWrapper(this, destructor);
     }
 }
 

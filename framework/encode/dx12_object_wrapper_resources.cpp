@@ -29,13 +29,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-DxWrapperResources::DxWrapperResources(IUnknown_Wrapper* wrapper) : shared_count_(1), wrappers_(1, wrapper) {}
+DxWrapperResources::DxWrapperResources() : shared_count_(1) {}
 
 DxWrapperResources::~DxWrapperResources()
 {
-    for (auto entry : wrappers_)
+    for (auto& entry : wrappers_)
     {
-        entry->Destroy();
+        entry.destructor(entry.wrapper);
     }
 }
 
