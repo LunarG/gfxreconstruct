@@ -42,9 +42,30 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
             diag_file
         )
 
+        # Unique set of names of all defined classes.
+        self.class_names = []
+        # Unique set of names of all class names specified as base classes.
+        self.class_parent_names = []
+
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
+
+        header_dict = self.source_dict['header_dict']
+        for k, v in header_dict.items():
+            for k2, v2 in v.classes.items():
+                if (v2['declaration_method'] == 'class')\
+                   and (v2['name'] != 'IUnknown'):
+                    # Track class names
+                    class_name = v2['name']
+                    if class_name not in self.class_names:
+                        self.class_names.append(class_name)
+
+                    # Track names of classes inherited from
+                    for entry in v2['inherits']:
+                        decl_name = entry['decl_name']
+                        if decl_name not in self.class_parent_names:
+                            self.class_parent_names.append(decl_name)
 
         self.write_include()
 
@@ -82,6 +103,50 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_decl(v2)
 
+    # Get the names of the final classes in the DX class hierarchies.
+    def get_final_class_names(self):
+        final_class_names = []
+
+        for name in self.class_names:
+            if name not in self.class_parent_names:
+                final_class_names.append(name)
+
+        return final_class_names
+
+    def get_class_family_names(self, final_class_name):
+        base_name = final_class_name
+        final_number = ''
+
+        # Get the number from the end of the class name.  Start from the
+        # back of the string and advance forward until a non-digit character
+        # is encountered.
+        if final_class_name[-1].isdigit():
+            for i in range(len(final_class_name) - 1, -1, -1):
+                if not final_class_name[i].isdigit():
+                    base_name = final_class_name[:i + 1]
+                    final_number = final_class_name[i + 1:]
+                    break
+
+        class_family_names = [base_name]
+        if final_number:
+            # Generate with class numbers in ascending order, from 1 to n.
+            for i in range(1, int(final_number) + 1):
+                class_family_names.append(base_name + str(i))
+
+        return class_family_names
+
+    # Get a list of the classes that will contain a map of object pointers to wrappers.
+    def is_map_class(self, name):
+        map_classes = []
+        final_class_names = self.get_final_class_names()
+
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            first_class = class_family_names[0]
+            map_classes.append(first_class)
+
+        return name in map_classes
+
     def write_include(self):
         code = ''
         code += '#include "encode/iunknown_wrapper.h\"\n'
@@ -91,6 +156,10 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             code += '#include <{}>\n'.format(k)
+
+        code += '\n'
+        code += '#include <mutex>\n'
+        code += '#include <unordered_map>\n'
 
         write(code, file=self.outFile)
 
@@ -109,15 +178,14 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         name = class_info['name']
         inherits = class_info['inherits']
         methods = class_info['methods']['public']
+        is_map_class = self.is_map_class(name)
 
         # Make the inheritance list
         inherit_expr = ''
         for entry in inherits:
             if inherit_expr:
                 inherit_expr += ', '
-            inherit_expr += '{} {}_Wrapper'.format(
-                entry['access'], entry['decl_name']
-            )
+            inherit_expr += '{} {}_Wrapper'.format(entry['access'], entry['decl_name'])
 
         # Begin class declaration
         expr = indent + 'class {}_Wrapper'.format(name)
@@ -129,13 +197,68 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         indent = self.increment_indent(indent)
 
         # Constructor
+        initlist_expr = ''
+        for entry in inherits:
+            if initlist_expr:
+                initlist_expr += ', '
+            initlist_expr += '{}_Wrapper(riid, object, resources,'\
+                ' destructor)'.format(entry['decl_name'])
+        initlist_expr += ', object_(object)'
         expr += indent + '{name}_Wrapper(REFIID riid, {name}* object,'\
             ' DxWrapperResources* resources = nullptr,' \
             ' const std::function<void(IUnknown_Wrapper*)>& destructor' \
             ' = [](IUnknown_Wrapper* u){{' \
-            ' delete reinterpret_cast<{name}_Wrapper*>(u); }});\n'.format(
-                    name=name
+            ' delete reinterpret_cast<{name}_Wrapper*>(u); }}) : {}\n'.format(
+                initlist_expr, name=name
             )
+        expr += indent + '{\n'
+        if is_map_class:
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'object_map_[object_] = this;\n'
+            indent = self.decrement_indent(indent)
+        expr += indent + '}\n'
+
+        if is_map_class:
+            # Add a destructor to remove the object from the map.
+            expr += '\n'
+            expr += indent + '~{}_Wrapper()\n'.format(name)
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'object_map_.erase(object_);\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+
+            # Add a function to retreive an existing wrapper for an object.
+            expr += '\n'
+            expr += indent + 'static {}_Wrapper* GetExistingWrapper'\
+                '(IUnknown* object)\n'.format(name)
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + '{}_Wrapper* wrapper = nullptr;\n'.format(name)
+            expr += indent + 'ObjectMap::const_iterator entry;\n'.format(name)
+            expr += '\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'entry = object_map_.find(object);\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+            expr += '\n'
+            expr += indent + 'if (entry != object_map_.end())\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'wrapper = entry->second;\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+            expr += '\n'
+            expr += indent + 'return wrapper;\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
 
         # Object "getter"
         expr += '\n'
@@ -161,6 +284,14 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         # Pointer to wrapped object
         expr += '\n'
         expr += indent[:-2] + 'private:\n'
+
+        if is_map_class:
+            expr += indent + '// Map to prevent creation of more than one interface wrapper per object.\n'
+            expr += indent + 'typedef std::unordered_map<IUnknown*, {}_Wrapper*> ObjectMap;\n'.format(name)
+            expr += indent + 'static ObjectMap  object_map_;\n'
+            expr += indent + 'static std::mutex object_map_lock_;\n'
+            expr += '\n'
+
         expr += indent + '// Store a raw pointer to the wrapped object.\n'
         expr += indent + '// Only the IUnkown base class maintains a reference to the object.\n'
         expr += indent + '{}* object_;\n'.format(name)

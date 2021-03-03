@@ -277,6 +277,16 @@ IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxW
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIKeyedMutex_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIKeyedMutex*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIKeyedMutex))
     {
         auto wrapper = new IDXGIKeyedMutex_Wrapper(IID_IDXGIKeyedMutex, static_cast<IDXGIKeyedMutex*>(*object), resources);
@@ -303,6 +313,16 @@ IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxW
 IUnknown_Wrapper* WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGIDisplayControl_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIDisplayControl*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGIDisplayControl))
     {
@@ -331,6 +351,16 @@ IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIOutputDuplication_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIOutputDuplication*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIOutputDuplication))
     {
         auto wrapper = new IDXGIOutputDuplication_Wrapper(IID_IDXGIOutputDuplication, static_cast<IDXGIOutputDuplication*>(*object), resources);
@@ -357,6 +387,16 @@ IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication
 IUnknown_Wrapper* WrapIDXGISurface(REFIID riid, IDXGISurface** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGISurface_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGISurface*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGISurface2))
     {
@@ -423,6 +463,16 @@ IUnknown_Wrapper* WrapIDXGIResource(REFIID riid, IDXGIResource** object, DxWrapp
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIResource_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIResource*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIResource1))
     {
         auto wrapper = new IDXGIResource1_Wrapper(IID_IDXGIResource1, static_cast<IDXGIResource1*>(*object), resources);
@@ -469,6 +519,16 @@ IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** o
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIDecodeSwapChain*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIDecodeSwapChain))
     {
         auto wrapper = new IDXGIDecodeSwapChain_Wrapper(IID_IDXGIDecodeSwapChain, static_cast<IDXGIDecodeSwapChain*>(*object), resources);
@@ -495,6 +555,16 @@ IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** o
 IUnknown_Wrapper* WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGIFactoryMedia_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIFactoryMedia*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGIFactoryMedia))
     {
@@ -523,6 +593,16 @@ IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** obj
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGISwapChainMedia_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGISwapChainMedia*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGISwapChainMedia))
     {
         auto wrapper = new IDXGISwapChainMedia_Wrapper(IID_IDXGISwapChainMedia, static_cast<IDXGISwapChainMedia*>(*object), resources);
@@ -549,6 +629,16 @@ IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** obj
 IUnknown_Wrapper* WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGISwapChain_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGISwapChain*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGISwapChain4))
     {
@@ -653,6 +743,16 @@ IUnknown_Wrapper* WrapIDXGIDevice(REFIID riid, IDXGIDevice** object, DxWrapperRe
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIDevice_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIDevice*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIDevice4))
     {
         auto wrapper = new IDXGIDevice4_Wrapper(IID_IDXGIDevice4, static_cast<IDXGIDevice4*>(*object), resources);
@@ -756,6 +856,16 @@ IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapper
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = IDXGIAdapter_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIAdapter*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_IDXGIAdapter4))
     {
         auto wrapper = new IDXGIAdapter4_Wrapper(IID_IDXGIAdapter4, static_cast<IDXGIAdapter4*>(*object), resources);
@@ -858,6 +968,16 @@ IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapper
 IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGIOutput_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIOutput*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGIOutput6))
     {
@@ -999,6 +1119,16 @@ IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperRe
 IUnknown_Wrapper* WrapIDXGIFactory(REFIID riid, IDXGIFactory** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = IDXGIFactory_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<IDXGIFactory*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_IDXGIFactory7))
     {
@@ -1160,6 +1290,16 @@ IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** obj
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12RootSignature_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12RootSignature*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12RootSignature))
     {
         auto wrapper = new ID3D12RootSignature_Wrapper(IID_ID3D12RootSignature, static_cast<ID3D12RootSignature*>(*object), resources);
@@ -1186,6 +1326,16 @@ IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** obj
 IUnknown_Wrapper* WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12RootSignatureDeserializer_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12RootSignatureDeserializer*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12RootSignatureDeserializer))
     {
@@ -1214,6 +1364,16 @@ IUnknown_Wrapper* WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12VersionedRootSignatureDeserializer_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12VersionedRootSignatureDeserializer*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12VersionedRootSignatureDeserializer))
     {
         auto wrapper = new ID3D12VersionedRootSignatureDeserializer_Wrapper(IID_ID3D12VersionedRootSignatureDeserializer, static_cast<ID3D12VersionedRootSignatureDeserializer*>(*object), resources);
@@ -1241,6 +1401,16 @@ IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12CommandAllocator_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12CommandAllocator*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12CommandAllocator))
     {
         auto wrapper = new ID3D12CommandAllocator_Wrapper(IID_ID3D12CommandAllocator, static_cast<ID3D12CommandAllocator*>(*object), resources);
@@ -1267,6 +1437,16 @@ IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator
 IUnknown_Wrapper* WrapID3D12Fence(REFIID riid, ID3D12Fence** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12Fence_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12Fence*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12Fence1))
     {
@@ -1314,6 +1494,16 @@ IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** obj
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12PipelineState_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12PipelineState*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12PipelineState))
     {
         auto wrapper = new ID3D12PipelineState_Wrapper(IID_ID3D12PipelineState, static_cast<ID3D12PipelineState*>(*object), resources);
@@ -1340,6 +1530,16 @@ IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** obj
 IUnknown_Wrapper* WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12DescriptorHeap_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12DescriptorHeap*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12DescriptorHeap))
     {
@@ -1368,6 +1568,16 @@ IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxW
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12QueryHeap_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12QueryHeap*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12QueryHeap))
     {
         auto wrapper = new ID3D12QueryHeap_Wrapper(IID_ID3D12QueryHeap, static_cast<ID3D12QueryHeap*>(*object), resources);
@@ -1394,6 +1604,16 @@ IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxW
 IUnknown_Wrapper* WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12CommandSignature_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12CommandSignature*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12CommandSignature))
     {
@@ -1422,6 +1642,16 @@ IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** objec
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12CommandQueue_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12CommandQueue*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12CommandQueue))
     {
         auto wrapper = new ID3D12CommandQueue_Wrapper(IID_ID3D12CommandQueue, static_cast<ID3D12CommandQueue*>(*object), resources);
@@ -1448,6 +1678,16 @@ IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** objec
 IUnknown_Wrapper* WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12PipelineLibrary_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12PipelineLibrary*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12PipelineLibrary1))
     {
@@ -1495,6 +1735,16 @@ IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** obj
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12LifetimeOwner_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12LifetimeOwner*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12LifetimeOwner))
     {
         auto wrapper = new ID3D12LifetimeOwner_Wrapper(IID_ID3D12LifetimeOwner, static_cast<ID3D12LifetimeOwner*>(*object), resources);
@@ -1521,6 +1771,16 @@ IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** obj
 IUnknown_Wrapper* WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12SwapChainAssistant_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12SwapChainAssistant*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12SwapChainAssistant))
     {
@@ -1549,6 +1809,16 @@ IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker**
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12LifetimeTracker_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12LifetimeTracker*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12LifetimeTracker))
     {
         auto wrapper = new ID3D12LifetimeTracker_Wrapper(IID_ID3D12LifetimeTracker, static_cast<ID3D12LifetimeTracker*>(*object), resources);
@@ -1575,6 +1845,16 @@ IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker**
 IUnknown_Wrapper* WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12StateObject_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12StateObject*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12StateObject))
     {
@@ -1603,6 +1883,16 @@ IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObject
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12StateObjectProperties_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12StateObjectProperties*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12StateObjectProperties))
     {
         auto wrapper = new ID3D12StateObjectProperties_Wrapper(IID_ID3D12StateObjectProperties, static_cast<ID3D12StateObjectProperties*>(*object), resources);
@@ -1629,6 +1919,16 @@ IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObject
 IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12DeviceRemovedExtendedDataSettings_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings1))
     {
@@ -1676,6 +1976,16 @@ IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceR
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12DeviceRemovedExtendedData_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12DeviceRemovedExtendedData*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData1))
     {
         auto wrapper = new ID3D12DeviceRemovedExtendedData1_Wrapper(IID_ID3D12DeviceRemovedExtendedData1, static_cast<ID3D12DeviceRemovedExtendedData1*>(*object), resources);
@@ -1722,6 +2032,16 @@ IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12Protecte
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12ProtectedResourceSession_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12ProtectedResourceSession*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12ProtectedResourceSession1))
     {
         auto wrapper = new ID3D12ProtectedResourceSession1_Wrapper(IID_ID3D12ProtectedResourceSession1, static_cast<ID3D12ProtectedResourceSession1*>(*object), resources);
@@ -1767,6 +2087,16 @@ IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12Protecte
 IUnknown_Wrapper* WrapID3D12Device(REFIID riid, ID3D12Device** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12Device_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12Device*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12Device8))
     {
@@ -1947,6 +2277,16 @@ IUnknown_Wrapper* WrapID3D12Resource(REFIID riid, ID3D12Resource** object, DxWra
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12Resource_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12Resource*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12Resource2))
     {
         auto wrapper = new ID3D12Resource2_Wrapper(IID_ID3D12Resource2, static_cast<ID3D12Resource2*>(*object), resources);
@@ -2012,6 +2352,16 @@ IUnknown_Wrapper* WrapID3D12Heap(REFIID riid, ID3D12Heap** object, DxWrapperReso
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12Heap_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12Heap*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12Heap1))
     {
         auto wrapper = new ID3D12Heap1_Wrapper(IID_ID3D12Heap1, static_cast<ID3D12Heap1*>(*object), resources);
@@ -2058,6 +2408,16 @@ IUnknown_Wrapper* WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object,
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12MetaCommand_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12MetaCommand*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12MetaCommand))
     {
         auto wrapper = new ID3D12MetaCommand_Wrapper(IID_ID3D12MetaCommand, static_cast<ID3D12MetaCommand*>(*object), resources);
@@ -2085,6 +2445,16 @@ IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperRe
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D12Tools_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12Tools*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D12Tools))
     {
         auto wrapper = new ID3D12Tools_Wrapper(IID_ID3D12Tools, static_cast<ID3D12Tools*>(*object), resources);
@@ -2111,6 +2481,16 @@ IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperRe
 IUnknown_Wrapper* WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3D12GraphicsCommandList_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D12GraphicsCommandList*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList6))
     {
@@ -2253,6 +2633,16 @@ IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperReso
 {
     assert((object != nullptr) && (*object != nullptr));
 
+    auto existing = ID3D10Blob_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3D10Blob*>(existing);
+        return existing;
+    }
+
     if (IsEqualIID(riid, IID_ID3D10Blob))
     {
         auto wrapper = new ID3D10Blob_Wrapper(IID_ID3D10Blob, static_cast<ID3D10Blob*>(*object), resources);
@@ -2279,6 +2669,16 @@ IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperReso
 IUnknown_Wrapper* WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
+
+    auto existing = ID3DDestructionNotifier_Wrapper::GetExistingWrapper(*object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*object)->Release();
+        (*object) = reinterpret_cast<ID3DDestructionNotifier*>(existing);
+        return existing;
+    }
 
     if (IsEqualIID(riid, IID_ID3DDestructionNotifier))
     {

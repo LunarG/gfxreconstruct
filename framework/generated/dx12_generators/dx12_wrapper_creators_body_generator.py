@@ -202,6 +202,24 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             ' (*object != nullptr));\n'
         decl += '\n'
 
+        # Check for an existing wrapper.
+        decl += indent + 'auto existing ='\
+            ' {}_Wrapper::GetExistingWrapper(*object);\n'.format(first_class)
+        decl += indent + 'if (existing != nullptr)\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+        decl += indent + '// Transfer reference count from the object to'\
+            ' the wrapper so that the wrapper holds a single reference to'\
+            ' the object.\n'
+        decl += indent + 'existing->AddRef();\n'
+        decl += indent + '(*object)->Release();\n'
+        decl += indent + '(*object) = reinterpret_cast<{}*>('\
+            'existing);\n'.format(first_class)
+        decl += indent + 'return existing;\n'
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
+        decl += '\n'
+
         # Generate logic that attempts to promote the current class type to
         # the most recent supported version.  We start with the typename of
         # the most recent class and work toward the least recent version.

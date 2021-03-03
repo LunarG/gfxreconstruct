@@ -43,16 +43,40 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             diag_file
         )
 
+        # A list of structures with object members that need to be unwrapped.
         self.structs_with_objects = set()
+        # Unique set of names of all defined classes.
+        self.class_names = []
+        # Unique set of names of all class names specified as base classes.
+        self.class_parent_names = []
 
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
 
+        header_dict = self.source_dict['header_dict']
+        for k, v in header_dict.items():
+            for k2, v2 in v.classes.items():
+                if (v2['declaration_method'] == 'class')\
+                   and (v2['name'] != 'IUnknown'):
+                    # Track class names
+                    class_name = v2['name']
+                    if class_name not in self.class_names:
+                        self.class_names.append(class_name)
+
+                    # Track names of classes inherited from
+                    for entry in v2['inherits']:
+                        decl_name = entry['decl_name']
+                        if decl_name not in self.class_parent_names:
+                            self.class_parent_names.append(decl_name)
+
         self.write_include()
 
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+
+        self.newline()
+        self.write_map_defs()
 
     # Method override
     def endFile(self):
@@ -94,6 +118,49 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 if (v2['declaration_method'] == 'class')\
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_member_def(v2)
+
+    # Get the names of the final classes in the DX class hierarchies.
+    def get_final_class_names(self):
+        final_class_names = []
+
+        for name in self.class_names:
+            if name not in self.class_parent_names:
+                final_class_names.append(name)
+
+        return final_class_names
+
+    def get_class_family_names(self, final_class_name):
+        base_name = final_class_name
+        final_number = ''
+
+        # Get the number from the end of the class name.  Start from the
+        # back of the string and advance forward until a non-digit character
+        # is encountered.
+        if final_class_name[-1].isdigit():
+            for i in range(len(final_class_name) - 1, -1, -1):
+                if not final_class_name[i].isdigit():
+                    base_name = final_class_name[:i + 1]
+                    final_number = final_class_name[i + 1:]
+                    break
+
+        class_family_names = [base_name]
+        if final_number:
+            # Generate with class numbers in ascending order, from 1 to n.
+            for i in range(1, int(final_number) + 1):
+                class_family_names.append(base_name + str(i))
+
+        return class_family_names
+
+    # Write the defintitions for the static class unordered_map members.
+    def write_map_defs(self):
+        final_class_names = self.get_final_class_names()
+
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            first_class = class_family_names[0]
+            decl = '{name}_Wrapper::ObjectMap {name}_Wrapper::object_map_;\n'.format(name=first_class)
+            decl += 'std::mutex {name}_Wrapper::object_map_lock_;'.format(name=first_class)
+            write(decl, file=self.outFile)
 
     # Determine if a value is an object or a struct/union with an object.
     def is_struct_object_member(self, member):
@@ -308,30 +375,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
     def write_class_member_def(self, class_info, indent=''):
         class_name = class_info['name']
-        inherits = class_info['inherits']
         methods = class_info['methods']['public']
         wrapper = class_name + '_Wrapper'
-
-        # Write constructor
-        initlist_expr = ''
-        for entry in inherits:
-            if initlist_expr:
-                initlist_expr += ', '
-            initlist_expr += '{}_Wrapper(riid, object, resources,' \
-                ' destructor)'.format(
-                entry['decl_name']
-            )
-        initlist_expr += ', object_(object)'
-        expr = indent + '{wrapper}::{wrapper}(REFIID riid, {}* object,' \
-            ' DxWrapperResources* resources,' \
-            ' const std::function<void(IUnknown_Wrapper*)>&' \
-            ' destructor) : {}\n'.format(
-            class_name, initlist_expr, wrapper=wrapper
-        )
-        expr += indent + '{\n'
-        expr += indent + '}\n'
-
-        write(expr, file=self.outFile)
 
         for method in methods:
             return_type = method['rtnType'].replace(' *', '*')
