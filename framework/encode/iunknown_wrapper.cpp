@@ -24,6 +24,7 @@
 
 #include "encode/dx12_object_wrapper_resources.h"
 #include "encode/trace_manager.h"
+#include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -72,6 +73,8 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
         {
             WrapObject(riid, object, resources_);
         }
+
+        Encode_IUnknown_QueryInterface(capture_id_, result, riid, object);
     }
     else
     {
@@ -85,14 +88,34 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
 
 ULONG IUnknown_Wrapper::AddRef()
 {
+    unsigned long local_count = ++ref_count_;
     resources_->IncrementSharedCount();
-    return ++ref_count_;
+
+    auto manager    = TraceManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        Encode_IUnknown_AddRef(capture_id_, local_count);
+    }
+
+    manager->DecrementCallScope();
+
+    return local_count;
 }
 
 ULONG IUnknown_Wrapper::Release()
 {
-    auto shared_count = resources_->DecrementSharedCount();
     auto local_count  = --ref_count_;
+    auto shared_count = resources_->DecrementSharedCount();
+
+    auto manager    = TraceManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        Encode_IUnknown_Release(capture_id_, local_count);
+    }
 
     if (shared_count == 0)
     {
@@ -100,6 +123,8 @@ ULONG IUnknown_Wrapper::Release()
         // may be performed in this function, as the current wrapper will no longer be valid.
         delete resources_;
     }
+
+    manager->DecrementCallScope();
 
     return local_count;
 }
