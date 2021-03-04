@@ -114,6 +114,9 @@ if(MSVC)
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+
+    # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 endif(MSVC)
 
 # GFXReconstruct provided find modules
