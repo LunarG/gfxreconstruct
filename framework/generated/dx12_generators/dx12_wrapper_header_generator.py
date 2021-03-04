@@ -185,7 +185,9 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         for entry in inherits:
             if inherit_expr:
                 inherit_expr += ', '
-            inherit_expr += '{} {}_Wrapper'.format(entry['access'], entry['decl_name'])
+            inherit_expr += '{} {}_Wrapper'.format(
+                entry['access'], entry['decl_name']
+            )
 
         # Begin class declaration
         expr = indent + 'class {}_Wrapper'.format(name)
@@ -287,7 +289,9 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
         if is_map_class:
             expr += indent + '// Map to prevent creation of more than one interface wrapper per object.\n'
-            expr += indent + 'typedef std::unordered_map<IUnknown*, {}_Wrapper*> ObjectMap;\n'.format(name)
+            expr += indent + 'typedef std::unordered_map<IUnknown*, {}_Wrapper*> ObjectMap;\n'.format(
+                name
+            )
             expr += indent + 'static ObjectMap  object_map_;\n'
             expr += indent + 'static std::mutex object_map_lock_;\n'
             expr += '\n'

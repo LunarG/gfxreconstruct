@@ -28,6 +28,7 @@
 #include "generated/generated_dx12_wrappers.h"
 
 #include "encode/custom_dx12_struct_unwrappers.h"
+#include "encode/custom_encoder_commands.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
@@ -153,7 +154,12 @@ HRESULT WINAPI CreateDXGIFactory(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory>::Dispatch(
+            manager,
+            riid,
+            ppFactory);
+
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory(
             riid,
             ppFactory);
 
@@ -166,10 +172,16 @@ HRESULT WINAPI CreateDXGIFactory(
             result,
             riid,
             ppFactory);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory>::Dispatch(
+            manager,
+            result,
+            riid,
+            ppFactory);
     }
     else
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory(
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory(
             riid,
             ppFactory);
     }
@@ -190,7 +202,12 @@ HRESULT WINAPI CreateDXGIFactory1(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory1(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory1>::Dispatch(
+            manager,
+            riid,
+            ppFactory);
+
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory1(
             riid,
             ppFactory);
 
@@ -203,10 +220,16 @@ HRESULT WINAPI CreateDXGIFactory1(
             result,
             riid,
             ppFactory);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory1>::Dispatch(
+            manager,
+            result,
+            riid,
+            ppFactory);
     }
     else
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory1(
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory1(
             riid,
             ppFactory);
     }
@@ -228,6 +251,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData>::Dispatch(
+            manager,
+            object_,
+            Name,
+            DataSize,
+            pData);
+
         result = object_->SetPrivateData(
             Name,
             DataSize,
@@ -235,6 +265,14 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
 
         Encode_IDXGIObject_SetPrivateData(
             GetCaptureId(),
+            result,
+            Name,
+            DataSize,
+            pData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData>::Dispatch(
+            manager,
+            object_,
             result,
             Name,
             DataSize,
@@ -264,6 +302,12 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface>::Dispatch(
+            manager,
+            object_,
+            Name,
+            pUnknown);
+
         result = object_->SetPrivateDataInterface(
             Name,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
@@ -273,6 +317,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
             result,
             Name,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface>::Dispatch(
+            manager,
+            object_,
+            result,
+            Name,
+            pUnknown);
     }
     else
     {
@@ -298,6 +349,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData>::Dispatch(
+            manager,
+            object_,
+            Name,
+            pDataSize,
+            pData);
+
         result = object_->GetPrivateData(
             Name,
             pDataSize,
@@ -305,6 +363,14 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
 
         Encode_IDXGIObject_GetPrivateData(
             GetCaptureId(),
+            result,
+            Name,
+            pDataSize,
+            pData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData>::Dispatch(
+            manager,
+            object_,
             result,
             Name,
             pDataSize,
@@ -334,6 +400,12 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIObject_GetParent>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppParent);
+
         result = object_->GetParent(
             riid,
             ppParent);
@@ -345,6 +417,13 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
 
         Encode_IDXGIObject_GetParent(
             GetCaptureId(),
+            result,
+            riid,
+            ppParent);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIObject_GetParent>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppParent);
@@ -372,6 +451,12 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppDevice);
+
         result = object_->GetDevice(
             riid,
             ppDevice);
@@ -383,6 +468,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 
         Encode_IDXGIDeviceSubObject_GetDevice(
             GetCaptureId(),
+            result,
+            riid,
+            ppDevice);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDeviceSubObject_GetDevice>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppDevice);
@@ -409,11 +501,22 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle>::Dispatch(
+            manager,
+            object_,
+            pSharedHandle);
+
         result = object_->GetSharedHandle(
             pSharedHandle);
 
         Encode_IDXGIResource_GetSharedHandle(
             GetCaptureId(),
+            result,
+            pSharedHandle);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle>::Dispatch(
+            manager,
+            object_,
             result,
             pSharedHandle);
     }
@@ -438,11 +541,22 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetUsage(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetUsage>::Dispatch(
+            manager,
+            object_,
+            pUsage);
+
         result = object_->GetUsage(
             pUsage);
 
         Encode_IDXGIResource_GetUsage(
             GetCaptureId(),
+            result,
+            pUsage);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource_GetUsage>::Dispatch(
+            manager,
+            object_,
             result,
             pUsage);
     }
@@ -467,11 +581,22 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::SetEvictionPriority(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority>::Dispatch(
+            manager,
+            object_,
+            EvictionPriority);
+
         result = object_->SetEvictionPriority(
             EvictionPriority);
 
         Encode_IDXGIResource_SetEvictionPriority(
             GetCaptureId(),
+            result,
+            EvictionPriority);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority>::Dispatch(
+            manager,
+            object_,
             result,
             EvictionPriority);
     }
@@ -496,11 +621,22 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority>::Dispatch(
+            manager,
+            object_,
+            pEvictionPriority);
+
         result = object_->GetEvictionPriority(
             pEvictionPriority);
 
         Encode_IDXGIResource_GetEvictionPriority(
             GetCaptureId(),
+            result,
+            pEvictionPriority);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority>::Dispatch(
+            manager,
+            object_,
             result,
             pEvictionPriority);
     }
@@ -526,12 +662,25 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync>::Dispatch(
+            manager,
+            object_,
+            Key,
+            dwMilliseconds);
+
         result = object_->AcquireSync(
             Key,
             dwMilliseconds);
 
         Encode_IDXGIKeyedMutex_AcquireSync(
             GetCaptureId(),
+            result,
+            Key,
+            dwMilliseconds);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_AcquireSync>::Dispatch(
+            manager,
+            object_,
             result,
             Key,
             dwMilliseconds);
@@ -558,11 +707,22 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync>::Dispatch(
+            manager,
+            object_,
+            Key);
+
         result = object_->ReleaseSync(
             Key);
 
         Encode_IDXGIKeyedMutex_ReleaseSync(
             GetCaptureId(),
+            result,
+            Key);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync>::Dispatch(
+            manager,
+            object_,
             result,
             Key);
     }
@@ -587,11 +747,22 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface_GetDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc(
             pDesc);
 
         Encode_IDXGISurface_GetDesc(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface_GetDesc>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -617,12 +788,25 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Map(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface_Map>::Dispatch(
+            manager,
+            object_,
+            pLockedRect,
+            MapFlags);
+
         result = object_->Map(
             pLockedRect,
             MapFlags);
 
         Encode_IDXGISurface_Map(
             GetCaptureId(),
+            result,
+            pLockedRect,
+            MapFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface_Map>::Dispatch(
+            manager,
+            object_,
             result,
             pLockedRect,
             MapFlags);
@@ -648,10 +832,19 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Unmap()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface_Unmap>::Dispatch(
+            manager,
+            object_);
+
         result = object_->Unmap();
 
         Encode_IDXGISurface_Unmap(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface_Unmap>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -675,12 +868,25 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::GetDC(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface1_GetDC>::Dispatch(
+            manager,
+            object_,
+            Discard,
+            phdc);
+
         result = object_->GetDC(
             Discard,
             phdc);
 
         Encode_IDXGISurface1_GetDC(
             GetCaptureId(),
+            result,
+            Discard,
+            phdc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface1_GetDC>::Dispatch(
+            manager,
+            object_,
             result,
             Discard,
             phdc);
@@ -707,11 +913,22 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC>::Dispatch(
+            manager,
+            object_,
+            pDirtyRect);
+
         result = object_->ReleaseDC(
             pDirtyRect);
 
         Encode_IDXGISurface1_ReleaseDC(
             GetCaptureId(),
+            result,
+            pDirtyRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC>::Dispatch(
+            manager,
+            object_,
             result,
             pDirtyRect);
     }
@@ -737,6 +954,12 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs>::Dispatch(
+            manager,
+            object_,
+            Output,
+            ppOutput);
+
         result = object_->EnumOutputs(
             Output,
             ppOutput);
@@ -748,6 +971,13 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
 
         Encode_IDXGIAdapter_EnumOutputs(
             GetCaptureId(),
+            result,
+            Output,
+            ppOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter_EnumOutputs>::Dispatch(
+            manager,
+            object_,
             result,
             Output,
             ppOutput);
@@ -774,11 +1004,22 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc(
             pDesc);
 
         Encode_IDXGIAdapter_GetDesc(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -804,12 +1045,25 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport>::Dispatch(
+            manager,
+            object_,
+            InterfaceName,
+            pUMDVersion);
+
         result = object_->CheckInterfaceSupport(
             InterfaceName,
             pUMDVersion);
 
         Encode_IDXGIAdapter_CheckInterfaceSupport(
             GetCaptureId(),
+            result,
+            InterfaceName,
+            pUMDVersion);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport>::Dispatch(
+            manager,
+            object_,
             result,
             InterfaceName,
             pUMDVersion);
@@ -836,11 +1090,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc(
             pDesc);
 
         Encode_IDXGIOutput_GetDesc(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDesc>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -868,6 +1133,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList>::Dispatch(
+            manager,
+            object_,
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
+
         result = object_->GetDisplayModeList(
             EnumFormat,
             Flags,
@@ -876,6 +1149,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
 
         Encode_IDXGIOutput_GetDisplayModeList(
             GetCaptureId(),
+            result,
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList>::Dispatch(
+            manager,
+            object_,
             result,
             EnumFormat,
             Flags,
@@ -908,6 +1190,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode>::Dispatch(
+            manager,
+            object_,
+            pModeToMatch,
+            pClosestMatch,
+            pConcernedDevice);
+
         result = object_->FindClosestMatchingMode(
             pModeToMatch,
             pClosestMatch,
@@ -919,6 +1208,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
             pModeToMatch,
             pClosestMatch,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode>::Dispatch(
+            manager,
+            object_,
+            result,
+            pModeToMatch,
+            pClosestMatch,
+            pConcernedDevice);
     }
     else
     {
@@ -942,10 +1239,19 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::WaitForVBlank()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank>::Dispatch(
+            manager,
+            object_);
+
         result = object_->WaitForVBlank();
 
         Encode_IDXGIOutput_WaitForVBlank(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -969,6 +1275,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            Exclusive);
+
         result = object_->TakeOwnership(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             Exclusive);
@@ -977,6 +1289,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            Exclusive);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
             Exclusive);
     }
     else
@@ -998,10 +1317,18 @@ void STDMETHODCALLTYPE IDXGIOutput_Wrapper::ReleaseOwnership()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership>::Dispatch(
+            manager,
+            object_);
+
         object_->ReleaseOwnership();
 
         Encode_IDXGIOutput_ReleaseOwnership(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_ReleaseOwnership>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -1021,11 +1348,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControlCapabilities(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities>::Dispatch(
+            manager,
+            object_,
+            pGammaCaps);
+
         result = object_->GetGammaControlCapabilities(
             pGammaCaps);
 
         Encode_IDXGIOutput_GetGammaControlCapabilities(
             GetCaptureId(),
+            result,
+            pGammaCaps);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities>::Dispatch(
+            manager,
+            object_,
             result,
             pGammaCaps);
     }
@@ -1050,11 +1388,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetGammaControl(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl>::Dispatch(
+            manager,
+            object_,
+            pArray);
+
         result = object_->SetGammaControl(
             pArray);
 
         Encode_IDXGIOutput_SetGammaControl(
             GetCaptureId(),
+            result,
+            pArray);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl>::Dispatch(
+            manager,
+            object_,
             result,
             pArray);
     }
@@ -1079,11 +1428,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControl(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl>::Dispatch(
+            manager,
+            object_,
+            pArray);
+
         result = object_->GetGammaControl(
             pArray);
 
         Encode_IDXGIOutput_GetGammaControl(
             GetCaptureId(),
+            result,
+            pArray);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl>::Dispatch(
+            manager,
+            object_,
             result,
             pArray);
     }
@@ -1108,6 +1468,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface>::Dispatch(
+            manager,
+            object_,
+            pScanoutSurface);
+
         result = object_->SetDisplaySurface(
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
 
@@ -1115,6 +1480,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface>::Dispatch(
+            manager,
+            object_,
+            result,
+            pScanoutSurface);
     }
     else
     {
@@ -1137,6 +1508,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData>::Dispatch(
+            manager,
+            object_,
+            pDestination);
+
         result = object_->GetDisplaySurfaceData(
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
 
@@ -1144,6 +1520,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDestination);
     }
     else
     {
@@ -1166,11 +1548,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics>::Dispatch(
+            manager,
+            object_,
+            pStats);
+
         result = object_->GetFrameStatistics(
             pStats);
 
         Encode_IDXGIOutput_GetFrameStatistics(
             GetCaptureId(),
+            result,
+            pStats);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics>::Dispatch(
+            manager,
+            object_,
             result,
             pStats);
     }
@@ -1196,12 +1589,25 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
+            manager,
+            object_,
+            SyncInterval,
+            Flags);
+
         result = object_->Present(
             SyncInterval,
             Flags);
 
         Encode_IDXGISwapChain_Present(
             GetCaptureId(),
+            result,
+            SyncInterval,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>::Dispatch(
+            manager,
+            object_,
             result,
             SyncInterval,
             Flags);
@@ -1230,6 +1636,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer>::Dispatch(
+            manager,
+            object_,
+            Buffer,
+            riid,
+            ppSurface);
+
         result = object_->GetBuffer(
             Buffer,
             riid,
@@ -1242,6 +1655,14 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
 
         Encode_IDXGISwapChain_GetBuffer(
             GetCaptureId(),
+            result,
+            Buffer,
+            riid,
+            ppSurface);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetBuffer>::Dispatch(
+            manager,
+            object_,
             result,
             Buffer,
             riid,
@@ -1271,6 +1692,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState>::Dispatch(
+            manager,
+            object_,
+            Fullscreen,
+            pTarget);
+
         result = object_->SetFullscreenState(
             Fullscreen,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
@@ -1280,6 +1707,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
             result,
             Fullscreen,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState>::Dispatch(
+            manager,
+            object_,
+            result,
+            Fullscreen,
+            pTarget);
     }
     else
     {
@@ -1304,6 +1738,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState>::Dispatch(
+            manager,
+            object_,
+            pFullscreen,
+            ppTarget);
+
         result = object_->GetFullscreenState(
             pFullscreen,
             ppTarget);
@@ -1315,6 +1755,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
 
         Encode_IDXGISwapChain_GetFullscreenState(
             GetCaptureId(),
+            result,
+            pFullscreen,
+            ppTarget);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFullscreenState>::Dispatch(
+            manager,
+            object_,
             result,
             pFullscreen,
             ppTarget);
@@ -1341,11 +1788,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc(
             pDesc);
 
         Encode_IDXGISwapChain_GetDesc(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -1374,6 +1832,15 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers>::Dispatch(
+            manager,
+            object_,
+            BufferCount,
+            Width,
+            Height,
+            NewFormat,
+            SwapChainFlags);
+
         result = object_->ResizeBuffers(
             BufferCount,
             Width,
@@ -1383,6 +1850,16 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
 
         Encode_IDXGISwapChain_ResizeBuffers(
             GetCaptureId(),
+            result,
+            BufferCount,
+            Width,
+            Height,
+            NewFormat,
+            SwapChainFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers>::Dispatch(
+            manager,
+            object_,
             result,
             BufferCount,
             Width,
@@ -1415,11 +1892,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeTarget(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget>::Dispatch(
+            manager,
+            object_,
+            pNewTargetParameters);
+
         result = object_->ResizeTarget(
             pNewTargetParameters);
 
         Encode_IDXGISwapChain_ResizeTarget(
             GetCaptureId(),
+            result,
+            pNewTargetParameters);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget>::Dispatch(
+            manager,
+            object_,
             result,
             pNewTargetParameters);
     }
@@ -1444,6 +1932,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput>::Dispatch(
+            manager,
+            object_,
+            ppOutput);
+
         result = object_->GetContainingOutput(
             ppOutput);
 
@@ -1454,6 +1947,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
 
         Encode_IDXGISwapChain_GetContainingOutput(
             GetCaptureId(),
+            result,
+            ppOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput>::Dispatch(
+            manager,
+            object_,
             result,
             ppOutput);
     }
@@ -1478,11 +1977,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFrameStatistics(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics>::Dispatch(
+            manager,
+            object_,
+            pStats);
+
         result = object_->GetFrameStatistics(
             pStats);
 
         Encode_IDXGISwapChain_GetFrameStatistics(
             GetCaptureId(),
+            result,
+            pStats);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics>::Dispatch(
+            manager,
+            object_,
             result,
             pStats);
     }
@@ -1507,11 +2017,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount>::Dispatch(
+            manager,
+            object_,
+            pLastPresentCount);
+
         result = object_->GetLastPresentCount(
             pLastPresentCount);
 
         Encode_IDXGISwapChain_GetLastPresentCount(
             GetCaptureId(),
+            result,
+            pLastPresentCount);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount>::Dispatch(
+            manager,
+            object_,
             result,
             pLastPresentCount);
     }
@@ -1537,6 +2058,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters>::Dispatch(
+            manager,
+            object_,
+            Adapter,
+            ppAdapter);
+
         result = object_->EnumAdapters(
             Adapter,
             ppAdapter);
@@ -1548,6 +2075,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
 
         Encode_IDXGIFactory_EnumAdapters(
             GetCaptureId(),
+            result,
+            Adapter,
+            ppAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory_EnumAdapters>::Dispatch(
+            manager,
+            object_,
             result,
             Adapter,
             ppAdapter);
@@ -1575,12 +2109,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::MakeWindowAssociation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation>::Dispatch(
+            manager,
+            object_,
+            WindowHandle,
+            Flags);
+
         result = object_->MakeWindowAssociation(
             WindowHandle,
             Flags);
 
         Encode_IDXGIFactory_MakeWindowAssociation(
             GetCaptureId(),
+            result,
+            WindowHandle,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation>::Dispatch(
+            manager,
+            object_,
             result,
             WindowHandle,
             Flags);
@@ -1607,11 +2154,22 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::GetWindowAssociation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation>::Dispatch(
+            manager,
+            object_,
+            pWindowHandle);
+
         result = object_->GetWindowAssociation(
             pWindowHandle);
 
         Encode_IDXGIFactory_GetWindowAssociation(
             GetCaptureId(),
+            result,
+            pWindowHandle);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation>::Dispatch(
+            manager,
+            object_,
             result,
             pWindowHandle);
     }
@@ -1638,6 +2196,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            pDesc,
+            ppSwapChain);
+
         result = object_->CreateSwapChain(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             pDesc,
@@ -1652,6 +2217,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDesc,
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSwapChain>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
             pDesc,
             ppSwapChain);
     }
@@ -1679,6 +2252,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter>::Dispatch(
+            manager,
+            object_,
+            Module,
+            ppAdapter);
+
         result = object_->CreateSoftwareAdapter(
             Module,
             ppAdapter);
@@ -1690,6 +2269,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 
         Encode_IDXGIFactory_CreateSoftwareAdapter(
             GetCaptureId(),
+            result,
+            Module,
+            ppAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory_CreateSoftwareAdapter>::Dispatch(
+            manager,
+            object_,
             result,
             Module,
             ppAdapter);
@@ -1716,6 +2302,11 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter>::Dispatch(
+            manager,
+            object_,
+            pAdapter);
+
         result = object_->GetAdapter(
             pAdapter);
 
@@ -1726,6 +2317,12 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
 
         Encode_IDXGIDevice_GetAdapter(
             GetCaptureId(),
+            result,
+            pAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter>::Dispatch(
+            manager,
+            object_,
             result,
             pAdapter);
     }
@@ -1754,6 +2351,15 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            NumSurfaces,
+            Usage,
+            pSharedResource,
+            ppSurface);
+
         result = object_->CreateSurface(
             pDesc,
             NumSurfaces,
@@ -1768,6 +2374,16 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
 
         Encode_IDXGIDevice_CreateSurface(
             GetCaptureId(),
+            result,
+            pDesc,
+            NumSurfaces,
+            Usage,
+            pSharedResource,
+            ppSurface);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice_CreateSurface>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             NumSurfaces,
@@ -1802,6 +2418,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency>::Dispatch(
+            manager,
+            object_,
+            ppResources,
+            pResidencyStatus,
+            NumResources);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->QueryResourceResidency(
@@ -1813,6 +2436,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
             GetCaptureId(),
             result,
             UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppResources, NumResources, unwrap_memory),
+            pResidencyStatus,
+            NumResources);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency>::Dispatch(
+            manager,
+            object_,
+            result,
+            ppResources,
             pResidencyStatus,
             NumResources);
     }
@@ -1839,11 +2470,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::SetGPUThreadPriority(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority>::Dispatch(
+            manager,
+            object_,
+            Priority);
+
         result = object_->SetGPUThreadPriority(
             Priority);
 
         Encode_IDXGIDevice_SetGPUThreadPriority(
             GetCaptureId(),
+            result,
+            Priority);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority>::Dispatch(
+            manager,
+            object_,
             result,
             Priority);
     }
@@ -1868,11 +2510,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetGPUThreadPriority(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority>::Dispatch(
+            manager,
+            object_,
+            pPriority);
+
         result = object_->GetGPUThreadPriority(
             pPriority);
 
         Encode_IDXGIDevice_GetGPUThreadPriority(
             GetCaptureId(),
+            result,
+            pPriority);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority>::Dispatch(
+            manager,
+            object_,
             result,
             pPriority);
     }
@@ -1898,6 +2551,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1>::Dispatch(
+            manager,
+            object_,
+            Adapter,
+            ppAdapter);
+
         result = object_->EnumAdapters1(
             Adapter,
             ppAdapter);
@@ -1909,6 +2568,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
 
         Encode_IDXGIFactory1_EnumAdapters1(
             GetCaptureId(),
+            result,
+            Adapter,
+            ppAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory1_EnumAdapters1>::Dispatch(
+            manager,
+            object_,
             result,
             Adapter,
             ppAdapter);
@@ -1934,10 +2600,19 @@ BOOL STDMETHODCALLTYPE IDXGIFactory1_Wrapper::IsCurrent()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent>::Dispatch(
+            manager,
+            object_);
+
         result = object_->IsCurrent();
 
         Encode_IDXGIFactory1_IsCurrent(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -1960,11 +2635,22 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter1_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc1(
             pDesc);
 
         Encode_IDXGIAdapter1_GetDesc1(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -1989,11 +2675,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::SetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
+            MaxLatency);
+
         result = object_->SetMaximumFrameLatency(
             MaxLatency);
 
         Encode_IDXGIDevice1_SetMaximumFrameLatency(
             GetCaptureId(),
+            result,
+            MaxLatency);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
             result,
             MaxLatency);
     }
@@ -2018,11 +2715,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
+            pMaxLatency);
+
         result = object_->GetMaximumFrameLatency(
             pMaxLatency);
 
         Encode_IDXGIDevice1_GetMaximumFrameLatency(
             GetCaptureId(),
+            result,
+            pMaxLatency);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
             result,
             pMaxLatency);
     }
@@ -2052,10 +2760,19 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled>::Dispatch(
+            manager,
+            object_);
+
         result = object_->IsStereoEnabled();
 
         Encode_IDXGIDisplayControl_IsStereoEnabled(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -2076,11 +2793,21 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled>::Dispatch(
+            manager,
+            object_,
+            enabled);
+
         object_->SetStereoEnabled(
             enabled);
 
         Encode_IDXGIDisplayControl_SetStereoEnabled(
             GetCaptureId(),
+            enabled);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDisplayControl_SetStereoEnabled>::Dispatch(
+            manager,
+            object_,
             enabled);
     }
     else
@@ -2100,11 +2827,21 @@ void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         object_->GetDesc(
             pDesc);
 
         Encode_IDXGIOutputDuplication_GetDesc(
             GetCaptureId(),
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc>::Dispatch(
+            manager,
+            object_,
             pDesc);
     }
     else
@@ -2128,6 +2865,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame>::Dispatch(
+            manager,
+            object_,
+            TimeoutInMilliseconds,
+            pFrameInfo,
+            ppDesktopResource);
+
         result = object_->AcquireNextFrame(
             TimeoutInMilliseconds,
             pFrameInfo,
@@ -2140,6 +2884,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
 
         Encode_IDXGIOutputDuplication_AcquireNextFrame(
             GetCaptureId(),
+            result,
+            TimeoutInMilliseconds,
+            pFrameInfo,
+            ppDesktopResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_AcquireNextFrame>::Dispatch(
+            manager,
+            object_,
             result,
             TimeoutInMilliseconds,
             pFrameInfo,
@@ -2170,6 +2922,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects>::Dispatch(
+            manager,
+            object_,
+            DirtyRectsBufferSize,
+            pDirtyRectsBuffer,
+            pDirtyRectsBufferSizeRequired);
+
         result = object_->GetFrameDirtyRects(
             DirtyRectsBufferSize,
             pDirtyRectsBuffer,
@@ -2177,6 +2936,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
 
         Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
             GetCaptureId(),
+            result,
+            DirtyRectsBufferSize,
+            pDirtyRectsBuffer,
+            pDirtyRectsBufferSizeRequired);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects>::Dispatch(
+            manager,
+            object_,
             result,
             DirtyRectsBufferSize,
             pDirtyRectsBuffer,
@@ -2207,6 +2974,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects>::Dispatch(
+            manager,
+            object_,
+            MoveRectsBufferSize,
+            pMoveRectBuffer,
+            pMoveRectsBufferSizeRequired);
+
         result = object_->GetFrameMoveRects(
             MoveRectsBufferSize,
             pMoveRectBuffer,
@@ -2214,6 +2988,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
 
         Encode_IDXGIOutputDuplication_GetFrameMoveRects(
             GetCaptureId(),
+            result,
+            MoveRectsBufferSize,
+            pMoveRectBuffer,
+            pMoveRectsBufferSizeRequired);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects>::Dispatch(
+            manager,
+            object_,
             result,
             MoveRectsBufferSize,
             pMoveRectBuffer,
@@ -2245,6 +3027,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape>::Dispatch(
+            manager,
+            object_,
+            PointerShapeBufferSize,
+            pPointerShapeBuffer,
+            pPointerShapeBufferSizeRequired,
+            pPointerShapeInfo);
+
         result = object_->GetFramePointerShape(
             PointerShapeBufferSize,
             pPointerShapeBuffer,
@@ -2253,6 +3043,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
 
         Encode_IDXGIOutputDuplication_GetFramePointerShape(
             GetCaptureId(),
+            result,
+            PointerShapeBufferSize,
+            pPointerShapeBuffer,
+            pPointerShapeBufferSizeRequired,
+            pPointerShapeInfo);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape>::Dispatch(
+            manager,
+            object_,
             result,
             PointerShapeBufferSize,
             pPointerShapeBuffer,
@@ -2283,11 +3082,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::MapDesktopSurface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface>::Dispatch(
+            manager,
+            object_,
+            pLockedRect);
+
         result = object_->MapDesktopSurface(
             pLockedRect);
 
         Encode_IDXGIOutputDuplication_MapDesktopSurface(
             GetCaptureId(),
+            result,
+            pLockedRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface>::Dispatch(
+            manager,
+            object_,
             result,
             pLockedRect);
     }
@@ -2311,10 +3121,19 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::UnMapDesktopSurface()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface>::Dispatch(
+            manager,
+            object_);
+
         result = object_->UnMapDesktopSurface();
 
         Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -2336,10 +3155,19 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::ReleaseFrame()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame>::Dispatch(
+            manager,
+            object_);
+
         result = object_->ReleaseFrame();
 
         Encode_IDXGIOutputDuplication_ReleaseFrame(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -2364,6 +3192,13 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISurface2_GetResource>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppParentResource,
+            pSubresourceIndex);
+
         result = object_->GetResource(
             riid,
             ppParentResource,
@@ -2376,6 +3211,14 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
 
         Encode_IDXGISurface2_GetResource(
             GetCaptureId(),
+            result,
+            riid,
+            ppParentResource,
+            pSubresourceIndex);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISurface2_GetResource>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppParentResource,
@@ -2405,6 +3248,12 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface>::Dispatch(
+            manager,
+            object_,
+            index,
+            ppSurface);
+
         result = object_->CreateSubresourceSurface(
             index,
             ppSurface);
@@ -2416,6 +3265,13 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
 
         Encode_IDXGIResource1_CreateSubresourceSurface(
             GetCaptureId(),
+            result,
+            index,
+            ppSurface);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSubresourceSurface>::Dispatch(
+            manager,
+            object_,
             result,
             index,
             ppSurface);
@@ -2445,6 +3301,14 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle>::Dispatch(
+            manager,
+            object_,
+            pAttributes,
+            dwAccess,
+            lpName,
+            pHandle);
+
         result = object_->CreateSharedHandle(
             pAttributes,
             dwAccess,
@@ -2453,6 +3317,15 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
 
         Encode_IDXGIResource1_CreateSharedHandle(
             GetCaptureId(),
+            result,
+            pAttributes,
+            dwAccess,
+            lpName,
+            pHandle);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle>::Dispatch(
+            manager,
+            object_,
             result,
             pAttributes,
             dwAccess,
@@ -2485,6 +3358,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources>::Dispatch(
+            manager,
+            object_,
+            NumResources,
+            ppResources,
+            Priority);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->OfferResources(
@@ -2497,6 +3377,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
             result,
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            Priority);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumResources,
+            ppResources,
             Priority);
     }
     else
@@ -2524,6 +3412,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources>::Dispatch(
+            manager,
+            object_,
+            NumResources,
+            ppResources,
+            pDiscarded);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->ReclaimResources(
@@ -2536,6 +3431,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
             result,
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            pDiscarded);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumResources,
+            ppResources,
             pDiscarded);
     }
     else
@@ -2561,11 +3464,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::EnqueueSetEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent);
+
         result = object_->EnqueueSetEvent(
             hEvent);
 
         Encode_IDXGIDevice2_EnqueueSetEvent(
             GetCaptureId(),
+            result,
+            hEvent);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent);
     }
@@ -2590,11 +3504,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc1(
             pDesc);
 
         Encode_IDXGISwapChain1_GetDesc1(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -2619,11 +3544,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetFullscreenDesc(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetFullscreenDesc(
             pDesc);
 
         Encode_IDXGISwapChain1_GetFullscreenDesc(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -2648,11 +3584,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetHwnd(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd>::Dispatch(
+            manager,
+            object_,
+            pHwnd);
+
         result = object_->GetHwnd(
             pHwnd);
 
         Encode_IDXGISwapChain1_GetHwnd(
             GetCaptureId(),
+            result,
+            pHwnd);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd>::Dispatch(
+            manager,
+            object_,
             result,
             pHwnd);
     }
@@ -2678,6 +3625,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow>::Dispatch(
+            manager,
+            object_,
+            refiid,
+            ppUnk);
+
         result = object_->GetCoreWindow(
             refiid,
             ppUnk);
@@ -2689,6 +3642,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
 
         Encode_IDXGISwapChain1_GetCoreWindow(
             GetCaptureId(),
+            result,
+            refiid,
+            ppUnk);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetCoreWindow>::Dispatch(
+            manager,
+            object_,
             result,
             refiid,
             ppUnk);
@@ -2717,6 +3677,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
+            manager,
+            object_,
+            SyncInterval,
+            PresentFlags,
+            pPresentParameters);
+
         result = object_->Present1(
             SyncInterval,
             PresentFlags,
@@ -2724,6 +3691,14 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 
         Encode_IDXGISwapChain1_Present1(
             GetCaptureId(),
+            result,
+            SyncInterval,
+            PresentFlags,
+            pPresentParameters);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>::Dispatch(
+            manager,
+            object_,
             result,
             SyncInterval,
             PresentFlags,
@@ -2751,10 +3726,19 @@ BOOL STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::IsTemporaryMonoSupported()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported>::Dispatch(
+            manager,
+            object_);
+
         result = object_->IsTemporaryMonoSupported();
 
         Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -2777,6 +3761,11 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput>::Dispatch(
+            manager,
+            object_,
+            ppRestrictToOutput);
+
         result = object_->GetRestrictToOutput(
             ppRestrictToOutput);
 
@@ -2787,6 +3776,12 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
 
         Encode_IDXGISwapChain1_GetRestrictToOutput(
             GetCaptureId(),
+            result,
+            ppRestrictToOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput>::Dispatch(
+            manager,
+            object_,
             result,
             ppRestrictToOutput);
     }
@@ -2811,11 +3806,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetBackgroundColor(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor>::Dispatch(
+            manager,
+            object_,
+            pColor);
+
         result = object_->SetBackgroundColor(
             pColor);
 
         Encode_IDXGISwapChain1_SetBackgroundColor(
             GetCaptureId(),
+            result,
+            pColor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor>::Dispatch(
+            manager,
+            object_,
             result,
             pColor);
     }
@@ -2840,11 +3846,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetBackgroundColor(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor>::Dispatch(
+            manager,
+            object_,
+            pColor);
+
         result = object_->GetBackgroundColor(
             pColor);
 
         Encode_IDXGISwapChain1_GetBackgroundColor(
             GetCaptureId(),
+            result,
+            pColor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor>::Dispatch(
+            manager,
+            object_,
             result,
             pColor);
     }
@@ -2869,11 +3886,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetRotation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation>::Dispatch(
+            manager,
+            object_,
+            Rotation);
+
         result = object_->SetRotation(
             Rotation);
 
         Encode_IDXGISwapChain1_SetRotation(
             GetCaptureId(),
+            result,
+            Rotation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation>::Dispatch(
+            manager,
+            object_,
             result,
             Rotation);
     }
@@ -2898,11 +3926,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRotation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation>::Dispatch(
+            manager,
+            object_,
+            pRotation);
+
         result = object_->GetRotation(
             pRotation);
 
         Encode_IDXGISwapChain1_GetRotation(
             GetCaptureId(),
+            result,
+            pRotation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation>::Dispatch(
+            manager,
+            object_,
             result,
             pRotation);
     }
@@ -2926,10 +3965,19 @@ BOOL STDMETHODCALLTYPE IDXGIFactory2_Wrapper::IsWindowedStereoEnabled()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled>::Dispatch(
+            manager,
+            object_);
+
         result = object_->IsWindowedStereoEnabled();
 
         Encode_IDXGIFactory2_IsWindowedStereoEnabled(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -2957,6 +4005,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            hWnd,
+            pDesc,
+            pFullscreenDesc,
+            pRestrictToOutput,
+            ppSwapChain);
+
         result = object_->CreateSwapChainForHwnd(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             hWnd,
@@ -2978,6 +4036,17 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
             pDesc,
             pFullscreenDesc,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
+            hWnd,
+            pDesc,
+            pFullscreenDesc,
+            pRestrictToOutput,
             ppSwapChain);
     }
     else
@@ -3010,6 +4079,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            pWindow,
+            pDesc,
+            pRestrictToOutput,
+            ppSwapChain);
+
         result = object_->CreateSwapChainForCoreWindow(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pWindow),
@@ -3029,6 +4107,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pWindow),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
+            pWindow,
+            pDesc,
+            pRestrictToOutput,
             ppSwapChain);
     }
     else
@@ -3057,12 +4145,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::GetSharedResourceAdapterLuid(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid>::Dispatch(
+            manager,
+            object_,
+            hResource,
+            pLuid);
+
         result = object_->GetSharedResourceAdapterLuid(
             hResource,
             pLuid);
 
         Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
             GetCaptureId(),
+            result,
+            hResource,
+            pLuid);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid>::Dispatch(
+            manager,
+            object_,
             result,
             hResource,
             pLuid);
@@ -3091,6 +4192,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow>::Dispatch(
+            manager,
+            object_,
+            WindowHandle,
+            wMsg,
+            pdwCookie);
+
         result = object_->RegisterStereoStatusWindow(
             WindowHandle,
             wMsg,
@@ -3098,6 +4206,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
 
         Encode_IDXGIFactory2_RegisterStereoStatusWindow(
             GetCaptureId(),
+            result,
+            WindowHandle,
+            wMsg,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow>::Dispatch(
+            manager,
+            object_,
             result,
             WindowHandle,
             wMsg,
@@ -3127,12 +4243,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent,
+            pdwCookie);
+
         result = object_->RegisterStereoStatusEvent(
             hEvent,
             pdwCookie);
 
         Encode_IDXGIFactory2_RegisterStereoStatusEvent(
             GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent,
             pdwCookie);
@@ -3157,11 +4286,21 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterStereoStatus(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus>::Dispatch(
+            manager,
+            object_,
+            dwCookie);
+
         object_->UnregisterStereoStatus(
             dwCookie);
 
         Encode_IDXGIFactory2_UnregisterStereoStatus(
             GetCaptureId(),
+            dwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterStereoStatus>::Dispatch(
+            manager,
+            object_,
             dwCookie);
     }
     else
@@ -3185,6 +4324,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow>::Dispatch(
+            manager,
+            object_,
+            WindowHandle,
+            wMsg,
+            pdwCookie);
+
         result = object_->RegisterOcclusionStatusWindow(
             WindowHandle,
             wMsg,
@@ -3192,6 +4338,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
 
         Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
             GetCaptureId(),
+            result,
+            WindowHandle,
+            wMsg,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow>::Dispatch(
+            manager,
+            object_,
             result,
             WindowHandle,
             wMsg,
@@ -3221,12 +4375,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent,
+            pdwCookie);
+
         result = object_->RegisterOcclusionStatusEvent(
             hEvent,
             pdwCookie);
 
         Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
             GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent,
             pdwCookie);
@@ -3251,11 +4418,21 @@ void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterOcclusionStatus(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus>::Dispatch(
+            manager,
+            object_,
+            dwCookie);
+
         object_->UnregisterOcclusionStatus(
             dwCookie);
 
         Encode_IDXGIFactory2_UnregisterOcclusionStatus(
             GetCaptureId(),
+            dwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_UnregisterOcclusionStatus>::Dispatch(
+            manager,
+            object_,
             dwCookie);
     }
     else
@@ -3280,6 +4457,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            pDesc,
+            pRestrictToOutput,
+            ppSwapChain);
+
         result = object_->CreateSwapChainForComposition(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             pDesc,
@@ -3297,6 +4482,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
+            pDesc,
+            pRestrictToOutput,
             ppSwapChain);
     }
     else
@@ -3323,11 +4517,22 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter2_Wrapper::GetDesc2(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc2(
             pDesc);
 
         Encode_IDXGIAdapter2_GetDesc2(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -3355,6 +4560,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1>::Dispatch(
+            manager,
+            object_,
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
+
         result = object_->GetDisplayModeList1(
             EnumFormat,
             Flags,
@@ -3363,6 +4576,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
 
         Encode_IDXGIOutput1_GetDisplayModeList1(
             GetCaptureId(),
+            result,
+            EnumFormat,
+            Flags,
+            pNumModes,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1>::Dispatch(
+            manager,
+            object_,
             result,
             EnumFormat,
             Flags,
@@ -3395,6 +4617,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1>::Dispatch(
+            manager,
+            object_,
+            pModeToMatch,
+            pClosestMatch,
+            pConcernedDevice);
+
         result = object_->FindClosestMatchingMode1(
             pModeToMatch,
             pClosestMatch,
@@ -3406,6 +4635,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
             pModeToMatch,
             pClosestMatch,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pModeToMatch,
+            pClosestMatch,
+            pConcernedDevice);
     }
     else
     {
@@ -3430,6 +4667,11 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1>::Dispatch(
+            manager,
+            object_,
+            pDestination);
+
         result = object_->GetDisplaySurfaceData1(
             encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
 
@@ -3437,6 +4679,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDestination);
     }
     else
     {
@@ -3460,6 +4708,12 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            ppOutputDuplication);
+
         result = object_->DuplicateOutput(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             ppOutputDuplication);
@@ -3473,6 +4727,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            ppOutputDuplication);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
             ppOutputDuplication);
     }
     else
@@ -3505,7 +4766,13 @@ HRESULT WINAPI CreateDXGIFactory2(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory2(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>::Dispatch(
+            manager,
+            Flags,
+            riid,
+            ppFactory);
+
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory2(
             Flags,
             riid,
             ppFactory);
@@ -3520,10 +4787,17 @@ HRESULT WINAPI CreateDXGIFactory2(
             Flags,
             riid,
             ppFactory);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_CreateDXGIFactory2>::Dispatch(
+            manager,
+            result,
+            Flags,
+            riid,
+            ppFactory);
     }
     else
     {
-        auto result = manager->GetDxgiDispatchTable().CreateDXGIFactory2(
+        result = manager->GetDxgiDispatchTable().CreateDXGIFactory2(
             Flags,
             riid,
             ppFactory);
@@ -3546,7 +4820,13 @@ HRESULT WINAPI DXGIGetDebugInterface1(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetDxgiDispatchTable().DXGIGetDebugInterface1(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_DXGIGetDebugInterface1>::Dispatch(
+            manager,
+            Flags,
+            riid,
+            pDebug);
+
+        result = manager->GetDxgiDispatchTable().DXGIGetDebugInterface1(
             Flags,
             riid,
             pDebug);
@@ -3561,10 +4841,17 @@ HRESULT WINAPI DXGIGetDebugInterface1(
             Flags,
             riid,
             pDebug);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_DXGIGetDebugInterface1>::Dispatch(
+            manager,
+            result,
+            Flags,
+            riid,
+            pDebug);
     }
     else
     {
-        auto result = manager->GetDxgiDispatchTable().DXGIGetDebugInterface1(
+        result = manager->GetDxgiDispatchTable().DXGIGetDebugInterface1(
             Flags,
             riid,
             pDebug);
@@ -3582,10 +4869,18 @@ void STDMETHODCALLTYPE IDXGIDevice3_Wrapper::Trim()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice3_Trim>::Dispatch(
+            manager,
+            object_);
+
         object_->Trim();
 
         Encode_IDXGIDevice3_Trim(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice3_Trim>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -3606,12 +4901,25 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetSourceSize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize>::Dispatch(
+            manager,
+            object_,
+            Width,
+            Height);
+
         result = object_->SetSourceSize(
             Width,
             Height);
 
         Encode_IDXGISwapChain2_SetSourceSize(
             GetCaptureId(),
+            result,
+            Width,
+            Height);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetSourceSize>::Dispatch(
+            manager,
+            object_,
             result,
             Width,
             Height);
@@ -3639,12 +4947,25 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetSourceSize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize>::Dispatch(
+            manager,
+            object_,
+            pWidth,
+            pHeight);
+
         result = object_->GetSourceSize(
             pWidth,
             pHeight);
 
         Encode_IDXGISwapChain2_GetSourceSize(
             GetCaptureId(),
+            result,
+            pWidth,
+            pHeight);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize>::Dispatch(
+            manager,
+            object_,
             result,
             pWidth,
             pHeight);
@@ -3671,11 +4992,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
+            MaxLatency);
+
         result = object_->SetMaximumFrameLatency(
             MaxLatency);
 
         Encode_IDXGISwapChain2_SetMaximumFrameLatency(
             GetCaptureId(),
+            result,
+            MaxLatency);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
             result,
             MaxLatency);
     }
@@ -3700,11 +5032,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMaximumFrameLatency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
+            pMaxLatency);
+
         result = object_->GetMaximumFrameLatency(
             pMaxLatency);
 
         Encode_IDXGISwapChain2_GetMaximumFrameLatency(
             GetCaptureId(),
+            result,
+            pMaxLatency);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency>::Dispatch(
+            manager,
+            object_,
             result,
             pMaxLatency);
     }
@@ -3728,10 +5071,19 @@ HANDLE STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetFrameLatencyWaitableObject(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetFrameLatencyWaitableObject();
 
         Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -3754,11 +5106,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMatrixTransform(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform>::Dispatch(
+            manager,
+            object_,
+            pMatrix);
+
         result = object_->SetMatrixTransform(
             pMatrix);
 
         Encode_IDXGISwapChain2_SetMatrixTransform(
             GetCaptureId(),
+            result,
+            pMatrix);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform>::Dispatch(
+            manager,
+            object_,
             result,
             pMatrix);
     }
@@ -3783,11 +5146,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMatrixTransform(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform>::Dispatch(
+            manager,
+            object_,
+            pMatrix);
+
         result = object_->GetMatrixTransform(
             pMatrix);
 
         Encode_IDXGISwapChain2_GetMatrixTransform(
             GetCaptureId(),
+            result,
+            pMatrix);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform>::Dispatch(
+            manager,
+            object_,
             result,
             pMatrix);
     }
@@ -3811,10 +5185,19 @@ BOOL STDMETHODCALLTYPE IDXGIOutput2_Wrapper::SupportsOverlays()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays>::Dispatch(
+            manager,
+            object_);
+
         result = object_->SupportsOverlays();
 
         Encode_IDXGIOutput2_SupportsOverlays(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -3836,10 +5219,19 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetCreationFlags();
 
         Encode_IDXGIFactory3_GetCreationFlags(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -3864,6 +5256,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer>::Dispatch(
+            manager,
+            object_,
+            BufferToPresent,
+            SyncInterval,
+            Flags);
+
         result = object_->PresentBuffer(
             BufferToPresent,
             SyncInterval,
@@ -3871,6 +5270,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
 
         Encode_IDXGIDecodeSwapChain_PresentBuffer(
             GetCaptureId(),
+            result,
+            BufferToPresent,
+            SyncInterval,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_PresentBuffer>::Dispatch(
+            manager,
+            object_,
             result,
             BufferToPresent,
             SyncInterval,
@@ -3899,11 +5306,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetSourceRect(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect>::Dispatch(
+            manager,
+            object_,
+            pRect);
+
         result = object_->SetSourceRect(
             pRect);
 
         Encode_IDXGIDecodeSwapChain_SetSourceRect(
             GetCaptureId(),
+            result,
+            pRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect>::Dispatch(
+            manager,
+            object_,
             result,
             pRect);
     }
@@ -3928,11 +5346,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetTargetRect(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect>::Dispatch(
+            manager,
+            object_,
+            pRect);
+
         result = object_->SetTargetRect(
             pRect);
 
         Encode_IDXGIDecodeSwapChain_SetTargetRect(
             GetCaptureId(),
+            result,
+            pRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect>::Dispatch(
+            manager,
+            object_,
             result,
             pRect);
     }
@@ -3958,12 +5387,25 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetDestSize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize>::Dispatch(
+            manager,
+            object_,
+            Width,
+            Height);
+
         result = object_->SetDestSize(
             Width,
             Height);
 
         Encode_IDXGIDecodeSwapChain_SetDestSize(
             GetCaptureId(),
+            result,
+            Width,
+            Height);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetDestSize>::Dispatch(
+            manager,
+            object_,
             result,
             Width,
             Height);
@@ -3990,11 +5432,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetSourceRect(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect>::Dispatch(
+            manager,
+            object_,
+            pRect);
+
         result = object_->GetSourceRect(
             pRect);
 
         Encode_IDXGIDecodeSwapChain_GetSourceRect(
             GetCaptureId(),
+            result,
+            pRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect>::Dispatch(
+            manager,
+            object_,
             result,
             pRect);
     }
@@ -4019,11 +5472,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetTargetRect(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect>::Dispatch(
+            manager,
+            object_,
+            pRect);
+
         result = object_->GetTargetRect(
             pRect);
 
         Encode_IDXGIDecodeSwapChain_GetTargetRect(
             GetCaptureId(),
+            result,
+            pRect);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect>::Dispatch(
+            manager,
+            object_,
             result,
             pRect);
     }
@@ -4049,12 +5513,25 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetDestSize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize>::Dispatch(
+            manager,
+            object_,
+            pWidth,
+            pHeight);
+
         result = object_->GetDestSize(
             pWidth,
             pHeight);
 
         Encode_IDXGIDecodeSwapChain_GetDestSize(
             GetCaptureId(),
+            result,
+            pWidth,
+            pHeight);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize>::Dispatch(
+            manager,
+            object_,
             result,
             pWidth,
             pHeight);
@@ -4081,11 +5558,22 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetColorSpace(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace>::Dispatch(
+            manager,
+            object_,
+            ColorSpace);
+
         result = object_->SetColorSpace(
             ColorSpace);
 
         Encode_IDXGIDecodeSwapChain_SetColorSpace(
             GetCaptureId(),
+            result,
+            ColorSpace);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace>::Dispatch(
+            manager,
+            object_,
             result,
             ColorSpace);
     }
@@ -4109,10 +5597,19 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetColorSpace();
 
         Encode_IDXGIDecodeSwapChain_GetColorSpace(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -4139,6 +5636,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            hSurface,
+            pDesc,
+            pRestrictToOutput,
+            ppSwapChain);
+
         result = object_->CreateSwapChainForCompositionSurfaceHandle(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             hSurface,
@@ -4158,6 +5664,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
             hSurface,
             pDesc,
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
+            hSurface,
+            pDesc,
+            pRestrictToOutput,
             ppSwapChain);
     }
     else
@@ -4190,6 +5706,16 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            hSurface,
+            pDesc,
+            pYuvDecodeBuffers,
+            pRestrictToOutput,
+            ppSwapChain);
+
         result = object_->CreateDecodeSwapChainForCompositionSurfaceHandle(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             hSurface,
@@ -4211,6 +5737,17 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
             pDesc,
             encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pYuvDecodeBuffers),
             encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            ppSwapChain);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
+            hSurface,
+            pDesc,
+            pYuvDecodeBuffers,
+            pRestrictToOutput,
             ppSwapChain);
     }
     else
@@ -4239,11 +5776,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia>::Dispatch(
+            manager,
+            object_,
+            pStats);
+
         result = object_->GetFrameStatisticsMedia(
             pStats);
 
         Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
             GetCaptureId(),
+            result,
+            pStats);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia>::Dispatch(
+            manager,
+            object_,
             result,
             pStats);
     }
@@ -4268,11 +5816,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::SetPresentDuration(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration>::Dispatch(
+            manager,
+            object_,
+            Duration);
+
         result = object_->SetPresentDuration(
             Duration);
 
         Encode_IDXGISwapChainMedia_SetPresentDuration(
             GetCaptureId(),
+            result,
+            Duration);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration>::Dispatch(
+            manager,
+            object_,
             result,
             Duration);
     }
@@ -4299,6 +5858,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport>::Dispatch(
+            manager,
+            object_,
+            DesiredPresentDuration,
+            pClosestSmallerPresentDuration,
+            pClosestLargerPresentDuration);
+
         result = object_->CheckPresentDurationSupport(
             DesiredPresentDuration,
             pClosestSmallerPresentDuration,
@@ -4306,6 +5872,14 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
 
         Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
             GetCaptureId(),
+            result,
+            DesiredPresentDuration,
+            pClosestSmallerPresentDuration,
+            pClosestLargerPresentDuration);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport>::Dispatch(
+            manager,
+            object_,
             result,
             DesiredPresentDuration,
             pClosestSmallerPresentDuration,
@@ -4336,6 +5910,13 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport>::Dispatch(
+            manager,
+            object_,
+            EnumFormat,
+            pConcernedDevice,
+            pFlags);
+
         result = object_->CheckOverlaySupport(
             EnumFormat,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
@@ -4346,6 +5927,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
             result,
             EnumFormat,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport>::Dispatch(
+            manager,
+            object_,
+            result,
+            EnumFormat,
+            pConcernedDevice,
             pFlags);
     }
     else
@@ -4376,10 +5965,19 @@ UINT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::GetCurrentBackBufferIndex()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetCurrentBackBufferIndex();
 
         Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -4403,12 +6001,25 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::CheckColorSpaceSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport>::Dispatch(
+            manager,
+            object_,
+            ColorSpace,
+            pColorSpaceSupport);
+
         result = object_->CheckColorSpaceSupport(
             ColorSpace,
             pColorSpaceSupport);
 
         Encode_IDXGISwapChain3_CheckColorSpaceSupport(
             GetCaptureId(),
+            result,
+            ColorSpace,
+            pColorSpaceSupport);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport>::Dispatch(
+            manager,
+            object_,
             result,
             ColorSpace,
             pColorSpaceSupport);
@@ -4435,11 +6046,22 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::SetColorSpace1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1>::Dispatch(
+            manager,
+            object_,
+            ColorSpace);
+
         result = object_->SetColorSpace1(
             ColorSpace);
 
         Encode_IDXGISwapChain3_SetColorSpace1(
             GetCaptureId(),
+            result,
+            ColorSpace);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1>::Dispatch(
+            manager,
+            object_,
             result,
             ColorSpace);
     }
@@ -4470,6 +6092,17 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1>::Dispatch(
+            manager,
+            object_,
+            BufferCount,
+            Width,
+            Height,
+            Format,
+            SwapChainFlags,
+            pCreationNodeMask,
+            ppPresentQueue);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->ResizeBuffers1(
@@ -4491,6 +6124,18 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
             SwapChainFlags,
             pCreationNodeMask,
             UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppPresentQueue, BufferCount, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1>::Dispatch(
+            manager,
+            object_,
+            result,
+            BufferCount,
+            Width,
+            Height,
+            Format,
+            SwapChainFlags,
+            pCreationNodeMask,
+            ppPresentQueue);
     }
     else
     {
@@ -4522,6 +6167,14 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport>::Dispatch(
+            manager,
+            object_,
+            Format,
+            ColorSpace,
+            pConcernedDevice,
+            pFlags);
+
         result = object_->CheckOverlayColorSpaceSupport(
             Format,
             ColorSpace,
@@ -4534,6 +6187,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
             Format,
             ColorSpace,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport>::Dispatch(
+            manager,
+            object_,
+            result,
+            Format,
+            ColorSpace,
+            pConcernedDevice,
             pFlags);
     }
     else
@@ -4562,6 +6224,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid>::Dispatch(
+            manager,
+            object_,
+            AdapterLuid,
+            riid,
+            ppvAdapter);
+
         result = object_->EnumAdapterByLuid(
             AdapterLuid,
             riid,
@@ -4574,6 +6243,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
 
         Encode_IDXGIFactory4_EnumAdapterByLuid(
             GetCaptureId(),
+            result,
+            AdapterLuid,
+            riid,
+            ppvAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumAdapterByLuid>::Dispatch(
+            manager,
+            object_,
             result,
             AdapterLuid,
             riid,
@@ -4603,6 +6280,12 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppvAdapter);
+
         result = object_->EnumWarpAdapter(
             riid,
             ppvAdapter);
@@ -4614,6 +6297,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
 
         Encode_IDXGIFactory4_EnumWarpAdapter(
             GetCaptureId(),
+            result,
+            riid,
+            ppvAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory4_EnumWarpAdapter>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppvAdapter);
@@ -4641,12 +6331,25 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent,
+            pdwCookie);
+
         result = object_->RegisterHardwareContentProtectionTeardownStatusEvent(
             hEvent,
             pdwCookie);
 
         Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
             GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent,
             pdwCookie);
@@ -4671,11 +6374,21 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterHardwareContentProtectio
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus>::Dispatch(
+            manager,
+            object_,
+            dwCookie);
+
         object_->UnregisterHardwareContentProtectionTeardownStatus(
             dwCookie);
 
         Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
             GetCaptureId(),
+            dwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus>::Dispatch(
+            manager,
+            object_,
             dwCookie);
     }
     else
@@ -4699,6 +6412,13 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo>::Dispatch(
+            manager,
+            object_,
+            NodeIndex,
+            MemorySegmentGroup,
+            pVideoMemoryInfo);
+
         result = object_->QueryVideoMemoryInfo(
             NodeIndex,
             MemorySegmentGroup,
@@ -4706,6 +6426,14 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
 
         Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
             GetCaptureId(),
+            result,
+            NodeIndex,
+            MemorySegmentGroup,
+            pVideoMemoryInfo);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo>::Dispatch(
+            manager,
+            object_,
             result,
             NodeIndex,
             MemorySegmentGroup,
@@ -4736,6 +6464,13 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation>::Dispatch(
+            manager,
+            object_,
+            NodeIndex,
+            MemorySegmentGroup,
+            Reservation);
+
         result = object_->SetVideoMemoryReservation(
             NodeIndex,
             MemorySegmentGroup,
@@ -4743,6 +6478,14 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
 
         Encode_IDXGIAdapter3_SetVideoMemoryReservation(
             GetCaptureId(),
+            result,
+            NodeIndex,
+            MemorySegmentGroup,
+            Reservation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_SetVideoMemoryReservation>::Dispatch(
+            manager,
+            object_,
             result,
             NodeIndex,
             MemorySegmentGroup,
@@ -4772,12 +6515,25 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent,
+            pdwCookie);
+
         result = object_->RegisterVideoMemoryBudgetChangeNotificationEvent(
             hEvent,
             pdwCookie);
 
         Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
             GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent,
             pdwCookie);
@@ -4802,11 +6558,21 @@ void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeN
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification>::Dispatch(
+            manager,
+            object_,
+            dwCookie);
+
         object_->UnregisterVideoMemoryBudgetChangeNotification(
             dwCookie);
 
         Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
             GetCaptureId(),
+            dwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification>::Dispatch(
+            manager,
+            object_,
             dwCookie);
     }
     else
@@ -4838,6 +6604,15 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1>::Dispatch(
+            manager,
+            object_,
+            pDevice,
+            Flags,
+            SupportedFormatsCount,
+            pSupportedFormats,
+            ppOutputDuplication);
+
         result = object_->DuplicateOutput1(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
             Flags,
@@ -4854,6 +6629,16 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            Flags,
+            SupportedFormatsCount,
+            pSupportedFormats,
+            ppOutputDuplication);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput5_DuplicateOutput1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDevice,
             Flags,
             SupportedFormatsCount,
             pSupportedFormats,
@@ -4886,6 +6671,13 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData>::Dispatch(
+            manager,
+            object_,
+            Type,
+            Size,
+            pMetaData);
+
         result = object_->SetHDRMetaData(
             Type,
             Size,
@@ -4893,6 +6685,14 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
 
         Encode_IDXGISwapChain4_SetHDRMetaData(
             GetCaptureId(),
+            result,
+            Type,
+            Size,
+            pMetaData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGISwapChain4_SetHDRMetaData>::Dispatch(
+            manager,
+            object_,
             result,
             Type,
             Size,
@@ -4924,6 +6724,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1>::Dispatch(
+            manager,
+            object_,
+            NumResources,
+            ppResources,
+            Priority,
+            Flags);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->OfferResources1(
@@ -4937,6 +6745,15 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
             result,
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            Priority,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice4_OfferResources1>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumResources,
+            ppResources,
             Priority,
             Flags);
     }
@@ -4966,6 +6783,13 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1>::Dispatch(
+            manager,
+            object_,
+            NumResources,
+            ppResources,
+            pResults);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->ReclaimResources1(
@@ -4978,6 +6802,14 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
             result,
             NumResources,
             UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            pResults);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumResources,
+            ppResources,
             pResults);
     }
     else
@@ -5005,6 +6837,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport>::Dispatch(
+            manager,
+            object_,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
         result = object_->CheckFeatureSupport(
             Feature,
             pFeatureSupportData,
@@ -5012,6 +6851,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 
         Encode_IDXGIFactory5_CheckFeatureSupport(
             GetCaptureId(),
+            result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport>::Dispatch(
+            manager,
+            object_,
             result,
             Feature,
             pFeatureSupportData,
@@ -5045,14 +6892,21 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
 
     if (call_scope == 1)
     {
-        auto result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport>::Dispatch(
+            manager);
+
+        result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
 
         Encode_DXGIDeclareAdapterRemovalSupport(
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport>::Dispatch(
+            manager,
             result);
     }
     else
     {
-        auto result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
+        result = manager->GetDxgiDispatchTable().DXGIDeclareAdapterRemovalSupport();
     }
 
     manager->DecrementCallScope();
@@ -5070,11 +6924,22 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter4_Wrapper::GetDesc3(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc3(
             pDesc);
 
         Encode_IDXGIAdapter4_GetDesc3(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -5099,11 +6964,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::GetDesc1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         result = object_->GetDesc1(
             pDesc);
 
         Encode_IDXGIOutput6_GetDesc1(
             GetCaptureId(),
+            result,
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc);
     }
@@ -5128,11 +7004,22 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::CheckHardwareCompositionSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport>::Dispatch(
+            manager,
+            object_,
+            pFlags);
+
         result = object_->CheckHardwareCompositionSupport(
             pFlags);
 
         Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
             GetCaptureId(),
+            result,
+            pFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport>::Dispatch(
+            manager,
+            object_,
             result,
             pFlags);
     }
@@ -5160,6 +7047,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference>::Dispatch(
+            manager,
+            object_,
+            Adapter,
+            GpuPreference,
+            riid,
+            ppvAdapter);
+
         result = object_->EnumAdapterByGpuPreference(
             Adapter,
             GpuPreference,
@@ -5173,6 +7068,15 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
 
         Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
             GetCaptureId(),
+            result,
+            Adapter,
+            GpuPreference,
+            riid,
+            ppvAdapter);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory6_EnumAdapterByGpuPreference>::Dispatch(
+            manager,
+            object_,
             result,
             Adapter,
             GpuPreference,
@@ -5204,12 +7108,25 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::RegisterAdaptersChangedEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent>::Dispatch(
+            manager,
+            object_,
+            hEvent,
+            pdwCookie);
+
         result = object_->RegisterAdaptersChangedEvent(
             hEvent,
             pdwCookie);
 
         Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
             GetCaptureId(),
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent>::Dispatch(
+            manager,
+            object_,
             result,
             hEvent,
             pdwCookie);
@@ -5236,11 +7153,22 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent>::Dispatch(
+            manager,
+            object_,
+            dwCookie);
+
         result = object_->UnregisterAdaptersChangedEvent(
             dwCookie);
 
         Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
             GetCaptureId(),
+            result,
+            dwCookie);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent>::Dispatch(
+            manager,
+            object_,
             result,
             dwCookie);
     }
@@ -5292,7 +7220,14 @@ HRESULT WINAPI D3D12SerializeRootSignature(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12SerializeRootSignature(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12SerializeRootSignature>::Dispatch(
+            manager,
+            pRootSignature,
+            Version,
+            ppBlob,
+            ppErrorBlob);
+
+        result = manager->GetD3D12DispatchTable().D3D12SerializeRootSignature(
             pRootSignature,
             Version,
             ppBlob,
@@ -5310,10 +7245,18 @@ HRESULT WINAPI D3D12SerializeRootSignature(
             Version,
             ppBlob,
             ppErrorBlob);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12SerializeRootSignature>::Dispatch(
+            manager,
+            result,
+            pRootSignature,
+            Version,
+            ppBlob,
+            ppErrorBlob);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12SerializeRootSignature(
+        result = manager->GetD3D12DispatchTable().D3D12SerializeRootSignature(
             pRootSignature,
             Version,
             ppBlob,
@@ -5338,7 +7281,14 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateRootSignatureDeserializer(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer>::Dispatch(
+            manager,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
+
+        result = manager->GetD3D12DispatchTable().D3D12CreateRootSignatureDeserializer(
             pSrcData,
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
@@ -5355,10 +7305,18 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
             ppRootSignatureDeserializer);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12CreateRootSignatureDeserializer>::Dispatch(
+            manager,
+            result,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateRootSignatureDeserializer(
+        result = manager->GetD3D12DispatchTable().D3D12CreateRootSignatureDeserializer(
             pSrcData,
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
@@ -5382,7 +7340,13 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature>::Dispatch(
+            manager,
+            pRootSignature,
+            ppBlob,
+            ppErrorBlob);
+
+        result = manager->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
             pRootSignature,
             ppBlob,
             ppErrorBlob);
@@ -5398,10 +7362,17 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
             pRootSignature,
             ppBlob,
             ppErrorBlob);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature>::Dispatch(
+            manager,
+            result,
+            pRootSignature,
+            ppBlob,
+            ppErrorBlob);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
+        result = manager->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
             pRootSignature,
             ppBlob,
             ppErrorBlob);
@@ -5425,7 +7396,14 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer>::Dispatch(
+            manager,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
+
+        result = manager->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
             pSrcData,
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
@@ -5442,10 +7420,18 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
             ppRootSignatureDeserializer);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12CreateVersionedRootSignatureDeserializer>::Dispatch(
+            manager,
+            result,
+            pSrcData,
+            SrcDataSizeInBytes,
+            pRootSignatureDeserializerInterface,
+            ppRootSignatureDeserializer);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
+        result = manager->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
             pSrcData,
             SrcDataSizeInBytes,
             pRootSignatureDeserializerInterface,
@@ -5470,7 +7456,14 @@ HRESULT WINAPI D3D12CreateDevice(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateDevice(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>::Dispatch(
+            manager,
+            pAdapter,
+            MinimumFeatureLevel,
+            riid,
+            ppDevice);
+
+        result = manager->GetD3D12DispatchTable().D3D12CreateDevice(
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pAdapter),
             MinimumFeatureLevel,
             riid,
@@ -5487,10 +7480,18 @@ HRESULT WINAPI D3D12CreateDevice(
             MinimumFeatureLevel,
             riid,
             ppDevice);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12CreateDevice>::Dispatch(
+            manager,
+            result,
+            pAdapter,
+            MinimumFeatureLevel,
+            riid,
+            ppDevice);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12CreateDevice(
+        result = manager->GetD3D12DispatchTable().D3D12CreateDevice(
             pAdapter,
             MinimumFeatureLevel,
             riid,
@@ -5513,7 +7514,12 @@ HRESULT WINAPI D3D12GetDebugInterface(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12GetDebugInterface(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12GetDebugInterface>::Dispatch(
+            manager,
+            riid,
+            ppvDebug);
+
+        result = manager->GetD3D12DispatchTable().D3D12GetDebugInterface(
             riid,
             ppvDebug);
 
@@ -5526,10 +7532,16 @@ HRESULT WINAPI D3D12GetDebugInterface(
             result,
             riid,
             ppvDebug);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12GetDebugInterface>::Dispatch(
+            manager,
+            result,
+            riid,
+            ppvDebug);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12GetDebugInterface(
+        result = manager->GetD3D12DispatchTable().D3D12GetDebugInterface(
             riid,
             ppvDebug);
     }
@@ -5552,7 +7564,14 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
 
     if (call_scope == 1)
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12EnableExperimentalFeatures(
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures>::Dispatch(
+            manager,
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
+
+        result = manager->GetD3D12DispatchTable().D3D12EnableExperimentalFeatures(
             NumFeatures,
             pIIDs,
             pConfigurationStructs,
@@ -5564,10 +7583,18 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
             pIIDs,
             pConfigurationStructs,
             pConfigurationStructSizes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures>::Dispatch(
+            manager,
+            result,
+            NumFeatures,
+            pIIDs,
+            pConfigurationStructs,
+            pConfigurationStructSizes);
     }
     else
     {
-        auto result = manager->GetD3D12DispatchTable().D3D12EnableExperimentalFeatures(
+        result = manager->GetD3D12DispatchTable().D3D12EnableExperimentalFeatures(
             NumFeatures,
             pIIDs,
             pConfigurationStructs,
@@ -5591,6 +7618,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Object_GetPrivateData>::Dispatch(
+            manager,
+            object_,
+            guid,
+            pDataSize,
+            pData);
+
         result = object_->GetPrivateData(
             guid,
             pDataSize,
@@ -5598,6 +7632,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
 
         Encode_ID3D12Object_GetPrivateData(
             GetCaptureId(),
+            result,
+            guid,
+            pDataSize,
+            pData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Object_GetPrivateData>::Dispatch(
+            manager,
+            object_,
             result,
             guid,
             pDataSize,
@@ -5628,6 +7670,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData>::Dispatch(
+            manager,
+            object_,
+            guid,
+            DataSize,
+            pData);
+
         result = object_->SetPrivateData(
             guid,
             DataSize,
@@ -5635,6 +7684,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
 
         Encode_ID3D12Object_SetPrivateData(
             GetCaptureId(),
+            result,
+            guid,
+            DataSize,
+            pData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData>::Dispatch(
+            manager,
+            object_,
             result,
             guid,
             DataSize,
@@ -5664,6 +7721,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface>::Dispatch(
+            manager,
+            object_,
+            guid,
+            pData);
+
         result = object_->SetPrivateDataInterface(
             guid,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
@@ -5673,6 +7736,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
             result,
             guid,
             encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface>::Dispatch(
+            manager,
+            object_,
+            result,
+            guid,
+            pData);
     }
     else
     {
@@ -5696,11 +7766,22 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetName(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Object_SetName>::Dispatch(
+            manager,
+            object_,
+            Name);
+
         result = object_->SetName(
             Name);
 
         Encode_ID3D12Object_SetName(
             GetCaptureId(),
+            result,
+            Name);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetName>::Dispatch(
+            manager,
+            object_,
             result,
             Name);
     }
@@ -5726,6 +7807,12 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppvDevice);
+
         result = object_->GetDevice(
             riid,
             ppvDevice);
@@ -5737,6 +7824,13 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 
         Encode_ID3D12DeviceChild_GetDevice(
             GetCaptureId(),
+            result,
+            riid,
+            ppvDevice);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceChild_GetDevice>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppvDevice);
@@ -5762,10 +7856,19 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetRootSignatureDesc();
 
         Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -5789,12 +7892,25 @@ HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetR
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion>::Dispatch(
+            manager,
+            object_,
+            convertToVersion,
+            ppDesc);
+
         result = object_->GetRootSignatureDescAtVersion(
             convertToVersion,
             ppDesc);
 
         Encode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
             GetCaptureId(),
+            result,
+            convertToVersion,
+            ppDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion>::Dispatch(
+            manager,
+            object_,
             result,
             convertToVersion,
             ppDesc);
@@ -5820,10 +7936,19 @@ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12VersionedRoot
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetUnconvertedRootSignatureDesc();
 
         Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -5845,10 +7970,19 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc();
 
         Encode_ID3D12Heap_GetDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -5873,6 +8007,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>::Dispatch(
+            manager,
+            object_,
+            Subresource,
+            pReadRange,
+            ppData);
+
         result = object_->Map(
             Subresource,
             pReadRange,
@@ -5880,6 +8021,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
 
         Encode_ID3D12Resource_Map(
             GetCaptureId(),
+            result,
+            Subresource,
+            pReadRange,
+            ppData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>::Dispatch(
+            manager,
+            object_,
             result,
             Subresource,
             pReadRange,
@@ -5907,12 +8056,24 @@ void STDMETHODCALLTYPE ID3D12Resource_Wrapper::Unmap(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>::Dispatch(
+            manager,
+            object_,
+            Subresource,
+            pWrittenRange);
+
         object_->Unmap(
             Subresource,
             pWrittenRange);
 
         Encode_ID3D12Resource_Unmap(
             GetCaptureId(),
+            Subresource,
+            pWrittenRange);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>::Dispatch(
+            manager,
+            object_,
             Subresource,
             pWrittenRange);
     }
@@ -5935,10 +8096,19 @@ D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc();
 
         Encode_ID3D12Resource_GetDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -5960,10 +8130,19 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetGPUVirtualAddress();
 
         Encode_ID3D12Resource_GetGPUVirtualAddress(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -5990,6 +8169,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource>::Dispatch(
+            manager,
+            object_,
+            DstSubresource,
+            pDstBox,
+            pSrcData,
+            SrcRowPitch,
+            SrcDepthPitch);
+
         result = object_->WriteToSubresource(
             DstSubresource,
             pDstBox,
@@ -5999,6 +8187,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
 
         Encode_ID3D12Resource_WriteToSubresource(
             GetCaptureId(),
+            result,
+            DstSubresource,
+            pDstBox,
+            pSrcData,
+            SrcRowPitch,
+            SrcDepthPitch);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource>::Dispatch(
+            manager,
+            object_,
             result,
             DstSubresource,
             pDstBox,
@@ -6035,6 +8233,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_ReadFromSubresource>::Dispatch(
+            manager,
+            object_,
+            pDstData,
+            DstRowPitch,
+            DstDepthPitch,
+            SrcSubresource,
+            pSrcBox);
+
         result = object_->ReadFromSubresource(
             pDstData,
             DstRowPitch,
@@ -6044,6 +8251,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
 
         Encode_ID3D12Resource_ReadFromSubresource(
             GetCaptureId(),
+            result,
+            pDstData,
+            DstRowPitch,
+            DstDepthPitch,
+            SrcSubresource,
+            pSrcBox);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_ReadFromSubresource>::Dispatch(
+            manager,
+            object_,
             result,
             pDstData,
             DstRowPitch,
@@ -6077,12 +8294,25 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapProperties>::Dispatch(
+            manager,
+            object_,
+            pHeapProperties,
+            pHeapFlags);
+
         result = object_->GetHeapProperties(
             pHeapProperties,
             pHeapFlags);
 
         Encode_ID3D12Resource_GetHeapProperties(
             GetCaptureId(),
+            result,
+            pHeapProperties,
+            pHeapFlags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapProperties>::Dispatch(
+            manager,
+            object_,
             result,
             pHeapProperties,
             pHeapFlags);
@@ -6108,10 +8338,19 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandAllocator_Reset>::Dispatch(
+            manager,
+            object_);
+
         result = object_->Reset();
 
         Encode_ID3D12CommandAllocator_Reset(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandAllocator_Reset>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6133,10 +8372,19 @@ UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Fence_GetCompletedValue>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetCompletedValue();
 
         Encode_ID3D12Fence_GetCompletedValue(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Fence_GetCompletedValue>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6160,12 +8408,25 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::SetEventOnCompletion(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion>::Dispatch(
+            manager,
+            object_,
+            Value,
+            hEvent);
+
         result = object_->SetEventOnCompletion(
             Value,
             hEvent);
 
         Encode_ID3D12Fence_SetEventOnCompletion(
             GetCaptureId(),
+            result,
+            Value,
+            hEvent);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion>::Dispatch(
+            manager,
+            object_,
             result,
             Value,
             hEvent);
@@ -6192,11 +8453,22 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::Signal(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Fence_Signal>::Dispatch(
+            manager,
+            object_,
+            Value);
+
         result = object_->Signal(
             Value);
 
         Encode_ID3D12Fence_Signal(
             GetCaptureId(),
+            result,
+            Value);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Fence_Signal>::Dispatch(
+            manager,
+            object_,
             result,
             Value);
     }
@@ -6220,10 +8492,19 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Fence1_GetCreationFlags>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetCreationFlags();
 
         Encode_ID3D12Fence1_GetCreationFlags(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Fence1_GetCreationFlags>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6246,6 +8527,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob>::Dispatch(
+            manager,
+            object_,
+            ppBlob);
+
         result = object_->GetCachedBlob(
             ppBlob);
 
@@ -6256,6 +8542,12 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 
         Encode_ID3D12PipelineState_GetCachedBlob(
             GetCaptureId(),
+            result,
+            ppBlob);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob>::Dispatch(
+            manager,
+            object_,
             result,
             ppBlob);
     }
@@ -6279,10 +8571,19 @@ D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDe
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc();
 
         Encode_ID3D12DescriptorHeap_GetDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6304,10 +8605,19 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetCPUDescriptorHandleForHeapStart();
 
         Encode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6329,10 +8639,19 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetGPUDescriptorHandleForHeapStart();
 
         Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6354,10 +8673,19 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandList_GetType>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetType();
 
         Encode_ID3D12CommandList_GetType(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandList_GetType>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6379,10 +8707,19 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
+            manager,
+            object_);
+
         result = object_->Close();
 
         Encode_ID3D12GraphicsCommandList_Close(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -6406,6 +8743,12 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset>::Dispatch(
+            manager,
+            object_,
+            pAllocator,
+            pInitialState);
+
         result = object_->Reset(
             encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
@@ -6415,6 +8758,13 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
             result,
             encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset>::Dispatch(
+            manager,
+            object_,
+            result,
+            pAllocator,
+            pInitialState);
     }
     else
     {
@@ -6436,12 +8786,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
+            manager,
+            object_,
+            pPipelineState);
+
         object_->ClearState(
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
 
         Encode_ID3D12GraphicsCommandList_ClearState(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
+            manager,
+            object_,
+            pPipelineState);
     }
     else
     {
@@ -6463,6 +8823,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>::Dispatch(
+            manager,
+            object_,
+            VertexCountPerInstance,
+            InstanceCount,
+            StartVertexLocation,
+            StartInstanceLocation);
+
         object_->DrawInstanced(
             VertexCountPerInstance,
             InstanceCount,
@@ -6471,6 +8839,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
 
         Encode_ID3D12GraphicsCommandList_DrawInstanced(
             GetCaptureId(),
+            VertexCountPerInstance,
+            InstanceCount,
+            StartVertexLocation,
+            StartInstanceLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>::Dispatch(
+            manager,
+            object_,
             VertexCountPerInstance,
             InstanceCount,
             StartVertexLocation,
@@ -6500,6 +8876,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>::Dispatch(
+            manager,
+            object_,
+            IndexCountPerInstance,
+            InstanceCount,
+            StartIndexLocation,
+            BaseVertexLocation,
+            StartInstanceLocation);
+
         object_->DrawIndexedInstanced(
             IndexCountPerInstance,
             InstanceCount,
@@ -6509,6 +8894,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
 
         Encode_ID3D12GraphicsCommandList_DrawIndexedInstanced(
             GetCaptureId(),
+            IndexCountPerInstance,
+            InstanceCount,
+            StartIndexLocation,
+            BaseVertexLocation,
+            StartInstanceLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>::Dispatch(
+            manager,
+            object_,
             IndexCountPerInstance,
             InstanceCount,
             StartIndexLocation,
@@ -6538,6 +8932,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>::Dispatch(
+            manager,
+            object_,
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
+
         object_->Dispatch(
             ThreadGroupCountX,
             ThreadGroupCountY,
@@ -6545,6 +8946,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
 
         Encode_ID3D12GraphicsCommandList_Dispatch(
             GetCaptureId(),
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>::Dispatch(
+            manager,
+            object_,
             ThreadGroupCountX,
             ThreadGroupCountY,
             ThreadGroupCountZ);
@@ -6572,6 +8980,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
+            SrcOffset,
+            NumBytes);
+
         object_->CopyBufferRegion(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
             DstOffset,
@@ -6584,6 +9001,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
             DstOffset,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            SrcOffset,
+            NumBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
             SrcOffset,
             NumBytes);
     }
@@ -6613,6 +9039,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion>::Dispatch(
+            manager,
+            object_,
+            pDst,
+            DstX,
+            DstY,
+            DstZ,
+            pSrc,
+            pSrcBox);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->CopyTextureRegion(
@@ -6630,6 +9066,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
             DstY,
             DstZ,
             UnwrapStructPtrObjects(pSrc, unwrap_memory),
+            pSrcBox);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion>::Dispatch(
+            manager,
+            object_,
+            pDst,
+            DstX,
+            DstY,
+            DstZ,
+            pSrc,
             pSrcBox);
     }
     else
@@ -6655,6 +9101,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            pSrcResource);
+
         object_->CopyResource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
@@ -6663,6 +9115,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            pSrcResource);
     }
     else
     {
@@ -6687,6 +9145,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles>::Dispatch(
+            manager,
+            object_,
+            pTiledResource,
+            pTileRegionStartCoordinate,
+            pTileRegionSize,
+            pBuffer,
+            BufferStartOffsetInBytes,
+            Flags);
+
         object_->CopyTiles(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
             pTileRegionStartCoordinate,
@@ -6701,6 +9169,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
             pTileRegionStartCoordinate,
             pTileRegionSize,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            BufferStartOffsetInBytes,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles>::Dispatch(
+            manager,
+            object_,
+            pTiledResource,
+            pTileRegionStartCoordinate,
+            pTileRegionSize,
+            pBuffer,
             BufferStartOffsetInBytes,
             Flags);
     }
@@ -6730,6 +9208,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            DstSubresource,
+            pSrcResource,
+            SrcSubresource,
+            Format);
+
         object_->ResolveSubresource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             DstSubresource,
@@ -6742,6 +9229,15 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             DstSubresource,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            SrcSubresource,
+            Format);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            DstSubresource,
+            pSrcResource,
             SrcSubresource,
             Format);
     }
@@ -6766,11 +9262,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology>::Dispatch(
+            manager,
+            object_,
+            PrimitiveTopology);
+
         object_->IASetPrimitiveTopology(
             PrimitiveTopology);
 
         Encode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
             GetCaptureId(),
+            PrimitiveTopology);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology>::Dispatch(
+            manager,
+            object_,
             PrimitiveTopology);
     }
     else
@@ -6791,12 +9297,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports>::Dispatch(
+            manager,
+            object_,
+            NumViewports,
+            pViewports);
+
         object_->RSSetViewports(
             NumViewports,
             pViewports);
 
         Encode_ID3D12GraphicsCommandList_RSSetViewports(
             GetCaptureId(),
+            NumViewports,
+            pViewports);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports>::Dispatch(
+            manager,
+            object_,
             NumViewports,
             pViewports);
     }
@@ -6819,12 +9337,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects>::Dispatch(
+            manager,
+            object_,
+            NumRects,
+            pRects);
+
         object_->RSSetScissorRects(
             NumRects,
             pRects);
 
         Encode_ID3D12GraphicsCommandList_RSSetScissorRects(
             GetCaptureId(),
+            NumRects,
+            pRects);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects>::Dispatch(
+            manager,
+            object_,
             NumRects,
             pRects);
     }
@@ -6846,11 +9376,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor>::Dispatch(
+            manager,
+            object_,
+            BlendFactor);
+
         object_->OMSetBlendFactor(
             BlendFactor);
 
         Encode_ID3D12GraphicsCommandList_OMSetBlendFactor(
             GetCaptureId(),
+            BlendFactor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor>::Dispatch(
+            manager,
+            object_,
             BlendFactor);
     }
     else
@@ -6870,11 +9410,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef>::Dispatch(
+            manager,
+            object_,
+            StencilRef);
+
         object_->OMSetStencilRef(
             StencilRef);
 
         Encode_ID3D12GraphicsCommandList_OMSetStencilRef(
             GetCaptureId(),
+            StencilRef);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef>::Dispatch(
+            manager,
+            object_,
             StencilRef);
     }
     else
@@ -6894,12 +9444,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
+            manager,
+            object_,
+            pPipelineState);
+
         object_->SetPipelineState(
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
 
         Encode_ID3D12GraphicsCommandList_SetPipelineState(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
+            manager,
+            object_,
+            pPipelineState);
     }
     else
     {
@@ -6919,6 +9479,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
+            manager,
+            object_,
+            NumBarriers,
+            pBarriers);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->ResourceBarrier(
@@ -6929,6 +9495,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
             GetCaptureId(),
             NumBarriers,
             UnwrapStructArrayObjects(pBarriers, NumBarriers, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
+            manager,
+            object_,
+            NumBarriers,
+            pBarriers);
     }
     else
     {
@@ -6948,12 +9520,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
+            manager,
+            object_,
+            pCommandList);
+
         object_->ExecuteBundle(
             encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
 
         Encode_ID3D12GraphicsCommandList_ExecuteBundle(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
+            manager,
+            object_,
+            pCommandList);
     }
     else
     {
@@ -6973,6 +9555,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
+            manager,
+            object_,
+            NumDescriptorHeaps,
+            ppDescriptorHeaps);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->SetDescriptorHeaps(
@@ -6983,6 +9571,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
             GetCaptureId(),
             NumDescriptorHeaps,
             UnwrapObjects<ID3D12DescriptorHeap_Wrapper, ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
+            manager,
+            object_,
+            NumDescriptorHeaps,
+            ppDescriptorHeaps);
     }
     else
     {
@@ -7002,12 +9596,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
+            manager,
+            object_,
+            pRootSignature);
+
         object_->SetComputeRootSignature(
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootSignature(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
+            manager,
+            object_,
+            pRootSignature);
     }
     else
     {
@@ -7026,12 +9630,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
+            manager,
+            object_,
+            pRootSignature);
+
         object_->SetGraphicsRootSignature(
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
+            manager,
+            object_,
+            pRootSignature);
     }
     else
     {
@@ -7051,12 +9665,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BaseDescriptor);
+
         object_->SetComputeRootDescriptorTable(
             RootParameterIndex,
             BaseDescriptor);
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
             GetCaptureId(),
+            RootParameterIndex,
+            BaseDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BaseDescriptor);
     }
@@ -7079,12 +9705,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BaseDescriptor);
+
         object_->SetGraphicsRootDescriptorTable(
             RootParameterIndex,
             BaseDescriptor);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
             GetCaptureId(),
+            RootParameterIndex,
+            BaseDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BaseDescriptor);
     }
@@ -7108,6 +9746,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
+
         object_->SetComputeRoot32BitConstant(
             RootParameterIndex,
             SrcData,
@@ -7115,6 +9760,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
         Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
             GetCaptureId(),
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             SrcData,
             DestOffsetIn32BitValues);
@@ -7140,6 +9792,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
+
         object_->SetGraphicsRoot32BitConstant(
             RootParameterIndex,
             SrcData,
@@ -7147,6 +9806,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
             GetCaptureId(),
+            RootParameterIndex,
+            SrcData,
+            DestOffsetIn32BitValues);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             SrcData,
             DestOffsetIn32BitValues);
@@ -7173,6 +9839,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
+
         object_->SetComputeRoot32BitConstants(
             RootParameterIndex,
             Num32BitValuesToSet,
@@ -7181,6 +9855,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
         Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
             GetCaptureId(),
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             Num32BitValuesToSet,
             pSrcData,
@@ -7209,6 +9891,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
+
         object_->SetGraphicsRoot32BitConstants(
             RootParameterIndex,
             Num32BitValuesToSet,
@@ -7217,6 +9907,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
             GetCaptureId(),
+            RootParameterIndex,
+            Num32BitValuesToSet,
+            pSrcData,
+            DestOffsetIn32BitValues);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             Num32BitValuesToSet,
             pSrcData,
@@ -7243,12 +9941,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetComputeRootConstantBufferView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7271,12 +9981,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetGraphicsRootConstantBufferView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7299,12 +10021,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetComputeRootShaderResourceView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7327,12 +10061,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetGraphicsRootShaderResourceView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7355,12 +10101,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetComputeRootUnorderedAccessView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7383,12 +10141,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            RootParameterIndex,
+            BufferLocation);
+
         object_->SetGraphicsRootUnorderedAccessView(
             RootParameterIndex,
             BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
             GetCaptureId(),
+            RootParameterIndex,
+            BufferLocation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
             RootParameterIndex,
             BufferLocation);
     }
@@ -7410,11 +10180,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer>::Dispatch(
+            manager,
+            object_,
+            pView);
+
         object_->IASetIndexBuffer(
             pView);
 
         Encode_ID3D12GraphicsCommandList_IASetIndexBuffer(
             GetCaptureId(),
+            pView);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer>::Dispatch(
+            manager,
+            object_,
             pView);
     }
     else
@@ -7436,6 +10216,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers>::Dispatch(
+            manager,
+            object_,
+            StartSlot,
+            NumViews,
+            pViews);
+
         object_->IASetVertexBuffers(
             StartSlot,
             NumViews,
@@ -7443,6 +10230,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
 
         Encode_ID3D12GraphicsCommandList_IASetVertexBuffers(
             GetCaptureId(),
+            StartSlot,
+            NumViews,
+            pViews);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers>::Dispatch(
+            manager,
+            object_,
             StartSlot,
             NumViews,
             pViews);
@@ -7468,6 +10262,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
+            manager,
+            object_,
+            StartSlot,
+            NumViews,
+            pViews);
+
         object_->SOSetTargets(
             StartSlot,
             NumViews,
@@ -7475,6 +10276,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
 
         Encode_ID3D12GraphicsCommandList_SOSetTargets(
             GetCaptureId(),
+            StartSlot,
+            NumViews,
+            pViews);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
+            manager,
+            object_,
             StartSlot,
             NumViews,
             pViews);
@@ -7501,6 +10309,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>::Dispatch(
+            manager,
+            object_,
+            NumRenderTargetDescriptors,
+            pRenderTargetDescriptors,
+            RTsSingleHandleToDescriptorRange,
+            pDepthStencilDescriptor);
+
         object_->OMSetRenderTargets(
             NumRenderTargetDescriptors,
             pRenderTargetDescriptors,
@@ -7509,6 +10325,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
 
         Encode_ID3D12GraphicsCommandList_OMSetRenderTargets(
             GetCaptureId(),
+            NumRenderTargetDescriptors,
+            pRenderTargetDescriptors,
+            RTsSingleHandleToDescriptorRange,
+            pDepthStencilDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>::Dispatch(
+            manager,
+            object_,
             NumRenderTargetDescriptors,
             pRenderTargetDescriptors,
             RTsSingleHandleToDescriptorRange,
@@ -7539,6 +10363,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView>::Dispatch(
+            manager,
+            object_,
+            DepthStencilView,
+            ClearFlags,
+            Depth,
+            Stencil,
+            NumRects,
+            pRects);
+
         object_->ClearDepthStencilView(
             DepthStencilView,
             ClearFlags,
@@ -7549,6 +10383,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
 
         Encode_ID3D12GraphicsCommandList_ClearDepthStencilView(
             GetCaptureId(),
+            DepthStencilView,
+            ClearFlags,
+            Depth,
+            Stencil,
+            NumRects,
+            pRects);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView>::Dispatch(
+            manager,
+            object_,
             DepthStencilView,
             ClearFlags,
             Depth,
@@ -7581,6 +10425,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView>::Dispatch(
+            manager,
+            object_,
+            RenderTargetView,
+            ColorRGBA,
+            NumRects,
+            pRects);
+
         object_->ClearRenderTargetView(
             RenderTargetView,
             ColorRGBA,
@@ -7589,6 +10441,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
 
         Encode_ID3D12GraphicsCommandList_ClearRenderTargetView(
             GetCaptureId(),
+            RenderTargetView,
+            ColorRGBA,
+            NumRects,
+            pRects);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView>::Dispatch(
+            manager,
+            object_,
             RenderTargetView,
             ColorRGBA,
             NumRects,
@@ -7619,6 +10479,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
+            manager,
+            object_,
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            pResource,
+            Values,
+            NumRects,
+            pRects);
+
         object_->ClearUnorderedAccessViewUint(
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
@@ -7632,6 +10502,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            Values,
+            NumRects,
+            pRects);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
+            manager,
+            object_,
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            pResource,
             Values,
             NumRects,
             pRects);
@@ -7663,6 +10543,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
+            manager,
+            object_,
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            pResource,
+            Values,
+            NumRects,
+            pRects);
+
         object_->ClearUnorderedAccessViewFloat(
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
@@ -7676,6 +10566,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            Values,
+            NumRects,
+            pRects);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
+            manager,
+            object_,
+            ViewGPUHandleInCurrentHeap,
+            ViewCPUHandle,
+            pResource,
             Values,
             NumRects,
             pRects);
@@ -7703,6 +10603,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pRegion);
+
         object_->DiscardResource(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pRegion);
@@ -7710,6 +10616,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
         Encode_ID3D12GraphicsCommandList_DiscardResource(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pRegion);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
+            manager,
+            object_,
+            pResource,
             pRegion);
     }
     else
@@ -7732,6 +10644,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
+            Type,
+            Index);
+
         object_->BeginQuery(
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
             Type,
@@ -7740,6 +10659,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
         Encode_ID3D12GraphicsCommandList_BeginQuery(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            Type,
+            Index);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
             Type,
             Index);
     }
@@ -7764,6 +10690,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
+            Type,
+            Index);
+
         object_->EndQuery(
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
             Type,
@@ -7772,6 +10705,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
         Encode_ID3D12GraphicsCommandList_EndQuery(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            Type,
+            Index);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
             Type,
             Index);
     }
@@ -7799,6 +10739,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
+            Type,
+            StartIndex,
+            NumQueries,
+            pDestinationBuffer,
+            AlignedDestinationBufferOffset);
+
         object_->ResolveQueryData(
             encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
             Type,
@@ -7814,6 +10764,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
             StartIndex,
             NumQueries,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDestinationBuffer),
+            AlignedDestinationBufferOffset);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
+            manager,
+            object_,
+            pQueryHeap,
+            Type,
+            StartIndex,
+            NumQueries,
+            pDestinationBuffer,
             AlignedDestinationBufferOffset);
     }
     else
@@ -7840,6 +10800,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication>::Dispatch(
+            manager,
+            object_,
+            pBuffer,
+            AlignedBufferOffset,
+            Operation);
+
         object_->SetPredication(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
             AlignedBufferOffset,
@@ -7848,6 +10815,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
         Encode_ID3D12GraphicsCommandList_SetPredication(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            AlignedBufferOffset,
+            Operation);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication>::Dispatch(
+            manager,
+            object_,
+            pBuffer,
             AlignedBufferOffset,
             Operation);
     }
@@ -7872,6 +10846,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker>::Dispatch(
+            manager,
+            object_,
+            Metadata,
+            pData,
+            Size);
+
         object_->SetMarker(
             Metadata,
             pData,
@@ -7879,6 +10860,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
 
         Encode_ID3D12GraphicsCommandList_SetMarker(
             GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker>::Dispatch(
+            manager,
+            object_,
             Metadata,
             pData,
             Size);
@@ -7904,6 +10892,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent>::Dispatch(
+            manager,
+            object_,
+            Metadata,
+            pData,
+            Size);
+
         object_->BeginEvent(
             Metadata,
             pData,
@@ -7911,6 +10906,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
 
         Encode_ID3D12GraphicsCommandList_BeginEvent(
             GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent>::Dispatch(
+            manager,
+            object_,
             Metadata,
             pData,
             Size);
@@ -7933,10 +10935,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent>::Dispatch(
+            manager,
+            object_);
+
         object_->EndEvent();
 
         Encode_ID3D12GraphicsCommandList_EndEvent(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -7959,6 +10969,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>::Dispatch(
+            manager,
+            object_,
+            pCommandSignature,
+            MaxCommandCount,
+            pArgumentBuffer,
+            ArgumentBufferOffset,
+            pCountBuffer,
+            CountBufferOffset);
+
         object_->ExecuteIndirect(
             encode::GetWrappedObject<ID3D12CommandSignature_Wrapper, ID3D12CommandSignature>(pCommandSignature),
             MaxCommandCount,
@@ -7974,6 +10994,16 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pArgumentBuffer),
             ArgumentBufferOffset,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCountBuffer),
+            CountBufferOffset);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>::Dispatch(
+            manager,
+            object_,
+            pCommandSignature,
+            MaxCommandCount,
+            pArgumentBuffer,
+            ArgumentBufferOffset,
+            pCountBuffer,
             CountBufferOffset);
     }
     else
@@ -8004,6 +11034,17 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
+            SrcOffset,
+            Dependencies,
+            ppDependentResources,
+            pDependentSubresourceRanges);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->AtomicCopyBufferUINT(
@@ -8023,6 +11064,17 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
             SrcOffset,
             Dependencies,
             UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            pDependentSubresourceRanges);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
+            SrcOffset,
+            Dependencies,
+            ppDependentResources,
             pDependentSubresourceRanges);
     }
     else
@@ -8054,6 +11106,17 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
+            SrcOffset,
+            Dependencies,
+            ppDependentResources,
+            pDependentSubresourceRanges);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->AtomicCopyBufferUINT64(
@@ -8073,6 +11136,17 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
             SrcOffset,
             Dependencies,
             UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            pDependentSubresourceRanges);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
+            manager,
+            object_,
+            pDstBuffer,
+            DstOffset,
+            pSrcBuffer,
+            SrcOffset,
+            Dependencies,
+            ppDependentResources,
             pDependentSubresourceRanges);
     }
     else
@@ -8099,12 +11173,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds>::Dispatch(
+            manager,
+            object_,
+            Min,
+            Max);
+
         object_->OMSetDepthBounds(
             Min,
             Max);
 
         Encode_ID3D12GraphicsCommandList1_OMSetDepthBounds(
             GetCaptureId(),
+            Min,
+            Max);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds>::Dispatch(
+            manager,
+            object_,
             Min,
             Max);
     }
@@ -8128,6 +11214,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions>::Dispatch(
+            manager,
+            object_,
+            NumSamplesPerPixel,
+            NumPixels,
+            pSamplePositions);
+
         object_->SetSamplePositions(
             NumSamplesPerPixel,
             NumPixels,
@@ -8135,6 +11228,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
 
         Encode_ID3D12GraphicsCommandList1_SetSamplePositions(
             GetCaptureId(),
+            NumSamplesPerPixel,
+            NumPixels,
+            pSamplePositions);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions>::Dispatch(
+            manager,
+            object_,
             NumSamplesPerPixel,
             NumPixels,
             pSamplePositions);
@@ -8166,6 +11266,19 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            DstSubresource,
+            DstX,
+            DstY,
+            pSrcResource,
+            SrcSubresource,
+            pSrcRect,
+            Format,
+            ResolveMode);
+
         object_->ResolveSubresourceRegion(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             DstSubresource,
@@ -8184,6 +11297,19 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
             DstX,
             DstY,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            SrcSubresource,
+            pSrcRect,
+            Format,
+            ResolveMode);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            DstSubresource,
+            DstX,
+            DstY,
+            pSrcResource,
             SrcSubresource,
             pSrcRect,
             Format,
@@ -8214,11 +11340,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask>::Dispatch(
+            manager,
+            object_,
+            Mask);
+
         object_->SetViewInstanceMask(
             Mask);
 
         Encode_ID3D12GraphicsCommandList1_SetViewInstanceMask(
             GetCaptureId(),
+            Mask);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask>::Dispatch(
+            manager,
+            object_,
             Mask);
     }
     else
@@ -8240,6 +11376,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
+            manager,
+            object_,
+            Count,
+            pParams,
+            pModes);
+
         object_->WriteBufferImmediate(
             Count,
             pParams,
@@ -8247,6 +11390,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
         Encode_ID3D12GraphicsCommandList2_WriteBufferImmediate(
             GetCaptureId(),
+            Count,
+            pParams,
+            pModes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
+            manager,
+            object_,
             Count,
             pParams,
             pModes);
@@ -8279,6 +11429,20 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            NumResourceRegions,
+            pResourceRegionStartCoordinates,
+            pResourceRegionSizes,
+            pHeap,
+            NumRanges,
+            pRangeFlags,
+            pHeapRangeStartOffsets,
+            pRangeTileCounts,
+            Flags);
+
         object_->UpdateTileMappings(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             NumResourceRegions,
@@ -8298,6 +11462,20 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
             pResourceRegionStartCoordinates,
             pResourceRegionSizes,
             encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            NumRanges,
+            pRangeFlags,
+            pHeapRangeStartOffsets,
+            pRangeTileCounts,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            NumResourceRegions,
+            pResourceRegionStartCoordinates,
+            pResourceRegionSizes,
+            pHeap,
             NumRanges,
             pRangeFlags,
             pHeapRangeStartOffsets,
@@ -8335,6 +11513,16 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            pDstRegionStartCoordinate,
+            pSrcResource,
+            pSrcRegionStartCoordinate,
+            pRegionSize,
+            Flags);
+
         object_->CopyTileMappings(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             pDstRegionStartCoordinate,
@@ -8348,6 +11536,16 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
             pDstRegionStartCoordinate,
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            pSrcRegionStartCoordinate,
+            pRegionSize,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings>::Dispatch(
+            manager,
+            object_,
+            pDstResource,
+            pDstRegionStartCoordinate,
+            pSrcResource,
             pSrcRegionStartCoordinate,
             pRegionSize,
             Flags);
@@ -8375,6 +11573,12 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
+            manager,
+            object_,
+            NumCommandLists,
+            ppCommandLists);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         object_->ExecuteCommandLists(
@@ -8385,6 +11589,12 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
             GetCaptureId(),
             NumCommandLists,
             UnwrapObjects<ID3D12CommandList_Wrapper, ID3D12CommandList>(ppCommandLists, NumCommandLists, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
+            manager,
+            object_,
+            NumCommandLists,
+            ppCommandLists);
     }
     else
     {
@@ -8406,6 +11616,13 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_SetMarker>::Dispatch(
+            manager,
+            object_,
+            Metadata,
+            pData,
+            Size);
+
         object_->SetMarker(
             Metadata,
             pData,
@@ -8413,6 +11630,13 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
 
         Encode_ID3D12CommandQueue_SetMarker(
             GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_SetMarker>::Dispatch(
+            manager,
+            object_,
             Metadata,
             pData,
             Size);
@@ -8438,6 +11662,13 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_BeginEvent>::Dispatch(
+            manager,
+            object_,
+            Metadata,
+            pData,
+            Size);
+
         object_->BeginEvent(
             Metadata,
             pData,
@@ -8445,6 +11676,13 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
 
         Encode_ID3D12CommandQueue_BeginEvent(
             GetCaptureId(),
+            Metadata,
+            pData,
+            Size);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_BeginEvent>::Dispatch(
+            manager,
+            object_,
             Metadata,
             pData,
             Size);
@@ -8467,10 +11705,18 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::EndEvent()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_EndEvent>::Dispatch(
+            manager,
+            object_);
+
         object_->EndEvent();
 
         Encode_ID3D12CommandQueue_EndEvent(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_EndEvent>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -8491,6 +11737,12 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signal>::Dispatch(
+            manager,
+            object_,
+            pFence,
+            Value);
+
         result = object_->Signal(
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
             Value);
@@ -8499,6 +11751,13 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            Value);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signal>::Dispatch(
+            manager,
+            object_,
+            result,
+            pFence,
             Value);
     }
     else
@@ -8524,6 +11783,12 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Wait>::Dispatch(
+            manager,
+            object_,
+            pFence,
+            Value);
+
         result = object_->Wait(
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
             Value);
@@ -8532,6 +11797,13 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            Value);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Wait>::Dispatch(
+            manager,
+            object_,
+            result,
+            pFence,
             Value);
     }
     else
@@ -8556,11 +11828,22 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetTimestampFrequency(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetTimestampFrequency>::Dispatch(
+            manager,
+            object_,
+            pFrequency);
+
         result = object_->GetTimestampFrequency(
             pFrequency);
 
         Encode_ID3D12CommandQueue_GetTimestampFrequency(
             GetCaptureId(),
+            result,
+            pFrequency);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetTimestampFrequency>::Dispatch(
+            manager,
+            object_,
             result,
             pFrequency);
     }
@@ -8586,12 +11869,25 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetClockCalibration(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetClockCalibration>::Dispatch(
+            manager,
+            object_,
+            pGpuTimestamp,
+            pCpuTimestamp);
+
         result = object_->GetClockCalibration(
             pGpuTimestamp,
             pCpuTimestamp);
 
         Encode_ID3D12CommandQueue_GetClockCalibration(
             GetCaptureId(),
+            result,
+            pGpuTimestamp,
+            pCpuTimestamp);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetClockCalibration>::Dispatch(
+            manager,
+            object_,
             result,
             pGpuTimestamp,
             pCpuTimestamp);
@@ -8617,10 +11913,19 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc();
 
         Encode_ID3D12CommandQueue_GetDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -8642,10 +11947,19 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetNodeCount();
 
         Encode_ID3D12Device_GetNodeCount(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -8670,6 +11984,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandQueue>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppCommandQueue);
+
         result = object_->CreateCommandQueue(
             pDesc,
             riid,
@@ -8682,6 +12003,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
 
         Encode_ID3D12Device_CreateCommandQueue(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppCommandQueue);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandQueue>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -8712,6 +12041,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandAllocator>::Dispatch(
+            manager,
+            object_,
+            type,
+            riid,
+            ppCommandAllocator);
+
         result = object_->CreateCommandAllocator(
             type,
             riid,
@@ -8724,6 +12060,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
 
         Encode_ID3D12Device_CreateCommandAllocator(
             GetCaptureId(),
+            result,
+            type,
+            riid,
+            ppCommandAllocator);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandAllocator>::Dispatch(
+            manager,
+            object_,
             result,
             type,
             riid,
@@ -8754,6 +12098,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->CreateGraphicsPipelineState(
@@ -8770,6 +12121,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
             GetCaptureId(),
             result,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDesc,
             riid,
             ppPipelineState);
     }
@@ -8798,6 +12157,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->CreateComputePipelineState(
@@ -8814,6 +12180,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
             GetCaptureId(),
             result,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDesc,
             riid,
             ppPipelineState);
     }
@@ -8845,6 +12219,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList>::Dispatch(
+            manager,
+            object_,
+            nodeMask,
+            type,
+            pCommandAllocator,
+            pInitialState,
+            riid,
+            ppCommandList);
+
         result = object_->CreateCommandList(
             nodeMask,
             type,
@@ -8865,6 +12249,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
             type,
             encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pCommandAllocator),
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState),
+            riid,
+            ppCommandList);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList>::Dispatch(
+            manager,
+            object_,
+            result,
+            nodeMask,
+            type,
+            pCommandAllocator,
+            pInitialState,
             riid,
             ppCommandList);
     }
@@ -8896,6 +12291,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport>::Dispatch(
+            manager,
+            object_,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
         result = object_->CheckFeatureSupport(
             Feature,
             pFeatureSupportData,
@@ -8903,6 +12305,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
 
         Encode_ID3D12Device_CheckFeatureSupport(
             GetCaptureId(),
+            result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport>::Dispatch(
+            manager,
+            object_,
             result,
             Feature,
             pFeatureSupportData,
@@ -8933,6 +12343,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDescriptorHeap>::Dispatch(
+            manager,
+            object_,
+            pDescriptorHeapDesc,
+            riid,
+            ppvHeap);
+
         result = object_->CreateDescriptorHeap(
             pDescriptorHeapDesc,
             riid,
@@ -8945,6 +12362,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
 
         Encode_ID3D12Device_CreateDescriptorHeap(
             GetCaptureId(),
+            result,
+            pDescriptorHeapDesc,
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDescriptorHeap>::Dispatch(
+            manager,
+            object_,
             result,
             pDescriptorHeapDesc,
             riid,
@@ -8973,11 +12398,22 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDescriptorHandleIncrementSize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize>::Dispatch(
+            manager,
+            object_,
+            DescriptorHeapType);
+
         result = object_->GetDescriptorHandleIncrementSize(
             DescriptorHeapType);
 
         Encode_ID3D12Device_GetDescriptorHandleIncrementSize(
             GetCaptureId(),
+            result,
+            DescriptorHeapType);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize>::Dispatch(
+            manager,
+            object_,
             result,
             DescriptorHeapType);
     }
@@ -9006,6 +12442,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRootSignature>::Dispatch(
+            manager,
+            object_,
+            nodeMask,
+            pBlobWithRootSignature,
+            blobLengthInBytes,
+            riid,
+            ppvRootSignature);
+
         result = object_->CreateRootSignature(
             nodeMask,
             pBlobWithRootSignature,
@@ -9020,6 +12465,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
 
         Encode_ID3D12Device_CreateRootSignature(
             GetCaptureId(),
+            result,
+            nodeMask,
+            pBlobWithRootSignature,
+            blobLengthInBytes,
+            riid,
+            ppvRootSignature);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRootSignature>::Dispatch(
+            manager,
+            object_,
             result,
             nodeMask,
             pBlobWithRootSignature,
@@ -9051,12 +12506,24 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateConstantBufferView(
             pDesc,
             DestDescriptor);
 
         Encode_ID3D12Device_CreateConstantBufferView(
             GetCaptureId(),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateConstantBufferView>::Dispatch(
+            manager,
+            object_,
             pDesc,
             DestDescriptor);
     }
@@ -9080,6 +12547,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateShaderResourceView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
@@ -9088,6 +12562,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
         Encode_ID3D12Device_CreateShaderResourceView(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>::Dispatch(
+            manager,
+            object_,
+            pResource,
             pDesc,
             DestDescriptor);
     }
@@ -9113,6 +12594,14 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pCounterResource,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
@@ -9123,6 +12612,14 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pCounterResource,
             pDesc,
             DestDescriptor);
     }
@@ -9148,6 +12645,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateRenderTargetView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
@@ -9156,6 +12660,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
         Encode_ID3D12Device_CreateRenderTargetView(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>::Dispatch(
+            manager,
+            object_,
+            pResource,
             pDesc,
             DestDescriptor);
     }
@@ -9180,6 +12691,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthStencilView>::Dispatch(
+            manager,
+            object_,
+            pResource,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateDepthStencilView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
             pDesc,
@@ -9188,6 +12706,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
         Encode_ID3D12Device_CreateDepthStencilView(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthStencilView>::Dispatch(
+            manager,
+            object_,
+            pResource,
             pDesc,
             DestDescriptor);
     }
@@ -9211,12 +12736,24 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSampler>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            DestDescriptor);
+
         object_->CreateSampler(
             pDesc,
             DestDescriptor);
 
         Encode_ID3D12Device_CreateSampler(
             GetCaptureId(),
+            pDesc,
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSampler>::Dispatch(
+            manager,
+            object_,
             pDesc,
             DestDescriptor);
     }
@@ -9244,6 +12781,17 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>::Dispatch(
+            manager,
+            object_,
+            NumDestDescriptorRanges,
+            pDestDescriptorRangeStarts,
+            pDestDescriptorRangeSizes,
+            NumSrcDescriptorRanges,
+            pSrcDescriptorRangeStarts,
+            pSrcDescriptorRangeSizes,
+            DescriptorHeapsType);
+
         object_->CopyDescriptors(
             NumDestDescriptorRanges,
             pDestDescriptorRangeStarts,
@@ -9255,6 +12803,17 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
 
         Encode_ID3D12Device_CopyDescriptors(
             GetCaptureId(),
+            NumDestDescriptorRanges,
+            pDestDescriptorRangeStarts,
+            pDestDescriptorRangeSizes,
+            NumSrcDescriptorRanges,
+            pSrcDescriptorRangeStarts,
+            pSrcDescriptorRangeSizes,
+            DescriptorHeapsType);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>::Dispatch(
+            manager,
+            object_,
             NumDestDescriptorRanges,
             pDestDescriptorRangeStarts,
             pDestDescriptorRangeSizes,
@@ -9289,6 +12848,14 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple>::Dispatch(
+            manager,
+            object_,
+            NumDescriptors,
+            DestDescriptorRangeStart,
+            SrcDescriptorRangeStart,
+            DescriptorHeapsType);
+
         object_->CopyDescriptorsSimple(
             NumDescriptors,
             DestDescriptorRangeStart,
@@ -9297,6 +12864,14 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
 
         Encode_ID3D12Device_CopyDescriptorsSimple(
             GetCaptureId(),
+            NumDescriptors,
+            DestDescriptorRangeStart,
+            SrcDescriptorRangeStart,
+            DescriptorHeapsType);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple>::Dispatch(
+            manager,
+            object_,
             NumDescriptors,
             DestDescriptorRangeStart,
             SrcDescriptorRangeStart,
@@ -9326,6 +12901,13 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceAllocationInfo>::Dispatch(
+            manager,
+            object_,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs);
+
         result = object_->GetResourceAllocationInfo(
             visibleMask,
             numResourceDescs,
@@ -9333,6 +12915,14 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
 
         Encode_ID3D12Device_GetResourceAllocationInfo(
             GetCaptureId(),
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceAllocationInfo>::Dispatch(
+            manager,
+            object_,
             result,
             visibleMask,
             numResourceDescs,
@@ -9362,12 +12952,25 @@ D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCustomHeapPrope
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetCustomHeapProperties>::Dispatch(
+            manager,
+            object_,
+            nodeMask,
+            heapType);
+
         result = object_->GetCustomHeapProperties(
             nodeMask,
             heapType);
 
         Encode_ID3D12Device_GetCustomHeapProperties(
             GetCaptureId(),
+            result,
+            nodeMask,
+            heapType);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetCustomHeapProperties>::Dispatch(
+            manager,
+            object_,
             result,
             nodeMask,
             heapType);
@@ -9400,6 +13003,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource>::Dispatch(
+            manager,
+            object_,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            riidResource,
+            ppvResource);
+
         result = object_->CreateCommittedResource(
             pHeapProperties,
             HeapFlags,
@@ -9416,6 +13030,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
 
         Encode_ID3D12Device_CreateCommittedResource(
             GetCaptureId(),
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            riidResource,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource>::Dispatch(
+            manager,
+            object_,
             result,
             pHeapProperties,
             HeapFlags,
@@ -9454,6 +13080,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateHeap>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppvHeap);
+
         result = object_->CreateHeap(
             pDesc,
             riid,
@@ -9466,6 +13099,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
 
         Encode_ID3D12Device_CreateHeap(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateHeap>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -9500,6 +13141,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource>::Dispatch(
+            manager,
+            object_,
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
         result = object_->CreatePlacedResource(
             encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
             HeapOffset,
@@ -9518,6 +13170,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource>::Dispatch(
+            manager,
+            object_,
+            result,
+            pHeap,
             HeapOffset,
             pDesc,
             InitialState,
@@ -9556,6 +13220,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateReservedResource>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
         result = object_->CreateReservedResource(
             pDesc,
             InitialState,
@@ -9570,6 +13243,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
 
         Encode_ID3D12Device_CreateReservedResource(
             GetCaptureId(),
+            result,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateReservedResource>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             InitialState,
@@ -9606,6 +13289,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle>::Dispatch(
+            manager,
+            object_,
+            pObject,
+            pAttributes,
+            Access,
+            Name,
+            pHandle);
+
         result = object_->CreateSharedHandle(
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
             pAttributes,
@@ -9617,6 +13309,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
+            pAttributes,
+            Access,
+            Name,
+            pHandle);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle>::Dispatch(
+            manager,
+            object_,
+            result,
+            pObject,
             pAttributes,
             Access,
             Name,
@@ -9649,6 +13351,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle>::Dispatch(
+            manager,
+            object_,
+            NTHandle,
+            riid,
+            ppvObj);
+
         result = object_->OpenSharedHandle(
             NTHandle,
             riid,
@@ -9661,6 +13370,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
 
         Encode_ID3D12Device_OpenSharedHandle(
             GetCaptureId(),
+            result,
+            NTHandle,
+            riid,
+            ppvObj);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle>::Dispatch(
+            manager,
+            object_,
             result,
             NTHandle,
             riid,
@@ -9691,6 +13408,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName>::Dispatch(
+            manager,
+            object_,
+            Name,
+            Access,
+            pNTHandle);
+
         result = object_->OpenSharedHandleByName(
             Name,
             Access,
@@ -9698,6 +13422,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
 
         Encode_ID3D12Device_OpenSharedHandleByName(
             GetCaptureId(),
+            result,
+            Name,
+            Access,
+            pNTHandle);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName>::Dispatch(
+            manager,
+            object_,
             result,
             Name,
             Access,
@@ -9727,6 +13459,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_MakeResident>::Dispatch(
+            manager,
+            object_,
+            NumObjects,
+            ppObjects);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->MakeResident(
@@ -9738,6 +13476,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
             result,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_MakeResident>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumObjects,
+            ppObjects);
     }
     else
     {
@@ -9762,6 +13507,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_Evict>::Dispatch(
+            manager,
+            object_,
+            NumObjects,
+            ppObjects);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->Evict(
@@ -9773,6 +13524,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
             result,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_Evict>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumObjects,
+            ppObjects);
     }
     else
     {
@@ -9799,6 +13557,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateFence>::Dispatch(
+            manager,
+            object_,
+            InitialValue,
+            Flags,
+            riid,
+            ppFence);
+
         result = object_->CreateFence(
             InitialValue,
             Flags,
@@ -9812,6 +13578,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
 
         Encode_ID3D12Device_CreateFence(
             GetCaptureId(),
+            result,
+            InitialValue,
+            Flags,
+            riid,
+            ppFence);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateFence>::Dispatch(
+            manager,
+            object_,
             result,
             InitialValue,
             Flags,
@@ -9841,10 +13616,19 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDeviceRemovedReason()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetDeviceRemovedReason>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDeviceRemovedReason();
 
         Encode_ID3D12Device_GetDeviceRemovedReason(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetDeviceRemovedReason>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -9872,6 +13656,18 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetCopyableFootprints>::Dispatch(
+            manager,
+            object_,
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
         object_->GetCopyableFootprints(
             pResourceDesc,
             FirstSubresource,
@@ -9884,6 +13680,18 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
 
         Encode_ID3D12Device_GetCopyableFootprints(
             GetCaptureId(),
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetCopyableFootprints>::Dispatch(
+            manager,
+            object_,
             pResourceDesc,
             FirstSubresource,
             NumSubresources,
@@ -9921,6 +13729,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateQueryHeap>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppvHeap);
+
         result = object_->CreateQueryHeap(
             pDesc,
             riid,
@@ -9933,6 +13748,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
 
         Encode_ID3D12Device_CreateQueryHeap(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateQueryHeap>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -9961,11 +13784,22 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::SetStablePowerState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_SetStablePowerState>::Dispatch(
+            manager,
+            object_,
+            Enable);
+
         result = object_->SetStablePowerState(
             Enable);
 
         Encode_ID3D12Device_SetStablePowerState(
             GetCaptureId(),
+            result,
+            Enable);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_SetStablePowerState>::Dispatch(
+            manager,
+            object_,
             result,
             Enable);
     }
@@ -9993,6 +13827,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandSignature>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            pRootSignature,
+            riid,
+            ppvCommandSignature);
+
         result = object_->CreateCommandSignature(
             pDesc,
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature),
@@ -10009,6 +13851,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
             result,
             pDesc,
             encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature),
+            riid,
+            ppvCommandSignature);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandSignature>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDesc,
+            pRootSignature,
             riid,
             ppvCommandSignature);
     }
@@ -10040,6 +13891,17 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceTiling>::Dispatch(
+            manager,
+            object_,
+            pTiledResource,
+            pNumTilesForEntireResource,
+            pPackedMipDesc,
+            pStandardTileShapeForNonPackedMips,
+            pNumSubresourceTilings,
+            FirstSubresourceTilingToGet,
+            pSubresourceTilingsForNonPackedMips);
+
         object_->GetResourceTiling(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
             pNumTilesForEntireResource,
@@ -10052,6 +13914,17 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
         Encode_ID3D12Device_GetResourceTiling(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
+            pNumTilesForEntireResource,
+            pPackedMipDesc,
+            pStandardTileShapeForNonPackedMips,
+            pNumSubresourceTilings,
+            FirstSubresourceTilingToGet,
+            pSubresourceTilingsForNonPackedMips);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceTiling>::Dispatch(
+            manager,
+            object_,
+            pTiledResource,
             pNumTilesForEntireResource,
             pPackedMipDesc,
             pStandardTileShapeForNonPackedMips,
@@ -10083,10 +13956,19 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetAdapterLuid();
 
         Encode_ID3D12Device_GetAdapterLuid(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -10110,6 +13992,12 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline>::Dispatch(
+            manager,
+            object_,
+            pName,
+            pPipeline);
+
         result = object_->StorePipeline(
             pName,
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
@@ -10119,6 +14007,13 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
             result,
             pName,
             encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline>::Dispatch(
+            manager,
+            object_,
+            result,
+            pName,
+            pPipeline);
     }
     else
     {
@@ -10145,6 +14040,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadGraphicsPipeline>::Dispatch(
+            manager,
+            object_,
+            pName,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->LoadGraphicsPipeline(
@@ -10163,6 +14066,15 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
             result,
             pName,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadGraphicsPipeline>::Dispatch(
+            manager,
+            object_,
+            result,
+            pName,
+            pDesc,
             riid,
             ppPipelineState);
     }
@@ -10193,6 +14105,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadComputePipeline>::Dispatch(
+            manager,
+            object_,
+            pName,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->LoadComputePipeline(
@@ -10211,6 +14131,15 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
             result,
             pName,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_LoadComputePipeline>::Dispatch(
+            manager,
+            object_,
+            result,
+            pName,
+            pDesc,
             riid,
             ppPipelineState);
     }
@@ -10237,10 +14166,19 @@ SIZE_T STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::GetSerializedSize()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetSerializedSize();
 
         Encode_ID3D12PipelineLibrary_GetSerializedSize(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -10264,12 +14202,25 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::Serialize(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize>::Dispatch(
+            manager,
+            object_,
+            pData,
+            DataSizeInBytes);
+
         result = object_->Serialize(
             pData,
             DataSizeInBytes);
 
         Encode_ID3D12PipelineLibrary_Serialize(
             GetCaptureId(),
+            result,
+            pData,
+            DataSizeInBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize>::Dispatch(
+            manager,
+            object_,
             result,
             pData,
             DataSizeInBytes);
@@ -10299,6 +14250,14 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary1_LoadPipeline>::Dispatch(
+            manager,
+            object_,
+            pName,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         result = object_->LoadPipeline(
             pName,
             pDesc,
@@ -10312,6 +14271,15 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
 
         Encode_ID3D12PipelineLibrary1_LoadPipeline(
             GetCaptureId(),
+            result,
+            pName,
+            pDesc,
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary1_LoadPipeline>::Dispatch(
+            manager,
+            object_,
             result,
             pName,
             pDesc,
@@ -10345,6 +14313,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device1_CreatePipelineLibrary>::Dispatch(
+            manager,
+            object_,
+            pLibraryBlob,
+            BlobLength,
+            riid,
+            ppPipelineLibrary);
+
         result = object_->CreatePipelineLibrary(
             pLibraryBlob,
             BlobLength,
@@ -10358,6 +14334,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
 
         Encode_ID3D12Device1_CreatePipelineLibrary(
             GetCaptureId(),
+            result,
+            pLibraryBlob,
+            BlobLength,
+            riid,
+            ppPipelineLibrary);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device1_CreatePipelineLibrary>::Dispatch(
+            manager,
+            object_,
             result,
             pLibraryBlob,
             BlobLength,
@@ -10392,6 +14377,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion>::Dispatch(
+            manager,
+            object_,
+            ppFences,
+            pFenceValues,
+            NumFences,
+            Flags,
+            hEvent);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->SetEventOnMultipleFenceCompletion(
@@ -10405,6 +14399,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
             GetCaptureId(),
             result,
             UnwrapObjects<ID3D12Fence_Wrapper, ID3D12Fence>(ppFences, NumFences, unwrap_memory),
+            pFenceValues,
+            NumFences,
+            Flags,
+            hEvent);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion>::Dispatch(
+            manager,
+            object_,
+            result,
+            ppFences,
             pFenceValues,
             NumFences,
             Flags,
@@ -10437,6 +14441,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority>::Dispatch(
+            manager,
+            object_,
+            NumObjects,
+            ppObjects,
+            pPriorities);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->SetResidencyPriority(
@@ -10449,6 +14460,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
             result,
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
+            pPriorities);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority>::Dispatch(
+            manager,
+            object_,
+            result,
+            NumObjects,
+            ppObjects,
             pPriorities);
     }
     else
@@ -10476,6 +14495,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device2_CreatePipelineState>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppPipelineState);
+
         result = object_->CreatePipelineState(
             pDesc,
             riid,
@@ -10488,6 +14514,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
 
         Encode_ID3D12Device2_CreatePipelineState(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppPipelineState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device2_CreatePipelineState>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -10518,6 +14552,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress>::Dispatch(
+            manager,
+            object_,
+            pAddress,
+            riid,
+            ppvHeap);
+
         result = object_->OpenExistingHeapFromAddress(
             pAddress,
             riid,
@@ -10530,6 +14571,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
 
         Encode_ID3D12Device3_OpenExistingHeapFromAddress(
             GetCaptureId(),
+            result,
+            pAddress,
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress>::Dispatch(
+            manager,
+            object_,
             result,
             pAddress,
             riid,
@@ -10560,6 +14609,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping>::Dispatch(
+            manager,
+            object_,
+            hFileMapping,
+            riid,
+            ppvHeap);
+
         result = object_->OpenExistingHeapFromFileMapping(
             hFileMapping,
             riid,
@@ -10572,6 +14628,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
 
         Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
             GetCaptureId(),
+            result,
+            hFileMapping,
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping>::Dispatch(
+            manager,
+            object_,
             result,
             hFileMapping,
             riid,
@@ -10604,6 +14668,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device3_EnqueueMakeResident>::Dispatch(
+            manager,
+            object_,
+            Flags,
+            NumObjects,
+            ppObjects,
+            pFenceToSignal,
+            FenceValueToSignal);
+
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = object_->EnqueueMakeResident(
@@ -10620,6 +14693,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
             NumObjects,
             UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
             encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFenceToSignal),
+            FenceValueToSignal);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device3_EnqueueMakeResident>::Dispatch(
+            manager,
+            object_,
+            result,
+            Flags,
+            NumObjects,
+            ppObjects,
+            pFenceToSignal,
             FenceValueToSignal);
     }
     else
@@ -10648,6 +14731,12 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetStatusFence>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppFence);
+
         result = object_->GetStatusFence(
             riid,
             ppFence);
@@ -10659,6 +14748,13 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
 
         Encode_ID3D12ProtectedSession_GetStatusFence(
             GetCaptureId(),
+            result,
+            riid,
+            ppFence);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetStatusFence>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppFence);
@@ -10684,10 +14780,19 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetSessionStatus();
 
         Encode_ID3D12ProtectedSession_GetSessionStatus(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -10709,10 +14814,19 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceS
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc();
 
         Encode_ID3D12ProtectedResourceSession_GetDesc(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -10739,6 +14853,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommandList1>::Dispatch(
+            manager,
+            object_,
+            nodeMask,
+            type,
+            flags,
+            riid,
+            ppCommandList);
+
         result = object_->CreateCommandList1(
             nodeMask,
             type,
@@ -10753,6 +14876,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
 
         Encode_ID3D12Device4_CreateCommandList1(
             GetCaptureId(),
+            result,
+            nodeMask,
+            type,
+            flags,
+            riid,
+            ppCommandList);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommandList1>::Dispatch(
+            manager,
+            object_,
             result,
             nodeMask,
             type,
@@ -10787,6 +14920,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppSession);
+
         result = object_->CreateProtectedResourceSession(
             pDesc,
             riid,
@@ -10799,6 +14939,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
 
         Encode_ID3D12Device4_CreateProtectedResourceSession(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppSession);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -10834,6 +14982,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommittedResource1>::Dispatch(
+            manager,
+            object_,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            pProtectedSession,
+            riidResource,
+            ppvResource);
+
         result = object_->CreateCommittedResource1(
             pHeapProperties,
             HeapFlags,
@@ -10858,6 +15018,19 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
             InitialResourceState,
             pOptimizedClearValue,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riidResource,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateCommittedResource1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            pProtectedSession,
             riidResource,
             ppvResource);
     }
@@ -10892,6 +15065,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateHeap1>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            pProtectedSession,
+            riid,
+            ppvHeap);
+
         result = object_->CreateHeap1(
             pDesc,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
@@ -10908,6 +15089,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
             result,
             pDesc,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riid,
+            ppvHeap);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateHeap1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDesc,
+            pProtectedSession,
             riid,
             ppvHeap);
     }
@@ -10940,6 +15130,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateReservedResource1>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            pProtectedSession,
+            riid,
+            ppvResource);
+
         result = object_->CreateReservedResource1(
             pDesc,
             InitialState,
@@ -10960,6 +15160,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
             InitialState,
             pOptimizedClearValue,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riid,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateReservedResource1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            pProtectedSession,
             riid,
             ppvResource);
     }
@@ -10992,6 +15203,14 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device4_GetResourceAllocationInfo1>::Dispatch(
+            manager,
+            object_,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
+
         result = object_->GetResourceAllocationInfo1(
             visibleMask,
             numResourceDescs,
@@ -11000,6 +15219,15 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 
         Encode_ID3D12Device4_GetResourceAllocationInfo1(
             GetCaptureId(),
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device4_GetResourceAllocationInfo1>::Dispatch(
+            manager,
+            object_,
             result,
             visibleMask,
             numResourceDescs,
@@ -11028,11 +15256,21 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12LifetimeOwner_LifetimeStateUpdated>::Dispatch(
+            manager,
+            object_,
+            NewState);
+
         object_->LifetimeStateUpdated(
             NewState);
 
         Encode_ID3D12LifetimeOwner_LifetimeStateUpdated(
             GetCaptureId(),
+            NewState);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12LifetimeOwner_LifetimeStateUpdated>::Dispatch(
+            manager,
+            object_,
             NewState);
     }
     else
@@ -11053,10 +15291,19 @@ LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetLUID>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetLUID();
 
         Encode_ID3D12SwapChainAssistant_GetLUID(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetLUID>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -11080,6 +15327,12 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetSwapChainObject>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppv);
+
         result = object_->GetSwapChainObject(
             riid,
             ppv);
@@ -11091,6 +15344,13 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
 
         Encode_ID3D12SwapChainAssistant_GetSwapChainObject(
             GetCaptureId(),
+            result,
+            riid,
+            ppv);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetSwapChainObject>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppv);
@@ -11120,6 +15380,14 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue>::Dispatch(
+            manager,
+            object_,
+            riidResource,
+            ppvResource,
+            riidQueue,
+            ppvQueue);
+
         result = object_->GetCurrentResourceAndCommandQueue(
             riidResource,
             ppvResource,
@@ -11134,6 +15402,15 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
 
         Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
             GetCaptureId(),
+            result,
+            riidResource,
+            ppvResource,
+            riidQueue,
+            ppvQueue);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue>::Dispatch(
+            manager,
+            object_,
             result,
             riidResource,
             ppvResource,
@@ -11163,10 +15440,19 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_InsertImplicitSync>::Dispatch(
+            manager,
+            object_);
+
         result = object_->InsertImplicitSync();
 
         Encode_ID3D12SwapChainAssistant_InsertImplicitSync(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_InsertImplicitSync>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -11189,6 +15475,11 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12LifetimeTracker_DestroyOwnedObject>::Dispatch(
+            manager,
+            object_,
+            pObject);
+
         result = object_->DestroyOwnedObject(
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
 
@@ -11196,6 +15487,12 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12LifetimeTracker_DestroyOwnedObject>::Dispatch(
+            manager,
+            object_,
+            result,
+            pObject);
     }
     else
     {
@@ -11218,11 +15515,22 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier>::Dispatch(
+            manager,
+            object_,
+            pExportName);
+
         result = object_->GetShaderIdentifier(
             pExportName);
 
         Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
             GetCaptureId(),
+            result,
+            pExportName);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier>::Dispatch(
+            manager,
+            object_,
             result,
             pExportName);
     }
@@ -11247,11 +15555,22 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderStackSize
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderStackSize>::Dispatch(
+            manager,
+            object_,
+            pExportName);
+
         result = object_->GetShaderStackSize(
             pExportName);
 
         Encode_ID3D12StateObjectProperties_GetShaderStackSize(
             GetCaptureId(),
+            result,
+            pExportName);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderStackSize>::Dispatch(
+            manager,
+            object_,
             result,
             pExportName);
     }
@@ -11275,10 +15594,19 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetPipelineStackSize>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetPipelineStackSize();
 
         Encode_ID3D12StateObjectProperties_GetPipelineStackSize(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetPipelineStackSize>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -11299,11 +15627,21 @@ void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_SetPipelineStackSize>::Dispatch(
+            manager,
+            object_,
+            PipelineStackSizeInBytes);
+
         object_->SetPipelineStackSize(
             PipelineStackSizeInBytes);
 
         Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
             GetCaptureId(),
+            PipelineStackSizeInBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties_SetPipelineStackSize>::Dispatch(
+            manager,
+            object_,
             PipelineStackSizeInBytes);
     }
     else
@@ -11327,6 +15665,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateLifetimeTracker>::Dispatch(
+            manager,
+            object_,
+            pOwner,
+            riid,
+            ppvTracker);
+
         result = object_->CreateLifetimeTracker(
             encode::GetWrappedObject<ID3D12LifetimeOwner_Wrapper, ID3D12LifetimeOwner>(pOwner),
             riid,
@@ -11341,6 +15686,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12LifetimeOwner_Wrapper, ID3D12LifetimeOwner>(pOwner),
+            riid,
+            ppvTracker);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateLifetimeTracker>::Dispatch(
+            manager,
+            object_,
+            result,
+            pOwner,
             riid,
             ppvTracker);
     }
@@ -11364,10 +15717,18 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::RemoveDevice()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_RemoveDevice>::Dispatch(
+            manager,
+            object_);
+
         object_->RemoveDevice();
 
         Encode_ID3D12Device5_RemoveDevice(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_RemoveDevice>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -11388,12 +15749,25 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommands(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommands>::Dispatch(
+            manager,
+            object_,
+            pNumMetaCommands,
+            pDescs);
+
         result = object_->EnumerateMetaCommands(
             pNumMetaCommands,
             pDescs);
 
         Encode_ID3D12Device5_EnumerateMetaCommands(
             GetCaptureId(),
+            result,
+            pNumMetaCommands,
+            pDescs);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommands>::Dispatch(
+            manager,
+            object_,
             result,
             pNumMetaCommands,
             pDescs);
@@ -11424,6 +15798,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommandParameters>::Dispatch(
+            manager,
+            object_,
+            CommandId,
+            Stage,
+            pTotalStructureSizeInBytes,
+            pParameterCount,
+            pParameterDescs);
+
         result = object_->EnumerateMetaCommandParameters(
             CommandId,
             Stage,
@@ -11433,6 +15816,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
 
         Encode_ID3D12Device5_EnumerateMetaCommandParameters(
             GetCaptureId(),
+            result,
+            CommandId,
+            Stage,
+            pTotalStructureSizeInBytes,
+            pParameterCount,
+            pParameterDescs);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommandParameters>::Dispatch(
+            manager,
+            object_,
             result,
             CommandId,
             Stage,
@@ -11470,6 +15863,16 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateMetaCommand>::Dispatch(
+            manager,
+            object_,
+            CommandId,
+            NodeMask,
+            pCreationParametersData,
+            CreationParametersDataSizeInBytes,
+            riid,
+            ppMetaCommand);
+
         result = object_->CreateMetaCommand(
             CommandId,
             NodeMask,
@@ -11485,6 +15888,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
 
         Encode_ID3D12Device5_CreateMetaCommand(
             GetCaptureId(),
+            result,
+            CommandId,
+            NodeMask,
+            pCreationParametersData,
+            CreationParametersDataSizeInBytes,
+            riid,
+            ppMetaCommand);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateMetaCommand>::Dispatch(
+            manager,
+            object_,
             result,
             CommandId,
             NodeMask,
@@ -11521,6 +15935,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateStateObject>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppStateObject);
+
         result = object_->CreateStateObject(
             pDesc,
             riid,
@@ -11533,6 +15954,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
 
         Encode_ID3D12Device5_CreateStateObject(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppStateObject);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_CreateStateObject>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -11560,12 +15989,24 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            pInfo);
+
         object_->GetRaytracingAccelerationStructurePrebuildInfo(
             pDesc,
             pInfo);
 
         Encode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
             GetCaptureId(),
+            pDesc,
+            pInfo);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo>::Dispatch(
+            manager,
+            object_,
             pDesc,
             pInfo);
     }
@@ -11590,12 +16031,25 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device5_CheckDriverMatchingIdentifier>::Dispatch(
+            manager,
+            object_,
+            SerializedDataType,
+            pIdentifierToCheck);
+
         result = object_->CheckDriverMatchingIdentifier(
             SerializedDataType,
             pIdentifierToCheck);
 
         Encode_ID3D12Device5_CheckDriverMatchingIdentifier(
             GetCaptureId(),
+            result,
+            SerializedDataType,
+            pIdentifierToCheck);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device5_CheckDriverMatchingIdentifier>::Dispatch(
+            manager,
+            object_,
             result,
             SerializedDataType,
             pIdentifierToCheck);
@@ -11620,11 +16074,21 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoB
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement>::Dispatch(
+            manager,
+            object_,
+            Enablement);
+
         object_->SetAutoBreadcrumbsEnablement(
             Enablement);
 
         Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
             GetCaptureId(),
+            Enablement);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement>::Dispatch(
+            manager,
+            object_,
             Enablement);
     }
     else
@@ -11644,11 +16108,21 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageF
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement>::Dispatch(
+            manager,
+            object_,
+            Enablement);
+
         object_->SetPageFaultEnablement(
             Enablement);
 
         Encode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
             GetCaptureId(),
+            Enablement);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement>::Dispatch(
+            manager,
+            object_,
             Enablement);
     }
     else
@@ -11668,11 +16142,21 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetWatso
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement>::Dispatch(
+            manager,
+            object_,
+            Enablement);
+
         object_->SetWatsonDumpEnablement(
             Enablement);
 
         Encode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
             GetCaptureId(),
+            Enablement);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement>::Dispatch(
+            manager,
+            object_,
             Enablement);
     }
     else
@@ -11692,11 +16176,21 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement>::Dispatch(
+            manager,
+            object_,
+            Enablement);
+
         object_->SetBreadcrumbContextEnablement(
             Enablement);
 
         Encode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
             GetCaptureId(),
+            Enablement);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement>::Dispatch(
+            manager,
+            object_,
             Enablement);
     }
     else
@@ -11718,11 +16212,22 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadc
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput>::Dispatch(
+            manager,
+            object_,
+            pOutput);
+
         result = object_->GetAutoBreadcrumbsOutput(
             pOutput);
 
         Encode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
             GetCaptureId(),
+            result,
+            pOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput>::Dispatch(
+            manager,
+            object_,
             result,
             pOutput);
     }
@@ -11747,11 +16252,22 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetPageFaultA
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput>::Dispatch(
+            manager,
+            object_,
+            pOutput);
+
         result = object_->GetPageFaultAllocationOutput(
             pOutput);
 
         Encode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
             GetCaptureId(),
+            result,
+            pOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput>::Dispatch(
+            manager,
+            object_,
             result,
             pOutput);
     }
@@ -11776,11 +16292,22 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetAutoBread
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1>::Dispatch(
+            manager,
+            object_,
+            pOutput);
+
         result = object_->GetAutoBreadcrumbsOutput1(
             pOutput);
 
         Encode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
             GetCaptureId(),
+            result,
+            pOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1>::Dispatch(
+            manager,
+            object_,
             result,
             pOutput);
     }
@@ -11805,11 +16332,22 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1>::Dispatch(
+            manager,
+            object_,
+            pOutput);
+
         result = object_->GetPageFaultAllocationOutput1(
             pOutput);
 
         Encode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
             GetCaptureId(),
+            result,
+            pOutput);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1>::Dispatch(
+            manager,
+            object_,
             result,
             pOutput);
     }
@@ -11837,6 +16375,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode>::Dispatch(
+            manager,
+            object_,
+            Mode,
+            MeasurementsAction,
+            hEventToSignalUponCompletion,
+            pbFurtherMeasurementsDesired);
+
         result = object_->SetBackgroundProcessingMode(
             Mode,
             MeasurementsAction,
@@ -11845,6 +16391,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
 
         Encode_ID3D12Device6_SetBackgroundProcessingMode(
             GetCaptureId(),
+            result,
+            Mode,
+            MeasurementsAction,
+            hEventToSignalUponCompletion,
+            pbFurtherMeasurementsDesired);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode>::Dispatch(
+            manager,
+            object_,
             result,
             Mode,
             MeasurementsAction,
@@ -11874,10 +16429,19 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResource
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession1_GetDesc1>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc1();
 
         Encode_ID3D12ProtectedResourceSession1_GetDesc1(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession1_GetDesc1>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -11903,6 +16467,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device7_AddToStateObject>::Dispatch(
+            manager,
+            object_,
+            pAddition,
+            pStateObjectToGrowFrom,
+            riid,
+            ppNewStateObject);
+
         result = object_->AddToStateObject(
             pAddition,
             encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObjectToGrowFrom),
@@ -11919,6 +16491,15 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
             result,
             pAddition,
             encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObjectToGrowFrom),
+            riid,
+            ppNewStateObject);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device7_AddToStateObject>::Dispatch(
+            manager,
+            object_,
+            result,
+            pAddition,
+            pStateObjectToGrowFrom,
             riid,
             ppNewStateObject);
     }
@@ -11948,6 +16529,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device7_CreateProtectedResourceSession1>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            riid,
+            ppSession);
+
         result = object_->CreateProtectedResourceSession1(
             pDesc,
             riid,
@@ -11960,6 +16548,14 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
 
         Encode_ID3D12Device7_CreateProtectedResourceSession1(
             GetCaptureId(),
+            result,
+            pDesc,
+            riid,
+            ppSession);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device7_CreateProtectedResourceSession1>::Dispatch(
+            manager,
+            object_,
             result,
             pDesc,
             riid,
@@ -11991,6 +16587,14 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device8_GetResourceAllocationInfo2>::Dispatch(
+            manager,
+            object_,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
+
         result = object_->GetResourceAllocationInfo2(
             visibleMask,
             numResourceDescs,
@@ -11999,6 +16603,15 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
 
         Encode_ID3D12Device8_GetResourceAllocationInfo2(
             GetCaptureId(),
+            result,
+            visibleMask,
+            numResourceDescs,
+            pResourceDescs,
+            pResourceAllocationInfo1);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device8_GetResourceAllocationInfo2>::Dispatch(
+            manager,
+            object_,
             result,
             visibleMask,
             numResourceDescs,
@@ -12036,6 +16649,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateCommittedResource2>::Dispatch(
+            manager,
+            object_,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            pProtectedSession,
+            riidResource,
+            ppvResource);
+
         result = object_->CreateCommittedResource2(
             pHeapProperties,
             HeapFlags,
@@ -12060,6 +16685,19 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
             InitialResourceState,
             pOptimizedClearValue,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            riidResource,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateCommittedResource2>::Dispatch(
+            manager,
+            object_,
+            result,
+            pHeapProperties,
+            HeapFlags,
+            pDesc,
+            InitialResourceState,
+            pOptimizedClearValue,
+            pProtectedSession,
             riidResource,
             ppvResource);
     }
@@ -12097,6 +16735,17 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1>::Dispatch(
+            manager,
+            object_,
+            pHeap,
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
         result = object_->CreatePlacedResource1(
             encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
             HeapOffset,
@@ -12115,6 +16764,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
             GetCaptureId(),
             result,
             encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            HeapOffset,
+            pDesc,
+            InitialState,
+            pOptimizedClearValue,
+            riid,
+            ppvResource);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1>::Dispatch(
+            manager,
+            object_,
+            result,
+            pHeap,
             HeapOffset,
             pDesc,
             InitialState,
@@ -12149,6 +16810,13 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            pTargetedResource,
+            pFeedbackResource,
+            DestDescriptor);
+
         object_->CreateSamplerFeedbackUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
@@ -12158,6 +16826,13 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
+            DestDescriptor);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView>::Dispatch(
+            manager,
+            object_,
+            pTargetedResource,
+            pFeedbackResource,
             DestDescriptor);
     }
     else
@@ -12186,6 +16861,18 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Device8_GetCopyableFootprints1>::Dispatch(
+            manager,
+            object_,
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
         object_->GetCopyableFootprints1(
             pResourceDesc,
             FirstSubresource,
@@ -12198,6 +16885,18 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
 
         Encode_ID3D12Device8_GetCopyableFootprints1(
             GetCaptureId(),
+            pResourceDesc,
+            FirstSubresource,
+            NumSubresources,
+            BaseOffset,
+            pLayouts,
+            pNumRows,
+            pRowSizeInBytes,
+            pTotalBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Device8_GetCopyableFootprints1>::Dispatch(
+            manager,
+            object_,
             pResourceDesc,
             FirstSubresource,
             NumSubresources,
@@ -12234,6 +16933,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource1_GetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppProtectedSession);
+
         result = object_->GetProtectedResourceSession(
             riid,
             ppProtectedSession);
@@ -12245,6 +16950,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
 
         Encode_ID3D12Resource1_GetProtectedResourceSession(
             GetCaptureId(),
+            result,
+            riid,
+            ppProtectedSession);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource1_GetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppProtectedSession);
@@ -12270,10 +16982,19 @@ D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_Wrapper::GetDesc1()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Resource2_GetDesc1>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetDesc1();
 
         Encode_ID3D12Resource2_GetDesc1(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Resource2_GetDesc1>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -12297,6 +17018,12 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Heap1_GetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
+            riid,
+            ppProtectedSession);
+
         result = object_->GetProtectedResourceSession(
             riid,
             ppProtectedSession);
@@ -12308,6 +17035,13 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
 
         Encode_ID3D12Heap1_GetProtectedResourceSession(
             GetCaptureId(),
+            result,
+            riid,
+            ppProtectedSession);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Heap1_GetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
             result,
             riid,
             ppProtectedSession);
@@ -12332,12 +17066,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
+            pProtectedResourceSession);
+
         object_->SetProtectedResourceSession(
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
 
         Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
+            manager,
+            object_,
+            pProtectedResourceSession);
     }
     else
     {
@@ -12359,12 +17103,25 @@ UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResource
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12MetaCommand_GetRequiredParameterResourceSize>::Dispatch(
+            manager,
+            object_,
+            Stage,
+            ParameterIndex);
+
         result = object_->GetRequiredParameterResourceSize(
             Stage,
             ParameterIndex);
 
         Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
             GetCaptureId(),
+            result,
+            Stage,
+            ParameterIndex);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12MetaCommand_GetRequiredParameterResourceSize>::Dispatch(
+            manager,
+            object_,
             result,
             Stage,
             ParameterIndex);
@@ -12392,6 +17149,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass>::Dispatch(
+            manager,
+            object_,
+            NumRenderTargets,
+            pRenderTargets,
+            pDepthStencil,
+            Flags);
+
         object_->BeginRenderPass(
             NumRenderTargets,
             pRenderTargets,
@@ -12400,6 +17165,14 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
 
         Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
             GetCaptureId(),
+            NumRenderTargets,
+            pRenderTargets,
+            pDepthStencil,
+            Flags);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass>::Dispatch(
+            manager,
+            object_,
             NumRenderTargets,
             pRenderTargets,
             pDepthStencil,
@@ -12424,10 +17197,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass>::Dispatch(
+            manager,
+            object_);
+
         object_->EndRenderPass();
 
         Encode_ID3D12GraphicsCommandList4_EndRenderPass(
             GetCaptureId());
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass>::Dispatch(
+            manager,
+            object_);
     }
     else
     {
@@ -12447,6 +17228,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
+            manager,
+            object_,
+            pMetaCommand,
+            pInitializationParametersData,
+            InitializationParametersDataSizeInBytes);
+
         object_->InitializeMetaCommand(
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
             pInitializationParametersData,
@@ -12455,6 +17243,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
         Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pInitializationParametersData,
+            InitializationParametersDataSizeInBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
+            manager,
+            object_,
+            pMetaCommand,
             pInitializationParametersData,
             InitializationParametersDataSizeInBytes);
     }
@@ -12479,6 +17274,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
+            manager,
+            object_,
+            pMetaCommand,
+            pExecutionParametersData,
+            ExecutionParametersDataSizeInBytes);
+
         object_->ExecuteMetaCommand(
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
             pExecutionParametersData,
@@ -12487,6 +17289,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
         Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pExecutionParametersData,
+            ExecutionParametersDataSizeInBytes);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
+            manager,
+            object_,
+            pMetaCommand,
             pExecutionParametersData,
             ExecutionParametersDataSizeInBytes);
     }
@@ -12511,6 +17320,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            NumPostbuildInfoDescs,
+            pPostbuildInfoDescs);
+
         object_->BuildRaytracingAccelerationStructure(
             pDesc,
             NumPostbuildInfoDescs,
@@ -12518,6 +17334,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
 
         Encode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
             GetCaptureId(),
+            pDesc,
+            NumPostbuildInfoDescs,
+            pPostbuildInfoDescs);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure>::Dispatch(
+            manager,
+            object_,
             pDesc,
             NumPostbuildInfoDescs,
             pPostbuildInfoDescs);
@@ -12543,6 +17366,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
+            manager,
+            object_,
+            pDesc,
+            NumSourceAccelerationStructures,
+            pSourceAccelerationStructureData);
+
         object_->EmitRaytracingAccelerationStructurePostbuildInfo(
             pDesc,
             NumSourceAccelerationStructures,
@@ -12550,6 +17380,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
 
         Encode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
             GetCaptureId(),
+            pDesc,
+            NumSourceAccelerationStructures,
+            pSourceAccelerationStructureData);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
+            manager,
+            object_,
             pDesc,
             NumSourceAccelerationStructures,
             pSourceAccelerationStructureData);
@@ -12575,6 +17412,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
+            manager,
+            object_,
+            DestAccelerationStructureData,
+            SourceAccelerationStructureData,
+            Mode);
+
         object_->CopyRaytracingAccelerationStructure(
             DestAccelerationStructureData,
             SourceAccelerationStructureData,
@@ -12582,6 +17426,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 
         Encode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
             GetCaptureId(),
+            DestAccelerationStructureData,
+            SourceAccelerationStructureData,
+            Mode);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
+            manager,
+            object_,
             DestAccelerationStructureData,
             SourceAccelerationStructureData,
             Mode);
@@ -12605,12 +17456,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1>::Dispatch(
+            manager,
+            object_,
+            pStateObject);
+
         object_->SetPipelineState1(
             encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
 
         Encode_ID3D12GraphicsCommandList4_SetPipelineState1(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1>::Dispatch(
+            manager,
+            object_,
+            pStateObject);
     }
     else
     {
@@ -12629,11 +17490,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays>::Dispatch(
+            manager,
+            object_,
+            pDesc);
+
         object_->DispatchRays(
             pDesc);
 
         Encode_ID3D12GraphicsCommandList4_DispatchRays(
             GetCaptureId(),
+            pDesc);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_DispatchRays>::Dispatch(
+            manager,
+            object_,
             pDesc);
     }
     else
@@ -12653,11 +17524,21 @@ void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Tools_EnableShaderInstrumentation>::Dispatch(
+            manager,
+            object_,
+            bEnable);
+
         object_->EnableShaderInstrumentation(
             bEnable);
 
         Encode_ID3D12Tools_EnableShaderInstrumentation(
             GetCaptureId(),
+            bEnable);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Tools_EnableShaderInstrumentation>::Dispatch(
+            manager,
+            object_,
             bEnable);
     }
     else
@@ -12678,10 +17559,19 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled>::Dispatch(
+            manager,
+            object_);
+
         result = object_->ShaderInstrumentationEnabled();
 
         Encode_ID3D12Tools_ShaderInstrumentationEnabled(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -12703,12 +17593,24 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate>::Dispatch(
+            manager,
+            object_,
+            baseShadingRate,
+            combiners);
+
         object_->RSSetShadingRate(
             baseShadingRate,
             combiners);
 
         Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
             GetCaptureId(),
+            baseShadingRate,
+            combiners);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate>::Dispatch(
+            manager,
+            object_,
             baseShadingRate,
             combiners);
     }
@@ -12730,12 +17632,22 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
+            manager,
+            object_,
+            shadingRateImage);
+
         object_->RSSetShadingRateImage(
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
 
         Encode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
             GetCaptureId(),
             encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
+            manager,
+            object_,
+            shadingRateImage);
     }
     else
     {
@@ -12756,6 +17668,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh>::Dispatch(
+            manager,
+            object_,
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
+
         object_->DispatchMesh(
             ThreadGroupCountX,
             ThreadGroupCountY,
@@ -12763,6 +17682,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
         Encode_ID3D12GraphicsCommandList6_DispatchMesh(
             GetCaptureId(),
+            ThreadGroupCountX,
+            ThreadGroupCountY,
+            ThreadGroupCountZ);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh>::Dispatch(
+            manager,
+            object_,
             ThreadGroupCountX,
             ThreadGroupCountY,
             ThreadGroupCountZ);
@@ -12793,10 +17719,19 @@ LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetBufferPointer();
 
         Encode_ID3D10Blob_GetBufferPointer(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -12818,10 +17753,19 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize>::Dispatch(
+            manager,
+            object_);
+
         result = object_->GetBufferSize();
 
         Encode_ID3D10Blob_GetBufferSize(
             GetCaptureId(),
+            result);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize>::Dispatch(
+            manager,
+            object_,
             result);
     }
     else
@@ -12846,6 +17790,13 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback>::Dispatch(
+            manager,
+            object_,
+            callbackFn,
+            pData,
+            pCallbackID);
+
         result = object_->RegisterDestructionCallback(
             callbackFn,
             pData,
@@ -12853,6 +17804,14 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
 
         Encode_ID3DDestructionNotifier_RegisterDestructionCallback(
             GetCaptureId(),
+            result,
+            callbackFn,
+            pData,
+            pCallbackID);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback>::Dispatch(
+            manager,
+            object_,
             result,
             callbackFn,
             pData,
@@ -12881,11 +17840,22 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 
     if (call_scope == 1)
     {
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_UnregisterDestructionCallback>::Dispatch(
+            manager,
+            object_,
+            callbackID);
+
         result = object_->UnregisterDestructionCallback(
             callbackID);
 
         Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
             GetCaptureId(),
+            result,
+            callbackID);
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_UnregisterDestructionCallback>::Dispatch(
+            manager,
+            object_,
             result,
             callbackID);
     }
