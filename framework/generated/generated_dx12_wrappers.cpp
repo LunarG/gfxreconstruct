@@ -28,7 +28,7 @@
 #include "generated/generated_dx12_wrappers.h"
 
 #include "encode/custom_dx12_struct_unwrappers.h"
-#include "encode/custom_encoder_commands.h"
+#include "encode/custom_dx12_encoder_commands.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"

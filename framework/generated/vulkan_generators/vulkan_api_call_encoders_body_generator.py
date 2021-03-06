@@ -87,7 +87,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write('#include "encode/custom_encoder_commands.h"', file=self.outFile)
+        write('#include "encode/custom_vulkan_encoder_commands.h"', file=self.outFile)
         write(
             '#include "encode/custom_vulkan_array_size_2d.h"',
             file=self.outFile

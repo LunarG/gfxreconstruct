@@ -685,7 +685,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
         code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'
-        code += '#include "encode/custom_encoder_commands.h"\n'
+        code += '#include "encode/custom_dx12_encoder_commands.h"\n'
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'

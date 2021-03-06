@@ -28,7 +28,7 @@
 
 #include "generated/generated_vulkan_api_call_encoders.h"
 
-#include "encode/custom_encoder_commands.h"
+#include "encode/custom_vulkan_encoder_commands.h"
 #include "encode/custom_vulkan_array_size_2d.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"

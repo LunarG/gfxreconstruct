@@ -48,7 +48,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             "#include \"generated/generated_dx12_api_call_encoders.h\"\n"
             "#include \"encode/custom_dx12_struct_encoders.h\"\n"
             "\n"
-            "#include \"encode/custom_encoder_commands.h\"\n"
             "#include \"encode/parameter_encoder.h\"\n"
             "#include \"encode/struct_pointer_encoder.h\"\n"
             "#include \"encode/trace_manager.h\"\n"

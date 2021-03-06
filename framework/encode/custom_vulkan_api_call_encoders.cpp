@@ -23,7 +23,7 @@
 
 #include "encode/custom_vulkan_api_call_encoders.h"
 
-#include "encode/custom_encoder_commands.h"
+#include "encode/custom_vulkan_encoder_commands.h"
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/descriptor_update_template_info.h"

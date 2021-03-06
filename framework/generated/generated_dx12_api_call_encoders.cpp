@@ -28,7 +28,6 @@
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "encode/custom_dx12_struct_encoders.h"
 
-#include "encode/custom_encoder_commands.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/trace_manager.h"

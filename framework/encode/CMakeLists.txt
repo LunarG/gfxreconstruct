@@ -32,12 +32,13 @@ target_sources(gfxrecon_encode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/custom_encoder_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_array_size_2d.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_encoder_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_encoders.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_encoder_commands.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_encoders.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.h>
@@ -110,4 +111,3 @@ if (${RUN_TESTS})
     common_build_directives(gfxrecon_encode_test)
     common_test_directives(gfxrecon_encode_test)
 endif()
-

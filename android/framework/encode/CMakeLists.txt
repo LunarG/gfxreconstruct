@@ -4,10 +4,10 @@ target_sources(gfxrecon_encode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_array_size_2d.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_encoder_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.h
