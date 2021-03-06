@@ -28,6 +28,7 @@
 #ifndef  GFXRECON_GENERATED_DX12_WRAPPERS_H
 #define  GFXRECON_GENERATED_DX12_WRAPPERS_H
 
+#include "encode/dx12_object_wrapper_info.h"
 #include "encode/iunknown_wrapper.h"
 #include "util/defines.h"
 
@@ -151,6 +152,10 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
         return wrapper;
     }
 
+    const IDXGIResourceInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIResourceInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIResource** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetSharedHandle(
@@ -174,6 +179,7 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIResource* object_;
+    IDXGIResourceInfo info_;
 };
 
 class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -209,6 +215,10 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
         return wrapper;
     }
 
+    const IDXGIKeyedMutexInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIKeyedMutexInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIKeyedMutex** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE AcquireSync(
@@ -227,6 +237,7 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIKeyedMutex* object_;
+    IDXGIKeyedMutexInfo info_;
 };
 
 class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -262,6 +273,10 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
         return wrapper;
     }
 
+    const IDXGISurfaceInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGISurfaceInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGISurface** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
@@ -282,6 +297,7 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGISurface* object_;
+    IDXGISurfaceInfo info_;
 };
 
 class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
@@ -339,6 +355,10 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
         return wrapper;
     }
 
+    const IDXGIAdapterInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIAdapterInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIAdapter** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE EnumOutputs(
@@ -361,6 +381,7 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIAdapter* object_;
+    IDXGIAdapterInfo info_;
 };
 
 class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
@@ -395,6 +416,10 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
 
         return wrapper;
     }
+
+    const IDXGIOutputInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIOutputInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(IDXGIOutput** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -447,6 +472,7 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIOutput* object_;
+    IDXGIOutputInfo info_;
 };
 
 class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -481,6 +507,10 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
 
         return wrapper;
     }
+
+    const IDXGISwapChainInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGISwapChainInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(IDXGISwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -532,6 +562,7 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGISwapChain* object_;
+    IDXGISwapChainInfo info_;
 };
 
 class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
@@ -567,6 +598,10 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
         return wrapper;
     }
 
+    const IDXGIFactoryInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIFactoryInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIFactory** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapters(
@@ -598,6 +633,7 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIFactory* object_;
+    IDXGIFactoryInfo info_;
 };
 
 class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
@@ -633,6 +669,10 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
         return wrapper;
     }
 
+    const IDXGIDeviceInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIDeviceInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIDevice** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetAdapter(
@@ -665,6 +705,7 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIDevice* object_;
+    IDXGIDeviceInfo info_;
 };
 
 class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
@@ -766,6 +807,10 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const IDXGIDisplayControlInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIDisplayControlInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIDisplayControl** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual BOOL STDMETHODCALLTYPE IsStereoEnabled();
@@ -782,6 +827,7 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIDisplayControl* object_;
+    IDXGIDisplayControlInfo info_;
 };
 
 class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
@@ -816,6 +862,10 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
 
         return wrapper;
     }
+
+    const IDXGIOutputDuplicationInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIOutputDuplicationInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(IDXGIOutputDuplication** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -859,6 +909,7 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIOutputDuplication* object_;
+    IDXGIOutputDuplicationInfo info_;
 };
 
 class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
@@ -1238,6 +1289,10 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const IDXGIDecodeSwapChainInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIDecodeSwapChainInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIDecodeSwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE PresentBuffer(
@@ -1279,6 +1334,7 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIDecodeSwapChain* object_;
+    IDXGIDecodeSwapChainInfo info_;
 };
 
 class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
@@ -1314,6 +1370,10 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const IDXGIFactoryMediaInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGIFactoryMediaInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGIFactoryMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCompositionSurfaceHandle(
@@ -1340,6 +1400,7 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGIFactoryMedia* object_;
+    IDXGIFactoryMediaInfo info_;
 };
 
 class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
@@ -1375,6 +1436,10 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const IDXGISwapChainMediaInfo* GetObjectInfo() const { return &info_; }
+
+    IDXGISwapChainMediaInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(IDXGISwapChainMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetFrameStatisticsMedia(
@@ -1397,6 +1462,7 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     IDXGISwapChainMedia* object_;
+    IDXGISwapChainMediaInfo info_;
 };
 
 class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
@@ -1873,6 +1939,10 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
         return wrapper;
     }
 
+    const ID3D12RootSignatureInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12RootSignatureInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12RootSignature** object) const { if (object != nullptr) { (*object) = object_; } }
 
   private:
@@ -1884,6 +1954,7 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12RootSignature* object_;
+    ID3D12RootSignatureInfo info_;
 };
 
 class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
@@ -1919,6 +1990,10 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12RootSignatureDeserializerInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12RootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12RootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE GetRootSignatureDesc();
@@ -1932,6 +2007,7 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12RootSignatureDeserializer* object_;
+    ID3D12RootSignatureDeserializerInfo info_;
 };
 
 class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
@@ -1967,6 +2043,10 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12VersionedRootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetRootSignatureDescAtVersion(
@@ -1984,6 +2064,7 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12VersionedRootSignatureDeserializer* object_;
+    ID3D12VersionedRootSignatureDeserializerInfo info_;
 };
 
 class ID3D12Pageable_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -2034,6 +2115,10 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12HeapInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12HeapInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12Heap** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual D3D12_HEAP_DESC STDMETHODCALLTYPE GetDesc();
@@ -2047,6 +2132,7 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Heap* object_;
+    ID3D12HeapInfo info_;
 };
 
 class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
@@ -2081,6 +2167,10 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
 
         return wrapper;
     }
+
+    const ID3D12ResourceInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12ResourceInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(ID3D12Resource** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2124,6 +2214,7 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Resource* object_;
+    ID3D12ResourceInfo info_;
 };
 
 class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
@@ -2159,6 +2250,10 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12CommandAllocatorInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12CommandAllocatorInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12CommandAllocator** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE Reset();
@@ -2172,6 +2267,7 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12CommandAllocator* object_;
+    ID3D12CommandAllocatorInfo info_;
 };
 
 class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
@@ -2207,6 +2303,10 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12FenceInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12FenceInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12Fence** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual UINT64 STDMETHODCALLTYPE GetCompletedValue();
@@ -2227,6 +2327,7 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Fence* object_;
+    ID3D12FenceInfo info_;
 };
 
 class ID3D12Fence1_Wrapper : public ID3D12Fence_Wrapper
@@ -2279,6 +2380,10 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12PipelineStateInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12PipelineStateInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12PipelineState** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetCachedBlob(
@@ -2293,6 +2398,7 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12PipelineState* object_;
+    ID3D12PipelineStateInfo info_;
 };
 
 class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
@@ -2328,6 +2434,10 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12DescriptorHeapInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DescriptorHeapInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12DescriptorHeap** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE GetDesc();
@@ -2345,6 +2455,7 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12DescriptorHeap* object_;
+    ID3D12DescriptorHeapInfo info_;
 };
 
 class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
@@ -2380,6 +2491,10 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12QueryHeapInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12QueryHeapInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12QueryHeap** object) const { if (object != nullptr) { (*object) = object_; } }
 
   private:
@@ -2391,6 +2506,7 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12QueryHeap* object_;
+    ID3D12QueryHeapInfo info_;
 };
 
 class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
@@ -2426,6 +2542,10 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12CommandSignatureInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12CommandSignatureInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12CommandSignature** object) const { if (object != nullptr) { (*object) = object_; } }
 
   private:
@@ -2437,6 +2557,7 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12CommandSignature* object_;
+    ID3D12CommandSignatureInfo info_;
 };
 
 class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -2488,6 +2609,10 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 
         return wrapper;
     }
+
+    const ID3D12GraphicsCommandListInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12GraphicsCommandListInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(ID3D12GraphicsCommandList** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -2748,6 +2873,7 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12GraphicsCommandList* object_;
+    ID3D12GraphicsCommandListInfo info_;
 };
 
 class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrapper
@@ -2859,6 +2985,10 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12CommandQueueInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12CommandQueueInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12CommandQueue** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE UpdateTileMappings(
@@ -2923,6 +3053,7 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12CommandQueue* object_;
+    ID3D12CommandQueueInfo info_;
 };
 
 class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
@@ -2957,6 +3088,10 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
 
         return wrapper;
     }
+
+    const ID3D12DeviceInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DeviceInfo* GetObjectInfo() { return &info_; }
 
     void GetWrappedObject(ID3D12Device** object) const { if (object != nullptr) { (*object) = object_; } }
 
@@ -3170,6 +3305,7 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Device* object_;
+    ID3D12DeviceInfo info_;
 };
 
 class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -3205,6 +3341,10 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
         return wrapper;
     }
 
+    const ID3D12PipelineLibraryInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12PipelineLibraryInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12PipelineLibrary** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE StorePipeline(
@@ -3238,6 +3378,7 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12PipelineLibrary* object_;
+    ID3D12PipelineLibraryInfo info_;
 };
 
 class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
@@ -3400,6 +3541,10 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
         return wrapper;
     }
 
+    const ID3D12ProtectedResourceSessionInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12ProtectedResourceSessionInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12ProtectedResourceSession** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE GetDesc();
@@ -3413,6 +3558,7 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12ProtectedResourceSession* object_;
+    ID3D12ProtectedResourceSessionInfo info_;
 };
 
 class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
@@ -3505,6 +3651,10 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12LifetimeOwnerInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12LifetimeOwnerInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12LifetimeOwner** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE LifetimeStateUpdated(
@@ -3519,6 +3669,7 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12LifetimeOwner* object_;
+    ID3D12LifetimeOwnerInfo info_;
 };
 
 class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
@@ -3554,6 +3705,10 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12SwapChainAssistantInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12SwapChainAssistantInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12SwapChainAssistant** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual LUID STDMETHODCALLTYPE GetLUID();
@@ -3579,6 +3734,7 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12SwapChainAssistant* object_;
+    ID3D12SwapChainAssistantInfo info_;
 };
 
 class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -3614,6 +3770,10 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
         return wrapper;
     }
 
+    const ID3D12LifetimeTrackerInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12LifetimeTrackerInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12LifetimeTracker** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE DestroyOwnedObject(
@@ -3628,6 +3788,7 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12LifetimeTracker* object_;
+    ID3D12LifetimeTrackerInfo info_;
 };
 
 class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
@@ -3663,6 +3824,10 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12StateObjectInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12StateObjectInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12StateObject** object) const { if (object != nullptr) { (*object) = object_; } }
 
   private:
@@ -3674,6 +3839,7 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12StateObject* object_;
+    ID3D12StateObjectInfo info_;
 };
 
 class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
@@ -3709,6 +3875,10 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12StateObjectPropertiesInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12StateObjectPropertiesInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12StateObjectProperties** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void* STDMETHODCALLTYPE GetShaderIdentifier(
@@ -3731,6 +3901,7 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12StateObjectProperties* object_;
+    ID3D12StateObjectPropertiesInfo info_;
 };
 
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
@@ -3820,6 +3991,10 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12DeviceRemovedExtendedDataSettings** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE SetAutoBreadcrumbsEnablement(
@@ -3840,6 +4015,7 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12DeviceRemovedExtendedDataSettings* object_;
+    ID3D12DeviceRemovedExtendedDataSettingsInfo info_;
 };
 
 class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemovedExtendedDataSettings_Wrapper
@@ -3893,6 +4069,10 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12DeviceRemovedExtendedData** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetAutoBreadcrumbsOutput(
@@ -3910,6 +4090,7 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12DeviceRemovedExtendedData* object_;
+    ID3D12DeviceRemovedExtendedDataInfo info_;
 };
 
 class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExtendedData_Wrapper
@@ -4158,6 +4339,10 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
         return wrapper;
     }
 
+    const ID3D12MetaCommandInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12MetaCommandInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12MetaCommand** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual UINT64 STDMETHODCALLTYPE GetRequiredParameterResourceSize(
@@ -4173,6 +4358,7 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12MetaCommand* object_;
+    ID3D12MetaCommandInfo info_;
 };
 
 class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wrapper
@@ -4262,6 +4448,10 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D12ToolsInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12ToolsInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D12Tools** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE EnableShaderInstrumentation(
@@ -4278,6 +4468,7 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Tools* object_;
+    ID3D12ToolsInfo info_;
 };
 
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
@@ -4361,6 +4552,10 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3D10BlobInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D10BlobInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3D10Blob** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual LPVOID STDMETHODCALLTYPE GetBufferPointer();
@@ -4376,6 +4571,7 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3D10Blob* object_;
+    ID3D10BlobInfo info_;
 };
 
 class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
@@ -4411,6 +4607,10 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
         return wrapper;
     }
 
+    const ID3DDestructionNotifierInfo* GetObjectInfo() const { return &info_; }
+
+    ID3DDestructionNotifierInfo* GetObjectInfo() { return &info_; }
+
     void GetWrappedObject(ID3DDestructionNotifier** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE RegisterDestructionCallback(
@@ -4430,6 +4630,7 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
     // Store a raw pointer to the wrapped object.
     // Only the IUnkown base class maintains a reference to the object.
     ID3DDestructionNotifier* object_;
+    ID3DDestructionNotifierInfo info_;
 };
 
 

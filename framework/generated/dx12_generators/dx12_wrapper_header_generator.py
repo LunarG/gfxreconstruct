@@ -149,6 +149,7 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = ''
+        code += '#include "encode/dx12_object_wrapper_info.h\"\n'
         code += '#include "encode/iunknown_wrapper.h\"\n'
         code += '#include "util/defines.h"\n'
         code += '\n'
@@ -262,6 +263,18 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
 
+            # Object info "getters"
+            expr += '\n'
+            expr += indent + 'const {}Info* GetObjectInfo() const'.format(
+                name
+            )
+            expr += ' { return &info_; }\n'
+            expr += '\n'
+            expr += indent + '{}Info* GetObjectInfo()'.format(
+                name
+            )
+            expr += ' { return &info_; }\n'
+
         # Object "getter"
         expr += '\n'
         expr += indent + 'void GetWrappedObject({}** object) const'.format(
@@ -299,6 +312,8 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         expr += indent + '// Store a raw pointer to the wrapped object.\n'
         expr += indent + '// Only the IUnkown base class maintains a reference to the object.\n'
         expr += indent + '{}* object_;\n'.format(name)
+        if is_map_class:
+            expr += indent + '{}Info info_;\n'.format(name)
 
         # End class declaration
         indent = self.decrement_indent(indent)
