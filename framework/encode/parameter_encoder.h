@@ -206,6 +206,39 @@ class ParameterEncoder
     }
 
 #if defined(WIN32)
+    template <typename T>
+    void EncodeObjectPtr(const T* const* value, bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeWrappedObjectPointer(value, omit_data, omit_addr);
+    }
+
+    void EncodeObjectPtr(const void* const* value, bool omit_data = false, bool omit_addr = false)
+    {
+        EncodeWrappedObjectPointer(reinterpret_cast<const IUnknown* const*>(value), omit_data, omit_addr);
+    }
+
+    template <typename SrcT>
+    void EncodeWrappedObjectPointer(const SrcT* const* ptr, bool omit_data = false, bool omit_addr = false)
+    {
+        uint32_t pointer_attrib =
+            format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
+
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (ptr != nullptr)
+        {
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(ptr);
+            }
+
+            if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
+            {
+                EncodeObjectValue(*ptr);
+            }
+        }
+    }
+
     template <typename T, typename U>
     void EncodeObjectValue(const U* value)
     {

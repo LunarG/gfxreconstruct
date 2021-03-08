@@ -172,11 +172,23 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     )
             else:
                 if is_generating_struct:
-                    rtn = 'encoder->EncodeObjectValue(value.{});'.format(
-                        value.name
-                    )
+                    if value.pointer_count == 2:
+                        rtn = 'encoder->EncodeObjectPtr(value.{});'.format(
+                            value.name
+                        )
+                    else:
+                        rtn = 'encoder->EncodeObjectValue(value.{});'.format(
+                            value.name
+                        )
                 else:
-                    rtn = 'encoder->EncodeObjectValue({});'.format(value.name)
+                    if value.pointer_count == 2:
+                        rtn = 'encoder->EncodeObjectPtr({});'.format(
+                            value.name
+                        )
+                    else:
+                        rtn = 'encoder->EncodeObjectValue({});'.format(
+                            value.name
+                        )
 
         else:
             function_value = True
