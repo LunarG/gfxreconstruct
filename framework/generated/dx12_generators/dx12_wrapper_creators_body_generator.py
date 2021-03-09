@@ -167,15 +167,18 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        decl += indent + 'if ((object == nullptr) || (*object == nullptr))\n'
+        decl += indent + 'if ((object != nullptr) && (*object != nullptr))\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
-        decl += indent + 'return nullptr;\n'
+        decl += indent + 'auto it = kFunctionTable.find(riid);\n'
+        decl += indent + 'if (it != kFunctionTable.end())\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+        decl += indent + 'return it->second(riid,object,resources);\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
-        decl += '\n'
-
-        decl += self.gen_iid_if_else_expr(final_class_names, indent)
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
         decl += '\n'
         decl += indent + 'return nullptr;\n'
 
@@ -188,18 +191,17 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         class_family_names = self.get_class_family_names(final_class_name)
 
         first_class = class_family_names[0]
-        param_type = '{}**'.format(first_class)
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'IUnknown_Wrapper* {}(REFIID riid, {} object,'\
-            ' DxWrapperResources* resources)\n'.format(func_name,
-                                                       param_type)
+        decl += 'IUnknown_Wrapper* {}(REFIID riid, void** obj,'\
+            ' DxWrapperResources* resources)\n'.format(func_name)
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        decl += indent + 'assert((object != nullptr) &&'\
-            ' (*object != nullptr));\n'
+        decl += indent + 'assert((obj != nullptr) &&'\
+            ' (*obj != nullptr));\n'
+        decl += indent + first_class + '** object = reinterpret_cast <' + first_class + ' **>(obj);' + '\n'
         decl += '\n'
 
         # Check for an existing wrapper.

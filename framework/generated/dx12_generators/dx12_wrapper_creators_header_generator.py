@@ -52,16 +52,44 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
-
+        indent = ''
         self.write_include()
-
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+
+        decl = indent + '\nstruct IidHash {\n'
+        indent = self.increment_indent(indent)
+        decl += indent + 'size_t operator()(const IID &iid) const noexcept {\n'
+        indent = self.increment_indent(indent)
+        decl += indent + 'const uint32_t *p = reinterpret_cast<const uint32_t *>(&iid);\n'
+        decl += indent + 'return p[0] ^ p[1] ^ p[2] ^ p[3];\n'
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
+        decl += '};\n'
+        indent = self.decrement_indent(indent)
+        write(decl, file=self.outFile)
 
     # Method override
     def endFile(self):
         self.generate_all()
+        final_class_names = self.get_final_class_names()
 
+        write(
+            'const std::unordered_map<IID, std::function<IUnknown_Wrapper*(REFIID, void**,DxWrapperResources*)>,IidHash> kFunctionTable',
+            file=self.outFile
+        )
+        write('{\n', file=self.outFile)
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            for name in class_family_names:
+                code = ''
+                code += '{IID_'
+                code += name + ', ' + self.gen_create_func_name(
+                    class_family_names
+                )
+                code += '},'
+                write(code, file=self.outFile)
+        write('\n};', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -141,15 +169,13 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'IUnknown_Wrapper*  {}(REFIID riid, {} object,'\
-            ' DxWrapperResources* resources);\n'.format(func_name,
-                                                        param_type)
+        decl += 'IUnknown_Wrapper*  {}(REFIID riid, void** object,'\
+            ' DxWrapperResources* resources);\n'.format(func_name)
         return decl
 
     def generate_all(self):
         indent = ''
         final_class_names = self.get_final_class_names()
-
         code = '\n'
         code += self.gen_catch_all_create(final_class_names, indent)
         write(code, file=self.outFile)
@@ -162,6 +188,8 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         code = ''
         code += '#include "encode/dx12_object_wrapper_resources.h"\n'
         code += '#include "util/defines.h"\n'
+        code += '#include <unordered_map>\n'
+        code += '#include <functional>\n'
         code += '\n'
 
         header_dict = self.source_dict['header_dict']

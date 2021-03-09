@@ -54,228 +54,22 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 IUnknown_Wrapper* WrapObject(REFIID riid, void** object, DxWrapperResources* resources)
 {
-    if ((object == nullptr) || (*object == nullptr))
+    if ((object != nullptr) && (*object != nullptr))
     {
-        return nullptr;
-    }
-
-    if (IsEqualIID(riid, IID_IDXGIKeyedMutex))
-    {
-        return WrapIDXGIKeyedMutex(riid, reinterpret_cast<IDXGIKeyedMutex**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIDisplayControl))
-    {
-        return WrapIDXGIDisplayControl(riid, reinterpret_cast<IDXGIDisplayControl**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIOutputDuplication))
-    {
-        return WrapIDXGIOutputDuplication(riid, reinterpret_cast<IDXGIOutputDuplication**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGISurface) ||
-             IsEqualIID(riid, IID_IDXGISurface1) ||
-             IsEqualIID(riid, IID_IDXGISurface2))
-    {
-        return WrapIDXGISurface(riid, reinterpret_cast<IDXGISurface**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIResource) ||
-             IsEqualIID(riid, IID_IDXGIResource1))
-    {
-        return WrapIDXGIResource(riid, reinterpret_cast<IDXGIResource**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIDecodeSwapChain))
-    {
-        return WrapIDXGIDecodeSwapChain(riid, reinterpret_cast<IDXGIDecodeSwapChain**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIFactoryMedia))
-    {
-        return WrapIDXGIFactoryMedia(riid, reinterpret_cast<IDXGIFactoryMedia**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGISwapChainMedia))
-    {
-        return WrapIDXGISwapChainMedia(riid, reinterpret_cast<IDXGISwapChainMedia**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGISwapChain) ||
-             IsEqualIID(riid, IID_IDXGISwapChain1) ||
-             IsEqualIID(riid, IID_IDXGISwapChain2) ||
-             IsEqualIID(riid, IID_IDXGISwapChain3) ||
-             IsEqualIID(riid, IID_IDXGISwapChain4))
-    {
-        return WrapIDXGISwapChain(riid, reinterpret_cast<IDXGISwapChain**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIDevice) ||
-             IsEqualIID(riid, IID_IDXGIDevice1) ||
-             IsEqualIID(riid, IID_IDXGIDevice2) ||
-             IsEqualIID(riid, IID_IDXGIDevice3) ||
-             IsEqualIID(riid, IID_IDXGIDevice4))
-    {
-        return WrapIDXGIDevice(riid, reinterpret_cast<IDXGIDevice**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIAdapter) ||
-             IsEqualIID(riid, IID_IDXGIAdapter1) ||
-             IsEqualIID(riid, IID_IDXGIAdapter2) ||
-             IsEqualIID(riid, IID_IDXGIAdapter3) ||
-             IsEqualIID(riid, IID_IDXGIAdapter4))
-    {
-        return WrapIDXGIAdapter(riid, reinterpret_cast<IDXGIAdapter**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIOutput) ||
-             IsEqualIID(riid, IID_IDXGIOutput1) ||
-             IsEqualIID(riid, IID_IDXGIOutput2) ||
-             IsEqualIID(riid, IID_IDXGIOutput3) ||
-             IsEqualIID(riid, IID_IDXGIOutput4) ||
-             IsEqualIID(riid, IID_IDXGIOutput5) ||
-             IsEqualIID(riid, IID_IDXGIOutput6))
-    {
-        return WrapIDXGIOutput(riid, reinterpret_cast<IDXGIOutput**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_IDXGIFactory) ||
-             IsEqualIID(riid, IID_IDXGIFactory1) ||
-             IsEqualIID(riid, IID_IDXGIFactory2) ||
-             IsEqualIID(riid, IID_IDXGIFactory3) ||
-             IsEqualIID(riid, IID_IDXGIFactory4) ||
-             IsEqualIID(riid, IID_IDXGIFactory5) ||
-             IsEqualIID(riid, IID_IDXGIFactory6) ||
-             IsEqualIID(riid, IID_IDXGIFactory7))
-    {
-        return WrapIDXGIFactory(riid, reinterpret_cast<IDXGIFactory**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12RootSignature))
-    {
-        return WrapID3D12RootSignature(riid, reinterpret_cast<ID3D12RootSignature**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12RootSignatureDeserializer))
-    {
-        return WrapID3D12RootSignatureDeserializer(riid, reinterpret_cast<ID3D12RootSignatureDeserializer**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12VersionedRootSignatureDeserializer))
-    {
-        return WrapID3D12VersionedRootSignatureDeserializer(riid, reinterpret_cast<ID3D12VersionedRootSignatureDeserializer**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12CommandAllocator))
-    {
-        return WrapID3D12CommandAllocator(riid, reinterpret_cast<ID3D12CommandAllocator**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12Fence) ||
-             IsEqualIID(riid, IID_ID3D12Fence1))
-    {
-        return WrapID3D12Fence(riid, reinterpret_cast<ID3D12Fence**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12PipelineState))
-    {
-        return WrapID3D12PipelineState(riid, reinterpret_cast<ID3D12PipelineState**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12DescriptorHeap))
-    {
-        return WrapID3D12DescriptorHeap(riid, reinterpret_cast<ID3D12DescriptorHeap**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12QueryHeap))
-    {
-        return WrapID3D12QueryHeap(riid, reinterpret_cast<ID3D12QueryHeap**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12CommandSignature))
-    {
-        return WrapID3D12CommandSignature(riid, reinterpret_cast<ID3D12CommandSignature**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12CommandQueue))
-    {
-        return WrapID3D12CommandQueue(riid, reinterpret_cast<ID3D12CommandQueue**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12PipelineLibrary) ||
-             IsEqualIID(riid, IID_ID3D12PipelineLibrary1))
-    {
-        return WrapID3D12PipelineLibrary(riid, reinterpret_cast<ID3D12PipelineLibrary**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12LifetimeOwner))
-    {
-        return WrapID3D12LifetimeOwner(riid, reinterpret_cast<ID3D12LifetimeOwner**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12SwapChainAssistant))
-    {
-        return WrapID3D12SwapChainAssistant(riid, reinterpret_cast<ID3D12SwapChainAssistant**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12LifetimeTracker))
-    {
-        return WrapID3D12LifetimeTracker(riid, reinterpret_cast<ID3D12LifetimeTracker**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12StateObject))
-    {
-        return WrapID3D12StateObject(riid, reinterpret_cast<ID3D12StateObject**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12StateObjectProperties))
-    {
-        return WrapID3D12StateObjectProperties(riid, reinterpret_cast<ID3D12StateObjectProperties**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings) ||
-             IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedDataSettings1))
-    {
-        return WrapID3D12DeviceRemovedExtendedDataSettings(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData) ||
-             IsEqualIID(riid, IID_ID3D12DeviceRemovedExtendedData1))
-    {
-        return WrapID3D12DeviceRemovedExtendedData(riid, reinterpret_cast<ID3D12DeviceRemovedExtendedData**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12ProtectedResourceSession) ||
-             IsEqualIID(riid, IID_ID3D12ProtectedResourceSession1))
-    {
-        return WrapID3D12ProtectedResourceSession(riid, reinterpret_cast<ID3D12ProtectedResourceSession**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12Device) ||
-             IsEqualIID(riid, IID_ID3D12Device1) ||
-             IsEqualIID(riid, IID_ID3D12Device2) ||
-             IsEqualIID(riid, IID_ID3D12Device3) ||
-             IsEqualIID(riid, IID_ID3D12Device4) ||
-             IsEqualIID(riid, IID_ID3D12Device5) ||
-             IsEqualIID(riid, IID_ID3D12Device6) ||
-             IsEqualIID(riid, IID_ID3D12Device7) ||
-             IsEqualIID(riid, IID_ID3D12Device8))
-    {
-        return WrapID3D12Device(riid, reinterpret_cast<ID3D12Device**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12Resource) ||
-             IsEqualIID(riid, IID_ID3D12Resource1) ||
-             IsEqualIID(riid, IID_ID3D12Resource2))
-    {
-        return WrapID3D12Resource(riid, reinterpret_cast<ID3D12Resource**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12Heap) ||
-             IsEqualIID(riid, IID_ID3D12Heap1))
-    {
-        return WrapID3D12Heap(riid, reinterpret_cast<ID3D12Heap**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12MetaCommand))
-    {
-        return WrapID3D12MetaCommand(riid, reinterpret_cast<ID3D12MetaCommand**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12Tools))
-    {
-        return WrapID3D12Tools(riid, reinterpret_cast<ID3D12Tools**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D12GraphicsCommandList) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList1) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList2) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList3) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList4) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList5) ||
-             IsEqualIID(riid, IID_ID3D12GraphicsCommandList6))
-    {
-        return WrapID3D12GraphicsCommandList(riid, reinterpret_cast<ID3D12GraphicsCommandList**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3D10Blob))
-    {
-        return WrapID3D10Blob(riid, reinterpret_cast<ID3D10Blob**>(object), resources);
-    }
-    else if (IsEqualIID(riid, IID_ID3DDestructionNotifier))
-    {
-        return WrapID3DDestructionNotifier(riid, reinterpret_cast<ID3DDestructionNotifier**>(object), resources);
+        auto it = kFunctionTable.find(riid);
+        if (it != kFunctionTable.end())
+        {
+            return it->second(riid,object,resources);
+        }
     }
 
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIKeyedMutex** object = reinterpret_cast <IDXGIKeyedMutex **>(obj);
 
     auto existing = IDXGIKeyedMutex_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -310,9 +104,10 @@ IUnknown_Wrapper* WrapIDXGIKeyedMutex(REFIID riid, IDXGIKeyedMutex** object, DxW
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIDisplayControl(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIDisplayControl** object = reinterpret_cast <IDXGIDisplayControl **>(obj);
 
     auto existing = IDXGIDisplayControl_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -347,9 +142,10 @@ IUnknown_Wrapper* WrapIDXGIDisplayControl(REFIID riid, IDXGIDisplayControl** obj
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIOutputDuplication** object = reinterpret_cast <IDXGIOutputDuplication **>(obj);
 
     auto existing = IDXGIOutputDuplication_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -384,9 +180,10 @@ IUnknown_Wrapper* WrapIDXGIOutputDuplication(REFIID riid, IDXGIOutputDuplication
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGISurface(REFIID riid, IDXGISurface** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGISurface(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGISurface** object = reinterpret_cast <IDXGISurface **>(obj);
 
     auto existing = IDXGISurface_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -459,9 +256,10 @@ IUnknown_Wrapper* WrapIDXGISurface(REFIID riid, IDXGISurface** object, DxWrapper
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIResource(REFIID riid, IDXGIResource** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIResource(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIResource** object = reinterpret_cast <IDXGIResource **>(obj);
 
     auto existing = IDXGIResource_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -515,9 +313,10 @@ IUnknown_Wrapper* WrapIDXGIResource(REFIID riid, IDXGIResource** object, DxWrapp
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIDecodeSwapChain** object = reinterpret_cast <IDXGIDecodeSwapChain **>(obj);
 
     auto existing = IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -552,9 +351,10 @@ IUnknown_Wrapper* WrapIDXGIDecodeSwapChain(REFIID riid, IDXGIDecodeSwapChain** o
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIFactoryMedia(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIFactoryMedia** object = reinterpret_cast <IDXGIFactoryMedia **>(obj);
 
     auto existing = IDXGIFactoryMedia_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -589,9 +389,10 @@ IUnknown_Wrapper* WrapIDXGIFactoryMedia(REFIID riid, IDXGIFactoryMedia** object,
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGISwapChainMedia** object = reinterpret_cast <IDXGISwapChainMedia **>(obj);
 
     auto existing = IDXGISwapChainMedia_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -626,9 +427,10 @@ IUnknown_Wrapper* WrapIDXGISwapChainMedia(REFIID riid, IDXGISwapChainMedia** obj
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGISwapChain(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGISwapChain** object = reinterpret_cast <IDXGISwapChain **>(obj);
 
     auto existing = IDXGISwapChain_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -739,9 +541,10 @@ IUnknown_Wrapper* WrapIDXGISwapChain(REFIID riid, IDXGISwapChain** object, DxWra
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIDevice(REFIID riid, IDXGIDevice** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIDevice(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIDevice** object = reinterpret_cast <IDXGIDevice **>(obj);
 
     auto existing = IDXGIDevice_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -852,9 +655,10 @@ IUnknown_Wrapper* WrapIDXGIDevice(REFIID riid, IDXGIDevice** object, DxWrapperRe
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIAdapter** object = reinterpret_cast <IDXGIAdapter **>(obj);
 
     auto existing = IDXGIAdapter_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -965,9 +769,10 @@ IUnknown_Wrapper* WrapIDXGIAdapter(REFIID riid, IDXGIAdapter** object, DxWrapper
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIOutput** object = reinterpret_cast <IDXGIOutput **>(obj);
 
     auto existing = IDXGIOutput_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1116,9 +921,10 @@ IUnknown_Wrapper* WrapIDXGIOutput(REFIID riid, IDXGIOutput** object, DxWrapperRe
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapIDXGIFactory(REFIID riid, IDXGIFactory** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapIDXGIFactory(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    IDXGIFactory** object = reinterpret_cast <IDXGIFactory **>(obj);
 
     auto existing = IDXGIFactory_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1286,9 +1092,10 @@ IUnknown_Wrapper* WrapIDXGIFactory(REFIID riid, IDXGIFactory** object, DxWrapper
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12RootSignature** object = reinterpret_cast <ID3D12RootSignature **>(obj);
 
     auto existing = ID3D12RootSignature_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1323,9 +1130,10 @@ IUnknown_Wrapper* WrapID3D12RootSignature(REFIID riid, ID3D12RootSignature** obj
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSignatureDeserializer** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12RootSignatureDeserializer(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12RootSignatureDeserializer** object = reinterpret_cast <ID3D12RootSignatureDeserializer **>(obj);
 
     auto existing = ID3D12RootSignatureDeserializer_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1360,9 +1168,10 @@ IUnknown_Wrapper* WrapID3D12RootSignatureDeserializer(REFIID riid, ID3D12RootSig
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D12VersionedRootSignatureDeserializer** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12VersionedRootSignatureDeserializer** object = reinterpret_cast <ID3D12VersionedRootSignatureDeserializer **>(obj);
 
     auto existing = ID3D12VersionedRootSignatureDeserializer_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1397,9 +1206,10 @@ IUnknown_Wrapper* WrapID3D12VersionedRootSignatureDeserializer(REFIID riid, ID3D
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12CommandAllocator** object = reinterpret_cast <ID3D12CommandAllocator **>(obj);
 
     auto existing = ID3D12CommandAllocator_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1434,9 +1244,10 @@ IUnknown_Wrapper* WrapID3D12CommandAllocator(REFIID riid, ID3D12CommandAllocator
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12Fence(REFIID riid, ID3D12Fence** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12Fence(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12Fence** object = reinterpret_cast <ID3D12Fence **>(obj);
 
     auto existing = ID3D12Fence_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1490,9 +1301,10 @@ IUnknown_Wrapper* WrapID3D12Fence(REFIID riid, ID3D12Fence** object, DxWrapperRe
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12PipelineState** object = reinterpret_cast <ID3D12PipelineState **>(obj);
 
     auto existing = ID3D12PipelineState_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1527,9 +1339,10 @@ IUnknown_Wrapper* WrapID3D12PipelineState(REFIID riid, ID3D12PipelineState** obj
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12DescriptorHeap(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12DescriptorHeap** object = reinterpret_cast <ID3D12DescriptorHeap **>(obj);
 
     auto existing = ID3D12DescriptorHeap_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1564,9 +1377,10 @@ IUnknown_Wrapper* WrapID3D12DescriptorHeap(REFIID riid, ID3D12DescriptorHeap** o
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12QueryHeap** object = reinterpret_cast <ID3D12QueryHeap **>(obj);
 
     auto existing = ID3D12QueryHeap_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1601,9 +1415,10 @@ IUnknown_Wrapper* WrapID3D12QueryHeap(REFIID riid, ID3D12QueryHeap** object, DxW
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12CommandSignature(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12CommandSignature** object = reinterpret_cast <ID3D12CommandSignature **>(obj);
 
     auto existing = ID3D12CommandSignature_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1638,9 +1453,10 @@ IUnknown_Wrapper* WrapID3D12CommandSignature(REFIID riid, ID3D12CommandSignature
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12CommandQueue** object = reinterpret_cast <ID3D12CommandQueue **>(obj);
 
     auto existing = ID3D12CommandQueue_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1675,9 +1491,10 @@ IUnknown_Wrapper* WrapID3D12CommandQueue(REFIID riid, ID3D12CommandQueue** objec
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12PipelineLibrary(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12PipelineLibrary** object = reinterpret_cast <ID3D12PipelineLibrary **>(obj);
 
     auto existing = ID3D12PipelineLibrary_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1731,9 +1548,10 @@ IUnknown_Wrapper* WrapID3D12PipelineLibrary(REFIID riid, ID3D12PipelineLibrary**
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12LifetimeOwner** object = reinterpret_cast <ID3D12LifetimeOwner **>(obj);
 
     auto existing = ID3D12LifetimeOwner_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1768,9 +1586,10 @@ IUnknown_Wrapper* WrapID3D12LifetimeOwner(REFIID riid, ID3D12LifetimeOwner** obj
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssistant** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12SwapChainAssistant(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12SwapChainAssistant** object = reinterpret_cast <ID3D12SwapChainAssistant **>(obj);
 
     auto existing = ID3D12SwapChainAssistant_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1805,9 +1624,10 @@ IUnknown_Wrapper* WrapID3D12SwapChainAssistant(REFIID riid, ID3D12SwapChainAssis
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12LifetimeTracker** object = reinterpret_cast <ID3D12LifetimeTracker **>(obj);
 
     auto existing = ID3D12LifetimeTracker_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1842,9 +1662,10 @@ IUnknown_Wrapper* WrapID3D12LifetimeTracker(REFIID riid, ID3D12LifetimeTracker**
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12StateObject(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12StateObject** object = reinterpret_cast <ID3D12StateObject **>(obj);
 
     auto existing = ID3D12StateObject_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1879,9 +1700,10 @@ IUnknown_Wrapper* WrapID3D12StateObject(REFIID riid, ID3D12StateObject** object,
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObjectProperties** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12StateObjectProperties** object = reinterpret_cast <ID3D12StateObjectProperties **>(obj);
 
     auto existing = ID3D12StateObjectProperties_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1916,9 +1738,10 @@ IUnknown_Wrapper* WrapID3D12StateObjectProperties(REFIID riid, ID3D12StateObject
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12DeviceRemovedExtendedDataSettings** object = reinterpret_cast <ID3D12DeviceRemovedExtendedDataSettings **>(obj);
 
     auto existing = ID3D12DeviceRemovedExtendedDataSettings_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -1972,9 +1795,10 @@ IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedDataSettings(REFIID riid, ID3D1
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceRemovedExtendedData** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedData(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12DeviceRemovedExtendedData** object = reinterpret_cast <ID3D12DeviceRemovedExtendedData **>(obj);
 
     auto existing = ID3D12DeviceRemovedExtendedData_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2028,9 +1852,10 @@ IUnknown_Wrapper* WrapID3D12DeviceRemovedExtendedData(REFIID riid, ID3D12DeviceR
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12ProtectedResourceSession** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12ProtectedResourceSession** object = reinterpret_cast <ID3D12ProtectedResourceSession **>(obj);
 
     auto existing = ID3D12ProtectedResourceSession_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2084,9 +1909,10 @@ IUnknown_Wrapper* WrapID3D12ProtectedResourceSession(REFIID riid, ID3D12Protecte
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12Device(REFIID riid, ID3D12Device** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12Device(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12Device** object = reinterpret_cast <ID3D12Device **>(obj);
 
     auto existing = ID3D12Device_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2273,9 +2099,10 @@ IUnknown_Wrapper* WrapID3D12Device(REFIID riid, ID3D12Device** object, DxWrapper
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12Resource(REFIID riid, ID3D12Resource** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12Resource(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12Resource** object = reinterpret_cast <ID3D12Resource **>(obj);
 
     auto existing = ID3D12Resource_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2348,9 +2175,10 @@ IUnknown_Wrapper* WrapID3D12Resource(REFIID riid, ID3D12Resource** object, DxWra
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12Heap(REFIID riid, ID3D12Heap** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12Heap(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12Heap** object = reinterpret_cast <ID3D12Heap **>(obj);
 
     auto existing = ID3D12Heap_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2404,9 +2232,10 @@ IUnknown_Wrapper* WrapID3D12Heap(REFIID riid, ID3D12Heap** object, DxWrapperReso
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12MetaCommand(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12MetaCommand** object = reinterpret_cast <ID3D12MetaCommand **>(obj);
 
     auto existing = ID3D12MetaCommand_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2441,9 +2270,10 @@ IUnknown_Wrapper* WrapID3D12MetaCommand(REFIID riid, ID3D12MetaCommand** object,
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12Tools** object = reinterpret_cast <ID3D12Tools **>(obj);
 
     auto existing = ID3D12Tools_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2478,9 +2308,10 @@ IUnknown_Wrapper* WrapID3D12Tools(REFIID riid, ID3D12Tools** object, DxWrapperRe
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsCommandList** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D12GraphicsCommandList(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D12GraphicsCommandList** object = reinterpret_cast <ID3D12GraphicsCommandList **>(obj);
 
     auto existing = ID3D12GraphicsCommandList_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2629,9 +2460,10 @@ IUnknown_Wrapper* WrapID3D12GraphicsCommandList(REFIID riid, ID3D12GraphicsComma
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3D10Blob** object = reinterpret_cast <ID3D10Blob **>(obj);
 
     auto existing = ID3D10Blob_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
@@ -2666,9 +2498,10 @@ IUnknown_Wrapper* WrapID3D10Blob(REFIID riid, ID3D10Blob** object, DxWrapperReso
     return nullptr;
 }
 
-IUnknown_Wrapper* WrapID3DDestructionNotifier(REFIID riid, ID3DDestructionNotifier** object, DxWrapperResources* resources)
+IUnknown_Wrapper* WrapID3DDestructionNotifier(REFIID riid, void** obj, DxWrapperResources* resources)
 {
-    assert((object != nullptr) && (*object != nullptr));
+    assert((obj != nullptr) && (*obj != nullptr));
+    ID3DDestructionNotifier** object = reinterpret_cast <ID3DDestructionNotifier **>(obj);
 
     auto existing = ID3DDestructionNotifier_Wrapper::GetExistingWrapper(*object);
     if (existing != nullptr)
