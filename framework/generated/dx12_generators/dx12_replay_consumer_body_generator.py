@@ -20,16 +20,46 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import json
 from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator
 from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
+
+
+class Dx12ReplayConsumerBodyGeneratorOptions(Dx12GeneratorOptions):
+    """Options for generating a C++ class for Dx12 capture file replay."""
+
+    def __init__(
+        self,
+        replay_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        Dx12GeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
+        self.replay_overrides = replay_overrides
 
 
 class Dx12ReplayConsumerBodyGenerator(
     BaseReplayConsumerBodyGenerator, Dx12ReplayConsumerHeaderGenerator
 ):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
+
+    REPLAY_OVERRIDES = {}
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        Dx12ReplayConsumerHeaderGenerator.beginFile(self, gen_opts)
+        if gen_opts.replay_overrides:
+            self.__load_replay_overrides(gen_opts.replay_overrides)
 
     def write_include(self):
         """Methond override."""
@@ -89,6 +119,7 @@ class Dx12ReplayConsumerBodyGenerator(
             )
 
         code = ''
+        is_override = name in self.REPLAY_OVERRIDES
         for value in values:
             is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
                 value
@@ -104,27 +135,73 @@ class Dx12ReplayConsumerBodyGenerator(
                         .format(value.name)
 
         is_object = True if name.find('_') != -1 else False
+        if is_object:
+            class_name = name[:name.find('_')]
+            method_name = name[name.find('_') + 1:]
+            if class_name in self.REPLAY_OVERRIDES['classmethods']:
+                is_override = method_name in self.REPLAY_OVERRIDES[
+                    'classmethods'][class_name]
+        else:
+            is_override = name in self.REPLAY_OVERRIDES['functions']
+
         function_name = name if not is_object else name[name.find('_') + 1:]
         indent_length = len(code)
         code += '    '
         if return_type != 'void':
             code += 'auto replay_result = '
 
-        if is_object:
+        if is_object and not is_override:
             code += 'replay_object->'
 
-        code += function_name + '('
-        indent_length = len(code) - indent_length
         first = True
+        if is_override:
+            if is_object:
+                code += self.REPLAY_OVERRIDES['classmethods'][class_name][
+                    method_name] + '('
+            else:
+                code += self.REPLAY_OVERRIDES['functions'][name] + '('
+
+            indent_length = len(code) - indent_length
+            if is_object:
+                code += 'replay_object'
+                first = False
+
+            if return_type != 'void':
+                if not first:
+                    code += ',\n{}'.format(' ' * indent_length)
+                code += 'returnValue'
+                first = False
+        else:
+            code += function_name + '('
+            indent_length = len(code) - indent_length
+
         for value in values:
             if not first:
                 code += ',\n{}'.format(' ' * indent_length)
             first = False
-
             value_name = None
             is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
                 value
             )
+
+            if is_override:
+                if not is_tracking_class and not is_tracking_win32_handle:
+                    if value.pointer_count > 0 or value.is_array:
+                        if self.is_class(value):
+                            if value.pointer_count == 2:
+                                value_name = 'MapObject<{}*>(*{}->GetPointer())'.format(
+                                    value.base_type, value.name
+                                )
+                            elif value.pointer_count == 1:
+                                value_name = 'MapObject<{}>(*{}->GetPointer())'.format(
+                                    value.base_type, value.name
+                                )
+
+                if not value_name:
+                    value_name = value.name
+                code += value_name
+                continue
+
             if is_tracking_class or is_tracking_win32_handle:
                 if value.full_type.find('void') != -1:
                     value_name = 'reinterpret_cast<void**>(_out_hp_{})'.format(
@@ -185,11 +262,17 @@ class Dx12ReplayConsumerBodyGenerator(
         code += ');\n'
 
         if return_type == 'HRESULT' and len(values):
-            code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
+            if_condition = False
             for value in values:
                 is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
                     value
                 )
+                if not if_condition and (
+                    is_tracking_class or is_tracking_win32_handle
+                ):
+                    code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
+                    if_condition = True
+
                 if is_tracking_class:
                     code += (
                         '        AddObject(_out_p_{0}, _out_hp_{0});\n'.format(
@@ -201,7 +284,10 @@ class Dx12ReplayConsumerBodyGenerator(
                         '        AddWin32Handle(_out_p_{0}, _out_op_{0});\n'.
                         format(value.name)
                     )
-            code += "    }\n"
+
+            if if_condition:
+                code += "    }\n"
+
             code += (
                 '    CheckReplayResult("{}", returnValue, replay_result);\n'.
                 format(name)
@@ -216,3 +302,7 @@ class Dx12ReplayConsumerBodyGenerator(
             is_tracking_win32_handle = self.is_win32_handle(value.base_type)
 
         return is_tracking_class, is_tracking_win32_handle
+
+    def __load_replay_overrides(self, filename):
+        overrides = json.loads(open(filename, 'r').read())
+        self.REPLAY_OVERRIDES = overrides

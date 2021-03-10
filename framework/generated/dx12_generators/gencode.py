@@ -36,7 +36,7 @@ from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from dx12_decoder_body_generator import Dx12DecoderBodyGenerator
 from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator
-from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator
+from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator, Dx12ReplayConsumerBodyGeneratorOptions
 from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
 from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator
 from dx12_wrapper_header_generator import Dx12WrapperHeaderGenerator
@@ -48,6 +48,9 @@ from dx12_struct_unwrappers_body_generator import Dx12StructUnwrappersBodyGenera
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
+default_platform_types = 'platform_types.json'
+default_replay_overrides = 'replay_overrides.json'
+default_capture_overrides = 'capture_overrides.json'
 
 
 def make_gen_opts(args):
@@ -65,6 +68,9 @@ def make_gen_opts(args):
 
     # JSON configuration files
     blacklists = os.path.join(args.configs, default_blacklists)
+    platform_types = os.path.join(args.configs, default_platform_types)
+    replay_overrides = os.path.join(args.configs, default_replay_overrides)
+    capture_overrides = os.path.join(args.configs, default_capture_overrides)
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -232,10 +238,11 @@ def make_gen_opts(args):
     )
     gen_opts['generated_dx12_replay_consumer.cpp'] = [
         Dx12ReplayConsumerBodyGenerator,
-        Dx12GeneratorOptions(
+        Dx12ReplayConsumerBodyGeneratorOptions(
             filename='generated_dx12_replay_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
+            replay_overrides=replay_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False

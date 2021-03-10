@@ -57,7 +57,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
-    void RemoveObject(format::HandleId id) { objects_.erase(id); }
+    void RemoveObject(format::HandleId id);
 
     template <typename T>
     T MapWin32Handle(uint64_t handle)
@@ -81,18 +81,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
-    void RemoveWin32Handle(uint64_t handle) { win32_handles_.erase(handle); }
+    void RemoveWin32Handle(uint64_t handle);
 
-    void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
-    {
-        if (capture_result != replay_result)
-        {
-            GFXRECON_LOG_ERROR("%s returned %d, which does not match the value returned at capture",
-                               call_name,
-                               replay_result,
-                               capture_result);
-        }
-    }
+    void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
+
+    HRESULT
+    OverrideCreateSwapChainForHwnd(IDXGIFactory2*                                                 replay_object,
+                                   HRESULT                                                        returnValue,
+                                   IUnknown*                                                      pDevice,
+                                   uint64_t                                                       hWnd,
+                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
+                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
+                                   IDXGIOutput*                                                   pRestrictToOutput,
+                                   HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain);
 
   private:
     std::unordered_map<format::HandleId, IUnknown*> objects_;

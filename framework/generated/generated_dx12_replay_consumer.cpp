@@ -246,9 +246,6 @@ void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
                                                          pIIDs->GetPointer(),
                                                          reinterpret_cast<void*>(pConfigurationStructs),
                                                          pConfigurationStructSizes->GetPointer());
-    if (SUCCEEDED(replay_result))
-    {
-    }
     CheckReplayResult("D3D12EnableExperimentalFeatures", returnValue, replay_result);
 }
 void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
@@ -264,9 +261,6 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
         auto replay_result = replay_object->SetPrivateData(*Name.decoded_value,
                                                            DataSize,
                                                            reinterpret_cast<void*>(pData));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIObject_SetPrivateData", returnValue, replay_result);
     }
 }
@@ -282,9 +276,6 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     {
         auto replay_result = replay_object->SetPrivateDataInterface(*Name.decoded_value,
                                                                     MapObject<IUnknown>(*pUnknown->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIObject_SetPrivateDataInterface", returnValue, replay_result);
     }
 }
@@ -302,9 +293,6 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
         auto replay_result = replay_object->GetPrivateData(*Name.decoded_value,
                                                            pDataSize->GetPointer(),
                                                            reinterpret_cast<void*>(pData));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIObject_GetPrivateData", returnValue, replay_result);
     }
 }
@@ -381,9 +369,6 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetUsage(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetUsage(pUsage->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIResource_GetUsage", returnValue, replay_result);
     }
 }
@@ -397,9 +382,6 @@ void Dx12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetEvictionPriority(EvictionPriority);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIResource_SetEvictionPriority", returnValue, replay_result);
     }
 }
@@ -413,9 +395,6 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetEvictionPriority(pEvictionPriority->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIResource_GetEvictionPriority", returnValue, replay_result);
     }
 }
@@ -431,9 +410,6 @@ void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     {
         auto replay_result = replay_object->AcquireSync(Key,
                                                         dwMilliseconds);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIKeyedMutex_AcquireSync", returnValue, replay_result);
     }
 }
@@ -447,9 +423,6 @@ void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReleaseSync(Key);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIKeyedMutex_ReleaseSync", returnValue, replay_result);
     }
 }
@@ -463,9 +436,6 @@ void Dx12ReplayConsumer::Process_IDXGISurface_GetDesc(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISurface_GetDesc", returnValue, replay_result);
     }
 }
@@ -481,9 +451,6 @@ void Dx12ReplayConsumer::Process_IDXGISurface_Map(
     {
         auto replay_result = replay_object->Map(pLockedRect->GetPointer(),
                                                 MapFlags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISurface_Map", returnValue, replay_result);
     }
 }
@@ -529,9 +496,6 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReleaseDC(pDirtyRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISurface1_ReleaseDC", returnValue, replay_result);
     }
 }
@@ -567,9 +531,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter_GetDesc", returnValue, replay_result);
     }
 }
@@ -585,9 +546,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     {
         auto replay_result = replay_object->CheckInterfaceSupport(*InterfaceName.decoded_value,
                                                                   pUMDVersion->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter_CheckInterfaceSupport", returnValue, replay_result);
     }
 }
@@ -601,9 +559,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDesc(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetDesc", returnValue, replay_result);
     }
 }
@@ -623,9 +578,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
                                                                Flags,
                                                                pNumModes->GetPointer(),
                                                                pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetDisplayModeList", returnValue, replay_result);
     }
 }
@@ -643,9 +595,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         auto replay_result = replay_object->FindClosestMatchingMode(pModeToMatch->GetPointer(),
                                                                     pClosestMatch->GetPointer(),
                                                                     MapObject<IUnknown>(*pConcernedDevice->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_FindClosestMatchingMode", returnValue, replay_result);
     }
 }
@@ -672,9 +621,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
     {
         auto replay_result = replay_object->TakeOwnership(MapObject<IUnknown>(*pDevice->GetPointer()),
                                                           Exclusive);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_TakeOwnership", returnValue, replay_result);
     }
 }
@@ -698,9 +644,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGammaControlCapabilities(pGammaCaps->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetGammaControlCapabilities", returnValue, replay_result);
     }
 }
@@ -714,9 +657,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetGammaControl(pArray->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_SetGammaControl", returnValue, replay_result);
     }
 }
@@ -730,9 +670,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGammaControl(pArray->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetGammaControl", returnValue, replay_result);
     }
 }
@@ -746,9 +683,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetDisplaySurface(MapObject<IDXGISurface>(*pScanoutSurface->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_SetDisplaySurface", returnValue, replay_result);
     }
 }
@@ -762,9 +696,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDisplaySurfaceData(MapObject<IDXGISurface>(*pDestination->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetDisplaySurfaceData", returnValue, replay_result);
     }
 }
@@ -778,9 +709,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatistics(pStats->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput_GetFrameStatistics", returnValue, replay_result);
     }
 }
@@ -796,9 +724,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
     {
         auto replay_result = replay_object->Present(SyncInterval,
                                                     Flags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_Present", returnValue, replay_result);
     }
 }
@@ -838,9 +763,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
     {
         auto replay_result = replay_object->SetFullscreenState(Fullscreen,
                                                                MapObject<IDXGIOutput>(*pTarget->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_SetFullscreenState", returnValue, replay_result);
     }
 }
@@ -876,9 +798,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_GetDesc", returnValue, replay_result);
     }
 }
@@ -900,9 +819,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
                                                           Height,
                                                           NewFormat,
                                                           SwapChainFlags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_ResizeBuffers", returnValue, replay_result);
     }
 }
@@ -916,9 +832,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ResizeTarget(pNewTargetParameters->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_ResizeTarget", returnValue, replay_result);
     }
 }
@@ -952,9 +865,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatistics(pStats->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_GetFrameStatistics", returnValue, replay_result);
     }
 }
@@ -968,9 +878,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetLastPresentCount(pLastPresentCount->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain_GetLastPresentCount", returnValue, replay_result);
     }
 }
@@ -1008,9 +915,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     {
         auto replay_result = replay_object->MakeWindowAssociation(MapWin32Handle<HWND>(WindowHandle),
                                                                   Flags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory_MakeWindowAssociation", returnValue, replay_result);
     }
 }
@@ -1141,9 +1045,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
         auto replay_result = replay_object->QueryResourceResidency(MapObject<IUnknown*>(*ppResources->GetPointer()),
                                                                    pResidencyStatus->GetPointer(),
                                                                    NumResources);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice_QueryResourceResidency", returnValue, replay_result);
     }
 }
@@ -1157,9 +1058,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetGPUThreadPriority(Priority);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice_SetGPUThreadPriority", returnValue, replay_result);
     }
 }
@@ -1173,9 +1071,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGPUThreadPriority(pPriority->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice_GetGPUThreadPriority", returnValue, replay_result);
     }
 }
@@ -1222,9 +1117,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter1_GetDesc1", returnValue, replay_result);
     }
 }
@@ -1238,9 +1130,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMaximumFrameLatency(MaxLatency);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice1_SetMaximumFrameLatency", returnValue, replay_result);
     }
 }
@@ -1254,9 +1143,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMaximumFrameLatency(pMaxLatency->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice1_GetMaximumFrameLatency", returnValue, replay_result);
     }
 }
@@ -1331,9 +1217,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         auto replay_result = replay_object->GetFrameDirtyRects(DirtyRectsBufferSize,
                                                                pDirtyRectsBuffer->GetPointer(),
                                                                pDirtyRectsBufferSizeRequired->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutputDuplication_GetFrameDirtyRects", returnValue, replay_result);
     }
 }
@@ -1351,9 +1234,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         auto replay_result = replay_object->GetFrameMoveRects(MoveRectsBufferSize,
                                                               pMoveRectBuffer->GetPointer(),
                                                               pMoveRectsBufferSizeRequired->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutputDuplication_GetFrameMoveRects", returnValue, replay_result);
     }
 }
@@ -1373,9 +1253,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
                                                                  reinterpret_cast<void*>(pPointerShapeBuffer),
                                                                  pPointerShapeBufferSizeRequired->GetPointer(),
                                                                  pPointerShapeInfo->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutputDuplication_GetFramePointerShape", returnValue, replay_result);
     }
 }
@@ -1389,9 +1266,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->MapDesktopSurface(pLockedRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutputDuplication_MapDesktopSurface", returnValue, replay_result);
     }
 }
@@ -1502,9 +1376,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
         auto replay_result = replay_object->OfferResources(NumResources,
                                                            MapObject<IDXGIResource*>(*ppResources->GetPointer()),
                                                            Priority);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice2_OfferResources", returnValue, replay_result);
     }
 }
@@ -1522,9 +1393,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
         auto replay_result = replay_object->ReclaimResources(NumResources,
                                                              MapObject<IDXGIResource*>(*ppResources->GetPointer()),
                                                              pDiscarded->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice2_ReclaimResources", returnValue, replay_result);
     }
 }
@@ -1538,9 +1406,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->EnqueueSetEvent(MapWin32Handle<HANDLE>(hEvent));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice2_EnqueueSetEvent", returnValue, replay_result);
     }
 }
@@ -1554,9 +1419,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_GetDesc1", returnValue, replay_result);
     }
 }
@@ -1570,9 +1432,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFullscreenDesc(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_GetFullscreenDesc", returnValue, replay_result);
     }
 }
@@ -1631,9 +1490,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
         auto replay_result = replay_object->Present1(SyncInterval,
                                                      PresentFlags,
                                                      pPresentParameters->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_Present1", returnValue, replay_result);
     }
 }
@@ -1678,9 +1534,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetBackgroundColor(pColor->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_SetBackgroundColor", returnValue, replay_result);
     }
 }
@@ -1694,9 +1547,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetBackgroundColor(pColor->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_GetBackgroundColor", returnValue, replay_result);
     }
 }
@@ -1710,9 +1560,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetRotation(Rotation);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_SetRotation", returnValue, replay_result);
     }
 }
@@ -1726,9 +1573,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetRotation(pRotation->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain1_GetRotation", returnValue, replay_result);
     }
 }
@@ -1760,12 +1604,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
         auto _out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto _out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
-        auto replay_result = replay_object->CreateSwapChainForHwnd(MapObject<IUnknown>(*pDevice->GetPointer()),
-                                                                   MapWin32Handle<HWND>(hWnd),
-                                                                   pDesc->GetPointer(),
-                                                                   pFullscreenDesc->GetPointer(),
-                                                                   MapObject<IDXGIOutput>(*pRestrictToOutput->GetPointer()),
-                                                                   _out_hp_ppSwapChain);
+        auto replay_result = OverrideCreateSwapChainForHwnd(replay_object,
+                                                            returnValue,
+                                                            MapObject<IUnknown>(*pDevice->GetPointer()),
+                                                            hWnd,
+                                                            pDesc,
+                                                            pFullscreenDesc,
+                                                            MapObject<IDXGIOutput>(*pRestrictToOutput->GetPointer()),
+                                                            ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
             AddObject(_out_p_ppSwapChain, _out_hp_ppSwapChain);
@@ -1813,9 +1659,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     {
         auto replay_result = replay_object->GetSharedResourceAdapterLuid(MapWin32Handle<HANDLE>(hResource),
                                                                          pLuid->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory2_GetSharedResourceAdapterLuid", returnValue, replay_result);
     }
 }
@@ -1833,9 +1676,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         auto replay_result = replay_object->RegisterStereoStatusWindow(MapWin32Handle<HWND>(WindowHandle),
                                                                        wMsg,
                                                                        pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory2_RegisterStereoStatusWindow", returnValue, replay_result);
     }
 }
@@ -1851,9 +1691,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     {
         auto replay_result = replay_object->RegisterStereoStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                       pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory2_RegisterStereoStatusEvent", returnValue, replay_result);
     }
 }
@@ -1882,9 +1719,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         auto replay_result = replay_object->RegisterOcclusionStatusWindow(MapWin32Handle<HWND>(WindowHandle),
                                                                           wMsg,
                                                                           pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusWindow", returnValue, replay_result);
     }
 }
@@ -1900,9 +1734,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     {
         auto replay_result = replay_object->RegisterOcclusionStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                          pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusEvent", returnValue, replay_result);
     }
 }
@@ -1953,9 +1784,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc2(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter2_GetDesc2", returnValue, replay_result);
     }
 }
@@ -1975,9 +1803,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
                                                                 Flags,
                                                                 pNumModes->GetPointer(),
                                                                 pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput1_GetDisplayModeList1", returnValue, replay_result);
     }
 }
@@ -1995,9 +1820,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         auto replay_result = replay_object->FindClosestMatchingMode1(pModeToMatch->GetPointer(),
                                                                      pClosestMatch->GetPointer(),
                                                                      MapObject<IUnknown>(*pConcernedDevice->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput1_FindClosestMatchingMode1", returnValue, replay_result);
     }
 }
@@ -2011,9 +1833,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDisplaySurfaceData1(MapObject<IDXGIResource>(*pDestination->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput1_GetDisplaySurfaceData1", returnValue, replay_result);
     }
 }
@@ -2061,9 +1880,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
     {
         auto replay_result = replay_object->SetSourceSize(Width,
                                                           Height);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_SetSourceSize", returnValue, replay_result);
     }
 }
@@ -2079,9 +1895,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
     {
         auto replay_result = replay_object->GetSourceSize(pWidth->GetPointer(),
                                                           pHeight->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_GetSourceSize", returnValue, replay_result);
     }
 }
@@ -2095,9 +1908,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMaximumFrameLatency(MaxLatency);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_SetMaximumFrameLatency", returnValue, replay_result);
     }
 }
@@ -2111,9 +1921,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMaximumFrameLatency(pMaxLatency->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_GetMaximumFrameLatency", returnValue, replay_result);
     }
 }
@@ -2138,9 +1945,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMatrixTransform(pMatrix->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_SetMatrixTransform", returnValue, replay_result);
     }
 }
@@ -2154,9 +1958,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMatrixTransform(pMatrix->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain2_GetMatrixTransform", returnValue, replay_result);
     }
 }
@@ -2196,9 +1997,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         auto replay_result = replay_object->PresentBuffer(BufferToPresent,
                                                           SyncInterval,
                                                           Flags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_PresentBuffer", returnValue, replay_result);
     }
 }
@@ -2212,9 +2010,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetSourceRect(pRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_SetSourceRect", returnValue, replay_result);
     }
 }
@@ -2228,9 +2023,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetTargetRect(pRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_SetTargetRect", returnValue, replay_result);
     }
 }
@@ -2246,9 +2038,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     {
         auto replay_result = replay_object->SetDestSize(Width,
                                                         Height);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_SetDestSize", returnValue, replay_result);
     }
 }
@@ -2262,9 +2051,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetSourceRect(pRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_GetSourceRect", returnValue, replay_result);
     }
 }
@@ -2278,9 +2064,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetTargetRect(pRect->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_GetTargetRect", returnValue, replay_result);
     }
 }
@@ -2296,9 +2079,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     {
         auto replay_result = replay_object->GetDestSize(pWidth->GetPointer(),
                                                         pHeight->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_GetDestSize", returnValue, replay_result);
     }
 }
@@ -2312,9 +2092,6 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetColorSpace(ColorSpace);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDecodeSwapChain_SetColorSpace", returnValue, replay_result);
     }
 }
@@ -2397,9 +2174,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatisticsMedia(pStats->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChainMedia_GetFrameStatisticsMedia", returnValue, replay_result);
     }
 }
@@ -2413,9 +2187,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetPresentDuration(Duration);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChainMedia_SetPresentDuration", returnValue, replay_result);
     }
 }
@@ -2433,9 +2204,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport
         auto replay_result = replay_object->CheckPresentDurationSupport(DesiredPresentDuration,
                                                                         pClosestSmallerPresentDuration->GetPointer(),
                                                                         pClosestLargerPresentDuration->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChainMedia_CheckPresentDurationSupport", returnValue, replay_result);
     }
 }
@@ -2453,9 +2221,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         auto replay_result = replay_object->CheckOverlaySupport(EnumFormat,
                                                                 MapObject<IUnknown>(*pConcernedDevice->GetPointer()),
                                                                 pFlags->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput3_CheckOverlaySupport", returnValue, replay_result);
     }
 }
@@ -2482,9 +2247,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     {
         auto replay_result = replay_object->CheckColorSpaceSupport(ColorSpace,
                                                                    pColorSpaceSupport->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain3_CheckColorSpaceSupport", returnValue, replay_result);
     }
 }
@@ -2498,9 +2260,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetColorSpace1(ColorSpace);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain3_SetColorSpace1", returnValue, replay_result);
     }
 }
@@ -2526,9 +2285,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
                                                            SwapChainFlags,
                                                            pCreationNodeMask->GetPointer(),
                                                            MapObject<IUnknown*>(*ppPresentQueue->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain3_ResizeBuffers1", returnValue, replay_result);
     }
 }
@@ -2548,9 +2304,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
                                                                           ColorSpace,
                                                                           MapObject<IUnknown>(*pConcernedDevice->GetPointer()),
                                                                           pFlags->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput4_CheckOverlayColorSpaceSupport", returnValue, replay_result);
     }
 }
@@ -2612,9 +2365,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtection
     {
         auto replay_result = replay_object->RegisterHardwareContentProtectionTeardownStatusEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                                                  pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent", returnValue, replay_result);
     }
 }
@@ -2643,9 +2393,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         auto replay_result = replay_object->QueryVideoMemoryInfo(NodeIndex,
                                                                  MemorySegmentGroup,
                                                                  pVideoMemoryInfo->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter3_QueryVideoMemoryInfo", returnValue, replay_result);
     }
 }
@@ -2663,9 +2410,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         auto replay_result = replay_object->SetVideoMemoryReservation(NodeIndex,
                                                                       MemorySegmentGroup,
                                                                       Reservation);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter3_SetVideoMemoryReservation", returnValue, replay_result);
     }
 }
@@ -2681,9 +2425,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNo
     {
         auto replay_result = replay_object->RegisterVideoMemoryBudgetChangeNotificationEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                                              pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent", returnValue, replay_result);
     }
 }
@@ -2740,9 +2481,6 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         auto replay_result = replay_object->SetHDRMetaData(Type,
                                                            Size,
                                                            reinterpret_cast<void*>(pMetaData));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGISwapChain4_SetHDRMetaData", returnValue, replay_result);
     }
 }
@@ -2762,9 +2500,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
                                                             MapObject<IDXGIResource*>(*ppResources->GetPointer()),
                                                             Priority,
                                                             Flags);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice4_OfferResources1", returnValue, replay_result);
     }
 }
@@ -2782,9 +2517,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
         auto replay_result = replay_object->ReclaimResources1(NumResources,
                                                               MapObject<IDXGIResource*>(*ppResources->GetPointer()),
                                                               pResults->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIDevice4_ReclaimResources1", returnValue, replay_result);
     }
 }
@@ -2802,9 +2534,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
         auto replay_result = replay_object->CheckFeatureSupport(Feature,
                                                                 reinterpret_cast<void*>(pFeatureSupportData),
                                                                 FeatureSupportDataSize);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory5_CheckFeatureSupport", returnValue, replay_result);
     }
 }
@@ -2818,9 +2547,6 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc3(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIAdapter4_GetDesc3", returnValue, replay_result);
     }
 }
@@ -2834,9 +2560,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput6_GetDesc1", returnValue, replay_result);
     }
 }
@@ -2850,9 +2573,6 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->CheckHardwareCompositionSupport(pFlags->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIOutput6_CheckHardwareCompositionSupport", returnValue, replay_result);
     }
 }
@@ -2894,9 +2614,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     {
         auto replay_result = replay_object->RegisterAdaptersChangedEvent(MapWin32Handle<HANDLE>(hEvent),
                                                                          pdwCookie->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory7_RegisterAdaptersChangedEvent", returnValue, replay_result);
     }
 }
@@ -2910,9 +2627,6 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->UnregisterAdaptersChangedEvent(dwCookie);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("IDXGIFactory7_UnregisterAdaptersChangedEvent", returnValue, replay_result);
     }
 }
@@ -2930,9 +2644,6 @@ void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
         auto replay_result = replay_object->GetPrivateData(*guid.decoded_value,
                                                            pDataSize->GetPointer(),
                                                            reinterpret_cast<void*>(pData));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Object_GetPrivateData", returnValue, replay_result);
     }
 }
@@ -2950,9 +2661,6 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
         auto replay_result = replay_object->SetPrivateData(*guid.decoded_value,
                                                            DataSize,
                                                            reinterpret_cast<void*>(pData));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Object_SetPrivateData", returnValue, replay_result);
     }
 }
@@ -2968,9 +2676,6 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     {
         auto replay_result = replay_object->SetPrivateDataInterface(*guid.decoded_value,
                                                                     MapObject<IUnknown>(*pData->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Object_SetPrivateDataInterface", returnValue, replay_result);
     }
 }
@@ -2984,9 +2689,6 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetName(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetName(Name->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Object_SetName", returnValue, replay_result);
     }
 }
@@ -3035,9 +2737,6 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
     {
         auto replay_result = replay_object->GetRootSignatureDescAtVersion(convertToVersion,
                                                                           const_cast<const D3D12_VERSIONED_ROOT_SIGNATURE_DESC**>(ppDesc->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion", returnValue, replay_result);
     }
 }
@@ -3077,9 +2776,6 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
         auto replay_result = replay_object->Map(Subresource,
                                                 pReadRange->GetPointer(),
                                                 ppData->GetOutputPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Resource_Map", returnValue, replay_result);
     }
 }
@@ -3136,9 +2832,6 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
                                                                reinterpret_cast<void*>(pSrcData),
                                                                SrcRowPitch,
                                                                SrcDepthPitch);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Resource_WriteToSubresource", returnValue, replay_result);
     }
 }
@@ -3160,9 +2853,6 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
                                                                 DstDepthPitch,
                                                                 SrcSubresource,
                                                                 pSrcBox->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Resource_ReadFromSubresource", returnValue, replay_result);
     }
 }
@@ -3178,9 +2868,6 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
     {
         auto replay_result = replay_object->GetHeapProperties(pHeapProperties->GetPointer(),
                                                               pHeapFlags->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Resource_GetHeapProperties", returnValue, replay_result);
     }
 }
@@ -3218,9 +2905,6 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     {
         auto replay_result = replay_object->SetEventOnCompletion(Value,
                                                                  MapWin32Handle<HANDLE>(hEvent));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Fence_SetEventOnCompletion", returnValue, replay_result);
     }
 }
@@ -3234,9 +2918,6 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_Signal(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->Signal(Value);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Fence_Signal", returnValue, replay_result);
     }
 }
@@ -3338,9 +3019,6 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     {
         auto replay_result = replay_object->Reset(MapObject<ID3D12CommandAllocator>(*pAllocator->GetPointer()),
                                                   MapObject<ID3D12PipelineState>(*pInitialState->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12GraphicsCommandList_Reset", returnValue, replay_result);
     }
 }
@@ -4316,9 +3994,6 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     {
         auto replay_result = replay_object->Signal(MapObject<ID3D12Fence>(*pFence->GetPointer()),
                                                    Value);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12CommandQueue_Signal", returnValue, replay_result);
     }
 }
@@ -4334,9 +4009,6 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     {
         auto replay_result = replay_object->Wait(MapObject<ID3D12Fence>(*pFence->GetPointer()),
                                                  Value);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12CommandQueue_Wait", returnValue, replay_result);
     }
 }
@@ -4350,9 +4022,6 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetTimestampFrequency(pFrequency->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12CommandQueue_GetTimestampFrequency", returnValue, replay_result);
     }
 }
@@ -4368,9 +4037,6 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     {
         auto replay_result = replay_object->GetClockCalibration(pGpuTimestamp->GetPointer(),
                                                                 pCpuTimestamp->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12CommandQueue_GetClockCalibration", returnValue, replay_result);
     }
 }
@@ -4536,9 +4202,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
         auto replay_result = replay_object->CheckFeatureSupport(Feature,
                                                                 reinterpret_cast<void*>(pFeatureSupportData),
                                                                 FeatureSupportDataSize);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device_CheckFeatureSupport", returnValue, replay_result);
     }
 }
@@ -4966,9 +4629,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
     {
         auto replay_result = replay_object->MakeResident(NumObjects,
                                                          MapObject<ID3D12Pageable*>(*ppObjects->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device_MakeResident", returnValue, replay_result);
     }
 }
@@ -4984,9 +4644,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
     {
         auto replay_result = replay_object->Evict(NumObjects,
                                                   MapObject<ID3D12Pageable*>(*ppObjects->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device_Evict", returnValue, replay_result);
     }
 }
@@ -5086,9 +4743,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetStablePowerState(Enable);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device_SetStablePowerState", returnValue, replay_result);
     }
 }
@@ -5164,9 +4818,6 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     {
         auto replay_result = replay_object->StorePipeline(pName->GetPointer(),
                                                           MapObject<ID3D12PipelineState>(*pPipeline->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12PipelineLibrary_StorePipeline", returnValue, replay_result);
     }
 }
@@ -5245,9 +4896,6 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     {
         auto replay_result = replay_object->Serialize(reinterpret_cast<void*>(pData),
                                                       DataSizeInBytes);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12PipelineLibrary_Serialize", returnValue, replay_result);
     }
 }
@@ -5321,9 +4969,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
                                                                               NumFences,
                                                                               Flags,
                                                                               MapWin32Handle<HANDLE>(hEvent));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device1_SetEventOnMultipleFenceCompletion", returnValue, replay_result);
     }
 }
@@ -5341,9 +4986,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
         auto replay_result = replay_object->SetResidencyPriority(NumObjects,
                                                                  MapObject<ID3D12Pageable*>(*ppObjects->GetPointer()),
                                                                  pPriorities->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device1_SetResidencyPriority", returnValue, replay_result);
     }
 }
@@ -5437,9 +5079,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
                                                                 MapObject<ID3D12Pageable*>(*ppObjects->GetPointer()),
                                                                 MapObject<ID3D12Fence>(*pFenceToSignal->GetPointer()),
                                                                 FenceValueToSignal);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device3_EnqueueMakeResident", returnValue, replay_result);
     }
 }
@@ -5742,9 +5381,6 @@ void Dx12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->DestroyOwnedObject(MapObject<ID3D12DeviceChild>(*pObject->GetPointer()));
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12LifetimeTracker_DestroyOwnedObject", returnValue, replay_result);
     }
 }
@@ -5840,9 +5476,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     {
         auto replay_result = replay_object->EnumerateMetaCommands(pNumMetaCommands->GetPointer(),
                                                                   pDescs->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device5_EnumerateMetaCommands", returnValue, replay_result);
     }
 }
@@ -5864,9 +5497,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
                                                                            pTotalStructureSizeInBytes->GetPointer(),
                                                                            pParameterCount->GetPointer(),
                                                                            pParameterDescs->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device5_EnumerateMetaCommandParameters", returnValue, replay_result);
     }
 }
@@ -6005,9 +5635,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput(pOutput->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", returnValue, replay_result);
     }
 }
@@ -6021,9 +5648,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAll
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetPageFaultAllocationOutput(pOutput->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput", returnValue, replay_result);
     }
 }
@@ -6037,9 +5661,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput1(pOutput->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", returnValue, replay_result);
     }
 }
@@ -6053,9 +5674,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetPageFaultAllocationOutput1(pOutput->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
     }
 }
@@ -6075,9 +5693,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
                                                                         MeasurementsAction,
                                                                         MapWin32Handle<HANDLE>(hEventToSignalUponCompletion),
                                                                         pbFurtherMeasurementsDesired->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3D12Device6_SetBackgroundProcessingMode", returnValue, replay_result);
     }
 }
@@ -6567,9 +6182,6 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
         auto replay_result = replay_object->RegisterDestructionCallback(reinterpret_cast<PFN_DESTRUCTION_CALLBACK>(callbackFn),
                                                                         reinterpret_cast<void*>(pData),
                                                                         pCallbackID->GetPointer());
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3DDestructionNotifier_RegisterDestructionCallback", returnValue, replay_result);
     }
 }
@@ -6583,9 +6195,6 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCa
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->UnregisterDestructionCallback(callbackID);
-        if (SUCCEEDED(replay_result))
-        {
-        }
         CheckReplayResult("ID3DDestructionNotifier_UnregisterDestructionCallback", returnValue, replay_result);
     }
 }

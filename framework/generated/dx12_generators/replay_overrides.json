@@ -1,0 +1,9 @@
+{
+  "functions": {
+  },
+  "classmethods": {
+    "IDXGIFactory2": {
+      "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd"
+    }
+  }
+}
