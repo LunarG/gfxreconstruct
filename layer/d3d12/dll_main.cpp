@@ -21,6 +21,7 @@
 */
 
 #include "encode/d3d12_dispatch_table.h"
+#include "encode/dx12_dll_initializer.h"
 #include "util/defines.h"
 #include "util/file_path.h"
 #include "util/platform.h"
@@ -31,113 +32,52 @@
 #include <string>
 #include <windows.h>
 
-const wchar_t kSystemDllName[]  = L"d3d12_ms.dll";
-const wchar_t kCaptureDllName[] = L"d3d12_capture.dll";
+const char kSystemDllName[]             = "d3d12_ms.dll";
+const char kCaptureDllName[]            = "d3d12_capture.dll";
+const char kCaptureDllInitProcName[]    = "InitializeD3D12Capture";
+const char kCaptureDllDestroyProcName[] = "ReleaseD3D12Capture";
 
-static HMODULE d3d12_dll   = nullptr; // System DLL providing the D3D12 API calls to wrap.
-static HMODULE capture_dll = nullptr; // DLL with capture implementation, which is only loaded when capture is enabled.
-static gfxrecon::encode::D3D12DispatchTable dispatch_table;
+static gfxrecon::encode::DxDllInitializer<gfxrecon::encode::D3D12DispatchTable> dll_initializer;
+
+inline const gfxrecon::encode::D3D12DispatchTable& GetDispatchTable()
+{
+    return dll_initializer.GetDispatchTable();
+}
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-static bool IsCaptureEnabled()
+static void LoadD3D12CaptureProcs(HMODULE system_dll, encode::D3D12DispatchTable* dispatch_table)
 {
-    // TODO(GH-48): Read environment variable.
-    return true;
-}
-
-static void LoadD3D12CaptureProcs(HMODULE system_dll)
-{
-    if (system_dll != nullptr)
+    if (system_dll != nullptr && dispatch_table != nullptr)
     {
-        dispatch_table.D3D12CreateDevice =
+        dispatch_table->D3D12CreateDevice =
             reinterpret_cast<PFN_D3D12_CREATE_DEVICE>(GetProcAddress(system_dll, "D3D12CreateDevice"));
-        dispatch_table.D3D12CreateRootSignatureDeserializer =
+        dispatch_table->D3D12CreateRootSignatureDeserializer =
             reinterpret_cast<PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER>(
                 GetProcAddress(system_dll, "D3D12CreateRootSignatureDeserializer"));
-        dispatch_table.D3D12CreateVersionedRootSignatureDeserializer =
+        dispatch_table->D3D12CreateVersionedRootSignatureDeserializer =
             reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER>(
                 GetProcAddress(system_dll, "D3D12CreateVersionedRootSignatureDeserializer"));
-        dispatch_table.D3D12GetDebugInterface =
+        dispatch_table->D3D12GetDebugInterface =
             reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(GetProcAddress(system_dll, "D3D12GetDebugInterface"));
-        dispatch_table.D3D12SerializeRootSignature = reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(
+        dispatch_table->D3D12SerializeRootSignature = reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(
             GetProcAddress(system_dll, "D3D12SerializeRootSignature"));
-        dispatch_table.D3D12SerializeVersionedRootSignature =
+        dispatch_table->D3D12SerializeVersionedRootSignature =
             reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
                 GetProcAddress(system_dll, "D3D12SerializeVersionedRootSignature"));
-        dispatch_table.D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
+        dispatch_table->D3D12EnableExperimentalFeatures = reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
             GetProcAddress(system_dll, "D3D12EnableExperimentalFeatures"));
     }
 }
 
 static bool Initialize()
 {
-    if (d3d12_dll == nullptr)
-    {
-        d3d12_dll = LoadLibraryW(kSystemDllName);
-
-        if (d3d12_dll != nullptr)
-        {
-            LoadD3D12CaptureProcs(d3d12_dll);
-
-            if (IsCaptureEnabled() && (capture_dll == nullptr))
-            {
-                capture_dll = LoadLibraryW(kCaptureDllName);
-                if (capture_dll != nullptr)
-                {
-                    auto init_func = reinterpret_cast<PFN_InitializeD3D12Capture>(
-                        GetProcAddress(capture_dll, "InitializeD3D12Capture"));
-
-                    if (init_func != nullptr)
-                    {
-                        init_func(&dispatch_table);
-                    }
-                    else
-                    {
-                        OutputDebugStringA(
-                            "GFXRECON: Failed to retrieve InitializeD3D12Capture proc from GFXReconstruct capture DLL");
-                        OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
-                    }
-                }
-                else
-                {
-                    OutputDebugStringA(
-                        "GFXRECON: Failed to load GFXReconstruct capture DLL for d3d12.dll initialization");
-                    OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
-                }
-            }
-        }
-        else
-        {
-            OutputDebugStringA("GFXRECON: Failed to load system DLL for d3d12.dll initialization");
-            return false;
-        }
-    }
-
-    return true;
+    return dll_initializer.Initialize(kSystemDllName, kCaptureDllName, kCaptureDllInitProcName, LoadD3D12CaptureProcs);
 }
 
 static void Destroy()
 {
-    if (capture_dll != nullptr)
-    {
-        auto release_func =
-            reinterpret_cast<PFN_ReleaseD3D12Capture>(GetProcAddress(capture_dll, "ReleaseD3D12Capture"));
-
-        if (release_func != nullptr)
-        {
-            release_func(&dispatch_table);
-        }
-
-        FreeLibrary(capture_dll);
-        capture_dll = nullptr;
-    }
-
-    if (d3d12_dll != nullptr)
-    {
-        FreeLibrary(d3d12_dll);
-        d3d12_dll = nullptr;
-    }
+    dll_initializer.Destroy(kCaptureDllDestroyProcName);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
@@ -160,7 +100,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateDevice(IUnknown*         pAdapter,
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+        return GetDispatchTable().D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
     }
 
     return E_FAIL;
@@ -173,7 +113,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateRootSignatureDeserializer(LPCVOID pS
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12CreateRootSignatureDeserializer(
+        return GetDispatchTable().D3D12CreateRootSignatureDeserializer(
             pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
     }
 
@@ -181,14 +121,14 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12CreateRootSignatureDeserializer(LPCVOID pS
 }
 
 EXTERN_C HRESULT WINAPI
-                 gfxrecon_D3D12CreateVersionedRootSignatureDeserializer(LPCVOID pSrcData,
-                                                                        SIZE_T  SrcDataSizeInBytes,
-                                                                        REFIID  pRootSignatureDeserializerInterface,
-                                                                        void**  ppRootSignatureDeserializer)
+gfxrecon_D3D12CreateVersionedRootSignatureDeserializer(LPCVOID pSrcData,
+                                                       SIZE_T  SrcDataSizeInBytes,
+                                                       REFIID  pRootSignatureDeserializerInterface,
+                                                       void**  ppRootSignatureDeserializer)
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12CreateVersionedRootSignatureDeserializer(
+        return GetDispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
             pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
     }
 
@@ -199,7 +139,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12GetDebugInterface(REFIID riid, void** ppvD
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12GetDebugInterface(riid, ppvDebug);
+        return GetDispatchTable().D3D12GetDebugInterface(riid, ppvDebug);
     }
 
     return E_FAIL;
@@ -212,7 +152,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeRootSignature(const D3D12_ROOT_SI
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
+        return GetDispatchTable().D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
     }
 
     return E_FAIL;
@@ -223,7 +163,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12SerializeVersionedRootSignature(
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
+        return GetDispatchTable().D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
     }
 
     return E_FAIL;
@@ -236,7 +176,7 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D12EnableExperimentalFeatures(UINT       NumF
 {
     if (gfxrecon::Initialize())
     {
-        return dispatch_table.D3D12EnableExperimentalFeatures(
+        return GetDispatchTable().D3D12EnableExperimentalFeatures(
             NumFeatures, pIIDs, pConfigurationStructs, pConfigurationStructSizes);
     }
 
