@@ -142,7 +142,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
     if(!ppRootSignatureDeserializer->IsNull()) ppRootSignatureDeserializer->SetHandleLength(1);
     auto _out_p_ppRootSignatureDeserializer    = ppRootSignatureDeserializer->GetPointer();
     auto _out_hp_ppRootSignatureDeserializer   = ppRootSignatureDeserializer->GetHandlePointer();
-    auto replay_result = D3D12CreateRootSignatureDeserializer(reinterpret_cast<void*>(pSrcData),
+    auto replay_result = D3D12CreateRootSignatureDeserializer(pSrcData->GetPointer(),
                                                               SrcDataSizeInBytes,
                                                               *pRootSignatureDeserializerInterface.decoded_value,
                                                               reinterpret_cast<void**>(_out_hp_ppRootSignatureDeserializer));
@@ -186,7 +186,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     if(!ppRootSignatureDeserializer->IsNull()) ppRootSignatureDeserializer->SetHandleLength(1);
     auto _out_p_ppRootSignatureDeserializer    = ppRootSignatureDeserializer->GetPointer();
     auto _out_hp_ppRootSignatureDeserializer   = ppRootSignatureDeserializer->GetHandlePointer();
-    auto replay_result = D3D12CreateVersionedRootSignatureDeserializer(reinterpret_cast<void*>(pSrcData),
+    auto replay_result = D3D12CreateVersionedRootSignatureDeserializer(pSrcData->GetPointer(),
                                                                        SrcDataSizeInBytes,
                                                                        *pRootSignatureDeserializerInterface.decoded_value,
                                                                        reinterpret_cast<void**>(_out_hp_ppRootSignatureDeserializer));
@@ -244,7 +244,7 @@ void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
 {
     auto replay_result = D3D12EnableExperimentalFeatures(NumFeatures,
                                                          pIIDs->GetPointer(),
-                                                         reinterpret_cast<void*>(pConfigurationStructs),
+                                                         pConfigurationStructs->GetPointer(),
                                                          pConfigurationStructSizes->GetPointer());
     CheckReplayResult("D3D12EnableExperimentalFeatures", returnValue, replay_result);
 }
@@ -260,7 +260,7 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
     {
         auto replay_result = replay_object->SetPrivateData(*Name.decoded_value,
                                                            DataSize,
-                                                           reinterpret_cast<void*>(pData));
+                                                           pData->GetPointer());
         CheckReplayResult("IDXGIObject_SetPrivateData", returnValue, replay_result);
     }
 }
@@ -292,7 +292,7 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
     {
         auto replay_result = replay_object->GetPrivateData(*Name.decoded_value,
                                                            pDataSize->GetPointer(),
-                                                           reinterpret_cast<void*>(pData));
+                                                           pData->GetPointer());
         CheckReplayResult("IDXGIObject_GetPrivateData", returnValue, replay_result);
     }
 }
@@ -1250,7 +1250,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFramePointerShape(PointerShapeBufferSize,
-                                                                 reinterpret_cast<void*>(pPointerShapeBuffer),
+                                                                 pPointerShapeBuffer->GetPointer(),
                                                                  pPointerShapeBufferSizeRequired->GetPointer(),
                                                                  pPointerShapeInfo->GetPointer());
         CheckReplayResult("IDXGIOutputDuplication_GetFramePointerShape", returnValue, replay_result);
@@ -2480,7 +2480,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     {
         auto replay_result = replay_object->SetHDRMetaData(Type,
                                                            Size,
-                                                           reinterpret_cast<void*>(pMetaData));
+                                                           pMetaData->GetPointer());
         CheckReplayResult("IDXGISwapChain4_SetHDRMetaData", returnValue, replay_result);
     }
 }
@@ -2532,7 +2532,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->CheckFeatureSupport(Feature,
-                                                                reinterpret_cast<void*>(pFeatureSupportData),
+                                                                pFeatureSupportData->GetPointer(),
                                                                 FeatureSupportDataSize);
         CheckReplayResult("IDXGIFactory5_CheckFeatureSupport", returnValue, replay_result);
     }
@@ -2643,7 +2643,7 @@ void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
     {
         auto replay_result = replay_object->GetPrivateData(*guid.decoded_value,
                                                            pDataSize->GetPointer(),
-                                                           reinterpret_cast<void*>(pData));
+                                                           pData->GetPointer());
         CheckReplayResult("ID3D12Object_GetPrivateData", returnValue, replay_result);
     }
 }
@@ -2660,7 +2660,7 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
     {
         auto replay_result = replay_object->SetPrivateData(*guid.decoded_value,
                                                            DataSize,
-                                                           reinterpret_cast<void*>(pData));
+                                                           pData->GetPointer());
         CheckReplayResult("ID3D12Object_SetPrivateData", returnValue, replay_result);
     }
 }
@@ -3375,7 +3375,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
     {
         replay_object->SetComputeRoot32BitConstants(RootParameterIndex,
                                                     Num32BitValuesToSet,
-                                                    reinterpret_cast<void*>(pSrcData),
+                                                    pSrcData->GetPointer(),
                                                     DestOffsetIn32BitValues);
     }
 }
@@ -3392,7 +3392,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
     {
         replay_object->SetGraphicsRoot32BitConstants(RootParameterIndex,
                                                      Num32BitValuesToSet,
-                                                     reinterpret_cast<void*>(pSrcData),
+                                                     pSrcData->GetPointer(),
                                                      DestOffsetIn32BitValues);
     }
 }
@@ -3702,7 +3702,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     if (replay_object != nullptr)
     {
         replay_object->SetMarker(Metadata,
-                                 reinterpret_cast<void*>(pData),
+                                 pData->GetPointer(),
                                  Size);
     }
 }
@@ -3717,7 +3717,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     if (replay_object != nullptr)
     {
         replay_object->BeginEvent(Metadata,
-                                  reinterpret_cast<void*>(pData),
+                                  pData->GetPointer(),
                                   Size);
     }
 }
@@ -3953,7 +3953,7 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_SetMarker(
     if (replay_object != nullptr)
     {
         replay_object->SetMarker(Metadata,
-                                 reinterpret_cast<void*>(pData),
+                                 pData->GetPointer(),
                                  Size);
     }
 }
@@ -3968,7 +3968,7 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_BeginEvent(
     if (replay_object != nullptr)
     {
         replay_object->BeginEvent(Metadata,
-                                  reinterpret_cast<void*>(pData),
+                                  pData->GetPointer(),
                                   Size);
     }
 }
@@ -4200,7 +4200,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->CheckFeatureSupport(Feature,
-                                                                reinterpret_cast<void*>(pFeatureSupportData),
+                                                                pFeatureSupportData->GetPointer(),
                                                                 FeatureSupportDataSize);
         CheckReplayResult("ID3D12Device_CheckFeatureSupport", returnValue, replay_result);
     }
@@ -4258,7 +4258,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
         auto _out_p_ppvRootSignature    = ppvRootSignature->GetPointer();
         auto _out_hp_ppvRootSignature   = ppvRootSignature->GetHandlePointer();
         auto replay_result = replay_object->CreateRootSignature(nodeMask,
-                                                                reinterpret_cast<void*>(pBlobWithRootSignature),
+                                                                pBlobWithRootSignature->GetPointer(),
                                                                 blobLengthInBytes,
                                                                 *riid.decoded_value,
                                                                 reinterpret_cast<void**>(_out_hp_ppvRootSignature));
@@ -4894,7 +4894,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->Serialize(reinterpret_cast<void*>(pData),
+        auto replay_result = replay_object->Serialize(pData->GetPointer(),
                                                       DataSizeInBytes);
         CheckReplayResult("ID3D12PipelineLibrary_Serialize", returnValue, replay_result);
     }
@@ -4940,7 +4940,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         if(!ppPipelineLibrary->IsNull()) ppPipelineLibrary->SetHandleLength(1);
         auto _out_p_ppPipelineLibrary    = ppPipelineLibrary->GetPointer();
         auto _out_hp_ppPipelineLibrary   = ppPipelineLibrary->GetHandlePointer();
-        auto replay_result = replay_object->CreatePipelineLibrary(reinterpret_cast<void*>(pLibraryBlob),
+        auto replay_result = replay_object->CreatePipelineLibrary(pLibraryBlob->GetPointer(),
                                                                   BlobLength,
                                                                   *riid.decoded_value,
                                                                   reinterpret_cast<void**>(_out_hp_ppPipelineLibrary));
@@ -5519,7 +5519,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
         auto _out_hp_ppMetaCommand   = ppMetaCommand->GetHandlePointer();
         auto replay_result = replay_object->CreateMetaCommand(*CommandId.decoded_value,
                                                               NodeMask,
-                                                              reinterpret_cast<void*>(pCreationParametersData),
+                                                              pCreationParametersData->GetPointer(),
                                                               CreationParametersDataSizeInBytes,
                                                               *riid.decoded_value,
                                                               reinterpret_cast<void**>(_out_hp_ppMetaCommand));
@@ -5999,7 +5999,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaComman
     if (replay_object != nullptr)
     {
         replay_object->InitializeMetaCommand(MapObject<ID3D12MetaCommand>(*pMetaCommand->GetPointer()),
-                                             reinterpret_cast<void*>(pInitializationParametersData),
+                                             pInitializationParametersData->GetPointer(),
                                              InitializationParametersDataSizeInBytes);
     }
 }
@@ -6014,7 +6014,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     if (replay_object != nullptr)
     {
         replay_object->ExecuteMetaCommand(MapObject<ID3D12MetaCommand>(*pMetaCommand->GetPointer()),
-                                          reinterpret_cast<void*>(pExecutionParametersData),
+                                          pExecutionParametersData->GetPointer(),
                                           ExecutionParametersDataSizeInBytes);
     }
 }

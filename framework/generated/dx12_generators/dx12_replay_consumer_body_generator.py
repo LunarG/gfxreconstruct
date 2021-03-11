@@ -235,9 +235,12 @@ class Dx12ReplayConsumerBodyGenerator(
                         value_name = value.name + '->GetOutputPointer()'
                     elif value.base_type == 'void':
                         if value.pointer_count == 1:
-                            value_name = 'reinterpret_cast<void*>({})'.format(
-                                value.name
-                            )
+                            if value.is_array:
+                                value_name = value.name + '->GetPointer()'
+                            else:
+                                value_name = 'reinterpret_cast<void*>({})'.format(
+                                    value.name
+                                )
                         elif value.pointer_count == 2:
                             value_name = value.name + '->GetOutputPointer()'
                     else:
