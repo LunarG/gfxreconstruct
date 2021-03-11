@@ -33,6 +33,11 @@
 #include "util/date_time.h"
 #include "util/logging.h"
 
+#if defined(WIN32)
+#include "generated/generated_dx12_decoder.h"
+#include "generated/generated_dx12_replay_consumer.h"
+#endif
+
 #include <exception>
 #include <memory>
 #include <stdexcept>
@@ -163,15 +168,27 @@ int main(int argc, const char** argv)
             }
             else
             {
+                // Initialize Vulkan API decoder and consumer(s).
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
+                gfxrecon::decode::VulkanReplayConsumer         vulkan_replay_consumer(
                     window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                gfxrecon::decode::VulkanDecoder decoder;
+                gfxrecon::decode::VulkanDecoder vulkan_decoder;
 
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                vulkan_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
 
-                decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
+                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                file_processor.AddDecoder(&vulkan_decoder);
+
+#if defined(WIN32)
+                // Initialize D3D12 API decoder and consumer(s).
+                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer;
+                gfxrecon::decode::Dx12Decoder        dx12_decoder;
+
+                dx12_decoder.AddConsumer(&dx12_replay_consumer);
+                file_processor.AddDecoder(&dx12_decoder);
+#endif
+
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.
