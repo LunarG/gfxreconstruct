@@ -63,6 +63,11 @@ class BaseDecoderBodyGenerator():
         for value in values:
             decode_type = self.make_decoded_param_type(value)
             body += '    {} {};\n'.format(decode_type, value.name)
+
+            if decode_type == 'Decoded_{}'.format(value.base_type):
+                body += '    {} value_{};\n'.format(value.base_type, value.name)
+                body += '    {0}.decoded_value = &value_{0};\n'.format(value.name)
+
             if 'Decoder' in decode_type:
                 arg_names.append('&{}'.format(value.name))
             else:
