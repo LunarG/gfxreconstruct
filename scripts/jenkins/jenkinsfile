@@ -1,0 +1,488 @@
+// groovy
+import static groovy.io.FileType.*
+import static groovy.io.FileVisitResult.*
+
+// Default branch of gfxreconstruct to use.
+gfxrBranch = "amd-main"
+kPackageNameRoot = "gfx_reconstruct_test_archive"
+commonScriptsBranch = "master"
+// Default test run timeout 10 minutes + a buffer
+kTestTimeout = 35
+
+// Artifactory retention settings
+kMaxDays = 30
+kMaxBuilds = 14
+if (env.MAX_DAYS) {
+    kMaxDays = env.MAX_DAYS
+}
+if (env.MAX_BUILDS) {
+    kMaxBuilds = env.MAX_BUILDS
+}
+email_recip_fail = ""
+email_recip_success = ""
+
+JTools = null
+extraBuildArgs = ""
+runTests = true
+
+def setupJobVars() {
+    // Defaults for GFXReconstruct package
+    gfxrBranch = "amd-main"
+    devMatchPattern = /[Dd][Ee][Vv]-.*/
+    // extraBuildArgs = "--skip-check-code-style --skip-apply-code-style --skip-tests --test-archive"
+    // Use these arguments for now.
+    extraBuildArgs = "--skip-check-code-style --skip-tests"
+
+
+    email_recip_fail = ""
+    email_recip_success = ""
+    if (params.NOTIFY_FAIL) {
+        email_recip_fail = "${params.NOTIFY_FAIL}"
+    }
+    if (params.NOTIFY_SUCCESS) {
+        email_recip_success = "${params.NOTIFY_SUCCESS}"
+    }
+    // also, a no-op, since this does not get manually set.
+    /*    if (gfxrBranch.matches(devMatchPattern)) {
+            extraBuildArgs = "--skip-check-code-style --skip-tests"
+            runTests = false
+        }
+    */
+    // While testing, turn on running the tests.
+    runTests = true
+}
+
+// Define the cloning to be done.
+def cloneRepos() {
+    dir("gfxreconstruct") {
+        try {
+            withCredentials([usernameColonPassword(credentialsId: '85ec0d85-308b-4bbc-a073-125bf010aaef', variable: 'credentialsId')]) {
+                checkout scm
+            }
+        } catch (Exception err) {
+            echo "Unable to clone the gfxreconstruct github repo"
+            throw err
+        }
+    }
+}
+// Check out, then load the script that contains functions that can be used in many projects.
+// Check out, then load the script that contains functions that can be used in many projects.
+def setupTools() {
+    def jenkins_tools_linux = "Scripts/LabTools/Jenkins/Generic/JenkinsToolsLib.gvy"
+    def jenkins_tools_windows = "Scripts\\LabTools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
+    def loaded_tools
+    if (isUnix()) {
+        jenkins_tools = jenkins_tools_linux
+    } else {
+        jenkins_tools = jenkins_tools_windows
+    }
+    if (fileExists('Scripts')) {
+        // If Scripts were checked out, delete the directory and get a fresh copy
+        dir ('Scripts') {
+            try {
+                if (isUnix()) {
+                    sh "git branch -u origin/${commonScriptsBranch}"
+                    sh "git pull"
+                } else {
+                    bat "git branch -u origin/${commonScriptsBranch}"
+                    bat "git pull"
+                }
+            } catch (Exception ePull) {
+                echo "Unable to run the git pull in common-Scripts."
+                deleteDir()
+                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
+            }
+        }
+    } else {
+        // Check the repo out
+        try {
+            dir('Scripts') {
+                git branch: "${commonScriptsBranch}", url: "ssh://gerritgit/DevTools/ec/common-Scripts"
+            }
+        } catch (Exception eInit) {
+            echo "Unable to checkout the common-Scripts repository"
+            throw eInit
+        }
+    }
+    // Load the script.
+    try {
+        loaded_tools = load(jenkins_tools)
+    } catch (Exception err) {
+        echo "Could not load "+ jenkins_tools + " " + err
+        throw err
+    }
+    return loaded_tools
+}
+
+// Upload all artifacts
+def UploadArtifacts(label) {
+    node(label) {
+        JTools.cleanUp()
+        // unstash zip and tgz files
+        /*        dir ("Linux") {
+                    deleteDir()
+                    unstash "TestStashL"
+                } */
+        dir ("Windows") {
+            deleteDir()
+            unstash "TestStashW"
+        }
+
+        // Initialize upload information
+        // Think about this some more... download spec could be problematic for test jobs
+        // partial_path = "${JOB_NAME}/${BUILD_NUMBER}/$gfxrBranch"
+        partial_path = "${JOB_NAME}/${BUILD_ID}"
+
+        def server = Artifactory.server('DevToolsBDC')
+        def build_info = Artifactory.newBuildInfo()
+        build_info.env.capture = true
+        build_info.number = env.BUILD_NUMBER
+        build_info.retention maxBuilds: kMaxBuilds, maxDays: kMaxDays, deleteBuildArtifacts: true
+        def upload_spec = """ {
+            "files": [
+                {
+                    "pattern": "Windows/*.zip",
+                    "props": "branch=$gfxrBranch",
+                    "target":  "DevToolsBDC/Builds/GFXR/${partial_path}/Windows/"
+                },
+                {
+                    "pattern": "Linux/*.tar",
+                    "props": "branch=$gfxrBranch",
+                    "target":  "DevToolsBDC/Builds/GFXR/${partial_path}/Linux/"
+                }
+            ]
+        } """
+        // Upload files and buildInfo object
+        server.upload spec: upload_spec, buildInfo: build_info
+        server.publishBuildInfo build_info
+    }
+}
+
+// Build GFXReconstruct
+def Build(label) {
+    node (label) {
+        timestamps {
+            agentName = "${env.NODE_NAME}"
+            stage(agentName + ': Build GFXReconstruct') {
+                // JTools.cleanUp("gfxreconstruct")
+                dir ("gfxreconstruct") {
+                    deleteDir()
+                }
+                cloneRepos()
+                if (isUnix()) {
+                    try {
+                        sh """
+                            set -x
+                            set -e
+                            python3 ./gfxreconstruct/scripts/build.py ${extraBuildArgs}
+                        """
+                    } catch (Exception err) {
+                        echo "GFXReconstruct Linux build failed: " + err
+                        currentBuild.result = 'FAILURE'
+                        throw err
+                    }
+                    try {
+                        dir ("gfxreconstruct") {
+                            sh """
+                                cp LICENSE.txt build/linux/x64/output/bin/
+                                cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
+                                cp USAGE_desktop.md build/linux/x64/output/bin/
+                                cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
+                                cp ../Scripts/LabTools/Jenkins/GFXReconstruct/internal_test.py build/linux/x64/output/bin/
+                                mv build/linux/x64/output/bin ../gfxreconstruct-dev
+                                mv build/linux/x64/output/lib*/*.so ../gfxreconstruct-dev/
+                                mv build/linux/x64/output/share/vulkan/explicit_layer.d/*.json ../gfxreconstruct-dev/
+                            """
+                        }
+                    } catch (Exception epost) {
+                        echo "Could not prepare artifacts for archiving"
+                        throw epost
+                    }
+                    try {
+                        dir("gfxreconstruct-dev") {
+                            sh """
+                                tar cvf ../${kPackageNameRoot}.tar *
+                            """
+                        }
+                    } catch (Exception etar) {
+                        echo "Unable to create the tar file"
+                        // probably should uncomment this eventually
+                        // throw etar
+                    }
+                } else {
+                    withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}"]) {
+                        try {
+                            bat """
+                                echo on
+                                set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
+                                C:\\Python36\\python.exe .\\gfxreconstruct\\scripts\\build.py ${extraBuildArgs}
+                            """
+                        } catch (Exception err) {
+                            echo "GFXReconstruct Windows build failed: " + err
+                            currentBuild.result = 'FAILURE'
+                            throw err
+                        }
+                        try {
+                            dir ("gfxreconstruct") {
+                                bat """
+                                    copy LICENSE.txt build\\windows\\x64\\output\\bin\\
+                                    copy LICENSE_ThirdParty.txt build\\windows\\x64\\output\\bin\\
+                                    copy USAGE_desktop.md build\\windows\\x64\\output\\bin\\
+                                    copy layer\\vk_layer_settings.txt build\\windows\\x64\\output\\bin\\
+                                    copy scripts\\*test.py build\\windows\\x64\\output\\bin\\
+                                    copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py build\\windows\\x64\\output\\bin\\
+                                    move build\\windows\\x64\\output\\bin gfxreconstruct-dev
+                                """
+                            }
+                        } catch (Exception epost) {
+                            echo "Could not prepare artifacts for archiving"
+                            throw epost
+                        }
+                        try {
+                            dir("gfxreconstruct\\gfxreconstruct-dev") {
+                                bat """
+                                zip -r ..\\..\\${kPackageNameRoot}.zip .\\*
+                            """
+                            }
+                        } catch (Exception ezip) {
+                            echo "Unable to create the zip file"
+                            // probably should uncomment this eventually
+                            // throw ezip
+                        }
+                    }
+                }
+                // Stash and archive artifacts
+                if (runTests) {
+                    if (isUnix()) {
+                        echo "would stash name: 'TestStashL', includes: ${kPackageNameRoot}.tar"
+                    } else {
+                        stash name: 'TestStashW', includes: "${kPackageNameRoot}.zip"
+                    }
+                }
+            }
+        }
+    }
+}
+
+def Test(label) {
+    node(label) {
+        echo "label is " + label
+        timestamps {
+            agentName = "${env.NODE_NAME}"
+            echo "agentName is " + agentName
+            stage(agentName + ': TestGFXReconstruct') {
+                // test GFXReconstruct
+                if (isUnix()) {
+                    JTools.cleanAll()
+                    dir('LinuxTest') {
+                        sh "rm -f ${kPackageNameRoot}.tar"
+                        unstash "TestStashL"
+                        try {
+                            // Download platform relevant test data - disabled for now since functional tests tests are not exeucted on Linux
+                            // sh "scp -r bdc-dtw-data:/cygdrive/d/BDC_Assets/GFXReconstruct/Samples_Linux ./build/linux/x64/test_data/Samples_Linux/TestApp"
+                            // timeout the tests if not done in kTestTimeout minutes
+                            timeout(kTestTimeout) {
+                                sh """
+                                    set -x
+                                    set -e
+                                    tar -xvf ${kPackageNameRoot}.tar
+                                    python3 ./test.py
+                                """
+                            }
+                            echo "Testing complete on ${agentName}"
+                        } catch (Exception err) {
+                            echo "Tests failed on ${agentName}: ${err}"
+                            currentBuild.result = 'FAILURE'
+                            throw err
+                        }
+                    }
+                } else {
+                    echo "In the windows test stage..."
+                    JTools.cleanAll()
+                    try {
+                        // Additional registry cleanup before running tests.
+                        bat """
+                            SETLOCAL ENABLEDELAYEDEXPANSION
+                            FOR /F "tokens=* USEBACKQ" %%F IN (`reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v "*gfxreconstruct.json"`) DO (
+                                set LINE=%%F
+                                if "!LINE!" == "End of search: 0 match(es) found." (
+                                    echo No stray gfxreconstruct entries
+                                ) else (
+                                    for /F %%i in ("!LINE!") DO (
+                                        if not "%%i" == "End" (
+                                            if not "%%i" == "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers" (
+                                                reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v %%i /f
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        """
+                    }
+                    catch (Exception regerr) {
+                        echo "Registry cleanup failed. Double check registry key HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers."
+                        currentBuild.result = 'FAILURE'
+                        // throw regerr
+                    }
+                    dir ('windowsTest') {
+                        bat "del /q ${kPackageNameRoot}.zip"
+                        unstash "TestStashW"
+                        withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}", "DST_PATH=${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\test_data\\"]) {
+                            try {
+                                bat """
+                                    echo on
+                                    powershell expand-archive -Path .\\${kPackageNameRoot}.zip
+                                    cd ${kPackageNameRoot}
+                                    rem "scp.exe" -r "adtbld@bdc-dtw-data:/cygdrive/d/BDC_Assets/GFXReconstruct/Samples_Win" .\\build\\linux\\x64\\test_data\\Samples_Win\\TestApp
+                                    echo =============================================================
+                                    dir \\\\bdc-dtw-data\\BDC_Assets\\GFXReconstruct
+                                    echo =============================================================
+                                """
+                            } catch (Exception err) {
+                                echo "package expansion or download failed on ${agentName}: ${err}"
+                                currentBuild.result = 'FAILURE'
+                                throw err
+                            }
+                            try {
+                                timeout(kTestTimeout) {
+                                    bat """
+                                        echo on
+                                        net session >nul 2>&1
+                                        IF %ERRORLEVEL% EQU 0 (
+                                            ECHO you are Administrator
+                                        )
+                                        echo %VULKAN_SDK%
+                                        set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;%PATH%
+                                        cd ${kPackageNameRoot}
+                                        echo %DST_PATH%
+                                        reg add HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v  ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /t REG_DWORD /d 0
+                                        C:\\Python36\\python.exe .\\test.py
+                                        REM set /a STATUS=%ERRORLEVEL%
+                                        REM C:\\Python36\\python.exe .\\internal_test.py --api-type vulkan --src-path E:\\data\\TestApp --dst-path E:\\TestDestination --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin
+                                        C:\\Python36\\python.exe .\\internal_test.py --api-type dx12 --src-path E:\\testDX12 --dst-path ${WORKSPACE}\\results --binary-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot} --layer-path ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}
+                                        set /a STATUS=%STATUS%+%ERRORLEVEL%
+                                        reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v ${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /f
+                                        exit /b %STATUS%
+                                    """
+                                    echo "Testing complete on ${agentName}"
+                                }
+                                //junit "${kPackageNameRoot}\\TestResult\\*.xml"
+                            } catch (Exception err) {
+                                echo "Tests failed on ${agentName}: ${err}"
+                                currentBuild.result = 'FAILURE'
+                                throw err
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+testOnNodes = [:]
+testOnNodesL = [:]
+testOnNodesW = [:]
+
+def setupWindowsJobs() {
+    // Windows test steps as step per node
+    def winNodes = JTools.nodeNames("GFXRWINTEST")
+    for (int i=0; i<winNodes.size(); ++i) {
+        def hostNameW = winNodes[i]
+        testOnNodesW["node_" + hostNameW] = {
+            echo "Running GFXReconstruct test on " + hostNameW
+            Test(hostNameW)
+        }
+    }
+}
+def setupLinuxJobs() {
+    def linuxNodes = JTools.nodeNames("GFXRLINUXTEST")
+    for (int i=0; i<linuxNodes.size(); ++i) {
+        def hostNameL = linuxNodes[i]
+        testOnNodesL["node_" + hostNameL] = {
+            echo "Running GFXReconstruct tests on " + hostNameL
+            Test(hostNameL)
+        }
+    }
+}
+
+pipeline {
+    agent none
+    /*    parameters { // uncomment this section when debugging without committing changes
+            string(name: 'GFXRBRANCH', defaultValue: "amd-master", description: "GFXR branch to use: amd-master, dev-<info>, or amd-vN.N")
+            string(name: 'NOTIFY_FAIL', description: "list of email recipients if build fails (space separated). Can be empty.")
+            string(name: 'NOTIFY_SUCCESS', description: "list of email recipients if status changes from failure to success (space separated). Can be empty.")
+        }*/
+    stages {
+        stage ('Setup the tools') {
+            agent { label 'BDC-DTW-BLD-04' }
+            steps {
+                script {
+                    echo "setting JTools"
+                    JTools = setupTools()
+                    echo "setting job vars"
+                    setupJobVars()
+                }
+            }
+        }
+        stage ('Build') {
+            parallel ('Build') {
+                stage ('Windows') {
+                    steps {
+                        Build('BDC-DTW-BLD-04')
+                    }
+                }
+                stage ('Ubuntu') {
+                    steps {
+                        //                        Build('BLD-U1804')
+                        echo "Not building linux"
+                    }
+                }
+            }
+        }
+        stage ('Archiving if not dev- branch and running tests') {
+            steps {
+                script {
+                    if (runTests) {
+                        UploadArtifacts('BLD-U1804')
+                    }
+                }
+            }
+        }
+        stage('Test GFX Reconstruct - Multiple nodes, if test archive exists') {
+            agent { label 'BLD-U1804' }
+            steps {
+                script {
+                    if (runTests) {
+                        // Set up to run on multiple instances of the same OS
+                        setupWindowsJobs()
+                        //                        setupLinuxJobs()
+                        testOnNodes = testOnNodesW
+                        // + testOnNodesL
+                        parallel(testOnNodes)
+                    }
+                }
+            }
+        }
+    }
+    // Note: these post actions are only used if the parameters for notification are part of the job configuration.
+    post {
+        failure {
+            script {
+                echo "this was a failure"
+                if (email_recip_fail != "") {
+                    JTools.notifyFailed(email_recip_fail)
+                }
+            }
+        }
+
+        success {
+            script {
+                echo "This was a success"
+                if (email_recip_success != "") {
+                    JTools.notifySuccessful(email_recip_success)
+                }
+            }
+        }
+    }
+}
