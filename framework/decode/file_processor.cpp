@@ -514,8 +514,10 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
             {
                 if (decoder->SupportsApiCall(call_id))
                 {
+                    DecodeAllocator::Begin();
                     decoder->DecodeMethodCall(
                         call_id, object_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                    DecodeAllocator::End();
                 }
             }
         }
