@@ -37,7 +37,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
   protected:
     template <typename T>
-    T* MapObject(format::HandleId id)
+    T* MapObject(const format::HandleId id)
     {
         auto entry = objects_.find(id);
         if (entry != objects_.end())
@@ -46,6 +46,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
 
         return nullptr;
+    }
+
+    template <typename T>
+    std::vector<T*> MapObjects(const format::HandleId* p_ids, const size_t ids_len)
+    {
+        std::vector<T*> objects(ids_len);
+        if (p_ids != nullptr)
+        {
+            for (uint32_t i = 0; i < ids_len; ++i)
+            {
+                objects[i] = MapObject<T>(p_ids[i]);
+            }
+        }
+        return objects;
     }
 
     template <typename T>

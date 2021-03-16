@@ -145,10 +145,16 @@ class Dx12ReplayConsumerBodyGenerator(
 
             if is_class:
                 if is_output:
-                    code += '    if(!{0}->IsNull()) {0}->SetHandleLength(1);\n'\
+                    handle_length = 1
+                    if value.array_length:
+                        print(
+                            'ERROR: It does not deal with array output objects.'
+                        )
+
+                    code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
                             '    auto out_p_{0}    = {0}->GetPointer();\n'\
                             '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
-                        .format(value.name)
+                        .format(value.name, handle_length)
 
                     if is_override:
                         arg_list.append(value.name)
@@ -163,15 +169,16 @@ class Dx12ReplayConsumerBodyGenerator(
 
                 else:
                     if value.pointer_count == 2:
-                        # TODO: array of object. Here is wrong.
-                        code += '    auto in_{0} = MapObject<{1}*>(*{0}->GetPointer());\n'.format(
-                            value.name, value.base_type
+                        code += '    auto in_{0} = MapObjects<{1}>({0}->GetPointer(), {2});\n'.format(
+                            value.name, value.base_type, value.array_length
                         )
+                        arg_list.append('in_{}.data()'.format(value.name))
+
                     elif value.pointer_count == 1:
                         code += '    auto in_{0} = MapObject<{1}>(*{0}->GetPointer());\n'.format(
                             value.name, value.base_type
                         )
-                    arg_list.append('in_{}'.format(value.name))
+                        arg_list.append('in_{}'.format(value.name))
 
             elif is_extenal_object and not is_override:
                 if is_output:
