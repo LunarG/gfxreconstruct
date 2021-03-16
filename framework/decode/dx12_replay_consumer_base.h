@@ -59,33 +59,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RemoveObject(format::HandleId id);
 
-    template <typename T>
-    T MapWin32Handle(uint64_t handle)
-    {
-        auto entry = win32_handles_.find(handle);
-        if (entry != win32_handles_.end())
-        {
-            return static_cast<T>(entry->second);
-        }
-
-        return nullptr;
-    }
-
-    template <typename T>
-    void AddWin32Handle(const uint64_t* p_handle, T** pp_handle)
-    {
-        if ((p_handle != nullptr) && (*p_handle != format::kNullHandleId) && (pp_handle != nullptr) &&
-            (*pp_handle != nullptr))
-        {
-            win32_handles_.insert(std::make_pair(*p_handle, *pp_handle));
-        }
-    }
-
-    void RemoveWin32Handle(uint64_t handle);
-
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 
-    // TODO: Implement function
+    void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
+
+    void PostProcessExternalObject(
+        HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
+
+    // TODO(GH-63): Implement function
     HRESULT
     OverrideCreateSwapChainForHwnd(IDXGIFactory2*                                                 replay_object,
                                    HRESULT                                                        original_result,
@@ -96,7 +77,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                    IDXGIOutput*                                                   pRestrictToOutput,
                                    HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain);
 
-    // TODO: Implement function
+    // TODO(GH-71): Implement function
     HRESULT
     OverrideWriteToSubresource(ID3D12Resource*                          replay_object,
                                HRESULT                                  original_result,
@@ -106,7 +87,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                UINT                                     SrcRowPitch,
                                UINT                                     SrcDepthPitch);
 
-    // TODO: Implement function
+    // TODO(GH-71): Implement function
     HRESULT
     OverrideReadFromSubresource(ID3D12Resource*                          replay_object,
                                 HRESULT                                  original_result,
@@ -118,7 +99,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
   private:
     std::unordered_map<format::HandleId, IUnknown*> objects_;
-    std::unordered_map<uint64_t, void*>             win32_handles_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -119,21 +119,11 @@ class Dx12ReplayConsumerBodyGenerator(
             )
 
         code = ''
-        is_override = name in self.REPLAY_OVERRIDES
-        for value in values:
-            is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
-                value
-            )
-            if is_tracking_class:
-                code += '    if(!{0}->IsNull()) {0}->SetHandleLength(1);\n'\
-                        '    auto _out_p_{0}    = {0}->GetPointer();\n'\
-                        '    auto _out_hp_{0}   = {0}->GetHandlePointer();\n'\
-                        .format(value.name)
-            elif is_tracking_win32_handle:
-                code += '    auto _out_p_{0}    = {0}->GetPointer();\n'\
-                        '    auto _out_op_{0}   = {0}->GetOutputPointer();\n'\
-                        .format(value.name)
+        arg_list = []
+        add_object_list = []
+        post_extenal_object_list = []
 
+        is_override = name in self.REPLAY_OVERRIDES
         is_object = True if name.find('_') != -1 else False
         if is_object:
             class_name = name[:name.find('_')]
@@ -144,7 +134,96 @@ class Dx12ReplayConsumerBodyGenerator(
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
 
-        function_name = name if not is_object else name[name.find('_') + 1:]
+        for value in values:
+            is_class = self.is_class(value)
+            is_extenal_object = (
+                (value.base_type in self.EXTERNAL_OBJECT_TYPES)
+                or self.is_win32_handle(value.base_type)
+            ) and not value.is_array
+            is_output = self.is_output(value)
+            is_struct = self.is_struct(value.base_type)
+
+            if is_class:
+                if is_output:
+                    code += '    if(!{0}->IsNull()) {0}->SetHandleLength(1);\n'\
+                            '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                            '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
+                        .format(value.name)
+
+                    if is_override:
+                        arg_list.append(value.name)
+                    else:
+                        arg_list.append('out_hp_{}'.format(value.name))
+
+                    add_object_list.append(
+                        'AddObject(out_p_{0}, out_hp_{0});\n'.format(
+                            value.name
+                        )
+                    )
+
+                else:
+                    if value.pointer_count == 2:
+                        # TODO: array of object. Here is wrong.
+                        code += '    auto in_{0} = MapObject<{1}*>(*{0}->GetPointer());\n'.format(
+                            value.name, value.base_type
+                        )
+                    elif value.pointer_count == 1:
+                        code += '    auto in_{0} = MapObject<{1}>(*{0}->GetPointer());\n'.format(
+                            value.name, value.base_type
+                        )
+                    arg_list.append('in_{}'.format(value.name))
+
+            elif is_extenal_object and not is_override:
+                if is_output:
+                    code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                            '    auto out_op_{0}   = {0}->GetOutputPointer();\n'\
+                            .format(value.name)
+
+                    if is_override:
+                        arg_list.append(value.name)
+                    else:
+                        arg_list.append('out_op_{}'.format(value.name))
+
+                    post_extenal_object_list.append(
+                        'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                        .format(value.name, name)
+                    )
+                else:
+                    if value.base_type == 'void':
+                        code += '    auto in_{0} = PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'\
+                                .format(value.name, name)
+                    else:
+                        code += '    auto in_{0} = static_cast<{2}>(PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
+                                .format(value.name, name, value.base_type)
+                    arg_list.append('in_{}'.format(value.name))
+
+            else:
+                if is_override:
+                    arg_list.append(value.name)
+
+                elif value.pointer_count > 0 or value.is_array:
+                    if is_struct and value.pointer_count == 2 and value.is_const:
+                        arg_list.append(
+                            'const_cast<const {}**>({}->GetPointer())'.format(
+                                value.base_type, value.name
+                            )
+                        )
+                    else:
+                        arg_list.append(value.name + '->GetPointer()')
+
+                else:
+                    if is_struct:
+                        arg_list.append('*' + value.name + '.decoded_value')
+
+                    elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
+                        arg_list.append(
+                            'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
+                            format(value.name)
+                        )
+
+                    else:
+                        arg_list.append(value.name)
+
         indent_length = len(code)
         code += '    '
         if return_type != 'void':
@@ -172,139 +251,39 @@ class Dx12ReplayConsumerBodyGenerator(
                 code += 'returnValue'
                 first = False
         else:
+            function_name = name if not is_object else name[name.find('_')
+                                                            + 1:]
             code += function_name + '('
             indent_length = len(code) - indent_length
 
-        for value in values:
+        for arg in arg_list:
             if not first:
                 code += ',\n{}'.format(' ' * indent_length)
             first = False
-            value_name = None
-            is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
-                value
-            )
+            code += arg
 
-            if is_override:
-                if not is_tracking_class and not is_tracking_win32_handle:
-                    if value.pointer_count > 0 or value.is_array:
-                        if self.is_class(value):
-                            if value.pointer_count == 2:
-                                value_name = 'MapObject<{}*>(*{}->GetPointer())'.format(
-                                    value.base_type, value.name
-                                )
-                            elif value.pointer_count == 1:
-                                value_name = 'MapObject<{}>(*{}->GetPointer())'.format(
-                                    value.base_type, value.name
-                                )
-
-                if not value_name:
-                    value_name = value.name
-                code += value_name
-                continue
-
-            if is_tracking_class or is_tracking_win32_handle:
-                if value.full_type.find('void') != -1:
-                    value_name = 'reinterpret_cast<void**>(_out_hp_{})'.format(
-                        value.name
-                    )
-                else:
-                    if is_tracking_class:
-                        value_name = '_out_hp_{}'.format(value.name)
-                    elif is_tracking_win32_handle:
-                        value_name = '_out_op_{}'.format(value.name)
-            else:
-                if value.pointer_count > 0 or value.is_array:
-                    if self.is_class(value):
-                        if value.pointer_count == 2:
-                            value_name = 'MapObject<{}*>(*{}->GetPointer())'.format(
-                                value.base_type, value.name
-                            )
-                        elif value.pointer_count == 1:
-                            value_name = 'MapObject<{}>(*{}->GetPointer())'.format(
-                                value.base_type, value.name
-                            )
-                    elif self.is_struct(
-                        value.base_type
-                    ) and value.pointer_count == 2 and value.is_const:
-                        value_name = (
-                            'const_cast<const {}**>({}->GetPointer())'.format(
-                                value.base_type, value.name
-                            )
-                        )
-                    elif self.is_win32_handle(value.base_type):
-                        value_name = value.name + '->GetOutputPointer()'
-                    elif value.base_type == 'void':
-                        if value.pointer_count == 1:
-                            if value.is_array:
-                                value_name = value.name + '->GetPointer()'
-                            else:
-                                value_name = 'reinterpret_cast<void*>({})'.format(
-                                    value.name
-                                )
-                        elif value.pointer_count == 2:
-                            value_name = value.name + '->GetOutputPointer()'
-                    else:
-                        value_name = value.name + '->GetPointer()'
-
-                else:
-                    if self.is_struct(value.base_type):
-                        value_name = '*' + value.name + '.decoded_value'
-                    elif self.is_win32_handle(value.base_type):
-                        value_name = 'MapWin32Handle<{}>({})'.format(
-                            value.base_type, value.name
-                        )
-                    elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
-                        value_name = (
-                            'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
-                            format(value.name)
-                        )
-
-            if not value_name:
-                value_name = value.name
-            code += value_name
         code += ');\n'
 
-        if return_type == 'HRESULT' and len(values):
-            if_condition = False
-            for value in values:
-                is_tracking_class, is_tracking_win32_handle = self.is_tracking_data(
-                    value
-                )
-                if not if_condition and (
-                    is_tracking_class or is_tracking_win32_handle
-                ):
-                    code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
-                    if_condition = True
-
-                if is_tracking_class:
-                    code += (
-                        '        AddObject(_out_p_{0}, _out_hp_{0});\n'.format(
-                            value.name
-                        )
-                    )
-                elif is_tracking_win32_handle:
-                    code += (
-                        '        AddWin32Handle(_out_p_{0}, _out_op_{0});\n'.
-                        format(value.name)
-                    )
-
-            if if_condition:
+        if return_type == 'HRESULT':
+            if len(add_object_list):
+                code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
+                for e in add_object_list:
+                    code += '        {}'.format(e)
                 code += "    }\n"
 
             code += (
                 '    CheckReplayResult("{}", returnValue, replay_result);\n'.
                 format(name)
             )
+
+        for e in post_extenal_object_list:
+            code += '    {}'.format(e)
         return code
 
-    def is_tracking_data(self, value):
-        is_tracking_class = False
-        is_tracking_win32_handle = False
+    def is_output(self, value):
         if value.full_type.find('_Out') != -1:
-            is_tracking_class = self.is_class(value)
-            is_tracking_win32_handle = self.is_win32_handle(value.base_type)
-
-        return is_tracking_class, is_tracking_win32_handle
+            return True
+        return False
 
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())

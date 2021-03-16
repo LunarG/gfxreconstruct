@@ -259,7 +259,7 @@ class BaseGenerator(OutputGenerator):
         }
     }
 
-    # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
+    # These types represent pointers to non-Vulkan or non-Dx12 objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     # Dispatchable handle types.

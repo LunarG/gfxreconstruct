@@ -30,11 +30,6 @@ void Dx12ReplayConsumerBase::RemoveObject(format::HandleId id)
     objects_.erase(id);
 }
 
-void Dx12ReplayConsumerBase::RemoveWin32Handle(uint64_t handle)
-{
-    win32_handles_.erase(handle);
-}
-
 void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
 {
     if (capture_result != replay_result)
@@ -43,6 +38,45 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
                            call_name,
                            replay_result,
                            capture_result);
+    }
+}
+
+void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
+                                                       format::ApiCallId call_id,
+                                                       const char*       call_name)
+{
+    void* object = nullptr;
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd:
+            break;
+
+        default:
+            GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                                 call_name);
+            break;
+    }
+    return object;
+}
+
+void Dx12ReplayConsumerBase::PostProcessExternalObject(
+    HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(replay_result);
+    GFXRECON_UNREFERENCED_PARAMETER(object_id);
+    GFXRECON_UNREFERENCED_PARAMETER(object);
+
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
+        case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
+        case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
+            break;
+
+        default:
+            GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                                 call_name);
+            break;
     }
 }
 
