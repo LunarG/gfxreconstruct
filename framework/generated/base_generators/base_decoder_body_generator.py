@@ -179,9 +179,15 @@ class BaseDecoderBodyGenerator():
                         buffer_args, value.name
                     )
             else:
-                if is_struct or is_string or is_handle or is_class:
+                if is_struct or is_string or is_handle or (
+                    is_class and value.pointer_count > 1
+                ):
                     body += '    bytes_read += {}.Decode({});\n'.format(
                         value.name, buffer_args
+                    )
+                elif is_class and value.pointer_count == 1:
+                    body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
+                        buffer_args, value.name
                     )
                 elif is_win32_handle:
                     body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(

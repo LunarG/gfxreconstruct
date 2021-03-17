@@ -921,7 +921,10 @@ class BaseGenerator(OutputGenerator):
                         type_name
                     )
             elif self.is_class(value):
-                type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
+                if count == 1:
+                    type_name = 'format::HandleId'
+                else:
+                    type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
             elif type_name == 'wchar_t':
                 if count > 1:
                     type_name = 'WStringArrayDecoder'

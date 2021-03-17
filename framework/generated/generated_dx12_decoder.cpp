@@ -1398,7 +1398,7 @@ size_t Dx12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, si
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pAdapter;
+    format::HandleId pAdapter;
     D3D_FEATURE_LEVEL MinimumFeatureLevel;
     Decoded_GUID riid;
     GUID value_riid;
@@ -1406,7 +1406,7 @@ size_t Dx12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, si
     HandlePointerDecoder<void*> ppDevice;
     HRESULT return_value;
 
-    bytes_read += pAdapter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAdapter);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MinimumFeatureLevel);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1414,7 +1414,7 @@ size_t Dx12Decoder::Decode_D3D12CreateDevice(const uint8_t* parameter_buffer, si
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_D3D12CreateDevice(return_value, &pAdapter, MinimumFeatureLevel, riid, &ppDevice);
+        consumer->Process_D3D12CreateDevice(return_value, pAdapter, MinimumFeatureLevel, riid, &ppDevice);
     }
 
     return bytes_read;
@@ -1497,16 +1497,16 @@ size_t Dx12Decoder::Decode_IDXGIObject_SetPrivateDataInterface(format::HandleId 
     Decoded_GUID Name;
     GUID value_Name;
     Name.decoded_value = &value_Name;
-    HandlePointerDecoder<IUnknown*> pUnknown;
+    format::HandleId pUnknown;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Name);
-    bytes_read += pUnknown.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pUnknown);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIObject_SetPrivateDataInterface(object_id, return_value, Name, &pUnknown);
+        consumer->Process_IDXGIObject_SetPrivateDataInterface(object_id, return_value, Name, pUnknown);
     }
 
     return bytes_read;
@@ -1890,17 +1890,17 @@ size_t Dx12Decoder::Decode_IDXGIOutput_FindClosestMatchingMode(format::HandleId 
 
     StructPointerDecoder<Decoded_DXGI_MODE_DESC> pModeToMatch;
     StructPointerDecoder<Decoded_DXGI_MODE_DESC> pClosestMatch;
-    HandlePointerDecoder<IUnknown*> pConcernedDevice;
+    format::HandleId pConcernedDevice;
     HRESULT return_value;
 
     bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pConcernedDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput_FindClosestMatchingMode(object_id, return_value, &pModeToMatch, &pClosestMatch, &pConcernedDevice);
+        consumer->Process_IDXGIOutput_FindClosestMatchingMode(object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
     }
 
     return bytes_read;
@@ -1926,17 +1926,17 @@ size_t Dx12Decoder::Decode_IDXGIOutput_TakeOwnership(format::HandleId object_id,
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     BOOL Exclusive;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Exclusive);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput_TakeOwnership(object_id, return_value, &pDevice, Exclusive);
+        consumer->Process_IDXGIOutput_TakeOwnership(object_id, return_value, pDevice, Exclusive);
     }
 
     return bytes_read;
@@ -2014,15 +2014,15 @@ size_t Dx12Decoder::Decode_IDXGIOutput_SetDisplaySurface(format::HandleId object
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IDXGISurface*> pScanoutSurface;
+    format::HandleId pScanoutSurface;
     HRESULT return_value;
 
-    bytes_read += pScanoutSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pScanoutSurface);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput_SetDisplaySurface(object_id, return_value, &pScanoutSurface);
+        consumer->Process_IDXGIOutput_SetDisplaySurface(object_id, return_value, pScanoutSurface);
     }
 
     return bytes_read;
@@ -2032,15 +2032,15 @@ size_t Dx12Decoder::Decode_IDXGIOutput_GetDisplaySurfaceData(format::HandleId ob
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IDXGISurface*> pDestination;
+    format::HandleId pDestination;
     HRESULT return_value;
 
-    bytes_read += pDestination.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput_GetDisplaySurfaceData(object_id, return_value, &pDestination);
+        consumer->Process_IDXGIOutput_GetDisplaySurfaceData(object_id, return_value, pDestination);
     }
 
     return bytes_read;
@@ -2113,16 +2113,16 @@ size_t Dx12Decoder::Decode_IDXGISwapChain_SetFullscreenState(format::HandleId ob
     size_t bytes_read = 0;
 
     BOOL Fullscreen;
-    HandlePointerDecoder<IDXGIOutput*> pTarget;
+    format::HandleId pTarget;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Fullscreen);
-    bytes_read += pTarget.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTarget);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGISwapChain_SetFullscreenState(object_id, return_value, Fullscreen, &pTarget);
+        consumer->Process_IDXGISwapChain_SetFullscreenState(object_id, return_value, Fullscreen, pTarget);
     }
 
     return bytes_read;
@@ -2326,19 +2326,19 @@ size_t Dx12Decoder::Decode_IDXGIFactory_CreateSwapChain(format::HandleId object_
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC> pDesc;
     HandlePointerDecoder<IDXGISwapChain*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactory_CreateSwapChain(object_id, return_value, &pDevice, &pDesc, &ppSwapChain);
+        consumer->Process_IDXGIFactory_CreateSwapChain(object_id, return_value, pDevice, &pDesc, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3098,25 +3098,25 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForHwnd(format::HandleId
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     uint64_t hWnd;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC> pFullscreenDesc;
-    HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
+    format::HandleId pRestrictToOutput;
     HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hWnd);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFullscreenDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForHwnd(object_id, return_value, &pDevice, hWnd, &pDesc, &pFullscreenDesc, &pRestrictToOutput, &ppSwapChain);
+        consumer->Process_IDXGIFactory2_CreateSwapChainForHwnd(object_id, return_value, pDevice, hWnd, &pDesc, &pFullscreenDesc, pRestrictToOutput, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3126,23 +3126,23 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForCoreWindow(format::Ha
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
-    HandlePointerDecoder<IUnknown*> pWindow;
+    format::HandleId pDevice;
+    format::HandleId pWindow;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
+    format::HandleId pRestrictToOutput;
     HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pWindow.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pWindow);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForCoreWindow(object_id, return_value, &pDevice, &pWindow, &pDesc, &pRestrictToOutput, &ppSwapChain);
+        consumer->Process_IDXGIFactory2_CreateSwapChainForCoreWindow(object_id, return_value, pDevice, pWindow, &pDesc, pRestrictToOutput, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3288,21 +3288,21 @@ size_t Dx12Decoder::Decode_IDXGIFactory2_CreateSwapChainForComposition(format::H
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
+    format::HandleId pRestrictToOutput;
     HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactory2_CreateSwapChainForComposition(object_id, return_value, &pDevice, &pDesc, &pRestrictToOutput, &ppSwapChain);
+        consumer->Process_IDXGIFactory2_CreateSwapChainForComposition(object_id, return_value, pDevice, &pDesc, pRestrictToOutput, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3356,17 +3356,17 @@ size_t Dx12Decoder::Decode_IDXGIOutput1_FindClosestMatchingMode1(format::HandleI
 
     StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pModeToMatch;
     StructPointerDecoder<Decoded_DXGI_MODE_DESC1> pClosestMatch;
-    HandlePointerDecoder<IUnknown*> pConcernedDevice;
+    format::HandleId pConcernedDevice;
     HRESULT return_value;
 
     bytes_read += pModeToMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pClosestMatch.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pConcernedDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput1_FindClosestMatchingMode1(object_id, return_value, &pModeToMatch, &pClosestMatch, &pConcernedDevice);
+        consumer->Process_IDXGIOutput1_FindClosestMatchingMode1(object_id, return_value, &pModeToMatch, &pClosestMatch, pConcernedDevice);
     }
 
     return bytes_read;
@@ -3376,15 +3376,15 @@ size_t Dx12Decoder::Decode_IDXGIOutput1_GetDisplaySurfaceData1(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IDXGIResource*> pDestination;
+    format::HandleId pDestination;
     HRESULT return_value;
 
-    bytes_read += pDestination.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestination);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput1_GetDisplaySurfaceData1(object_id, return_value, &pDestination);
+        consumer->Process_IDXGIOutput1_GetDisplaySurfaceData1(object_id, return_value, pDestination);
     }
 
     return bytes_read;
@@ -3394,17 +3394,17 @@ size_t Dx12Decoder::Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ppOutputDuplication.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput1_DuplicateOutput(object_id, return_value, &pDevice, &ppOutputDuplication);
+        consumer->Process_IDXGIOutput1_DuplicateOutput(object_id, return_value, pDevice, &ppOutputDuplication);
     }
 
     return bytes_read;
@@ -3756,23 +3756,23 @@ size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfac
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     uint64_t hSurface;
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1> pDesc;
-    HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
+    format::HandleId pRestrictToOutput;
     HandlePointerDecoder<IDXGISwapChain1*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(object_id, return_value, &pDevice, hSurface, &pDesc, &pRestrictToOutput, &ppSwapChain);
+        consumer->Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(object_id, return_value, pDevice, hSurface, &pDesc, pRestrictToOutput, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3782,25 +3782,25 @@ size_t Dx12Decoder::Decode_IDXGIFactoryMedia_CreateDecodeSwapChainForComposition
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     uint64_t hSurface;
     StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC> pDesc;
-    HandlePointerDecoder<IDXGIResource*> pYuvDecodeBuffers;
-    HandlePointerDecoder<IDXGIOutput*> pRestrictToOutput;
+    format::HandleId pYuvDecodeBuffers;
+    format::HandleId pRestrictToOutput;
     HandlePointerDecoder<IDXGIDecodeSwapChain*> ppSwapChain;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &hSurface);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pYuvDecodeBuffers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRestrictToOutput.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pYuvDecodeBuffers);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRestrictToOutput);
     bytes_read += ppSwapChain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(object_id, return_value, &pDevice, hSurface, &pDesc, &pYuvDecodeBuffers, &pRestrictToOutput, &ppSwapChain);
+        consumer->Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(object_id, return_value, pDevice, hSurface, &pDesc, pYuvDecodeBuffers, pRestrictToOutput, &ppSwapChain);
     }
 
     return bytes_read;
@@ -3869,18 +3869,18 @@ size_t Dx12Decoder::Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId obj
     size_t bytes_read = 0;
 
     DXGI_FORMAT EnumFormat;
-    HandlePointerDecoder<IUnknown*> pConcernedDevice;
+    format::HandleId pConcernedDevice;
     PointerDecoder<UINT> pFlags;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &EnumFormat);
-    bytes_read += pConcernedDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
     bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput3_CheckOverlaySupport(object_id, return_value, EnumFormat, &pConcernedDevice, &pFlags);
+        consumer->Process_IDXGIOutput3_CheckOverlaySupport(object_id, return_value, EnumFormat, pConcernedDevice, &pFlags);
     }
 
     return bytes_read;
@@ -3976,19 +3976,19 @@ size_t Dx12Decoder::Decode_IDXGIOutput4_CheckOverlayColorSpaceSupport(format::Ha
 
     DXGI_FORMAT Format;
     DXGI_COLOR_SPACE_TYPE ColorSpace;
-    HandlePointerDecoder<IUnknown*> pConcernedDevice;
+    format::HandleId pConcernedDevice;
     PointerDecoder<UINT> pFlags;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ColorSpace);
-    bytes_read += pConcernedDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pConcernedDevice);
     bytes_read += pFlags.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(object_id, return_value, Format, ColorSpace, &pConcernedDevice, &pFlags);
+        consumer->Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(object_id, return_value, Format, ColorSpace, pConcernedDevice, &pFlags);
     }
 
     return bytes_read;
@@ -4162,14 +4162,14 @@ size_t Dx12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<IUnknown*> pDevice;
+    format::HandleId pDevice;
     UINT Flags;
     UINT SupportedFormatsCount;
     PointerDecoder<DXGI_FORMAT> pSupportedFormats;
     HandlePointerDecoder<IDXGIOutputDuplication*> ppOutputDuplication;
     HRESULT return_value;
 
-    bytes_read += pDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDevice);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SupportedFormatsCount);
     bytes_read += pSupportedFormats.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -4178,7 +4178,7 @@ size_t Dx12Decoder::Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_IDXGIOutput5_DuplicateOutput1(object_id, return_value, &pDevice, Flags, SupportedFormatsCount, &pSupportedFormats, &ppOutputDuplication);
+        consumer->Process_IDXGIOutput5_DuplicateOutput1(object_id, return_value, pDevice, Flags, SupportedFormatsCount, &pSupportedFormats, &ppOutputDuplication);
     }
 
     return bytes_read;
@@ -4447,16 +4447,16 @@ size_t Dx12Decoder::Decode_ID3D12Object_SetPrivateDataInterface(format::HandleId
     Decoded_GUID guid;
     GUID value_guid;
     guid.decoded_value = &value_guid;
-    HandlePointerDecoder<IUnknown*> pData;
+    format::HandleId pData;
     HRESULT return_value;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &guid);
-    bytes_read += pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pData);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Object_SetPrivateDataInterface(object_id, return_value, guid, &pData);
+        consumer->Process_ID3D12Object_SetPrivateDataInterface(object_id, return_value, guid, pData);
     }
 
     return bytes_read;
@@ -4902,17 +4902,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_Reset(format::HandleId obje
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12CommandAllocator*> pAllocator;
-    HandlePointerDecoder<ID3D12PipelineState*> pInitialState;
+    format::HandleId pAllocator;
+    format::HandleId pInitialState;
     HRESULT return_value;
 
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pInitialState.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAllocator);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pInitialState);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_Reset(object_id, return_value, &pAllocator, &pInitialState);
+        consumer->Process_ID3D12GraphicsCommandList_Reset(object_id, return_value, pAllocator, pInitialState);
     }
 
     return bytes_read;
@@ -4922,13 +4922,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearState(format::HandleId
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12PipelineState*> pPipelineState;
+    format::HandleId pPipelineState;
 
-    bytes_read += pPipelineState.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pPipelineState);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ClearState(object_id, &pPipelineState);
+        consumer->Process_ID3D12GraphicsCommandList_ClearState(object_id, pPipelineState);
     }
 
     return bytes_read;
@@ -5004,21 +5004,21 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyBufferRegion(format::Ha
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstBuffer;
+    format::HandleId pDstBuffer;
     UINT64 DstOffset;
-    HandlePointerDecoder<ID3D12Resource*> pSrcBuffer;
+    format::HandleId pSrcBuffer;
     UINT64 SrcOffset;
     UINT64 NumBytes;
 
-    bytes_read += pDstBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstOffset);
-    bytes_read += pSrcBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcOffset);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumBytes);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_CopyBufferRegion(object_id, &pDstBuffer, DstOffset, &pSrcBuffer, SrcOffset, NumBytes);
+        consumer->Process_ID3D12GraphicsCommandList_CopyBufferRegion(object_id, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, NumBytes);
     }
 
     return bytes_read;
@@ -5054,15 +5054,15 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyResource(format::Handle
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstResource;
-    HandlePointerDecoder<ID3D12Resource*> pSrcResource;
+    format::HandleId pDstResource;
+    format::HandleId pSrcResource;
 
-    bytes_read += pDstResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSrcResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcResource);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_CopyResource(object_id, &pDstResource, &pSrcResource);
+        consumer->Process_ID3D12GraphicsCommandList_CopyResource(object_id, pDstResource, pSrcResource);
     }
 
     return bytes_read;
@@ -5072,23 +5072,23 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_CopyTiles(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pTiledResource;
+    format::HandleId pTiledResource;
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE> pTileRegionStartCoordinate;
     StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE> pTileRegionSize;
-    HandlePointerDecoder<ID3D12Resource*> pBuffer;
+    format::HandleId pBuffer;
     UINT64 BufferStartOffsetInBytes;
     D3D12_TILE_COPY_FLAGS Flags;
 
-    bytes_read += pTiledResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTiledResource);
     bytes_read += pTileRegionStartCoordinate.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pTileRegionSize.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BufferStartOffsetInBytes);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_CopyTiles(object_id, &pTiledResource, &pTileRegionStartCoordinate, &pTileRegionSize, &pBuffer, BufferStartOffsetInBytes, Flags);
+        consumer->Process_ID3D12GraphicsCommandList_CopyTiles(object_id, pTiledResource, &pTileRegionStartCoordinate, &pTileRegionSize, pBuffer, BufferStartOffsetInBytes, Flags);
     }
 
     return bytes_read;
@@ -5098,21 +5098,21 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ResolveSubresource(format::
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstResource;
+    format::HandleId pDstResource;
     UINT DstSubresource;
-    HandlePointerDecoder<ID3D12Resource*> pSrcResource;
+    format::HandleId pSrcResource;
     UINT SrcSubresource;
     DXGI_FORMAT Format;
 
-    bytes_read += pDstResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
-    bytes_read += pSrcResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcResource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcSubresource);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ResolveSubresource(object_id, &pDstResource, DstSubresource, &pSrcResource, SrcSubresource, Format);
+        consumer->Process_ID3D12GraphicsCommandList_ResolveSubresource(object_id, pDstResource, DstSubresource, pSrcResource, SrcSubresource, Format);
     }
 
     return bytes_read;
@@ -5206,13 +5206,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetPipelineState(format::Ha
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12PipelineState*> pPipelineState;
+    format::HandleId pPipelineState;
 
-    bytes_read += pPipelineState.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pPipelineState);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_SetPipelineState(object_id, &pPipelineState);
+        consumer->Process_ID3D12GraphicsCommandList_SetPipelineState(object_id, pPipelineState);
     }
 
     return bytes_read;
@@ -5240,13 +5240,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteBundle(format::Handl
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12GraphicsCommandList*> pCommandList;
+    format::HandleId pCommandList;
 
-    bytes_read += pCommandList.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCommandList);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ExecuteBundle(object_id, &pCommandList);
+        consumer->Process_ID3D12GraphicsCommandList_ExecuteBundle(object_id, pCommandList);
     }
 
     return bytes_read;
@@ -5274,13 +5274,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetComputeRootSignature(for
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
+    format::HandleId pRootSignature;
 
-    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignature);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_SetComputeRootSignature(object_id, &pRootSignature);
+        consumer->Process_ID3D12GraphicsCommandList_SetComputeRootSignature(object_id, pRootSignature);
     }
 
     return bytes_read;
@@ -5290,13 +5290,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(fo
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
+    format::HandleId pRootSignature;
 
-    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignature);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(object_id, &pRootSignature);
+        consumer->Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(object_id, pRootSignature);
     }
 
     return bytes_read;
@@ -5674,21 +5674,21 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUin
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle;
     D3D12_CPU_DESCRIPTOR_HANDLE value_ViewCPUHandle;
     ViewCPUHandle.decoded_value = &value_ViewCPUHandle;
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     PointerDecoder<UINT> Values;
     UINT NumRects;
     StructPointerDecoder<Decoded_tagRECT> pRects;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ViewGPUHandleInCurrentHeap);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ViewCPUHandle);
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += Values.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumRects);
     bytes_read += pRects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(object_id, ViewGPUHandleInCurrentHeap, ViewCPUHandle, &pResource, &Values, NumRects, &pRects);
+        consumer->Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(object_id, ViewGPUHandleInCurrentHeap, ViewCPUHandle, pResource, &Values, NumRects, &pRects);
     }
 
     return bytes_read;
@@ -5704,21 +5704,21 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFlo
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle;
     D3D12_CPU_DESCRIPTOR_HANDLE value_ViewCPUHandle;
     ViewCPUHandle.decoded_value = &value_ViewCPUHandle;
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     PointerDecoder<FLOAT> Values;
     UINT NumRects;
     StructPointerDecoder<Decoded_tagRECT> pRects;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ViewGPUHandleInCurrentHeap);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ViewCPUHandle);
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += Values.DecodeFloat((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumRects);
     bytes_read += pRects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(object_id, ViewGPUHandleInCurrentHeap, ViewCPUHandle, &pResource, &Values, NumRects, &pRects);
+        consumer->Process_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(object_id, ViewGPUHandleInCurrentHeap, ViewCPUHandle, pResource, &Values, NumRects, &pRects);
     }
 
     return bytes_read;
@@ -5728,15 +5728,15 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_DiscardResource(format::Han
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     StructPointerDecoder<Decoded_D3D12_DISCARD_REGION> pRegion;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += pRegion.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_DiscardResource(object_id, &pResource, &pRegion);
+        consumer->Process_ID3D12GraphicsCommandList_DiscardResource(object_id, pResource, &pRegion);
     }
 
     return bytes_read;
@@ -5746,17 +5746,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_BeginQuery(format::HandleId
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12QueryHeap*> pQueryHeap;
+    format::HandleId pQueryHeap;
     D3D12_QUERY_TYPE Type;
     UINT Index;
 
-    bytes_read += pQueryHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pQueryHeap);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Index);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_BeginQuery(object_id, &pQueryHeap, Type, Index);
+        consumer->Process_ID3D12GraphicsCommandList_BeginQuery(object_id, pQueryHeap, Type, Index);
     }
 
     return bytes_read;
@@ -5766,17 +5766,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_EndQuery(format::HandleId o
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12QueryHeap*> pQueryHeap;
+    format::HandleId pQueryHeap;
     D3D12_QUERY_TYPE Type;
     UINT Index;
 
-    bytes_read += pQueryHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pQueryHeap);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Index);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_EndQuery(object_id, &pQueryHeap, Type, Index);
+        consumer->Process_ID3D12GraphicsCommandList_EndQuery(object_id, pQueryHeap, Type, Index);
     }
 
     return bytes_read;
@@ -5786,23 +5786,23 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ResolveQueryData(format::Ha
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12QueryHeap*> pQueryHeap;
+    format::HandleId pQueryHeap;
     D3D12_QUERY_TYPE Type;
     UINT StartIndex;
     UINT NumQueries;
-    HandlePointerDecoder<ID3D12Resource*> pDestinationBuffer;
+    format::HandleId pDestinationBuffer;
     UINT64 AlignedDestinationBufferOffset;
 
-    bytes_read += pQueryHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pQueryHeap);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Type);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &StartIndex);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumQueries);
-    bytes_read += pDestinationBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDestinationBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AlignedDestinationBufferOffset);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ResolveQueryData(object_id, &pQueryHeap, Type, StartIndex, NumQueries, &pDestinationBuffer, AlignedDestinationBufferOffset);
+        consumer->Process_ID3D12GraphicsCommandList_ResolveQueryData(object_id, pQueryHeap, Type, StartIndex, NumQueries, pDestinationBuffer, AlignedDestinationBufferOffset);
     }
 
     return bytes_read;
@@ -5812,17 +5812,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_SetPredication(format::Hand
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pBuffer;
+    format::HandleId pBuffer;
     UINT64 AlignedBufferOffset;
     D3D12_PREDICATION_OP Operation;
 
-    bytes_read += pBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &AlignedBufferOffset);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Operation);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_SetPredication(object_id, &pBuffer, AlignedBufferOffset, Operation);
+        consumer->Process_ID3D12GraphicsCommandList_SetPredication(object_id, pBuffer, AlignedBufferOffset, Operation);
     }
 
     return bytes_read;
@@ -5886,23 +5886,23 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList_ExecuteIndirect(format::Han
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12CommandSignature*> pCommandSignature;
+    format::HandleId pCommandSignature;
     UINT MaxCommandCount;
-    HandlePointerDecoder<ID3D12Resource*> pArgumentBuffer;
+    format::HandleId pArgumentBuffer;
     UINT64 ArgumentBufferOffset;
-    HandlePointerDecoder<ID3D12Resource*> pCountBuffer;
+    format::HandleId pCountBuffer;
     UINT64 CountBufferOffset;
 
-    bytes_read += pCommandSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCommandSignature);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &MaxCommandCount);
-    bytes_read += pArgumentBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pArgumentBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ArgumentBufferOffset);
-    bytes_read += pCountBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCountBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CountBufferOffset);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList_ExecuteIndirect(object_id, &pCommandSignature, MaxCommandCount, &pArgumentBuffer, ArgumentBufferOffset, &pCountBuffer, CountBufferOffset);
+        consumer->Process_ID3D12GraphicsCommandList_ExecuteIndirect(object_id, pCommandSignature, MaxCommandCount, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 
     return bytes_read;
@@ -5912,17 +5912,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(forma
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstBuffer;
+    format::HandleId pDstBuffer;
     UINT64 DstOffset;
-    HandlePointerDecoder<ID3D12Resource*> pSrcBuffer;
+    format::HandleId pSrcBuffer;
     UINT64 SrcOffset;
     UINT Dependencies;
     HandlePointerDecoder<ID3D12Resource*> ppDependentResources;
     StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64> pDependentSubresourceRanges;
 
-    bytes_read += pDstBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstOffset);
-    bytes_read += pSrcBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Dependencies);
     bytes_read += ppDependentResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -5930,7 +5930,7 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(forma
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(object_id, &pDstBuffer, DstOffset, &pSrcBuffer, SrcOffset, Dependencies, &ppDependentResources, &pDependentSubresourceRanges);
+        consumer->Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(object_id, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, Dependencies, &ppDependentResources, &pDependentSubresourceRanges);
     }
 
     return bytes_read;
@@ -5940,17 +5940,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(for
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstBuffer;
+    format::HandleId pDstBuffer;
     UINT64 DstOffset;
-    HandlePointerDecoder<ID3D12Resource*> pSrcBuffer;
+    format::HandleId pSrcBuffer;
     UINT64 SrcOffset;
     UINT Dependencies;
     HandlePointerDecoder<ID3D12Resource*> ppDependentResources;
     StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64> pDependentSubresourceRanges;
 
-    bytes_read += pDstBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstOffset);
-    bytes_read += pSrcBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcBuffer);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcOffset);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Dependencies);
     bytes_read += ppDependentResources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -5958,7 +5958,7 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(for
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(object_id, &pDstBuffer, DstOffset, &pSrcBuffer, SrcOffset, Dependencies, &ppDependentResources, &pDependentSubresourceRanges);
+        consumer->Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(object_id, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, Dependencies, &ppDependentResources, &pDependentSubresourceRanges);
     }
 
     return bytes_read;
@@ -6006,21 +6006,21 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(f
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstResource;
+    format::HandleId pDstResource;
     UINT DstSubresource;
     UINT DstX;
     UINT DstY;
-    HandlePointerDecoder<ID3D12Resource*> pSrcResource;
+    format::HandleId pSrcResource;
     UINT SrcSubresource;
     StructPointerDecoder<Decoded_tagRECT> pSrcRect;
     DXGI_FORMAT Format;
     D3D12_RESOLVE_MODE ResolveMode;
 
-    bytes_read += pDstResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstX);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstY);
-    bytes_read += pSrcResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcResource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcSubresource);
     bytes_read += pSrcRect.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Format);
@@ -6028,7 +6028,7 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(f
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(object_id, &pDstResource, DstSubresource, DstX, DstY, &pSrcResource, SrcSubresource, &pSrcRect, Format, ResolveMode);
+        consumer->Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(object_id, pDstResource, DstSubresource, DstX, DstY, pSrcResource, SrcSubresource, &pSrcRect, Format, ResolveMode);
     }
 
     return bytes_read;
@@ -6074,22 +6074,22 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_UpdateTileMappings(format::HandleI
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     UINT NumResourceRegions;
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE> pResourceRegionStartCoordinates;
     StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE> pResourceRegionSizes;
-    HandlePointerDecoder<ID3D12Heap*> pHeap;
+    format::HandleId pHeap;
     UINT NumRanges;
     PointerDecoder<D3D12_TILE_RANGE_FLAGS> pRangeFlags;
     PointerDecoder<UINT> pHeapRangeStartOffsets;
     PointerDecoder<UINT> pRangeTileCounts;
     D3D12_TILE_MAPPING_FLAGS Flags;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumResourceRegions);
     bytes_read += pResourceRegionStartCoordinates.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pResourceRegionSizes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pHeap);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumRanges);
     bytes_read += pRangeFlags.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pHeapRangeStartOffsets.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6098,7 +6098,7 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_UpdateTileMappings(format::HandleI
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12CommandQueue_UpdateTileMappings(object_id, &pResource, NumResourceRegions, &pResourceRegionStartCoordinates, &pResourceRegionSizes, &pHeap, NumRanges, &pRangeFlags, &pHeapRangeStartOffsets, &pRangeTileCounts, Flags);
+        consumer->Process_ID3D12CommandQueue_UpdateTileMappings(object_id, pResource, NumResourceRegions, &pResourceRegionStartCoordinates, &pResourceRegionSizes, pHeap, NumRanges, &pRangeFlags, &pHeapRangeStartOffsets, &pRangeTileCounts, Flags);
     }
 
     return bytes_read;
@@ -6108,23 +6108,23 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_CopyTileMappings(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pDstResource;
+    format::HandleId pDstResource;
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE> pDstRegionStartCoordinate;
-    HandlePointerDecoder<ID3D12Resource*> pSrcResource;
+    format::HandleId pSrcResource;
     StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE> pSrcRegionStartCoordinate;
     StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE> pRegionSize;
     D3D12_TILE_MAPPING_FLAGS Flags;
 
-    bytes_read += pDstResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
     bytes_read += pDstRegionStartCoordinate.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSrcResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pSrcResource);
     bytes_read += pSrcRegionStartCoordinate.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pRegionSize.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12CommandQueue_CopyTileMappings(object_id, &pDstResource, &pDstRegionStartCoordinate, &pSrcResource, &pSrcRegionStartCoordinate, &pRegionSize, Flags);
+        consumer->Process_ID3D12CommandQueue_CopyTileMappings(object_id, pDstResource, &pDstRegionStartCoordinate, pSrcResource, &pSrcRegionStartCoordinate, &pRegionSize, Flags);
     }
 
     return bytes_read;
@@ -6206,17 +6206,17 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_Signal(format::HandleId object_id,
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Fence*> pFence;
+    format::HandleId pFence;
     UINT64 Value;
     HRESULT return_value;
 
-    bytes_read += pFence.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pFence);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Value);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12CommandQueue_Signal(object_id, return_value, &pFence, Value);
+        consumer->Process_ID3D12CommandQueue_Signal(object_id, return_value, pFence, Value);
     }
 
     return bytes_read;
@@ -6226,17 +6226,17 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_Wait(format::HandleId object_id, c
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Fence*> pFence;
+    format::HandleId pFence;
     UINT64 Value;
     HRESULT return_value;
 
-    bytes_read += pFence.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pFence);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Value);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12CommandQueue_Wait(object_id, return_value, &pFence, Value);
+        consumer->Process_ID3D12CommandQueue_Wait(object_id, return_value, pFence, Value);
     }
 
     return bytes_read;
@@ -6414,8 +6414,8 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId objec
 
     UINT nodeMask;
     D3D12_COMMAND_LIST_TYPE type;
-    HandlePointerDecoder<ID3D12CommandAllocator*> pCommandAllocator;
-    HandlePointerDecoder<ID3D12PipelineState*> pInitialState;
+    format::HandleId pCommandAllocator;
+    format::HandleId pInitialState;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
@@ -6424,15 +6424,15 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId objec
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &type);
-    bytes_read += pCommandAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pInitialState.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCommandAllocator);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pInitialState);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppCommandList.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateCommandList(object_id, return_value, nodeMask, type, &pCommandAllocator, &pInitialState, riid, &ppCommandList);
+        consumer->Process_ID3D12Device_CreateCommandList(object_id, return_value, nodeMask, type, pCommandAllocator, pInitialState, riid, &ppCommandList);
     }
 
     return bytes_read;
@@ -6554,19 +6554,19 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateShaderResourceView(format::HandleI
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC> pDesc;
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
     DestDescriptor.decoded_value = &value_DestDescriptor;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateShaderResourceView(object_id, &pResource, &pDesc, DestDescriptor);
+        consumer->Process_ID3D12Device_CreateShaderResourceView(object_id, pResource, &pDesc, DestDescriptor);
     }
 
     return bytes_read;
@@ -6576,21 +6576,21 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateUnorderedAccessView(format::Handle
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
-    HandlePointerDecoder<ID3D12Resource*> pCounterResource;
+    format::HandleId pResource;
+    format::HandleId pCounterResource;
     StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC> pDesc;
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
     DestDescriptor.decoded_value = &value_DestDescriptor;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pCounterResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pCounterResource);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateUnorderedAccessView(object_id, &pResource, &pCounterResource, &pDesc, DestDescriptor);
+        consumer->Process_ID3D12Device_CreateUnorderedAccessView(object_id, pResource, pCounterResource, &pDesc, DestDescriptor);
     }
 
     return bytes_read;
@@ -6600,19 +6600,19 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateRenderTargetView(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC> pDesc;
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
     DestDescriptor.decoded_value = &value_DestDescriptor;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateRenderTargetView(object_id, &pResource, &pDesc, DestDescriptor);
+        consumer->Process_ID3D12Device_CreateRenderTargetView(object_id, pResource, &pDesc, DestDescriptor);
     }
 
     return bytes_read;
@@ -6622,19 +6622,19 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateDepthStencilView(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource;
     StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC> pDesc;
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
     DestDescriptor.decoded_value = &value_DestDescriptor;
 
-    bytes_read += pResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pResource);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateDepthStencilView(object_id, &pResource, &pDesc, DestDescriptor);
+        consumer->Process_ID3D12Device_CreateDepthStencilView(object_id, pResource, &pDesc, DestDescriptor);
     }
 
     return bytes_read;
@@ -6816,7 +6816,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId ob
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Heap*> pHeap;
+    format::HandleId pHeap;
     UINT64 HeapOffset;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pDesc;
     D3D12_RESOURCE_STATES InitialState;
@@ -6827,7 +6827,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId ob
     HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
-    bytes_read += pHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pHeap);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &HeapOffset);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialState);
@@ -6838,7 +6838,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreatePlacedResource(format::HandleId ob
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreatePlacedResource(object_id, return_value, &pHeap, HeapOffset, &pDesc, InitialState, &pOptimizedClearValue, riid, &ppvResource);
+        consumer->Process_ID3D12Device_CreatePlacedResource(object_id, return_value, pHeap, HeapOffset, &pDesc, InitialState, &pOptimizedClearValue, riid, &ppvResource);
     }
 
     return bytes_read;
@@ -6876,14 +6876,14 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12DeviceChild*> pObject;
+    format::HandleId pObject;
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
     DWORD Access;
     WStringDecoder Name;
     PointerDecoder<uint64_t, HANDLE> pHandle;
     HRESULT return_value;
 
-    bytes_read += pObject.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pObject);
     bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Access);
     bytes_read += Name.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6892,7 +6892,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateSharedHandle(object_id, return_value, &pObject, &pAttributes, Access, &Name, &pHandle);
+        consumer->Process_ID3D12Device_CreateSharedHandle(object_id, return_value, pObject, &pAttributes, Access, &Name, &pHandle);
     }
 
     return bytes_read;
@@ -7103,7 +7103,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId 
     size_t bytes_read = 0;
 
     StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC> pDesc;
-    HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
+    format::HandleId pRootSignature;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
@@ -7111,14 +7111,14 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandSignature(format::HandleId 
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignature);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvCommandSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_CreateCommandSignature(object_id, return_value, &pDesc, &pRootSignature, riid, &ppvCommandSignature);
+        consumer->Process_ID3D12Device_CreateCommandSignature(object_id, return_value, &pDesc, pRootSignature, riid, &ppvCommandSignature);
     }
 
     return bytes_read;
@@ -7128,7 +7128,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId objec
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pTiledResource;
+    format::HandleId pTiledResource;
     PointerDecoder<UINT> pNumTilesForEntireResource;
     StructPointerDecoder<Decoded_D3D12_PACKED_MIP_INFO> pPackedMipDesc;
     StructPointerDecoder<Decoded_D3D12_TILE_SHAPE> pStandardTileShapeForNonPackedMips;
@@ -7136,7 +7136,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId objec
     UINT FirstSubresourceTilingToGet;
     StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_TILING> pSubresourceTilingsForNonPackedMips;
 
-    bytes_read += pTiledResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTiledResource);
     bytes_read += pNumTilesForEntireResource.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPackedMipDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pStandardTileShapeForNonPackedMips.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -7146,7 +7146,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetResourceTiling(format::HandleId objec
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device_GetResourceTiling(object_id, &pTiledResource, &pNumTilesForEntireResource, &pPackedMipDesc, &pStandardTileShapeForNonPackedMips, &pNumSubresourceTilings, FirstSubresourceTilingToGet, &pSubresourceTilingsForNonPackedMips);
+        consumer->Process_ID3D12Device_GetResourceTiling(object_id, pTiledResource, &pNumTilesForEntireResource, &pPackedMipDesc, &pStandardTileShapeForNonPackedMips, &pNumSubresourceTilings, FirstSubresourceTilingToGet, &pSubresourceTilingsForNonPackedMips);
     }
 
     return bytes_read;
@@ -7173,16 +7173,16 @@ size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_StorePipeline(format::HandleId 
     size_t bytes_read = 0;
 
     WStringDecoder pName;
-    HandlePointerDecoder<ID3D12PipelineState*> pPipeline;
+    format::HandleId pPipeline;
     HRESULT return_value;
 
     bytes_read += pName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPipeline.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pPipeline);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12PipelineLibrary_StorePipeline(object_id, return_value, &pName, &pPipeline);
+        consumer->Process_ID3D12PipelineLibrary_StorePipeline(object_id, return_value, &pName, pPipeline);
     }
 
     return bytes_read;
@@ -7455,20 +7455,20 @@ size_t Dx12Decoder::Decode_ID3D12Device3_EnqueueMakeResident(format::HandleId ob
     D3D12_RESIDENCY_FLAGS Flags;
     UINT NumObjects;
     HandlePointerDecoder<ID3D12Pageable*> ppObjects;
-    HandlePointerDecoder<ID3D12Fence*> pFenceToSignal;
+    format::HandleId pFenceToSignal;
     UINT64 FenceValueToSignal;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Flags);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NumObjects);
     bytes_read += ppObjects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pFenceToSignal.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pFenceToSignal);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &FenceValueToSignal);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device3_EnqueueMakeResident(object_id, return_value, Flags, NumObjects, &ppObjects, &pFenceToSignal, FenceValueToSignal);
+        consumer->Process_ID3D12Device3_EnqueueMakeResident(object_id, return_value, Flags, NumObjects, &ppObjects, pFenceToSignal, FenceValueToSignal);
     }
 
     return bytes_read;
@@ -7589,7 +7589,7 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::Handle
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pDesc;
     D3D12_RESOURCE_STATES InitialResourceState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
-    HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
+    format::HandleId pProtectedSession;
     Decoded_GUID riidResource;
     GUID value_riidResource;
     riidResource.decoded_value = &value_riidResource;
@@ -7601,14 +7601,14 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateCommittedResource1(format::Handle
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialResourceState);
     bytes_read += pOptimizedClearValue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProtectedSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pProtectedSession);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riidResource);
     bytes_read += ppvResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device4_CreateCommittedResource1(object_id, return_value, &pHeapProperties, HeapFlags, &pDesc, InitialResourceState, &pOptimizedClearValue, &pProtectedSession, riidResource, &ppvResource);
+        consumer->Process_ID3D12Device4_CreateCommittedResource1(object_id, return_value, &pHeapProperties, HeapFlags, &pDesc, InitialResourceState, &pOptimizedClearValue, pProtectedSession, riidResource, &ppvResource);
     }
 
     return bytes_read;
@@ -7619,7 +7619,7 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id,
     size_t bytes_read = 0;
 
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC> pDesc;
-    HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
+    format::HandleId pProtectedSession;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
@@ -7627,14 +7627,14 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateHeap1(format::HandleId object_id,
     HRESULT return_value;
 
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProtectedSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pProtectedSession);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device4_CreateHeap1(object_id, return_value, &pDesc, &pProtectedSession, riid, &ppvHeap);
+        consumer->Process_ID3D12Device4_CreateHeap1(object_id, return_value, &pDesc, pProtectedSession, riid, &ppvHeap);
     }
 
     return bytes_read;
@@ -7647,7 +7647,7 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleI
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pDesc;
     D3D12_RESOURCE_STATES InitialState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
-    HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
+    format::HandleId pProtectedSession;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
@@ -7657,14 +7657,14 @@ size_t Dx12Decoder::Decode_ID3D12Device4_CreateReservedResource1(format::HandleI
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialState);
     bytes_read += pOptimizedClearValue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProtectedSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pProtectedSession);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device4_CreateReservedResource1(object_id, return_value, &pDesc, InitialState, &pOptimizedClearValue, &pProtectedSession, riid, &ppvResource);
+        consumer->Process_ID3D12Device4_CreateReservedResource1(object_id, return_value, &pDesc, InitialState, &pOptimizedClearValue, pProtectedSession, riid, &ppvResource);
     }
 
     return bytes_read;
@@ -7796,15 +7796,15 @@ size_t Dx12Decoder::Decode_ID3D12LifetimeTracker_DestroyOwnedObject(format::Hand
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12DeviceChild*> pObject;
+    format::HandleId pObject;
     HRESULT return_value;
 
-    bytes_read += pObject.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pObject);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12LifetimeTracker_DestroyOwnedObject(object_id, return_value, &pObject);
+        consumer->Process_ID3D12LifetimeTracker_DestroyOwnedObject(object_id, return_value, pObject);
     }
 
     return bytes_read;
@@ -7882,21 +7882,21 @@ size_t Dx12Decoder::Decode_ID3D12Device5_CreateLifetimeTracker(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12LifetimeOwner*> pOwner;
+    format::HandleId pOwner;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
     HandlePointerDecoder<void*> ppvTracker;
     HRESULT return_value;
 
-    bytes_read += pOwner.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pOwner);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvTracker.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device5_CreateLifetimeTracker(object_id, return_value, &pOwner, riid, &ppvTracker);
+        consumer->Process_ID3D12Device5_CreateLifetimeTracker(object_id, return_value, pOwner, riid, &ppvTracker);
     }
 
     return bytes_read;
@@ -8239,7 +8239,7 @@ size_t Dx12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId objec
     size_t bytes_read = 0;
 
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC> pAddition;
-    HandlePointerDecoder<ID3D12StateObject*> pStateObjectToGrowFrom;
+    format::HandleId pStateObjectToGrowFrom;
     Decoded_GUID riid;
     GUID value_riid;
     riid.decoded_value = &value_riid;
@@ -8247,14 +8247,14 @@ size_t Dx12Decoder::Decode_ID3D12Device7_AddToStateObject(format::HandleId objec
     HRESULT return_value;
 
     bytes_read += pAddition.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pStateObjectToGrowFrom.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pStateObjectToGrowFrom);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppNewStateObject.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device7_AddToStateObject(object_id, return_value, &pAddition, &pStateObjectToGrowFrom, riid, &ppNewStateObject);
+        consumer->Process_ID3D12Device7_AddToStateObject(object_id, return_value, &pAddition, pStateObjectToGrowFrom, riid, &ppNewStateObject);
     }
 
     return bytes_read;
@@ -8317,7 +8317,7 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::Handle
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1> pDesc;
     D3D12_RESOURCE_STATES InitialResourceState;
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE> pOptimizedClearValue;
-    HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedSession;
+    format::HandleId pProtectedSession;
     Decoded_GUID riidResource;
     GUID value_riidResource;
     riidResource.decoded_value = &value_riidResource;
@@ -8329,14 +8329,14 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreateCommittedResource2(format::Handle
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialResourceState);
     bytes_read += pOptimizedClearValue.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProtectedSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pProtectedSession);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riidResource);
     bytes_read += ppvResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device8_CreateCommittedResource2(object_id, return_value, &pHeapProperties, HeapFlags, &pDesc, InitialResourceState, &pOptimizedClearValue, &pProtectedSession, riidResource, &ppvResource);
+        consumer->Process_ID3D12Device8_CreateCommittedResource2(object_id, return_value, &pHeapProperties, HeapFlags, &pDesc, InitialResourceState, &pOptimizedClearValue, pProtectedSession, riidResource, &ppvResource);
     }
 
     return bytes_read;
@@ -8346,7 +8346,7 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId 
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Heap*> pHeap;
+    format::HandleId pHeap;
     UINT64 HeapOffset;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1> pDesc;
     D3D12_RESOURCE_STATES InitialState;
@@ -8357,7 +8357,7 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId 
     HandlePointerDecoder<void*> ppvResource;
     HRESULT return_value;
 
-    bytes_read += pHeap.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pHeap);
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &HeapOffset);
     bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitialState);
@@ -8368,7 +8368,7 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreatePlacedResource1(format::HandleId 
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device8_CreatePlacedResource1(object_id, return_value, &pHeap, HeapOffset, &pDesc, InitialState, &pOptimizedClearValue, riid, &ppvResource);
+        consumer->Process_ID3D12Device8_CreatePlacedResource1(object_id, return_value, pHeap, HeapOffset, &pDesc, InitialState, &pOptimizedClearValue, riid, &ppvResource);
     }
 
     return bytes_read;
@@ -8378,19 +8378,19 @@ size_t Dx12Decoder::Decode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessVie
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> pTargetedResource;
-    HandlePointerDecoder<ID3D12Resource*> pFeedbackResource;
+    format::HandleId pTargetedResource;
+    format::HandleId pFeedbackResource;
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE value_DestDescriptor;
     DestDescriptor.decoded_value = &value_DestDescriptor;
 
-    bytes_read += pTargetedResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pFeedbackResource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pTargetedResource);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pFeedbackResource);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DestDescriptor);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(object_id, &pTargetedResource, &pFeedbackResource, DestDescriptor);
+        consumer->Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(object_id, pTargetedResource, pFeedbackResource, DestDescriptor);
     }
 
     return bytes_read;
@@ -8490,13 +8490,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList3_SetProtectedResourceSessio
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12ProtectedResourceSession*> pProtectedResourceSession;
+    format::HandleId pProtectedResourceSession;
 
-    bytes_read += pProtectedResourceSession.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pProtectedResourceSession);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(object_id, &pProtectedResourceSession);
+        consumer->Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(object_id, pProtectedResourceSession);
     }
 
     return bytes_read;
@@ -8562,17 +8562,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_InitializeMetaCommand(form
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12MetaCommand*> pMetaCommand;
+    format::HandleId pMetaCommand;
     PointerDecoder<uint8_t> pInitializationParametersData;
     SIZE_T InitializationParametersDataSizeInBytes;
 
-    bytes_read += pMetaCommand.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pMetaCommand);
     bytes_read += pInitializationParametersData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitializationParametersDataSizeInBytes);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(object_id, &pMetaCommand, &pInitializationParametersData, InitializationParametersDataSizeInBytes);
+        consumer->Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(object_id, pMetaCommand, &pInitializationParametersData, InitializationParametersDataSizeInBytes);
     }
 
     return bytes_read;
@@ -8582,17 +8582,17 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(format:
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12MetaCommand*> pMetaCommand;
+    format::HandleId pMetaCommand;
     PointerDecoder<uint8_t> pExecutionParametersData;
     SIZE_T ExecutionParametersDataSizeInBytes;
 
-    bytes_read += pMetaCommand.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pMetaCommand);
     bytes_read += pExecutionParametersData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ExecutionParametersDataSizeInBytes);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(object_id, &pMetaCommand, &pExecutionParametersData, ExecutionParametersDataSizeInBytes);
+        consumer->Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(object_id, pMetaCommand, &pExecutionParametersData, ExecutionParametersDataSizeInBytes);
     }
 
     return bytes_read;
@@ -8662,13 +8662,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_SetPipelineState1(format::
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12StateObject*> pStateObject;
+    format::HandleId pStateObject;
 
-    bytes_read += pStateObject.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pStateObject);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList4_SetPipelineState1(object_id, &pStateObject);
+        consumer->Process_ID3D12GraphicsCommandList4_SetPipelineState1(object_id, pStateObject);
     }
 
     return bytes_read;
@@ -8744,13 +8744,13 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(form
 {
     size_t bytes_read = 0;
 
-    HandlePointerDecoder<ID3D12Resource*> shadingRateImage;
+    format::HandleId shadingRateImage;
 
-    bytes_read += shadingRateImage.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &shadingRateImage);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(object_id, &shadingRateImage);
+        consumer->Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(object_id, shadingRateImage);
     }
 
     return bytes_read;

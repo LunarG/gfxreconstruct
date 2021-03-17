@@ -786,7 +786,7 @@ struct Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
+    format::HandleId pRootSignature{ format::kNullHandleId };
     Decoded_D3D12_SHADER_BYTECODE* VS{ nullptr };
     Decoded_D3D12_SHADER_BYTECODE* PS{ nullptr };
     Decoded_D3D12_SHADER_BYTECODE* DS{ nullptr };
@@ -808,7 +808,7 @@ struct Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12RootSignature*> pRootSignature;
+    format::HandleId pRootSignature{ format::kNullHandleId };
     Decoded_D3D12_SHADER_BYTECODE* CS{ nullptr };
     Decoded_D3D12_CACHED_PIPELINE_STATE* CachedPSO{ nullptr };
 };
@@ -1132,7 +1132,7 @@ struct Decoded_D3D12_RESOURCE_TRANSITION_BARRIER
 
     D3D12_RESOURCE_TRANSITION_BARRIER* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_RESOURCE_ALIASING_BARRIER
@@ -1141,8 +1141,8 @@ struct Decoded_D3D12_RESOURCE_ALIASING_BARRIER
 
     D3D12_RESOURCE_ALIASING_BARRIER* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12Resource*> pResourceBefore;
-    HandlePointerDecoder<ID3D12Resource*> pResourceAfter;
+    format::HandleId pResourceBefore{ format::kNullHandleId };
+    format::HandleId pResourceAfter{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_RESOURCE_UAV_BARRIER
@@ -1151,7 +1151,7 @@ struct Decoded_D3D12_RESOURCE_UAV_BARRIER
 
     D3D12_RESOURCE_UAV_BARRIER* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12Resource*> pResource;
+    format::HandleId pResource{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_SUBRESOURCE_FOOTPRINT
@@ -1670,7 +1670,7 @@ struct Decoded_D3D12_GLOBAL_ROOT_SIGNATURE
 
     D3D12_GLOBAL_ROOT_SIGNATURE* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12RootSignature*> pGlobalRootSignature;
+    format::HandleId pGlobalRootSignature{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_LOCAL_ROOT_SIGNATURE
@@ -1679,7 +1679,7 @@ struct Decoded_D3D12_LOCAL_ROOT_SIGNATURE
 
     D3D12_LOCAL_ROOT_SIGNATURE* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12RootSignature*> pLocalRootSignature;
+    format::HandleId pLocalRootSignature{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_NODE_MASK
@@ -1715,7 +1715,7 @@ struct Decoded_D3D12_EXISTING_COLLECTION_DESC
 
     D3D12_EXISTING_COLLECTION_DESC* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12StateObject*> pExistingCollection;
+    format::HandleId pExistingCollection{ format::kNullHandleId };
     StructPointerDecoder<Decoded_D3D12_EXPORT_DESC>* pExports{ nullptr };
 };
 
@@ -1923,8 +1923,8 @@ struct Decoded_D3D12_AUTO_BREADCRUMB_NODE
     WStringDecoder pCommandListDebugNameW;
     StringDecoder pCommandQueueDebugNameA;
     WStringDecoder pCommandQueueDebugNameW;
-    HandlePointerDecoder<ID3D12GraphicsCommandList*> pCommandList;
-    HandlePointerDecoder<ID3D12CommandQueue*> pCommandQueue;
+    format::HandleId pCommandList{ format::kNullHandleId };
+    format::HandleId pCommandQueue{ format::kNullHandleId };
     PointerDecoder<UINT32> pLastBreadcrumbValue;
     PointerDecoder<D3D12_AUTO_BREADCRUMB_OP> pCommandHistory;
     StructPointerDecoder<Decoded_D3D12_AUTO_BREADCRUMB_NODE>* pNext{ nullptr };
@@ -1949,8 +1949,8 @@ struct Decoded_D3D12_AUTO_BREADCRUMB_NODE1
     WStringDecoder pCommandListDebugNameW;
     StringDecoder pCommandQueueDebugNameA;
     WStringDecoder pCommandQueueDebugNameW;
-    HandlePointerDecoder<ID3D12GraphicsCommandList*> pCommandList;
-    HandlePointerDecoder<ID3D12CommandQueue*> pCommandQueue;
+    format::HandleId pCommandList{ format::kNullHandleId };
+    format::HandleId pCommandQueue{ format::kNullHandleId };
     PointerDecoder<UINT> pLastBreadcrumbValue;
     PointerDecoder<D3D12_AUTO_BREADCRUMB_OP> pCommandHistory;
     StructPointerDecoder<Decoded_D3D12_AUTO_BREADCRUMB_NODE1>* pNext{ nullptr };
@@ -1986,7 +1986,7 @@ struct Decoded_D3D12_DRED_ALLOCATION_NODE1
     StringDecoder ObjectNameA;
     WStringDecoder ObjectNameW;
     StructPointerDecoder<Decoded_D3D12_DRED_ALLOCATION_NODE1>* pNext{ nullptr };
-    HandlePointerDecoder<IUnknown*> pObject;
+    format::HandleId pObject{ format::kNullHandleId };
 };
 
 struct Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT
@@ -2096,8 +2096,8 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS
 
     D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* decoded_value{ nullptr };
 
-    HandlePointerDecoder<ID3D12Resource*> pSrcResource;
-    HandlePointerDecoder<ID3D12Resource*> pDstResource;
+    format::HandleId pSrcResource{ format::kNullHandleId };
+    format::HandleId pDstResource{ format::kNullHandleId };
     StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS>* pSubresourceParameters{ nullptr };
 };
 

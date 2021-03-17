@@ -66,7 +66,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID Name,
-        HandlePointerDecoder<IUnknown*>* pUnknown)
+        format::HandleId pUnknown)
 {
     fprintf(GetFile(), "%s\n", "IDXGIObject::SetPrivateDataInterface");
 }
@@ -259,7 +259,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         HRESULT returnValue,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
-        HandlePointerDecoder<IUnknown*>* pConcernedDevice)
+        format::HandleId pConcernedDevice)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput::FindClosestMatchingMode");
 }
@@ -276,7 +276,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
 void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         BOOL Exclusive)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput::TakeOwnership");
@@ -320,7 +320,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
 void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IDXGISurface*>* pScanoutSurface)
+        format::HandleId pScanoutSurface)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput::SetDisplaySurface");
 }
@@ -329,7 +329,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IDXGISurface*>* pDestination)
+        format::HandleId pDestination)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput::GetDisplaySurfaceData");
 }
@@ -369,7 +369,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId object_id,
         HRESULT returnValue,
         BOOL Fullscreen,
-        HandlePointerDecoder<IDXGIOutput*>* pTarget)
+        format::HandleId pTarget)
 {
     fprintf(GetFile(), "%s\n", "IDXGISwapChain::SetFullscreenState");
 }
@@ -475,7 +475,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
 void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
         HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
 {
@@ -863,11 +863,11 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         uint64_t hWnd,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
-        HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
+        format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactory2::CreateSwapChainForHwnd");
@@ -877,10 +877,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
-        HandlePointerDecoder<IUnknown*>* pWindow,
+        format::HandleId pDevice,
+        format::HandleId pWindow,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
+        format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactory2::CreateSwapChainForCoreWindow");
@@ -958,9 +958,9 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
+        format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactory2::CreateSwapChainForComposition");
@@ -993,7 +993,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         HRESULT returnValue,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
-        HandlePointerDecoder<IUnknown*>* pConcernedDevice)
+        format::HandleId pConcernedDevice)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput1::FindClosestMatchingMode1");
 }
@@ -1002,7 +1002,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
 void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IDXGIResource*>* pDestination)
+        format::HandleId pDestination)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput1::GetDisplaySurfaceData1");
 }
@@ -1011,7 +1011,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
 void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput1::DuplicateOutput");
@@ -1216,10 +1216,10 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
+        format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactoryMedia::CreateSwapChainForCompositionSurfaceHandle");
@@ -1229,11 +1229,11 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
-        HandlePointerDecoder<IDXGIResource*>* pYuvDecodeBuffers,
-        HandlePointerDecoder<IDXGIOutput*>* pRestrictToOutput,
+        format::HandleId pYuvDecodeBuffers,
+        format::HandleId pRestrictToOutput,
         HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactoryMedia::CreateDecodeSwapChainForCompositionSurfaceHandle");
@@ -1273,7 +1273,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         format::HandleId object_id,
         HRESULT returnValue,
         DXGI_FORMAT EnumFormat,
-        HandlePointerDecoder<IUnknown*>* pConcernedDevice,
+        format::HandleId pConcernedDevice,
         PointerDecoder<UINT>* pFlags)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput3::CheckOverlaySupport");
@@ -1331,7 +1331,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         HRESULT returnValue,
         DXGI_FORMAT Format,
         DXGI_COLOR_SPACE_TYPE ColorSpace,
-        HandlePointerDecoder<IUnknown*>* pConcernedDevice,
+        format::HandleId pConcernedDevice,
         PointerDecoder<UINT>* pFlags)
 {
     fprintf(GetFile(), "%s\n", "IDXGIOutput4::CheckOverlayColorSpaceSupport");
@@ -1424,7 +1424,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
 void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pDevice,
+        format::HandleId pDevice,
         UINT Flags,
         UINT SupportedFormatsCount,
         PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
@@ -1597,7 +1597,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
 
 void Dx12AsciiConsumer::Process_D3D12CreateDevice(
         HRESULT returnValue,
-        HandlePointerDecoder<IUnknown*>* pAdapter,
+        format::HandleId pAdapter,
         D3D_FEATURE_LEVEL MinimumFeatureLevel,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppDevice)
@@ -1652,7 +1652,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         format::HandleId object_id,
         HRESULT returnValue,
         Decoded_GUID guid,
-        HandlePointerDecoder<IUnknown*>* pData)
+        format::HandleId pData)
 {
     fprintf(GetFile(), "%s\n", "ID3D12Object::SetPrivateDataInterface");
 }
@@ -1878,8 +1878,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12CommandAllocator*>* pAllocator,
-        HandlePointerDecoder<ID3D12PipelineState*>* pInitialState)
+        format::HandleId pAllocator,
+        format::HandleId pInitialState)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::Reset");
 }
@@ -1887,7 +1887,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12PipelineState*>* pPipelineState)
+        format::HandleId pPipelineState)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::ClearState");
 }
@@ -1928,9 +1928,9 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstBuffer,
+        format::HandleId pDstBuffer,
         UINT64 DstOffset,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcBuffer,
+        format::HandleId pSrcBuffer,
         UINT64 SrcOffset,
         UINT64 NumBytes)
 {
@@ -1953,8 +1953,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstResource,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcResource)
+        format::HandleId pDstResource,
+        format::HandleId pSrcResource)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::CopyResource");
 }
@@ -1962,10 +1962,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pTiledResource,
+        format::HandleId pTiledResource,
         StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pTileRegionStartCoordinate,
         StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>* pTileRegionSize,
-        HandlePointerDecoder<ID3D12Resource*>* pBuffer,
+        format::HandleId pBuffer,
         UINT64 BufferStartOffsetInBytes,
         D3D12_TILE_COPY_FLAGS Flags)
 {
@@ -1975,9 +1975,9 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstResource,
+        format::HandleId pDstResource,
         UINT DstSubresource,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcResource,
+        format::HandleId pSrcResource,
         UINT SrcSubresource,
         DXGI_FORMAT Format)
 {
@@ -2029,7 +2029,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12PipelineState*>* pPipelineState)
+        format::HandleId pPipelineState)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::SetPipelineState");
 }
@@ -2046,7 +2046,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12GraphicsCommandList*>* pCommandList)
+        format::HandleId pCommandList)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::ExecuteBundle");
 }
@@ -2063,7 +2063,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignature(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature)
+        format::HandleId pRootSignature)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::SetComputeRootSignature");
 }
@@ -2071,7 +2071,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature)
+        format::HandleId pRootSignature)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::SetGraphicsRootSignature");
 }
@@ -2258,7 +2258,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         format::HandleId object_id,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         PointerDecoder<UINT> Values [4],
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
@@ -2271,7 +2271,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         format::HandleId object_id,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         PointerDecoder<FLOAT> Values [4],
         UINT NumRects,
         StructPointerDecoder<Decoded_tagRECT>* pRects)
@@ -2282,7 +2282,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         StructPointerDecoder<Decoded_D3D12_DISCARD_REGION>* pRegion)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::DiscardResource");
@@ -2291,7 +2291,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12QueryHeap*>* pQueryHeap,
+        format::HandleId pQueryHeap,
         D3D12_QUERY_TYPE Type,
         UINT Index)
 {
@@ -2301,7 +2301,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12QueryHeap*>* pQueryHeap,
+        format::HandleId pQueryHeap,
         D3D12_QUERY_TYPE Type,
         UINT Index)
 {
@@ -2311,11 +2311,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12QueryHeap*>* pQueryHeap,
+        format::HandleId pQueryHeap,
         D3D12_QUERY_TYPE Type,
         UINT StartIndex,
         UINT NumQueries,
-        HandlePointerDecoder<ID3D12Resource*>* pDestinationBuffer,
+        format::HandleId pDestinationBuffer,
         UINT64 AlignedDestinationBufferOffset)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::ResolveQueryData");
@@ -2324,7 +2324,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pBuffer,
+        format::HandleId pBuffer,
         UINT64 AlignedBufferOffset,
         D3D12_PREDICATION_OP Operation)
 {
@@ -2361,11 +2361,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12CommandSignature*>* pCommandSignature,
+        format::HandleId pCommandSignature,
         UINT MaxCommandCount,
-        HandlePointerDecoder<ID3D12Resource*>* pArgumentBuffer,
+        format::HandleId pArgumentBuffer,
         UINT64 ArgumentBufferOffset,
-        HandlePointerDecoder<ID3D12Resource*>* pCountBuffer,
+        format::HandleId pCountBuffer,
         UINT64 CountBufferOffset)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList::ExecuteIndirect");
@@ -2374,9 +2374,9 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstBuffer,
+        format::HandleId pDstBuffer,
         UINT64 DstOffset,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcBuffer,
+        format::HandleId pSrcBuffer,
         UINT64 SrcOffset,
         UINT Dependencies,
         HandlePointerDecoder<ID3D12Resource*>* ppDependentResources,
@@ -2388,9 +2388,9 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstBuffer,
+        format::HandleId pDstBuffer,
         UINT64 DstOffset,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcBuffer,
+        format::HandleId pSrcBuffer,
         UINT64 SrcOffset,
         UINT Dependencies,
         HandlePointerDecoder<ID3D12Resource*>* ppDependentResources,
@@ -2421,11 +2421,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstResource,
+        format::HandleId pDstResource,
         UINT DstSubresource,
         UINT DstX,
         UINT DstY,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcResource,
+        format::HandleId pSrcResource,
         UINT SrcSubresource,
         StructPointerDecoder<Decoded_tagRECT>* pSrcRect,
         DXGI_FORMAT Format,
@@ -2455,11 +2455,11 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         UINT NumResourceRegions,
         StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pResourceRegionStartCoordinates,
         StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>* pResourceRegionSizes,
-        HandlePointerDecoder<ID3D12Heap*>* pHeap,
+        format::HandleId pHeap,
         UINT NumRanges,
         PointerDecoder<D3D12_TILE_RANGE_FLAGS>* pRangeFlags,
         PointerDecoder<UINT>* pHeapRangeStartOffsets,
@@ -2472,9 +2472,9 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pDstResource,
+        format::HandleId pDstResource,
         StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pDstRegionStartCoordinate,
-        HandlePointerDecoder<ID3D12Resource*>* pSrcResource,
+        format::HandleId pSrcResource,
         StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pSrcRegionStartCoordinate,
         StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>* pRegionSize,
         D3D12_TILE_MAPPING_FLAGS Flags)
@@ -2522,7 +2522,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12Fence*>* pFence,
+        format::HandleId pFence,
         UINT64 Value)
 {
     fprintf(GetFile(), "%s\n", "ID3D12CommandQueue::Signal");
@@ -2532,7 +2532,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12Fence*>* pFence,
+        format::HandleId pFence,
         UINT64 Value)
 {
     fprintf(GetFile(), "%s\n", "ID3D12CommandQueue::Wait");
@@ -2623,8 +2623,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         HRESULT returnValue,
         UINT nodeMask,
         D3D12_COMMAND_LIST_TYPE type,
-        HandlePointerDecoder<ID3D12CommandAllocator*>* pCommandAllocator,
-        HandlePointerDecoder<ID3D12PipelineState*>* pInitialState,
+        format::HandleId pCommandAllocator,
+        format::HandleId pInitialState,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandList)
 {
@@ -2687,7 +2687,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateConstantBufferView(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
@@ -2697,8 +2697,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
-        HandlePointerDecoder<ID3D12Resource*>* pCounterResource,
+        format::HandleId pResource,
+        format::HandleId pCounterResource,
         StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
@@ -2708,7 +2708,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
@@ -2718,7 +2718,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pResource,
+        format::HandleId pResource,
         StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
@@ -2810,7 +2810,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
 void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12Heap*>* pHeap,
+        format::HandleId pHeap,
         UINT64 HeapOffset,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
         D3D12_RESOURCE_STATES InitialState,
@@ -2838,7 +2838,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12DeviceChild*>* pObject,
+        format::HandleId pObject,
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
@@ -2949,7 +2949,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
-        HandlePointerDecoder<ID3D12RootSignature*>* pRootSignature,
+        format::HandleId pRootSignature,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvCommandSignature)
 {
@@ -2959,7 +2959,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pTiledResource,
+        format::HandleId pTiledResource,
         PointerDecoder<UINT>* pNumTilesForEntireResource,
         StructPointerDecoder<Decoded_D3D12_PACKED_MIP_INFO>* pPackedMipDesc,
         StructPointerDecoder<Decoded_D3D12_TILE_SHAPE>* pStandardTileShapeForNonPackedMips,
@@ -2983,7 +2983,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId object_id,
         HRESULT returnValue,
         WStringDecoder* pName,
-        HandlePointerDecoder<ID3D12PipelineState*>* pPipeline)
+        format::HandleId pPipeline)
 {
     fprintf(GetFile(), "%s\n", "ID3D12PipelineLibrary::StorePipeline");
 }
@@ -3118,7 +3118,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         D3D12_RESIDENCY_FLAGS Flags,
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects,
-        HandlePointerDecoder<ID3D12Fence*>* pFenceToSignal,
+        format::HandleId pFenceToSignal,
         UINT64 FenceValueToSignal)
 {
     fprintf(GetFile(), "%s\n", "ID3D12Device3::EnqueueMakeResident");
@@ -3183,7 +3183,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
         D3D12_RESOURCE_STATES InitialResourceState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
-        HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
+        format::HandleId pProtectedSession,
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource)
 {
@@ -3195,7 +3195,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
-        HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
+        format::HandleId pProtectedSession,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
 {
@@ -3209,7 +3209,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
-        HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
+        format::HandleId pProtectedSession,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvResource)
 {
@@ -3278,7 +3278,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
 void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12DeviceChild*>* pObject)
+        format::HandleId pObject)
 {
     fprintf(GetFile(), "%s\n", "ID3D12LifetimeTracker::DestroyOwnedObject");
 }
@@ -3321,7 +3321,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12LifetimeOwner*>* pOwner,
+        format::HandleId pOwner,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvTracker)
 {
@@ -3495,7 +3495,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         format::HandleId object_id,
         HRESULT returnValue,
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pAddition,
-        HandlePointerDecoder<ID3D12StateObject*>* pStateObjectToGrowFrom,
+        format::HandleId pStateObjectToGrowFrom,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppNewStateObject)
 {
@@ -3534,7 +3534,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
         D3D12_RESOURCE_STATES InitialResourceState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
-        HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedSession,
+        format::HandleId pProtectedSession,
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource)
 {
@@ -3545,7 +3545,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         format::HandleId object_id,
         HRESULT returnValue,
-        HandlePointerDecoder<ID3D12Heap*>* pHeap,
+        format::HandleId pHeap,
         UINT64 HeapOffset,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
         D3D12_RESOURCE_STATES InitialState,
@@ -3559,8 +3559,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* pTargetedResource,
-        HandlePointerDecoder<ID3D12Resource*>* pFeedbackResource,
+        format::HandleId pTargetedResource,
+        format::HandleId pFeedbackResource,
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     fprintf(GetFile(), "%s\n", "ID3D12Device8::CreateSamplerFeedbackUnorderedAccessView");
@@ -3612,7 +3612,7 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12ProtectedResourceSession*>* pProtectedResourceSession)
+        format::HandleId pProtectedResourceSession)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList3::SetProtectedResourceSession");
 }
@@ -3648,7 +3648,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12MetaCommand*>* pMetaCommand,
+        format::HandleId pMetaCommand,
         PointerDecoder<uint8_t>* pInitializationParametersData,
         SIZE_T InitializationParametersDataSizeInBytes)
 {
@@ -3658,7 +3658,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12MetaCommand*>* pMetaCommand,
+        format::HandleId pMetaCommand,
         PointerDecoder<uint8_t>* pExecutionParametersData,
         SIZE_T ExecutionParametersDataSizeInBytes)
 {
@@ -3698,7 +3698,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12StateObject*>* pStateObject)
+        format::HandleId pStateObject)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList4::SetPipelineState1");
 }
@@ -3739,7 +3739,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
         format::HandleId object_id,
-        HandlePointerDecoder<ID3D12Resource*>* shadingRateImage)
+        format::HandleId shadingRateImage)
 {
     fprintf(GetFile(), "%s\n", "ID3D12GraphicsCommandList5::RSSetShadingRateImage");
 }

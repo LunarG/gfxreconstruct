@@ -1008,7 +1008,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GRA
     size_t bytes_read = 0;
     D3D12_GRAPHICS_PIPELINE_STATE_DESC* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pRootSignature.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pRootSignature));
     value->pRootSignature = nullptr;
     wrapper->VS = DecodeAllocator::Allocate<Decoded_D3D12_SHADER_BYTECODE>();
     wrapper->VS->decoded_value = &(value->VS);
@@ -1066,7 +1066,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COM
     size_t bytes_read = 0;
     D3D12_COMPUTE_PIPELINE_STATE_DESC* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pRootSignature.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pRootSignature));
     value->pRootSignature = nullptr;
     wrapper->CS = DecodeAllocator::Allocate<Decoded_D3D12_SHADER_BYTECODE>();
     wrapper->CS->decoded_value = &(value->CS);
@@ -1720,7 +1720,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RES
     size_t bytes_read = 0;
     D3D12_RESOURCE_TRANSITION_BARRIER* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pResource));
     value->pResource = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Subresource));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->StateBefore));
@@ -1736,9 +1736,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RES
     size_t bytes_read = 0;
     D3D12_RESOURCE_ALIASING_BARRIER* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pResourceBefore.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pResourceBefore));
     value->pResourceBefore = nullptr;
-    bytes_read += wrapper->pResourceAfter.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pResourceAfter));
     value->pResourceAfter = nullptr;
 
     return bytes_read;
@@ -1751,7 +1751,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RES
     size_t bytes_read = 0;
     D3D12_RESOURCE_UAV_BARRIER* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pResource));
     value->pResource = nullptr;
 
     return bytes_read;
@@ -2774,7 +2774,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GLO
     size_t bytes_read = 0;
     D3D12_GLOBAL_ROOT_SIGNATURE* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pGlobalRootSignature.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pGlobalRootSignature));
     value->pGlobalRootSignature = nullptr;
 
     return bytes_read;
@@ -2787,7 +2787,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_LOC
     size_t bytes_read = 0;
     D3D12_LOCAL_ROOT_SIGNATURE* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pLocalRootSignature.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pLocalRootSignature));
     value->pLocalRootSignature = nullptr;
 
     return bytes_read;
@@ -2846,7 +2846,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_EXI
     size_t bytes_read = 0;
     D3D12_EXISTING_COLLECTION_DESC* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pExistingCollection.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pExistingCollection));
     value->pExistingCollection = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExports));
     wrapper->pExports = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_EXPORT_DESC>>();
@@ -3235,9 +3235,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_AUT
     value->pCommandQueueDebugNameA = wrapper->pCommandQueueDebugNameA.GetPointer();
     bytes_read += wrapper->pCommandQueueDebugNameW.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCommandQueueDebugNameW = wrapper->pCommandQueueDebugNameW.GetPointer();
-    bytes_read += wrapper->pCommandList.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pCommandList));
     value->pCommandList = nullptr;
-    bytes_read += wrapper->pCommandQueue.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pCommandQueue));
     value->pCommandQueue = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BreadcrumbCount));
     bytes_read += wrapper->pLastBreadcrumbValue.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
@@ -3280,9 +3280,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_AUT
     value->pCommandQueueDebugNameA = wrapper->pCommandQueueDebugNameA.GetPointer();
     bytes_read += wrapper->pCommandQueueDebugNameW.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCommandQueueDebugNameW = wrapper->pCommandQueueDebugNameW.GetPointer();
-    bytes_read += wrapper->pCommandList.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pCommandList));
     value->pCommandList = nullptr;
-    bytes_read += wrapper->pCommandQueue.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pCommandQueue));
     value->pCommandQueue = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BreadcrumbCount));
     bytes_read += wrapper->pLastBreadcrumbValue.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
@@ -3349,7 +3349,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DRE
     wrapper->pNext = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DRED_ALLOCATION_NODE1>>();
     bytes_read += wrapper->pNext->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->pObject.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pObject));
     value->pObject = nullptr;
 
     return bytes_read;
@@ -3539,9 +3539,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     size_t bytes_read = 0;
     D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value = wrapper->decoded_value;
 
-    bytes_read += wrapper->pSrcResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pSrcResource));
     value->pSrcResource = nullptr;
-    bytes_read += wrapper->pDstResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pDstResource));
     value->pDstResource = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubresourceCount));
     wrapper->pSubresourceParameters = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS>>();

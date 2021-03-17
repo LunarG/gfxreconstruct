@@ -132,9 +132,15 @@ class BaseStructDecodersBodyGenerator():
                         arraylen=value.array_capacity
                     )
 
-                if is_struct or is_string or is_handle or is_class:
+                if is_struct or is_string or is_handle or (
+                    is_class and value.pointer_count > 1
+                ):
                     body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
                         value.name, access_op, buffer_args
+                    )
+                elif is_class and value.pointer_count == 1:
+                    body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
+                        buffer_args, value.name
                     )
                 else:
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(

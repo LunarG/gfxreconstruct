@@ -175,7 +175,7 @@ class Dx12ReplayConsumerBodyGenerator(
                         arg_list.append('in_{}.data()'.format(value.name))
 
                     elif value.pointer_count == 1:
-                        code += '    auto in_{0} = MapObject<{1}>(*{0}->GetPointer());\n'.format(
+                        code += '    auto in_{0} = MapObject<{1}>({0});\n'.format(
                             value.name, value.base_type
                         )
                         arg_list.append('in_{}'.format(value.name))
