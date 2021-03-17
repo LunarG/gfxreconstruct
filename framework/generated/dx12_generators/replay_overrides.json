@@ -4,6 +4,10 @@
   "classmethods": {
     "IDXGIFactory2": {
       "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd"
+    },
+    "ID3D12Resource": {
+      "ReadFromSubresource": "OverrideReadFromSubresource",
+      "WriteToSubresource": "OverrideWriteToSubresource"
     }
   }
 }

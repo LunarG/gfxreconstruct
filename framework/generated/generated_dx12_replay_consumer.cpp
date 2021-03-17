@@ -2827,11 +2827,13 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     auto replay_object = MapObject<ID3D12Resource>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->WriteToSubresource(DstSubresource,
-                                                               pDstBox->GetPointer(),
-                                                               reinterpret_cast<void*>(pSrcData),
-                                                               SrcRowPitch,
-                                                               SrcDepthPitch);
+        auto replay_result = OverrideWriteToSubresource(replay_object,
+                                                        returnValue,
+                                                        DstSubresource,
+                                                        pDstBox,
+                                                        pSrcData,
+                                                        SrcRowPitch,
+                                                        SrcDepthPitch);
         CheckReplayResult("ID3D12Resource_WriteToSubresource", returnValue, replay_result);
     }
 }
@@ -2848,11 +2850,13 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     auto replay_object = MapObject<ID3D12Resource>(object_id);
     if (replay_object != nullptr)
     {
-        auto replay_result = replay_object->ReadFromSubresource(reinterpret_cast<void*>(pDstData),
-                                                                DstRowPitch,
-                                                                DstDepthPitch,
-                                                                SrcSubresource,
-                                                                pSrcBox->GetPointer());
+        auto replay_result = OverrideReadFromSubresource(replay_object,
+                                                         returnValue,
+                                                         pDstData,
+                                                         DstRowPitch,
+                                                         DstDepthPitch,
+                                                         SrcSubresource,
+                                                         pSrcBox);
         CheckReplayResult("ID3D12Resource_ReadFromSubresource", returnValue, replay_result);
     }
 }

@@ -85,15 +85,36 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 
+    // TODO: Implement function
     HRESULT
     OverrideCreateSwapChainForHwnd(IDXGIFactory2*                                                 replay_object,
-                                   HRESULT                                                        returnValue,
+                                   HRESULT                                                        original_result,
                                    IUnknown*                                                      pDevice,
                                    uint64_t                                                       hWnd,
                                    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
                                    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
                                    IDXGIOutput*                                                   pRestrictToOutput,
                                    HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain);
+
+    // TODO: Implement function
+    HRESULT
+    OverrideWriteToSubresource(ID3D12Resource*                          replay_object,
+                               HRESULT                                  original_result,
+                               UINT                                     DstSubresource,
+                               StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                               uint64_t                                 pSrcData,
+                               UINT                                     SrcRowPitch,
+                               UINT                                     SrcDepthPitch);
+
+    // TODO: Implement function
+    HRESULT
+    OverrideReadFromSubresource(ID3D12Resource*                          replay_object,
+                                HRESULT                                  original_result,
+                                uint64_t                                 pDstData,
+                                UINT                                     DstRowPitch,
+                                UINT                                     DstDepthPitch,
+                                UINT                                     SrcSubresource,
+                                StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox);
 
   private:
     std::unordered_map<format::HandleId, IUnknown*> objects_;

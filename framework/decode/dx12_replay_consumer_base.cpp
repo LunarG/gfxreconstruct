@@ -48,7 +48,7 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
     IDXGIFactory2*                                                 replay_object,
-    HRESULT                                                        returnValue,
+    HRESULT                                                        original_result,
     IUnknown*                                                      pDevice,
     uint64_t                                                       hWnd,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
@@ -56,13 +56,36 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
     IDXGIOutput*                                                   pRestrictToOutput,
     HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain)
 {
-    auto _out_hp_ppSwapChain = ppSwapChain->GetHandlePointer();
     return replay_object->CreateSwapChainForHwnd(pDevice,
-                                                 MapWin32Handle<HWND>(hWnd),
+                                                 reinterpret_cast<HWND>(hWnd),
                                                  pDesc->GetPointer(),
                                                  pFullscreenDesc->GetPointer(),
                                                  pRestrictToOutput,
-                                                 _out_hp_ppSwapChain);
+                                                 ppSwapChain->GetHandlePointer());
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideWriteToSubresource(ID3D12Resource*                          replay_object,
+                                                   HRESULT                                  original_result,
+                                                   UINT                                     DstSubresource,
+                                                   StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
+                                                   uint64_t                                 pSrcData,
+                                                   UINT                                     SrcRowPitch,
+                                                   UINT                                     SrcDepthPitch)
+{
+    return E_NOTIMPL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideReadFromSubresource(ID3D12Resource*                          replay_object,
+                                                    HRESULT                                  original_result,
+                                                    uint64_t                                 pDstData,
+                                                    UINT                                     DstRowPitch,
+                                                    UINT                                     DstDepthPitch,
+                                                    UINT                                     SrcSubresource,
+                                                    StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
+{
+    return E_NOTIMPL;
 }
 
 GFXRECON_END_NAMESPACE(decode)
