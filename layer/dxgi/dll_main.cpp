@@ -82,7 +82,7 @@ extern "C" __declspec(dllexport) void UpdateHooks()
 
     if (hooked == false)
     {
-        Hook_DXGI::HookInterceptor();
+        Hook_DXGI::HookInterceptor(dll_initializer.IsCaptureEnabled());
         hooked = true;
     }
 }

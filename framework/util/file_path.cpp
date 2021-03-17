@@ -172,6 +172,34 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
     return InsertFilenamePostfix(filename, timestamp);
 }
 
+
+bool GetWindowsSystemLibrariesPath(std::string& base_path)
+{
+    std::string windows_dir = util::platform::GetEnv("WINDIR");
+
+    char module_name[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+
+    DWORD bin_type = 0;
+    bool success = GetBinaryTypeA(module_name, &bin_type);
+
+    if (success == true)
+    {
+        if (bin_type == SCS_64BIT_BINARY)
+        {
+            windows_dir += "\\System32";
+        }
+        else if (bin_type == SCS_32BIT_BINARY)
+        {
+            windows_dir += "\\SysWOW64";
+        }
+
+        base_path = windows_dir;
+    }
+
+    return success;
+}
+
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

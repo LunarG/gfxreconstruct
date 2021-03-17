@@ -44,6 +44,8 @@ std::string InsertFilenamePostfix(const std::string& filename, const std::string
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
+bool GetWindowsSystemLibrariesPath(std::string& base_path);
+
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

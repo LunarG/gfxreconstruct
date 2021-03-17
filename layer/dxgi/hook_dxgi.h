@@ -23,10 +23,30 @@
 #ifndef GFXRECON_HOOK_DXGI_H
 #define GFXRECON_HOOK_DXGI_H
 
+#include "encode/dxgi_dispatch_table.h"
+
 #include "util/interception/real_and_mine_hook.h"
 
 #include <Windows.h>
 #include <dxgi.h>
+
+class Hook_DXGI;
+
+// Helper struct that holds data required for hook management
+struct DxgiHookInfo
+{
+    // GFXR DLL with capture implementation, which is only loaded when capture is enabled
+    HMODULE capture_dll = nullptr;
+
+    // System DLL providing the DXGI API calls to wrap
+    HMODULE dxgi_dll = nullptr;
+
+    // Dispatch table pointing either at the GPU or capture layer
+    gfxrecon::encode::DxgiDispatchTable dispatch_table = {};
+
+    // Interceptor class in charge of hooking
+    Hook_DXGI* interceptor = nullptr;
+};
 
 //-----------------------------------------------------------------------------
 /// typedef function pointers
@@ -56,7 +76,7 @@ class Hook_DXGI
     Hook_DXGI() {}
     virtual ~Hook_DXGI() {}
 
-    static bool HookInterceptor();
+    static bool HookInterceptor(bool capture);
     static bool UnhookInterceptor();
 
     gfxrecon::util::interception::RealAndMineHook<PFN_CREATEDXGIFACTORY>  hook_CreateDXGIFactory_;

@@ -22,17 +22,16 @@
 
 #include "hook_dxgi.h"
 
-#include <string>
+#include "util/file_path.h"
 
-static Hook_DXGI* dxgi_hook_ = nullptr;
-
-typedef int (*pFuncPtr)(void);
+// Static data required for hook management
+static DxgiHookInfo hook_info_ = {};
 
 HRESULT WINAPI Mine_CreateDXGIFactory(const IID& riid, void** ppFactory)
 {
     HRESULT result = S_FALSE;
 
-    Hook_DXGI::GetInterceptor()->hook_CreateDXGIFactory_.real_hook_(riid, ppFactory);
+    result = hook_info_.dispatch_table.CreateDXGIFactory(riid, ppFactory);
 
     return result;
 }
@@ -41,7 +40,7 @@ HRESULT WINAPI Mine_CreateDXGIFactory1(const IID& riid, void** ppFactory)
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_DXGI::GetInterceptor()->hook_CreateDXGIFactory1_.real_hook_(riid, ppFactory);
+    result = hook_info_.dispatch_table.CreateDXGIFactory1(riid, ppFactory);
 
     return result;
 }
@@ -50,7 +49,7 @@ HRESULT WINAPI Mine_CreateDXGIFactory2(UINT Flags, const IID& riid, void** ppFac
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_DXGI::GetInterceptor()->hook_CreateDXGIFactory2_.real_hook_(Flags, riid, ppFactory);
+    result = hook_info_.dispatch_table.CreateDXGIFactory2(Flags, riid, ppFactory);
 
     return result;
 }
@@ -59,7 +58,7 @@ HRESULT WINAPI Mine_DXGIDeclareAdapterRemovalSupport()
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_DXGI::GetInterceptor()->hook_DXGIDeclareAdapterRemovalSupport_.real_hook_();
+    result = hook_info_.dispatch_table.DXGIDeclareAdapterRemovalSupport();
 
     return result;
 }
@@ -68,7 +67,7 @@ HRESULT WINAPI Mine_DXGIGetDebugInterface1(UINT Flags, const IID& riid, void** p
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_DXGI::GetInterceptor()->hook_DXGIGetDebugInterface1_.real_hook_(Flags, riid, pDebug);
+    result = hook_info_.dispatch_table.DXGIGetDebugInterface1(Flags, riid, pDebug);
 
     return result;
 }
@@ -84,35 +83,124 @@ HRESULT WINAPI Mine_DXGID3D10CreateDevice(
     return result;
 }
 
-HRESULT WINAPI CreateDXGIFactory(const IID& riid, void** ppFactory)
+//----------------------------------------------------------------------------
+/// Fill in a dispatch table with function addresses obtained from dxgi.dll
+///
+/// \param  dxgi_module Output dispatch table.
+///
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool GetDxgiDispatchTable(gfxrecon::encode::DxgiDispatchTable& dxgi_table)
 {
-    return Mine_CreateDXGIFactory(riid, ppFactory);
+    std::string library_base_path = "";
+
+    bool success = gfxrecon::util::filepath::GetWindowsSystemLibrariesPath(library_base_path);
+
+    if (success == true)
+    {
+        std::string library_path = library_base_path + "\\dxgi.dll";
+
+        hook_info_.dxgi_dll = LoadLibraryA(library_path.c_str());
+
+        if (hook_info_.dxgi_dll != nullptr)
+        {
+            dxgi_table.CreateDXGIFactory =
+                reinterpret_cast<PFN_CREATEDXGIFACTORY>(
+                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory"));
+
+            dxgi_table.CreateDXGIFactory1 =
+                reinterpret_cast<PFN_CREATEDXGIFACTORY1>(
+                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory1"));
+
+            dxgi_table.CreateDXGIFactory2 =
+                reinterpret_cast<PFN_CREATEDXGIFACTORY2>(
+                    GetProcAddress(hook_info_.dxgi_dll, "CreateDXGIFactory2"));
+
+            dxgi_table.DXGIDeclareAdapterRemovalSupport =
+                reinterpret_cast<PFN_DXGIDECLAREADAPTERREMOVALSUPPORT>(
+                    GetProcAddress(hook_info_.dxgi_dll, "DXGIDeclareAdapterRemovalSupport"));
+
+            dxgi_table.DXGIGetDebugInterface1 =
+                reinterpret_cast<PFN_DXGIGETDEBUGINTERFACE1>(
+                    GetProcAddress(hook_info_.dxgi_dll, "DXGIGetDebugInterface1"));
+
+            success = true;
+        }
+    }
+
+    return success;
 }
 
-HRESULT WINAPI CreateDXGIFactory1(const IID& riid, void** ppFactory)
+//----------------------------------------------------------------------------
+/// Given a dxgi dispatch table, perform hooking and write out the final
+/// dispatch table that will be called by intercepted entry points.
+///
+/// \param  dxgi_table  Incoming dispatch table with entry function addresses
+///                     in dxgi.
+///
+/// \param  gpu_table Outgoing dispatch table with hooked entry points that
+///                   will either go to the GPU or capture layer.
+///
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool GetDxgiDispatchTableHooked(gfxrecon::encode::DxgiDispatchTable  dxgi_table,
+                                gfxrecon::encode::DxgiDispatchTable& gpu_table)
 {
-    return Mine_CreateDXGIFactory1(riid, ppFactory);
-}
+    bool success = false;
 
-HRESULT WINAPI CreateDXGIFactory2(UINT Flags, const IID& riid, void** ppFactory)
-{
-    return Mine_CreateDXGIFactory2(Flags, riid, ppFactory);
-}
+    Hook_DXGI* pInterceptor = Hook_DXGI::GetInterceptor();
 
-HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
-{
-    return Mine_DXGIDeclareAdapterRemovalSupport();
-}
+    if (pInterceptor != nullptr)
+    {
+        bool attach_success = false;
 
-HRESULT WINAPI DXGIGetDebugInterface1(UINT Flags, const IID& riid, void** pDebug)
-{
-    return Mine_DXGIGetDebugInterface1(Flags, riid, pDebug);
-}
+        if (dxgi_table.CreateDXGIFactory != nullptr)
+        {
+            pInterceptor->hook_CreateDXGIFactory_.SetHooks(dxgi_table.CreateDXGIFactory, Mine_CreateDXGIFactory);
+            attach_success = pInterceptor->hook_CreateDXGIFactory_.Attach();
 
-HRESULT WINAPI DXGID3D10CreateDevice(
-    HMODULE d3d10core, IDXGIFactory* factory, IDXGIAdapter* adapter, UINT flags, DWORD arg5, void** device)
-{
-    return Mine_DXGID3D10CreateDevice(d3d10core, factory, adapter, flags, arg5, device);
+            gpu_table.CreateDXGIFactory = pInterceptor->hook_CreateDXGIFactory_.real_hook_;
+        }
+
+        if (dxgi_table.CreateDXGIFactory1 != nullptr)
+        {
+            pInterceptor->hook_CreateDXGIFactory1_.SetHooks(dxgi_table.CreateDXGIFactory1, Mine_CreateDXGIFactory1);
+            attach_success = pInterceptor->hook_CreateDXGIFactory1_.Attach();
+
+            gpu_table.CreateDXGIFactory1 = pInterceptor->hook_CreateDXGIFactory1_.real_hook_;
+        }
+
+        if (dxgi_table.CreateDXGIFactory2 != nullptr)
+        {
+            pInterceptor->hook_CreateDXGIFactory2_.SetHooks(dxgi_table.CreateDXGIFactory2, Mine_CreateDXGIFactory2);
+            attach_success = pInterceptor->hook_CreateDXGIFactory2_.Attach();
+
+            gpu_table.CreateDXGIFactory2 = pInterceptor->hook_CreateDXGIFactory2_.real_hook_;
+        }
+
+        if (dxgi_table.DXGIDeclareAdapterRemovalSupport != nullptr)
+        {
+            pInterceptor->hook_DXGIDeclareAdapterRemovalSupport_.SetHooks(dxgi_table.DXGIDeclareAdapterRemovalSupport,
+                                                                          Mine_DXGIDeclareAdapterRemovalSupport);
+            attach_success = pInterceptor->hook_DXGIDeclareAdapterRemovalSupport_.Attach();
+
+            gpu_table.DXGIDeclareAdapterRemovalSupport =
+                pInterceptor->hook_DXGIDeclareAdapterRemovalSupport_.real_hook_;
+        }
+
+        if (dxgi_table.DXGIGetDebugInterface1 != nullptr)
+        {
+            pInterceptor->hook_DXGIGetDebugInterface1_.SetHooks(dxgi_table.DXGIGetDebugInterface1,
+                                                                Mine_DXGIGetDebugInterface1);
+            attach_success = pInterceptor->hook_DXGIGetDebugInterface1_.Attach();
+
+            gpu_table.DXGIGetDebugInterface1 = pInterceptor->hook_DXGIGetDebugInterface1_.real_hook_;
+        }
+
+        success = true;
+    }
+
+    return success;
 }
 
 //-----------------------------------------------------------------------------
@@ -120,85 +208,58 @@ HRESULT WINAPI DXGID3D10CreateDevice(
 //-----------------------------------------------------------------------------
 Hook_DXGI* Hook_DXGI::GetInterceptor()
 {
-    if (dxgi_hook_ == nullptr)
+    if (hook_info_.interceptor == nullptr)
     {
-        dxgi_hook_ = new Hook_DXGI();
+        hook_info_.interceptor = new Hook_DXGI();
     }
 
-    return dxgi_hook_;
+    return hook_info_.interceptor;
 }
 
 //-----------------------------------------------------------------------------
 /// Attach API entry points for hooking.
+///
+/// \param capture Whether capture is enabled
+///
 /// \return True if entry points were successfully hooked.
 //-----------------------------------------------------------------------------
-bool Hook_DXGI::HookInterceptor()
+bool Hook_DXGI::HookInterceptor(bool capture)
 {
     bool success = false;
 
-    HMODULE module_handle = ::LoadLibraryA("dxgi.dll");
+    Hook_DXGI* pInterceptor = GetInterceptor();
 
-    if (module_handle != nullptr)
+    if (pInterceptor != nullptr)
     {
-        Hook_DXGI* pInterceptor = GetInterceptor();
+        gfxrecon::encode::DxgiDispatchTable dispatch_table_dxgi = {};
 
-        if (pInterceptor != nullptr)
+        success = GetDxgiDispatchTable(dispatch_table_dxgi);
+
+        if (success == true)
         {
-            bool attachSuccess = false;
+            success = GetDxgiDispatchTableHooked(dispatch_table_dxgi, hook_info_.dispatch_table);
 
-            pFuncPtr CreateDXGIFactory_funcPtr = (pFuncPtr)(::GetProcAddress(module_handle, "CreateDXGIFactory"));
-            if (CreateDXGIFactory_funcPtr != nullptr)
+            if (success == true)
             {
-                pInterceptor->hook_CreateDXGIFactory_.SetHooks((PFN_CREATEDXGIFACTORY)CreateDXGIFactory_funcPtr,
-                                                               Mine_CreateDXGIFactory);
-                attachSuccess = pInterceptor->hook_CreateDXGIFactory_.Attach();
-            }
+                if (capture == true)
+                {
+                    if (hook_info_.capture_dll == nullptr)
+                    {
+                        hook_info_.capture_dll = gfxrecon::util::platform::OpenLibrary(GFXR_D3D12_CAPTURE_PATH);
 
-            pFuncPtr CreateDXGIFactory1_funcPtr = (pFuncPtr)(::GetProcAddress(module_handle, "CreateDXGIFactory1"));
-            if (CreateDXGIFactory1_funcPtr != nullptr)
-            {
-                pInterceptor->hook_CreateDXGIFactory1_.SetHooks((PFN_CREATEDXGIFACTORY1)CreateDXGIFactory1_funcPtr,
-                                                                Mine_CreateDXGIFactory1);
-                attachSuccess = pInterceptor->hook_CreateDXGIFactory1_.Attach();
-            }
+                        if (hook_info_.capture_dll != nullptr)
+                        {
+                            auto init_func = reinterpret_cast<PFN_InitializeDxgiCapture>(
+                                GetProcAddress(hook_info_.capture_dll, "InitializeDxgiCapture"));
 
-            pFuncPtr CreateDXGIFactory2_funcPtr = (pFuncPtr)(::GetProcAddress(module_handle, "CreateDXGIFactory2"));
-            if (CreateDXGIFactory2_funcPtr != nullptr)
-            {
-                pInterceptor->hook_CreateDXGIFactory2_.SetHooks((PFN_CREATEDXGIFACTORY2)CreateDXGIFactory2_funcPtr,
-                                                                Mine_CreateDXGIFactory2);
-                attachSuccess = pInterceptor->hook_CreateDXGIFactory2_.Attach();
+                            if (init_func != nullptr)
+                            {
+                                init_func(&hook_info_.dispatch_table);
+                            }
+                        }
+                    }
+                }
             }
-
-            pFuncPtr DXGIDeclareAdapterRemovalSupport_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "DXGIDeclareAdapterRemovalSupport"));
-            if (DXGIDeclareAdapterRemovalSupport_funcPtr != nullptr)
-            {
-                pInterceptor->hook_DXGIDeclareAdapterRemovalSupport_.SetHooks(
-                    (PFN_DXGIDECLAREADAPTERREMOVALSUPPORT)DXGIDeclareAdapterRemovalSupport_funcPtr,
-                    Mine_DXGIDeclareAdapterRemovalSupport);
-                attachSuccess = pInterceptor->hook_DXGIDeclareAdapterRemovalSupport_.Attach();
-            }
-
-            pFuncPtr DXGIGetDebugInterface1_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "DXGIGetDebugInterface1"));
-            if (DXGIGetDebugInterface1_funcPtr != nullptr)
-            {
-                pInterceptor->hook_DXGIGetDebugInterface1_.SetHooks(
-                    (PFN_DXGIGETDEBUGINTERFACE1)DXGIGetDebugInterface1_funcPtr, Mine_DXGIGetDebugInterface1);
-                attachSuccess = pInterceptor->hook_DXGIGetDebugInterface1_.Attach();
-            }
-
-            pFuncPtr DXGID3D10CreateDevice_FuncPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "DXGID3D10CreateDevice"));
-            if (DXGID3D10CreateDevice_FuncPtr != nullptr)
-            {
-                pInterceptor->hook_DXGID3D10CreateDevice_.SetHooks(
-                    (PFN_DXGID3D10CREATEDEVICE)DXGID3D10CreateDevice_FuncPtr, Mine_DXGID3D10CreateDevice);
-                attachSuccess = pInterceptor->hook_DXGID3D10CreateDevice_.Attach();
-            }
-
-            success = true;
         }
     }
 

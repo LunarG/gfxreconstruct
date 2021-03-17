@@ -22,9 +22,10 @@
 
 #include "hook_d3d12.h"
 
-static Hook_D3D12* d3d12_hook_ = nullptr;
+#include "util/file_path.h"
 
-typedef int (*pFuncPtr)(void);
+// Static data required for hook management
+static D3d12HookInfo hook_info_ = {};
 
 HRESULT WINAPI Mine_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
@@ -33,8 +34,7 @@ HRESULT WINAPI Mine_D3D12CreateDevice(IUnknown*         pAdapter,
 {
     HRESULT result = S_FALSE;
 
-    result =
-        Hook_D3D12::GetInterceptor()->hook_D3D12CreateDevice_.real_hook_(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+    result = hook_info_.dispatch_table.D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
 
     return result;
 }
@@ -46,7 +46,7 @@ HRESULT WINAPI Mine_D3D12CreateRootSignatureDeserializer(LPCVOID    pSrcData,
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12CreateRootSignatureDeserializer_.real_hook_(
+    result = hook_info_.dispatch_table.D3D12CreateRootSignatureDeserializer(
         pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
 
     return result;
@@ -59,7 +59,7 @@ HRESULT WINAPI Mine_D3D12CreateVersionedRootSignatureDeserializer(LPCVOID    pSr
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12CreateVersionedRootSignatureDeserializer_.real_hook_(
+    result = hook_info_.dispatch_table.D3D12CreateVersionedRootSignatureDeserializer(
         pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
 
     return result;
@@ -72,7 +72,7 @@ HRESULT WINAPI Mine_D3D12EnableExperimentalFeatures(UINT       NumFeatures,
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12EnableExperimentalFeatures_.real_hook_(
+    result = hook_info_.dispatch_table.D3D12EnableExperimentalFeatures(
         NumFeatures, pIIDs, pConfigurationStructs, pConfigurationStructSizes);
 
     return result;
@@ -82,7 +82,7 @@ HRESULT WINAPI Mine_D3D12GetDebugInterface(const IID& riid, void** ppvDebug)
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12GetDebugInterface_.real_hook_(riid, ppvDebug);
+    result = hook_info_.dispatch_table.D3D12GetDebugInterface(riid, ppvDebug);
 
     return result;
 }
@@ -94,8 +94,7 @@ HRESULT WINAPI Mine_D3D12SerializeRootSignature(const D3D12_ROOT_SIGNATURE_DESC*
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12SerializeRootSignature_.real_hook_(
-        pRootSignature, Version, ppBlob, ppErrorBlob);
+    result = hook_info_.dispatch_table.D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
 
     return result;
 }
@@ -106,164 +105,59 @@ HRESULT WINAPI Mine_D3D12SerializeVersionedRootSignature(const D3D12_VERSIONED_R
 {
     HRESULT result = S_FALSE;
 
-    result = Hook_D3D12::GetInterceptor()->hook_D3D12SerializeVersionedRootSignature_.real_hook_(
-        pRootSignature, ppBlob, ppErrorBlob);
+    result = hook_info_.dispatch_table.D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
 
     return result;
 }
 
-HRESULT WINAPI D3D12CreateDevice(IUnknown*         pAdapter,
-                                 D3D_FEATURE_LEVEL MinimumFeatureLevel,
-                                 const IID&        riid,
-                                 void**            ppDevice)
+//----------------------------------------------------------------------------
+/// Fill in a dispatch table with function addresses obtained from d3d12.dll
+///
+/// \param  d3d12_table Output dispatch table.
+///
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool GetD3d12DispatchTable(gfxrecon::encode::D3D12DispatchTable& d3d12_table)
 {
-    return Mine_D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
-}
+    std::string library_base_path = "";
 
-HRESULT WINAPI D3D12CreateRootSignatureDeserializer(LPCVOID    pSrcData,
-                                                    SIZE_T     SrcDataSizeInBytes,
-                                                    const IID& pRootSignatureDeserializerInterface,
-                                                    void**     ppRootSignatureDeserializer)
-{
-    return Mine_D3D12CreateRootSignatureDeserializer(
-        pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
-}
+    bool success = gfxrecon::util::filepath::GetWindowsSystemLibrariesPath(library_base_path);
 
-HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(LPCVOID    pSrcData,
-                                                             SIZE_T     SrcDataSizeInBytes,
-                                                             const IID& pRootSignatureDeserializerInterface,
-                                                             void**     ppRootSignatureDeserializer)
-{
-    return Mine_D3D12CreateVersionedRootSignatureDeserializer(
-        pSrcData, SrcDataSizeInBytes, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
-}
-
-HRESULT WINAPI D3D12EnableExperimentalFeatures(UINT       NumFeatures,
-                                               const IID* pIIDs,
-                                               void*      pConfigurationStructs,
-                                               UINT*      pConfigurationStructSizes)
-{
-    return Mine_D3D12EnableExperimentalFeatures(NumFeatures, pIIDs, pConfigurationStructs, pConfigurationStructSizes);
-}
-
-HRESULT WINAPI D3D12GetDebugInterface(const IID& riid, void** ppvDebug)
-{
-    return Mine_D3D12GetDebugInterface(riid, ppvDebug);
-}
-
-HRESULT WINAPI D3D12SerializeRootSignature(const D3D12_ROOT_SIGNATURE_DESC* pRootSignature,
-                                           D3D_ROOT_SIGNATURE_VERSION       Version,
-                                           ID3DBlob**                       ppBlob,
-                                           ID3DBlob**                       ppErrorBlob)
-{
-    return Mine_D3D12SerializeRootSignature(pRootSignature, Version, ppBlob, ppErrorBlob);
-}
-
-HRESULT WINAPI D3D12SerializeVersionedRootSignature(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
-                                                    ID3DBlob**                                 ppBlob,
-                                                    ID3DBlob**                                 ppErrorBlob)
-{
-    return Mine_D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
-}
-
-//-----------------------------------------------------------------------------
-/// Get unique instance of Hook_D3D12
-//-----------------------------------------------------------------------------
-Hook_D3D12* Hook_D3D12::GetInterceptor()
-{
-    if (d3d12_hook_ == nullptr)
+    if (success == true)
     {
-        d3d12_hook_ = new Hook_D3D12();
-    }
+        std::string library_path = library_base_path + "\\d3d12.dll";
 
-    return d3d12_hook_;
-}
+        hook_info_.d3d12_dll = LoadLibraryA(library_path.c_str());
 
-//-----------------------------------------------------------------------------
-/// Attach API entry points for hooking.
-/// \return True if entry points were successfully hooked.
-//-----------------------------------------------------------------------------
-bool Hook_D3D12::HookInterceptor()
-{
-    bool success = false;
-
-    HMODULE module_handle = ::LoadLibraryA("d3d12.dll");
-
-    if (module_handle != nullptr)
-    {
-        Hook_D3D12* pInterceptor = GetInterceptor();
-
-        if (pInterceptor != nullptr)
+        if (hook_info_.d3d12_dll != nullptr)
         {
-            bool attach_success = false;
+            d3d12_table.D3D12CreateDevice =
+                reinterpret_cast<PFN_D3D12_CREATE_DEVICE>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateDevice"));
 
-            pFuncPtr D3D12CreateDevice_funcPtr = (pFuncPtr)(::GetProcAddress(module_handle, "D3D12CreateDevice"));
-            if (D3D12CreateDevice_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12CreateDevice_.SetHooks((PFN_D3D12CREATEDEVICE)D3D12CreateDevice_funcPtr,
-                                                               Mine_D3D12CreateDevice);
-                attach_success = pInterceptor->hook_D3D12CreateDevice_.Attach();
-            }
+            d3d12_table.D3D12CreateRootSignatureDeserializer =
+                reinterpret_cast<PFN_D3D12_CREATE_ROOT_SIGNATURE_DESERIALIZER>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateRootSignatureDeserializer"));
 
-            pFuncPtr D3D12CreateRootSignatureDeserializer_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12CreateRootSignatureDeserializer"));
-            if (D3D12CreateRootSignatureDeserializer_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12CreateRootSignatureDeserializer_.SetHooks(
-                    (PFN_D3D12CREATEROOTSIGNATUREDESERIALIZER)D3D12CreateRootSignatureDeserializer_funcPtr,
-                    Mine_D3D12CreateRootSignatureDeserializer);
-                attach_success = pInterceptor->hook_D3D12CreateRootSignatureDeserializer_.Attach();
-            }
+            d3d12_table.D3D12CreateVersionedRootSignatureDeserializer =
+                reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateVersionedRootSignatureDeserializer"));
 
-            pFuncPtr D3D12CreateVersionedRootSignatureDeserializer_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12CreateVersionedRootSignatureDeserializer"));
-            if (D3D12CreateVersionedRootSignatureDeserializer_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12CreateVersionedRootSignatureDeserializer_.SetHooks(
-                    (PFN_D3D12CREATEVERSIONEDROOTSIGNATUREDESERIALIZER)
-                        D3D12CreateVersionedRootSignatureDeserializer_funcPtr,
-                    Mine_D3D12CreateVersionedRootSignatureDeserializer);
-                attach_success = pInterceptor->hook_D3D12CreateVersionedRootSignatureDeserializer_.Attach();
-            }
+            d3d12_table.D3D12GetDebugInterface =
+                reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12GetDebugInterface"));
 
-            pFuncPtr D3D12EnableExperimentalFeatures_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12EnableExperimentalFeatures"));
-            if (D3D12EnableExperimentalFeatures_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12EnableExperimentalFeatures_.SetHooks(
-                    (PFN_D3D12ENABLEEXPERIMENTALFEATURES)D3D12EnableExperimentalFeatures_funcPtr,
-                    Mine_D3D12EnableExperimentalFeatures);
-                attach_success = pInterceptor->hook_D3D12EnableExperimentalFeatures_.Attach();
-            }
+            d3d12_table.D3D12SerializeRootSignature =
+                reinterpret_cast<PFN_D3D12_SERIALIZE_ROOT_SIGNATURE>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12SerializeRootSignature"));
 
-            pFuncPtr D3D12GetDebugInterface_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12GetDebugInterface"));
-            if (D3D12GetDebugInterface_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12GetDebugInterface_.SetHooks(
-                    (PFN_D3D12GETDEBUGINTERFACE)D3D12GetDebugInterface_funcPtr, Mine_D3D12GetDebugInterface);
-                attach_success = pInterceptor->hook_D3D12GetDebugInterface_.Attach();
-            }
+            d3d12_table.D3D12SerializeVersionedRootSignature =
+                reinterpret_cast<PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12SerializeVersionedRootSignature"));
 
-            pFuncPtr D3D12SerializeRootSignature_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12SerializeRootSignature"));
-            if (D3D12SerializeRootSignature_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12SerializeRootSignature_.SetHooks(
-                    (PFN_D3D12SERIALIZEROOTSIGNATURE)D3D12SerializeRootSignature_funcPtr,
-                    Mine_D3D12SerializeRootSignature);
-                attach_success = pInterceptor->hook_D3D12SerializeRootSignature_.Attach();
-            }
-
-            pFuncPtr D3D12SerializeVersionedRootSignature_funcPtr =
-                (pFuncPtr)(::GetProcAddress(module_handle, "D3D12SerializeVersionedRootSignature"));
-            if (D3D12SerializeVersionedRootSignature_funcPtr != nullptr)
-            {
-                pInterceptor->hook_D3D12SerializeVersionedRootSignature_.SetHooks(
-                    (PFN_D3D12SERIALIZEVERSIONEDROOTSIGNATURE)D3D12SerializeVersionedRootSignature_funcPtr,
-                    Mine_D3D12SerializeVersionedRootSignature);
-                attach_success = pInterceptor->hook_D3D12SerializeVersionedRootSignature_.Attach();
-            }
+            d3d12_table.D3D12EnableExperimentalFeatures =
+                reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(
+                    GetProcAddress(hook_info_.d3d12_dll, "D3D12EnableExperimentalFeatures"));
 
             success = true;
         }
@@ -272,8 +166,169 @@ bool Hook_D3D12::HookInterceptor()
     return success;
 }
 
+//----------------------------------------------------------------------------
+/// Given a d3d12 dispatch table, perform hooking and write out the final
+/// dispatch table that will be called by intercepted entry points.
+///
+/// \param  d3d12_table Incoming dispatch table with entry function addresses
+///                     in d3d12.
+///
+/// \param  gpu_table Outgoing dispatch table with hooked entry points that
+///                   will either go to the GPU or capture layer.
+///
+/// \return True if successful, false otherwise.
+//----------------------------------------------------------------------------
+bool GetD3d12DispatchTableHooked(gfxrecon::encode::D3D12DispatchTable  d3d12_table,
+                                 gfxrecon::encode::D3D12DispatchTable& gpu_table)
+{
+    bool success = false;
+
+    Hook_D3D12* pInterceptor = Hook_D3D12::GetInterceptor();
+
+    if (pInterceptor != nullptr)
+    {
+        bool attach_success = false;
+
+        if (d3d12_table.D3D12CreateDevice != nullptr)
+        {
+            pInterceptor->hook_D3D12CreateDevice_.SetHooks(d3d12_table.D3D12CreateDevice, Mine_D3D12CreateDevice);
+            attach_success = pInterceptor->hook_D3D12CreateDevice_.Attach();
+
+            gpu_table.D3D12CreateDevice = pInterceptor->hook_D3D12CreateDevice_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12CreateRootSignatureDeserializer != nullptr)
+        {
+            pInterceptor->hook_D3D12CreateRootSignatureDeserializer_.SetHooks(
+                d3d12_table.D3D12CreateRootSignatureDeserializer, Mine_D3D12CreateRootSignatureDeserializer);
+            attach_success = pInterceptor->hook_D3D12CreateRootSignatureDeserializer_.Attach();
+
+            gpu_table.D3D12CreateRootSignatureDeserializer =
+                pInterceptor->hook_D3D12CreateRootSignatureDeserializer_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12CreateVersionedRootSignatureDeserializer != nullptr)
+        {
+            pInterceptor->hook_D3D12CreateVersionedRootSignatureDeserializer_.SetHooks(
+                d3d12_table.D3D12CreateVersionedRootSignatureDeserializer,
+                Mine_D3D12CreateVersionedRootSignatureDeserializer);
+            attach_success = pInterceptor->hook_D3D12CreateVersionedRootSignatureDeserializer_.Attach();
+
+            gpu_table.D3D12CreateVersionedRootSignatureDeserializer =
+                pInterceptor->hook_D3D12CreateVersionedRootSignatureDeserializer_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12EnableExperimentalFeatures != nullptr)
+        {
+            pInterceptor->hook_D3D12EnableExperimentalFeatures_.SetHooks(d3d12_table.D3D12EnableExperimentalFeatures,
+                                                                         Mine_D3D12EnableExperimentalFeatures);
+            attach_success = pInterceptor->hook_D3D12EnableExperimentalFeatures_.Attach();
+
+            gpu_table.D3D12EnableExperimentalFeatures = pInterceptor->hook_D3D12EnableExperimentalFeatures_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12GetDebugInterface != nullptr)
+        {
+            pInterceptor->hook_D3D12GetDebugInterface_.SetHooks(d3d12_table.D3D12GetDebugInterface,
+                                                                Mine_D3D12GetDebugInterface);
+            attach_success = pInterceptor->hook_D3D12GetDebugInterface_.Attach();
+
+            gpu_table.D3D12GetDebugInterface = pInterceptor->hook_D3D12GetDebugInterface_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12SerializeRootSignature != nullptr)
+        {
+            pInterceptor->hook_D3D12SerializeRootSignature_.SetHooks(d3d12_table.D3D12SerializeRootSignature,
+                                                                     Mine_D3D12SerializeRootSignature);
+            attach_success = pInterceptor->hook_D3D12SerializeRootSignature_.Attach();
+
+            gpu_table.D3D12SerializeRootSignature = pInterceptor->hook_D3D12SerializeRootSignature_.real_hook_;
+        }
+
+        if (d3d12_table.D3D12SerializeVersionedRootSignature != nullptr)
+        {
+            pInterceptor->hook_D3D12SerializeVersionedRootSignature_.SetHooks(
+                d3d12_table.D3D12SerializeVersionedRootSignature, Mine_D3D12SerializeVersionedRootSignature);
+            attach_success = pInterceptor->hook_D3D12SerializeVersionedRootSignature_.Attach();
+
+            gpu_table.D3D12SerializeVersionedRootSignature =
+                pInterceptor->hook_D3D12SerializeVersionedRootSignature_.real_hook_;
+        }
+
+        success = true;
+    }
+
+    return success;
+}
+
+//-----------------------------------------------------------------------------
+/// Get unique instance of Hook_D3D12
+///
+/// \return Pointer to instance of Hook_D3D12
+//-----------------------------------------------------------------------------
+Hook_D3D12* Hook_D3D12::GetInterceptor()
+{
+    if (hook_info_.interceptor == nullptr)
+    {
+        hook_info_.interceptor = new Hook_D3D12();
+    }
+
+    return hook_info_.interceptor;
+}
+
+//-----------------------------------------------------------------------------
+/// Attach API entry points for hooking.
+///
+/// \param capture Whether capture is enabled
+///
+/// \return True if entry points were successfully hooked.
+//-----------------------------------------------------------------------------
+bool Hook_D3D12::HookInterceptor(bool capture)
+{
+    bool success = false;
+
+    Hook_D3D12* pInterceptor = GetInterceptor();
+
+    if (pInterceptor != nullptr)
+    {
+        gfxrecon::encode::D3D12DispatchTable dispatch_table_d3d12 = {};
+
+        success = GetD3d12DispatchTable(dispatch_table_d3d12);
+
+        if (success == true)
+        {
+            success = GetD3d12DispatchTableHooked(dispatch_table_d3d12, hook_info_.dispatch_table);
+
+            if (success == true)
+            {
+                if (capture == true)
+                {
+                    if (hook_info_.capture_dll == nullptr)
+                    {
+                        hook_info_.capture_dll = gfxrecon::util::platform::OpenLibrary(GFXR_D3D12_CAPTURE_PATH);
+
+                        if (hook_info_.capture_dll != nullptr)
+                        {
+                            auto init_func = reinterpret_cast<PFN_InitializeD3D12Capture>(
+                                GetProcAddress(hook_info_.capture_dll, "InitializeD3D12Capture"));
+
+                            if (init_func != nullptr)
+                            {
+                                init_func(&hook_info_.dispatch_table);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return success;
+}
+
 //-----------------------------------------------------------------------------
 /// Detach all hooked API entry points.
+///
 /// \return True if entry points were successfully detached.
 //-----------------------------------------------------------------------------
 bool Hook_D3D12::UnhookInterceptor()

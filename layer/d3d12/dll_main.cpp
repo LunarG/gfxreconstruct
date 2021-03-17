@@ -88,7 +88,7 @@ extern "C" __declspec(dllexport) void UpdateHooks()
 
     if (hooked == false)
     {
-        Hook_D3D12::HookInterceptor();
+        Hook_D3D12::HookInterceptor(dll_initializer.IsCaptureEnabled());
         hooked = true;
     }
 }

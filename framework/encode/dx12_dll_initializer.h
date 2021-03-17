@@ -41,52 +41,57 @@ class DxDllInitializer
                     const char* initialize_func_name,
                     void (*LoadCaptureProcs)(HMODULE, DispatchTableT*))
     {
-        if (system_dll_ == nullptr)
+        if (util::interception::UseDetoursHooking() == false)
         {
-            system_dll_ = util::platform::OpenLibrary(system_dll_name);
-
-            if (system_dll_ != nullptr)
+            if (system_dll_ == nullptr)
             {
-                LoadCaptureProcs(system_dll_, &dispatch_table_);
+                system_dll_ = util::platform::OpenLibrary(system_dll_name);
 
-                if (IsCaptureEnabled() && (capture_dll_ == nullptr))
+                if (system_dll_ != nullptr)
                 {
-                    capture_dll_ = util::platform::OpenLibrary(capture_dll_name);
-                    if (capture_dll_ != nullptr)
-                    {
-                        auto init_func =
-                            reinterpret_cast<PFN_InitializeT>(GetProcAddress(capture_dll_, initialize_func_name));
+                    LoadCaptureProcs(system_dll_, &dispatch_table_);
 
-                        if (init_func != nullptr)
+                    if (IsCaptureEnabled() && (capture_dll_ == nullptr))
+                    {
+                        capture_dll_ = util::platform::OpenLibrary(capture_dll_name);
+                        if (capture_dll_ != nullptr)
                         {
-                            init_func(&dispatch_table_);
+                            auto init_func =
+                                reinterpret_cast<InitializeFuncT>(GetProcAddress(capture_dll_, initialize_func_name));
+
+                            if (init_func != nullptr)
+                            {
+                                init_func(&dispatch_table_);
+                            }
+                            else
+                            {
+                                std::string debug_str =
+                                    std::string("GFXRECON: Failed to retrieve '") + initialize_func_name +
+                                    "' proc from GFXReconstruct capture DLL '" + capture_dll_name + "'";
+                                // TODO(GH-68): Unify logging
+                                OutputDebugStringA(debug_str.c_str());
+                                OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
+                            }
                         }
                         else
                         {
-                            std::string debug_str = std::string("GFXRECON: Failed to retrieve '") +
-                                                    initialize_func_name + "' proc from GFXReconstruct capture DLL '" +
-                                                    capture_dll_name + "'";
+                            std::string debug_str =
+                                std::string("GFXRECON: Failed to load GFXReconstruct capture DLL '") +
+                                capture_dll_name + "' needed to get proc '" + initialize_func_name + "'";
                             // TODO(GH-68): Unify logging
                             OutputDebugStringA(debug_str.c_str());
                             OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
                         }
                     }
-                    else
-                    {
-                        std::string debug_str = std::string("GFXRECON: Failed to load GFXReconstruct capture DLL '") +
-                                                capture_dll_name + "' needed to get proc '" + initialize_func_name + "'";
-                        // TODO(GH-68): Unify logging
-                        OutputDebugStringA(debug_str.c_str());
-                        OutputDebugStringA("GFXRECON: GFXReconstruct capture will be disabled");
-                    }
                 }
-            }
-            else
-            {
-                std::string debug_str = std::string("GFXRECON: Failed to load system DLL '") + system_dll_name + "'";
-                // TODO(GH-68): Unify logging
-                OutputDebugStringA(debug_str.c_str());
-                return false;
+                else
+                {
+                    std::string debug_str =
+                        std::string("GFXRECON: Failed to load system DLL '") + system_dll_name + "'";
+                    // TODO(GH-68): Unify logging
+                    OutputDebugStringA(debug_str.c_str());
+                    return false;
+                }
             }
         }
 
@@ -97,7 +102,7 @@ class DxDllInitializer
     {
         if (capture_dll_ != nullptr)
         {
-            auto release_func = reinterpret_cast<PFN_ReleaseT>(GetProcAddress(capture_dll_, release_func_name));
+            auto release_func = reinterpret_cast<ReleaseFuncT>(GetProcAddress(capture_dll_, release_func_name));
 
             if (release_func != nullptr)
             {
@@ -115,18 +120,17 @@ class DxDllInitializer
         }
     }
 
-    const DispatchTableT& GetDispatchTable() const { return dispatch_table_; }
-
-  private:
-    typedef bool (*PFN_InitializeT)(DispatchTableT*);
-    typedef void (*PFN_ReleaseT)(DispatchTableT*);
-
-  private:
     static bool IsCaptureEnabled()
     {
         // TODO(GH-48): Read environment variable.
         return true;
     }
+
+    const DispatchTableT& GetDispatchTable() const { return dispatch_table_; }
+
+  private:
+    typedef bool (*InitializeFuncT)(DispatchTableT*);
+    typedef void (*ReleaseFuncT)(DispatchTableT*);
 
   private:
     DispatchTableT dispatch_table_;

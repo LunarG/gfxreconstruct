@@ -23,11 +23,30 @@
 #ifndef GFXRECON_HOOK_D3D12_H
 #define GFXRECON_HOOK_D3D12_H
 
+#include "encode/d3d12_dispatch_table.h"
+
 #include "util/interception/real_and_mine_hook.h"
-#include "util/platform.h"
 
 #include <Windows.h>
 #include <d3d12.h>
+
+class Hook_D3D12;
+
+// Helper struct that holds data required for hook management
+struct D3d12HookInfo
+{
+    // GFXR DLL with capture implementation, which is only loaded when capture is enabled
+    HMODULE capture_dll = nullptr;
+
+    // System DLL providing the D3D12 API calls to wrap
+    HMODULE d3d12_dll = nullptr;
+
+    // Dispatch table pointing either at the GPU or capture layer
+    gfxrecon::encode::D3D12DispatchTable dispatch_table = {};
+
+    // Interceptor class in charge of hooking
+    Hook_D3D12* interceptor = nullptr;
+};
 
 //-----------------------------------------------------------------------------
 /// typedef function pointers
@@ -75,7 +94,7 @@ class Hook_D3D12
     Hook_D3D12() {}
     virtual ~Hook_D3D12() {}
 
-    static bool HookInterceptor();
+    static bool HookInterceptor(bool capture);
     static bool UnhookInterceptor();
 
     gfxrecon::util::interception::RealAndMineHook<PFN_D3D12CREATEDEVICE> hook_D3D12CreateDevice_;
