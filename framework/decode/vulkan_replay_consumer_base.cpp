@@ -4589,7 +4589,7 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     }
 
     // Delete backed images of dummy swapchain.
-    if (surface == VK_NULL_HANDLE)
+    if ((swapchain_info != nullptr) && (surface == VK_NULL_HANDLE))
     {
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
