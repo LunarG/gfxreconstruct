@@ -312,7 +312,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         args, unused = self.make_arg_list(param_info, False, indent)
 
         expr += indent + 'manager,\n'
-        expr += indent + 'object_'
+        expr += indent + 'this'
         if args:
             expr += ',\n'
             expr += args
@@ -331,7 +331,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         args, unused = self.make_arg_list(param_info, False, indent)
 
         expr += indent + 'manager,\n'
-        expr += indent + 'object_'
+        expr += indent + 'this'
         if return_type != 'void':
             expr += ',\n'
             expr += indent + 'result'

@@ -265,14 +265,10 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
             # Object info "getters"
             expr += '\n'
-            expr += indent + 'const {}Info* GetObjectInfo() const'.format(
-                name
-            )
+            expr += indent + 'const {}Info* GetObjectInfo() const'.format(name)
             expr += ' { return &info_; }\n'
             expr += '\n'
-            expr += indent + '{}Info* GetObjectInfo()'.format(
-                name
-            )
+            expr += indent + '{}Info* GetObjectInfo()'.format(name)
             expr += ' { return &info_; }\n'
 
         # Object "getter"
