@@ -4559,6 +4559,8 @@ size_t Dx12Decoder::Decode_ID3D12Heap_GetDesc(format::HandleId object_id, const 
     size_t bytes_read = 0;
 
     Decoded_D3D12_HEAP_DESC return_value;
+    D3D12_HEAP_DESC value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4615,6 +4617,8 @@ size_t Dx12Decoder::Decode_ID3D12Resource_GetDesc(format::HandleId object_id, co
     size_t bytes_read = 0;
 
     Decoded_D3D12_RESOURCE_DESC return_value;
+    D3D12_RESOURCE_DESC value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4823,6 +4827,8 @@ size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetDesc(format::HandleId object_
     size_t bytes_read = 0;
 
     Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value;
+    D3D12_DESCRIPTOR_HEAP_DESC value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4839,6 +4845,8 @@ size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapSta
     size_t bytes_read = 0;
 
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value;
+    D3D12_CPU_DESCRIPTOR_HANDLE value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4855,6 +4863,8 @@ size_t Dx12Decoder::Decode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapSta
     size_t bytes_read = 0;
 
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value;
+    D3D12_GPU_DESCRIPTOR_HANDLE value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6285,6 +6295,8 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_GetDesc(format::HandleId object_id
     size_t bytes_read = 0;
 
     Decoded_D3D12_COMMAND_QUEUE_DESC return_value;
+    D3D12_COMMAND_QUEUE_DESC value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6722,6 +6734,8 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetResourceAllocationInfo(format::Handle
     UINT numResourceDescs;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pResourceDescs;
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value;
+    D3D12_RESOURCE_ALLOCATION_INFO value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visibleMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
@@ -6743,6 +6757,8 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetCustomHeapProperties(format::HandleId
     UINT nodeMask;
     D3D12_HEAP_TYPE heapType;
     Decoded_D3D12_HEAP_PROPERTIES return_value;
+    D3D12_HEAP_PROPERTIES value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &heapType);
@@ -7157,6 +7173,8 @@ size_t Dx12Decoder::Decode_ID3D12Device_GetAdapterLuid(format::HandleId object_i
     size_t bytes_read = 0;
 
     Decoded_LUID return_value;
+    LUID value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -7517,6 +7535,8 @@ size_t Dx12Decoder::Decode_ID3D12ProtectedResourceSession_GetDesc(format::Handle
     size_t bytes_read = 0;
 
     Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value;
+    D3D12_PROTECTED_RESOURCE_SESSION_DESC value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -7679,6 +7699,8 @@ size_t Dx12Decoder::Decode_ID3D12Device4_GetResourceAllocationInfo1(format::Hand
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC> pResourceDescs;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1> pResourceAllocationInfo1;
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value;
+    D3D12_RESOURCE_ALLOCATION_INFO value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visibleMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
@@ -7715,6 +7737,8 @@ size_t Dx12Decoder::Decode_ID3D12SwapChainAssistant_GetLUID(format::HandleId obj
     size_t bytes_read = 0;
 
     Decoded_LUID return_value;
+    LUID value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -8223,6 +8247,8 @@ size_t Dx12Decoder::Decode_ID3D12ProtectedResourceSession1_GetDesc1(format::Hand
     size_t bytes_read = 0;
 
     Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value;
+    D3D12_PROTECTED_RESOURCE_SESSION_DESC1 value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -8293,6 +8319,8 @@ size_t Dx12Decoder::Decode_ID3D12Device8_GetResourceAllocationInfo2(format::Hand
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1> pResourceDescs;
     StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1> pResourceAllocationInfo1;
     Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value;
+    D3D12_RESOURCE_ALLOCATION_INFO value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visibleMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &numResourceDescs);
@@ -8453,6 +8481,8 @@ size_t Dx12Decoder::Decode_ID3D12Resource2_GetDesc1(format::HandleId object_id, 
     size_t bytes_read = 0;
 
     Decoded_D3D12_RESOURCE_DESC1 return_value;
+    D3D12_RESOURCE_DESC1 value_returned;
+    return_value.decoded_value = &value_returned;
 
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 

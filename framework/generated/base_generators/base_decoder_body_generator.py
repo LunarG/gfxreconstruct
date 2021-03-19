@@ -91,6 +91,11 @@ class BaseDecoderBodyGenerator():
                 body += '    {} return_value;\n'.format(
                     dx12_return_decode_type
                 )
+
+                if dx12_return_decode_type == 'Decoded_{}'.format(return_type):
+                    body += '    {} value_returned;\n'.format(return_type)
+                    body += '    return_value.decoded_value = &value_returned;\n'
+
             else:
                 body += '    {} return_value;\n'.format(return_type)
 
