@@ -49,7 +49,7 @@ struct Decoded_D3D12_TEXTURE_COPY_LOCATION
 {
     using struct_type = D3D12_TEXTURE_COPY_LOCATION;
     D3D12_TEXTURE_COPY_LOCATION*                decoded_value{ nullptr };
-    HandlePointerDecoder<ID3D12Resource*>       pResource;
+    format::HandleId                            pResource;
     Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT* PlacedFootprint{ nullptr };
 };
 

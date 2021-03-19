@@ -83,7 +83,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
     size_t                       bytes_read = 0;
     D3D12_TEXTURE_COPY_LOCATION* value      = wrapper->decoded_value;
 
-    bytes_read += wrapper->pResource.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pResource));
     value->pResource = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
 
