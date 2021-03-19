@@ -25,6 +25,7 @@
 
 #include "encode/trace_manager.h"
 #include "format/api_call_id.h"
+#include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -47,7 +48,64 @@ struct CustomWrapperPostCall
 };
 
 template <typename Wrapper>
-void CustomWrapperDestroyCall(Wrapper* wrapper){};
+void CustomWrapperDestroyCall(Wrapper* wrapper)
+{}
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateCommittedResource(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreatePlacedResource(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Resource_Map(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D12Resource_Unmap(args...);
+    }
+};
+
+template <>
+void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrapper* wrapper)
+{
+    TraceManager::Get()->Destroy_ID3D12Resource(wrapper);
+}
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D12CommandQueue_ExecuteCommandLists(args...);
+    }
+};
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -58,6 +58,7 @@
 #if defined(WIN32)
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dxgi_dispatch_table.h"
+#include "generated/generated_dx12_wrappers.h"
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -971,6 +972,42 @@ class TraceManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if defined(WIN32)
+    void PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
+                                                          HRESULT                      result,
+                                                          const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                          D3D12_HEAP_FLAGS             heap_flags,
+                                                          const D3D12_RESOURCE_DESC*   desc,
+                                                          D3D12_RESOURCE_STATES        initial_resource_state,
+                                                          const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                          REFIID                       riid,
+                                                          void**                       resource);
+
+    void PostProcess_ID3D12Device_CreatePlacedResource(ID3D12Device_Wrapper*      wrapper,
+                                                       HRESULT                    result,
+                                                       ID3D12Heap*                heap,
+                                                       UINT64                     heap_offset,
+                                                       const D3D12_RESOURCE_DESC* desc,
+                                                       D3D12_RESOURCE_STATES      initial_state,
+                                                       const D3D12_CLEAR_VALUE*   optimized_clear_value,
+                                                       REFIID                     riid,
+                                                       void**                     resource);
+
+    void PostProcess_ID3D12Resource_Map(
+        ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data);
+
+    void PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper* wrapper,
+                                         UINT                    subresource,
+                                         const D3D12_RANGE*      written_range);
+
+    void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
+
+    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                           UINT                        num_lists,
+                                                           ID3D12CommandList* const*   lists);
+#endif
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -1087,6 +1124,13 @@ class TraceManager
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
 
+// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+#if defined(WIN32)
+    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
+                                      ID3D12Resource_Wrapper*    resource_wrapper,
+                                      const D3D12_RESOURCE_DESC* desc);
+#endif
+
   private:
     static TraceManager*                            instance_;
     static uint32_t                                 instance_count_;
@@ -1120,6 +1164,7 @@ class TraceManager
 
 // TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
+    std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine whan an intercepted API call is

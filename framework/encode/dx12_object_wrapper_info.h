@@ -25,8 +25,17 @@
 
 #include "util/defines.h"
 
+#include <memory>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+struct MappedSubresource
+{
+    void*     data{ nullptr };
+    uintptr_t shadow_allocation{ 0 };
+    int32_t   map_count{ 0 };
+};
 
 struct IDXGIKeyedMutexInfo
 {};
@@ -128,7 +137,11 @@ struct ID3D12DeviceInfo
 {};
 
 struct ID3D12ResourceInfo
-{};
+{
+    size_t                               num_subresources{ 0 };
+    std::unique_ptr<uint64_t[]>          subresource_sizes;
+    std::unique_ptr<MappedSubresource[]> mapped_subresources;
+};
 
 struct ID3D12HeapInfo
 {};
