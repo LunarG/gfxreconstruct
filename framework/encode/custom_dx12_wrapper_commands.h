@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CUSTOM_DX12_ENCODER_COMMANDS_H
-#define GFXRECON_ENCODE_CUSTOM_DX12_ENCODER_COMMANDS_H
+#ifndef GFXRECON_ENCODE_CUSTOM_DX12_WRAPPER_COMMANDS_H
+#define GFXRECON_ENCODE_CUSTOM_DX12_WRAPPER_COMMANDS_H
 
 #include "encode/trace_manager.h"
 #include "format/api_call_id.h"
@@ -31,7 +31,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <format::ApiCallId Id>
-struct CustomEncoderPreCall
+struct CustomWrapperPreCall
 {
     template <typename... Args>
     static void Dispatch(TraceManager*, Args...)
@@ -39,7 +39,7 @@ struct CustomEncoderPreCall
 };
 
 template <format::ApiCallId Id>
-struct CustomEncoderPostCall
+struct CustomWrapperPostCall
 {
     template <typename... Args>
     static void Dispatch(TraceManager*, Args...)
@@ -49,4 +49,4 @@ struct CustomEncoderPostCall
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_CUSTOM_DX12_ENCODER_COMMANDS_H
+#endif // GFXRECON_ENCODE_CUSTOM_DX12_WRAPPER_COMMANDS_H

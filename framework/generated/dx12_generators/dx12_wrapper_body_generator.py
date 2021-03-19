@@ -269,7 +269,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         return expr
 
     def gen_function_pre_call(self, name, param_info, indent):
-        expr = indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
+        expr = indent + 'CustomWrapperPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
             name
         )
 
@@ -285,7 +285,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         return expr
 
     def gen_function_post_call(self, return_type, name, param_info, indent):
-        expr = indent + 'CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
+        expr = indent + 'CustomWrapperPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
             name
         )
 
@@ -304,7 +304,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         return expr
 
     def gen_method_pre_call(self, class_name, method_name, param_info, indent):
-        expr = indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
+        expr = indent + 'CustomWrapperPreCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
             class_name, method_name
         )
 
@@ -323,7 +323,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def gen_method_post_call(
         self, return_type, class_name, method_name, param_info, indent
     ):
-        expr = indent + 'CustomEncoderPostCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
+        expr = indent + 'CustomWrapperPostCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
             class_name, method_name
         )
 
@@ -685,7 +685,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
         code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'
-        code += '#include "encode/custom_dx12_encoder_commands.h"\n'
+        code += '#include "encode/custom_dx12_wrapper_commands.h"\n'
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
