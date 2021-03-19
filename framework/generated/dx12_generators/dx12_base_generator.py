@@ -62,25 +62,6 @@ class Dx12BaseGenerator(BaseGenerator):
         ],
     ]
 
-    # convert struct, class, or union type into the parsed type or convert
-    # some define into plain type. The third value is pointer level.
-    # If the new type is not a pointer, the value is 0. * is 1. ** is 2.
-    # The Fourth value is if it's const.
-    CONVERT_DEFINE_LIST = [
-        [['D3D12_RECT', 'RECT'], 'tagRECT', 0, False],
-        [['POINT'], 'tagPOINT', 0, False],
-        [['REFIID', 'REFGUID', 'IID'], 'GUID', 0, False],
-        [['DXGI_RGBA'], 'D3DCOLORVALUE', 0, False],
-        [['ID3DBlob'], 'ID3D10Blob', 0, False],
-        [['SECURITY_ATTRIBUTES'], '_SECURITY_ATTRIBUTES', 0, False],
-        [['D3D12_PRIMITIVE_TOPOLOGY'], 'D3D_PRIMITIVE_TOPOLOGY', 0, False],
-        [['LPCVOID'], 'void', 1, True],
-        [['LPVOID'], 'void', 1, False],
-        [['WCHAR'], 'wchar_t', 0, False],
-        [['LPCSTR'], 'char', 1, True],
-        [['LPCWSTR'], 'wchar_t', 1, True],
-    ]
-
     # convert base type into the encode function name
     CONVERT_FUNCTION_LIST = [
         [['BYTE', 'byte', 'UINT8', 'unsigned char'], 'UInt8'],
@@ -189,13 +170,13 @@ class Dx12BaseGenerator(BaseGenerator):
                     base_type += ' '
                 base_type += t
 
-        for e in self.CONVERT_DEFINE_LIST:
-            for k in e[0]:
-                if base_type == k:
-                    if e[3]:
-                        const = True
-                    base_type = e[1]
-                    pointer += e[2]
+        if base_type in self.PLATFORM_TYPES:
+            type_info = self.PLATFORM_TYPES[base_type]
+            base_type = type_info['baseType']
+            replace_with = type_info['replaceWith']
+            if 'const ' in replace_with:
+                const = True
+            pointer += replace_with.count('*')   
 
         return ValueInfo(
             name=param_name,
@@ -228,13 +209,13 @@ class Dx12BaseGenerator(BaseGenerator):
                     base_type += ' '
                 base_type += t
 
-        for e in self.CONVERT_DEFINE_LIST:
-            for k in e[0]:
-                if base_type == k:
-                    if e[3]:
-                        const = True
-                    base_type = e[1]
-                    pointer += e[2]
+        if base_type in self.PLATFORM_TYPES:
+            type_info = self.PLATFORM_TYPES[base_type]
+            base_type = type_info['baseType']
+            replace_with = type_info['replaceWith']
+            if 'const ' in replace_with:
+                const = True
+            pointer += replace_with.count('*')        
 
         union = self.get_union(base_type)
         union_members = list()

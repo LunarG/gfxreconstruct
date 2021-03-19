@@ -1,5 +1,20 @@
 { "windows" : {
     "types" : {
+      "LPCWSTR"   : { "baseType" : "wchar_t",  "replaceWith" : "const wchar_t*" },
+      "D3D12_RECT": { "baseType" : "tagRECT",  "replaceWith" : "tagRECT" },
+      "RECT"      : { "baseType" : "tagRECT",  "replaceWith" : "tagRECT" },
+      "POINT"     : { "baseType" : "tagPOINT", "replaceWith" : "tagPOINT" },
+      "REFIID"    : { "baseType" : "GUID",     "replaceWith" : "GUID" },
+      "REFGUID"   : { "baseType" : "GUID",     "replaceWith" : "GUID" },
+      "IID"       : { "baseType" : "GUID",     "replaceWith" : "GUID" },
+      "DXGI_RGBA" : { "baseType" : "D3DCOLORVALUE", "replaceWith" : "D3DCOLORVALUE" },
+      "ID3DBlob"  : { "baseType" : "ID3D10Blob",    "replaceWith" : "ID3D10Blob" },
+      "SECURITY_ATTRIBUTES"     : { "baseType" : "_SECURITY_ATTRIBUTES",   "replaceWith" : "_SECURITY_ATTRIBUTES" },
+      "D3D12_PRIMITIVE_TOPOLOGY": { "baseType" : "D3D_PRIMITIVE_TOPOLOGY", "replaceWith" : "D3D_PRIMITIVE_TOPOLOGY" },
+      "LPCVOID"   : { "baseType" : "void",     "replaceWith" : "const void*" },
+      "LPVOID"    : { "baseType" : "void",     "replaceWith" : "void*" },
+      "WCHAR"     : { "baseType" : "wchar_t",  "replaceWith" : "wchar_t" },
+      "LPCSTR"    : { "baseType" : "char",     "replaceWith" : "const char*" }
     },
     "structs" : [
     ]

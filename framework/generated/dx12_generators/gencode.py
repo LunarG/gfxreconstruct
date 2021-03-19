@@ -107,6 +107,7 @@ def make_gen_opts(args):
             filename='generated_dx12_api_call_encoders.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -122,6 +123,7 @@ def make_gen_opts(args):
             filename='generated_dx12_api_call_encoders.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -137,6 +139,7 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders_forward.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -152,6 +155,7 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -167,6 +171,7 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_decoders.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -182,6 +187,7 @@ def make_gen_opts(args):
             filename='generated_dx12_decoder.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -197,6 +203,7 @@ def make_gen_opts(args):
             filename='generated_dx12_decoder.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -212,6 +219,7 @@ def make_gen_opts(args):
             filename='generated_dx12_consumer.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -227,6 +235,7 @@ def make_gen_opts(args):
             filename='generated_dx12_replay_consumer.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -242,6 +251,7 @@ def make_gen_opts(args):
             filename='generated_dx12_replay_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             replay_overrides=replay_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
@@ -258,6 +268,7 @@ def make_gen_opts(args):
             filename='generated_dx12_ascii_consumer.h',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -273,6 +284,7 @@ def make_gen_opts(args):
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -288,6 +300,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrappers.h',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -302,6 +315,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrappers.cpp',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -316,6 +330,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrapper_creators.h',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -330,6 +345,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_wrapper_creators.cpp',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
@@ -344,6 +360,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_unwrappers.h',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
             protect_feature=False
@@ -358,6 +375,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_unwrappers.cpp',
             directory=directory,
+            platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False
