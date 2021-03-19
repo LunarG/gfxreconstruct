@@ -175,6 +175,7 @@ std::string GenerateTimestampedFilename(const std::string& filename, bool use_gm
 
 bool GetWindowsSystemLibrariesPath(std::string& base_path)
 {
+#if defined(WIN32)
     std::string windows_dir = util::platform::GetEnv("WINDIR");
 
     char module_name[MAX_PATH] = {};
@@ -198,6 +199,9 @@ bool GetWindowsSystemLibrariesPath(std::string& base_path)
     }
 
     return success;
+#else
+    return false;
+#endif
 }
 
 GFXRECON_END_NAMESPACE(filepath)
