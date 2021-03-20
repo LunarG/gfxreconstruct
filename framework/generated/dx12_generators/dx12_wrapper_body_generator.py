@@ -188,6 +188,18 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     return True
         return False
 
+    # Determine if the specified class should contain a map of object pointers to wrapper pointers.
+    def is_map_class(self, name):
+        map_classes = []
+        final_class_names = self.get_final_class_names()
+
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            first_class = class_family_names[0]
+            map_classes.append(first_class)
+
+        return name in map_classes
+
     # Check the parameter list for a pointer to an object that is being
     # created or retrieved, which needs to be wrapped.
     def get_object_creation_params(self, param_info):
@@ -462,10 +474,88 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         write(expr, file=self.outFile)
 
+    def write_common_class_methods(self, class_name, class_info, indent):
+        is_map_class = self.is_map_class(class_name)
+        inherits = class_info['inherits']
+        expr = ''
+
+        # Constructor
+        initlist_expr = ''
+        for entry in inherits:
+            if initlist_expr:
+                initlist_expr += ', '
+            initlist_expr += '{}_Wrapper(riid, object, resources,'\
+                ' destructor)'.format(entry['decl_name'])
+        initlist_expr += ', object_(object)'
+        expr += indent + '{name}_Wrapper::{name}_Wrapper(REFIID riid,'\
+            ' {name}* object, DxWrapperResources* resources,' \
+            ' const std::function<void(IUnknown_Wrapper*)>& destructor)'\
+            ' : {}\n'.format(
+                initlist_expr, name=class_name
+            )
+        expr += indent + '{\n'
+        if is_map_class:
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'object_map_[object_] = this;\n'
+            indent = self.decrement_indent(indent)
+        expr += indent + '}\n'
+
+        if is_map_class:
+            # Add a destructor to remove the object from the map.
+            expr += '\n'
+            expr += indent + '{name}_Wrapper::~{name}_Wrapper()\n'.format(
+                name=class_name
+            )
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'object_map_.erase(object_);\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+
+            # Add a function to retreive an existing wrapper for an object.
+            expr += '\n'
+            expr += indent + '{name}_Wrapper* {name}_Wrapper::'\
+                'GetExistingWrapper(IUnknown* object)\n'.format(name=class_name)
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + '{}_Wrapper* wrapper = nullptr;\n'.format(
+                class_name
+            )
+            expr += indent + 'ObjectMap::const_iterator entry;\n'.format(
+                class_name
+            )
+            expr += '\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'std::lock_guard<std::mutex>'\
+                ' lock(object_map_lock_);\n'
+            expr += indent + 'entry = object_map_.find(object);\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+            expr += '\n'
+            expr += indent + 'if (entry != object_map_.end())\n'
+            expr += indent + '{\n'
+            indent = self.increment_indent(indent)
+            expr += indent + 'wrapper = entry->second;\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+            expr += '\n'
+            expr += indent + 'return wrapper;\n'
+            indent = self.decrement_indent(indent)
+            expr += indent + '}\n'
+
+        write(expr, file=self.outFile)
+
     def write_class_member_def(self, class_info, indent=''):
         class_name = class_info['name']
         methods = class_info['methods']['public']
         wrapper = class_name + '_Wrapper'
+
+        self.write_common_class_methods(class_name, class_info, indent)
 
         for method in methods:
             return_type = method['rtnType'].replace(' *', '*')

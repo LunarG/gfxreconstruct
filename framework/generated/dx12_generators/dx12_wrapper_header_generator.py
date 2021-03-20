@@ -135,7 +135,7 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
         return class_family_names
 
-    # Get a list of the classes that will contain a map of object pointers to wrappers.
+    # Determine if the specified class should contain a map of object pointers to wrapper pointers.
     def is_map_class(self, name):
         map_classes = []
         final_class_names = self.get_final_class_names()
@@ -200,68 +200,23 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         indent = self.increment_indent(indent)
 
         # Constructor
-        initlist_expr = ''
-        for entry in inherits:
-            if initlist_expr:
-                initlist_expr += ', '
-            initlist_expr += '{}_Wrapper(riid, object, resources,'\
-                ' destructor)'.format(entry['decl_name'])
-        initlist_expr += ', object_(object)'
         expr += indent + '{name}_Wrapper(REFIID riid, {name}* object,'\
             ' DxWrapperResources* resources = nullptr,' \
             ' const std::function<void(IUnknown_Wrapper*)>& destructor' \
             ' = [](IUnknown_Wrapper* u){{' \
-            ' delete reinterpret_cast<{name}_Wrapper*>(u); }}) : {}\n'.format(
-                initlist_expr, name=name
+            ' delete reinterpret_cast<{name}_Wrapper*>(u); }});\n'.format(
+                name=name
             )
-        expr += indent + '{\n'
-        if is_map_class:
-            indent = self.increment_indent(indent)
-            expr += indent + 'std::lock_guard<std::mutex>'\
-                ' lock(object_map_lock_);\n'
-            expr += indent + 'object_map_[object_] = this;\n'
-            indent = self.decrement_indent(indent)
-        expr += indent + '}\n'
 
         if is_map_class:
             # Add a destructor to remove the object from the map.
             expr += '\n'
-            expr += indent + '~{}_Wrapper()\n'.format(name)
-            expr += indent + '{\n'
-            indent = self.increment_indent(indent)
-            expr += indent + 'std::lock_guard<std::mutex>'\
-                ' lock(object_map_lock_);\n'
-            expr += indent + 'object_map_.erase(object_);\n'
-            indent = self.decrement_indent(indent)
-            expr += indent + '}\n'
+            expr += indent + '~{}_Wrapper();\n'.format(name)
 
             # Add a function to retreive an existing wrapper for an object.
             expr += '\n'
             expr += indent + 'static {}_Wrapper* GetExistingWrapper'\
-                '(IUnknown* object)\n'.format(name)
-            expr += indent + '{\n'
-            indent = self.increment_indent(indent)
-            expr += indent + '{}_Wrapper* wrapper = nullptr;\n'.format(name)
-            expr += indent + 'ObjectMap::const_iterator entry;\n'.format(name)
-            expr += '\n'
-            expr += indent + '{\n'
-            indent = self.increment_indent(indent)
-            expr += indent + 'std::lock_guard<std::mutex>'\
-                ' lock(object_map_lock_);\n'
-            expr += indent + 'entry = object_map_.find(object);\n'
-            indent = self.decrement_indent(indent)
-            expr += indent + '}\n'
-            expr += '\n'
-            expr += indent + 'if (entry != object_map_.end())\n'
-            expr += indent + '{\n'
-            indent = self.increment_indent(indent)
-            expr += indent + 'wrapper = entry->second;\n'
-            indent = self.decrement_indent(indent)
-            expr += indent + '}\n'
-            expr += '\n'
-            expr += indent + 'return wrapper;\n'
-            indent = self.decrement_indent(indent)
-            expr += indent + '}\n'
+                '(IUnknown* object);\n'.format(name)
 
             # Object info "getters"
             expr += '\n'
