@@ -507,6 +507,8 @@ IDXGIResource_Wrapper::IDXGIResource_Wrapper(REFIID riid, IDXGIResource* object,
 
 IDXGIResource_Wrapper::~IDXGIResource_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -697,6 +699,8 @@ IDXGIKeyedMutex_Wrapper::IDXGIKeyedMutex_Wrapper(REFIID riid, IDXGIKeyedMutex* o
 
 IDXGIKeyedMutex_Wrapper::~IDXGIKeyedMutex_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -813,6 +817,8 @@ IDXGISurface_Wrapper::IDXGISurface_Wrapper(REFIID riid, IDXGISurface* object, Dx
 
 IDXGISurface_Wrapper::~IDXGISurface_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -1053,6 +1059,8 @@ IDXGIAdapter_Wrapper::IDXGIAdapter_Wrapper(REFIID riid, IDXGIAdapter* object, Dx
 
 IDXGIAdapter_Wrapper::~IDXGIAdapter_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -1220,6 +1228,8 @@ IDXGIOutput_Wrapper::IDXGIOutput_Wrapper(REFIID riid, IDXGIOutput* object, DxWra
 
 IDXGIOutput_Wrapper::~IDXGIOutput_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -1748,6 +1758,8 @@ IDXGISwapChain_Wrapper::IDXGISwapChain_Wrapper(REFIID riid, IDXGISwapChain* obje
 
 IDXGISwapChain_Wrapper::~IDXGISwapChain_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -2247,6 +2259,8 @@ IDXGIFactory_Wrapper::IDXGIFactory_Wrapper(REFIID riid, IDXGIFactory* object, Dx
 
 IDXGIFactory_Wrapper::~IDXGIFactory_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -2522,6 +2536,8 @@ IDXGIDevice_Wrapper::IDXGIDevice_Wrapper(REFIID riid, IDXGIDevice* object, DxWra
 
 IDXGIDevice_Wrapper::~IDXGIDevice_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -3023,6 +3039,8 @@ IDXGIDisplayControl_Wrapper::IDXGIDisplayControl_Wrapper(REFIID riid, IDXGIDispl
 
 IDXGIDisplayControl_Wrapper::~IDXGIDisplayControl_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -3121,6 +3139,8 @@ IDXGIOutputDuplication_Wrapper::IDXGIOutputDuplication_Wrapper(REFIID riid, IDXG
 
 IDXGIOutputDuplication_Wrapper::~IDXGIOutputDuplication_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -5620,6 +5640,8 @@ IDXGIDecodeSwapChain_Wrapper::IDXGIDecodeSwapChain_Wrapper(REFIID riid, IDXGIDec
 
 IDXGIDecodeSwapChain_Wrapper::~IDXGIDecodeSwapChain_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -6028,6 +6050,8 @@ IDXGIFactoryMedia_Wrapper::IDXGIFactoryMedia_Wrapper(REFIID riid, IDXGIFactoryMe
 
 IDXGIFactoryMedia_Wrapper::~IDXGIFactoryMedia_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -6202,6 +6226,8 @@ IDXGISwapChainMedia_Wrapper::IDXGISwapChainMedia_Wrapper(REFIID riid, IDXGISwapC
 
 IDXGISwapChainMedia_Wrapper::~IDXGISwapChainMedia_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -8373,6 +8399,8 @@ ID3D12RootSignature_Wrapper::ID3D12RootSignature_Wrapper(REFIID riid, ID3D12Root
 
 ID3D12RootSignature_Wrapper::~ID3D12RootSignature_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -8403,6 +8431,8 @@ ID3D12RootSignatureDeserializer_Wrapper::ID3D12RootSignatureDeserializer_Wrapper
 
 ID3D12RootSignatureDeserializer_Wrapper::~ID3D12RootSignatureDeserializer_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -8467,6 +8497,8 @@ ID3D12VersionedRootSignatureDeserializer_Wrapper::ID3D12VersionedRootSignatureDe
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper::~ID3D12VersionedRootSignatureDeserializer_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -8581,6 +8613,8 @@ ID3D12Heap_Wrapper::ID3D12Heap_Wrapper(REFIID riid, ID3D12Heap* object, DxWrappe
 
 ID3D12Heap_Wrapper::~ID3D12Heap_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -8645,6 +8679,8 @@ ID3D12Resource_Wrapper::ID3D12Resource_Wrapper(REFIID riid, ID3D12Resource* obje
 
 ID3D12Resource_Wrapper::~ID3D12Resource_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9009,6 +9045,8 @@ ID3D12CommandAllocator_Wrapper::ID3D12CommandAllocator_Wrapper(REFIID riid, ID3D
 
 ID3D12CommandAllocator_Wrapper::~ID3D12CommandAllocator_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9073,6 +9111,8 @@ ID3D12Fence_Wrapper::ID3D12Fence_Wrapper(REFIID riid, ID3D12Fence* object, DxWra
 
 ID3D12Fence_Wrapper::~ID3D12Fence_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9261,6 +9301,8 @@ ID3D12PipelineState_Wrapper::ID3D12PipelineState_Wrapper(REFIID riid, ID3D12Pipe
 
 ID3D12PipelineState_Wrapper::~ID3D12PipelineState_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9336,6 +9378,8 @@ ID3D12DescriptorHeap_Wrapper::ID3D12DescriptorHeap_Wrapper(REFIID riid, ID3D12De
 
 ID3D12DescriptorHeap_Wrapper::~ID3D12DescriptorHeap_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9468,6 +9512,8 @@ ID3D12QueryHeap_Wrapper::ID3D12QueryHeap_Wrapper(REFIID riid, ID3D12QueryHeap* o
 
 ID3D12QueryHeap_Wrapper::~ID3D12QueryHeap_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9498,6 +9544,8 @@ ID3D12CommandSignature_Wrapper::ID3D12CommandSignature_Wrapper(REFIID riid, ID3D
 
 ID3D12CommandSignature_Wrapper::~ID3D12CommandSignature_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -9566,6 +9614,8 @@ ID3D12GraphicsCommandList_Wrapper::ID3D12GraphicsCommandList_Wrapper(REFIID riid
 
 ID3D12GraphicsCommandList_Wrapper::~ID3D12GraphicsCommandList_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -12318,6 +12368,8 @@ ID3D12CommandQueue_Wrapper::ID3D12CommandQueue_Wrapper(REFIID riid, ID3D12Comman
 
 ID3D12CommandQueue_Wrapper::~ID3D12CommandQueue_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -12874,6 +12926,8 @@ ID3D12Device_Wrapper::ID3D12Device_Wrapper(REFIID riid, ID3D12Device* object, Dx
 
 ID3D12Device_Wrapper::~ID3D12Device_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -14947,6 +15001,8 @@ ID3D12PipelineLibrary_Wrapper::ID3D12PipelineLibrary_Wrapper(REFIID riid, ID3D12
 
 ID3D12PipelineLibrary_Wrapper::~ID3D12PipelineLibrary_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -15821,6 +15877,8 @@ ID3D12ProtectedResourceSession_Wrapper::ID3D12ProtectedResourceSession_Wrapper(R
 
 ID3D12ProtectedResourceSession_Wrapper::~ID3D12ProtectedResourceSession_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -16298,6 +16356,8 @@ ID3D12LifetimeOwner_Wrapper::ID3D12LifetimeOwner_Wrapper(REFIID riid, ID3D12Life
 
 ID3D12LifetimeOwner_Wrapper::~ID3D12LifetimeOwner_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -16362,6 +16422,8 @@ ID3D12SwapChainAssistant_Wrapper::ID3D12SwapChainAssistant_Wrapper(REFIID riid, 
 
 ID3D12SwapChainAssistant_Wrapper::~ID3D12SwapChainAssistant_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -16575,6 +16637,8 @@ ID3D12LifetimeTracker_Wrapper::ID3D12LifetimeTracker_Wrapper(REFIID riid, ID3D12
 
 ID3D12LifetimeTracker_Wrapper::~ID3D12LifetimeTracker_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -16645,6 +16709,8 @@ ID3D12StateObject_Wrapper::ID3D12StateObject_Wrapper(REFIID riid, ID3D12StateObj
 
 ID3D12StateObject_Wrapper::~ID3D12StateObject_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -16675,6 +16741,8 @@ ID3D12StateObjectProperties_Wrapper::ID3D12StateObjectProperties_Wrapper(REFIID 
 
 ID3D12StateObjectProperties_Wrapper::~ID3D12StateObjectProperties_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -17270,6 +17338,8 @@ ID3D12DeviceRemovedExtendedDataSettings_Wrapper::ID3D12DeviceRemovedExtendedData
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper::~ID3D12DeviceRemovedExtendedDataSettings_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -17440,6 +17510,8 @@ ID3D12DeviceRemovedExtendedData_Wrapper::ID3D12DeviceRemovedExtendedData_Wrapper
 
 ID3D12DeviceRemovedExtendedData_Wrapper::~ID3D12DeviceRemovedExtendedData_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -18396,6 +18468,8 @@ ID3D12MetaCommand_Wrapper::ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaComm
 
 ID3D12MetaCommand_Wrapper::~ID3D12MetaCommand_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -18854,6 +18928,8 @@ ID3D12Tools_Wrapper::ID3D12Tools_Wrapper(REFIID riid, ID3D12Tools* object, DxWra
 
 ID3D12Tools_Wrapper::~ID3D12Tools_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -19086,6 +19162,8 @@ ID3D10Blob_Wrapper::ID3D10Blob_Wrapper(REFIID riid, ID3D10Blob* object, DxWrappe
 
 ID3D10Blob_Wrapper::~ID3D10Blob_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }
@@ -19184,6 +19262,8 @@ ID3DDestructionNotifier_Wrapper::ID3DDestructionNotifier_Wrapper(REFIID riid, ID
 
 ID3DDestructionNotifier_Wrapper::~ID3DDestructionNotifier_Wrapper()
 {
+    CustomWrapperDestroyCall(this);
+
     std::lock_guard<std::mutex> lock(object_map_lock_);
     object_map_.erase(object_);
 }

@@ -46,6 +46,9 @@ struct CustomWrapperPostCall
     {}
 };
 
+template <typename Wrapper>
+void CustomWrapperDestroyCall(Wrapper* wrapper){};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

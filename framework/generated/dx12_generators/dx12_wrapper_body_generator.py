@@ -510,6 +510,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             )
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
+            expr += indent + 'CustomWrapperDestroyCall(this);\n'
+            expr += '\n'
             expr += indent + 'std::lock_guard<std::mutex>'\
                 ' lock(object_map_lock_);\n'
             expr += indent + 'object_map_.erase(object_);\n'
