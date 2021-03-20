@@ -106,7 +106,7 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HANDLE>* pSharedHandle)
+        PointerDecoder<uint64_t, void*>* pSharedHandle)
 {
     fprintf(GetFile(), "%s\n", "IDXGIResource::GetSharedHandle");
 }
@@ -189,7 +189,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         format::HandleId object_id,
         HRESULT returnValue,
         BOOL Discard,
-        PointerDecoder<uint64_t, HDC>* phdc)
+        PointerDecoder<uint64_t, void*>* phdc)
 {
     fprintf(GetFile(), "%s\n", "IDXGISurface1::GetDC");
 }
@@ -466,7 +466,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
 void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HWND>* pWindowHandle)
+        PointerDecoder<uint64_t, void*>* pWindowHandle)
 {
     fprintf(GetFile(), "%s\n", "IDXGIFactory::GetWindowAssociation");
 }
@@ -714,7 +714,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
-        PointerDecoder<uint64_t, HANDLE>* pHandle)
+        PointerDecoder<uint64_t, void*>* pHandle)
 {
     fprintf(GetFile(), "%s\n", "IDXGIResource1::CreateSharedHandle");
 }
@@ -772,7 +772,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HWND>* pHwnd)
+        PointerDecoder<uint64_t, void*>* pHwnd)
 {
     fprintf(GetFile(), "%s\n", "IDXGISwapChain1::GetHwnd");
 }
@@ -2842,7 +2842,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
-        PointerDecoder<uint64_t, HANDLE>* pHandle)
+        PointerDecoder<uint64_t, void*>* pHandle)
 {
     fprintf(GetFile(), "%s\n", "ID3D12Device::CreateSharedHandle");
 }
@@ -2864,7 +2864,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         HRESULT returnValue,
         WStringDecoder* Name,
         DWORD Access,
-        PointerDecoder<uint64_t, HANDLE>* pNTHandle)
+        PointerDecoder<uint64_t, void*>* pNTHandle)
 {
     fprintf(GetFile(), "%s\n", "ID3D12Device::OpenSharedHandleByName");
 }

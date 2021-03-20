@@ -151,10 +151,8 @@ class Dx12BaseGenerator(BaseGenerator):
         return rtn
 
     def get_return_value_info(self, param_name, param_type):
-        pointer = 0
-        const = False
         base_type = ''
-
+        full_type = param_type
         const = False
         pointer = 0  # 1: *, 2: ** ...
         types1 = self.clean_type_define(param_type)
@@ -170,19 +168,26 @@ class Dx12BaseGenerator(BaseGenerator):
                     base_type += ' '
                 base_type += t
 
+        platform_base_type = None
+        platform_full_type = None
         if base_type in self.PLATFORM_TYPES:
             type_info = self.PLATFORM_TYPES[base_type]
+            platform_base_type = base_type
+            platform_full_type = full_type
             base_type = type_info['baseType']
+            full_type = full_type.replace(base_type, type_info['replaceWith'])
             replace_with = type_info['replaceWith']
             if 'const ' in replace_with:
                 const = True
-            pointer += replace_with.count('*')   
+            pointer += replace_with.count('*')
 
         return ValueInfo(
             name=param_name,
             base_type=base_type,
-            full_type=param_type,
+            full_type=full_type,
             pointer_count=pointer,
+            platform_base_type=platform_base_type,
+            platform_full_type=platform_full_type,
             is_const=const
         )
 
@@ -209,13 +214,18 @@ class Dx12BaseGenerator(BaseGenerator):
                     base_type += ' '
                 base_type += t
 
+        platform_base_type = None
+        platform_full_type = None
         if base_type in self.PLATFORM_TYPES:
             type_info = self.PLATFORM_TYPES[base_type]
+            platform_base_type = base_type
+            platform_full_type = full_type
             base_type = type_info['baseType']
+            full_type = full_type.replace(base_type, type_info['replaceWith'])
             replace_with = type_info['replaceWith']
             if 'const ' in replace_with:
                 const = True
-            pointer += replace_with.count('*')        
+            pointer += replace_with.count('*')
 
         union = self.get_union(base_type)
         union_members = list()
@@ -285,6 +295,8 @@ class Dx12BaseGenerator(BaseGenerator):
             array_length=array_length,
             array_capacity=array_capacity,
             array_dimension=array_dimension,
+            platform_base_type=platform_base_type,
+            platform_full_type=platform_full_type,
             bitfield_width=self.get_bit_field(struct_name, name),
             is_const=const,
             union_members=union_members,
@@ -296,7 +308,6 @@ class Dx12BaseGenerator(BaseGenerator):
         self.genStruct(None, None, None)
         self.genCmd(None, None, None)
         self.gen_method()
-        self.gen_win32_handle()
 
     def genStruct(self, typeinfo, typename, alias):
         """Methond override."""
@@ -319,11 +330,6 @@ class Dx12BaseGenerator(BaseGenerator):
                         self.clean_type_define(m['rtnType']), '',
                         self.make_value_info(m['parameters'])
                     )
-
-    def gen_win32_handle(self):
-        self.win32_handle_names = [
-            'HANDLE', 'HMONITOR', 'HWND', 'HMODULE', 'HDC'
-        ]
 
     def gen_method(self):
         header_dict = self.source_dict['header_dict']
@@ -387,12 +393,6 @@ class Dx12BaseGenerator(BaseGenerator):
         """Methond override."""
         enum_set = self.source_dict['enum_set']
         if type in enum_set:
-            return True
-        return False
-
-    def is_win32_handle(self, type):
-        """Methond override."""
-        if type in self.win32_handle_names:
             return True
         return False
 

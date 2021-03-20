@@ -1,5 +1,11 @@
 { "windows" : {
     "types" : {
+      "HANDLE"    : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HINSTANCE" : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HWND"      : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HMONITOR"  : { "baseType" : "void",     "replaceWith" : "void*" },   
+      "HDC"       : { "baseType" : "void",     "replaceWith" : "void*" },   
+      "HMODULE"   : { "baseType" : "void",     "replaceWith" : "void*" },     
       "LPCWSTR"   : { "baseType" : "wchar_t",  "replaceWith" : "const wchar_t*" },
       "D3D12_RECT": { "baseType" : "tagRECT",  "replaceWith" : "tagRECT" },
       "RECT"      : { "baseType" : "tagRECT",  "replaceWith" : "tagRECT" },

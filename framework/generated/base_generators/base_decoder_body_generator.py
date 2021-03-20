@@ -153,7 +153,6 @@ class BaseDecoderBodyGenerator():
         is_string = False
         is_funcp = False
         is_handle = False
-        is_win32_handle = False  # Only for Dx12.
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -167,8 +166,6 @@ class BaseDecoderBodyGenerator():
             is_funcp = True
         elif type_name == 'Handle':
             is_handle = True
-        elif self.is_win32_handle(type_name):
-            is_win32_handle = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -194,10 +191,6 @@ class BaseDecoderBodyGenerator():
                     body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                         buffer_args, value.name
                     )
-                elif is_win32_handle:
-                    body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(
-                        value.name, buffer_args
-                    )
                 else:
                     body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, type_name, buffer_args
@@ -207,7 +200,7 @@ class BaseDecoderBodyGenerator():
                 body += '    bytes_read += DecodeStruct({}, &{});\n'.format(
                     buffer_args, value.name
                 )
-            elif is_funcp or is_win32_handle:
+            elif is_funcp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
                     buffer_args, value.name
                 )

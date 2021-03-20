@@ -137,8 +137,7 @@ class Dx12ReplayConsumerBodyGenerator(
         for value in values:
             is_class = self.is_class(value)
             is_extenal_object = (
-                (value.base_type in self.EXTERNAL_OBJECT_TYPES)
-                or self.is_win32_handle(value.base_type)
+                value.base_type in self.EXTERNAL_OBJECT_TYPES
             ) and not value.is_array
             is_output = self.is_output(value)
             is_struct = self.is_struct(value.base_type)
@@ -183,8 +182,14 @@ class Dx12ReplayConsumerBodyGenerator(
             elif is_extenal_object and not is_override:
                 if is_output:
                     code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
-                            '    auto out_op_{0}   = {0}->GetOutputPointer();\n'\
                             .format(value.name)
+
+                    if value.platform_base_type:
+                        code += '    auto out_op_{0}   = reinterpret_cast<{1}*>({0}->GetOutputPointer());\n'\
+                                .format(value.name, value.platform_base_type)
+                    else:
+                        code += '    auto out_op_{0}   = {0}->GetOutputPointer();\n'\
+                                .format(value.name)
 
                     if is_override:
                         arg_list.append(value.name)
@@ -196,12 +201,12 @@ class Dx12ReplayConsumerBodyGenerator(
                         .format(value.name, name)
                     )
                 else:
-                    if value.base_type == 'void':
+                    if value.platform_base_type:
+                        code += '    auto in_{0} = static_cast<{2}>(PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
+                                .format(value.name, name, value.platform_base_type)
+                    else:
                         code += '    auto in_{0} = PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'\
                                 .format(value.name, name)
-                    else:
-                        code += '    auto in_{0} = static_cast<{2}>(PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
-                                .format(value.name, name, value.base_type)
                     arg_list.append('in_{}'.format(value.name))
 
             else:

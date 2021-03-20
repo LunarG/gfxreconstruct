@@ -145,22 +145,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if self.is_struct(value.base_type):
             rtn = self.get_encode_struct(value, is_generating_struct)
 
-        elif self.is_win32_handle(value.base_type):
-            if value.pointer_count == 1:
-                if is_generating_struct:
-                    rtn = 'encoder->EncodeVoidPtrPtr(value.{});'.format(
-                        value.name
-                    )
-                else:
-                    rtn = 'encoder->EncodeVoidPtrPtr({});'.format(value.name)
-            else:
-                if is_generating_struct:
-                    rtn = 'encoder->EncodeVoidPtr(value.{});'.format(
-                        value.name
-                    )
-                else:
-                    rtn = 'encoder->EncodeVoidPtr({});'.format(value.name)
-
         elif self.is_class(value):
             if value.array_length and type(value.array_length) == str:
                 if is_generating_struct:

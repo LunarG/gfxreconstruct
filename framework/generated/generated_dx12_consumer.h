@@ -91,7 +91,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HANDLE>* pSharedHandle){}
+        PointerDecoder<uint64_t, void*>* pSharedHandle){}
 
     virtual void Process_IDXGIResource_GetUsage(
         format::HandleId object_id,
@@ -138,7 +138,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT returnValue,
         BOOL Discard,
-        PointerDecoder<uint64_t, HDC>* phdc){}
+        PointerDecoder<uint64_t, void*>* phdc){}
 
     virtual void Process_IDXGISurface1_ReleaseDC(
         format::HandleId object_id,
@@ -299,7 +299,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGIFactory_GetWindowAssociation(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HWND>* pWindowHandle){}
+        PointerDecoder<uint64_t, void*>* pWindowHandle){}
 
     virtual void Process_IDXGIFactory_CreateSwapChain(
         format::HandleId object_id,
@@ -447,7 +447,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
-        PointerDecoder<uint64_t, HANDLE>* pHandle){}
+        PointerDecoder<uint64_t, void*>* pHandle){}
 
     virtual void Process_IDXGIDevice2_OfferResources(
         format::HandleId object_id,
@@ -481,7 +481,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     virtual void Process_IDXGISwapChain1_GetHwnd(
         format::HandleId object_id,
         HRESULT returnValue,
-        PointerDecoder<uint64_t, HWND>* pHwnd){}
+        PointerDecoder<uint64_t, void*>* pHwnd){}
 
     virtual void Process_IDXGISwapChain1_GetCoreWindow(
         format::HandleId object_id,
@@ -1739,7 +1739,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
-        PointerDecoder<uint64_t, HANDLE>* pHandle){}
+        PointerDecoder<uint64_t, void*>* pHandle){}
 
     virtual void Process_ID3D12Device_OpenSharedHandle(
         format::HandleId object_id,
@@ -1753,7 +1753,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT returnValue,
         WStringDecoder* Name,
         DWORD Access,
-        PointerDecoder<uint64_t, HANDLE>* pNTHandle){}
+        PointerDecoder<uint64_t, void*>* pNTHandle){}
 
     virtual void Process_ID3D12Device_MakeResident(
         format::HandleId object_id,

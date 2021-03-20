@@ -347,13 +347,13 @@ void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    PointerDecoder<uint64_t, HANDLE>*           pSharedHandle)
+    PointerDecoder<uint64_t, void*>*            pSharedHandle)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_pSharedHandle    = pSharedHandle->GetPointer();
-        auto out_op_pSharedHandle   = pSharedHandle->GetOutputPointer();
+        auto out_op_pSharedHandle   = reinterpret_cast<HANDLE*>(pSharedHandle->GetOutputPointer());
         auto replay_result = replay_object->GetSharedHandle(out_op_pSharedHandle);
         CheckReplayResult("IDXGIResource_GetSharedHandle", returnValue, replay_result);
         PostProcessExternalObject(replay_result, out_op_pSharedHandle, out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
@@ -471,13 +471,13 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
     BOOL                                        Discard,
-    PointerDecoder<uint64_t, HDC>*              phdc)
+    PointerDecoder<uint64_t, void*>*            phdc)
 {
     auto replay_object = MapObject<IDXGISurface1>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_phdc    = phdc->GetPointer();
-        auto out_op_phdc   = phdc->GetOutputPointer();
+        auto out_op_phdc   = reinterpret_cast<HDC*>(phdc->GetOutputPointer());
         auto replay_result = replay_object->GetDC(Discard,
                                                   out_op_phdc);
         CheckReplayResult("IDXGISurface1_GetDC", returnValue, replay_result);
@@ -927,13 +927,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
 void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    PointerDecoder<uint64_t, HWND>*             pWindowHandle)
+    PointerDecoder<uint64_t, void*>*            pWindowHandle)
 {
     auto replay_object = MapObject<IDXGIFactory>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_pWindowHandle    = pWindowHandle->GetPointer();
-        auto out_op_pWindowHandle   = pWindowHandle->GetOutputPointer();
+        auto out_op_pWindowHandle   = reinterpret_cast<HWND*>(pWindowHandle->GetOutputPointer());
         auto replay_result = replay_object->GetWindowAssociation(out_op_pWindowHandle);
         CheckReplayResult("IDXGIFactory_GetWindowAssociation", returnValue, replay_result);
         PostProcessExternalObject(replay_result, out_op_pWindowHandle, out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
@@ -1351,13 +1351,13 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       dwAccess,
     WStringDecoder*                             lpName,
-    PointerDecoder<uint64_t, HANDLE>*           pHandle)
+    PointerDecoder<uint64_t, void*>*            pHandle)
 {
     auto replay_object = MapObject<IDXGIResource1>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_pHandle    = pHandle->GetPointer();
-        auto out_op_pHandle   = pHandle->GetOutputPointer();
+        auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(pAttributes->GetPointer(),
                                                                dwAccess,
                                                                lpName->GetPointer(),
@@ -1446,13 +1446,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,
-    PointerDecoder<uint64_t, HWND>*             pHwnd)
+    PointerDecoder<uint64_t, void*>*            pHwnd)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_pHwnd    = pHwnd->GetPointer();
-        auto out_op_pHwnd   = pHwnd->GetOutputPointer();
+        auto out_op_pHwnd   = reinterpret_cast<HWND*>(pHwnd->GetOutputPointer());
         auto replay_result = replay_object->GetHwnd(out_op_pHwnd);
         CheckReplayResult("IDXGISwapChain1_GetHwnd", returnValue, replay_result);
         PostProcessExternalObject(replay_result, out_op_pHwnd, out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
@@ -4647,14 +4647,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       Access,
     WStringDecoder*                             Name,
-    PointerDecoder<uint64_t, HANDLE>*           pHandle)
+    PointerDecoder<uint64_t, void*>*            pHandle)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
         auto in_pObject = MapObject<ID3D12DeviceChild>(pObject);
         auto out_p_pHandle    = pHandle->GetPointer();
-        auto out_op_pHandle   = pHandle->GetOutputPointer();
+        auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(in_pObject,
                                                                pAttributes->GetPointer(),
                                                                Access,
@@ -4695,13 +4695,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     HRESULT                                     returnValue,
     WStringDecoder*                             Name,
     DWORD                                       Access,
-    PointerDecoder<uint64_t, HANDLE>*           pNTHandle)
+    PointerDecoder<uint64_t, void*>*            pNTHandle)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
         auto out_p_pNTHandle    = pNTHandle->GetPointer();
-        auto out_op_pNTHandle   = pNTHandle->GetOutputPointer();
+        auto out_op_pNTHandle   = reinterpret_cast<HANDLE*>(pNTHandle->GetOutputPointer());
         auto replay_result = replay_object->OpenSharedHandleByName(Name->GetPointer(),
                                                                    Access,
                                                                    out_op_pNTHandle);

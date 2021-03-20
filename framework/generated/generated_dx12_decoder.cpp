@@ -1584,7 +1584,7 @@ size_t Dx12Decoder::Decode_IDXGIResource_GetSharedHandle(format::HandleId object
 {
     size_t bytes_read = 0;
 
-    PointerDecoder<uint64_t, HANDLE> pSharedHandle;
+    PointerDecoder<uint64_t, void*> pSharedHandle;
     HRESULT return_value;
 
     bytes_read += pSharedHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1749,7 +1749,7 @@ size_t Dx12Decoder::Decode_IDXGISurface1_GetDC(format::HandleId object_id, const
     size_t bytes_read = 0;
 
     BOOL Discard;
-    PointerDecoder<uint64_t, HDC> phdc;
+    PointerDecoder<uint64_t, void*> phdc;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Discard);
@@ -2308,7 +2308,7 @@ size_t Dx12Decoder::Decode_IDXGIFactory_GetWindowAssociation(format::HandleId ob
 {
     size_t bytes_read = 0;
 
-    PointerDecoder<uint64_t, HWND> pWindowHandle;
+    PointerDecoder<uint64_t, void*> pWindowHandle;
     HRESULT return_value;
 
     bytes_read += pWindowHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -2795,7 +2795,7 @@ size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId ob
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
     DWORD dwAccess;
     WStringDecoder lpName;
-    PointerDecoder<uint64_t, HANDLE> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
     HRESULT return_value;
 
     bytes_read += pAttributes.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -2914,7 +2914,7 @@ size_t Dx12Decoder::Decode_IDXGISwapChain1_GetHwnd(format::HandleId object_id, c
 {
     size_t bytes_read = 0;
 
-    PointerDecoder<uint64_t, HWND> pHwnd;
+    PointerDecoder<uint64_t, void*> pHwnd;
     HRESULT return_value;
 
     bytes_read += pHwnd.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -6896,7 +6896,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
     DWORD Access;
     WStringDecoder Name;
-    PointerDecoder<uint64_t, HANDLE> pHandle;
+    PointerDecoder<uint64_t, void*> pHandle;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pObject);
@@ -6944,7 +6944,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_OpenSharedHandleByName(format::HandleId 
 
     WStringDecoder Name;
     DWORD Access;
-    PointerDecoder<uint64_t, HANDLE> pNTHandle;
+    PointerDecoder<uint64_t, void*> pNTHandle;
     HRESULT return_value;
 
     bytes_read += Name.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
