@@ -374,7 +374,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + return_type + ' result{};\n'
             expr += '\n'
 
-        expr += indent + 'auto manager = TraceManager::Get();\n'
+        expr += indent + 'auto manager = CaptureManager::Get();\n'
         expr += indent + 'auto call_scope = manager->IncrementCallScope();\n'
         expr += '\n'
 
@@ -552,7 +552,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += indent + return_type + ' result{};\n'
                 expr += '\n'
 
-            expr += indent + 'auto manager = TraceManager::Get();\n'
+            expr += indent + 'auto manager = CaptureManager::Get();\n'
             expr += indent + 'auto call_scope = manager->IncrementCallScope();\n'
             expr += '\n'
 
@@ -742,12 +742,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
+        code += '#include "encode/capture_manager.h"\n'
         code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'
         code += '#include "encode/custom_dx12_wrapper_commands.h"\n'
         code += '#include "encode/d3d12_dispatch_table.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "encode/dxgi_dispatch_table.h"\n'
-        code += '#include "encode/trace_manager.h"\n'
         code += '#include "generated/generated_dx12_api_call_encoders.h"\n'
         code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '#include "generated/generated_dx12_wrapper_creators.h"\n'

@@ -24,7 +24,7 @@
 
 #include "project_version.h"
 
-#include "encode/trace_manager.h"
+#include "encode/capture_manager.h"
 
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
@@ -62,30 +62,30 @@ const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 // One based frame count.
 const uint32_t kFirstFrame = 1;
 
-std::mutex                                     TraceManager::ThreadData::count_lock_;
-format::ThreadId                               TraceManager::ThreadData::thread_count_ = 0;
-std::unordered_map<uint64_t, format::ThreadId> TraceManager::ThreadData::id_map_;
+std::mutex                                     CaptureManager::ThreadData::count_lock_;
+format::ThreadId                               CaptureManager::ThreadData::thread_count_ = 0;
+std::unordered_map<uint64_t, format::ThreadId> CaptureManager::ThreadData::id_map_;
 
-TraceManager*                                          TraceManager::instance_       = nullptr;
-uint32_t                                               TraceManager::instance_count_ = 0;
-std::mutex                                             TraceManager::instance_lock_;
-thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
-LayerTable                                             TraceManager::layer_table_;
+CaptureManager*                                          CaptureManager::instance_       = nullptr;
+uint32_t                                                 CaptureManager::instance_count_ = 0;
+std::mutex                                               CaptureManager::instance_lock_;
+thread_local std::unique_ptr<CaptureManager::ThreadData> CaptureManager::thread_data_;
+LayerTable                                               CaptureManager::layer_table_;
 
-std::atomic<format::HandleId> TraceManager::unique_id_counter_{ format::kNullHandleId };
+std::atomic<format::HandleId> CaptureManager::unique_id_counter_{ format::kNullHandleId };
 
 #if defined(WIN32)
-thread_local uint32_t TraceManager::call_scope_ = 0;
+thread_local uint32_t CaptureManager::call_scope_ = 0;
 #endif
 
-TraceManager::ThreadData::ThreadData() :
+CaptureManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
 }
 
-format::ThreadId TraceManager::ThreadData::GetThreadId()
+format::ThreadId CaptureManager::ThreadData::GetThreadId()
 {
     format::ThreadId id  = 0;
     uint64_t         tid = util::platform::GetCurrentThreadId();
@@ -106,11 +106,11 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
-TraceManager::TraceManager() :
+CaptureManager::CaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if !defined(WIN32)
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
 #else
@@ -120,7 +120,7 @@ TraceManager::TraceManager() :
 #endif
 {}
 
-TraceManager::~TraceManager()
+CaptureManager::~CaptureManager()
 {
     if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
@@ -128,14 +128,14 @@ TraceManager::~TraceManager()
     }
 }
 
-void TraceManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
+void CaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
 {
     assert((create_instance != nullptr) && (create_device != nullptr));
     layer_table_.CreateInstance = create_instance;
     layer_table_.CreateDevice   = create_device;
 }
 
-bool TraceManager::CreateInstance()
+bool CaptureManager::CreateInstance()
 {
     bool                        success = true;
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
@@ -159,11 +159,11 @@ bool TraceManager::CreateInstance()
         std::string                    base_filename  = trace_settings.capture_file;
 
         instance_count_ = 1;
-        instance_       = new TraceManager();
+        instance_       = new CaptureManager();
         success         = instance_->Initialize(base_filename, trace_settings);
         if (!success)
         {
-            GFXRECON_LOG_FATAL("Failed to initialize TraceManager");
+            GFXRECON_LOG_FATAL("Failed to initialize CaptureManager");
         }
     }
     else
@@ -177,7 +177,7 @@ bool TraceManager::CreateInstance()
     return success;
 }
 
-void TraceManager::CheckCreateInstanceStatus(VkResult result)
+void CaptureManager::CheckCreateInstanceStatus(VkResult result)
 {
     if (result != VK_SUCCESS)
     {
@@ -185,7 +185,7 @@ void TraceManager::CheckCreateInstanceStatus(VkResult result)
     }
 }
 
-void TraceManager::DestroyInstance()
+void CaptureManager::DestroyInstance()
 {
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
 
@@ -207,7 +207,7 @@ void TraceManager::DestroyInstance()
     }
 }
 
-void TraceManager::InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa)
+void CaptureManager::InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa)
 {
     assert(instance != nullptr);
 
@@ -218,7 +218,7 @@ void TraceManager::InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr 
     LoadInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-void TraceManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
+void CaptureManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
 {
     assert((device != nullptr) && ((*device) != VK_NULL_HANDLE));
 
@@ -229,7 +229,7 @@ void TraceManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
     LoadDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
+bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = true;
 
@@ -361,14 +361,14 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     return success;
 }
 
-ParameterEncoder* TraceManager::InitApiCallTrace(format::ApiCallId call_id)
+ParameterEncoder* CaptureManager::InitApiCallTrace(format::ApiCallId call_id)
 {
     auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
     return thread_data->parameter_encoder_.get();
 }
 
-ParameterEncoder* TraceManager::InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
+ParameterEncoder* CaptureManager::InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
 {
     auto thread_data        = GetThreadData();
     thread_data->call_id_   = call_id;
@@ -376,7 +376,7 @@ ParameterEncoder* TraceManager::InitMethodCallTrace(format::ApiCallId call_id, f
     return thread_data->parameter_encoder_.get();
 }
 
-void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
+void CaptureManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -464,7 +464,7 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
-void TraceManager::EndMethodCallTrace(ParameterEncoder* encoder)
+void CaptureManager::EndMethodCallTrace(ParameterEncoder* encoder)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -556,7 +556,7 @@ void TraceManager::EndMethodCallTrace(ParameterEncoder* encoder)
     }
 }
 
-bool TraceManager::IsTrimHotkeyPressed()
+bool CaptureManager::IsTrimHotkeyPressed()
 {
     // Return true when GetKeyState() transitions from false to true
     bool hotkey_state      = keyboard_.GetKeyState(trim_key_);
@@ -565,7 +565,7 @@ bool TraceManager::IsTrimHotkeyPressed()
     return hotkey_pressed;
 }
 
-void TraceManager::CheckContinueCaptureForWriteMode()
+void CaptureManager::CheckContinueCaptureForWriteMode()
 {
     if (!trim_ranges_.empty())
     {
@@ -615,7 +615,7 @@ void TraceManager::CheckContinueCaptureForWriteMode()
     }
 }
 
-void TraceManager::CheckStartCaptureForTrackMode()
+void CaptureManager::CheckStartCaptureForTrackMode()
 {
     if (!trim_ranges_.empty())
     {
@@ -651,7 +651,7 @@ void TraceManager::CheckStartCaptureForTrackMode()
     }
 }
 
-void TraceManager::EndFrame()
+void CaptureManager::EndFrame()
 {
     if (trim_enabled_)
     {
@@ -672,8 +672,8 @@ void TraceManager::EndFrame()
     }
 }
 
-std::string TraceManager::CreateTrimFilename(const std::string&                base_filename,
-                                             const CaptureSettings::TrimRange& trim_range)
+std::string CaptureManager::CreateTrimFilename(const std::string&                base_filename,
+                                               const CaptureSettings::TrimRange& trim_range)
 {
     assert(trim_range.total > 0);
 
@@ -695,7 +695,7 @@ std::string TraceManager::CreateTrimFilename(const std::string&                b
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-bool TraceManager::CreateCaptureFile(const std::string& base_filename)
+bool CaptureManager::CreateCaptureFile(const std::string& base_filename)
 {
     bool        success          = true;
     std::string capture_filename = base_filename;
@@ -721,7 +721,7 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
     return success;
 }
 
-void TraceManager::ActivateTrimming()
+void CaptureManager::ActivateTrimming()
 {
     std::lock_guard<std::mutex> lock(file_lock_);
 
@@ -734,7 +734,7 @@ void TraceManager::ActivateTrimming()
     state_tracker_->WriteState(&state_writer, current_frame_);
 }
 
-void TraceManager::WriteFileHeader()
+void CaptureManager::WriteFileHeader()
 {
     std::vector<format::FileOptionPair> option_list;
 
@@ -755,15 +755,15 @@ void TraceManager::WriteFileHeader()
     }
 }
 
-void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
-                                   std::vector<format::FileOptionPair>* option_list)
+void CaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
+                                     std::vector<format::FileOptionPair>* option_list)
 {
     assert(option_list != nullptr);
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
 }
 
-void TraceManager::WriteDisplayMessageCmd(const char* message)
+void CaptureManager::WriteDisplayMessageCmd(const char* message)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -789,7 +789,7 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
     }
 }
 
-void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
+void CaptureManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -815,10 +815,10 @@ void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t wi
     }
 }
 
-void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_id,
-                                         uint32_t                      width,
-                                         uint32_t                      height,
-                                         VkSurfaceTransformFlagBitsKHR pre_transform)
+void CaptureManager::WriteResizeWindowCmd2(format::HandleId              surface_id,
+                                           uint32_t                      width,
+                                           uint32_t                      height,
+                                           VkSurfaceTransformFlagBitsKHR pre_transform)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -866,10 +866,10 @@ void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_i
     }
 }
 
-void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
-                                      VkDeviceSize     offset,
-                                      VkDeviceSize     size,
-                                      const void*      data)
+void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id,
+                                        VkDeviceSize     offset,
+                                        VkDeviceSize     size,
+                                        const void*      data)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -921,9 +921,9 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
     }
 }
 
-void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
-                                                AHardwareBuffer*                                    buffer,
-                                                const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+void CaptureManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                                  AHardwareBuffer*                                    buffer,
+                                                  const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -992,7 +992,7 @@ void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                
     }
 }
 
-void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
+void CaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -1026,8 +1026,8 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
     }
 }
 
-void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
-                                                   const VkPhysicalDeviceProperties& properties)
+void CaptureManager::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                                     const VkPhysicalDeviceProperties& properties)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -1067,8 +1067,8 @@ void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId             
     }
 }
 
-void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
-                                                         const VkPhysicalDeviceMemoryProperties& memory_properties)
+void CaptureManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                                           const VkPhysicalDeviceMemoryProperties& memory_properties)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -1119,9 +1119,9 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
     }
 }
 
-void TraceManager::WriteSetBufferAddressCommand(format::HandleId device_id,
-                                                format::HandleId buffer_id,
-                                                uint64_t         address)
+void CaptureManager::WriteSetBufferAddressCommand(format::HandleId device_id,
+                                                  format::HandleId buffer_id,
+                                                  uint64_t         address)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -1151,8 +1151,8 @@ void TraceManager::WriteSetBufferAddressCommand(format::HandleId device_id,
     }
 }
 
-void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
-                                                   const VkDescriptorUpdateTemplateCreateInfo* create_info)
+void CaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
+                                                     const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
     // A NULL check should have been performed by the caller.
     assert((create_info != nullptr));
@@ -1239,8 +1239,8 @@ void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate   
     }
 }
 
-bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
-                                                   const UpdateTemplateInfo** info) const
+bool CaptureManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
+                                                     const UpdateTemplateInfo** info) const
 {
     assert(info != nullptr);
 
@@ -1257,9 +1257,9 @@ bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate up
     return found;
 }
 
-void TraceManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
-                                                        VkDescriptorUpdateTemplate update_template,
-                                                        const void*                data)
+void CaptureManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
+                                                          VkDescriptorUpdateTemplate update_template,
+                                                          const void*                data)
 {
     const UpdateTemplateInfo* info = nullptr;
     if (GetDescriptorUpdateTemplateInfo(update_template, &info))
@@ -1269,9 +1269,9 @@ void TraceManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet         
     }
 }
 
-VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
-                                              const VkAllocationCallbacks* pAllocator,
-                                              VkInstance*                  pInstance)
+VkResult CaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                                const VkAllocationCallbacks* pAllocator,
+                                                VkInstance*                  pInstance)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -1327,12 +1327,12 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
     return result;
 }
 
-VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
-                                            const VkDeviceCreateInfo*    pCreateInfo,
-                                            const VkAllocationCallbacks* pAllocator,
-                                            VkDevice*                    pDevice)
+VkResult CaptureManager::OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                              const VkDeviceCreateInfo*    pCreateInfo,
+                                              const VkAllocationCallbacks* pAllocator,
+                                              VkDevice*                    pDevice)
 {
-    auto                handle_unwrap_memory     = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto                handle_unwrap_memory     = CaptureManager::Get()->GetHandleUnwrapMemory();
     VkPhysicalDevice    physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
@@ -1473,10 +1473,10 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
     return result;
 }
 
-VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
-                                            const VkBufferCreateInfo*    pCreateInfo,
-                                            const VkAllocationCallbacks* pAllocator,
-                                            VkBuffer*                    pBuffer)
+VkResult CaptureManager::OverrideCreateBuffer(VkDevice                     device,
+                                              const VkBufferCreateInfo*    pCreateInfo,
+                                              const VkAllocationCallbacks* pAllocator,
+                                              VkBuffer*                    pBuffer)
 {
     VkResult result           = VK_SUCCESS;
     auto     device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1512,7 +1512,7 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
     if ((result == VK_SUCCESS) && (pBuffer != nullptr))
     {
         CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferWrapper>(
-            device, NoParentWrapper::kHandleValue, pBuffer, TraceManager::GetUniqueId);
+            device, NoParentWrapper::kHandleValue, pBuffer, CaptureManager::GetUniqueId);
 
         if (uses_address)
         {
@@ -1550,16 +1550,16 @@ VkResult TraceManager::OverrideCreateBuffer(VkDevice                     device,
     return result;
 }
 
-VkResult TraceManager::OverrideAllocateMemory(VkDevice                     device,
-                                              const VkMemoryAllocateInfo*  pAllocateInfo,
-                                              const VkAllocationCallbacks* pAllocator,
-                                              VkDeviceMemory*              pMemory)
+VkResult CaptureManager::OverrideAllocateMemory(VkDevice                     device,
+                                                const VkMemoryAllocateInfo*  pAllocateInfo,
+                                                const VkAllocationCallbacks* pAllocator,
+                                                VkDeviceMemory*              pMemory)
 {
     VkResult                         result          = VK_SUCCESS;
     void*                            external_memory = nullptr;
     VkImportMemoryHostPointerInfoEXT import_info;
 
-    auto                  handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto                  handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice              device_unwrapped     = GetWrappedHandle<VkDevice>(device);
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
@@ -1618,7 +1618,7 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     if (result == VK_SUCCESS)
     {
         CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrapper>(
-            device, NoParentWrapper::kHandleValue, pMemory, TraceManager::GetUniqueId);
+            device, NoParentWrapper::kHandleValue, pMemory, CaptureManager::GetUniqueId);
 
         assert(pMemory != nullptr);
         auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
@@ -1651,9 +1651,9 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     return result;
 }
 
-VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
-                                                                  uint32_t*                          pToolCount,
-                                                                  VkPhysicalDeviceToolPropertiesEXT* pToolProperties)
+VkResult CaptureManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
+                                                                    uint32_t*                          pToolCount,
+                                                                    VkPhysicalDeviceToolPropertiesEXT* pToolProperties)
 {
     auto original_pToolProperties = pToolProperties;
     if (pToolProperties != nullptr)
@@ -1707,7 +1707,7 @@ VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
-VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
+VkMemoryPropertyFlags CaptureManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
 {
     PhysicalDeviceWrapper*                  physical_device_wrapper = device_wrapper->physical_device;
     const VkPhysicalDeviceMemoryProperties* memory_properties       = &physical_device_wrapper->memory_properties;
@@ -1718,7 +1718,7 @@ VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wr
 }
 
 const VkImportAndroidHardwareBufferInfoANDROID*
-TraceManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info)
+CaptureManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info)
 {
     const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info = nullptr;
 
@@ -1743,9 +1743,9 @@ TraceManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_
     return import_ahb_info;
 }
 
-void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
-                                                      VkDeviceMemory   memory,
-                                                      AHardwareBuffer* hardware_buffer)
+void CaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
+                                                        VkDeviceMemory   memory,
+                                                        AHardwareBuffer* hardware_buffer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
@@ -1852,7 +1852,7 @@ void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
 #endif
 }
 
-void TraceManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer)
+void CaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffer != nullptr);
@@ -1877,10 +1877,10 @@ void TraceManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer
 #endif
 }
 
-void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
-                                                          VkInstance        instance,
-                                                          uint32_t*         pPhysicalDeviceCount,
-                                                          VkPhysicalDevice* pPhysicalDevices)
+void CaptureManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
+                                                            VkInstance        instance,
+                                                            uint32_t*         pPhysicalDeviceCount,
+                                                            VkPhysicalDevice* pPhysicalDevices)
 {
     if ((result >= 0) && (pPhysicalDeviceCount != nullptr) && (pPhysicalDevices != nullptr))
     {
@@ -1939,10 +1939,10 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
     }
 }
 
-void TraceManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                        instance,
-                                                     const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
-                                                     const VkAllocationCallbacks*      pAllocator,
-                                                     VkSurfaceKHR*                     pSurface)
+void CaptureManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                        instance,
+                                                       const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                       const VkAllocationCallbacks*      pAllocator,
+                                                       VkSurfaceKHR*                     pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(instance);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -1966,10 +1966,10 @@ void TraceManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                 
 #endif
 }
 
-void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
-                                                    const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
-                                                    const VkAllocationCallbacks*     pAllocator,
-                                                    VkSurfaceKHR*                    pSurface)
+void CaptureManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
+                                                      const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                      const VkAllocationCallbacks*     pAllocator,
+                                                      VkSurfaceKHR*                    pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(instance);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -1993,10 +1993,10 @@ void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                  
 #endif
 }
 
-void TraceManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance                           instance,
-                                                        const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
-                                                        const VkAllocationCallbacks*         pAllocator,
-                                                        VkSurfaceKHR*                        pSurface)
+void CaptureManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                                          const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                          const VkAllocationCallbacks*         pAllocator,
+                                                          VkSurfaceKHR*                        pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(instance);
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
@@ -2008,10 +2008,10 @@ void TraceManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance              
     }
 }
 
-void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
-                                                const VkSwapchainCreateInfoKHR* pCreateInfo,
-                                                const VkAllocationCallbacks*    pAllocator,
-                                                VkSwapchainKHR*                 pSwapchain)
+void CaptureManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
+                                                  const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                                  const VkAllocationCallbacks*    pAllocator,
+                                                  VkSwapchainKHR*                 pSwapchain)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -2028,13 +2028,13 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
     }
 }
 
-void TraceManager::PostProcess_vkMapMemory(VkResult         result,
-                                           VkDevice         device,
-                                           VkDeviceMemory   memory,
-                                           VkDeviceSize     offset,
-                                           VkDeviceSize     size,
-                                           VkMemoryMapFlags flags,
-                                           void**           ppData)
+void CaptureManager::PostProcess_vkMapMemory(VkResult         result,
+                                             VkDevice         device,
+                                             VkDeviceMemory   memory,
+                                             VkDeviceSize     offset,
+                                             VkDeviceSize     size,
+                                             VkMemoryMapFlags flags,
+                                             void**           ppData)
 {
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
@@ -2137,9 +2137,9 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
     }
 }
 
-void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
-                                                        uint32_t                   memoryRangeCount,
-                                                        const VkMappedMemoryRange* pMemoryRanges)
+void CaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
+                                                          uint32_t                   memoryRangeCount,
+                                                          const VkMappedMemoryRange* pMemoryRanges)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
@@ -2207,7 +2207,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
     }
 }
 
-void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
+void CaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
     auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
     assert(wrapper != nullptr);
@@ -2266,9 +2266,9 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
     }
 }
 
-void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
-                                           VkDeviceMemory               memory,
-                                           const VkAllocationCallbacks* pAllocator)
+void CaptureManager::PreProcess_vkFreeMemory(VkDevice                     device,
+                                             VkDeviceMemory               memory,
+                                             const VkAllocationCallbacks* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -2289,9 +2289,9 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     }
 }
 
-void TraceManager::PostProcess_vkFreeMemory(VkDevice                     device,
-                                            VkDeviceMemory               memory,
-                                            const VkAllocationCallbacks* pAllocator)
+void CaptureManager::PostProcess_vkFreeMemory(VkDevice                     device,
+                                              VkDeviceMemory               memory,
+                                              const VkAllocationCallbacks* pAllocator)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -2327,10 +2327,10 @@ void TraceManager::PostProcess_vkFreeMemory(VkDevice                     device,
     }
 }
 
-void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
-                                            uint32_t            submitCount,
-                                            const VkSubmitInfo* pSubmits,
-                                            VkFence             fence)
+void CaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
+                                              uint32_t            submitCount,
+                                              const VkSubmitInfo* pSubmits,
+                                              VkFence             fence)
 {
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
@@ -2366,11 +2366,12 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     }
 }
 
-void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
-                                                               VkDevice                                    device,
-                                                               const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-                                                               const VkAllocationCallbacks*                pAllocator,
-                                                               VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)
+void CaptureManager::PreProcess_vkCreateDescriptorUpdateTemplate(
+    VkResult                                    result,
+    VkDevice                                    device,
+    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
@@ -2381,7 +2382,7 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult         
     }
 }
 
-void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
+void CaptureManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
     VkResult                                    result,
     VkDevice                                    device,
     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
@@ -2399,9 +2400,9 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
 
 // TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
-void TraceManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
-                                                ID3D12Resource_Wrapper*    resource_wrapper,
-                                                const D3D12_RESOURCE_DESC* desc)
+void CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
+                                                  ID3D12Resource_Wrapper*    resource_wrapper,
+                                                  const D3D12_RESOURCE_DESC* desc)
 {
     assert((resource_wrapper != nullptr) && (desc != nullptr));
 
@@ -2465,15 +2466,15 @@ void TraceManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      devic
     }
 }
 
-void TraceManager::PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
-                                                                    HRESULT                      result,
-                                                                    const D3D12_HEAP_PROPERTIES* heap_properties,
-                                                                    D3D12_HEAP_FLAGS             heap_flags,
-                                                                    const D3D12_RESOURCE_DESC*   desc,
-                                                                    D3D12_RESOURCE_STATES        initial_resource_state,
-                                                                    const D3D12_CLEAR_VALUE*     optimized_clear_value,
-                                                                    REFIID                       riid,
-                                                                    void**                       resource)
+void CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
+                                                                      HRESULT                      result,
+                                                                      const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                      D3D12_HEAP_FLAGS             heap_flags,
+                                                                      const D3D12_RESOURCE_DESC*   desc,
+                                                                      D3D12_RESOURCE_STATES    initial_resource_state,
+                                                                      const D3D12_CLEAR_VALUE* optimized_clear_value,
+                                                                      REFIID                   riid,
+                                                                      void**                   resource)
 {
     GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
     GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
@@ -2490,15 +2491,15 @@ void TraceManager::PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device
     }
 }
 
-void TraceManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12Device_Wrapper*      wrapper,
-                                                                 HRESULT                    result,
-                                                                 ID3D12Heap*                heap,
-                                                                 UINT64                     heap_offset,
-                                                                 const D3D12_RESOURCE_DESC* desc,
-                                                                 D3D12_RESOURCE_STATES      initial_state,
-                                                                 const D3D12_CLEAR_VALUE*   optimized_clear_value,
-                                                                 REFIID                     riid,
-                                                                 void**                     resource)
+void CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12Device_Wrapper*      wrapper,
+                                                                   HRESULT                    result,
+                                                                   ID3D12Heap*                heap,
+                                                                   UINT64                     heap_offset,
+                                                                   const D3D12_RESOURCE_DESC* desc,
+                                                                   D3D12_RESOURCE_STATES      initial_state,
+                                                                   const D3D12_CLEAR_VALUE*   optimized_clear_value,
+                                                                   REFIID                     riid,
+                                                                   void**                     resource)
 {
     GFXRECON_UNREFERENCED_PARAMETER(heap);
     GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
@@ -2515,7 +2516,7 @@ void TraceManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12Device_Wr
     }
 }
 
-void TraceManager::PostProcess_ID3D12Resource_Map(
+void CaptureManager::PostProcess_ID3D12Resource_Map(
     ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(read_range);
@@ -2586,9 +2587,9 @@ void TraceManager::PostProcess_ID3D12Resource_Map(
     }
 }
 
-void TraceManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper* wrapper,
-                                                   UINT                    subresource,
-                                                   const D3D12_RANGE*      written_range)
+void CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper* wrapper,
+                                                     UINT                    subresource,
+                                                     const D3D12_RANGE*      written_range)
 {
     if (wrapper != nullptr)
     {
@@ -2660,7 +2661,7 @@ void TraceManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper* wrapp
     }
 }
 
-void TraceManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper)
+void CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper)
 {
     if (wrapper != nullptr)
     {
@@ -2706,9 +2707,9 @@ void TraceManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper)
     }
 }
 
-void TraceManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                                     UINT                        num_lists,
-                                                                     ID3D12CommandList* const*   lists)
+void CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                                       UINT                        num_lists,
+                                                                       ID3D12CommandList* const*   lists)
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
@@ -2745,8 +2746,8 @@ void TraceManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12Comma
 #endif
 
 #if defined(__ANDROID__)
-void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
-                                                                   VkPresentModeKHR* pPresentModes)
+void CaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
+                                                                     VkPresentModeKHR* pPresentModes)
 {
     assert((pPresentModeCount != nullptr) && (pPresentModes != nullptr));
 

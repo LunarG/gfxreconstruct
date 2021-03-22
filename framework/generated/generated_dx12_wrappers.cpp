@@ -27,12 +27,12 @@
 
 #include "generated/generated_dx12_wrappers.h"
 
+#include "encode/capture_manager.h"
 #include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/custom_dx12_wrapper_commands.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "encode/dxgi_dispatch_table.h"
-#include "encode/trace_manager.h"
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_struct_unwrappers.h"
 #include "generated/generated_dx12_wrapper_creators.h"
@@ -149,7 +149,7 @@ HRESULT WINAPI CreateDXGIFactory(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -197,7 +197,7 @@ HRESULT WINAPI CreateDXGIFactory1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -250,7 +250,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -301,7 +301,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -348,7 +348,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetPrivateData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -399,7 +399,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::GetParent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -454,7 +454,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -520,7 +520,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -560,7 +560,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetUsage(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -600,7 +600,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::SetEvictionPriority(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -640,7 +640,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -697,7 +697,7 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -742,7 +742,7 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -798,7 +798,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -839,7 +839,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Map(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -883,7 +883,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::Unmap()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -923,7 +923,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::GetDC(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -968,7 +968,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1025,7 +1025,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1075,7 +1075,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::GetDesc(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1116,7 +1116,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1177,7 +1177,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1220,7 +1220,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplayModeList(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1277,7 +1277,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1326,7 +1326,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::WaitForVBlank()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1362,7 +1362,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1404,7 +1404,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
 
 void STDMETHODCALLTYPE IDXGIOutput_Wrapper::ReleaseOwnership()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1435,7 +1435,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControlCapabilities(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1475,7 +1475,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetGammaControl(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1515,7 +1515,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetGammaControl(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1555,7 +1555,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1595,7 +1595,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1635,7 +1635,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1692,7 +1692,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1739,7 +1739,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetBuffer(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1795,7 +1795,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1841,7 +1841,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFullscreenState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1891,7 +1891,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetDesc(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1935,7 +1935,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeBuffers(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -1995,7 +1995,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::ResizeTarget(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2035,7 +2035,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetContainingOutput(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2080,7 +2080,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetFrameStatistics(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2120,7 +2120,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2177,7 +2177,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2228,7 +2228,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::MakeWindowAssociation(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2273,7 +2273,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::GetWindowAssociation(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2315,7 +2315,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2371,7 +2371,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2437,7 +2437,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2486,7 +2486,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::CreateSurface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2553,7 +2553,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2605,7 +2605,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::SetGPUThreadPriority(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2645,7 +2645,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetGPUThreadPriority(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2690,7 +2690,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory1_Wrapper::EnumAdapters1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2739,7 +2739,7 @@ BOOL STDMETHODCALLTYPE IDXGIFactory1_Wrapper::IsCurrent()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2778,7 +2778,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter1_Wrapper::GetDesc1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2822,7 +2822,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::SetMaximumFrameLatency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2862,7 +2862,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2923,7 +2923,7 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -2956,7 +2956,7 @@ BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
 void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
     BOOL enabled)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3006,7 +3006,7 @@ IDXGIOutputDuplication_Wrapper* IDXGIOutputDuplication_Wrapper::GetExistingWrapp
 void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
     DXGI_OUTDUPL_DESC* pDesc)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3044,7 +3044,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::AcquireNextFrame(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3101,7 +3101,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameDirtyRects(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3153,7 +3153,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFrameMoveRects(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3206,7 +3206,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetFramePointerShape(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3261,7 +3261,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::MapDesktopSurface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3300,7 +3300,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::UnMapDesktopSurface()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3334,7 +3334,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::ReleaseFrame()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3375,7 +3375,7 @@ HRESULT STDMETHODCALLTYPE IDXGISurface2_Wrapper::GetResource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3435,7 +3435,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSubresourceSurface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3488,7 +3488,7 @@ HRESULT STDMETHODCALLTYPE IDXGIResource1_Wrapper::CreateSharedHandle(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3549,7 +3549,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3603,7 +3603,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3655,7 +3655,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::EnqueueSetEvent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3699,7 +3699,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetDesc1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3739,7 +3739,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetFullscreenDesc(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3779,7 +3779,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetHwnd(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3820,7 +3820,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetCoreWindow(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3872,7 +3872,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::Present1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3921,7 +3921,7 @@ BOOL STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::IsTemporaryMonoSupported()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -3956,7 +3956,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRestrictToOutput(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4001,7 +4001,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetBackgroundColor(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4041,7 +4041,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetBackgroundColor(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4081,7 +4081,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::SetRotation(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4121,7 +4121,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain1_Wrapper::GetRotation(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4164,7 +4164,7 @@ BOOL STDMETHODCALLTYPE IDXGIFactory2_Wrapper::IsWindowedStereoEnabled()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4204,7 +4204,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4278,7 +4278,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4344,7 +4344,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::GetSharedResourceAdapterLuid(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4391,7 +4391,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusWindow(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4442,7 +4442,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4485,7 +4485,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterStereoStatusEvent(
 void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterStereoStatus(
     DWORD dwCookie)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4523,7 +4523,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusWindow(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4574,7 +4574,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4617,7 +4617,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::RegisterOcclusionStatusEvent(
 void STDMETHODCALLTYPE IDXGIFactory2_Wrapper::UnregisterOcclusionStatus(
     DWORD dwCookie)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4656,7 +4656,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4720,7 +4720,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter2_Wrapper::GetDesc2(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4767,7 +4767,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplayModeList1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4824,7 +4824,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4874,7 +4874,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4915,7 +4915,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -4973,7 +4973,7 @@ HRESULT WINAPI CreateDXGIFactory2(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5027,7 +5027,7 @@ HRESULT WINAPI DXGIGetDebugInterface1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5080,7 +5080,7 @@ IDXGIDevice3_Wrapper::IDXGIDevice3_Wrapper(REFIID riid, IDXGIDevice3* object, Dx
 
 void STDMETHODCALLTYPE IDXGIDevice3_Wrapper::Trim()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5116,7 +5116,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetSourceSize(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5162,7 +5162,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetSourceSize(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5207,7 +5207,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMaximumFrameLatency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5247,7 +5247,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMaximumFrameLatency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5286,7 +5286,7 @@ HANDLE STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetFrameLatencyWaitableObject(
 {
     HANDLE result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5321,7 +5321,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::SetMatrixTransform(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5361,7 +5361,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain2_Wrapper::GetMatrixTransform(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5404,7 +5404,7 @@ BOOL STDMETHODCALLTYPE IDXGIOutput2_Wrapper::SupportsOverlays()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5442,7 +5442,7 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
 {
     UINT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5495,7 +5495,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5545,7 +5545,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetSourceRect(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5585,7 +5585,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetTargetRect(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5626,7 +5626,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetDestSize(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5671,7 +5671,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetSourceRect(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5711,7 +5711,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetTargetRect(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5752,7 +5752,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::GetDestSize(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5797,7 +5797,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::SetColorSpace(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5836,7 +5836,7 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
 {
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5891,7 +5891,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -5961,7 +5961,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6047,7 +6047,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6087,7 +6087,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::SetPresentDuration(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6129,7 +6129,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::CheckPresentDurationSuppo
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6185,7 +6185,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6244,7 +6244,7 @@ UINT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::GetCurrentBackBufferIndex()
 {
     UINT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6280,7 +6280,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::CheckColorSpaceSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6325,7 +6325,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::SetColorSpace1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6371,7 +6371,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6450,7 +6450,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6511,7 +6511,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumAdapterByLuid(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6567,7 +6567,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory4_Wrapper::EnumWarpAdapter(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6622,7 +6622,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6665,7 +6665,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterHardwareContentProtecti
 void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterHardwareContentProtectionTeardownStatus(
     DWORD dwCookie)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6703,7 +6703,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::QueryVideoMemoryInfo(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6755,7 +6755,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::SetVideoMemoryReservation(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6806,7 +6806,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6849,7 +6849,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::RegisterVideoMemoryBudgetChange
 void STDMETHODCALLTYPE IDXGIAdapter3_Wrapper::UnregisterVideoMemoryBudgetChangeNotification(
     DWORD dwCookie)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6899,7 +6899,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -6970,7 +6970,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain4_Wrapper::SetHDRMetaData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7027,7 +7027,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7086,7 +7086,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7144,7 +7144,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory5_Wrapper::CheckFeatureSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7199,7 +7199,7 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7235,7 +7235,7 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter4_Wrapper::GetDesc3(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7279,7 +7279,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::GetDesc1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7319,7 +7319,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput6_Wrapper::CheckHardwareCompositionSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7366,7 +7366,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory6_Wrapper::EnumAdapterByGpuPreference(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7431,7 +7431,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::RegisterAdaptersChangedEvent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7476,7 +7476,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7543,7 +7543,7 @@ HRESULT WINAPI D3D12SerializeRootSignature(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7604,7 +7604,7 @@ HRESULT WINAPI D3D12CreateRootSignatureDeserializer(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7663,7 +7663,7 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7719,7 +7719,7 @@ HRESULT WINAPI D3D12CreateVersionedRootSignatureDeserializer(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7779,7 +7779,7 @@ HRESULT WINAPI D3D12CreateDevice(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7837,7 +7837,7 @@ HRESULT WINAPI D3D12GetDebugInterface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7887,7 +7887,7 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7945,7 +7945,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::GetPrivateData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -7997,7 +7997,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateData(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8048,7 +8048,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8093,7 +8093,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetName(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8138,7 +8138,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8219,7 +8219,7 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
 {
     const D3D12_ROOT_SIGNATURE_DESC* result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8271,7 +8271,7 @@ HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetR
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8315,7 +8315,7 @@ const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12VersionedRoot
 {
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8369,7 +8369,7 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
 {
     D3D12_HEAP_DESC result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8422,7 +8422,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8471,7 +8471,7 @@ void STDMETHODCALLTYPE ID3D12Resource_Wrapper::Unmap(
     UINT Subresource,
     const D3D12_RANGE* pWrittenRange)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8511,7 +8511,7 @@ D3D12_RESOURCE_DESC STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetDesc()
 {
     D3D12_RESOURCE_DESC result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8545,7 +8545,7 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
 {
     D3D12_GPU_VIRTUAL_ADDRESS result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8584,7 +8584,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::WriteToSubresource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8648,7 +8648,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::ReadFromSubresource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8709,7 +8709,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8769,7 +8769,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8819,7 +8819,7 @@ UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
 {
     UINT64 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8855,7 +8855,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::SetEventOnCompletion(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8900,7 +8900,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Fence_Wrapper::Signal(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8943,7 +8943,7 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
 {
     D3D12_FENCE_FLAGS result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -8994,7 +8994,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9054,7 +9054,7 @@ D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDe
 {
     D3D12_DESCRIPTOR_HEAP_DESC result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9088,7 +9088,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
 {
     D3D12_CPU_DESCRIPTOR_HANDLE result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9122,7 +9122,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
 {
     D3D12_GPU_DESCRIPTOR_HANDLE result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9192,7 +9192,7 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
 {
     D3D12_COMMAND_LIST_TYPE result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9242,7 +9242,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9278,7 +9278,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9321,7 +9321,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
     ID3D12PipelineState* pPipelineState)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9358,7 +9358,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
     UINT StartVertexLocation,
     UINT StartInstanceLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9411,7 +9411,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
     INT BaseVertexLocation,
     UINT StartInstanceLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9467,7 +9467,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
     UINT ThreadGroupCountY,
     UINT ThreadGroupCountZ)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9515,7 +9515,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
     UINT64 SrcOffset,
     UINT64 NumBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9574,7 +9574,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
     const D3D12_TEXTURE_COPY_LOCATION* pSrc,
     const D3D12_BOX* pSrcBox)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9636,7 +9636,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
     ID3D12Resource* pDstResource,
     ID3D12Resource* pSrcResource)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9680,7 +9680,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
     UINT64 BufferStartOffsetInBytes,
     D3D12_TILE_COPY_FLAGS Flags)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9743,7 +9743,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
     UINT SrcSubresource,
     DXGI_FORMAT Format)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9797,7 +9797,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology(
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveTopology)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9832,7 +9832,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
     UINT NumViewports,
     const D3D12_VIEWPORT* pViewports)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9872,7 +9872,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
     UINT NumRects,
     const D3D12_RECT* pRects)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9911,7 +9911,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
     const FLOAT BlendFactor [4])
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9945,7 +9945,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
     UINT StencilRef)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -9979,7 +9979,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
     ID3D12PipelineState* pPipelineState)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10014,7 +10014,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
     UINT NumBarriers,
     const D3D12_RESOURCE_BARRIER* pBarriers)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10055,7 +10055,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
     ID3D12GraphicsCommandList* pCommandList)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10090,7 +10090,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
     UINT NumDescriptorHeaps,
     ID3D12DescriptorHeap* const* ppDescriptorHeaps)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10131,7 +10131,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignature(
     ID3D12RootSignature* pRootSignature)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10165,7 +10165,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignature(
     ID3D12RootSignature* pRootSignature)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10200,7 +10200,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
     UINT RootParameterIndex,
     D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10240,7 +10240,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
     UINT RootParameterIndex,
     D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10281,7 +10281,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     UINT SrcData,
     UINT DestOffsetIn32BitValues)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10327,7 +10327,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
     UINT SrcData,
     UINT DestOffsetIn32BitValues)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10374,7 +10374,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
     const void* pSrcData,
     UINT DestOffsetIn32BitValues)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10426,7 +10426,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
     const void* pSrcData,
     UINT DestOffsetIn32BitValues)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10476,7 +10476,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10516,7 +10516,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10556,7 +10556,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10596,7 +10596,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10636,7 +10636,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10676,7 +10676,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10715,7 +10715,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
     const D3D12_INDEX_BUFFER_VIEW* pView)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10751,7 +10751,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
     UINT NumViews,
     const D3D12_VERTEX_BUFFER_VIEW* pViews)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10797,7 +10797,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
     UINT NumViews,
     const D3D12_STREAM_OUTPUT_BUFFER_VIEW* pViews)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10844,7 +10844,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
     BOOL RTsSingleHandleToDescriptorRange,
     const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10898,7 +10898,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
     UINT NumRects,
     const D3D12_RECT* pRects)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -10960,7 +10960,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
     UINT NumRects,
     const D3D12_RECT* pRects)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11014,7 +11014,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     UINT NumRects,
     const D3D12_RECT* pRects)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11078,7 +11078,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
     UINT NumRects,
     const D3D12_RECT* pRects)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11138,7 +11138,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
     ID3D12Resource* pResource,
     const D3D12_DISCARD_REGION* pRegion)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11179,7 +11179,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
     D3D12_QUERY_TYPE Type,
     UINT Index)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11225,7 +11225,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
     D3D12_QUERY_TYPE Type,
     UINT Index)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11274,7 +11274,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
     ID3D12Resource* pDestinationBuffer,
     UINT64 AlignedDestinationBufferOffset)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11335,7 +11335,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
     UINT64 AlignedBufferOffset,
     D3D12_PREDICATION_OP Operation)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11381,7 +11381,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
     const void* pData,
     UINT Size)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11427,7 +11427,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
     const void* pData,
     UINT Size)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11470,7 +11470,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11504,7 +11504,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
     ID3D12Resource* pCountBuffer,
     UINT64 CountBufferOffset)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11573,7 +11573,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
     ID3D12Resource* const* ppDependentResources,
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11645,7 +11645,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
     ID3D12Resource* const* ppDependentResources,
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11712,7 +11712,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
     FLOAT Min,
     FLOAT Max)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11753,7 +11753,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
     UINT NumPixels,
     D3D12_SAMPLE_POSITION* pSamplePositions)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11805,7 +11805,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
     DXGI_FORMAT Format,
     D3D12_RESOLVE_MODE ResolveMode)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11879,7 +11879,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
     UINT Mask)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11919,7 +11919,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
     const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* pParams,
     const D3D12_WRITEBUFFERIMMEDIATE_MODE* pModes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -11988,7 +11988,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
     const UINT* pRangeTileCounts,
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12072,7 +12072,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
     const D3D12_TILE_REGION_SIZE* pRegionSize,
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12132,7 +12132,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
     UINT NumCommandLists,
     ID3D12CommandList* const* ppCommandLists)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12175,7 +12175,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::SetMarker(
     const void* pData,
     UINT Size)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12221,7 +12221,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
     const void* pData,
     UINT Size)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12264,7 +12264,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::BeginEvent(
 
 void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::EndEvent()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12296,7 +12296,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12342,7 +12342,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12387,7 +12387,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetTimestampFrequency(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12428,7 +12428,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetClockCalibration(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12472,7 +12472,7 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
 {
     D3D12_COMMAND_QUEUE_DESC result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12522,7 +12522,7 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
 {
     UINT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12559,7 +12559,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandQueue(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12616,7 +12616,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandAllocator(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12673,7 +12673,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12732,7 +12732,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12794,7 +12794,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12866,7 +12866,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12918,7 +12918,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDescriptorHeap(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -12973,7 +12973,7 @@ UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDescriptorHandleIncrementSize(
 {
     UINT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13017,7 +13017,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRootSignature(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13081,7 +13081,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
     const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13122,7 +13122,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
     const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13169,7 +13169,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
     const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13220,7 +13220,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
     const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13266,7 +13266,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
     const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13311,7 +13311,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
     const D3D12_SAMPLER_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13356,7 +13356,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
     const UINT* pSrcDescriptorRangeSizes,
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13423,7 +13423,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
     D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13476,7 +13476,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResour
 {
     D3D12_RESOURCE_ALLOCATION_INFO result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13527,7 +13527,7 @@ D3D12_HEAP_PROPERTIES STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCustomHeapPrope
 {
     D3D12_HEAP_PROPERTIES result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13578,7 +13578,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommittedResource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13655,7 +13655,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13716,7 +13716,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13795,7 +13795,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateReservedResource(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13864,7 +13864,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13926,7 +13926,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandle(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -13983,7 +13983,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::OpenSharedHandleByName(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14034,7 +14034,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14082,7 +14082,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14132,7 +14132,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateFence(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14191,7 +14191,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetDeviceRemovedReason()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14231,7 +14231,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetCopyableFootprints(
     UINT64* pRowSizeInBytes,
     UINT64* pTotalBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14304,7 +14304,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateQueryHeap(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14359,7 +14359,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::SetStablePowerState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14402,7 +14402,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14466,7 +14466,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
     UINT FirstSubresourceTilingToGet,
     D3D12_SUBRESOURCE_TILING* pSubresourceTilingsForNonPackedMips)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14531,7 +14531,7 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
 {
     LUID result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14583,7 +14583,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14631,7 +14631,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14696,7 +14696,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14757,7 +14757,7 @@ SIZE_T STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::GetSerializedSize()
 {
     SIZE_T result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14793,7 +14793,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::Serialize(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14845,7 +14845,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14912,7 +14912,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -14976,7 +14976,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15040,7 +15040,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15098,7 +15098,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15159,7 +15159,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromAddress(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15216,7 +15216,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::OpenExistingHeapFromFileMapping
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15275,7 +15275,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15342,7 +15342,7 @@ HRESULT STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper::GetStatusFence(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15391,7 +15391,7 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
 {
     D3D12_PROTECTED_SESSION_STATUS result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15441,7 +15441,7 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceS
 {
     D3D12_PROTECTED_RESOURCE_SESSION_DESC result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15484,7 +15484,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommandList1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15551,7 +15551,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateProtectedResourceSession(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15613,7 +15613,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15696,7 +15696,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15761,7 +15761,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15834,7 +15834,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 {
     D3D12_RESOURCE_ALLOCATION_INFO result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15903,7 +15903,7 @@ ID3D12LifetimeOwner_Wrapper* ID3D12LifetimeOwner_Wrapper::GetExistingWrapper(IUn
 void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
     D3D12_LIFETIME_STATE NewState)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15954,7 +15954,7 @@ LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
 {
     LUID result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -15990,7 +15990,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetSwapChainObject(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16043,7 +16043,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetCurrentResourceAn
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16103,7 +16103,7 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16154,7 +16154,7 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16226,7 +16226,7 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
 {
     void* result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16266,7 +16266,7 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderStackSize
 {
     UINT64 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16305,7 +16305,7 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
 {
     UINT64 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16338,7 +16338,7 @@ UINT64 STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetPipelineStackSi
 void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize(
     UINT64 PipelineStackSizeInBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16380,7 +16380,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16432,7 +16432,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
 
 void STDMETHODCALLTYPE ID3D12Device5_Wrapper::RemoveDevice()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16464,7 +16464,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommands(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16513,7 +16513,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::EnumerateMetaCommandParameters(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16578,7 +16578,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateMetaCommand(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16650,7 +16650,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16704,7 +16704,7 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* pInfo)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16746,7 +16746,7 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
 {
     D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16805,7 +16805,7 @@ ID3D12DeviceRemovedExtendedDataSettings_Wrapper* ID3D12DeviceRemovedExtendedData
 void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoBreadcrumbsEnablement(
     D3D12_DRED_ENABLEMENT Enablement)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16839,7 +16839,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoB
 void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageFaultEnablement(
     D3D12_DRED_ENABLEMENT Enablement)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16873,7 +16873,7 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetPageF
 void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetWatsonDumpEnablement(
     D3D12_DRED_ENABLEMENT Enablement)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16911,7 +16911,7 @@ ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::ID3D12DeviceRemovedExtendedDat
 void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBreadcrumbContextEnablement(
     D3D12_DRED_ENABLEMENT Enablement)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -16963,7 +16963,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadc
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17003,7 +17003,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetPageFaultA
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17047,7 +17047,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetAutoBread
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17087,7 +17087,7 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData1_Wrapper::GetPageFault
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17134,7 +17134,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device6_Wrapper::SetBackgroundProcessingMode(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17192,7 +17192,7 @@ D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE ID3D12ProtectedResource
 {
     D3D12_PROTECTED_RESOURCE_SESSION_DESC1 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17234,7 +17234,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17296,7 +17296,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::CreateProtectedResourceSession1
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17358,7 +17358,7 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetResou
 {
     D3D12_RESOURCE_ALLOCATION_INFO result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17420,7 +17420,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17506,7 +17506,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17581,7 +17581,7 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
     ID3D12Resource* pFeedbackResource,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17632,7 +17632,7 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::GetCopyableFootprints1(
     UINT64* pRowSizeInBytes,
     UINT64* pTotalBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17708,7 +17708,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource1_Wrapper::GetProtectedResourceSession(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17761,7 +17761,7 @@ D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE ID3D12Resource2_Wrapper::GetDesc1()
 {
     D3D12_RESOURCE_DESC1 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17801,7 +17801,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Heap1_Wrapper::GetProtectedResourceSession(
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17853,7 +17853,7 @@ ID3D12GraphicsCommandList3_Wrapper::ID3D12GraphicsCommandList3_Wrapper(REFIID ri
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceSession(
     ID3D12ProtectedResourceSession* pProtectedResourceSession)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17906,7 +17906,7 @@ UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResource
 {
     UINT64 result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -17956,7 +17956,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
     const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
     D3D12_RENDER_PASS_FLAGS Flags)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18004,7 +18004,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
 
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18035,7 +18035,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
     const void* pInitializationParametersData,
     SIZE_T InitializationParametersDataSizeInBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18081,7 +18081,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
     const void* pExecutionParametersData,
     SIZE_T ExecutionParametersDataSizeInBytes)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18127,7 +18127,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
     UINT NumPostbuildInfoDescs,
     const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18173,7 +18173,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
     UINT NumSourceAccelerationStructures,
     const D3D12_GPU_VIRTUAL_ADDRESS* pSourceAccelerationStructureData)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18219,7 +18219,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
     D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18263,7 +18263,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
     ID3D12StateObject* pStateObject)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18297,7 +18297,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
     const D3D12_DISPATCH_RAYS_DESC* pDesc)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18347,7 +18347,7 @@ ID3D12Tools_Wrapper* ID3D12Tools_Wrapper::GetExistingWrapper(IUnknown* object)
 void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
     BOOL bEnable)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18382,7 +18382,7 @@ BOOL STDMETHODCALLTYPE ID3D12Tools_Wrapper::ShaderInstrumentationEnabled()
 {
     BOOL result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18420,7 +18420,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
     D3D12_SHADING_RATE baseShadingRate,
     const D3D12_SHADING_RATE_COMBINER* combiners)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18459,7 +18459,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
 void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage(
     ID3D12Resource* shadingRateImage)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18499,7 +18499,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
     UINT ThreadGroupCountY,
     UINT ThreadGroupCountZ)
 {
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18566,7 +18566,7 @@ LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
 {
     LPVOID result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18600,7 +18600,7 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
 {
     SIZE_T result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18653,7 +18653,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCa
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -18703,7 +18703,7 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 {
     HRESULT result{};
 
-    auto manager = TraceManager::Get();
+    auto manager = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)

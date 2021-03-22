@@ -22,8 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_TRACE_MANAGER_H
-#define GFXRECON_ENCODE_TRACE_MANAGER_H
+#ifndef GFXRECON_ENCODE_CAPTURE_MANAGER_H
+#define GFXRECON_ENCODE_CAPTURE_MANAGER_H
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
@@ -54,7 +54,7 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dxgi_dispatch_table.h"
@@ -64,16 +64,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class TraceManager
+class CaptureManager
 {
   public:
     // Register special layer provided functions, which perform layer specific initialization.
     // These must be set before the application calls vkCreateInstance.
     static void SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device);
 
-    // Creates the trace manager instance if none exists, or increments a reference count if an instance already exists.
-    // Intended to be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has been
-    // called, to initialize capture resources.
+    // Creates the capture manager instance if none exists, or increments a reference count if an instance already
+    // exists. Intended to be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has
+    // been called, to initialize capture resources.
     static bool CreateInstance();
 
     // Called by the layer's vkCreateInstance function, after the driver's vkCreateInstance function has been called, to
@@ -86,7 +86,7 @@ class TraceManager
     // already zero.
     static void DestroyInstance();
 
-    static TraceManager* Get() { return instance_; }
+    static CaptureManager* Get() { return instance_; }
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
@@ -96,12 +96,12 @@ class TraceManager
 
     void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
 
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
     //----------------------------------------------------------------------------
     /// \brief Initializes the DXGI dispatch table.
     ///
-    /// Initializes the TraceManager's internal DXGI dispatch table with functions
+    /// Initializes the CaptureManager's internal DXGI dispatch table with functions
     /// loaded from the DXGI system DLL.  This dispatch table will be used by the
     /// 'wrapper' functions to invoke the 'real' DXGI function prior to processing
     /// the function parameters for encoding.
@@ -114,7 +114,7 @@ class TraceManager
     //----------------------------------------------------------------------------
     /// \brief Initializes the D3D12 dispatch table.
     ///
-    /// Initializes the TraceManager's internal D3D12 dispatch table with
+    /// Initializes the CaptureManager's internal D3D12 dispatch table with
     /// functions loaded from the D3D12 system DLL.  This dispatch table will be
     /// used by the 'wrapper' functions to invoke the 'real' D3D12 function prior
     /// to processing the function parameters for encoding.
@@ -127,7 +127,7 @@ class TraceManager
     //----------------------------------------------------------------------------
     /// \brief Retrieves the DXGI dispatch table.
     ///
-    /// Retrieves the TraceManager's internal DXGI dispatch table. Intended to be
+    /// Retrieves the CaptureManager's internal DXGI dispatch table. Intended to be
     /// used by the 'wrapper' functions when invoking the 'real' DXGI functions.
     ///
     /// \return A DxgiDispatchTable object contiaining DXGI function pointers
@@ -138,7 +138,7 @@ class TraceManager
     //----------------------------------------------------------------------------
     /// \brief Retrieves the D3D12 dispatch table.
     ///
-    /// Retrieves the TraceManager's internal D3D12 dispatch table. Intended to be
+    /// Retrieves the CaptureManager's internal D3D12 dispatch table. Intended to be
     /// used by the 'wrapper' functions when invoking the 'real' D3D12 functions.
     ///
     /// \return A D3D12DispatchTable object contiaining D3D12 function pointers
@@ -1013,9 +1013,9 @@ class TraceManager
 #endif
 
   protected:
-    TraceManager();
+    CaptureManager();
 
-    ~TraceManager();
+    ~CaptureManager();
 
     bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
@@ -1132,7 +1132,7 @@ class TraceManager
 #endif
 
   private:
-    static TraceManager*                            instance_;
+    static CaptureManager*                          instance_;
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
@@ -1162,7 +1162,7 @@ class TraceManager
     util::Keyboard                                  keyboard_;
     bool                                            previous_hotkey_state_;
 
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
+// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
 #if defined(WIN32)
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
@@ -1175,4 +1175,4 @@ class TraceManager
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_TRACE_MANAGER_H
+#endif // GFXRECON_ENCODE_CAPTURE_MANAGER_H

@@ -76,9 +76,9 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
+        write('#include "encode/capture_manager.h"', file=self.outFile)
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/trace_manager.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -141,7 +141,7 @@ class EncodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '                TraceManager::Get()->WriteDisplayMessageCmd(message.get());',
+            '                CaptureManager::Get()->WriteDisplayMessageCmd(message.get());',
             file=self.outFile
         )
         write(

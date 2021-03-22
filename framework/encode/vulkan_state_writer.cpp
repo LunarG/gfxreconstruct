@@ -2334,7 +2334,7 @@ void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId          
     WriteDestroyDeviceObject(call_id, device_id, object_id, allocator);
 }
 
-// TODO: This is the same code used by TraceManager to write function call data. It could be moved to a format
+// TODO: This is the same code used by CaptureManager to write function call data. It could be moved to a format
 // utility.
 void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer)
 {
@@ -2399,7 +2399,7 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
     output_stream_->Write(data_pointer, data_size);
 }
 
-// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format
+// TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
 void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
                                            VkDeviceSize     offset,
@@ -2441,7 +2441,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
     output_stream_->Write(write_address, write_size);
 }
 
-// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format
+// TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
 void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
@@ -2458,7 +2458,7 @@ void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32
     output_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 }
 
-// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format
+// TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
 void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surface_id,
                                               uint32_t                      width,
@@ -2500,7 +2500,7 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
     output_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
 }
 
-// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format
+// TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
 void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
                                                      AHardwareBuffer* hardware_buffer,

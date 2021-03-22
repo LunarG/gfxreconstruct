@@ -22,8 +22,8 @@
 
 #include "encode/iunknown_wrapper.h"
 
+#include "encode/capture_manager.h"
 #include "encode/dx12_object_wrapper_resources.h"
-#include "encode/trace_manager.h"
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 
@@ -35,7 +35,7 @@ IUnknown_Wrapper::IUnknown_Wrapper(REFIID                                       
                                    DxWrapperResources*                           resources,
                                    const std::function<void(IUnknown_Wrapper*)>& destructor) :
     riid_(riid),
-    object_(wrapped_object, false), capture_id_(TraceManager::GetUniqueId()), ref_count_(1)
+    object_(wrapped_object, false), capture_id_(CaptureManager::GetUniqueId()), ref_count_(1)
 {
     assert(wrapped_object != nullptr);
 
@@ -67,7 +67,7 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
     }
 
     HRESULT result     = E_FAIL;
-    auto    manager    = TraceManager::Get();
+    auto    manager    = CaptureManager::Get();
     auto    call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -96,7 +96,7 @@ ULONG IUnknown_Wrapper::AddRef()
     unsigned long local_count = ++ref_count_;
     resources_->IncrementSharedCount();
 
-    auto manager    = TraceManager::Get();
+    auto manager    = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)
@@ -114,7 +114,7 @@ ULONG IUnknown_Wrapper::Release()
     auto local_count  = --ref_count_;
     auto shared_count = resources_->DecrementSharedCount();
 
-    auto manager    = TraceManager::Get();
+    auto manager    = CaptureManager::Get();
     auto call_scope = manager->IncrementCallScope();
 
     if (call_scope == 1)

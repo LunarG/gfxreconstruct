@@ -30,6 +30,8 @@ add_library(gfxrecon_encode STATIC "")
 
 target_sources(gfxrecon_encode
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/capture_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
@@ -59,8 +61,6 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
-                    ${CMAKE_CURRENT_LIST_DIR}/trace_manager.h
-                    ${CMAKE_CURRENT_LIST_DIR}/trace_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp

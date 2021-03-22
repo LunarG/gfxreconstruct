@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "encode/trace_manager.h"
+#include "encode/capture_manager.h"
 #include "layer/trace_layer.h"
 
 #if defined(WIN32)
@@ -35,8 +35,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-            gfxrecon::encode::TraceManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance,
-                                                          gfxrecon::dispatch_CreateDevice);
+            gfxrecon::encode::CaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance,
+                                                            gfxrecon::dispatch_CreateDevice);
             break;
         case DLL_PROCESS_DETACH:
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
@@ -59,7 +59,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 __attribute__((constructor)) static void create_trace_layer()
 {
-    gfxrecon::encode::TraceManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance, gfxrecon::dispatch_CreateDevice);
+    gfxrecon::encode::CaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance, gfxrecon::dispatch_CreateDevice);
 }
 
 __attribute__((destructor)) static void destroy_trace_layer()

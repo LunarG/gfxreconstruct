@@ -48,9 +48,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             "#include \"generated/generated_dx12_api_call_encoders.h\"\n"
             "#include \"encode/custom_dx12_struct_encoders.h\"\n"
             "\n"
+            "#include \"encode/capture_manager.h\"\n"
             "#include \"encode/parameter_encoder.h\"\n"
             "#include \"encode/struct_pointer_encoder.h\"\n"
-            "#include \"encode/trace_manager.h\"\n"
             "#include \"format/api_call_id.h\"\n"
             "#include \"util/defines.h\"\n"
         )
@@ -220,12 +220,12 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         if class_name:
             body += (
-                '    auto encoder = TraceManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall{}_{}, wrapper_id);\n'
+                '    auto encoder = CaptureManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall{}_{}, wrapper_id);\n'
                 .format(class_name, method_info['name'])
             )
         else:
             body += (
-                '    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'
+                '    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'
                 .format(method_info['name'])
             )
 
@@ -246,9 +246,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             body += '        {}\n'.format(encode)
 
         if class_name:
-            body += '        TraceManager::Get()->EndMethodCallTrace(encoder);\n'
+            body += '        CaptureManager::Get()->EndMethodCallTrace(encoder);\n'
         else:
-            body += '        TraceManager::Get()->EndApiCallTrace(encoder);\n'
+            body += '        CaptureManager::Get()->EndApiCallTrace(encoder);\n'
 
         body += '    }\n}'
         return body
