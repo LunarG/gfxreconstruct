@@ -501,34 +501,18 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 
 IDXGIResource_Wrapper::IDXGIResource_Wrapper(REFIID riid, IDXGIResource* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIResource_Wrapper::~IDXGIResource_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIResource_Wrapper* IDXGIResource_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIResource_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIResource_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetSharedHandle(
@@ -693,34 +677,18 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
 
 IDXGIKeyedMutex_Wrapper::IDXGIKeyedMutex_Wrapper(REFIID riid, IDXGIKeyedMutex* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIKeyedMutex_Wrapper::~IDXGIKeyedMutex_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIKeyedMutex_Wrapper* IDXGIKeyedMutex_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIKeyedMutex_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIKeyedMutex_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::AcquireSync(
@@ -811,34 +779,18 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
 
 IDXGISurface_Wrapper::IDXGISurface_Wrapper(REFIID riid, IDXGISurface* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGISurface_Wrapper::~IDXGISurface_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGISurface_Wrapper* IDXGISurface_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGISurface_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGISurface_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGISurface_Wrapper::GetDesc(
@@ -1053,34 +1005,18 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
 
 IDXGIAdapter_Wrapper::IDXGIAdapter_Wrapper(REFIID riid, IDXGIAdapter* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIAdapter_Wrapper::~IDXGIAdapter_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIAdapter_Wrapper* IDXGIAdapter_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIAdapter_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIAdapter_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::EnumOutputs(
@@ -1222,34 +1158,18 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
 
 IDXGIOutput_Wrapper::IDXGIOutput_Wrapper(REFIID riid, IDXGIOutput* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIOutput_Wrapper::~IDXGIOutput_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIOutput_Wrapper* IDXGIOutput_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIOutput_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIOutput_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDesc(
@@ -1752,34 +1672,18 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
 
 IDXGISwapChain_Wrapper::IDXGISwapChain_Wrapper(REFIID riid, IDXGISwapChain* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGISwapChain_Wrapper::~IDXGISwapChain_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGISwapChain_Wrapper* IDXGISwapChain_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGISwapChain_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGISwapChain_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::Present(
@@ -2253,34 +2157,18 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
 
 IDXGIFactory_Wrapper::IDXGIFactory_Wrapper(REFIID riid, IDXGIFactory* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIFactory_Wrapper::~IDXGIFactory_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIFactory_Wrapper* IDXGIFactory_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIFactory_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIFactory_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::EnumAdapters(
@@ -2530,34 +2418,18 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 
 IDXGIDevice_Wrapper::IDXGIDevice_Wrapper(REFIID riid, IDXGIDevice* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIDevice_Wrapper::~IDXGIDevice_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIDevice_Wrapper* IDXGIDevice_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIDevice_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIDevice_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::GetAdapter(
@@ -3033,34 +2905,18 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
 IDXGIDisplayControl_Wrapper::IDXGIDisplayControl_Wrapper(REFIID riid, IDXGIDisplayControl* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIDisplayControl_Wrapper::~IDXGIDisplayControl_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIDisplayControl_Wrapper* IDXGIDisplayControl_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIDisplayControl_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIDisplayControl_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 BOOL STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::IsStereoEnabled()
@@ -3133,34 +2989,18 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
 
 IDXGIOutputDuplication_Wrapper::IDXGIOutputDuplication_Wrapper(REFIID riid, IDXGIOutputDuplication* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIOutputDuplication_Wrapper::~IDXGIOutputDuplication_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIOutputDuplication_Wrapper* IDXGIOutputDuplication_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIOutputDuplication_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIOutputDuplication_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void STDMETHODCALLTYPE IDXGIOutputDuplication_Wrapper::GetDesc(
@@ -5634,34 +5474,18 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
 
 IDXGIDecodeSwapChain_Wrapper::IDXGIDecodeSwapChain_Wrapper(REFIID riid, IDXGIDecodeSwapChain* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIDecodeSwapChain_Wrapper::~IDXGIDecodeSwapChain_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIDecodeSwapChain_Wrapper* IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIDecodeSwapChain_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIDecodeSwapChain_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapper::PresentBuffer(
@@ -6044,34 +5868,18 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
 
 IDXGIFactoryMedia_Wrapper::IDXGIFactoryMedia_Wrapper(REFIID riid, IDXGIFactoryMedia* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGIFactoryMedia_Wrapper::~IDXGIFactoryMedia_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGIFactoryMedia_Wrapper* IDXGIFactoryMedia_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGIFactoryMedia_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGIFactoryMedia_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositionSurfaceHandle(
@@ -6220,34 +6028,18 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
 
 IDXGISwapChainMedia_Wrapper::IDXGISwapChainMedia_Wrapper(REFIID riid, IDXGISwapChainMedia* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 IDXGISwapChainMedia_Wrapper::~IDXGISwapChainMedia_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 IDXGISwapChainMedia_Wrapper* IDXGISwapChainMedia_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    IDXGISwapChainMedia_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<IDXGISwapChainMedia_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE IDXGISwapChainMedia_Wrapper::GetFrameStatisticsMedia(
@@ -8393,66 +8185,34 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 
 ID3D12RootSignature_Wrapper::ID3D12RootSignature_Wrapper(REFIID riid, ID3D12RootSignature* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12RootSignature_Wrapper::~ID3D12RootSignature_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12RootSignature_Wrapper* ID3D12RootSignature_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12RootSignature_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12RootSignature_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 ID3D12RootSignatureDeserializer_Wrapper::ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, ID3D12RootSignatureDeserializer* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12RootSignatureDeserializer_Wrapper::~ID3D12RootSignatureDeserializer_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12RootSignatureDeserializer_Wrapper* ID3D12RootSignatureDeserializer_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12RootSignatureDeserializer_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12RootSignatureDeserializer_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializer_Wrapper::GetRootSignatureDesc()
@@ -8491,34 +8251,18 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper::ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, ID3D12VersionedRootSignatureDeserializer* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper::~ID3D12VersionedRootSignatureDeserializer_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper* ID3D12VersionedRootSignatureDeserializer_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12VersionedRootSignatureDeserializer_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12VersionedRootSignatureDeserializer_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12VersionedRootSignatureDeserializer_Wrapper::GetRootSignatureDescAtVersion(
@@ -8607,34 +8351,18 @@ ID3D12Pageable_Wrapper::ID3D12Pageable_Wrapper(REFIID riid, ID3D12Pageable* obje
 
 ID3D12Heap_Wrapper::ID3D12Heap_Wrapper(REFIID riid, ID3D12Heap* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12Heap_Wrapper::~ID3D12Heap_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12Heap_Wrapper* ID3D12Heap_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12Heap_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12Heap_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
@@ -8673,34 +8401,18 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
 
 ID3D12Resource_Wrapper::ID3D12Resource_Wrapper(REFIID riid, ID3D12Resource* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12Resource_Wrapper::~ID3D12Resource_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12Resource_Wrapper* ID3D12Resource_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12Resource_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12Resource_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::Map(
@@ -9039,34 +8751,18 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
 
 ID3D12CommandAllocator_Wrapper::ID3D12CommandAllocator_Wrapper(REFIID riid, ID3D12CommandAllocator* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12CommandAllocator_Wrapper::~ID3D12CommandAllocator_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12CommandAllocator_Wrapper* ID3D12CommandAllocator_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12CommandAllocator_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12CommandAllocator_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
@@ -9105,34 +8801,18 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
 
 ID3D12Fence_Wrapper::ID3D12Fence_Wrapper(REFIID riid, ID3D12Fence* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12Fence_Wrapper::~ID3D12Fence_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12Fence_Wrapper* ID3D12Fence_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12Fence_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12Fence_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 UINT64 STDMETHODCALLTYPE ID3D12Fence_Wrapper::GetCompletedValue()
@@ -9295,34 +8975,18 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
 
 ID3D12PipelineState_Wrapper::ID3D12PipelineState_Wrapper(REFIID riid, ID3D12PipelineState* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12PipelineState_Wrapper::~ID3D12PipelineState_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12PipelineState_Wrapper* ID3D12PipelineState_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12PipelineState_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12PipelineState_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
@@ -9372,34 +9036,18 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 
 ID3D12DescriptorHeap_Wrapper::ID3D12DescriptorHeap_Wrapper(REFIID riid, ID3D12DescriptorHeap* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12DescriptorHeap_Wrapper::~ID3D12DescriptorHeap_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12DescriptorHeap_Wrapper* ID3D12DescriptorHeap_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12DescriptorHeap_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12DescriptorHeap_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetDesc()
@@ -9506,66 +9154,34 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
 
 ID3D12QueryHeap_Wrapper::ID3D12QueryHeap_Wrapper(REFIID riid, ID3D12QueryHeap* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12QueryHeap_Wrapper::~ID3D12QueryHeap_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12QueryHeap_Wrapper* ID3D12QueryHeap_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12QueryHeap_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12QueryHeap_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 ID3D12CommandSignature_Wrapper::ID3D12CommandSignature_Wrapper(REFIID riid, ID3D12CommandSignature* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12CommandSignature_Wrapper::~ID3D12CommandSignature_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12CommandSignature_Wrapper* ID3D12CommandSignature_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12CommandSignature_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12CommandSignature_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 ID3D12CommandList_Wrapper::ID3D12CommandList_Wrapper(REFIID riid, ID3D12CommandList* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor), object_(object)
@@ -9608,34 +9224,18 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
 
 ID3D12GraphicsCommandList_Wrapper::ID3D12GraphicsCommandList_Wrapper(REFIID riid, ID3D12GraphicsCommandList* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12CommandList_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12GraphicsCommandList_Wrapper::~ID3D12GraphicsCommandList_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12GraphicsCommandList_Wrapper* ID3D12GraphicsCommandList_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12GraphicsCommandList_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
@@ -12362,34 +11962,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
 ID3D12CommandQueue_Wrapper::ID3D12CommandQueue_Wrapper(REFIID riid, ID3D12CommandQueue* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12CommandQueue_Wrapper::~ID3D12CommandQueue_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12CommandQueue_Wrapper* ID3D12CommandQueue_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12CommandQueue_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12CommandQueue_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
@@ -12920,34 +12504,18 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
 
 ID3D12Device_Wrapper::ID3D12Device_Wrapper(REFIID riid, ID3D12Device* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Object_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12Device_Wrapper::~ID3D12Device_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12Device_Wrapper* ID3D12Device_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12Device_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12Device_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 UINT STDMETHODCALLTYPE ID3D12Device_Wrapper::GetNodeCount()
@@ -14995,34 +14563,18 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
 
 ID3D12PipelineLibrary_Wrapper::ID3D12PipelineLibrary_Wrapper(REFIID riid, ID3D12PipelineLibrary* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12PipelineLibrary_Wrapper::~ID3D12PipelineLibrary_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12PipelineLibrary_Wrapper* ID3D12PipelineLibrary_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12PipelineLibrary_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12PipelineLibrary_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
@@ -15871,34 +15423,18 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
 
 ID3D12ProtectedResourceSession_Wrapper::ID3D12ProtectedResourceSession_Wrapper(REFIID riid, ID3D12ProtectedResourceSession* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12ProtectedSession_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12ProtectedResourceSession_Wrapper::~ID3D12ProtectedResourceSession_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12ProtectedResourceSession_Wrapper* ID3D12ProtectedResourceSession_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12ProtectedResourceSession_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12ProtectedResourceSession_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE ID3D12ProtectedResourceSession_Wrapper::GetDesc()
@@ -16350,34 +15886,18 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 
 ID3D12LifetimeOwner_Wrapper::ID3D12LifetimeOwner_Wrapper(REFIID riid, ID3D12LifetimeOwner* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12LifetimeOwner_Wrapper::~ID3D12LifetimeOwner_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12LifetimeOwner_Wrapper* ID3D12LifetimeOwner_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12LifetimeOwner_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12LifetimeOwner_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
@@ -16416,34 +15936,18 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
 
 ID3D12SwapChainAssistant_Wrapper::ID3D12SwapChainAssistant_Wrapper(REFIID riid, ID3D12SwapChainAssistant* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12SwapChainAssistant_Wrapper::~ID3D12SwapChainAssistant_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12SwapChainAssistant_Wrapper* ID3D12SwapChainAssistant_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12SwapChainAssistant_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12SwapChainAssistant_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 LUID STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::GetLUID()
@@ -16631,34 +16135,18 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
 
 ID3D12LifetimeTracker_Wrapper::ID3D12LifetimeTracker_Wrapper(REFIID riid, ID3D12LifetimeTracker* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12LifetimeTracker_Wrapper::~ID3D12LifetimeTracker_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12LifetimeTracker_Wrapper* ID3D12LifetimeTracker_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12LifetimeTracker_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12LifetimeTracker_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
@@ -16703,66 +16191,34 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
 
 ID3D12StateObject_Wrapper::ID3D12StateObject_Wrapper(REFIID riid, ID3D12StateObject* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12StateObject_Wrapper::~ID3D12StateObject_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12StateObject_Wrapper* ID3D12StateObject_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12StateObject_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12StateObject_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 ID3D12StateObjectProperties_Wrapper::ID3D12StateObjectProperties_Wrapper(REFIID riid, ID3D12StateObjectProperties* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12StateObjectProperties_Wrapper::~ID3D12StateObjectProperties_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12StateObjectProperties_Wrapper* ID3D12StateObjectProperties_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12StateObjectProperties_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12StateObjectProperties_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier(
@@ -17332,34 +16788,18 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper::ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper::~ID3D12DeviceRemovedExtendedDataSettings_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper* ID3D12DeviceRemovedExtendedDataSettings_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings_Wrapper::SetAutoBreadcrumbsEnablement(
@@ -17504,34 +16944,18 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
 
 ID3D12DeviceRemovedExtendedData_Wrapper::ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12DeviceRemovedExtendedData_Wrapper::~ID3D12DeviceRemovedExtendedData_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12DeviceRemovedExtendedData_Wrapper* ID3D12DeviceRemovedExtendedData_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12DeviceRemovedExtendedData_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12DeviceRemovedExtendedData_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedData_Wrapper::GetAutoBreadcrumbsOutput(
@@ -18462,34 +17886,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
 ID3D12MetaCommand_Wrapper::ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12MetaCommand_Wrapper::~ID3D12MetaCommand_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12MetaCommand_Wrapper* ID3D12MetaCommand_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12MetaCommand_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12MetaCommand_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 UINT64 STDMETHODCALLTYPE ID3D12MetaCommand_Wrapper::GetRequiredParameterResourceSize(
@@ -18922,34 +18330,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
 
 ID3D12Tools_Wrapper::ID3D12Tools_Wrapper(REFIID riid, ID3D12Tools* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D12Tools_Wrapper::~ID3D12Tools_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D12Tools_Wrapper* ID3D12Tools_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D12Tools_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D12Tools_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 void STDMETHODCALLTYPE ID3D12Tools_Wrapper::EnableShaderInstrumentation(
@@ -19156,34 +18548,18 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
 ID3D10Blob_Wrapper::ID3D10Blob_Wrapper(REFIID riid, ID3D10Blob* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3D10Blob_Wrapper::~ID3D10Blob_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3D10Blob_Wrapper* ID3D10Blob_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3D10Blob_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3D10Blob_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 LPVOID STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferPointer()
@@ -19256,34 +18632,18 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
 
 ID3DDestructionNotifier_Wrapper::ID3DDestructionNotifier_Wrapper(REFIID riid, ID3DDestructionNotifier* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_[object_] = this;
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
 ID3DDestructionNotifier_Wrapper::~ID3DDestructionNotifier_Wrapper()
 {
     CustomWrapperDestroyCall(this);
-
-    std::lock_guard<std::mutex> lock(object_map_lock_);
-    object_map_.erase(object_);
+    RemoveWrapperMapEntry(object_, object_map_, object_map_lock_);
 }
 
 ID3DDestructionNotifier_Wrapper* ID3DDestructionNotifier_Wrapper::GetExistingWrapper(IUnknown* object)
 {
-    ID3DDestructionNotifier_Wrapper* wrapper = nullptr;
-    ObjectMap::const_iterator entry;
-
-    {
-        std::lock_guard<std::mutex> lock(object_map_lock_);
-        entry = object_map_.find(object);
-    }
-
-    if (entry != object_map_.end())
-    {
-        wrapper = entry->second;
-    }
-
-    return wrapper;
+    return FindMapEntry<ID3DDestructionNotifier_Wrapper>(object, object_map_, object_map_lock_);
 }
 
 HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::RegisterDestructionCallback(

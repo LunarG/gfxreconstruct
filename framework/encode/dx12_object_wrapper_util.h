@@ -28,6 +28,8 @@
 #include "format/format.h"
 #include "util/defines.h"
 
+#include <mutex>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -160,7 +162,30 @@ format::HandleId GetWrappedId(const Object* wrapped_object)
 template <>
 format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object);
 
-// Unwrap arrays of handles.
+//----------------------------------------------------------------------------
+/// \brief Unwraps an array of handles.
+///
+/// Returns an array of unwrapped objects retrieved from the objects in an
+/// array of object wrappers.  The unwrapped object will be stored at the
+/// same index in the array as the object wrapper that is was retrieved from.
+/// The caller must provide a pointer to a HandleUnwrapMemory object that
+/// will provide the memory used to store the unwrapped objects.  If the
+/// pointer to the object wrapper array is null, or the array size is zero,
+/// the pointer to the object wrapper array will be returned with no other
+/// action performed.
+///
+/// \param objects       Pointer to an array of object wrappers to be
+///                      processed for unwrapping.
+/// \param len           Number of items in the array of object wrappers.
+/// \param unwrap_memory Pointer to a HandleUnwrapMemory object that will
+///                      provide the memory used to store the unwrapped
+///                      objects.
+///
+/// \return Pointer to the array of unwrapped objects, stored in memory
+///         provided by the HandleUnwrapMemory object, if the array of
+///         object wrappers is not empty.  Pointer to the array of object
+///         wrappers if the array is empty.
+//----------------------------------------------------------------------------
 template <typename Wrapper, typename Object>
 Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapMemory* unwrap_memory)
 {
@@ -181,6 +206,79 @@ Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapM
 
     // Leave the original memory in place when the pointer is not null, but size is zero.
     return objects;
+}
+
+//----------------------------------------------------------------------------
+/// \brief Utility function to add an object wrapper to a table.
+///
+/// Add an object wrapper entry to a table keyed by the pointer of the
+/// unwrapped object.
+///
+/// \param object          A pointer to the unwrapped object to be used as
+///                        the key for the map entry.
+/// \param wrapper         A pointer to the wrapper to be added to the map.
+/// \param object_map      A reference to the map that the wrapper will be
+///                        added to.
+/// \param object_map_lock A reference to a std::mutex to be locked when the
+///                        object_map is modified.
+//----------------------------------------------------------------------------
+template <typename Object, typename Wrapper, typename Map>
+void AddWrapperMapEntry(Object* object, Wrapper* wrapper, Map& object_map, std::mutex& object_map_lock)
+{
+    std::lock_guard<std::mutex> lock(object_map_lock);
+    object_map[object] = wrapper;
+}
+
+//----------------------------------------------------------------------------
+/// \brief Utility function to remove an object wrapper from a table.
+///
+/// Remove an object wrapper entry from a table.
+///
+/// \param object          A pointer to the unwrapped object to be used as
+///                        the key for the map entry.
+/// \param object_map      A reference to the map that the wrapper will be
+///                        removed from.
+/// \param object_map_lock A reference to a std::mutex to be locked when the
+///                        object_map is modified.
+//----------------------------------------------------------------------------
+template <typename Object, typename Map>
+void RemoveWrapperMapEntry(Object* object, Map& object_map, std::mutex& object_map_lock)
+{
+    std::lock_guard<std::mutex> lock(object_map_lock);
+    object_map.erase(object);
+}
+
+//----------------------------------------------------------------------------
+/// \brief Utility function to retrieve an object wrapper from a table.
+///
+/// Retreive an object wrapper entry from a table.
+///
+/// \param object          A pointer to the unwrapped object to be used as
+///                        the key for the map entry.
+/// \param object_map      A reference to the map that the wrapper will be
+///                        retrieved from.
+/// \param object_map_lock A reference to a std::mutex to be locked when the
+///                        object_map is accessed.
+///
+/// \return A pointer to the wrapper object retrieved from the map.
+//----------------------------------------------------------------------------
+template <typename Wrapper, typename Object, typename Map>
+Wrapper* FindMapEntry(Object* object, Map& object_map, std::mutex& object_map_lock)
+{
+    Wrapper*            wrapper = nullptr;
+    Map::const_iterator entry;
+
+    {
+        std::lock_guard<std::mutex> lock(object_map_lock);
+        entry = object_map.find(object);
+    }
+
+    if (entry != object_map.end())
+    {
+        wrapper = entry->second;
+    }
+
+    return wrapper;
 }
 
 GFXRECON_END_NAMESPACE(encode)
