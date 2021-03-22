@@ -362,12 +362,6 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                 copy_size            = size;
                 mapped_memory_offset = entry->GetReplayBindOffset() + (copy_data_start - resource_start);
             }
-            else if ((copy_data_start < resource_start) && (copy_data_end < resource_end))
-            {
-                data_offset          = resource_start - resource_start;
-                copy_size            = resource_end - resource_start;
-                mapped_memory_offset = entry->GetReplayBindOffset();
-            }
             else if ((resource_start < copy_data_start) && (resource_end < copy_data_end))
             {
                 copy_size            = (resource_end)-copy_data_start;
