@@ -1,9 +1,9 @@
 {
   "functions": {
-    "vkCreateInstance": "CaptureManager::OverrideCreateInstance",
-    "vkCreateDevice": "CaptureManager::Get()->OverrideCreateDevice",
-    "vkCreateBuffer": "CaptureManager::Get()->OverrideCreateBuffer",
-    "vkAllocateMemory": "CaptureManager::Get()->OverrideAllocateMemory",
-    "vkGetPhysicalDeviceToolPropertiesEXT": "CaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT"
+    "vkCreateInstance": "VulkanCaptureManager::OverrideCreateInstance",
+    "vkCreateDevice": "VulkanCaptureManager::Get()->OverrideCreateDevice",
+    "vkCreateBuffer": "VulkanCaptureManager::Get()->OverrideCreateBuffer",
+    "vkAllocateMemory": "VulkanCaptureManager::Get()->OverrideAllocateMemory",
+    "vkGetPhysicalDeviceToolPropertiesEXT": "VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT"
   }
 }

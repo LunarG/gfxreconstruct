@@ -87,7 +87,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write('#include "encode/capture_manager.h"', file=self.outFile)
         write(
             '#include "encode/custom_vulkan_encoder_commands.h"',
             file=self.outFile
@@ -98,6 +97,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
+        write('#include "encode/vulkan_capture_manager.h"', file=self.outFile)
         write(
             '#include "encode/vulkan_handle_wrapper_util.h"',
             file=self.outFile
@@ -217,7 +217,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'bool omit_output_data = false;\n'
             body += '\n'
 
-        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(CaptureManager::Get(), {});\n'.format(
+        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
             name, arg_list
         )
 
@@ -253,7 +253,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             )
             if unwrap_expr:
                 if need_unwrap_memory:
-                    body += indent + 'auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();\n'
+                    body += indent + 'auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();\n'
                 body += unwrap_expr
                 body += '\n'
 
@@ -297,11 +297,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
         if return_type and return_type != 'void':
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(CaptureManager::Get(), result, {});\n'.format(
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), result, {});\n'.format(
                 name, arg_list
             )
         else:
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(CaptureManager::Get(), {});\n'.format(
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(VulkanCaptureManager::Get(), {});\n'.format(
                 name, arg_list
             )
 
@@ -351,11 +351,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         ) or self.retrieves_handles(values) or (
             values[0].base_type == 'VkCommandBuffer'
         ) or (name == 'vkReleasePerformanceConfigurationINTEL'):
-            return 'auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
+            return 'auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
                 name
             )
         else:
-            return 'auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
+            return 'auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(
                 name
             )
 
@@ -383,7 +383,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return member_handle_type, member_handle_name, member_array_length
 
     def make_end_api_call(self, name, values, return_type):
-        decl = 'CaptureManager::Get()->'
+        decl = 'VulkanCaptureManager::Get()->'
 
         if name.startswith('vkCreate') or name.startswith(
             'vkAllocate'
@@ -570,7 +570,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             )
                             break
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, CaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, value.base_type[2:],
                             parent_value, co_parent_value, value.name,
                             length_name
@@ -578,21 +578,21 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, CaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, value.base_type,
                             parent_value, co_parent_value, value.name,
                             length_name
                         )
                 else:
                     if self.is_handle(value.base_type):
-                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, CaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, value.base_type[2:],
                             parent_value, co_parent_value, value.name
                         )
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, CaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, parent_value,
                             co_parent_value, value.name
                         )

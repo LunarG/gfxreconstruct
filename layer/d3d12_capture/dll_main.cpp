@@ -23,7 +23,7 @@
 // This needs to be included before d3d12.h so that IIDs are defined and not just declared.
 #include <initguid.h>
 
-#include "encode/capture_manager.h"
+#include "encode/d3d12_capture_manager.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "generated/generated_dx12_wrappers.h"
@@ -33,11 +33,11 @@ DEFINE_GUID(IID_ID3DDestructionNotifier, 0xa06eb39a, 0x50da, 0x425b, 0x8c, 0x31,
 
 EXTERN_C bool InitializeDxgiCapture(gfxrecon::encode::DxgiDispatchTable* table)
 {
-    if ((table != nullptr) && gfxrecon::encode::CaptureManager::CreateInstance())
+    if ((table != nullptr) && gfxrecon::encode::D3D12CaptureManager::CreateInstance())
     {
         // Store the real DXGI functions with the capture manager.  The wrapper functions will retrieve the real
         // functions from the capture manager.
-        auto manager = gfxrecon::encode::CaptureManager::Get();
+        auto manager = gfxrecon::encode::D3D12CaptureManager::Get();
         manager->InitDxgiDispatchTable(*table);
 
         // Update the dispatch table with the wrapper functions.
@@ -55,11 +55,11 @@ EXTERN_C bool InitializeDxgiCapture(gfxrecon::encode::DxgiDispatchTable* table)
 
 EXTERN_C bool InitializeD3D12Capture(gfxrecon::encode::D3D12DispatchTable* table)
 {
-    if (gfxrecon::encode::CaptureManager::CreateInstance())
+    if (gfxrecon::encode::D3D12CaptureManager::CreateInstance())
     {
         // Store the real D3D12 functions with the capture manager.  The wrapper functions will retrieve the real
         // functions from the capture manager.
-        auto manager = gfxrecon::encode::CaptureManager::Get();
+        auto manager = gfxrecon::encode::D3D12CaptureManager::Get();
         manager->InitD3D12DispatchTable(*table);
 
         // Update the dispatch table with the wrapper functions.
@@ -80,12 +80,12 @@ EXTERN_C bool InitializeD3D12Capture(gfxrecon::encode::D3D12DispatchTable* table
 
 EXTERN_C void WINAPI ReleaseDxgiCapture(gfxrecon::encode::DxgiDispatchTable*)
 {
-    gfxrecon::encode::CaptureManager::DestroyInstance();
+    gfxrecon::encode::D3D12CaptureManager::DestroyInstance();
 }
 
 EXTERN_C void WINAPI ReleaseD3D12Capture(gfxrecon::encode::D3D12DispatchTable*)
 {
-    gfxrecon::encode::CaptureManager::DestroyInstance();
+    gfxrecon::encode::D3D12CaptureManager::DestroyInstance();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)

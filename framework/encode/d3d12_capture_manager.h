@@ -22,8 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CAPTURE_MANAGER_H
-#define GFXRECON_ENCODE_CAPTURE_MANAGER_H
+#ifndef GFXRECON_ENCODE_D3D12_CAPTURE_MANAGER_H
+#define GFXRECON_ENCODE_D3D12_CAPTURE_MANAGER_H
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
@@ -64,7 +64,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class CaptureManager
+class D3D12CaptureManager
 {
   public:
     // Register special layer provided functions, which perform layer specific initialization.
@@ -86,7 +86,7 @@ class CaptureManager
     // already zero.
     static void DestroyInstance();
 
-    static CaptureManager* Get() { return instance_; }
+    static D3D12CaptureManager* Get() { return instance_; }
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
@@ -1013,9 +1013,9 @@ class CaptureManager
 #endif
 
   protected:
-    CaptureManager();
+    D3D12CaptureManager();
 
-    ~CaptureManager();
+    ~D3D12CaptureManager();
 
     bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
@@ -1132,7 +1132,7 @@ class CaptureManager
 #endif
 
   private:
-    static CaptureManager*                          instance_;
+    static D3D12CaptureManager*                     instance_;
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
@@ -1175,4 +1175,4 @@ class CaptureManager
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_CAPTURE_MANAGER_H
+#endif // GFXRECON_ENCODE_D3D12_CAPTURE_MANAGER_H

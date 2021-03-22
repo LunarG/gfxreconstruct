@@ -23,7 +23,7 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_DX12_WRAPPER_COMMANDS_H
 #define GFXRECON_ENCODE_CUSTOM_DX12_WRAPPER_COMMANDS_H
 
-#include "encode/capture_manager.h"
+#include "encode/d3d12_capture_manager.h"
 #include "format/api_call_id.h"
 #include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
@@ -35,7 +35,7 @@ template <format::ApiCallId Id>
 struct CustomWrapperPreCall
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager*, Args...)
+    static void Dispatch(D3D12CaptureManager*, Args...)
     {}
 };
 
@@ -43,7 +43,7 @@ template <format::ApiCallId Id>
 struct CustomWrapperPostCall
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager*, Args...)
+    static void Dispatch(D3D12CaptureManager*, Args...)
     {}
 };
 
@@ -55,7 +55,7 @@ template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommittedResource>
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager* manager, Args... args)
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Device_CreateCommittedResource(args...);
     }
@@ -65,7 +65,7 @@ template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource>
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager* manager, Args... args)
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Device_CreatePlacedResource(args...);
     }
@@ -75,7 +75,7 @@ template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager* manager, Args... args)
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Resource_Map(args...);
     }
@@ -85,7 +85,7 @@ template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager* manager, Args... args)
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PreProcess_ID3D12Resource_Unmap(args...);
     }
@@ -94,14 +94,14 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>
 template <>
 void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrapper* wrapper)
 {
-    CaptureManager::Get()->Destroy_ID3D12Resource(wrapper);
+    D3D12CaptureManager::Get()->Destroy_ID3D12Resource(wrapper);
 }
 
 template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
 {
     template <typename... Args>
-    static void Dispatch(CaptureManager* manager, Args... args)
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PreProcess_ID3D12CommandQueue_ExecuteCommandLists(args...);
     }

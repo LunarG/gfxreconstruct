@@ -28,11 +28,11 @@
 
 #include "generated/generated_vulkan_api_call_encoders.h"
 
-#include "encode/capture_manager.h"
 #include "encode/custom_vulkan_encoder_commands.h"
 #include "encode/custom_vulkan_array_size_2d.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "format/api_call_id.h"
@@ -52,25 +52,25 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(CaptureManager::Get(), pCreateInfo, pAllocator, pInstance);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(VulkanCaptureManager::Get(), pCreateInfo, pAllocator, pInstance);
 
-    VkResult result = CaptureManager::OverrideCreateInstance(pCreateInfo, pAllocator, pInstance);
+    VkResult result = VulkanCaptureManager::OverrideCreateInstance(pCreateInfo, pAllocator, pInstance);
     if (result < 0)
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateInstance);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateInstance);
     if (encoder)
     {
         EncodeStructPtr(encoder, pCreateInfo);
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pInstance, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<const void*, InstanceWrapper, VkInstanceCreateInfo>(result, nullptr, pInstance, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<const void*, InstanceWrapper, VkInstanceCreateInfo>(result, nullptr, pInstance, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(CaptureManager::Get(), result, pCreateInfo, pAllocator, pInstance);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(VulkanCaptureManager::Get(), result, pCreateInfo, pAllocator, pInstance);
 
     return result;
 }
@@ -79,21 +79,21 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
     VkInstance                                  instance,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(CaptureManager::Get(), instance, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(VulkanCaptureManager::Get(), instance, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyInstance);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyInstance);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<InstanceWrapper>(instance, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<InstanceWrapper>(instance, encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
     GetInstanceTable(instance)->DestroyInstance(instance_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(CaptureManager::Get(), instance, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(VulkanCaptureManager::Get(), instance, pAllocator);
 
     DestroyWrappedHandle<InstanceWrapper>(instance);
 }
@@ -105,7 +105,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(CaptureManager::Get(), instance, pPhysicalDeviceCount, pPhysicalDevices);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(VulkanCaptureManager::Get(), instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -113,24 +113,24 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<InstanceWrapper, NoParentWrapper, PhysicalDeviceWrapper>(instance, NoParentWrapper::kHandleValue, pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<InstanceWrapper, NoParentWrapper, PhysicalDeviceWrapper>(instance, NoParentWrapper::kHandleValue, pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceCount, omit_output_data);
         encoder->EncodeHandleArray(pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkInstance, void*, PhysicalDeviceWrapper, void>(result, instance, nullptr, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, pPhysicalDevices, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkInstance, void*, PhysicalDeviceWrapper, void>(result, instance, nullptr, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, pPhysicalDevices, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(CaptureManager::Get(), result, instance, pPhysicalDeviceCount, pPhysicalDevices);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(VulkanCaptureManager::Get(), result, instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     return result;
 }
@@ -139,21 +139,21 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures*                   pFeatures)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures(physicalDevice_unwrapped, pFeatures);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pFeatures);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
@@ -161,22 +161,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
     VkFormat                                    format,
     VkFormatProperties*                         pFormatProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties(physicalDevice_unwrapped, format, pFormatProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         EncodeStructPtr(encoder, pFormatProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
@@ -190,7 +190,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(CaptureManager::Get(), physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -200,7 +200,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -211,10 +211,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
         encoder->EncodeFlagsValue(flags);
         EncodeStructPtr(encoder, pImageFormatProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(CaptureManager::Get(), result, physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
 
     return result;
 }
@@ -223,21 +223,21 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties*                 pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties(physicalDevice_unwrapped, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
@@ -245,43 +245,43 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties*                    pQueueFamilyProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties(physicalDevice_unwrapped, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         EncodeStructArray(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties*           pMemoryProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties(physicalDevice_unwrapped, pMemoryProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pMemoryProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
@@ -292,15 +292,15 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(CaptureManager::Get(), physicalDevice, pCreateInfo, pAllocator, pDevice);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pCreateInfo, pAllocator, pDevice);
 
-    VkResult result = CaptureManager::Get()->OverrideCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    VkResult result = VulkanCaptureManager::Get()->OverrideCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
     if (result < 0)
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDevice);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDevice);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -308,10 +308,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pDevice, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>(result, physicalDevice, pDevice, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>(result, physicalDevice, pDevice, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(CaptureManager::Get(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
 
     return result;
 }
@@ -320,21 +320,21 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     VkDevice                                    device,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(CaptureManager::Get(), device, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(VulkanCaptureManager::Get(), device, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDevice);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDevice);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DeviceWrapper>(device, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DeviceWrapper>(device, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->DestroyDevice(device_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(CaptureManager::Get(), device, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(VulkanCaptureManager::Get(), device, pAllocator);
 
     DestroyWrappedHandle<DeviceWrapper>(device);
 }
@@ -345,25 +345,25 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     uint32_t                                    queueIndex,
     VkQueue*                                    pQueue)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(CaptureManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(VulkanCaptureManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->GetDeviceQueue(device_unwrapped, queueFamilyIndex, queueIndex, pQueue);
 
-    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, CaptureManager::GetUniqueId);
+    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, VulkanCaptureManager::GetUniqueId);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeUInt32Value(queueIndex);
         encoder->EncodeHandlePtr(pQueue);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueueWrapper, void>(VK_SUCCESS, device, pQueue, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueueWrapper, void>(VK_SUCCESS, device, pQueue, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(CaptureManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(VulkanCaptureManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
@@ -372,16 +372,16 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     const VkSubmitInfo*                         pSubmits,
     VkFence                                     fence)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(CaptureManager::Get(), queue, submitCount, pSubmits, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(VulkanCaptureManager::Get(), queue, submitCount, pSubmits, fence);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
     const VkSubmitInfo* pSubmits_unwrapped = UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
     VkFence fence_unwrapped = GetWrappedHandle<VkFence>(fence);
 
     VkResult result = GetDeviceTable(queue)->QueueSubmit(queue_unwrapped, submitCount, pSubmits_unwrapped, fence_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueSubmit);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueSubmit);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
@@ -389,10 +389,10 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
         EncodeStructArray(encoder, pSubmits, submitCount);
         encoder->EncodeHandleValue(fence);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(CaptureManager::Get(), result, queue, submitCount, pSubmits, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(VulkanCaptureManager::Get(), result, queue, submitCount, pSubmits, fence);
 
     return result;
 }
@@ -400,21 +400,21 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
 VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
     VkQueue                                     queue)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(CaptureManager::Get(), queue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(VulkanCaptureManager::Get(), queue);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
 
     VkResult result = GetDeviceTable(queue)->QueueWaitIdle(queue_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueWaitIdle);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueWaitIdle);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(CaptureManager::Get(), result, queue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(VulkanCaptureManager::Get(), result, queue);
 
     return result;
 }
@@ -422,21 +422,21 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
 VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
     VkDevice                                    device)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(CaptureManager::Get(), device);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(VulkanCaptureManager::Get(), device);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     VkResult result = GetDeviceTable(device)->DeviceWaitIdle(device_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(CaptureManager::Get(), result, device);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(VulkanCaptureManager::Get(), result, device);
 
     return result;
 }
@@ -449,15 +449,15 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(CaptureManager::Get(), device, pAllocateInfo, pAllocator, pMemory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(VulkanCaptureManager::Get(), device, pAllocateInfo, pAllocator, pMemory);
 
-    VkResult result = CaptureManager::Get()->OverrideAllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    VkResult result = VulkanCaptureManager::Get()->OverrideAllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
     if (result < 0)
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -465,10 +465,10 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pMemory, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>(result, device, pMemory, pAllocateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>(result, device, pMemory, pAllocateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(CaptureManager::Get(), result, device, pAllocateInfo, pAllocator, pMemory);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(VulkanCaptureManager::Get(), result, device, pAllocateInfo, pAllocator, pMemory);
 
     return result;
 }
@@ -478,15 +478,15 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     VkDeviceMemory                              memory,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(CaptureManager::Get(), device, memory, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(VulkanCaptureManager::Get(), device, memory, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(memory);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DeviceMemoryWrapper>(memory, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DeviceMemoryWrapper>(memory, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -494,7 +494,7 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
 
     GetDeviceTable(device)->FreeMemory(device_unwrapped, memory_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(CaptureManager::Get(), device, memory, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(VulkanCaptureManager::Get(), device, memory, pAllocator);
 
     DestroyWrappedHandle<DeviceMemoryWrapper>(memory);
 }
@@ -509,7 +509,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(CaptureManager::Get(), device, memory, offset, size, flags, ppData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(VulkanCaptureManager::Get(), device, memory, offset, size, flags, ppData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeviceMemory memory_unwrapped = GetWrappedHandle<VkDeviceMemory>(memory);
@@ -520,7 +520,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMapMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMapMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -530,10 +530,10 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeVoidPtrPtr(ppData, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(CaptureManager::Get(), result, device, memory, offset, size, flags, ppData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(VulkanCaptureManager::Get(), result, device, memory, offset, size, flags, ppData);
 
     return result;
 }
@@ -542,14 +542,14 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     VkDevice                                    device,
     VkDeviceMemory                              memory)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(CaptureManager::Get(), device, memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(VulkanCaptureManager::Get(), device, memory);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUnmapMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUnmapMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(memory);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -557,7 +557,7 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
 
     GetDeviceTable(device)->UnmapMemory(device_unwrapped, memory_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(CaptureManager::Get(), device, memory);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(VulkanCaptureManager::Get(), device, memory);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
@@ -565,25 +565,25 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(CaptureManager::Get(), device, memoryRangeCount, pMemoryRanges);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(VulkanCaptureManager::Get(), device, memoryRangeCount, pMemoryRanges);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkMappedMemoryRange* pMemoryRanges_unwrapped = UnwrapStructArrayHandles(pMemoryRanges, memoryRangeCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->FlushMappedMemoryRanges(device_unwrapped, memoryRangeCount, pMemoryRanges_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(memoryRangeCount);
         EncodeStructArray(encoder, pMemoryRanges, memoryRangeCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(CaptureManager::Get(), result, device, memoryRangeCount, pMemoryRanges);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(VulkanCaptureManager::Get(), result, device, memoryRangeCount, pMemoryRanges);
 
     return result;
 }
@@ -593,25 +593,25 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(CaptureManager::Get(), device, memoryRangeCount, pMemoryRanges);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(VulkanCaptureManager::Get(), device, memoryRangeCount, pMemoryRanges);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkMappedMemoryRange* pMemoryRanges_unwrapped = UnwrapStructArrayHandles(pMemoryRanges, memoryRangeCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->InvalidateMappedMemoryRanges(device_unwrapped, memoryRangeCount, pMemoryRanges_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(memoryRangeCount);
         EncodeStructArray(encoder, pMemoryRanges, memoryRangeCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(CaptureManager::Get(), result, device, memoryRangeCount, pMemoryRanges);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(VulkanCaptureManager::Get(), result, device, memoryRangeCount, pMemoryRanges);
 
     return result;
 }
@@ -621,23 +621,23 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     VkDeviceMemory                              memory,
     VkDeviceSize*                               pCommittedMemoryInBytes)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(CaptureManager::Get(), device, memory, pCommittedMemoryInBytes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(VulkanCaptureManager::Get(), device, memory, pCommittedMemoryInBytes);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeviceMemory memory_unwrapped = GetWrappedHandle<VkDeviceMemory>(memory);
 
     GetDeviceTable(device)->GetDeviceMemoryCommitment(device_unwrapped, memory_unwrapped, pCommittedMemoryInBytes);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(memory);
         encoder->EncodeVkDeviceSizePtr(pCommittedMemoryInBytes);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(CaptureManager::Get(), device, memory, pCommittedMemoryInBytes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(VulkanCaptureManager::Get(), device, memory, pCommittedMemoryInBytes);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
@@ -646,7 +646,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     VkDeviceMemory                              memory,
     VkDeviceSize                                memoryOffset)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(CaptureManager::Get(), device, buffer, memory, memoryOffset);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(VulkanCaptureManager::Get(), device, buffer, memory, memoryOffset);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkBuffer buffer_unwrapped = GetWrappedHandle<VkBuffer>(buffer);
@@ -654,7 +654,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
 
     VkResult result = GetDeviceTable(device)->BindBufferMemory(device_unwrapped, buffer_unwrapped, memory_unwrapped, memoryOffset);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -662,10 +662,10 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
         encoder->EncodeHandleValue(memory);
         encoder->EncodeVkDeviceSizeValue(memoryOffset);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(CaptureManager::Get(), result, device, buffer, memory, memoryOffset);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(VulkanCaptureManager::Get(), result, device, buffer, memory, memoryOffset);
 
     return result;
 }
@@ -676,7 +676,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     VkDeviceMemory                              memory,
     VkDeviceSize                                memoryOffset)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(CaptureManager::Get(), device, image, memory, memoryOffset);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(VulkanCaptureManager::Get(), device, image, memory, memoryOffset);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
@@ -684,7 +684,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
 
     VkResult result = GetDeviceTable(device)->BindImageMemory(device_unwrapped, image_unwrapped, memory_unwrapped, memoryOffset);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -692,10 +692,10 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
         encoder->EncodeHandleValue(memory);
         encoder->EncodeVkDeviceSizeValue(memoryOffset);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(CaptureManager::Get(), result, device, image, memory, memoryOffset);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(VulkanCaptureManager::Get(), result, device, image, memory, memoryOffset);
 
     return result;
 }
@@ -705,23 +705,23 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     VkBuffer                                    buffer,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(CaptureManager::Get(), device, buffer, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, buffer, pMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkBuffer buffer_unwrapped = GetWrappedHandle<VkBuffer>(buffer);
 
     GetDeviceTable(device)->GetBufferMemoryRequirements(device_unwrapped, buffer_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(buffer);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(CaptureManager::Get(), device, buffer, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, buffer, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
@@ -729,23 +729,23 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     VkImage                                     image,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(CaptureManager::Get(), device, image, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, image, pMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
 
     GetDeviceTable(device)->GetImageMemoryRequirements(device_unwrapped, image_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(image);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(CaptureManager::Get(), device, image, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, image, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
@@ -754,24 +754,24 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements*            pSparseMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(CaptureManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
 
     GetDeviceTable(device)->GetImageSparseMemoryRequirements(device_unwrapped, image_unwrapped, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(image);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         EncodeStructArray(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(CaptureManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(VulkanCaptureManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
@@ -784,13 +784,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties*              pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(CaptureManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties(physicalDevice_unwrapped, format, type, samples, usage, tiling, pPropertyCount, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -801,10 +801,10 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
         encoder->EncodeEnumValue(tiling);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(CaptureManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
@@ -813,16 +813,16 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     const VkBindSparseInfo*                     pBindInfo,
     VkFence                                     fence)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(CaptureManager::Get(), queue, bindInfoCount, pBindInfo, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(VulkanCaptureManager::Get(), queue, bindInfoCount, pBindInfo, fence);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
     const VkBindSparseInfo* pBindInfo_unwrapped = UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_unwrap_memory);
     VkFence fence_unwrapped = GetWrappedHandle<VkFence>(fence);
 
     VkResult result = GetDeviceTable(queue)->QueueBindSparse(queue_unwrapped, bindInfoCount, pBindInfo_unwrapped, fence_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueBindSparse);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueBindSparse);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
@@ -830,10 +830,10 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
         EncodeStructArray(encoder, pBindInfo, bindInfoCount);
         encoder->EncodeHandleValue(fence);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(CaptureManager::Get(), result, queue, bindInfoCount, pBindInfo, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(VulkanCaptureManager::Get(), result, queue, bindInfoCount, pBindInfo, fence);
 
     return result;
 }
@@ -846,7 +846,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pFence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pFence);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -854,14 +854,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFence);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFence);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -869,10 +869,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pFence, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, VkFenceCreateInfo>(result, device, pFence, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, VkFenceCreateInfo>(result, device, pFence, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pFence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pFence);
 
     return result;
 }
@@ -882,15 +882,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     VkFence                                     fence,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(CaptureManager::Get(), device, fence, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(VulkanCaptureManager::Get(), device, fence, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFence);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFence);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(fence);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<FenceWrapper>(fence, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<FenceWrapper>(fence, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -898,7 +898,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
 
     GetDeviceTable(device)->DestroyFence(device_unwrapped, fence_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(CaptureManager::Get(), device, fence, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(VulkanCaptureManager::Get(), device, fence, pAllocator);
 
     DestroyWrappedHandle<FenceWrapper>(fence);
 }
@@ -908,25 +908,25 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
     uint32_t                                    fenceCount,
     const VkFence*                              pFences)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(CaptureManager::Get(), device, fenceCount, pFences);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(VulkanCaptureManager::Get(), device, fenceCount, pFences);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkFence* pFences_unwrapped = UnwrapHandles<VkFence>(pFences, fenceCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->ResetFences(device_unwrapped, fenceCount, pFences_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetFences);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetFences);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(fenceCount);
         encoder->EncodeHandleArray(pFences, fenceCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(CaptureManager::Get(), result, device, fenceCount, pFences);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(VulkanCaptureManager::Get(), result, device, fenceCount, pFences);
 
     return result;
 }
@@ -935,23 +935,23 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     VkDevice                                    device,
     VkFence                                     fence)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(CaptureManager::Get(), device, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(VulkanCaptureManager::Get(), device, fence);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkFence fence_unwrapped = GetWrappedHandle<VkFence>(fence);
 
     VkResult result = GetDeviceTable(device)->GetFenceStatus(device_unwrapped, fence_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceStatus);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceStatus);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(fence);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(CaptureManager::Get(), result, device, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(VulkanCaptureManager::Get(), result, device, fence);
 
     return result;
 }
@@ -963,15 +963,15 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(CaptureManager::Get(), device, fenceCount, pFences, waitAll, timeout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(VulkanCaptureManager::Get(), device, fenceCount, pFences, waitAll, timeout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkFence* pFences_unwrapped = UnwrapHandles<VkFence>(pFences, fenceCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->WaitForFences(device_unwrapped, fenceCount, pFences_unwrapped, waitAll, timeout);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitForFences);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitForFences);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -980,10 +980,10 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
         encoder->EncodeVkBool32Value(waitAll);
         encoder->EncodeUInt64Value(timeout);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(CaptureManager::Get(), result, device, fenceCount, pFences, waitAll, timeout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(VulkanCaptureManager::Get(), result, device, fenceCount, pFences, waitAll, timeout);
 
     return result;
 }
@@ -996,7 +996,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pSemaphore);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pSemaphore);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -1004,14 +1004,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SemaphoreWrapper>(device, NoParentWrapper::kHandleValue, pSemaphore, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SemaphoreWrapper>(device, NoParentWrapper::kHandleValue, pSemaphore, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSemaphore);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSemaphore);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1019,10 +1019,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSemaphore, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(result, device, pSemaphore, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(result, device, pSemaphore, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSemaphore);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSemaphore);
 
     return result;
 }
@@ -1032,15 +1032,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     VkSemaphore                                 semaphore,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(CaptureManager::Get(), device, semaphore, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySemaphore);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySemaphore);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(semaphore);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SemaphoreWrapper>(semaphore, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SemaphoreWrapper>(semaphore, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1048,7 +1048,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
 
     GetDeviceTable(device)->DestroySemaphore(device_unwrapped, semaphore_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(CaptureManager::Get(), device, semaphore, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, pAllocator);
 
     DestroyWrappedHandle<SemaphoreWrapper>(semaphore);
 }
@@ -1061,7 +1061,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pEvent);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pEvent);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -1069,14 +1069,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, EventWrapper>(device, NoParentWrapper::kHandleValue, pEvent, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, EventWrapper>(device, NoParentWrapper::kHandleValue, pEvent, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1084,10 +1084,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pEvent, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, EventWrapper, VkEventCreateInfo>(result, device, pEvent, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, EventWrapper, VkEventCreateInfo>(result, device, pEvent, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pEvent);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pEvent);
 
     return result;
 }
@@ -1097,15 +1097,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     VkEvent                                     event,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(CaptureManager::Get(), device, event, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(VulkanCaptureManager::Get(), device, event, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(event);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<EventWrapper>(event, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<EventWrapper>(event, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1113,7 +1113,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
 
     GetDeviceTable(device)->DestroyEvent(device_unwrapped, event_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(CaptureManager::Get(), device, event, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(VulkanCaptureManager::Get(), device, event, pAllocator);
 
     DestroyWrappedHandle<EventWrapper>(event);
 }
@@ -1122,23 +1122,23 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     VkDevice                                    device,
     VkEvent                                     event)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(CaptureManager::Get(), device, event);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(VulkanCaptureManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkEvent event_unwrapped = GetWrappedHandle<VkEvent>(event);
 
     VkResult result = GetDeviceTable(device)->GetEventStatus(device_unwrapped, event_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetEventStatus);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetEventStatus);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(event);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(CaptureManager::Get(), result, device, event);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(VulkanCaptureManager::Get(), result, device, event);
 
     return result;
 }
@@ -1147,23 +1147,23 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     VkDevice                                    device,
     VkEvent                                     event)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(CaptureManager::Get(), device, event);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(VulkanCaptureManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkEvent event_unwrapped = GetWrappedHandle<VkEvent>(event);
 
     VkResult result = GetDeviceTable(device)->SetEvent(device_unwrapped, event_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(event);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(CaptureManager::Get(), result, device, event);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(VulkanCaptureManager::Get(), result, device, event);
 
     return result;
 }
@@ -1172,23 +1172,23 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     VkDevice                                    device,
     VkEvent                                     event)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(CaptureManager::Get(), device, event);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(VulkanCaptureManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkEvent event_unwrapped = GetWrappedHandle<VkEvent>(event);
 
     VkResult result = GetDeviceTable(device)->ResetEvent(device_unwrapped, event_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(event);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(CaptureManager::Get(), result, device, event);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(VulkanCaptureManager::Get(), result, device, event);
 
     return result;
 }
@@ -1201,7 +1201,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pQueryPool);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pQueryPool);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -1209,14 +1209,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueryPoolWrapper>(device, NoParentWrapper::kHandleValue, pQueryPool, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueryPoolWrapper>(device, NoParentWrapper::kHandleValue, pQueryPool, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateQueryPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateQueryPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1224,10 +1224,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pQueryPool, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueryPoolWrapper, VkQueryPoolCreateInfo>(result, device, pQueryPool, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueryPoolWrapper, VkQueryPoolCreateInfo>(result, device, pQueryPool, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pQueryPool);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pQueryPool);
 
     return result;
 }
@@ -1237,15 +1237,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     VkQueryPool                                 queryPool,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(CaptureManager::Get(), device, queryPool, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyQueryPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyQueryPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(queryPool);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<QueryPoolWrapper>(queryPool, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<QueryPoolWrapper>(queryPool, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1253,7 +1253,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
 
     GetDeviceTable(device)->DestroyQueryPool(device_unwrapped, queryPool_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(CaptureManager::Get(), device, queryPool, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, pAllocator);
 
     DestroyWrappedHandle<QueryPoolWrapper>(queryPool);
 }
@@ -1270,7 +1270,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(CaptureManager::Get(), device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
@@ -1281,7 +1281,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueryPoolResults);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueryPoolResults);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1293,10 +1293,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
         encoder->EncodeVkDeviceSizeValue(stride);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(CaptureManager::Get(), result, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(VulkanCaptureManager::Get(), result, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
     return result;
 }
@@ -1309,15 +1309,15 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pBuffer);
 
-    VkResult result = CaptureManager::Get()->OverrideCreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
+    VkResult result = VulkanCaptureManager::Get()->OverrideCreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
     if (result < 0)
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1325,10 +1325,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pBuffer, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, BufferWrapper, VkBufferCreateInfo>(result, device, pBuffer, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, BufferWrapper, VkBufferCreateInfo>(result, device, pBuffer, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pBuffer);
 
     return result;
 }
@@ -1338,15 +1338,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     VkBuffer                                    buffer,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(CaptureManager::Get(), device, buffer, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(VulkanCaptureManager::Get(), device, buffer, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(buffer);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<BufferWrapper>(buffer, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<BufferWrapper>(buffer, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1354,7 +1354,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
 
     GetDeviceTable(device)->DestroyBuffer(device_unwrapped, buffer_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(CaptureManager::Get(), device, buffer, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(VulkanCaptureManager::Get(), device, buffer, pAllocator);
 
     DestroyWrappedHandle<BufferWrapper>(buffer);
 }
@@ -1367,9 +1367,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pView);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pView);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferViewCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1377,14 +1377,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferViewWrapper>(device, NoParentWrapper::kHandleValue, pView, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferViewWrapper>(device, NoParentWrapper::kHandleValue, pView, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBufferView);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBufferView);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1392,10 +1392,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pView, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, BufferViewWrapper, VkBufferViewCreateInfo>(result, device, pView, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, BufferViewWrapper, VkBufferViewCreateInfo>(result, device, pView, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pView);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pView);
 
     return result;
 }
@@ -1405,15 +1405,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     VkBufferView                                bufferView,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(CaptureManager::Get(), device, bufferView, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(VulkanCaptureManager::Get(), device, bufferView, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBufferView);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBufferView);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(bufferView);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<BufferViewWrapper>(bufferView, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<BufferViewWrapper>(bufferView, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1421,7 +1421,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
 
     GetDeviceTable(device)->DestroyBufferView(device_unwrapped, bufferView_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(CaptureManager::Get(), device, bufferView, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(VulkanCaptureManager::Get(), device, bufferView, pAllocator);
 
     DestroyWrappedHandle<BufferViewWrapper>(bufferView);
 }
@@ -1434,9 +1434,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pImage);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pImage);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1444,14 +1444,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageWrapper>(device, NoParentWrapper::kHandleValue, pImage, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageWrapper>(device, NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1459,10 +1459,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pImage, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ImageWrapper, VkImageCreateInfo>(result, device, pImage, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ImageWrapper, VkImageCreateInfo>(result, device, pImage, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pImage);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pImage);
 
     return result;
 }
@@ -1472,15 +1472,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     VkImage                                     image,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(CaptureManager::Get(), device, image, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(VulkanCaptureManager::Get(), device, image, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(image);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<ImageWrapper>(image, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<ImageWrapper>(image, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1488,7 +1488,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
 
     GetDeviceTable(device)->DestroyImage(device_unwrapped, image_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(CaptureManager::Get(), device, image, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(VulkanCaptureManager::Get(), device, image, pAllocator);
 
     DestroyWrappedHandle<ImageWrapper>(image);
 }
@@ -1499,24 +1499,24 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     const VkImageSubresource*                   pSubresource,
     VkSubresourceLayout*                        pLayout)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(CaptureManager::Get(), device, image, pSubresource, pLayout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(VulkanCaptureManager::Get(), device, image, pSubresource, pLayout);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
 
     GetDeviceTable(device)->GetImageSubresourceLayout(device_unwrapped, image_unwrapped, pSubresource, pLayout);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(image);
         EncodeStructPtr(encoder, pSubresource);
         EncodeStructPtr(encoder, pLayout);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(CaptureManager::Get(), device, image, pSubresource, pLayout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(VulkanCaptureManager::Get(), device, image, pSubresource, pLayout);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
@@ -1527,9 +1527,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pView);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pView);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageViewCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1537,14 +1537,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageViewWrapper>(device, NoParentWrapper::kHandleValue, pView, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageViewWrapper>(device, NoParentWrapper::kHandleValue, pView, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImageView);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImageView);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1552,10 +1552,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pView, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(result, device, pView, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(result, device, pView, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pView);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pView);
 
     return result;
 }
@@ -1565,15 +1565,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     VkImageView                                 imageView,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(CaptureManager::Get(), device, imageView, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(VulkanCaptureManager::Get(), device, imageView, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImageView);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImageView);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(imageView);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<ImageViewWrapper>(imageView, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<ImageViewWrapper>(imageView, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1581,7 +1581,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
 
     GetDeviceTable(device)->DestroyImageView(device_unwrapped, imageView_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(CaptureManager::Get(), device, imageView, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(VulkanCaptureManager::Get(), device, imageView, pAllocator);
 
     DestroyWrappedHandle<ImageViewWrapper>(imageView);
 }
@@ -1594,9 +1594,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pShaderModule);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pShaderModule);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkShaderModuleCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1604,14 +1604,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ShaderModuleWrapper>(device, NoParentWrapper::kHandleValue, pShaderModule, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ShaderModuleWrapper>(device, NoParentWrapper::kHandleValue, pShaderModule, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateShaderModule);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateShaderModule);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1619,10 +1619,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pShaderModule, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ShaderModuleWrapper, VkShaderModuleCreateInfo>(result, device, pShaderModule, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ShaderModuleWrapper, VkShaderModuleCreateInfo>(result, device, pShaderModule, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pShaderModule);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pShaderModule);
 
     return result;
 }
@@ -1632,15 +1632,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     VkShaderModule                              shaderModule,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(CaptureManager::Get(), device, shaderModule, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(VulkanCaptureManager::Get(), device, shaderModule, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyShaderModule);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyShaderModule);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(shaderModule);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<ShaderModuleWrapper>(shaderModule, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<ShaderModuleWrapper>(shaderModule, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1648,7 +1648,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
 
     GetDeviceTable(device)->DestroyShaderModule(device_unwrapped, shaderModule_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(CaptureManager::Get(), device, shaderModule, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(VulkanCaptureManager::Get(), device, shaderModule, pAllocator);
 
     DestroyWrappedHandle<ShaderModuleWrapper>(shaderModule);
 }
@@ -1661,7 +1661,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pPipelineCache);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pPipelineCache);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -1669,14 +1669,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineCacheWrapper>(device, NoParentWrapper::kHandleValue, pPipelineCache, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineCacheWrapper>(device, NoParentWrapper::kHandleValue, pPipelineCache, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineCache);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineCache);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1684,10 +1684,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pPipelineCache, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PipelineCacheWrapper, VkPipelineCacheCreateInfo>(result, device, pPipelineCache, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PipelineCacheWrapper, VkPipelineCacheCreateInfo>(result, device, pPipelineCache, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPipelineCache);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPipelineCache);
 
     return result;
 }
@@ -1697,15 +1697,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     VkPipelineCache                             pipelineCache,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(CaptureManager::Get(), device, pipelineCache, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineCache);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineCache);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(pipelineCache);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<PipelineCacheWrapper>(pipelineCache, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<PipelineCacheWrapper>(pipelineCache, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1713,7 +1713,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
 
     GetDeviceTable(device)->DestroyPipelineCache(device_unwrapped, pipelineCache_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(CaptureManager::Get(), device, pipelineCache, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, pAllocator);
 
     DestroyWrappedHandle<PipelineCacheWrapper>(pipelineCache);
 }
@@ -1726,7 +1726,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(CaptureManager::Get(), device, pipelineCache, pDataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, pDataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
@@ -1737,7 +1737,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineCacheData);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineCacheData);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1745,10 +1745,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
         encoder->EncodeSizeTPtr(pDataSize, omit_output_data);
         encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? (*pDataSize) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(CaptureManager::Get(), result, device, pipelineCache, pDataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(VulkanCaptureManager::Get(), result, device, pipelineCache, pDataSize, pData);
 
     return result;
 }
@@ -1759,16 +1759,16 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     uint32_t                                    srcCacheCount,
     const VkPipelineCache*                      pSrcCaches)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(CaptureManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(VulkanCaptureManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipelineCache dstCache_unwrapped = GetWrappedHandle<VkPipelineCache>(dstCache);
     const VkPipelineCache* pSrcCaches_unwrapped = UnwrapHandles<VkPipelineCache>(pSrcCaches, srcCacheCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->MergePipelineCaches(device_unwrapped, dstCache_unwrapped, srcCacheCount, pSrcCaches_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMergePipelineCaches);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMergePipelineCaches);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1776,10 +1776,10 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
         encoder->EncodeUInt32Value(srcCacheCount);
         encoder->EncodeHandleArray(pSrcCaches, srcCacheCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(CaptureManager::Get(), result, device, dstCache, srcCacheCount, pSrcCaches);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(VulkanCaptureManager::Get(), result, device, dstCache, srcCacheCount, pSrcCaches);
 
     return result;
 }
@@ -1794,9 +1794,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(CaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
     const VkGraphicsPipelineCreateInfo* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
@@ -1805,14 +1805,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1822,10 +1822,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(CaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(VulkanCaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
     return result;
 }
@@ -1840,9 +1840,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(CaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
     const VkComputePipelineCreateInfo* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
@@ -1851,14 +1851,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateComputePipelines);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateComputePipelines);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1868,10 +1868,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkComputePipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkComputePipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(CaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(VulkanCaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
     return result;
 }
@@ -1881,15 +1881,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     VkPipeline                                  pipeline,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(CaptureManager::Get(), device, pipeline, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipeline);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipeline);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(pipeline);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<PipelineWrapper>(pipeline, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<PipelineWrapper>(pipeline, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1897,7 +1897,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
 
     GetDeviceTable(device)->DestroyPipeline(device_unwrapped, pipeline_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(CaptureManager::Get(), device, pipeline, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, pAllocator);
 
     DestroyWrappedHandle<PipelineWrapper>(pipeline);
 }
@@ -1910,9 +1910,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pPipelineLayout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pPipelineLayout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkPipelineLayoutCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1920,14 +1920,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineLayoutWrapper>(device, NoParentWrapper::kHandleValue, pPipelineLayout, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineLayoutWrapper>(device, NoParentWrapper::kHandleValue, pPipelineLayout, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineLayout);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineLayout);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -1935,10 +1935,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pPipelineLayout, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(result, device, pPipelineLayout, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(result, device, pPipelineLayout, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPipelineLayout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPipelineLayout);
 
     return result;
 }
@@ -1948,15 +1948,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     VkPipelineLayout                            pipelineLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(CaptureManager::Get(), device, pipelineLayout, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(VulkanCaptureManager::Get(), device, pipelineLayout, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineLayout);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineLayout);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(pipelineLayout);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<PipelineLayoutWrapper>(pipelineLayout, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<PipelineLayoutWrapper>(pipelineLayout, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1964,7 +1964,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
 
     GetDeviceTable(device)->DestroyPipelineLayout(device_unwrapped, pipelineLayout_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(CaptureManager::Get(), device, pipelineLayout, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(VulkanCaptureManager::Get(), device, pipelineLayout, pAllocator);
 
     DestroyWrappedHandle<PipelineLayoutWrapper>(pipelineLayout);
 }
@@ -1977,9 +1977,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pSampler);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pSampler);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSamplerCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -1987,14 +1987,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerWrapper>(device, NoParentWrapper::kHandleValue, pSampler, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerWrapper>(device, NoParentWrapper::kHandleValue, pSampler, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSampler);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSampler);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2002,10 +2002,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSampler, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerWrapper, VkSamplerCreateInfo>(result, device, pSampler, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerWrapper, VkSamplerCreateInfo>(result, device, pSampler, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSampler);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSampler);
 
     return result;
 }
@@ -2015,15 +2015,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     VkSampler                                   sampler,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(CaptureManager::Get(), device, sampler, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(VulkanCaptureManager::Get(), device, sampler, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySampler);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySampler);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(sampler);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SamplerWrapper>(sampler, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SamplerWrapper>(sampler, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2031,7 +2031,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
 
     GetDeviceTable(device)->DestroySampler(device_unwrapped, sampler_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(CaptureManager::Get(), device, sampler, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(VulkanCaptureManager::Get(), device, sampler, pAllocator);
 
     DestroyWrappedHandle<SamplerWrapper>(sampler);
 }
@@ -2044,9 +2044,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pSetLayout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pSetLayout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorSetLayoutCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -2054,14 +2054,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorSetLayoutWrapper>(device, NoParentWrapper::kHandleValue, pSetLayout, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorSetLayoutWrapper>(device, NoParentWrapper::kHandleValue, pSetLayout, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2069,10 +2069,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSetLayout, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSetLayoutCreateInfo>(result, device, pSetLayout, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSetLayoutCreateInfo>(result, device, pSetLayout, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSetLayout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSetLayout);
 
     return result;
 }
@@ -2082,15 +2082,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     VkDescriptorSetLayout                       descriptorSetLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(CaptureManager::Get(), device, descriptorSetLayout, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(VulkanCaptureManager::Get(), device, descriptorSetLayout, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(descriptorSetLayout);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DescriptorSetLayoutWrapper>(descriptorSetLayout, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DescriptorSetLayoutWrapper>(descriptorSetLayout, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2098,7 +2098,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
 
     GetDeviceTable(device)->DestroyDescriptorSetLayout(device_unwrapped, descriptorSetLayout_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(CaptureManager::Get(), device, descriptorSetLayout, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(VulkanCaptureManager::Get(), device, descriptorSetLayout, pAllocator);
 
     DestroyWrappedHandle<DescriptorSetLayoutWrapper>(descriptorSetLayout);
 }
@@ -2111,7 +2111,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorPool);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorPool);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -2119,14 +2119,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorPoolWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorPool, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorPoolWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorPool, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2134,10 +2134,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pDescriptorPool, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorPoolWrapper, VkDescriptorPoolCreateInfo>(result, device, pDescriptorPool, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorPoolWrapper, VkDescriptorPoolCreateInfo>(result, device, pDescriptorPool, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorPool);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorPool);
 
     return result;
 }
@@ -2147,15 +2147,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     VkDescriptorPool                            descriptorPool,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(CaptureManager::Get(), device, descriptorPool, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), device, descriptorPool, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(descriptorPool);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DescriptorPoolWrapper>(descriptorPool, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DescriptorPoolWrapper>(descriptorPool, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2163,7 +2163,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
 
     GetDeviceTable(device)->DestroyDescriptorPool(device_unwrapped, descriptorPool_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(CaptureManager::Get(), device, descriptorPool, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), device, descriptorPool, pAllocator);
 
     DestroyWrappedHandle<DescriptorPoolWrapper>(descriptorPool);
 }
@@ -2173,24 +2173,24 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     VkDescriptorPool                            descriptorPool,
     VkDescriptorPoolResetFlags                  flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(CaptureManager::Get(), device, descriptorPool, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), device, descriptorPool, flags);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDescriptorPool descriptorPool_unwrapped = GetWrappedHandle<VkDescriptorPool>(descriptorPool);
 
     VkResult result = GetDeviceTable(device)->ResetDescriptorPool(device_unwrapped, descriptorPool_unwrapped, flags);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetDescriptorPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetDescriptorPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(descriptorPool);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(CaptureManager::Get(), result, device, descriptorPool, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(VulkanCaptureManager::Get(), result, device, descriptorPool, flags);
 
     return result;
 }
@@ -2202,9 +2202,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(CaptureManager::Get(), device, pAllocateInfo, pDescriptorSets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), device, pAllocateInfo, pDescriptorSets);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorSetAllocateInfo* pAllocateInfo_unwrapped = UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
 
@@ -2212,24 +2212,24 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, DescriptorPoolWrapper, DescriptorSetWrapper>(device, pAllocateInfo->descriptorPool, pDescriptorSets, pAllocateInfo->descriptorSetCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, DescriptorPoolWrapper, DescriptorSetWrapper>(device, pAllocateInfo->descriptorPool, pDescriptorSets, pAllocateInfo->descriptorSetCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateDescriptorSets);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateDescriptorSets);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAllocateInfo);
         encoder->EncodeHandleArray(pDescriptorSets, (pAllocateInfo != nullptr) ? (pAllocateInfo->descriptorSetCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndPoolCreateApiCallTrace<VkDevice, DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(result, device, (pAllocateInfo != nullptr) ? (pAllocateInfo->descriptorSetCount) : 0, pDescriptorSets, pAllocateInfo, encoder);
+        VulkanCaptureManager::Get()->EndPoolCreateApiCallTrace<VkDevice, DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(result, device, (pAllocateInfo != nullptr) ? (pAllocateInfo->descriptorSetCount) : 0, pDescriptorSets, pAllocateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(CaptureManager::Get(), result, device, pAllocateInfo, pDescriptorSets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), result, device, pAllocateInfo, pDescriptorSets);
 
     return result;
 }
@@ -2240,16 +2240,16 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     uint32_t                                    descriptorSetCount,
     const VkDescriptorSet*                      pDescriptorSets)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(CaptureManager::Get(), device, descriptorPool, descriptorSetCount, pDescriptorSets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), device, descriptorPool, descriptorSetCount, pDescriptorSets);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDescriptorPool descriptorPool_unwrapped = GetWrappedHandle<VkDescriptorPool>(descriptorPool);
     const VkDescriptorSet* pDescriptorSets_unwrapped = UnwrapHandles<VkDescriptorSet>(pDescriptorSets, descriptorSetCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->FreeDescriptorSets(device_unwrapped, descriptorPool_unwrapped, descriptorSetCount, pDescriptorSets_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeDescriptorSets);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeDescriptorSets);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2257,10 +2257,10 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
         encoder->EncodeUInt32Value(descriptorSetCount);
         encoder->EncodeHandleArray(pDescriptorSets, descriptorSetCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DescriptorSetWrapper>(descriptorSetCount, pDescriptorSets, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DescriptorSetWrapper>(descriptorSetCount, pDescriptorSets, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(CaptureManager::Get(), result, device, descriptorPool, descriptorSetCount, pDescriptorSets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), result, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 
     DestroyWrappedHandles<DescriptorSetWrapper>(pDescriptorSets, descriptorSetCount);
 
@@ -2274,9 +2274,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     uint32_t                                    descriptorCopyCount,
     const VkCopyDescriptorSet*                  pDescriptorCopies)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(CaptureManager::Get(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSets);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSets);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2284,17 +2284,17 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
         EncodeStructArray(encoder, pDescriptorWrites, descriptorWriteCount);
         encoder->EncodeUInt32Value(descriptorCopyCount);
         EncodeStructArray(encoder, pDescriptorCopies, descriptorCopyCount);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkWriteDescriptorSet* pDescriptorWrites_unwrapped = UnwrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, handle_unwrap_memory);
     const VkCopyDescriptorSet* pDescriptorCopies_unwrapped = UnwrapStructArrayHandles(pDescriptorCopies, descriptorCopyCount, handle_unwrap_memory);
 
     GetDeviceTable(device)->UpdateDescriptorSets(device_unwrapped, descriptorWriteCount, pDescriptorWrites_unwrapped, descriptorCopyCount, pDescriptorCopies_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(CaptureManager::Get(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
@@ -2305,9 +2305,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pFramebuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pFramebuffer);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkFramebufferCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -2315,14 +2315,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FramebufferWrapper>(device, NoParentWrapper::kHandleValue, pFramebuffer, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FramebufferWrapper>(device, NoParentWrapper::kHandleValue, pFramebuffer, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFramebuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFramebuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2330,10 +2330,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pFramebuffer, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(result, device, pFramebuffer, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(result, device, pFramebuffer, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pFramebuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pFramebuffer);
 
     return result;
 }
@@ -2343,15 +2343,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     VkFramebuffer                               framebuffer,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(CaptureManager::Get(), device, framebuffer, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(VulkanCaptureManager::Get(), device, framebuffer, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFramebuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFramebuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(framebuffer);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<FramebufferWrapper>(framebuffer, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<FramebufferWrapper>(framebuffer, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2359,7 +2359,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
 
     GetDeviceTable(device)->DestroyFramebuffer(device_unwrapped, framebuffer_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(CaptureManager::Get(), device, framebuffer, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(VulkanCaptureManager::Get(), device, framebuffer, pAllocator);
 
     DestroyWrappedHandle<FramebufferWrapper>(framebuffer);
 }
@@ -2372,7 +2372,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -2380,14 +2380,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2395,10 +2395,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pRenderPass, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(result, device, pRenderPass, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(result, device, pRenderPass, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
 }
@@ -2408,15 +2408,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     VkRenderPass                                renderPass,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(CaptureManager::Get(), device, renderPass, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(VulkanCaptureManager::Get(), device, renderPass, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyRenderPass);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyRenderPass);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(renderPass);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<RenderPassWrapper>(renderPass, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<RenderPassWrapper>(renderPass, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2424,7 +2424,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
 
     GetDeviceTable(device)->DestroyRenderPass(device_unwrapped, renderPass_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(CaptureManager::Get(), device, renderPass, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(VulkanCaptureManager::Get(), device, renderPass, pAllocator);
 
     DestroyWrappedHandle<RenderPassWrapper>(renderPass);
 }
@@ -2434,23 +2434,23 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     VkRenderPass                                renderPass,
     VkExtent2D*                                 pGranularity)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(CaptureManager::Get(), device, renderPass, pGranularity);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(VulkanCaptureManager::Get(), device, renderPass, pGranularity);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkRenderPass renderPass_unwrapped = GetWrappedHandle<VkRenderPass>(renderPass);
 
     GetDeviceTable(device)->GetRenderAreaGranularity(device_unwrapped, renderPass_unwrapped, pGranularity);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRenderAreaGranularity);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRenderAreaGranularity);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(renderPass);
         EncodeStructPtr(encoder, pGranularity);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(CaptureManager::Get(), device, renderPass, pGranularity);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(VulkanCaptureManager::Get(), device, renderPass, pGranularity);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
@@ -2461,7 +2461,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pCommandPool);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pCommandPool);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -2469,14 +2469,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, CommandPoolWrapper>(device, NoParentWrapper::kHandleValue, pCommandPool, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, CommandPoolWrapper>(device, NoParentWrapper::kHandleValue, pCommandPool, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateCommandPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateCommandPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -2484,10 +2484,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pCommandPool, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, CommandPoolWrapper, VkCommandPoolCreateInfo>(result, device, pCommandPool, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, CommandPoolWrapper, VkCommandPoolCreateInfo>(result, device, pCommandPool, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pCommandPool);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pCommandPool);
 
     return result;
 }
@@ -2497,15 +2497,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     VkCommandPool                               commandPool,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(CaptureManager::Get(), device, commandPool, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyCommandPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyCommandPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(commandPool);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<CommandPoolWrapper>(commandPool, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<CommandPoolWrapper>(commandPool, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2513,7 +2513,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
 
     GetDeviceTable(device)->DestroyCommandPool(device_unwrapped, commandPool_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(CaptureManager::Get(), device, commandPool, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, pAllocator);
 
     DestroyWrappedHandle<CommandPoolWrapper>(commandPool);
 }
@@ -2523,24 +2523,24 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     VkCommandPool                               commandPool,
     VkCommandPoolResetFlags                     flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(CaptureManager::Get(), device, commandPool, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, flags);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkCommandPool commandPool_unwrapped = GetWrappedHandle<VkCommandPool>(commandPool);
 
     VkResult result = GetDeviceTable(device)->ResetCommandPool(device_unwrapped, commandPool_unwrapped, flags);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(commandPool);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(CaptureManager::Get(), result, device, commandPool, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(VulkanCaptureManager::Get(), result, device, commandPool, flags);
 
     return result;
 }
@@ -2552,9 +2552,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(CaptureManager::Get(), device, pAllocateInfo, pCommandBuffers);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(VulkanCaptureManager::Get(), device, pAllocateInfo, pCommandBuffers);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkCommandBufferAllocateInfo* pAllocateInfo_unwrapped = UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
 
@@ -2562,24 +2562,24 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, CommandPoolWrapper, CommandBufferWrapper>(device, pAllocateInfo->commandPool, pCommandBuffers, pAllocateInfo->commandBufferCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, CommandPoolWrapper, CommandBufferWrapper>(device, pAllocateInfo->commandPool, pCommandBuffers, pAllocateInfo->commandBufferCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateCommandBuffers);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateCommandBuffers);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAllocateInfo);
         encoder->EncodeHandleArray(pCommandBuffers, (pAllocateInfo != nullptr) ? (pAllocateInfo->commandBufferCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndPoolCreateApiCallTrace<VkDevice, CommandBufferWrapper, VkCommandBufferAllocateInfo>(result, device, (pAllocateInfo != nullptr) ? (pAllocateInfo->commandBufferCount) : 0, pCommandBuffers, pAllocateInfo, encoder);
+        VulkanCaptureManager::Get()->EndPoolCreateApiCallTrace<VkDevice, CommandBufferWrapper, VkCommandBufferAllocateInfo>(result, device, (pAllocateInfo != nullptr) ? (pAllocateInfo->commandBufferCount) : 0, pCommandBuffers, pAllocateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(CaptureManager::Get(), result, device, pAllocateInfo, pCommandBuffers);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(VulkanCaptureManager::Get(), result, device, pAllocateInfo, pCommandBuffers);
 
     return result;
 }
@@ -2590,26 +2590,26 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(CaptureManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeCommandBuffers);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeCommandBuffers);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(commandPool);
         encoder->EncodeUInt32Value(commandBufferCount);
         encoder->EncodeHandleArray(pCommandBuffers, commandBufferCount);
-        CaptureManager::Get()->EndDestroyApiCallTrace<CommandBufferWrapper>(commandBufferCount, pCommandBuffers, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<CommandBufferWrapper>(commandBufferCount, pCommandBuffers, encoder);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkCommandPool commandPool_unwrapped = GetWrappedHandle<VkCommandPool>(commandPool);
     const VkCommandBuffer* pCommandBuffers_unwrapped = UnwrapHandles<VkCommandBuffer>(pCommandBuffers, commandBufferCount, handle_unwrap_memory);
 
     GetDeviceTable(device)->FreeCommandBuffers(device_unwrapped, commandPool_unwrapped, commandBufferCount, pCommandBuffers_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(CaptureManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
 
     DestroyWrappedHandles<CommandBufferWrapper>(pCommandBuffers, commandBufferCount);
 }
@@ -2618,24 +2618,24 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     VkCommandBuffer                             commandBuffer,
     const VkCommandBufferBeginInfo*             pBeginInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, pBeginInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pBeginInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCommandBufferBeginInfo* pBeginInfo_unwrapped = UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer_unwrapped, pBeginInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pBeginInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackBeginCommandBufferHandles, pBeginInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackBeginCommandBufferHandles, pBeginInfo);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(CaptureManager::Get(), result, commandBuffer, pBeginInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer, pBeginInfo);
 
     return result;
 }
@@ -2643,21 +2643,21 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
 VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
     VkCommandBuffer                             commandBuffer)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     VkResult result = GetDeviceTable(commandBuffer)->EndCommandBuffer(commandBuffer_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEndCommandBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEndCommandBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(CaptureManager::Get(), result, commandBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer);
 
     return result;
 }
@@ -2666,22 +2666,22 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
     VkCommandBuffer                             commandBuffer,
     VkCommandBufferResetFlags                   flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, flags);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     VkResult result = GetDeviceTable(commandBuffer)->ResetCommandBuffer(commandBuffer_unwrapped, flags);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(CaptureManager::Get(), result, commandBuffer, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer, flags);
 
     return result;
 }
@@ -2691,15 +2691,15 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipeline);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipeline);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
         encoder->EncodeHandleValue(pipeline);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindPipelineHandles, pipeline);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindPipelineHandles, pipeline);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -2707,7 +2707,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
 
     GetDeviceTable(commandBuffer)->CmdBindPipeline(commandBuffer_unwrapped, pipelineBindPoint, pipeline_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
@@ -2716,23 +2716,23 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewport);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewport);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstViewport);
         encoder->EncodeUInt32Value(viewportCount);
         EncodeStructArray(encoder, pViewports, viewportCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetViewport(commandBuffer_unwrapped, firstViewport, viewportCount, pViewports);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
@@ -2741,44 +2741,44 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(CaptureManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissor);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissor);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstScissor);
         encoder->EncodeUInt32Value(scissorCount);
         EncodeStructArray(encoder, pScissors, scissorCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetScissor(commandBuffer_unwrapped, firstScissor, scissorCount, pScissors);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(CaptureManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
     VkCommandBuffer                             commandBuffer,
     float                                       lineWidth)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(CaptureManager::Get(), commandBuffer, lineWidth);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, lineWidth);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineWidth);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineWidth);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFloatValue(lineWidth);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetLineWidth(commandBuffer_unwrapped, lineWidth);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(CaptureManager::Get(), commandBuffer, lineWidth);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, lineWidth);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
@@ -2787,44 +2787,44 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
     float                                       depthBiasClamp,
     float                                       depthBiasSlopeFactor)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(CaptureManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBias);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBias);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFloatValue(depthBiasConstantFactor);
         encoder->EncodeFloatValue(depthBiasClamp);
         encoder->EncodeFloatValue(depthBiasSlopeFactor);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthBias(commandBuffer_unwrapped, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(CaptureManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
     VkCommandBuffer                             commandBuffer,
     const float                                 blendConstants[4])
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(CaptureManager::Get(), commandBuffer, blendConstants);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, blendConstants);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetBlendConstants);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetBlendConstants);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFloatArray(blendConstants, 4);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetBlendConstants(commandBuffer_unwrapped, blendConstants);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(CaptureManager::Get(), commandBuffer, blendConstants);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, blendConstants);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
@@ -2832,22 +2832,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
     float                                       minDepthBounds,
     float                                       maxDepthBounds)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(CaptureManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBounds);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBounds);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFloatValue(minDepthBounds);
         encoder->EncodeFloatValue(maxDepthBounds);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthBounds(commandBuffer_unwrapped, minDepthBounds, maxDepthBounds);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(CaptureManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
@@ -2855,22 +2855,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    compareMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, compareMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, compareMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(compareMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetStencilCompareMask(commandBuffer_unwrapped, faceMask, compareMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, compareMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, compareMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
@@ -2878,22 +2878,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    writeMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, writeMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, writeMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(writeMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetStencilWriteMask(commandBuffer_unwrapped, faceMask, writeMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, writeMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, writeMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
@@ -2901,22 +2901,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    reference)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, reference);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, reference);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilReference);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilReference);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(reference);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetStencilReference(commandBuffer_unwrapped, faceMask, reference);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, reference);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, reference);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
@@ -2929,9 +2929,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     uint32_t                                    dynamicOffsetCount,
     const uint32_t*                             pDynamicOffsets)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindDescriptorSets);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindDescriptorSets);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -2942,17 +2942,17 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
         encoder->EncodeHandleArray(pDescriptorSets, descriptorSetCount);
         encoder->EncodeUInt32Value(dynamicOffsetCount);
         encoder->EncodeUInt32Array(pDynamicOffsets, dynamicOffsetCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindDescriptorSetsHandles, layout, descriptorSetCount, pDescriptorSets);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindDescriptorSetsHandles, layout, descriptorSetCount, pDescriptorSets);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     VkPipelineLayout layout_unwrapped = GetWrappedHandle<VkPipelineLayout>(layout);
     const VkDescriptorSet* pDescriptorSets_unwrapped = UnwrapHandles<VkDescriptorSet>(pDescriptorSets, descriptorSetCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBindDescriptorSets(commandBuffer_unwrapped, pipelineBindPoint, layout_unwrapped, firstSet, descriptorSetCount, pDescriptorSets_unwrapped, dynamicOffsetCount, pDynamicOffsets);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
@@ -2961,16 +2961,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     VkDeviceSize                                offset,
     VkIndexType                                 indexType)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, indexType);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, indexType);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindIndexBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindIndexBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeEnumValue(indexType);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindIndexBufferHandles, buffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindIndexBufferHandles, buffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -2978,7 +2978,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
 
     GetDeviceTable(commandBuffer)->CmdBindIndexBuffer(commandBuffer_unwrapped, buffer_unwrapped, offset, indexType);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, indexType);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, indexType);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
@@ -2988,9 +2988,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     const VkBuffer*                             pBuffers,
     const VkDeviceSize*                         pOffsets)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -2998,16 +2998,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
         encoder->EncodeUInt32Value(bindingCount);
         encoder->EncodeHandleArray(pBuffers, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pOffsets, bindingCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindVertexBuffersHandles, bindingCount, pBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindVertexBuffersHandles, bindingCount, pBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBuffer* pBuffers_unwrapped = UnwrapHandles<VkBuffer>(pBuffers, bindingCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBindVertexBuffers(commandBuffer_unwrapped, firstBinding, bindingCount, pBuffers_unwrapped, pOffsets);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDraw(
@@ -3017,9 +3017,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
     uint32_t                                    firstVertex,
     uint32_t                                    firstInstance)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(CaptureManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDraw);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDraw);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3027,14 +3027,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
         encoder->EncodeUInt32Value(instanceCount);
         encoder->EncodeUInt32Value(firstVertex);
         encoder->EncodeUInt32Value(firstInstance);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDraw(commandBuffer_unwrapped, vertexCount, instanceCount, firstVertex, firstInstance);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(CaptureManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
@@ -3045,9 +3045,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
     int32_t                                     vertexOffset,
     uint32_t                                    firstInstance)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(CaptureManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexed);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexed);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3056,14 +3056,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
         encoder->EncodeUInt32Value(firstIndex);
         encoder->EncodeInt32Value(vertexOffset);
         encoder->EncodeUInt32Value(firstInstance);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDrawIndexed(commandBuffer_unwrapped, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(CaptureManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
@@ -3073,9 +3073,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirect);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirect);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3083,7 +3083,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeUInt32Value(drawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectHandles, buffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectHandles, buffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3091,7 +3091,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndirect(commandBuffer_unwrapped, buffer_unwrapped, offset, drawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
@@ -3101,9 +3101,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3111,7 +3111,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeUInt32Value(drawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectHandles, buffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectHandles, buffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3119,7 +3119,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirect(commandBuffer_unwrapped, buffer_unwrapped, offset, drawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDispatch(
@@ -3128,23 +3128,23 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatch(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(CaptureManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatch);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatch);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(groupCountX);
         encoder->EncodeUInt32Value(groupCountY);
         encoder->EncodeUInt32Value(groupCountZ);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDispatch(commandBuffer_unwrapped, groupCountX, groupCountY, groupCountZ);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(CaptureManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
@@ -3152,15 +3152,15 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     VkBuffer                                    buffer,
     VkDeviceSize                                offset)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchIndirect);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchIndirect);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDispatchIndirectHandles, buffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDispatchIndirectHandles, buffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3168,7 +3168,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
 
     GetDeviceTable(commandBuffer)->CmdDispatchIndirect(commandBuffer_unwrapped, buffer_unwrapped, offset);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
@@ -3178,9 +3178,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     uint32_t                                    regionCount,
     const VkBufferCopy*                         pRegions)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3188,7 +3188,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
         encoder->EncodeHandleValue(dstBuffer);
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferHandles, srcBuffer, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferHandles, srcBuffer, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3197,7 +3197,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
 
     GetDeviceTable(commandBuffer)->CmdCopyBuffer(commandBuffer_unwrapped, srcBuffer_unwrapped, dstBuffer_unwrapped, regionCount, pRegions);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
@@ -3209,9 +3209,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     uint32_t                                    regionCount,
     const VkImageCopy*                          pRegions)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3221,7 +3221,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageHandles, srcImage, dstImage);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageHandles, srcImage, dstImage);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3230,7 +3230,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
 
     GetDeviceTable(commandBuffer)->CmdCopyImage(commandBuffer_unwrapped, srcImage_unwrapped, srcImageLayout, dstImage_unwrapped, dstImageLayout, regionCount, pRegions);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
@@ -3243,9 +3243,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     const VkImageBlit*                          pRegions,
     VkFilter                                    filter)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3256,7 +3256,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
         encoder->EncodeEnumValue(filter);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBlitImageHandles, srcImage, dstImage);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBlitImageHandles, srcImage, dstImage);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3265,7 +3265,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
 
     GetDeviceTable(commandBuffer)->CmdBlitImage(commandBuffer_unwrapped, srcImage_unwrapped, srcImageLayout, dstImage_unwrapped, dstImageLayout, regionCount, pRegions, filter);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
@@ -3276,9 +3276,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     uint32_t                                    regionCount,
     const VkBufferImageCopy*                    pRegions)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3287,7 +3287,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferToImageHandles, srcBuffer, dstImage);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferToImageHandles, srcBuffer, dstImage);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3296,7 +3296,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
 
     GetDeviceTable(commandBuffer)->CmdCopyBufferToImage(commandBuffer_unwrapped, srcBuffer_unwrapped, dstImage_unwrapped, dstImageLayout, regionCount, pRegions);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
@@ -3307,9 +3307,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     uint32_t                                    regionCount,
     const VkBufferImageCopy*                    pRegions)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3318,7 +3318,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
         encoder->EncodeHandleValue(dstBuffer);
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageToBufferHandles, srcImage, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageToBufferHandles, srcImage, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3327,7 +3327,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
 
     GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer(commandBuffer_unwrapped, srcImage_unwrapped, srcImageLayout, dstBuffer_unwrapped, regionCount, pRegions);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
@@ -3337,9 +3337,9 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     VkDeviceSize                                dataSize,
     const void*                                 pData)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdUpdateBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdUpdateBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3347,7 +3347,7 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(dataSize);
         encoder->EncodeVoidArray(pData, static_cast<size_t>(dataSize));
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdUpdateBufferHandles, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdUpdateBufferHandles, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3355,7 +3355,7 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
 
     GetDeviceTable(commandBuffer)->CmdUpdateBuffer(commandBuffer_unwrapped, dstBuffer_unwrapped, dstOffset, dataSize, pData);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
@@ -3365,9 +3365,9 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     VkDeviceSize                                size,
     uint32_t                                    data)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdFillBuffer);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdFillBuffer);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3375,7 +3375,7 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(size);
         encoder->EncodeUInt32Value(data);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdFillBufferHandles, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdFillBufferHandles, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3383,7 +3383,7 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
 
     GetDeviceTable(commandBuffer)->CmdFillBuffer(commandBuffer_unwrapped, dstBuffer_unwrapped, dstOffset, size, data);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(CaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
@@ -3394,9 +3394,9 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     uint32_t                                    rangeCount,
     const VkImageSubresourceRange*              pRanges)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(CaptureManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearColorImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearColorImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3405,7 +3405,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
         EncodeStructPtr(encoder, pColor);
         encoder->EncodeUInt32Value(rangeCount);
         EncodeStructArray(encoder, pRanges, rangeCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdClearColorImageHandles, image);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdClearColorImageHandles, image);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3413,7 +3413,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
 
     GetDeviceTable(commandBuffer)->CmdClearColorImage(commandBuffer_unwrapped, image_unwrapped, imageLayout, pColor, rangeCount, pRanges);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(CaptureManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
@@ -3424,9 +3424,9 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     uint32_t                                    rangeCount,
     const VkImageSubresourceRange*              pRanges)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(CaptureManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3435,7 +3435,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
         EncodeStructPtr(encoder, pDepthStencil);
         encoder->EncodeUInt32Value(rangeCount);
         EncodeStructArray(encoder, pRanges, rangeCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdClearDepthStencilImageHandles, image);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdClearDepthStencilImageHandles, image);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3443,7 +3443,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
 
     GetDeviceTable(commandBuffer)->CmdClearDepthStencilImage(commandBuffer_unwrapped, image_unwrapped, imageLayout, pDepthStencil, rangeCount, pRanges);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(CaptureManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
@@ -3453,9 +3453,9 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
     uint32_t                                    rectCount,
     const VkClearRect*                          pRects)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(CaptureManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearAttachments);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearAttachments);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3463,14 +3463,14 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
         EncodeStructArray(encoder, pAttachments, attachmentCount);
         encoder->EncodeUInt32Value(rectCount);
         EncodeStructArray(encoder, pRects, rectCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdClearAttachments(commandBuffer_unwrapped, attachmentCount, pAttachments, rectCount, pRects);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(CaptureManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
@@ -3482,9 +3482,9 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     uint32_t                                    regionCount,
     const VkImageResolve*                       pRegions)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3494,7 +3494,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         EncodeStructArray(encoder, pRegions, regionCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResolveImageHandles, srcImage, dstImage);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResolveImageHandles, srcImage, dstImage);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3503,7 +3503,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
 
     GetDeviceTable(commandBuffer)->CmdResolveImage(commandBuffer_unwrapped, srcImage_unwrapped, srcImageLayout, dstImage_unwrapped, dstImageLayout, regionCount, pRegions);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(CaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
@@ -3511,15 +3511,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(CaptureManager::Get(), commandBuffer, event, stageMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, event, stageMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(event);
         encoder->EncodeFlagsValue(stageMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdSetEventHandles, event);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdSetEventHandles, event);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3527,7 +3527,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
 
     GetDeviceTable(commandBuffer)->CmdSetEvent(commandBuffer_unwrapped, event_unwrapped, stageMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(CaptureManager::Get(), commandBuffer, event, stageMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, event, stageMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
@@ -3535,15 +3535,15 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(CaptureManager::Get(), commandBuffer, event, stageMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, event, stageMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetEvent);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetEvent);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(event);
         encoder->EncodeFlagsValue(stageMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResetEventHandles, event);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResetEventHandles, event);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3551,7 +3551,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
 
     GetDeviceTable(commandBuffer)->CmdResetEvent(commandBuffer_unwrapped, event_unwrapped, stageMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(CaptureManager::Get(), commandBuffer, event, stageMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, event, stageMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
@@ -3567,9 +3567,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     uint32_t                                    imageMemoryBarrierCount,
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(CaptureManager::Get(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWaitEvents);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWaitEvents);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3583,10 +3583,10 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
         EncodeStructArray(encoder, pBufferMemoryBarriers, bufferMemoryBarrierCount);
         encoder->EncodeUInt32Value(imageMemoryBarrierCount);
         EncodeStructArray(encoder, pImageMemoryBarriers, imageMemoryBarrierCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWaitEventsHandles, eventCount, pEvents, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWaitEventsHandles, eventCount, pEvents, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkEvent* pEvents_unwrapped = UnwrapHandles<VkEvent>(pEvents, eventCount, handle_unwrap_memory);
     const VkBufferMemoryBarrier* pBufferMemoryBarriers_unwrapped = UnwrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, handle_unwrap_memory);
@@ -3594,7 +3594,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
 
     GetDeviceTable(commandBuffer)->CmdWaitEvents(commandBuffer_unwrapped, eventCount, pEvents_unwrapped, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers_unwrapped, imageMemoryBarrierCount, pImageMemoryBarriers_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(CaptureManager::Get(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
@@ -3609,9 +3609,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     uint32_t                                    imageMemoryBarrierCount,
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(CaptureManager::Get(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3624,17 +3624,17 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
         EncodeStructArray(encoder, pBufferMemoryBarriers, bufferMemoryBarrierCount);
         encoder->EncodeUInt32Value(imageMemoryBarrierCount);
         EncodeStructArray(encoder, pImageMemoryBarriers, imageMemoryBarrierCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPipelineBarrierHandles, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPipelineBarrierHandles, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBufferMemoryBarrier* pBufferMemoryBarriers_unwrapped = UnwrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, handle_unwrap_memory);
     const VkImageMemoryBarrier* pImageMemoryBarriers_unwrapped = UnwrapStructArrayHandles(pImageMemoryBarriers, imageMemoryBarrierCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdPipelineBarrier(commandBuffer_unwrapped, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers_unwrapped, imageMemoryBarrierCount, pImageMemoryBarriers_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(CaptureManager::Get(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
@@ -3643,16 +3643,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     uint32_t                                    query,
     VkQueryControlFlags                         flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, flags);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQuery);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQuery);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(query);
         encoder->EncodeFlagsValue(flags);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginQueryHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginQueryHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3660,7 +3660,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
 
     GetDeviceTable(commandBuffer)->CmdBeginQuery(commandBuffer_unwrapped, queryPool_unwrapped, query, flags);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, flags);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
@@ -3668,15 +3668,15 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     VkQueryPool                                 queryPool,
     uint32_t                                    query)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQuery);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQuery);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(query);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndQueryHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndQueryHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3684,7 +3684,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
 
     GetDeviceTable(commandBuffer)->CmdEndQuery(commandBuffer_unwrapped, queryPool_unwrapped, query);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
@@ -3693,16 +3693,16 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetQueryPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetQueryPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResetQueryPoolHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResetQueryPoolHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3710,7 +3710,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
 
     GetDeviceTable(commandBuffer)->CmdResetQueryPool(commandBuffer_unwrapped, queryPool_unwrapped, firstQuery, queryCount);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
@@ -3719,16 +3719,16 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     VkQueryPool                                 queryPool,
     uint32_t                                    query)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStage, queryPool, query);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStage, queryPool, query);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteTimestamp);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteTimestamp);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineStage);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(query);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteTimestampHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteTimestampHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3736,7 +3736,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
 
     GetDeviceTable(commandBuffer)->CmdWriteTimestamp(commandBuffer_unwrapped, pipelineStage, queryPool_unwrapped, query);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStage, queryPool, query);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStage, queryPool, query);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
@@ -3749,9 +3749,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3762,7 +3762,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(stride);
         encoder->EncodeFlagsValue(flags);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyQueryPoolResultsHandles, queryPool, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyQueryPoolResultsHandles, queryPool, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3771,7 +3771,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
 
     GetDeviceTable(commandBuffer)->CmdCopyQueryPoolResults(commandBuffer_unwrapped, queryPool_unwrapped, firstQuery, queryCount, dstBuffer_unwrapped, dstOffset, stride, flags);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
@@ -3782,9 +3782,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     uint32_t                                    size,
     const void*                                 pValues)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(CaptureManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushConstants);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushConstants);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -3793,7 +3793,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
         encoder->EncodeUInt32Value(offset);
         encoder->EncodeUInt32Value(size);
         encoder->EncodeVoidArray(pValues, size);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPushConstantsHandles, layout);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPushConstantsHandles, layout);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -3801,7 +3801,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
 
     GetDeviceTable(commandBuffer)->CmdPushConstants(commandBuffer_unwrapped, layout_unwrapped, stageFlags, offset, size, pValues);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(CaptureManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
@@ -3809,64 +3809,64 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     VkSubpassContents                           contents)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, contents);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, contents);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pRenderPassBegin);
         encoder->EncodeEnumValue(contents);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPassHandles, pRenderPassBegin);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPassHandles, pRenderPassBegin);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkRenderPassBeginInfo* pRenderPassBegin_unwrapped = UnwrapStructPtrHandles(pRenderPassBegin, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBeginRenderPass(commandBuffer_unwrapped, pRenderPassBegin_unwrapped, contents);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, contents);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, contents);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
     VkCommandBuffer                             commandBuffer,
     VkSubpassContents                           contents)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(CaptureManager::Get(), commandBuffer, contents);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, contents);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(contents);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdNextSubpass(commandBuffer_unwrapped, contents);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(CaptureManager::Get(), commandBuffer, contents);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, contents);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
     VkCommandBuffer                             commandBuffer)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdEndRenderPass(commandBuffer_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
@@ -3874,24 +3874,24 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(CaptureManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteCommands);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteCommands);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(commandBufferCount);
         encoder->EncodeHandleArray(pCommandBuffers, commandBufferCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteCommandsHandles, commandBufferCount, pCommandBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteCommandsHandles, commandBufferCount, pCommandBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCommandBuffer* pCommandBuffers_unwrapped = UnwrapHandles<VkCommandBuffer>(pCommandBuffers, commandBufferCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdExecuteCommands(commandBuffer_unwrapped, commandBufferCount, pCommandBuffers_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(CaptureManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
@@ -3899,25 +3899,25 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
     uint32_t                                    bindInfoCount,
     const VkBindBufferMemoryInfo*               pBindInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(CaptureManager::Get(), device, bindInfoCount, pBindInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(VulkanCaptureManager::Get(), device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBindBufferMemoryInfo* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindBufferMemory2(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         EncodeStructArray(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(CaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(VulkanCaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
 
     return result;
 }
@@ -3927,25 +3927,25 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(
     uint32_t                                    bindInfoCount,
     const VkBindImageMemoryInfo*                pBindInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(CaptureManager::Get(), device, bindInfoCount, pBindInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(VulkanCaptureManager::Get(), device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBindImageMemoryInfo* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindImageMemory2(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         EncodeStructArray(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(CaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(VulkanCaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
 
     return result;
 }
@@ -3957,13 +3957,13 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
     uint32_t                                    remoteDeviceIndex,
     VkPeerMemoryFeatureFlags*                   pPeerMemoryFeatures)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(CaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(VulkanCaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->GetDeviceGroupPeerMemoryFeatures(device_unwrapped, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -3971,31 +3971,31 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
         encoder->EncodeUInt32Value(localDeviceIndex);
         encoder->EncodeUInt32Value(remoteDeviceIndex);
         encoder->EncodeFlagsPtr(pPeerMemoryFeatures);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(CaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(VulkanCaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(CaptureManager::Get(), commandBuffer, deviceMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, deviceMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMask);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMask);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(deviceMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDeviceMask(commandBuffer_unwrapped, deviceMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(CaptureManager::Get(), commandBuffer, deviceMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, deviceMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
@@ -4007,9 +4007,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(CaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBase);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBase);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -4019,14 +4019,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
         encoder->EncodeUInt32Value(groupCountX);
         encoder->EncodeUInt32Value(groupCountY);
         encoder->EncodeUInt32Value(groupCountZ);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDispatchBase(commandBuffer_unwrapped, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(CaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
@@ -4036,7 +4036,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(CaptureManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(VulkanCaptureManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -4044,24 +4044,24 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceGroupCount, omit_output_data);
         EncodeStructArray(encoder, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkInstance, PhysicalDeviceWrapper, VkPhysicalDeviceGroupProperties>(result, instance, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, pPhysicalDeviceGroupProperties, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkInstance, PhysicalDeviceWrapper, VkPhysicalDeviceGroupProperties>(result, instance, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, pPhysicalDeviceGroupProperties, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(CaptureManager::Get(), result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(VulkanCaptureManager::Get(), result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return result;
 }
@@ -4071,24 +4071,24 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(
     const VkImageMemoryRequirementsInfo2*       pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetImageMemoryRequirements2(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
@@ -4096,24 +4096,24 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
     const VkBufferMemoryRequirementsInfo2*      pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetBufferMemoryRequirements2(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
@@ -4122,67 +4122,67 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageSparseMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetImageSparseMemoryRequirements2(device_unwrapped, pInfo_unwrapped, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         EncodeStructArray(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(CaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures2*                  pFeatures)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures2(physicalDevice_unwrapped, pFeatures);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pFeatures);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties2*                pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice_unwrapped, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
@@ -4190,22 +4190,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
     VkFormat                                    format,
     VkFormatProperties2*                        pFormatProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties2(physicalDevice_unwrapped, format, pFormatProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         EncodeStructPtr(encoder, pFormatProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
@@ -4215,7 +4215,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -4225,17 +4225,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pImageFormatInfo);
         EncodeStructPtr(encoder, pImageFormatProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(CaptureManager::Get(), result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     return result;
 }
@@ -4245,43 +4245,43 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2*                   pQueueFamilyProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2(physicalDevice_unwrapped, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         EncodeStructArray(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties2*          pMemoryProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties2(physicalDevice_unwrapped, pMemoryProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pMemoryProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
@@ -4290,23 +4290,23 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties2*             pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties2(physicalDevice_unwrapped, pFormatInfo, pPropertyCount, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pFormatInfo);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(CaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
@@ -4314,15 +4314,15 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
     VkCommandPool                               commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(CaptureManager::Get(), device, commandPool, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, flags);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(commandPool);
         encoder->EncodeFlagsValue(flags);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -4330,7 +4330,7 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
 
     GetDeviceTable(device)->TrimCommandPool(device_unwrapped, commandPool_unwrapped, flags);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(CaptureManager::Get(), device, commandPool, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, flags);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
@@ -4338,24 +4338,24 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
     const VkDeviceQueueInfo2*                   pQueueInfo,
     VkQueue*                                    pQueue)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(CaptureManager::Get(), device, pQueueInfo, pQueue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(VulkanCaptureManager::Get(), device, pQueueInfo, pQueue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->GetDeviceQueue2(device_unwrapped, pQueueInfo, pQueue);
 
-    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, CaptureManager::GetUniqueId);
+    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, VulkanCaptureManager::GetUniqueId);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue2);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pQueueInfo);
         encoder->EncodeHandlePtr(pQueue);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueueWrapper, void>(VK_SUCCESS, device, pQueue, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, QueueWrapper, void>(VK_SUCCESS, device, pQueue, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(CaptureManager::Get(), device, pQueueInfo, pQueue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(VulkanCaptureManager::Get(), device, pQueueInfo, pQueue);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
@@ -4366,7 +4366,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -4374,14 +4374,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -4389,10 +4389,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pYcbcrConversion, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerYcbcrConversionWrapper, VkSamplerYcbcrConversionCreateInfo>(result, device, pYcbcrConversion, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerYcbcrConversionWrapper, VkSamplerYcbcrConversionCreateInfo>(result, device, pYcbcrConversion, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pYcbcrConversion);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     return result;
 }
@@ -4402,15 +4402,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     VkSamplerYcbcrConversion                    ycbcrConversion,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(CaptureManager::Get(), device, ycbcrConversion, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(VulkanCaptureManager::Get(), device, ycbcrConversion, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(ycbcrConversion);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SamplerYcbcrConversionWrapper>(ycbcrConversion, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SamplerYcbcrConversionWrapper>(ycbcrConversion, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -4418,7 +4418,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
 
     GetDeviceTable(device)->DestroySamplerYcbcrConversion(device_unwrapped, ycbcrConversion_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(CaptureManager::Get(), device, ycbcrConversion, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(VulkanCaptureManager::Get(), device, ycbcrConversion, pAllocator);
 
     DestroyWrappedHandle<SamplerYcbcrConversionWrapper>(ycbcrConversion);
 }
@@ -4431,9 +4431,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -4441,14 +4441,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -4456,10 +4456,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pDescriptorUpdateTemplate, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorUpdateTemplateWrapper, VkDescriptorUpdateTemplateCreateInfo>(result, device, pDescriptorUpdateTemplate, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorUpdateTemplateWrapper, VkDescriptorUpdateTemplateCreateInfo>(result, device, pDescriptorUpdateTemplate, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     return result;
 }
@@ -4469,15 +4469,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(CaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(VulkanCaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(descriptorUpdateTemplate);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -4485,7 +4485,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
 
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplate(device_unwrapped, descriptorUpdateTemplate_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(CaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(VulkanCaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
     DestroyWrappedHandle<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 }
@@ -4495,22 +4495,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
     const VkPhysicalDeviceExternalBufferInfo*   pExternalBufferInfo,
     VkExternalBufferProperties*                 pExternalBufferProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalBufferProperties(physicalDevice_unwrapped, pExternalBufferInfo, pExternalBufferProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalBufferInfo);
         EncodeStructPtr(encoder, pExternalBufferProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
@@ -4518,22 +4518,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
     const VkPhysicalDeviceExternalFenceInfo*    pExternalFenceInfo,
     VkExternalFenceProperties*                  pExternalFenceProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalFenceProperties(physicalDevice_unwrapped, pExternalFenceInfo, pExternalFenceProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalFenceInfo);
         EncodeStructPtr(encoder, pExternalFenceProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
@@ -4541,22 +4541,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
     const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo,
     VkExternalSemaphoreProperties*              pExternalSemaphoreProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalSemaphoreProperties(physicalDevice_unwrapped, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalSemaphoreInfo);
         EncodeStructPtr(encoder, pExternalSemaphoreProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
@@ -4564,24 +4564,24 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     const VkDescriptorSetLayoutCreateInfo*      pCreateInfo,
     VkDescriptorSetLayoutSupport*               pSupport)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pSupport);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pSupport);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorSetLayoutCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetDescriptorSetLayoutSupport(device_unwrapped, pCreateInfo_unwrapped, pSupport);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pCreateInfo);
         EncodeStructPtr(encoder, pSupport);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pSupport);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pSupport);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
@@ -4593,9 +4593,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCount);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCount);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -4605,7 +4605,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -4614,7 +4614,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndirectCount(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
@@ -4626,9 +4626,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -4638,7 +4638,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -4647,7 +4647,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCount(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
@@ -4658,7 +4658,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -4666,14 +4666,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -4681,10 +4681,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pRenderPass, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
 }
@@ -4694,24 +4694,24 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     const VkSubpassBeginInfo*                   pSubpassBeginInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pRenderPassBegin);
         EncodeStructPtr(encoder, pSubpassBeginInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPass2Handles, pRenderPassBegin);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPass2Handles, pRenderPassBegin);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkRenderPassBeginInfo* pRenderPassBegin_unwrapped = UnwrapStructPtrHandles(pRenderPassBegin, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBeginRenderPass2(commandBuffer_unwrapped, pRenderPassBegin_unwrapped, pSubpassBeginInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(
@@ -4719,43 +4719,43 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(
     const VkSubpassBeginInfo*                   pSubpassBeginInfo,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pSubpassBeginInfo);
         EncodeStructPtr(encoder, pSubpassEndInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdNextSubpass2(commandBuffer_unwrapped, pSubpassBeginInfo, pSubpassEndInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(
     VkCommandBuffer                             commandBuffer,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassEndInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassEndInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pSubpassEndInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdEndRenderPass2(commandBuffer_unwrapped, pSubpassEndInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassEndInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassEndInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
@@ -4764,16 +4764,16 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(CaptureManager::Get(), device, queryPool, firstQuery, queryCount);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, firstQuery, queryCount);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPool);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPool);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -4781,7 +4781,7 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
 
     GetDeviceTable(device)->ResetQueryPool(device_unwrapped, queryPool_unwrapped, firstQuery, queryCount);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(CaptureManager::Get(), device, queryPool, firstQuery, queryCount);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, firstQuery, queryCount);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
@@ -4791,7 +4791,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(CaptureManager::Get(), device, semaphore, pValue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, pValue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSemaphore semaphore_unwrapped = GetWrappedHandle<VkSemaphore>(semaphore);
@@ -4802,17 +4802,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(semaphore);
         encoder->EncodeUInt64Ptr(pValue, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(CaptureManager::Get(), result, device, semaphore, pValue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(VulkanCaptureManager::Get(), result, device, semaphore, pValue);
 
     return result;
 }
@@ -4822,25 +4822,25 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(
     const VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(CaptureManager::Get(), device, pWaitInfo, timeout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(VulkanCaptureManager::Get(), device, pWaitInfo, timeout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->WaitSemaphores(device_unwrapped, pWaitInfo_unwrapped, timeout);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitSemaphores);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitSemaphores);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pWaitInfo);
         encoder->EncodeUInt64Value(timeout);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(CaptureManager::Get(), result, device, pWaitInfo, timeout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(VulkanCaptureManager::Get(), result, device, pWaitInfo, timeout);
 
     return result;
 }
@@ -4849,24 +4849,24 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(
     VkDevice                                    device,
     const VkSemaphoreSignalInfo*                pSignalInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(CaptureManager::Get(), device, pSignalInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(VulkanCaptureManager::Get(), device, pSignalInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreSignalInfo* pSignalInfo_unwrapped = UnwrapStructPtrHandles(pSignalInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->SignalSemaphore(device_unwrapped, pSignalInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSignalSemaphore);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSignalSemaphore);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pSignalInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(CaptureManager::Get(), result, device, pSignalInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(VulkanCaptureManager::Get(), result, device, pSignalInfo);
 
     return result;
 }
@@ -4875,24 +4875,24 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddress(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddress);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddress);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeVkDeviceAddressValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -4901,24 +4901,24 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     uint64_t result = GetDeviceTable(device)->GetBufferOpaqueCaptureAddress(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt64Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -4927,24 +4927,24 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(
     VkDevice                                    device,
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     uint64_t result = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddress(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt64Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -4954,15 +4954,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     VkSurfaceKHR                                surface,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(CaptureManager::Get(), instance, surface, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, surface, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeHandleValue(surface);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SurfaceKHRWrapper>(surface, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SurfaceKHRWrapper>(surface, encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
@@ -4970,7 +4970,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
 
     GetInstanceTable(instance)->DestroySurfaceKHR(instance_unwrapped, surface_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(CaptureManager::Get(), instance, surface, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, surface, pAllocator);
 
     DestroyWrappedHandle<SurfaceKHRWrapper>(surface);
 }
@@ -4983,7 +4983,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, surface, pSupported);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, surface, pSupported);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -4994,7 +4994,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5002,10 +5002,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
         encoder->EncodeHandleValue(surface);
         encoder->EncodeVkBool32Ptr(pSupported, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, surface, pSupported);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, surface, pSupported);
 
     return result;
 }
@@ -5017,7 +5017,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -5028,17 +5028,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeHandleValue(surface);
         EncodeStructPtr(encoder, pSurfaceCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, surface, pSurfaceCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, surface, pSurfaceCapabilities);
 
     return result;
 }
@@ -5051,7 +5051,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(CaptureManager::Get(), physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -5062,7 +5062,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5070,10 +5070,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
         encoder->EncodeUInt32Ptr(pSurfaceFormatCount, omit_output_data);
         EncodeStructArray(encoder, pSurfaceFormats, (pSurfaceFormatCount != nullptr) ? (*pSurfaceFormatCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
     return result;
 }
@@ -5086,7 +5086,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, surface, pPresentModeCount, pPresentModes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, surface, pPresentModeCount, pPresentModes);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -5097,7 +5097,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5105,10 +5105,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
         encoder->EncodeUInt32Ptr(pPresentModeCount, omit_output_data);
         encoder->EncodeEnumArray(pPresentModes, (pPresentModeCount != nullptr) ? (*pPresentModeCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, surface, pPresentModeCount, pPresentModes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, surface, pPresentModeCount, pPresentModes);
 
     return result;
 }
@@ -5121,9 +5121,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pSwapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pSwapchain);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSwapchainCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -5131,14 +5131,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchain, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchain, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -5146,10 +5146,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSwapchain, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, pSwapchain, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, pSwapchain, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSwapchain);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pSwapchain);
 
     return result;
 }
@@ -5159,15 +5159,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     VkSwapchainKHR                              swapchain,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(CaptureManager::Get(), device, swapchain, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapchain);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SwapchainKHRWrapper>(swapchain, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SwapchainKHRWrapper>(swapchain, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -5175,7 +5175,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
 
     GetDeviceTable(device)->DestroySwapchainKHR(device_unwrapped, swapchain_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(CaptureManager::Get(), device, swapchain, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, pAllocator);
 
     DestroyWrappedHandle<SwapchainKHRWrapper>(swapchain);
 }
@@ -5188,7 +5188,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(CaptureManager::Get(), device, swapchain, pSwapchainImageCount, pSwapchainImages);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, pSwapchainImageCount, pSwapchainImages);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
@@ -5197,14 +5197,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(device, swapchain, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(device, swapchain, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -5212,10 +5212,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
         encoder->EncodeUInt32Ptr(pSwapchainImageCount, omit_output_data);
         encoder->EncodeHandleArray(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkSwapchainKHR, ImageWrapper, void>(result, device, swapchain, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, pSwapchainImages, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkSwapchainKHR, ImageWrapper, void>(result, device, swapchain, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, pSwapchainImages, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(CaptureManager::Get(), result, device, swapchain, pSwapchainImageCount, pSwapchainImages);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, pSwapchainImageCount, pSwapchainImages);
 
     return result;
 }
@@ -5230,7 +5230,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(CaptureManager::Get(), device, swapchain, timeout, semaphore, fence, pImageIndex);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, timeout, semaphore, fence, pImageIndex);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
@@ -5243,7 +5243,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireNextImageKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireNextImageKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -5253,10 +5253,10 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
         encoder->EncodeHandleValue(fence);
         encoder->EncodeUInt32Ptr(pImageIndex, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(CaptureManager::Get(), result, device, swapchain, timeout, semaphore, fence, pImageIndex);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, timeout, semaphore, fence, pImageIndex);
 
     return result;
 }
@@ -5265,24 +5265,24 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     VkQueue                                     queue,
     const VkPresentInfoKHR*                     pPresentInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(CaptureManager::Get(), queue, pPresentInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(VulkanCaptureManager::Get(), queue, pPresentInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
     const VkPresentInfoKHR* pPresentInfo_unwrapped = UnwrapStructPtrHandles(pPresentInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(queue)->QueuePresentKHR(queue_unwrapped, pPresentInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueuePresentKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueuePresentKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         EncodeStructPtr(encoder, pPresentInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(CaptureManager::Get(), result, queue, pPresentInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(VulkanCaptureManager::Get(), result, queue, pPresentInfo);
 
     return result;
 }
@@ -5293,7 +5293,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(CaptureManager::Get(), device, pDeviceGroupPresentCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), device, pDeviceGroupPresentCapabilities);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -5303,16 +5303,16 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pDeviceGroupPresentCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(CaptureManager::Get(), result, device, pDeviceGroupPresentCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pDeviceGroupPresentCapabilities);
 
     return result;
 }
@@ -5324,7 +5324,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(CaptureManager::Get(), device, surface, pModes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(VulkanCaptureManager::Get(), device, surface, pModes);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -5335,17 +5335,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(surface);
         encoder->EncodeFlagsPtr(pModes, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(CaptureManager::Get(), result, device, surface, pModes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, surface, pModes);
 
     return result;
 }
@@ -5358,7 +5358,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, surface, pRectCount, pRects);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, surface, pRectCount, pRects);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -5369,7 +5369,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5377,10 +5377,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
         encoder->EncodeUInt32Ptr(pRectCount, omit_output_data);
         EncodeStructArray(encoder, pRects, (pRectCount != nullptr) ? (*pRectCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, surface, pRectCount, pRects);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, surface, pRectCount, pRects);
 
     return result;
 }
@@ -5392,9 +5392,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(CaptureManager::Get(), device, pAcquireInfo, pImageIndex);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pAcquireInfo, pImageIndex);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAcquireNextImageInfoKHR* pAcquireInfo_unwrapped = UnwrapStructPtrHandles(pAcquireInfo, handle_unwrap_memory);
 
@@ -5404,17 +5404,17 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireNextImage2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireNextImage2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAcquireInfo);
         encoder->EncodeUInt32Ptr(pImageIndex, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(CaptureManager::Get(), result, device, pAcquireInfo, pImageIndex);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pAcquireInfo, pImageIndex);
 
     return result;
 }
@@ -5426,7 +5426,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -5434,24 +5434,24 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPropertiesKHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->display); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPropertiesKHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->display); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
 }
@@ -5463,7 +5463,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -5471,24 +5471,24 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlanePropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlanePropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPlanePropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPlanePropertiesKHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->currentDisplay); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPlanePropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPlanePropertiesKHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->currentDisplay); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
 }
@@ -5501,7 +5501,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(CaptureManager::Get(), physicalDevice, planeIndex, pDisplayCount, pDisplays);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, planeIndex, pDisplayCount, pDisplays);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -5509,14 +5509,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5524,10 +5524,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
         encoder->EncodeUInt32Ptr(pDisplayCount, omit_output_data);
         encoder->EncodeHandleArray(pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkPhysicalDevice, void*, DisplayKHRWrapper, void>(result, physicalDevice, nullptr, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, pDisplays, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkPhysicalDevice, void*, DisplayKHRWrapper, void>(result, physicalDevice, nullptr, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, pDisplays, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, planeIndex, pDisplayCount, pDisplays);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, planeIndex, pDisplayCount, pDisplays);
 
     return result;
 }
@@ -5540,7 +5540,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
@@ -5549,14 +5549,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModePropertiesKHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModePropertiesKHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5564,10 +5564,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModePropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayModePropertiesKHR* handle_struct)->DisplayModeKHRWrapper* { return reinterpret_cast<DisplayModeKHRWrapper*>(handle_struct->displayMode); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModePropertiesKHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayModePropertiesKHR* handle_struct)->DisplayModeKHRWrapper* { return reinterpret_cast<DisplayModeKHRWrapper*>(handle_struct->displayMode); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, display, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, display, pPropertyCount, pProperties);
 
     return result;
 }
@@ -5581,7 +5581,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(CaptureManager::Get(), physicalDevice, display, pCreateInfo, pAllocator, pMode);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, display, pCreateInfo, pAllocator, pMode);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
@@ -5590,14 +5590,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, DisplayModeKHRWrapper>(physicalDevice, display, pMode, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, DisplayModeKHRWrapper>(physicalDevice, display, pMode, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayModeKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayModeKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5606,10 +5606,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pMode, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModeCreateInfoKHR>(result, physicalDevice, pMode, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModeCreateInfoKHR>(result, physicalDevice, pMode, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, display, pCreateInfo, pAllocator, pMode);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, display, pCreateInfo, pAllocator, pMode);
 
     return result;
 }
@@ -5622,7 +5622,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, mode, planeIndex, pCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, mode, planeIndex, pCapabilities);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayModeKHR mode_unwrapped = GetWrappedHandle<VkDisplayModeKHR>(mode);
@@ -5633,7 +5633,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5641,10 +5641,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
         encoder->EncodeUInt32Value(planeIndex);
         EncodeStructPtr(encoder, pCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, mode, planeIndex, pCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, mode, planeIndex, pCapabilities);
 
     return result;
 }
@@ -5657,9 +5657,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
     const VkDisplaySurfaceCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -5667,14 +5667,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -5682,10 +5682,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkDisplaySurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkDisplaySurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -5699,9 +5699,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(CaptureManager::Get(), device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSwapchainCreateInfoKHR* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, swapchainCount, handle_unwrap_memory);
 
@@ -5709,14 +5709,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchains, swapchainCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchains, swapchainCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -5725,10 +5725,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleArray(pSwapchains, swapchainCount, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, void*, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, nullptr, swapchainCount, pSwapchains, pCreateInfos, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, void*, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, nullptr, swapchainCount, pSwapchains, pCreateInfos, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(CaptureManager::Get(), result, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
 
     return result;
 }
@@ -5741,7 +5741,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -5749,14 +5749,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -5764,10 +5764,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkXlibSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkXlibSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -5778,13 +5778,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     Display*                                    dpy,
     VisualID                                    visualID)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, dpy, visualID);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, dpy, visualID);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     VkBool32 result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice_unwrapped, queueFamilyIndex, dpy, visualID);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5792,10 +5792,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
         encoder->EncodeVoidPtr(dpy);
         encoder->EncodeSizeTValue(visualID);
         encoder->EncodeVkBool32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, dpy, visualID);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, dpy, visualID);
 
     return result;
 }
@@ -5808,7 +5808,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -5816,14 +5816,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -5831,10 +5831,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkXcbSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkXcbSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -5845,13 +5845,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
     xcb_connection_t*                           connection,
     xcb_visualid_t                              visual_id)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, connection, visual_id);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, connection, visual_id);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     VkBool32 result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceXcbPresentationSupportKHR(physicalDevice_unwrapped, queueFamilyIndex, connection, visual_id);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -5859,10 +5859,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
         encoder->EncodeVoidPtr(connection);
         encoder->EncodeUInt32Value(visual_id);
         encoder->EncodeVkBool32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, connection, visual_id);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, connection, visual_id);
 
     return result;
 }
@@ -5875,7 +5875,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -5883,14 +5883,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -5898,10 +5898,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkWaylandSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkWaylandSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -5911,23 +5911,23 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
     uint32_t                                    queueFamilyIndex,
     struct wl_display*                          display)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, display);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     VkBool32 result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceWaylandPresentationSupportKHR(physicalDevice_unwrapped, queueFamilyIndex, display);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(display);
         encoder->EncodeVkBool32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, display);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, display);
 
     return result;
 }
@@ -5940,7 +5940,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -5948,14 +5948,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -5963,10 +5963,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkAndroidSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkAndroidSurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -5979,7 +5979,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -5987,14 +5987,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -6002,10 +6002,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkWin32SurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkWin32SurfaceCreateInfoKHR>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -6014,22 +6014,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t                                    queueFamilyIndex)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     VkBool32 result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceWin32PresentationSupportKHR(physicalDevice_unwrapped, queueFamilyIndex);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVkBool32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex);
 
     return result;
 }
@@ -6038,42 +6038,42 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures2*                  pFeatures)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures2KHR(physicalDevice_unwrapped, pFeatures);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pFeatures);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pFeatures);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFeatures);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties2*                pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2KHR(physicalDevice_unwrapped, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
@@ -6081,22 +6081,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
     VkFormat                                    format,
     VkFormatProperties2*                        pFormatProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties2KHR(physicalDevice_unwrapped, format, pFormatProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         EncodeStructPtr(encoder, pFormatProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, format, pFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, pFormatProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
@@ -6106,7 +6106,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -6116,17 +6116,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pImageFormatInfo);
         EncodeStructPtr(encoder, pImageFormatProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
     return result;
 }
@@ -6136,43 +6136,43 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2*                   pQueueFamilyProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice_unwrapped, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         EncodeStructArray(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties2*          pMemoryProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties2KHR(physicalDevice_unwrapped, pMemoryProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pMemoryProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pMemoryProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pMemoryProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
@@ -6181,23 +6181,23 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties2*             pProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties2KHR(physicalDevice_unwrapped, pFormatInfo, pPropertyCount, pProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pFormatInfo);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
@@ -6207,13 +6207,13 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
     uint32_t                                    remoteDeviceIndex,
     VkPeerMemoryFeatureFlags*                   pPeerMemoryFeatures)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(CaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(VulkanCaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->GetDeviceGroupPeerMemoryFeaturesKHR(device_unwrapped, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -6221,31 +6221,31 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
         encoder->EncodeUInt32Value(localDeviceIndex);
         encoder->EncodeUInt32Value(remoteDeviceIndex);
         encoder->EncodeFlagsPtr(pPeerMemoryFeatures);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(CaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(VulkanCaptureManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(CaptureManager::Get(), commandBuffer, deviceMask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, deviceMask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(deviceMask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDeviceMaskKHR(commandBuffer_unwrapped, deviceMask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(CaptureManager::Get(), commandBuffer, deviceMask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, deviceMask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
@@ -6257,9 +6257,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(CaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -6269,14 +6269,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
         encoder->EncodeUInt32Value(groupCountX);
         encoder->EncodeUInt32Value(groupCountY);
         encoder->EncodeUInt32Value(groupCountZ);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDispatchBaseKHR(commandBuffer_unwrapped, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(CaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 }
 
 VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
@@ -6284,15 +6284,15 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
     VkCommandPool                               commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(CaptureManager::Get(), device, commandPool, flags);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, flags);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(commandPool);
         encoder->EncodeFlagsValue(flags);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -6300,7 +6300,7 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
 
     GetDeviceTable(device)->TrimCommandPoolKHR(device_unwrapped, commandPool_unwrapped, flags);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(CaptureManager::Get(), device, commandPool, flags);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(VulkanCaptureManager::Get(), device, commandPool, flags);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
@@ -6310,7 +6310,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(CaptureManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(VulkanCaptureManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -6318,24 +6318,24 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceGroupCount, omit_output_data);
         EncodeStructArray(encoder, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkInstance, PhysicalDeviceWrapper, VkPhysicalDeviceGroupProperties>(result, instance, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, pPhysicalDeviceGroupProperties, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkInstance, PhysicalDeviceWrapper, VkPhysicalDeviceGroupProperties>(result, instance, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, pPhysicalDeviceGroupProperties, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(CaptureManager::Get(), result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(VulkanCaptureManager::Get(), result, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return result;
 }
@@ -6345,22 +6345,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
     const VkPhysicalDeviceExternalBufferInfo*   pExternalBufferInfo,
     VkExternalBufferProperties*                 pExternalBufferProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalBufferPropertiesKHR(physicalDevice_unwrapped, pExternalBufferInfo, pExternalBufferProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalBufferInfo);
         EncodeStructPtr(encoder, pExternalBufferProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
@@ -6370,9 +6370,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(CaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo_unwrapped = UnwrapStructPtrHandles(pGetWin32HandleInfo, handle_unwrap_memory);
 
@@ -6382,17 +6382,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(CaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
 }
@@ -6405,7 +6405,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(CaptureManager::Get(), device, handleType, handle, pMemoryWin32HandleProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), device, handleType, handle, pMemoryWin32HandleProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -6415,7 +6415,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -6423,10 +6423,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
         encoder->EncodeVoidPtr(handle);
         EncodeStructPtr(encoder, pMemoryWin32HandleProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(CaptureManager::Get(), result, device, handleType, handle, pMemoryWin32HandleProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, handleType, handle, pMemoryWin32HandleProperties);
 
     return result;
 }
@@ -6438,9 +6438,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(CaptureManager::Get(), device, pGetFdInfo, pFd);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetFdInfo, pFd);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkMemoryGetFdInfoKHR* pGetFdInfo_unwrapped = UnwrapStructPtrHandles(pGetFdInfo, handle_unwrap_memory);
 
@@ -6450,17 +6450,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(CaptureManager::Get(), result, device, pGetFdInfo, pFd);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetFdInfo, pFd);
 
     return result;
 }
@@ -6473,7 +6473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(CaptureManager::Get(), device, handleType, fd, pMemoryFdProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), device, handleType, fd, pMemoryFdProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -6483,7 +6483,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -6491,10 +6491,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
         encoder->EncodeInt32Value(fd);
         EncodeStructPtr(encoder, pMemoryFdProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(CaptureManager::Get(), result, device, handleType, fd, pMemoryFdProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, handleType, fd, pMemoryFdProperties);
 
     return result;
 }
@@ -6504,46 +6504,46 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
     const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo,
     VkExternalSemaphoreProperties*              pExternalSemaphoreProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalSemaphorePropertiesKHR(physicalDevice_unwrapped, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalSemaphoreInfo);
         EncodeStructPtr(encoder, pExternalSemaphoreProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     const VkImportSemaphoreWin32HandleInfoKHR*  pImportSemaphoreWin32HandleInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(CaptureManager::Get(), device, pImportSemaphoreWin32HandleInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), device, pImportSemaphoreWin32HandleInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo_unwrapped = UnwrapStructPtrHandles(pImportSemaphoreWin32HandleInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->ImportSemaphoreWin32HandleKHR(device_unwrapped, pImportSemaphoreWin32HandleInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pImportSemaphoreWin32HandleInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(CaptureManager::Get(), result, device, pImportSemaphoreWin32HandleInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pImportSemaphoreWin32HandleInfo);
 
     return result;
 }
@@ -6555,9 +6555,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(CaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo_unwrapped = UnwrapStructPtrHandles(pGetWin32HandleInfo, handle_unwrap_memory);
 
@@ -6567,17 +6567,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(CaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
 }
@@ -6586,24 +6586,24 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     VkDevice                                    device,
     const VkImportSemaphoreFdInfoKHR*           pImportSemaphoreFdInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(CaptureManager::Get(), device, pImportSemaphoreFdInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(VulkanCaptureManager::Get(), device, pImportSemaphoreFdInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo_unwrapped = UnwrapStructPtrHandles(pImportSemaphoreFdInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->ImportSemaphoreFdKHR(device_unwrapped, pImportSemaphoreFdInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pImportSemaphoreFdInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(CaptureManager::Get(), result, device, pImportSemaphoreFdInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pImportSemaphoreFdInfo);
 
     return result;
 }
@@ -6615,9 +6615,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(CaptureManager::Get(), device, pGetFdInfo, pFd);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetFdInfo, pFd);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreGetFdInfoKHR* pGetFdInfo_unwrapped = UnwrapStructPtrHandles(pGetFdInfo, handle_unwrap_memory);
 
@@ -6627,17 +6627,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(CaptureManager::Get(), result, device, pGetFdInfo, pFd);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetFdInfo, pFd);
 
     return result;
 }
@@ -6650,9 +6650,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
     uint32_t                                    descriptorWriteCount,
     const VkWriteDescriptorSet*                 pDescriptorWrites)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -6661,17 +6661,17 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
         encoder->EncodeUInt32Value(set);
         encoder->EncodeUInt32Value(descriptorWriteCount);
         EncodeStructArray(encoder, pDescriptorWrites, descriptorWriteCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPushDescriptorSetKHRHandles, layout, descriptorWriteCount, pDescriptorWrites);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPushDescriptorSetKHRHandles, layout, descriptorWriteCount, pDescriptorWrites);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     VkPipelineLayout layout_unwrapped = GetWrappedHandle<VkPipelineLayout>(layout);
     const VkWriteDescriptorSet* pDescriptorWrites_unwrapped = UnwrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdPushDescriptorSetKHR(commandBuffer_unwrapped, pipelineBindPoint, layout_unwrapped, set, descriptorWriteCount, pDescriptorWrites_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
@@ -6682,9 +6682,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -6692,14 +6692,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -6707,10 +6707,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pDescriptorUpdateTemplate, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorUpdateTemplateWrapper, VkDescriptorUpdateTemplateCreateInfo>(result, device, pDescriptorUpdateTemplate, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DescriptorUpdateTemplateWrapper, VkDescriptorUpdateTemplateCreateInfo>(result, device, pDescriptorUpdateTemplate, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     return result;
 }
@@ -6720,15 +6720,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(CaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(VulkanCaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(descriptorUpdateTemplate);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -6736,7 +6736,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
 
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplateKHR(device_unwrapped, descriptorUpdateTemplate_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(CaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(VulkanCaptureManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
     DestroyWrappedHandle<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 }
@@ -6749,7 +6749,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -6757,14 +6757,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -6772,10 +6772,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pRenderPass, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
 
     return result;
 }
@@ -6785,24 +6785,24 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     const VkSubpassBeginInfo*                   pSubpassBeginInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pRenderPassBegin);
         EncodeStructPtr(encoder, pSubpassBeginInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPass2KHRHandles, pRenderPassBegin);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPass2KHRHandles, pRenderPassBegin);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkRenderPassBeginInfo* pRenderPassBegin_unwrapped = UnwrapStructPtrHandles(pRenderPassBegin, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBeginRenderPass2KHR(commandBuffer_unwrapped, pRenderPassBegin_unwrapped, pSubpassBeginInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
@@ -6810,66 +6810,66 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
     const VkSubpassBeginInfo*                   pSubpassBeginInfo,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pSubpassBeginInfo);
         EncodeStructPtr(encoder, pSubpassEndInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdNextSubpass2KHR(commandBuffer_unwrapped, pSubpassBeginInfo, pSubpassEndInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassEndInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassEndInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pSubpassEndInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdEndRenderPass2KHR(commandBuffer_unwrapped, pSubpassEndInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pSubpassEndInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSubpassEndInfo);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(CaptureManager::Get(), device, swapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(VulkanCaptureManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
 
     VkResult result = GetDeviceTable(device)->GetSwapchainStatusKHR(device_unwrapped, swapchain_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapchain);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(CaptureManager::Get(), result, device, swapchain);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain);
 
     return result;
 }
@@ -6879,46 +6879,46 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
     const VkPhysicalDeviceExternalFenceInfo*    pExternalFenceInfo,
     VkExternalFenceProperties*                  pExternalFenceProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalFencePropertiesKHR(physicalDevice_unwrapped, pExternalFenceInfo, pExternalFenceProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pExternalFenceInfo);
         EncodeStructPtr(encoder, pExternalFenceProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     VkDevice                                    device,
     const VkImportFenceWin32HandleInfoKHR*      pImportFenceWin32HandleInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(CaptureManager::Get(), device, pImportFenceWin32HandleInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), device, pImportFenceWin32HandleInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo_unwrapped = UnwrapStructPtrHandles(pImportFenceWin32HandleInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->ImportFenceWin32HandleKHR(device_unwrapped, pImportFenceWin32HandleInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pImportFenceWin32HandleInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(CaptureManager::Get(), result, device, pImportFenceWin32HandleInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pImportFenceWin32HandleInfo);
 
     return result;
 }
@@ -6930,9 +6930,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(CaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetWin32HandleInfo, pHandle);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo_unwrapped = UnwrapStructPtrHandles(pGetWin32HandleInfo, handle_unwrap_memory);
 
@@ -6942,17 +6942,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(CaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetWin32HandleInfo, pHandle);
 
     return result;
 }
@@ -6961,24 +6961,24 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     VkDevice                                    device,
     const VkImportFenceFdInfoKHR*               pImportFenceFdInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(CaptureManager::Get(), device, pImportFenceFdInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(VulkanCaptureManager::Get(), device, pImportFenceFdInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImportFenceFdInfoKHR* pImportFenceFdInfo_unwrapped = UnwrapStructPtrHandles(pImportFenceFdInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->ImportFenceFdKHR(device_unwrapped, pImportFenceFdInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceFdKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceFdKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pImportFenceFdInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(CaptureManager::Get(), result, device, pImportFenceFdInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pImportFenceFdInfo);
 
     return result;
 }
@@ -6990,9 +6990,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(CaptureManager::Get(), device, pGetFdInfo, pFd);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(VulkanCaptureManager::Get(), device, pGetFdInfo, pFd);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkFenceGetFdInfoKHR* pGetFdInfo_unwrapped = UnwrapStructPtrHandles(pGetFdInfo, handle_unwrap_memory);
 
@@ -7002,17 +7002,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceFdKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceFdKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(CaptureManager::Get(), result, device, pGetFdInfo, pFd);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pGetFdInfo, pFd);
 
     return result;
 }
@@ -7026,7 +7026,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQuer
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -7036,7 +7036,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQuer
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -7045,10 +7045,10 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQuer
         EncodeStructArray(encoder, pCounters, (pCounterCount != nullptr) ? (*pCounterCount) : 0, omit_output_data);
         EncodeStructArray(encoder, pCounterDescriptions, (pCounterCount != nullptr) ? (*pCounterCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
 
     return result;
 }
@@ -7058,44 +7058,44 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
     const VkQueryPoolPerformanceCreateInfoKHR*  pPerformanceQueryCreateInfo,
     uint32_t*                                   pNumPasses)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(physicalDevice_unwrapped, pPerformanceQueryCreateInfo, pNumPasses);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pPerformanceQueryCreateInfo);
         encoder->EncodeUInt32Ptr(pNumPasses);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
     VkDevice                                    device,
     const VkAcquireProfilingLockInfoKHR*        pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     VkResult result = GetDeviceTable(device)->AcquireProfilingLockKHR(device_unwrapped, pInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -7103,20 +7103,20 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
 VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(
     VkDevice                                    device)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(CaptureManager::Get(), device);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(VulkanCaptureManager::Get(), device);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->ReleaseProfilingLockKHR(device_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(CaptureManager::Get(), device);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(VulkanCaptureManager::Get(), device);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
@@ -7126,9 +7126,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo_unwrapped = UnwrapStructPtrHandles(pSurfaceInfo, handle_unwrap_memory);
 
@@ -7138,17 +7138,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pSurfaceInfo);
         EncodeStructPtr(encoder, pSurfaceCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
 
     return result;
 }
@@ -7161,9 +7161,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo_unwrapped = UnwrapStructPtrHandles(pSurfaceInfo, handle_unwrap_memory);
 
@@ -7173,7 +7173,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -7181,10 +7181,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
         encoder->EncodeUInt32Ptr(pSurfaceFormatCount, omit_output_data);
         EncodeStructArray(encoder, pSurfaceFormats, (pSurfaceFormatCount != nullptr) ? (*pSurfaceFormatCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
 
     return result;
 }
@@ -7196,7 +7196,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -7204,24 +7204,24 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayProperties2KHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->displayProperties.display); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayProperties2KHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->displayProperties.display); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
 }
@@ -7233,7 +7233,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -7241,24 +7241,24 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlaneProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlaneProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPlaneProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPlaneProperties2KHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->displayPlaneProperties.currentDisplay); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, VkDisplayPlaneProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayPlaneProperties2KHR* handle_struct)->DisplayKHRWrapper* { return reinterpret_cast<DisplayKHRWrapper*>(handle_struct->displayPlaneProperties.currentDisplay); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
 }
@@ -7271,7 +7271,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
@@ -7280,14 +7280,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
 
     if (result >= 0)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModeProperties2KHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, CaptureManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModeProperties2KHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -7295,10 +7295,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModeProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayModeProperties2KHR* handle_struct)->DisplayModeKHRWrapper* { return reinterpret_cast<DisplayModeKHRWrapper*>(handle_struct->displayModeProperties.displayMode); }, encoder);
+        VulkanCaptureManager::Get()->EndStructGroupCreateApiCallTrace<VkPhysicalDevice, DisplayModeKHRWrapper, VkDisplayModeProperties2KHR>(result, physicalDevice, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, pProperties, [](VkDisplayModeProperties2KHR* handle_struct)->DisplayModeKHRWrapper* { return reinterpret_cast<DisplayModeKHRWrapper*>(handle_struct->displayModeProperties.displayMode); }, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, display, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, display, pPropertyCount, pProperties);
 
     return result;
 }
@@ -7310,9 +7310,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(CaptureManager::Get(), physicalDevice, pDisplayPlaneInfo, pCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pDisplayPlaneInfo, pCapabilities);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     const VkDisplayPlaneInfo2KHR* pDisplayPlaneInfo_unwrapped = UnwrapStructPtrHandles(pDisplayPlaneInfo, handle_unwrap_memory);
 
@@ -7322,17 +7322,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         EncodeStructPtr(encoder, pDisplayPlaneInfo);
         EncodeStructPtr(encoder, pCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pDisplayPlaneInfo, pCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pDisplayPlaneInfo, pCapabilities);
 
     return result;
 }
@@ -7342,24 +7342,24 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
     const VkImageMemoryRequirementsInfo2*       pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetImageMemoryRequirements2KHR(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
@@ -7367,24 +7367,24 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
     const VkBufferMemoryRequirementsInfo2*      pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetBufferMemoryRequirements2KHR(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
@@ -7393,25 +7393,25 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageSparseMemoryRequirementsInfo2* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetImageSparseMemoryRequirements2KHR(device_unwrapped, pInfo_unwrapped, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         EncodeStructArray(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(CaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
@@ -7422,7 +7422,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -7430,14 +7430,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -7445,10 +7445,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pYcbcrConversion, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerYcbcrConversionWrapper, VkSamplerYcbcrConversionCreateInfo>(result, device, pYcbcrConversion, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, SamplerYcbcrConversionWrapper, VkSamplerYcbcrConversionCreateInfo>(result, device, pYcbcrConversion, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pYcbcrConversion);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pYcbcrConversion);
 
     return result;
 }
@@ -7458,15 +7458,15 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     VkSamplerYcbcrConversion                    ycbcrConversion,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(CaptureManager::Get(), device, ycbcrConversion, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(VulkanCaptureManager::Get(), device, ycbcrConversion, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(ycbcrConversion);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<SamplerYcbcrConversionWrapper>(ycbcrConversion, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<SamplerYcbcrConversionWrapper>(ycbcrConversion, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7474,7 +7474,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
 
     GetDeviceTable(device)->DestroySamplerYcbcrConversionKHR(device_unwrapped, ycbcrConversion_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(CaptureManager::Get(), device, ycbcrConversion, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(VulkanCaptureManager::Get(), device, ycbcrConversion, pAllocator);
 
     DestroyWrappedHandle<SamplerYcbcrConversionWrapper>(ycbcrConversion);
 }
@@ -7484,25 +7484,25 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
     uint32_t                                    bindInfoCount,
     const VkBindBufferMemoryInfo*               pBindInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(CaptureManager::Get(), device, bindInfoCount, pBindInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(VulkanCaptureManager::Get(), device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBindBufferMemoryInfo* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindBufferMemory2KHR(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         EncodeStructArray(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(CaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(VulkanCaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
 
     return result;
 }
@@ -7512,25 +7512,25 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
     uint32_t                                    bindInfoCount,
     const VkBindImageMemoryInfo*                pBindInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(CaptureManager::Get(), device, bindInfoCount, pBindInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(VulkanCaptureManager::Get(), device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBindImageMemoryInfo* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindImageMemory2KHR(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         EncodeStructArray(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(CaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(VulkanCaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
 
     return result;
 }
@@ -7540,24 +7540,24 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(
     const VkDescriptorSetLayoutCreateInfo*      pCreateInfo,
     VkDescriptorSetLayoutSupport*               pSupport)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pSupport);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pSupport);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDescriptorSetLayoutCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetDescriptorSetLayoutSupportKHR(device_unwrapped, pCreateInfo_unwrapped, pSupport);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pCreateInfo);
         EncodeStructPtr(encoder, pSupport);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pSupport);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pSupport);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
@@ -7569,9 +7569,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -7581,7 +7581,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountKHRHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountKHRHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -7590,7 +7590,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndirectCountKHR(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
@@ -7602,9 +7602,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -7614,7 +7614,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountKHRHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountKHRHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -7623,7 +7623,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountKHR(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
@@ -7633,7 +7633,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(CaptureManager::Get(), device, semaphore, pValue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(VulkanCaptureManager::Get(), device, semaphore, pValue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSemaphore semaphore_unwrapped = GetWrappedHandle<VkSemaphore>(semaphore);
@@ -7644,17 +7644,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(semaphore);
         encoder->EncodeUInt64Ptr(pValue, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(CaptureManager::Get(), result, device, semaphore, pValue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, semaphore, pValue);
 
     return result;
 }
@@ -7664,25 +7664,25 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(
     const VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(CaptureManager::Get(), device, pWaitInfo, timeout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(VulkanCaptureManager::Get(), device, pWaitInfo, timeout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->WaitSemaphoresKHR(device_unwrapped, pWaitInfo_unwrapped, timeout);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitSemaphoresKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitSemaphoresKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pWaitInfo);
         encoder->EncodeUInt64Value(timeout);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(CaptureManager::Get(), result, device, pWaitInfo, timeout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pWaitInfo, timeout);
 
     return result;
 }
@@ -7691,24 +7691,24 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(
     VkDevice                                    device,
     const VkSemaphoreSignalInfo*                pSignalInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(CaptureManager::Get(), device, pSignalInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(VulkanCaptureManager::Get(), device, pSignalInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSemaphoreSignalInfo* pSignalInfo_unwrapped = UnwrapStructPtrHandles(pSignalInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->SignalSemaphoreKHR(device_unwrapped, pSignalInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSignalSemaphoreKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSignalSemaphoreKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pSignalInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(CaptureManager::Get(), result, device, pSignalInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pSignalInfo);
 
     return result;
 }
@@ -7720,7 +7720,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(CaptureManager::Get(), physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -7730,17 +7730,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pFragmentShadingRateCount, omit_output_data);
         EncodeStructArray(encoder, pFragmentShadingRates, (pFragmentShadingRateCount != nullptr) ? (*pFragmentShadingRateCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(CaptureManager::Get(), result, physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
 
     return result;
 }
@@ -7750,46 +7750,46 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(
     const VkExtent2D*                           pFragmentSize,
     const VkFragmentShadingRateCombinerOpKHR    combinerOps[2])
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pFragmentSize, combinerOps);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pFragmentSize, combinerOps);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pFragmentSize);
         encoder->EncodeEnumArray(combinerOps, 2);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetFragmentShadingRateKHR(commandBuffer_unwrapped, pFragmentSize, combinerOps);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pFragmentSize, combinerOps);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pFragmentSize, combinerOps);
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddressKHR(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeVkDeviceAddressValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -7798,24 +7798,24 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     uint64_t result = GetDeviceTable(device)->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt64Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -7824,24 +7824,24 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(
     VkDevice                                    device,
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     uint64_t result = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddressKHR(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt64Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -7853,7 +7853,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(CaptureManager::Get(), device, pAllocator, pDeferredOperation);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(VulkanCaptureManager::Get(), device, pAllocator, pDeferredOperation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -7861,24 +7861,24 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeferredOperationKHRWrapper>(device, NoParentWrapper::kHandleValue, pDeferredOperation, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeferredOperationKHRWrapper>(device, NoParentWrapper::kHandleValue, pDeferredOperation, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pDeferredOperation, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DeferredOperationKHRWrapper, void>(result, device, pDeferredOperation, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, DeferredOperationKHRWrapper, void>(result, device, pDeferredOperation, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(CaptureManager::Get(), result, device, pAllocator, pDeferredOperation);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pAllocator, pDeferredOperation);
 
     return result;
 }
@@ -7888,15 +7888,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
     VkDeferredOperationKHR                      operation,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(CaptureManager::Get(), device, operation, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(VulkanCaptureManager::Get(), device, operation, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(operation);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DeferredOperationKHRWrapper>(operation, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DeferredOperationKHRWrapper>(operation, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7904,7 +7904,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
 
     GetDeviceTable(device)->DestroyDeferredOperationKHR(device_unwrapped, operation_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(CaptureManager::Get(), device, operation, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(VulkanCaptureManager::Get(), device, operation, pAllocator);
 
     DestroyWrappedHandle<DeferredOperationKHRWrapper>(operation);
 }
@@ -7913,23 +7913,23 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(CaptureManager::Get(), device, operation);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(VulkanCaptureManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
 
     uint32_t result = GetDeviceTable(device)->GetDeferredOperationMaxConcurrencyKHR(device_unwrapped, operation_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(operation);
         encoder->EncodeUInt32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(CaptureManager::Get(), result, device, operation);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, operation);
 
     return result;
 }
@@ -7938,23 +7938,23 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(CaptureManager::Get(), device, operation);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(VulkanCaptureManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
 
     VkResult result = GetDeviceTable(device)->GetDeferredOperationResultKHR(device_unwrapped, operation_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(operation);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(CaptureManager::Get(), result, device, operation);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, operation);
 
     return result;
 }
@@ -7963,23 +7963,23 @@ VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(CaptureManager::Get(), device, operation);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(VulkanCaptureManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
 
     VkResult result = GetDeviceTable(device)->DeferredOperationJoinKHR(device_unwrapped, operation_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(operation);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(CaptureManager::Get(), result, device, operation);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, operation);
 
     return result;
 }
@@ -7992,9 +7992,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(CaptureManager::Get(), device, pPipelineInfo, pExecutableCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), device, pPipelineInfo, pExecutableCount, pProperties);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkPipelineInfoKHR* pPipelineInfo_unwrapped = UnwrapStructPtrHandles(pPipelineInfo, handle_unwrap_memory);
 
@@ -8004,7 +8004,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -8012,10 +8012,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
         encoder->EncodeUInt32Ptr(pExecutableCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pExecutableCount != nullptr) ? (*pExecutableCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(CaptureManager::Get(), result, device, pPipelineInfo, pExecutableCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pPipelineInfo, pExecutableCount, pProperties);
 
     return result;
 }
@@ -8028,9 +8028,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(CaptureManager::Get(), device, pExecutableInfo, pStatisticCount, pStatistics);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pExecutableInfo, pStatisticCount, pStatistics);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkPipelineExecutableInfoKHR* pExecutableInfo_unwrapped = UnwrapStructPtrHandles(pExecutableInfo, handle_unwrap_memory);
 
@@ -8040,7 +8040,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -8048,10 +8048,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
         encoder->EncodeUInt32Ptr(pStatisticCount, omit_output_data);
         EncodeStructArray(encoder, pStatistics, (pStatisticCount != nullptr) ? (*pStatisticCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(CaptureManager::Get(), result, device, pExecutableInfo, pStatisticCount, pStatistics);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pExecutableInfo, pStatisticCount, pStatistics);
 
     return result;
 }
@@ -8064,9 +8064,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(CaptureManager::Get(), device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(VulkanCaptureManager::Get(), device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkPipelineExecutableInfoKHR* pExecutableInfo_unwrapped = UnwrapStructPtrHandles(pExecutableInfo, handle_unwrap_memory);
 
@@ -8076,7 +8076,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -8084,10 +8084,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
         encoder->EncodeUInt32Ptr(pInternalRepresentationCount, omit_output_data);
         EncodeStructArray(encoder, pInternalRepresentations, (pInternalRepresentationCount != nullptr) ? (*pInternalRepresentationCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(CaptureManager::Get(), result, device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
 
     return result;
 }
@@ -8096,138 +8096,138 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyBufferInfo2KHR*                 pCopyBufferInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyBufferInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyBufferInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pCopyBufferInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBuffer2KHRHandles, pCopyBufferInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBuffer2KHRHandles, pCopyBufferInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyBufferInfo2KHR* pCopyBufferInfo_unwrapped = UnwrapStructPtrHandles(pCopyBufferInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyBuffer2KHR(commandBuffer_unwrapped, pCopyBufferInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyBufferInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyBufferInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyImageInfo2KHR*                  pCopyImageInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyImageInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyImageInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pCopyImageInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImage2KHRHandles, pCopyImageInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImage2KHRHandles, pCopyImageInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyImageInfo2KHR* pCopyImageInfo_unwrapped = UnwrapStructPtrHandles(pCopyImageInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyImage2KHR(commandBuffer_unwrapped, pCopyImageInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyImageInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyImageInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyBufferToImageInfo2KHR*          pCopyBufferToImageInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyBufferToImageInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyBufferToImageInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pCopyBufferToImageInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferToImage2KHRHandles, pCopyBufferToImageInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferToImage2KHRHandles, pCopyBufferToImageInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo_unwrapped = UnwrapStructPtrHandles(pCopyBufferToImageInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyBufferToImage2KHR(commandBuffer_unwrapped, pCopyBufferToImageInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyBufferToImageInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyBufferToImageInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyImageToBufferInfo2KHR*          pCopyImageToBufferInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyImageToBufferInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyImageToBufferInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pCopyImageToBufferInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageToBuffer2KHRHandles, pCopyImageToBufferInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageToBuffer2KHRHandles, pCopyImageToBufferInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo_unwrapped = UnwrapStructPtrHandles(pCopyImageToBufferInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer2KHR(commandBuffer_unwrapped, pCopyImageToBufferInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pCopyImageToBufferInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCopyImageToBufferInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkBlitImageInfo2KHR*                  pBlitImageInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pBlitImageInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pBlitImageInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pBlitImageInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBlitImage2KHRHandles, pBlitImageInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBlitImage2KHRHandles, pBlitImageInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBlitImageInfo2KHR* pBlitImageInfo_unwrapped = UnwrapStructPtrHandles(pBlitImageInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBlitImage2KHR(commandBuffer_unwrapped, pBlitImageInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pBlitImageInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pBlitImageInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkResolveImageInfo2KHR*               pResolveImageInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pResolveImageInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pResolveImageInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage2KHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage2KHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pResolveImageInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResolveImage2KHRHandles, pResolveImageInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResolveImage2KHRHandles, pResolveImageInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkResolveImageInfo2KHR* pResolveImageInfo_unwrapped = UnwrapStructPtrHandles(pResolveImageInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdResolveImage2KHR(commandBuffer_unwrapped, pResolveImageInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(CaptureManager::Get(), commandBuffer, pResolveImageInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pResolveImageInfo);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
@@ -8238,7 +8238,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pCallback);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pCallback);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -8246,14 +8246,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugReportCallbackEXTWrapper>(instance, NoParentWrapper::kHandleValue, pCallback, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugReportCallbackEXTWrapper>(instance, NoParentWrapper::kHandleValue, pCallback, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -8261,10 +8261,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pCallback, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, DebugReportCallbackEXTWrapper, VkDebugReportCallbackCreateInfoEXT>(result, instance, pCallback, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, DebugReportCallbackEXTWrapper, VkDebugReportCallbackCreateInfoEXT>(result, instance, pCallback, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pCallback);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pCallback);
 
     return result;
 }
@@ -8274,15 +8274,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     VkDebugReportCallbackEXT                    callback,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(CaptureManager::Get(), instance, callback, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(VulkanCaptureManager::Get(), instance, callback, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeHandleValue(callback);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DebugReportCallbackEXTWrapper>(callback, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DebugReportCallbackEXTWrapper>(callback, encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
@@ -8290,7 +8290,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
 
     GetInstanceTable(instance)->DestroyDebugReportCallbackEXT(instance_unwrapped, callback_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(CaptureManager::Get(), instance, callback, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(VulkanCaptureManager::Get(), instance, callback, pAllocator);
 
     DestroyWrappedHandle<DebugReportCallbackEXTWrapper>(callback);
 }
@@ -8305,9 +8305,9 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     const char*                                 pLayerPrefix,
     const char*                                 pMessage)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(CaptureManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(VulkanCaptureManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -8318,7 +8318,7 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
         encoder->EncodeInt32Value(messageCode);
         encoder->EncodeString(pLayerPrefix);
         encoder->EncodeString(pMessage);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
@@ -8326,31 +8326,31 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
 
     GetInstanceTable(instance)->DebugReportMessageEXT(instance_unwrapped, flags, objectType, object_unwrapped, location, messageCode, pLayerPrefix, pMessage);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(CaptureManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(VulkanCaptureManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
     VkDevice                                    device,
     const VkDebugMarkerObjectTagInfoEXT*        pTagInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(CaptureManager::Get(), device, pTagInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(VulkanCaptureManager::Get(), device, pTagInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugMarkerObjectTagInfoEXT* pTagInfo_unwrapped = UnwrapStructPtrHandles(pTagInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pTagInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(CaptureManager::Get(), result, device, pTagInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pTagInfo);
 
     return result;
 }
@@ -8359,24 +8359,24 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
     VkDevice                                    device,
     const VkDebugMarkerObjectNameInfoEXT*       pNameInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(CaptureManager::Get(), device, pNameInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(VulkanCaptureManager::Get(), device, pNameInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugMarkerObjectNameInfoEXT* pNameInfo_unwrapped = UnwrapStructPtrHandles(pNameInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->DebugMarkerSetObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pNameInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(CaptureManager::Get(), result, device, pNameInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pNameInfo);
 
     return result;
 }
@@ -8385,61 +8385,61 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pMarkerInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDebugMarkerBeginEXT(commandBuffer_unwrapped, pMarkerInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(
     VkCommandBuffer                             commandBuffer)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDebugMarkerEndEXT(commandBuffer_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pMarkerInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDebugMarkerInsertEXT(commandBuffer_unwrapped, pMarkerInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
@@ -8450,9 +8450,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
     const VkDeviceSize*                         pOffsets,
     const VkDeviceSize*                         pSizes)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8461,16 +8461,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
         encoder->EncodeHandleArray(pBuffers, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pOffsets, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pSizes, bindingCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindTransformFeedbackBuffersEXTHandles, bindingCount, pBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindTransformFeedbackBuffersEXTHandles, bindingCount, pBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBuffer* pBuffers_unwrapped = UnwrapHandles<VkBuffer>(pBuffers, bindingCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBindTransformFeedbackBuffersEXT(commandBuffer_unwrapped, firstBinding, bindingCount, pBuffers_unwrapped, pOffsets, pSizes);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
@@ -8480,9 +8480,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
     const VkBuffer*                             pCounterBuffers,
     const VkDeviceSize*                         pCounterBufferOffsets)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8490,16 +8490,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
         encoder->EncodeUInt32Value(counterBufferCount);
         encoder->EncodeHandleArray(pCounterBuffers, counterBufferCount);
         encoder->EncodeVkDeviceSizeArray(pCounterBufferOffsets, counterBufferCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBuffer* pCounterBuffers_unwrapped = UnwrapHandles<VkBuffer>(pCounterBuffers, counterBufferCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBeginTransformFeedbackEXT(commandBuffer_unwrapped, firstCounterBuffer, counterBufferCount, pCounterBuffers_unwrapped, pCounterBufferOffsets);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
@@ -8509,9 +8509,9 @@ VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
     const VkBuffer*                             pCounterBuffers,
     const VkDeviceSize*                         pCounterBufferOffsets)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8519,16 +8519,16 @@ VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
         encoder->EncodeUInt32Value(counterBufferCount);
         encoder->EncodeHandleArray(pCounterBuffers, counterBufferCount);
         encoder->EncodeVkDeviceSizeArray(pCounterBufferOffsets, counterBufferCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBuffer* pCounterBuffers_unwrapped = UnwrapHandles<VkBuffer>(pCounterBuffers, counterBufferCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdEndTransformFeedbackEXT(commandBuffer_unwrapped, firstCounterBuffer, counterBufferCount, pCounterBuffers_unwrapped, pCounterBufferOffsets);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
@@ -8538,9 +8538,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
     VkQueryControlFlags                         flags,
     uint32_t                                    index)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, flags, index);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, flags, index);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8548,7 +8548,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
         encoder->EncodeUInt32Value(query);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeUInt32Value(index);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginQueryIndexedEXTHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginQueryIndexedEXTHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -8556,7 +8556,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
 
     GetDeviceTable(commandBuffer)->CmdBeginQueryIndexedEXT(commandBuffer_unwrapped, queryPool_unwrapped, query, flags, index);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, flags, index);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, flags, index);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
@@ -8565,16 +8565,16 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
     uint32_t                                    query,
     uint32_t                                    index)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, index);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, index);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(query);
         encoder->EncodeUInt32Value(index);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndQueryIndexedEXTHandles, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndQueryIndexedEXTHandles, queryPool);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -8582,7 +8582,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
 
     GetDeviceTable(commandBuffer)->CmdEndQueryIndexedEXT(commandBuffer_unwrapped, queryPool_unwrapped, query, index);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(CaptureManager::Get(), commandBuffer, queryPool, query, index);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, queryPool, query, index);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
@@ -8594,9 +8594,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
     uint32_t                                    counterOffset,
     uint32_t                                    vertexStride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8606,7 +8606,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
         encoder->EncodeVkDeviceSizeValue(counterBufferOffset);
         encoder->EncodeUInt32Value(counterOffset);
         encoder->EncodeUInt32Value(vertexStride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectByteCountEXTHandles, counterBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectByteCountEXTHandles, counterBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -8614,31 +8614,31 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndirectByteCountEXT(commandBuffer_unwrapped, instanceCount, firstInstance, counterBuffer_unwrapped, counterBufferOffset, counterOffset, vertexStride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 }
 
 VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(
     VkDevice                                    device,
     const VkImageViewHandleInfoNVX*             pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkImageViewHandleInfoNVX* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     uint32_t result = GetDeviceTable(device)->GetImageViewHandleNVX(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewHandleNVX);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewHandleNVX);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeUInt32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -8650,7 +8650,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(CaptureManager::Get(), device, imageView, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(VulkanCaptureManager::Get(), device, imageView, pProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImageView imageView_unwrapped = GetWrappedHandle<VkImageView>(imageView);
@@ -8661,17 +8661,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewAddressNVX);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewAddressNVX);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(imageView);
         EncodeStructPtr(encoder, pProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(CaptureManager::Get(), result, device, imageView, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(VulkanCaptureManager::Get(), result, device, imageView, pProperties);
 
     return result;
 }
@@ -8685,9 +8685,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8697,7 +8697,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountAMDHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountAMDHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -8706,7 +8706,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndirectCountAMD(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
@@ -8718,9 +8718,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -8730,7 +8730,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountAMDHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountAMDHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -8739,7 +8739,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
 
     GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountAMD(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
@@ -8752,7 +8752,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(CaptureManager::Get(), device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
@@ -8763,7 +8763,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetShaderInfoAMD);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetShaderInfoAMD);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -8773,10 +8773,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
         encoder->EncodeSizeTPtr(pInfoSize, omit_output_data);
         encoder->EncodeVoidArray(pInfo, (pInfoSize != nullptr) ? (*pInfoSize) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(CaptureManager::Get(), result, device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
 
     return result;
 }
@@ -8789,7 +8789,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -8797,14 +8797,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -8812,10 +8812,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkStreamDescriptorSurfaceCreateInfoGGP>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkStreamDescriptorSurfaceCreateInfoGGP>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -8832,7 +8832,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(CaptureManager::Get(), physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -8842,7 +8842,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -8854,10 +8854,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
         encoder->EncodeFlagsValue(externalHandleType);
         EncodeStructPtr(encoder, pExternalImageFormatProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(CaptureManager::Get(), result, physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
 
     return result;
 }
@@ -8870,7 +8870,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(CaptureManager::Get(), device, memory, handleType, pHandle);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(VulkanCaptureManager::Get(), device, memory, handleType, pHandle);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeviceMemory memory_unwrapped = GetWrappedHandle<VkDeviceMemory>(memory);
@@ -8881,7 +8881,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -8889,10 +8889,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
         encoder->EncodeFlagsValue(handleType);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(CaptureManager::Get(), result, device, memory, handleType, pHandle);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(VulkanCaptureManager::Get(), result, device, memory, handleType, pHandle);
 
     return result;
 }
@@ -8905,7 +8905,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -8913,14 +8913,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateViSurfaceNN);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateViSurfaceNN);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -8928,10 +8928,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkViSurfaceCreateInfoNN>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkViSurfaceCreateInfoNN>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -8940,42 +8940,42 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     VkCommandBuffer                             commandBuffer,
     const VkConditionalRenderingBeginInfoEXT*   pConditionalRenderingBegin)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pConditionalRenderingBegin);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pConditionalRenderingBegin);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pConditionalRenderingBegin);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginConditionalRenderingEXTHandles, pConditionalRenderingBegin);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginConditionalRenderingEXTHandles, pConditionalRenderingBegin);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkConditionalRenderingBeginInfoEXT* pConditionalRenderingBegin_unwrapped = UnwrapStructPtrHandles(pConditionalRenderingBegin, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBeginConditionalRenderingEXT(commandBuffer_unwrapped, pConditionalRenderingBegin_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pConditionalRenderingBegin);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pConditionalRenderingBegin);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
     VkCommandBuffer                             commandBuffer)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdEndConditionalRenderingEXT(commandBuffer_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
@@ -8984,46 +8984,46 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
     uint32_t                                    viewportCount,
     const VkViewportWScalingNV*                 pViewportWScalings)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstViewport);
         encoder->EncodeUInt32Value(viewportCount);
         EncodeStructArray(encoder, pViewportWScalings, viewportCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetViewportWScalingNV(commandBuffer_unwrapped, firstViewport, viewportCount, pViewportWScalings);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     VkPhysicalDevice                            physicalDevice,
     VkDisplayKHR                                display)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(CaptureManager::Get(), physicalDevice, display);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
 
     VkResult result = GetInstanceTable(physicalDevice)->ReleaseDisplayEXT(physicalDevice_unwrapped, display_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseDisplayEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseDisplayEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeHandleValue(display);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, display);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, display);
 
     return result;
 }
@@ -9033,24 +9033,24 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     Display*                                    dpy,
     VkDisplayKHR                                display)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(CaptureManager::Get(), physicalDevice, dpy, display);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, dpy, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
 
     VkResult result = GetInstanceTable(physicalDevice)->AcquireXlibDisplayEXT(physicalDevice_unwrapped, dpy, display_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeVoidPtr(dpy);
         encoder->EncodeHandleValue(display);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, dpy, display);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, dpy, display);
 
     return result;
 }
@@ -9063,7 +9063,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(CaptureManager::Get(), physicalDevice, dpy, rrOutput, pDisplay);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, dpy, rrOutput, pDisplay);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -9071,14 +9071,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplay, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplay, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -9086,10 +9086,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
         encoder->EncodeSizeTValue(rrOutput);
         encoder->EncodeHandlePtr(pDisplay, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, void>(result, physicalDevice, pDisplay, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, void>(result, physicalDevice, pDisplay, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, dpy, rrOutput, pDisplay);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, dpy, rrOutput, pDisplay);
 
     return result;
 }
@@ -9101,7 +9101,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(CaptureManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     VkSurfaceKHR surface_unwrapped = GetWrappedHandle<VkSurfaceKHR>(surface);
@@ -9112,17 +9112,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeHandleValue(surface);
         EncodeStructPtr(encoder, pSurfaceCapabilities, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, surface, pSurfaceCapabilities);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, surface, pSurfaceCapabilities);
 
     return result;
 }
@@ -9132,24 +9132,24 @@ VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
     VkDisplayKHR                                display,
     const VkDisplayPowerInfoEXT*                pDisplayPowerInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(CaptureManager::Get(), device, display, pDisplayPowerInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(VulkanCaptureManager::Get(), device, display, pDisplayPowerInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
 
     VkResult result = GetDeviceTable(device)->DisplayPowerControlEXT(device_unwrapped, display_unwrapped, pDisplayPowerInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDisplayPowerControlEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDisplayPowerControlEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(display);
         EncodeStructPtr(encoder, pDisplayPowerInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(CaptureManager::Get(), result, device, display, pDisplayPowerInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, display, pDisplayPowerInfo);
 
     return result;
 }
@@ -9162,7 +9162,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(CaptureManager::Get(), device, pDeviceEventInfo, pAllocator, pFence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(VulkanCaptureManager::Get(), device, pDeviceEventInfo, pAllocator, pFence);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -9170,14 +9170,14 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9185,10 +9185,10 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pFence, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, void>(result, device, pFence, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, void>(result, device, pFence, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(CaptureManager::Get(), result, device, pDeviceEventInfo, pAllocator, pFence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pDeviceEventInfo, pAllocator, pFence);
 
     return result;
 }
@@ -9202,7 +9202,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(CaptureManager::Get(), device, display, pDisplayEventInfo, pAllocator, pFence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(VulkanCaptureManager::Get(), device, display, pDisplayEventInfo, pAllocator, pFence);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
@@ -9211,14 +9211,14 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, DisplayKHRWrapper, FenceWrapper>(device, display, pFence, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DisplayKHRWrapper, FenceWrapper>(device, display, pFence, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9227,10 +9227,10 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pFence, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, void>(result, device, pFence, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, FenceWrapper, void>(result, device, pFence, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(CaptureManager::Get(), result, device, display, pDisplayEventInfo, pAllocator, pFence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, display, pDisplayEventInfo, pAllocator, pFence);
 
     return result;
 }
@@ -9243,7 +9243,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(CaptureManager::Get(), device, swapchain, counter, pCounterValue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, counter, pCounterValue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
@@ -9254,7 +9254,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9262,10 +9262,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
         encoder->EncodeEnumValue(counter);
         encoder->EncodeUInt64Ptr(pCounterValue, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(CaptureManager::Get(), result, device, swapchain, counter, pCounterValue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, counter, pCounterValue);
 
     return result;
 }
@@ -9277,7 +9277,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(CaptureManager::Get(), device, swapchain, pDisplayTimingProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, pDisplayTimingProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
@@ -9288,17 +9288,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapchain);
         EncodeStructPtr(encoder, pDisplayTimingProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(CaptureManager::Get(), result, device, swapchain, pDisplayTimingProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, pDisplayTimingProperties);
 
     return result;
 }
@@ -9311,7 +9311,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(CaptureManager::Get(), device, swapchain, pPresentationTimingCount, pPresentationTimings);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(VulkanCaptureManager::Get(), device, swapchain, pPresentationTimingCount, pPresentationTimings);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
@@ -9322,7 +9322,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9330,10 +9330,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
         encoder->EncodeUInt32Ptr(pPresentationTimingCount, omit_output_data);
         EncodeStructArray(encoder, pPresentationTimings, (pPresentationTimingCount != nullptr) ? (*pPresentationTimingCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(CaptureManager::Get(), result, device, swapchain, pPresentationTimingCount, pPresentationTimings);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain, pPresentationTimingCount, pPresentationTimings);
 
     return result;
 }
@@ -9344,23 +9344,23 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
     uint32_t                                    discardRectangleCount,
     const VkRect2D*                             pDiscardRectangles)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstDiscardRectangle);
         encoder->EncodeUInt32Value(discardRectangleCount);
         EncodeStructArray(encoder, pDiscardRectangles, discardRectangleCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDiscardRectangleEXT(commandBuffer_unwrapped, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 }
 
 VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
@@ -9369,25 +9369,25 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
     const VkSwapchainKHR*                       pSwapchains,
     const VkHdrMetadataEXT*                     pMetadata)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(CaptureManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(VulkanCaptureManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetHdrMetadataEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetHdrMetadataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(swapchainCount);
         encoder->EncodeHandleArray(pSwapchains, swapchainCount);
         EncodeStructArray(encoder, pMetadata, swapchainCount);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkSwapchainKHR* pSwapchains_unwrapped = UnwrapHandles<VkSwapchainKHR>(pSwapchains, swapchainCount, handle_unwrap_memory);
 
     GetDeviceTable(device)->SetHdrMetadataEXT(device_unwrapped, swapchainCount, pSwapchains_unwrapped, pMetadata);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(CaptureManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(VulkanCaptureManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
@@ -9398,7 +9398,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -9406,14 +9406,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -9421,10 +9421,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkIOSSurfaceCreateInfoMVK>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkIOSSurfaceCreateInfoMVK>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -9437,7 +9437,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -9445,14 +9445,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -9460,10 +9460,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkMacOSSurfaceCreateInfoMVK>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkMacOSSurfaceCreateInfoMVK>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -9472,24 +9472,24 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     VkDevice                                    device,
     const VkDebugUtilsObjectNameInfoEXT*        pNameInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(CaptureManager::Get(), device, pNameInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(VulkanCaptureManager::Get(), device, pNameInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugUtilsObjectNameInfoEXT* pNameInfo_unwrapped = UnwrapStructPtrHandles(pNameInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectNameEXT(device_unwrapped, pNameInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pNameInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(CaptureManager::Get(), result, device, pNameInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pNameInfo);
 
     return result;
 }
@@ -9498,24 +9498,24 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     VkDevice                                    device,
     const VkDebugUtilsObjectTagInfoEXT*         pTagInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(CaptureManager::Get(), device, pTagInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(VulkanCaptureManager::Get(), device, pTagInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkDebugUtilsObjectTagInfoEXT* pTagInfo_unwrapped = UnwrapStructPtrHandles(pTagInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->SetDebugUtilsObjectTagEXT(device_unwrapped, pTagInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pTagInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(CaptureManager::Get(), result, device, pTagInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pTagInfo);
 
     return result;
 }
@@ -9524,122 +9524,122 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
     VkQueue                                     queue,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue, pLabelInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue, pLabelInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         EncodeStructPtr(encoder, pLabelInfo);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
 
     GetDeviceTable(queue)->QueueBeginDebugUtilsLabelEXT(queue_unwrapped, pLabelInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue, pLabelInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue, pLabelInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(
     VkQueue                                     queue)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
 
     GetDeviceTable(queue)->QueueEndDebugUtilsLabelEXT(queue_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue);
 }
 
 VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(
     VkQueue                                     queue,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue, pLabelInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue, pLabelInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         EncodeStructPtr(encoder, pLabelInfo);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
 
     GetDeviceTable(queue)->QueueInsertDebugUtilsLabelEXT(queue_unwrapped, pLabelInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), queue, pLabelInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), queue, pLabelInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pLabelInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pLabelInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pLabelInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdBeginDebugUtilsLabelEXT(commandBuffer_unwrapped, pLabelInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pLabelInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pLabelInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdEndDebugUtilsLabelEXT(commandBuffer_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pLabelInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pLabelInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pLabelInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdInsertDebugUtilsLabelEXT(commandBuffer_unwrapped, pLabelInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pLabelInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pLabelInfo);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
@@ -9650,7 +9650,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pMessenger);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pMessenger);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -9658,14 +9658,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, NoParentWrapper::kHandleValue, pMessenger, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, NoParentWrapper::kHandleValue, pMessenger, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -9673,10 +9673,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pMessenger, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, DebugUtilsMessengerEXTWrapper, VkDebugUtilsMessengerCreateInfoEXT>(result, instance, pMessenger, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, DebugUtilsMessengerEXTWrapper, VkDebugUtilsMessengerCreateInfoEXT>(result, instance, pMessenger, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pMessenger);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pMessenger);
 
     return result;
 }
@@ -9686,15 +9686,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT                    messenger,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(CaptureManager::Get(), instance, messenger, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(VulkanCaptureManager::Get(), instance, messenger, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeHandleValue(messenger);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<DebugUtilsMessengerEXTWrapper>(messenger, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<DebugUtilsMessengerEXTWrapper>(messenger, encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
@@ -9702,7 +9702,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
 
     GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(instance_unwrapped, messenger_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(CaptureManager::Get(), instance, messenger, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(VulkanCaptureManager::Get(), instance, messenger, pAllocator);
 
     DestroyWrappedHandle<DebugUtilsMessengerEXTWrapper>(messenger);
 }
@@ -9713,23 +9713,23 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
     VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(CaptureManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(VulkanCaptureManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
         encoder->EncodeEnumValue(messageSeverity);
         encoder->EncodeFlagsValue(messageTypes);
         EncodeStructPtr(encoder, pCallbackData);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
     GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance_unwrapped, messageSeverity, messageTypes, pCallbackData);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(CaptureManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(VulkanCaptureManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
@@ -9739,7 +9739,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(CaptureManager::Get(), device, buffer, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(VulkanCaptureManager::Get(), device, buffer, pProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -9749,17 +9749,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeVoidPtr(buffer);
         EncodeStructPtr(encoder, pProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(CaptureManager::Get(), result, device, buffer, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(VulkanCaptureManager::Get(), result, device, buffer, pProperties);
 
     return result;
 }
@@ -9771,9 +9771,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(CaptureManager::Get(), device, pInfo, pBuffer);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pBuffer);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
@@ -9783,17 +9783,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeVoidPtrPtr(pBuffer, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(CaptureManager::Get(), result, device, pInfo, pBuffer);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo, pBuffer);
 
     return result;
 }
@@ -9802,21 +9802,21 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pSampleLocationsInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSampleLocationsInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pSampleLocationsInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetSampleLocationsEXT(commandBuffer_unwrapped, pSampleLocationsInfo);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(CaptureManager::Get(), commandBuffer, pSampleLocationsInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pSampleLocationsInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
@@ -9824,22 +9824,22 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
     VkSampleCountFlagBits                       samples,
     VkMultisamplePropertiesEXT*                 pMultisampleProperties)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(CaptureManager::Get(), physicalDevice, samples, pMultisampleProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, samples, pMultisampleProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     GetInstanceTable(physicalDevice)->GetPhysicalDeviceMultisamplePropertiesEXT(physicalDevice_unwrapped, samples, pMultisampleProperties);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeEnumValue(samples);
         EncodeStructPtr(encoder, pMultisampleProperties);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(CaptureManager::Get(), physicalDevice, samples, pMultisampleProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, samples, pMultisampleProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
@@ -9849,7 +9849,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(CaptureManager::Get(), device, image, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), device, image, pProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkImage image_unwrapped = GetWrappedHandle<VkImage>(image);
@@ -9860,17 +9860,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(image);
         EncodeStructPtr(encoder, pProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(CaptureManager::Get(), result, device, image, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, image, pProperties);
 
     return result;
 }
@@ -9883,7 +9883,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pValidationCache);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pValidationCache);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -9891,14 +9891,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ValidationCacheEXTWrapper>(device, NoParentWrapper::kHandleValue, pValidationCache, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ValidationCacheEXTWrapper>(device, NoParentWrapper::kHandleValue, pValidationCache, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateValidationCacheEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateValidationCacheEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9906,10 +9906,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pValidationCache, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ValidationCacheEXTWrapper, VkValidationCacheCreateInfoEXT>(result, device, pValidationCache, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, ValidationCacheEXTWrapper, VkValidationCacheCreateInfoEXT>(result, device, pValidationCache, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pValidationCache);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pValidationCache);
 
     return result;
 }
@@ -9919,15 +9919,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     VkValidationCacheEXT                        validationCache,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(CaptureManager::Get(), device, validationCache, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(VulkanCaptureManager::Get(), device, validationCache, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(validationCache);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<ValidationCacheEXTWrapper>(validationCache, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<ValidationCacheEXTWrapper>(validationCache, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -9935,7 +9935,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
 
     GetDeviceTable(device)->DestroyValidationCacheEXT(device_unwrapped, validationCache_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(CaptureManager::Get(), device, validationCache, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(VulkanCaptureManager::Get(), device, validationCache, pAllocator);
 
     DestroyWrappedHandle<ValidationCacheEXTWrapper>(validationCache);
 }
@@ -9946,16 +9946,16 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
     uint32_t                                    srcCacheCount,
     const VkValidationCacheEXT*                 pSrcCaches)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(CaptureManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(VulkanCaptureManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkValidationCacheEXT dstCache_unwrapped = GetWrappedHandle<VkValidationCacheEXT>(dstCache);
     const VkValidationCacheEXT* pSrcCaches_unwrapped = UnwrapHandles<VkValidationCacheEXT>(pSrcCaches, srcCacheCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->MergeValidationCachesEXT(device_unwrapped, dstCache_unwrapped, srcCacheCount, pSrcCaches_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMergeValidationCachesEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMergeValidationCachesEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9963,10 +9963,10 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
         encoder->EncodeUInt32Value(srcCacheCount);
         encoder->EncodeHandleArray(pSrcCaches, srcCacheCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(CaptureManager::Get(), result, device, dstCache, srcCacheCount, pSrcCaches);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, dstCache, srcCacheCount, pSrcCaches);
 
     return result;
 }
@@ -9979,7 +9979,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(CaptureManager::Get(), device, validationCache, pDataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(VulkanCaptureManager::Get(), device, validationCache, pDataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkValidationCacheEXT validationCache_unwrapped = GetWrappedHandle<VkValidationCacheEXT>(validationCache);
@@ -9990,7 +9990,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -9998,10 +9998,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
         encoder->EncodeSizeTPtr(pDataSize, omit_output_data);
         encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? (*pDataSize) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(CaptureManager::Get(), result, device, validationCache, pDataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, validationCache, pDataSize, pData);
 
     return result;
 }
@@ -10011,15 +10011,15 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(
     VkImageView                                 imageView,
     VkImageLayout                               imageLayout)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(CaptureManager::Get(), commandBuffer, imageView, imageLayout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, imageView, imageLayout);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(imageView);
         encoder->EncodeEnumValue(imageLayout);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindShadingRateImageNVHandles, imageView);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindShadingRateImageNVHandles, imageView);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10027,7 +10027,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(
 
     GetDeviceTable(commandBuffer)->CmdBindShadingRateImageNV(commandBuffer_unwrapped, imageView_unwrapped, imageLayout);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(CaptureManager::Get(), commandBuffer, imageView, imageLayout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, imageView, imageLayout);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(
@@ -10036,23 +10036,23 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(
     uint32_t                                    viewportCount,
     const VkShadingRatePaletteNV*               pShadingRatePalettes)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstViewport);
         encoder->EncodeUInt32Value(viewportCount);
         EncodeStructArray(encoder, pShadingRatePalettes, viewportCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetViewportShadingRatePaletteNV(commandBuffer_unwrapped, firstViewport, viewportCount, pShadingRatePalettes);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(
@@ -10061,23 +10061,23 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(
     uint32_t                                    customSampleOrderCount,
     const VkCoarseSampleOrderCustomNV*          pCustomSampleOrders)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(CaptureManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(sampleOrderType);
         encoder->EncodeUInt32Value(customSampleOrderCount);
         EncodeStructArray(encoder, pCustomSampleOrders, customSampleOrderCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetCoarseSampleOrderNV(commandBuffer_unwrapped, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(CaptureManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
@@ -10088,9 +10088,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureCreateInfoNV* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -10098,14 +10098,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureNVWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureNVWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10113,10 +10113,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pAccelerationStructure, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, AccelerationStructureNVWrapper, VkAccelerationStructureCreateInfoNV>(result, device, pAccelerationStructure, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, AccelerationStructureNVWrapper, VkAccelerationStructureCreateInfoNV>(result, device, pAccelerationStructure, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pAccelerationStructure);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pAccelerationStructure);
 
     return result;
 }
@@ -10126,15 +10126,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     VkAccelerationStructureNV                   accelerationStructure,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(CaptureManager::Get(), device, accelerationStructure, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructure, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(accelerationStructure);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<AccelerationStructureNVWrapper>(accelerationStructure, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<AccelerationStructureNVWrapper>(accelerationStructure, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -10142,7 +10142,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
 
     GetDeviceTable(device)->DestroyAccelerationStructureNV(device_unwrapped, accelerationStructure_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(CaptureManager::Get(), device, accelerationStructure, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructure, pAllocator);
 
     DestroyWrappedHandle<AccelerationStructureNVWrapper>(accelerationStructure);
 }
@@ -10152,24 +10152,24 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
     const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo,
     VkMemoryRequirements2KHR*                   pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetAccelerationStructureMemoryRequirementsNV(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
@@ -10177,25 +10177,25 @@ VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
     uint32_t                                    bindInfoCount,
     const VkBindAccelerationStructureMemoryInfoNV* pBindInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(CaptureManager::Get(), device, bindInfoCount, pBindInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(VulkanCaptureManager::Get(), device, bindInfoCount, pBindInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBindAccelerationStructureMemoryInfoNV* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindAccelerationStructureMemoryNV(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         EncodeStructArray(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(CaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(VulkanCaptureManager::Get(), result, device, bindInfoCount, pBindInfos);
 
     return result;
 }
@@ -10211,9 +10211,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     VkBuffer                                    scratch,
     VkDeviceSize                                scratchOffset)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10225,10 +10225,10 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
         encoder->EncodeHandleValue(src);
         encoder->EncodeHandleValue(scratch);
         encoder->EncodeVkDeviceSizeValue(scratchOffset);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructureNVHandles, pInfo, instanceData, dst, src, scratch);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructureNVHandles, pInfo, instanceData, dst, src, scratch);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureInfoNV* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
     VkBuffer instanceData_unwrapped = GetWrappedHandle<VkBuffer>(instanceData);
@@ -10238,7 +10238,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
 
     GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructureNV(commandBuffer_unwrapped, pInfo_unwrapped, instanceData_unwrapped, instanceOffset, update, dst_unwrapped, src_unwrapped, scratch_unwrapped, scratchOffset);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
@@ -10247,16 +10247,16 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     VkAccelerationStructureNV                   src,
     VkCopyAccelerationStructureModeKHR          mode)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(CaptureManager::Get(), commandBuffer, dst, src, mode);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dst, src, mode);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeHandleValue(dst);
         encoder->EncodeHandleValue(src);
         encoder->EncodeEnumValue(mode);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureNVHandles, dst, src);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureNVHandles, dst, src);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10265,7 +10265,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
 
     GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureNV(commandBuffer_unwrapped, dst_unwrapped, src_unwrapped, mode);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(CaptureManager::Get(), commandBuffer, dst, src, mode);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, dst, src, mode);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
@@ -10285,9 +10285,9 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     uint32_t                                    height,
     uint32_t                                    depth)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(CaptureManager::Get(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10305,7 +10305,7 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
         encoder->EncodeUInt32Value(width);
         encoder->EncodeUInt32Value(height);
         encoder->EncodeUInt32Value(depth);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdTraceRaysNVHandles, raygenShaderBindingTableBuffer, missShaderBindingTableBuffer, hitShaderBindingTableBuffer, callableShaderBindingTableBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdTraceRaysNVHandles, raygenShaderBindingTableBuffer, missShaderBindingTableBuffer, hitShaderBindingTableBuffer, callableShaderBindingTableBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10316,7 +10316,7 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
 
     GetDeviceTable(commandBuffer)->CmdTraceRaysNV(commandBuffer_unwrapped, raygenShaderBindingTableBuffer_unwrapped, raygenShaderBindingOffset, missShaderBindingTableBuffer_unwrapped, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer_unwrapped, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer_unwrapped, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(CaptureManager::Get(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
@@ -10329,9 +10329,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(CaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(VulkanCaptureManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
     const VkRayTracingPipelineCreateInfoNV* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
@@ -10340,14 +10340,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10357,10 +10357,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(CaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
     return result;
 }
@@ -10375,7 +10375,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(CaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
@@ -10386,7 +10386,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10396,10 +10396,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
         encoder->EncodeSizeTValue(dataSize);
         encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(CaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
 }
@@ -10414,7 +10414,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(CaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
@@ -10425,7 +10425,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10435,10 +10435,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
         encoder->EncodeSizeTValue(dataSize);
         encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(CaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
 }
@@ -10451,7 +10451,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(CaptureManager::Get(), device, accelerationStructure, dataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructure, dataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkAccelerationStructureNV accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(accelerationStructure);
@@ -10462,7 +10462,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10470,10 +10470,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
         encoder->EncodeSizeTValue(dataSize);
         encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(CaptureManager::Get(), result, device, accelerationStructure, dataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(VulkanCaptureManager::Get(), result, device, accelerationStructure, dataSize, pData);
 
     return result;
 }
@@ -10486,9 +10486,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(CaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10497,17 +10497,17 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
         encoder->EncodeEnumValue(queryType);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteAccelerationStructuresPropertiesNVHandles, accelerationStructureCount, pAccelerationStructures, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteAccelerationStructuresPropertiesNVHandles, accelerationStructureCount, pAccelerationStructures, queryPool);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureNV* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
     VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
 
     GetDeviceTable(commandBuffer)->CmdWriteAccelerationStructuresPropertiesNV(commandBuffer_unwrapped, accelerationStructureCount, pAccelerationStructures_unwrapped, queryType, queryPool_unwrapped, firstQuery);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(CaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(
@@ -10515,24 +10515,24 @@ VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(
     VkPipeline                                  pipeline,
     uint32_t                                    shader)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(CaptureManager::Get(), device, pipeline, shader);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, shader);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
 
     VkResult result = GetDeviceTable(device)->CompileDeferredNV(device_unwrapped, pipeline_unwrapped, shader);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCompileDeferredNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCompileDeferredNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(pipeline);
         encoder->EncodeUInt32Value(shader);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(CaptureManager::Get(), result, device, pipeline, shader);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, shader);
 
     return result;
 }
@@ -10545,7 +10545,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(CaptureManager::Get(), device, handleType, pHostPointer, pMemoryHostPointerProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), device, handleType, pHostPointer, pMemoryHostPointerProperties);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -10555,7 +10555,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10563,10 +10563,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
         encoder->EncodeVoidPtr(pHostPointer);
         EncodeStructPtr(encoder, pMemoryHostPointerProperties, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(CaptureManager::Get(), result, device, handleType, pHostPointer, pMemoryHostPointerProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, handleType, pHostPointer, pMemoryHostPointerProperties);
 
     return result;
 }
@@ -10578,9 +10578,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10588,7 +10588,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
         encoder->EncodeHandleValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeUInt32Value(marker);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteBufferMarkerAMDHandles, dstBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteBufferMarkerAMDHandles, dstBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10596,7 +10596,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
 
     GetDeviceTable(commandBuffer)->CmdWriteBufferMarkerAMD(commandBuffer_unwrapped, pipelineStage, dstBuffer_unwrapped, dstOffset, marker);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
@@ -10606,7 +10606,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(CaptureManager::Get(), physicalDevice, pTimeDomainCount, pTimeDomains);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pTimeDomainCount, pTimeDomains);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -10616,17 +10616,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pTimeDomainCount, omit_output_data);
         encoder->EncodeEnumArray(pTimeDomains, (pTimeDomainCount != nullptr) ? (*pTimeDomainCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, pTimeDomainCount, pTimeDomains);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pTimeDomainCount, pTimeDomains);
 
     return result;
 }
@@ -10640,7 +10640,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(CaptureManager::Get(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(VulkanCaptureManager::Get(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -10650,7 +10650,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -10659,10 +10659,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
         encoder->EncodeUInt64Array(pTimestamps, timestampCount, omit_output_data);
         encoder->EncodeUInt64Ptr(pMaxDeviation, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(CaptureManager::Get(), result, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
     return result;
 }
@@ -10672,22 +10672,22 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(
     uint32_t                                    taskCount,
     uint32_t                                    firstTask)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(CaptureManager::Get(), commandBuffer, taskCount, firstTask);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, taskCount, firstTask);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(taskCount);
         encoder->EncodeUInt32Value(firstTask);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdDrawMeshTasksNV(commandBuffer_unwrapped, taskCount, firstTask);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(CaptureManager::Get(), commandBuffer, taskCount, firstTask);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, taskCount, firstTask);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
@@ -10697,9 +10697,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10707,7 +10707,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeUInt32Value(drawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawMeshTasksIndirectNVHandles, buffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawMeshTasksIndirectNVHandles, buffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10715,7 +10715,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
 
     GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectNV(commandBuffer_unwrapped, buffer_unwrapped, offset, drawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
@@ -10727,9 +10727,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -10739,7 +10739,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawMeshTasksIndirectCountNVHandles, buffer, countBuffer);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawMeshTasksIndirectCountNVHandles, buffer, countBuffer);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -10748,7 +10748,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
 
     GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectCountNV(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(CaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(
@@ -10757,44 +10757,44 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(
     uint32_t                                    exclusiveScissorCount,
     const VkRect2D*                             pExclusiveScissors)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(firstExclusiveScissor);
         encoder->EncodeUInt32Value(exclusiveScissorCount);
         EncodeStructArray(encoder, pExclusiveScissors, exclusiveScissorCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetExclusiveScissorNV(commandBuffer_unwrapped, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(CaptureManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(
     VkCommandBuffer                             commandBuffer,
     const void*                                 pCheckpointMarker)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(CaptureManager::Get(), commandBuffer, pCheckpointMarker);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCheckpointMarker);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCheckpointNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCheckpointNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVoidPtr(pCheckpointMarker);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetCheckpointNV(commandBuffer_unwrapped, pCheckpointMarker);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(CaptureManager::Get(), commandBuffer, pCheckpointMarker);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pCheckpointMarker);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
@@ -10802,44 +10802,44 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointDataNV*                         pCheckpointData)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(CaptureManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(VulkanCaptureManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
 
     GetDeviceTable(queue)->GetQueueCheckpointDataNV(queue_unwrapped, pCheckpointDataCount, pCheckpointData);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         encoder->EncodeUInt32Ptr(pCheckpointDataCount);
         EncodeStructArray(encoder, pCheckpointData, (pCheckpointDataCount != nullptr) ? (*pCheckpointDataCount) : 0);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(CaptureManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(VulkanCaptureManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
     VkDevice                                    device,
     const VkInitializePerformanceApiInfoINTEL*  pInitializeInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(CaptureManager::Get(), device, pInitializeInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(VulkanCaptureManager::Get(), device, pInitializeInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     VkResult result = GetDeviceTable(device)->InitializePerformanceApiINTEL(device_unwrapped, pInitializeInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInitializeInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(CaptureManager::Get(), result, device, pInitializeInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(VulkanCaptureManager::Get(), result, device, pInitializeInfo);
 
     return result;
 }
@@ -10847,42 +10847,42 @@ VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
 VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(
     VkDevice                                    device)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(CaptureManager::Get(), device);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(VulkanCaptureManager::Get(), device);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->UninitializePerformanceApiINTEL(device_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(CaptureManager::Get(), device);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(VulkanCaptureManager::Get(), device);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceMarkerInfoINTEL*         pMarkerInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     VkResult result = GetDeviceTable(commandBuffer)->CmdSetPerformanceMarkerINTEL(commandBuffer_unwrapped, pMarkerInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pMarkerInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(CaptureManager::Get(), result, commandBuffer, pMarkerInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer, pMarkerInfo);
 
     return result;
 }
@@ -10891,22 +10891,22 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceStreamMarkerInfoINTEL*   pMarkerInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(CaptureManager::Get(), commandBuffer, pMarkerInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pMarkerInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     VkResult result = GetDeviceTable(commandBuffer)->CmdSetPerformanceStreamMarkerINTEL(commandBuffer_unwrapped, pMarkerInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pMarkerInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(CaptureManager::Get(), result, commandBuffer, pMarkerInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer, pMarkerInfo);
 
     return result;
 }
@@ -10915,22 +10915,22 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceOverrideInfoINTEL*       pOverrideInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(CaptureManager::Get(), commandBuffer, pOverrideInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pOverrideInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     VkResult result = GetDeviceTable(commandBuffer)->CmdSetPerformanceOverrideINTEL(commandBuffer_unwrapped, pOverrideInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pOverrideInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(CaptureManager::Get(), result, commandBuffer, pOverrideInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(VulkanCaptureManager::Get(), result, commandBuffer, pOverrideInfo);
 
     return result;
 }
@@ -10942,7 +10942,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), device, pAcquireInfo, pConfiguration);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), device, pAcquireInfo, pConfiguration);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -10950,24 +10950,24 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PerformanceConfigurationINTELWrapper>(device, NoParentWrapper::kHandleValue, pConfiguration, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PerformanceConfigurationINTELWrapper>(device, NoParentWrapper::kHandleValue, pConfiguration, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pAcquireInfo);
         encoder->EncodeHandlePtr(pConfiguration, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PerformanceConfigurationINTELWrapper, void>(result, device, pConfiguration, nullptr, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PerformanceConfigurationINTELWrapper, void>(result, device, pConfiguration, nullptr, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), result, device, pAcquireInfo, pConfiguration);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), result, device, pAcquireInfo, pConfiguration);
 
     return result;
 }
@@ -10976,23 +10976,23 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
     VkDevice                                    device,
     VkPerformanceConfigurationINTEL             configuration)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), device, configuration);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), device, configuration);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPerformanceConfigurationINTEL configuration_unwrapped = GetWrappedHandle<VkPerformanceConfigurationINTEL>(configuration);
 
     VkResult result = GetDeviceTable(device)->ReleasePerformanceConfigurationINTEL(device_unwrapped, configuration_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(configuration);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndDestroyApiCallTrace<PerformanceConfigurationINTELWrapper>(configuration, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<PerformanceConfigurationINTELWrapper>(configuration, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), result, device, configuration);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), result, device, configuration);
 
     DestroyWrappedHandle<PerformanceConfigurationINTELWrapper>(configuration);
 
@@ -11003,23 +11003,23 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(
     VkQueue                                     queue,
     VkPerformanceConfigurationINTEL             configuration)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), queue, configuration);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), queue, configuration);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
     VkPerformanceConfigurationINTEL configuration_unwrapped = GetWrappedHandle<VkPerformanceConfigurationINTEL>(configuration);
 
     VkResult result = GetDeviceTable(queue)->QueueSetPerformanceConfigurationINTEL(queue_unwrapped, configuration_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(queue);
         encoder->EncodeHandleValue(configuration);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(CaptureManager::Get(), result, queue, configuration);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(VulkanCaptureManager::Get(), result, queue, configuration);
 
     return result;
 }
@@ -11031,7 +11031,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(CaptureManager::Get(), device, parameter, pValue);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(VulkanCaptureManager::Get(), device, parameter, pValue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -11041,17 +11041,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(parameter);
         EncodeStructPtr(encoder, pValue, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(CaptureManager::Get(), result, device, parameter, pValue);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(VulkanCaptureManager::Get(), result, device, parameter, pValue);
 
     return result;
 }
@@ -11061,15 +11061,15 @@ VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
     VkSwapchainKHR                              swapChain,
     VkBool32                                    localDimmingEnable)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(CaptureManager::Get(), device, swapChain, localDimmingEnable);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(VulkanCaptureManager::Get(), device, swapChain, localDimmingEnable);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapChain);
         encoder->EncodeVkBool32Value(localDimmingEnable);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11077,7 +11077,7 @@ VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
 
     GetDeviceTable(device)->SetLocalDimmingAMD(device_unwrapped, swapChain_unwrapped, localDimmingEnable);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(CaptureManager::Get(), device, swapChain, localDimmingEnable);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(VulkanCaptureManager::Get(), device, swapChain, localDimmingEnable);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
@@ -11088,7 +11088,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -11096,14 +11096,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -11111,10 +11111,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkImagePipeSurfaceCreateInfoFUCHSIA>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkImagePipeSurfaceCreateInfoFUCHSIA>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -11127,7 +11127,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -11135,14 +11135,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -11150,10 +11150,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkMetalSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkMetalSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -11162,24 +11162,24 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddressEXT(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeVkDeviceAddressValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -11191,25 +11191,25 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(CaptureManager::Get(), physicalDevice, pToolCount, pToolProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pToolCount, pToolProperties);
 
-    VkResult result = CaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+    VkResult result = VulkanCaptureManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
     if (result < 0)
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pToolCount, omit_output_data);
         EncodeStructArray(encoder, pToolProperties, (pToolCount != nullptr) ? (*pToolCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, pToolCount, pToolProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pToolCount, pToolProperties);
 
     return result;
 }
@@ -11221,7 +11221,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(CaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -11231,17 +11231,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount, omit_output_data);
         EncodeStructArray(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(CaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
 }
@@ -11253,7 +11253,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamples
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(CaptureManager::Get(), physicalDevice, pCombinationCount, pCombinations);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pCombinationCount, pCombinations);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
@@ -11263,17 +11263,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamples
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pCombinationCount, omit_output_data);
         EncodeStructArray(encoder, pCombinations, (pCombinationCount != nullptr) ? (*pCombinationCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(CaptureManager::Get(), result, physicalDevice, pCombinationCount, pCombinations);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pCombinationCount, pCombinations);
 
     return result;
 }
@@ -11286,9 +11286,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(CaptureManager::Get(), physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
     const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo_unwrapped = UnwrapStructPtrHandles(pSurfaceInfo, handle_unwrap_memory);
 
@@ -11298,7 +11298,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
@@ -11306,10 +11306,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
         encoder->EncodeUInt32Ptr(pPresentModeCount, omit_output_data);
         encoder->EncodeEnumArray(pPresentModes, (pPresentModeCount != nullptr) ? (*pPresentModeCount) : 0, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
 
     return result;
 }
@@ -11318,23 +11318,23 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(CaptureManager::Get(), device, swapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(VulkanCaptureManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
 
     VkResult result = GetDeviceTable(device)->AcquireFullScreenExclusiveModeEXT(device_unwrapped, swapchain_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapchain);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(CaptureManager::Get(), result, device, swapchain);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain);
 
     return result;
 }
@@ -11343,23 +11343,23 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(CaptureManager::Get(), device, swapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(VulkanCaptureManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
 
     VkResult result = GetDeviceTable(device)->ReleaseFullScreenExclusiveModeEXT(device_unwrapped, swapchain_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(swapchain);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(CaptureManager::Get(), result, device, swapchain);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, swapchain);
 
     return result;
 }
@@ -11371,9 +11371,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(CaptureManager::Get(), device, pSurfaceInfo, pModes);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(VulkanCaptureManager::Get(), device, pSurfaceInfo, pModes);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo_unwrapped = UnwrapStructPtrHandles(pSurfaceInfo, handle_unwrap_memory);
 
@@ -11383,17 +11383,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pSurfaceInfo);
         encoder->EncodeFlagsPtr(pModes, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(CaptureManager::Get(), result, device, pSurfaceInfo, pModes);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pSurfaceInfo, pModes);
 
     return result;
 }
@@ -11406,7 +11406,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -11414,14 +11414,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -11429,10 +11429,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkHeadlessSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkHeadlessSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -11442,22 +11442,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(CaptureManager::Get(), commandBuffer, lineStippleFactor, lineStipplePattern);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, lineStippleFactor, lineStipplePattern);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(lineStippleFactor);
         encoder->EncodeUInt16Value(lineStipplePattern);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetLineStippleEXT(commandBuffer_unwrapped, lineStippleFactor, lineStipplePattern);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(CaptureManager::Get(), commandBuffer, lineStippleFactor, lineStipplePattern);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, lineStippleFactor, lineStipplePattern);
 }
 
 VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
@@ -11466,16 +11466,16 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(CaptureManager::Get(), device, queryPool, firstQuery, queryCount);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, firstQuery, queryCount);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPoolEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPoolEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11483,70 +11483,70 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
 
     GetDeviceTable(device)->ResetQueryPoolEXT(device_unwrapped, queryPool_unwrapped, firstQuery, queryCount);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(CaptureManager::Get(), device, queryPool, firstQuery, queryCount);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(VulkanCaptureManager::Get(), device, queryPool, firstQuery, queryCount);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(
     VkCommandBuffer                             commandBuffer,
     VkCullModeFlags                             cullMode)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(CaptureManager::Get(), commandBuffer, cullMode);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, cullMode);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCullModeEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCullModeEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeFlagsValue(cullMode);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetCullModeEXT(commandBuffer_unwrapped, cullMode);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(CaptureManager::Get(), commandBuffer, cullMode);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, cullMode);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(
     VkCommandBuffer                             commandBuffer,
     VkFrontFace                                 frontFace)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(CaptureManager::Get(), commandBuffer, frontFace);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, frontFace);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(frontFace);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetFrontFaceEXT(commandBuffer_unwrapped, frontFace);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(CaptureManager::Get(), commandBuffer, frontFace);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, frontFace);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(
     VkCommandBuffer                             commandBuffer,
     VkPrimitiveTopology                         primitiveTopology)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(CaptureManager::Get(), commandBuffer, primitiveTopology);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, primitiveTopology);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(primitiveTopology);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetPrimitiveTopologyEXT(commandBuffer_unwrapped, primitiveTopology);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(CaptureManager::Get(), commandBuffer, primitiveTopology);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, primitiveTopology);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(
@@ -11554,22 +11554,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, viewportCount, pViewports);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, viewportCount, pViewports);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(viewportCount);
         EncodeStructArray(encoder, pViewports, viewportCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetViewportWithCountEXT(commandBuffer_unwrapped, viewportCount, pViewports);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, viewportCount, pViewports);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, viewportCount, pViewports);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(
@@ -11577,22 +11577,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, scissorCount, pScissors);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, scissorCount, pScissors);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(scissorCount);
         EncodeStructArray(encoder, pScissors, scissorCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetScissorWithCountEXT(commandBuffer_unwrapped, scissorCount, pScissors);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(CaptureManager::Get(), commandBuffer, scissorCount, pScissors);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, scissorCount, pScissors);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(
@@ -11604,9 +11604,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(
     const VkDeviceSize*                         pSizes,
     const VkDeviceSize*                         pStrides)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -11616,121 +11616,121 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(
         encoder->EncodeVkDeviceSizeArray(pOffsets, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pSizes, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pStrides, bindingCount);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindVertexBuffers2EXTHandles, bindingCount, pBuffers);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindVertexBuffers2EXTHandles, bindingCount, pBuffers);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkBuffer* pBuffers_unwrapped = UnwrapHandles<VkBuffer>(pBuffers, bindingCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBindVertexBuffers2EXT(commandBuffer_unwrapped, firstBinding, bindingCount, pBuffers_unwrapped, pOffsets, pSizes, pStrides);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(CaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthTestEnable)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthTestEnable);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthTestEnable);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVkBool32Value(depthTestEnable);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthTestEnableEXT(commandBuffer_unwrapped, depthTestEnable);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthTestEnable);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthTestEnable);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthWriteEnable)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthWriteEnable);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthWriteEnable);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVkBool32Value(depthWriteEnable);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthWriteEnableEXT(commandBuffer_unwrapped, depthWriteEnable);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthWriteEnable);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthWriteEnable);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(
     VkCommandBuffer                             commandBuffer,
     VkCompareOp                                 depthCompareOp)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthCompareOp);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthCompareOp);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(depthCompareOp);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthCompareOpEXT(commandBuffer_unwrapped, depthCompareOp);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthCompareOp);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthCompareOp);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBoundsTestEnable)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthBoundsTestEnable);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthBoundsTestEnable);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVkBool32Value(depthBoundsTestEnable);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetDepthBoundsTestEnableEXT(commandBuffer_unwrapped, depthBoundsTestEnable);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, depthBoundsTestEnable);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, depthBoundsTestEnable);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    stencilTestEnable)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, stencilTestEnable);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, stencilTestEnable);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVkBool32Value(stencilTestEnable);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetStencilTestEnableEXT(commandBuffer_unwrapped, stencilTestEnable);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(CaptureManager::Get(), commandBuffer, stencilTestEnable);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, stencilTestEnable);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(
@@ -11741,9 +11741,9 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(
     VkStencilOp                                 depthFailOp,
     VkCompareOp                                 compareOp)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -11752,14 +11752,14 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(
         encoder->EncodeEnumValue(passOp);
         encoder->EncodeEnumValue(depthFailOp);
         encoder->EncodeEnumValue(compareOp);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetStencilOpEXT(commandBuffer_unwrapped, faceMask, failOp, passOp, depthFailOp, compareOp);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(CaptureManager::Get(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(
@@ -11767,47 +11767,47 @@ VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(
     const VkGeneratedCommandsMemoryRequirementsInfoNV* pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkGeneratedCommandsMemoryRequirementsInfoNV* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetGeneratedCommandsMemoryRequirementsNV(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         EncodeStructPtr(encoder, pMemoryRequirements);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(CaptureManager::Get(), device, pInfo, pMemoryRequirements);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(VulkanCaptureManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(
     VkCommandBuffer                             commandBuffer,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(CaptureManager::Get(), commandBuffer, pGeneratedCommandsInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pGeneratedCommandsInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pGeneratedCommandsInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPreprocessGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPreprocessGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo_unwrapped = UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdPreprocessGeneratedCommandsNV(commandBuffer_unwrapped, pGeneratedCommandsInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(CaptureManager::Get(), commandBuffer, pGeneratedCommandsInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pGeneratedCommandsInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(
@@ -11815,24 +11815,24 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(CaptureManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeVkBool32Value(isPreprocessed);
         EncodeStructPtr(encoder, pGeneratedCommandsInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo_unwrapped = UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdExecuteGeneratedCommandsNV(commandBuffer_unwrapped, isPreprocessed, pGeneratedCommandsInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(CaptureManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
@@ -11841,16 +11841,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
     VkPipeline                                  pipeline,
     uint32_t                                    groupIndex)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
         encoder->EncodeHandleValue(pipeline);
         encoder->EncodeUInt32Value(groupIndex);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindPipelineShaderGroupNVHandles, pipeline);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindPipelineShaderGroupNVHandles, pipeline);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -11858,7 +11858,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
 
     GetDeviceTable(commandBuffer)->CmdBindPipelineShaderGroupNV(commandBuffer_unwrapped, pipelineBindPoint, pipeline_unwrapped, groupIndex);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
@@ -11869,9 +11869,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkIndirectCommandsLayoutCreateInfoNV* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -11879,14 +11879,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, IndirectCommandsLayoutNVWrapper>(device, NoParentWrapper::kHandleValue, pIndirectCommandsLayout, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, IndirectCommandsLayoutNVWrapper>(device, NoParentWrapper::kHandleValue, pIndirectCommandsLayout, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -11894,10 +11894,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pIndirectCommandsLayout, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, IndirectCommandsLayoutNVWrapper, VkIndirectCommandsLayoutCreateInfoNV>(result, device, pIndirectCommandsLayout, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, IndirectCommandsLayoutNVWrapper, VkIndirectCommandsLayoutCreateInfoNV>(result, device, pIndirectCommandsLayout, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 
     return result;
 }
@@ -11907,15 +11907,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     VkIndirectCommandsLayoutNV                  indirectCommandsLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(CaptureManager::Get(), device, indirectCommandsLayout, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(VulkanCaptureManager::Get(), device, indirectCommandsLayout, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(indirectCommandsLayout);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11923,7 +11923,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
 
     GetDeviceTable(device)->DestroyIndirectCommandsLayoutNV(device_unwrapped, indirectCommandsLayout_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(CaptureManager::Get(), device, indirectCommandsLayout, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(VulkanCaptureManager::Get(), device, indirectCommandsLayout, pAllocator);
 
     DestroyWrappedHandle<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
 }
@@ -11936,7 +11936,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
@@ -11944,14 +11944,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PrivateDataSlotEXTWrapper>(device, NoParentWrapper::kHandleValue, pPrivateDataSlot, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PrivateDataSlotEXTWrapper>(device, NoParentWrapper::kHandleValue, pPrivateDataSlot, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -11959,10 +11959,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pPrivateDataSlot, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PrivateDataSlotEXTWrapper, VkPrivateDataSlotCreateInfoEXT>(result, device, pPrivateDataSlot, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, PrivateDataSlotEXTWrapper, VkPrivateDataSlotCreateInfoEXT>(result, device, pPrivateDataSlot, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPrivateDataSlot);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pPrivateDataSlot);
 
     return result;
 }
@@ -11972,15 +11972,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(CaptureManager::Get(), device, privateDataSlot, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(VulkanCaptureManager::Get(), device, privateDataSlot, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(privateDataSlot);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<PrivateDataSlotEXTWrapper>(privateDataSlot, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<PrivateDataSlotEXTWrapper>(privateDataSlot, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11988,7 +11988,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
 
     GetDeviceTable(device)->DestroyPrivateDataSlotEXT(device_unwrapped, privateDataSlot_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(CaptureManager::Get(), device, privateDataSlot, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(VulkanCaptureManager::Get(), device, privateDataSlot, pAllocator);
 
     DestroyWrappedHandle<PrivateDataSlotEXTWrapper>(privateDataSlot);
 }
@@ -12000,7 +12000,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     uint64_t                                    data)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(CaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(VulkanCaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
@@ -12008,7 +12008,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
 
     VkResult result = GetDeviceTable(device)->SetPrivateDataEXT(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, data);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12017,10 +12017,10 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Value(data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(CaptureManager::Get(), result, device, objectType, objectHandle, privateDataSlot, data);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(VulkanCaptureManager::Get(), result, device, objectType, objectHandle, privateDataSlot, data);
 
     return result;
 }
@@ -12032,7 +12032,7 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     uint64_t*                                   pData)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(CaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(VulkanCaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     uint64_t objectHandle_unwrapped = GetWrappedHandle(objectHandle, objectType);
@@ -12040,7 +12040,7 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
 
     GetDeviceTable(device)->GetPrivateDataEXT(device_unwrapped, objectType, objectHandle_unwrapped, privateDataSlot_unwrapped, pData);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPrivateDataEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPrivateDataEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12048,10 +12048,10 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
         encoder->EncodeUInt64Value(GetWrappedId(objectHandle, objectType));
         encoder->EncodeHandleValue(privateDataSlot);
         encoder->EncodeUInt64Ptr(pData);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(CaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(VulkanCaptureManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(
@@ -12059,22 +12059,22 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(
     VkFragmentShadingRateNV                     shadingRate,
     const VkFragmentShadingRateCombinerOpKHR    combinerOps[2])
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(CaptureManager::Get(), commandBuffer, shadingRate, combinerOps);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, shadingRate, combinerOps);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeEnumValue(shadingRate);
         encoder->EncodeEnumArray(combinerOps, 2);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetFragmentShadingRateEnumNV(commandBuffer_unwrapped, shadingRate, combinerOps);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(CaptureManager::Get(), commandBuffer, shadingRate, combinerOps);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, shadingRate, combinerOps);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
@@ -12085,7 +12085,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(CaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
     VkInstance instance_unwrapped = GetWrappedHandle<VkInstance>(instance);
 
@@ -12093,14 +12093,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(instance);
@@ -12108,10 +12108,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pSurface, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkDirectFBSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkDirectFBSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(CaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(VulkanCaptureManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
 
     return result;
 }
@@ -12121,23 +12121,23 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(
     uint32_t                                    queueFamilyIndex,
     IDirectFB*                                  dfb)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(CaptureManager::Get(), physicalDevice, queueFamilyIndex, dfb);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(VulkanCaptureManager::Get(), physicalDevice, queueFamilyIndex, dfb);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
 
     VkBool32 result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceDirectFBPresentationSupportEXT(physicalDevice_unwrapped, queueFamilyIndex, dfb);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT);
     if (encoder)
     {
         encoder->EncodeHandleValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(dfb);
         encoder->EncodeVkBool32Value(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(CaptureManager::Get(), result, physicalDevice, queueFamilyIndex, dfb);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(VulkanCaptureManager::Get(), result, physicalDevice, queueFamilyIndex, dfb);
 
     return result;
 }
@@ -12150,9 +12150,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureCreateInfoKHR* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -12160,14 +12160,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, CaptureManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12175,10 +12175,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pAccelerationStructure, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndCreateApiCallTrace<VkDevice, AccelerationStructureKHRWrapper, VkAccelerationStructureCreateInfoKHR>(result, device, pAccelerationStructure, pCreateInfo, encoder);
+        VulkanCaptureManager::Get()->EndCreateApiCallTrace<VkDevice, AccelerationStructureKHRWrapper, VkAccelerationStructureCreateInfoKHR>(result, device, pAccelerationStructure, pCreateInfo, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), result, device, pCreateInfo, pAllocator, pAccelerationStructure);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pCreateInfo, pAllocator, pAccelerationStructure);
 
     return result;
 }
@@ -12188,15 +12188,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
     VkAccelerationStructureKHR                  accelerationStructure,
     const VkAllocationCallbacks*                pAllocator)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), device, accelerationStructure, pAllocator);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructure, pAllocator);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(accelerationStructure);
         EncodeStructPtr(encoder, pAllocator);
-        CaptureManager::Get()->EndDestroyApiCallTrace<AccelerationStructureKHRWrapper>(accelerationStructure, encoder);
+        VulkanCaptureManager::Get()->EndDestroyApiCallTrace<AccelerationStructureKHRWrapper>(accelerationStructure, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -12204,7 +12204,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
 
     GetDeviceTable(device)->DestroyAccelerationStructureKHR(device_unwrapped, accelerationStructure_unwrapped, pAllocator);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), device, accelerationStructure, pAllocator);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructure, pAllocator);
 
     DestroyWrappedHandle<AccelerationStructureKHRWrapper>(accelerationStructure);
 }
@@ -12215,25 +12215,25 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
     const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(CaptureManager::Get(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(infoCount);
         EncodeStructArray(encoder, pInfos, infoCount);
         EncodeStructArray2D(encoder, ppBuildRangeInfos, ArraySize2D<VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*>(commandBuffer, infoCount, pInfos, ppBuildRangeInfos));
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructuresKHRHandles, infoCount, pInfos);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructuresKHRHandles, infoCount, pInfos);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos_unwrapped = UnwrapStructArrayHandles(pInfos, infoCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructuresKHR(commandBuffer_unwrapped, infoCount, pInfos_unwrapped, ppBuildRangeInfos);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(CaptureManager::Get(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
@@ -12244,9 +12244,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
     const uint32_t*                             pIndirectStrides,
     const uint32_t* const*                      ppMaxPrimitiveCounts)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(CaptureManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -12255,16 +12255,16 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
         encoder->EncodeVkDeviceAddressArray(pIndirectDeviceAddresses, infoCount);
         encoder->EncodeUInt32Array(pIndirectStrides, infoCount);
         encoder->EncodeUInt32Array2D(ppMaxPrimitiveCounts, ArraySize2D<VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkDeviceAddress*, const uint32_t*, const uint32_t* const*>(commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts));
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructuresIndirectKHRHandles, infoCount, pInfos);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructuresIndirectKHRHandles, infoCount, pInfos);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos_unwrapped = UnwrapStructArrayHandles(pInfos, infoCount, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructuresIndirectKHR(commandBuffer_unwrapped, infoCount, pInfos_unwrapped, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(CaptureManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(
@@ -12274,16 +12274,16 @@ VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
     const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(CaptureManager::Get(), device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(VulkanCaptureManager::Get(), device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos_unwrapped = UnwrapStructArrayHandles(pInfos, infoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BuildAccelerationStructuresKHR(device_unwrapped, deferredOperation_unwrapped, infoCount, pInfos_unwrapped, ppBuildRangeInfos);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12292,10 +12292,10 @@ VKAPI_ATTR VkResult VKAPI_CALL BuildAccelerationStructuresKHR(
         EncodeStructArray(encoder, pInfos, infoCount);
         EncodeStructArray2D(encoder, ppBuildRangeInfos, ArraySize2D<VkDevice, VkDeferredOperationKHR, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*>(device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos));
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(CaptureManager::Get(), result, device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBuildAccelerationStructuresKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
 
     return result;
 }
@@ -12305,26 +12305,26 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(
     VkDeferredOperationKHR                      deferredOperation,
     const VkCopyAccelerationStructureInfoKHR*   pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), device, deferredOperation, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), device, deferredOperation, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->CopyAccelerationStructureKHR(device_unwrapped, deferredOperation_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(deferredOperation);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), result, device, deferredOperation, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, deferredOperation, pInfo);
 
     return result;
 }
@@ -12334,26 +12334,26 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
     VkDeferredOperationKHR                      deferredOperation,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(CaptureManager::Get(), device, deferredOperation, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(VulkanCaptureManager::Get(), device, deferredOperation, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->CopyAccelerationStructureToMemoryKHR(device_unwrapped, deferredOperation_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(deferredOperation);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(CaptureManager::Get(), result, device, deferredOperation, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, deferredOperation, pInfo);
 
     return result;
 }
@@ -12363,26 +12363,26 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(
     VkDeferredOperationKHR                      deferredOperation,
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), device, deferredOperation, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), device, deferredOperation, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->CopyMemoryToAccelerationStructureKHR(device_unwrapped, deferredOperation_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(deferredOperation);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), result, device, deferredOperation, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, deferredOperation, pInfo);
 
     return result;
 }
@@ -12398,9 +12398,9 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(CaptureManager::Get(), device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureKHR* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
 
@@ -12410,7 +12410,7 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12421,10 +12421,10 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
         encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
         encoder->EncodeSizeTValue(stride);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(CaptureManager::Get(), result, device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
 
     return result;
 }
@@ -12433,93 +12433,93 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureInfoKHR*   pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureKHRHandles, pInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureKHRHandles, pInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureKHR(commandBuffer_unwrapped, pInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureToMemoryKHRHandles, pInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureToMemoryKHRHandles, pInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureToMemoryKHR(commandBuffer_unwrapped, pInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         EncodeStructPtr(encoder, pInfo);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyMemoryToAccelerationStructureKHRHandles, pInfo);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyMemoryToAccelerationStructureKHRHandles, pInfo);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     GetDeviceTable(commandBuffer)->CmdCopyMemoryToAccelerationStructureKHR(commandBuffer_unwrapped, pInfo_unwrapped);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pInfo);
 }
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(
     VkDevice                                    device,
     const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(CaptureManager::Get(), device, pInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(VulkanCaptureManager::Get(), device, pInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureDeviceAddressInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkDeviceAddress result = GetDeviceTable(device)->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, pInfo_unwrapped);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pInfo);
         encoder->EncodeVkDeviceAddressValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(CaptureManager::Get(), result, device, pInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -12532,9 +12532,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(CaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -12543,17 +12543,17 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(
         encoder->EncodeEnumValue(queryType);
         encoder->EncodeHandleValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteAccelerationStructuresPropertiesKHRHandles, accelerationStructureCount, pAccelerationStructures, queryPool);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteAccelerationStructuresPropertiesKHRHandles, accelerationStructureCount, pAccelerationStructures, queryPool);
     }
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureKHR* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
     VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
 
     GetDeviceTable(commandBuffer)->CmdWriteAccelerationStructuresPropertiesKHR(commandBuffer_unwrapped, accelerationStructureCount, pAccelerationStructures_unwrapped, queryType, queryPool_unwrapped, firstQuery);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(CaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(
@@ -12561,22 +12561,22 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(
     const VkAccelerationStructureVersionInfoKHR* pVersionInfo,
     VkAccelerationStructureCompatibilityKHR*    pCompatibility)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(CaptureManager::Get(), device, pVersionInfo, pCompatibility);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(VulkanCaptureManager::Get(), device, pVersionInfo, pCompatibility);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
 
     GetDeviceTable(device)->GetDeviceAccelerationStructureCompatibilityKHR(device_unwrapped, pVersionInfo, pCompatibility);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
         EncodeStructPtr(encoder, pVersionInfo);
         encoder->EncodeEnumPtr(pCompatibility);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(CaptureManager::Get(), device, pVersionInfo, pCompatibility);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(VulkanCaptureManager::Get(), device, pVersionInfo, pCompatibility);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(
@@ -12586,15 +12586,15 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(
     const uint32_t*                             pMaxPrimitiveCounts,
     VkAccelerationStructureBuildSizesInfoKHR*   pSizeInfo)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(CaptureManager::Get(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(VulkanCaptureManager::Get(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     const VkAccelerationStructureBuildGeometryInfoKHR* pBuildInfo_unwrapped = UnwrapStructPtrHandles(pBuildInfo, handle_unwrap_memory);
 
     GetDeviceTable(device)->GetAccelerationStructureBuildSizesKHR(device_unwrapped, buildType, pBuildInfo_unwrapped, pMaxPrimitiveCounts, pSizeInfo);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12602,10 +12602,10 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(
         EncodeStructPtr(encoder, pBuildInfo);
         encoder->EncodeUInt32Array(pMaxPrimitiveCounts, (pBuildInfo != nullptr) ? (pBuildInfo->geometryCount) : 0);
         EncodeStructPtr(encoder, pSizeInfo);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(CaptureManager::Get(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(VulkanCaptureManager::Get(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
@@ -12618,9 +12618,9 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
     uint32_t                                    height,
     uint32_t                                    depth)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -12631,14 +12631,14 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
         encoder->EncodeUInt32Value(width);
         encoder->EncodeUInt32Value(height);
         encoder->EncodeUInt32Value(depth);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdTraceRaysKHR(commandBuffer_unwrapped, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
@@ -12652,9 +12652,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(CaptureManager::Get(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(VulkanCaptureManager::Get(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
-    auto handle_unwrap_memory = CaptureManager::Get()->GetHandleUnwrapMemory();
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
@@ -12664,14 +12664,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
 
     if (result >= 0)
     {
-        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(device, deferredOperation, pPipelines, createInfoCount, CaptureManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, DeferredOperationKHRWrapper, PipelineWrapper>(device, deferredOperation, pPipelines, createInfoCount, VulkanCaptureManager::GetUniqueId);
     }
     else
     {
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12682,10 +12682,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos, encoder);
+        VulkanCaptureManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(CaptureManager::Get(), result, device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
 
     return result;
 }
@@ -12700,7 +12700,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
 {
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(CaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
@@ -12711,7 +12711,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12721,10 +12721,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
         encoder->EncodeSizeTValue(dataSize);
         encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
         encoder->EncodeEnumValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(CaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     return result;
 }
@@ -12737,9 +12737,9 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(
     const VkStridedDeviceAddressRegionKHR*      pCallableShaderBindingTable,
     VkDeviceAddress                             indirectDeviceAddress)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
@@ -12748,14 +12748,14 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(
         EncodeStructPtr(encoder, pHitShaderBindingTable);
         EncodeStructPtr(encoder, pCallableShaderBindingTable);
         encoder->EncodeVkDeviceAddressValue(indirectDeviceAddress);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdTraceRaysIndirectKHR(commandBuffer_unwrapped, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
 }
 
 VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(
@@ -12764,14 +12764,14 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(
     uint32_t                                    group,
     VkShaderGroupShaderKHR                      groupShader)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(CaptureManager::Get(), device, pipeline, group, groupShader);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(VulkanCaptureManager::Get(), device, pipeline, group, groupShader);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
     VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
 
     VkDeviceSize result = GetDeviceTable(device)->GetRayTracingShaderGroupStackSizeKHR(device_unwrapped, pipeline_unwrapped, group, groupShader);
 
-    auto encoder = CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(device);
@@ -12779,10 +12779,10 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(
         encoder->EncodeUInt32Value(group);
         encoder->EncodeEnumValue(groupShader);
         encoder->EncodeVkDeviceSizeValue(result);
-        CaptureManager::Get()->EndApiCallTrace(encoder);
+        VulkanCaptureManager::Get()->EndApiCallTrace(encoder);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(CaptureManager::Get(), result, device, pipeline, group, groupShader);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(VulkanCaptureManager::Get(), result, device, pipeline, group, groupShader);
 
     return result;
 }
@@ -12791,21 +12791,21 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    pipelineStackSize)
 {
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStackSize);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStackSize);
 
-    auto encoder = CaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR);
+    auto encoder = VulkanCaptureManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR);
     if (encoder)
     {
         encoder->EncodeHandleValue(commandBuffer);
         encoder->EncodeUInt32Value(pipelineStackSize);
-        CaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+        VulkanCaptureManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
 
     GetDeviceTable(commandBuffer)->CmdSetRayTracingPipelineStackSizeKHR(commandBuffer_unwrapped, pipelineStackSize);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(CaptureManager::Get(), commandBuffer, pipelineStackSize);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(VulkanCaptureManager::Get(), commandBuffer, pipelineStackSize);
 }
 
 GFXRECON_END_NAMESPACE(encode)

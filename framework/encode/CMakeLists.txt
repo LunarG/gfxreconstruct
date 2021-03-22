@@ -47,6 +47,8 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/custom_dx12_struct_unwrappers.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_capture_manager.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/d3d12_dispatch_table.h>
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_info.h
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_dll_initializer.h>
@@ -61,6 +63,8 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/iunknown_wrapper.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp

@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "encode/capture_manager.h"
+#include "encode/vulkan_capture_manager.h"
 #include "layer/trace_layer.h"
 
 #if defined(WIN32)
@@ -35,14 +35,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-            gfxrecon::encode::CaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance,
-                                                            gfxrecon::dispatch_CreateDevice);
+            gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance,
+                                                                  gfxrecon::dispatch_CreateDevice);
             break;
         case DLL_PROCESS_DETACH:
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
             //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
             //       we will need to split destroy_layer into a shutdown function, responsible for
-            //       performing any finalization work, that would always run and a destroy funtion,
+            //       performing any finalization work, that would always run and a destroy function,
             //       responsible for releasing resources, that would only run when the process was
             //       not terminating.
             if (lpvReserved == nullptr)
@@ -59,7 +59,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 __attribute__((constructor)) static void create_trace_layer()
 {
-    gfxrecon::encode::CaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance, gfxrecon::dispatch_CreateDevice);
+    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::dispatch_CreateInstance,
+                                                          gfxrecon::dispatch_CreateDevice);
 }
 
 __attribute__((destructor)) static void destroy_trace_layer()
