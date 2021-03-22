@@ -36,11 +36,14 @@ def setupJobVars() {
 
     email_recip_fail = ""
     email_recip_success = ""
-    if (params.NOTIFY_FAIL) {
-        email_recip_fail = "${params.NOTIFY_FAIL}"
+
+    if (env.NOTIFY_FAIL) {
+        email_recip_fail = env.NOTIFY_FAIL
     }
-    if (params.NOTIFY_SUCCESS) {
-        email_recip_success = "${params.NOTIFY_SUCCESS}"
+
+
+    if (env.NOTIFY_SUCCESS) {
+        email_recip_success = env.NOTIFY_SUCCESS
     }
     // also, a no-op, since this does not get manually set.
     /*    if (gfxrBranch.matches(devMatchPattern)) {
@@ -65,7 +68,7 @@ def cloneRepos() {
         }
     }
 }
-// Check out, then load the script that contains functions that can be used in many projects.
+
 // Check out, then load the script that contains functions that can be used in many projects.
 def setupTools() {
     def jenkins_tools_linux = "Scripts/LabTools/Jenkins/Generic/JenkinsToolsLib.gvy"
@@ -157,6 +160,7 @@ def UploadArtifacts(label) {
         server.publishBuildInfo build_info
     }
 }
+
 
 // Build GFXReconstruct
 def Build(label) {
@@ -471,13 +475,14 @@ pipeline {
             script {
                 echo "this was a failure"
                 if (email_recip_fail != "") {
-                    JTools.notifyFailed(email_recip_fail)
+                     JTools.notifyFailed(email_recip_fail)
                 }
             }
         }
 
         success {
             script {
+                echo "sending email to $email_recip_success"
                 echo "This was a success"
                 if (email_recip_success != "") {
                     JTools.notifySuccessful(email_recip_success)
