@@ -32,6 +32,7 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/file_path.h"
 #include "util/hash.h"
 #include "util/platform.h"
@@ -51,14 +52,6 @@ const uint32_t kDefaultWindowWidth     = 320;
 const uint32_t kDefaultWindowHeight    = 240;
 
 const char kUnknownDeviceLabel[] = "<Unknown>";
-
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(WIN32)
-    "vulkan-1.dll"
-#else
-    "libvulkan.so.1", "libvulkan.so"
-#endif
-};
 
 const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
@@ -199,7 +192,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     if (loader_handle_ != nullptr)
     {
-        util::platform::CloseLibrary(loader_handle_);
+        graphics::ReleaseLoader(loader_handle_);
     }
 }
 
@@ -1491,7 +1484,7 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 
 void VulkanReplayConsumerBase::InitializeLoader()
 {
-    loader_handle_ = util::platform::OpenLibrary(kLoaderLibNames);
+    loader_handle_ = graphics::InitializeLoader();
     if (loader_handle_ != nullptr)
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -1508,7 +1501,7 @@ void VulkanReplayConsumerBase::InitializeLoader()
     {
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
                            "loader (eg. %s) has been added to the appropriate system path",
-                           kLoaderLibNames[0].c_str());
+                           graphics::kLoaderLibNames[0].c_str());
         RaiseFatalError("Failed to load Vulkan runtime library");
     }
 }

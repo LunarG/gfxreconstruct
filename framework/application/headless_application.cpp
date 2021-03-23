@@ -22,7 +22,11 @@
 */
 
 #include "application/headless_application.h"
+
 #include "application/headless_window.h"
+#include "decode/vulkan_feature_util.h"
+#include "graphics/vulkan_util.h"
+#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -31,9 +35,39 @@ HeadlessApplication::HeadlessApplication(const std::string& name) : Application(
 
 bool HeadlessApplication::Initialize(decode::FileProcessor* file_processor)
 {
-    // No additional initialization is required for headless.
-    SetFileProcessor(file_processor);
-    return true;
+    bool supported = false;
+
+    // Check for headless extension support, and report initialization failure when the extension is not present.
+    auto loader_handle = graphics::InitializeLoader();
+    if (loader_handle != nullptr)
+    {
+        auto get_instance_proc_addr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle, "vkGetInstanceProcAddr"));
+
+        if (get_instance_proc_addr != nullptr)
+        {
+            auto instance_extension_proc = reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+                get_instance_proc_addr(nullptr, "vkEnumerateInstanceExtensionProperties"));
+            std::vector<VkExtensionProperties> properties;
+
+            if (decode::feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
+            {
+                if (decode::feature_util::IsSupportedExtension(properties, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+                {
+                    supported = true;
+                }
+            }
+        }
+
+        graphics::ReleaseLoader(loader_handle);
+    }
+
+    if (supported)
+    {
+        SetFileProcessor(file_processor);
+    }
+
+    return supported;
 }
 
 void HeadlessApplication::ProcessEvents(bool wait_for_input)

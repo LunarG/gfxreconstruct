@@ -20,48 +20,25 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_GRAPHICS_VULKAN_UTIL_H
-#define GFXRECON_GRAPHICS_VULKAN_UTIL_H
+#include "graphics/vulkan_util.h"
 
-#include "generated/generated_vulkan_dispatch_table.h"
-#include "util/defines.h"
-#include "util/platform.h"
-
-#include "vulkan/vulkan.h"
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(WIN32)
-    "vulkan-1.dll"
-#else
-    "libvulkan.so.1", "libvulkan.so"
-#endif
-};
-
-util::platform::LibraryHandle InitializeLoader();
-
-void ReleaseLoader(util::platform::LibraryHandle loader_handle);
-
-// Search through the parent's pNext chain for the first struct with the requested struct_type. parent's struct type is
-// not checked and parent won't be returned as a result. T and Parent_T must be Vulkan struct pointer types. Return
-// nullptr if no matching struct found.
-template <typename T, typename Parent_T>
-static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
+util::platform::LibraryHandle InitializeLoader()
 {
-    VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(parent)->pNext;
-    while (current_struct != nullptr)
+    return util::platform::OpenLibrary(kLoaderLibNames);
+}
+
+void ReleaseLoader(util::platform::LibraryHandle loader_handle)
+{
+    if (loader_handle != nullptr)
     {
-        if (current_struct->sType == struct_type)
-        {
-            return reinterpret_cast<T*>(current_struct);
-        }
+        util::platform::CloseLibrary(loader_handle);
     }
-    return nullptr;
 }
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_GRAPHICS_VULKAN_UTIL_H
