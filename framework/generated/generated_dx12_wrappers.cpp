@@ -320,7 +320,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
             GetCaptureId(),
             result,
             Name,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pUnknown));
+            pUnknown);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface>::Dispatch(
             manager,
@@ -1299,7 +1299,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::FindClosestMatchingMode(
             result,
             pModeToMatch,
             pClosestMatch,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+            pConcernedDevice);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode>::Dispatch(
             manager,
@@ -1380,7 +1380,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::TakeOwnership(
         Encode_IDXGIOutput_TakeOwnership(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             Exclusive);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput_TakeOwnership>::Dispatch(
@@ -1571,7 +1571,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::SetDisplaySurface(
         Encode_IDXGIOutput_SetDisplaySurface(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pScanoutSurface));
+            pScanoutSurface);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface>::Dispatch(
             manager,
@@ -1611,7 +1611,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetDisplaySurfaceData(
         Encode_IDXGIOutput_GetDisplaySurfaceData(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IDXGISurface_Wrapper, IDXGISurface>(pDestination));
+            pDestination);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData>::Dispatch(
             manager,
@@ -1814,7 +1814,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::SetFullscreenState(
             GetCaptureId(),
             result,
             Fullscreen,
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pTarget));
+            pTarget);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_SetFullscreenState>::Dispatch(
             manager,
@@ -2340,7 +2340,7 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSwapChain(
         Encode_IDXGIFactory_CreateSwapChain(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             pDesc,
             ppSwapChain);
 
@@ -2575,7 +2575,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
         Encode_IDXGIDevice_QueryResourceResidency(
             GetCaptureId(),
             result,
-            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppResources, NumResources, unwrap_memory),
+            ppResources,
             pResidencyStatus,
             NumResources);
 
@@ -3572,7 +3572,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
             GetCaptureId(),
             result,
             NumResources,
-            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            ppResources,
             Priority);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_OfferResources>::Dispatch(
@@ -3626,7 +3626,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
             GetCaptureId(),
             result,
             NumResources,
-            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            ppResources,
             pDiscarded);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources>::Dispatch(
@@ -4235,11 +4235,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
         Encode_IDXGIFactory2_CreateSwapChainForHwnd(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             hWnd,
             pDesc,
             pFullscreenDesc,
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForHwnd>::Dispatch(
@@ -4307,10 +4307,10 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
         Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pWindow),
+            pDevice,
+            pWindow,
             pDesc,
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForCoreWindow>::Dispatch(
@@ -4683,9 +4683,9 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
         Encode_IDXGIFactory2_CreateSwapChainForComposition(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             pDesc,
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwapChainForComposition>::Dispatch(
@@ -4846,7 +4846,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::FindClosestMatchingMode1(
             result,
             pModeToMatch,
             pClosestMatch,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice));
+            pConcernedDevice);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1>::Dispatch(
             manager,
@@ -4890,7 +4890,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::GetDisplaySurfaceData1(
         Encode_IDXGIOutput1_GetDisplaySurfaceData1(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pDestination));
+            pDestination);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1>::Dispatch(
             manager,
@@ -4938,7 +4938,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput1_Wrapper::DuplicateOutput(
         Encode_IDXGIOutput1_DuplicateOutput(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             ppOutputDuplication);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_DuplicateOutput>::Dispatch(
@@ -5920,10 +5920,10 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateSwapChainForCompositi
         Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             hSurface,
             pDesc,
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle>::Dispatch(
@@ -5992,11 +5992,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
         Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             hSurface,
             pDesc,
-            encode::GetWrappedObject<IDXGIResource_Wrapper, IDXGIResource>(pYuvDecodeBuffers),
-            encode::GetWrappedObject<IDXGIOutput_Wrapper, IDXGIOutput>(pRestrictToOutput),
+            pYuvDecodeBuffers,
+            pRestrictToOutput,
             ppSwapChain);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle>::Dispatch(
@@ -6206,7 +6206,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput3_Wrapper::CheckOverlaySupport(
             GetCaptureId(),
             result,
             EnumFormat,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pConcernedDevice,
             pFlags);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport>::Dispatch(
@@ -6407,7 +6407,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
             Format,
             SwapChainFlags,
             pCreationNodeMask,
-            UnwrapObjects<IUnknown_Wrapper, IUnknown>(ppPresentQueue, BufferCount, unwrap_memory));
+            ppPresentQueue);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1>::Dispatch(
             manager,
@@ -6474,7 +6474,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput4_Wrapper::CheckOverlayColorSpaceSupport(
             result,
             Format,
             ColorSpace,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pConcernedDevice),
+            pConcernedDevice,
             pFlags);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport>::Dispatch(
@@ -6928,7 +6928,7 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput5_Wrapper::DuplicateOutput1(
         Encode_IDXGIOutput5_DuplicateOutput1(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pDevice),
+            pDevice,
             Flags,
             SupportedFormatsCount,
             pSupportedFormats,
@@ -7052,7 +7052,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
             GetCaptureId(),
             result,
             NumResources,
-            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            ppResources,
             Priority,
             Flags);
 
@@ -7109,7 +7109,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
             GetCaptureId(),
             result,
             NumResources,
-            UnwrapObjects<IDXGIResource_Wrapper, IDXGIResource>(ppResources, NumResources, unwrap_memory),
+            ppResources,
             pResults);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1>::Dispatch(
@@ -7804,7 +7804,7 @@ HRESULT WINAPI D3D12CreateDevice(
 
         Encode_D3D12CreateDevice(
             result,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pAdapter),
+            pAdapter,
             MinimumFeatureLevel,
             riid,
             ppDevice);
@@ -8067,7 +8067,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
             GetCaptureId(),
             result,
             guid,
-            encode::GetWrappedObject<IUnknown_Wrapper, IUnknown>(pData));
+            pData);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface>::Dispatch(
             manager,
@@ -9296,8 +9296,8 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Reset(
         Encode_ID3D12GraphicsCommandList_Reset(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pAllocator),
-            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState));
+            pAllocator,
+            pInitialState);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset>::Dispatch(
             manager,
@@ -9336,7 +9336,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
 
         Encode_ID3D12GraphicsCommandList_ClearState(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+            pPipelineState);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
             manager,
@@ -9538,9 +9538,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
 
         Encode_ID3D12GraphicsCommandList_CopyBufferRegion(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            pDstBuffer,
             DstOffset,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            pSrcBuffer,
             SrcOffset,
             NumBytes);
 
@@ -9601,11 +9601,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
 
         Encode_ID3D12GraphicsCommandList_CopyTextureRegion(
             GetCaptureId(),
-            UnwrapStructPtrObjects(pDst, unwrap_memory),
+            pDst,
             DstX,
             DstY,
             DstZ,
-            UnwrapStructPtrObjects(pSrc, unwrap_memory),
+            pSrc,
             pSrcBox);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion>::Dispatch(
@@ -9653,8 +9653,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
 
         Encode_ID3D12GraphicsCommandList_CopyResource(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource));
+            pDstResource,
+            pSrcResource);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyResource>::Dispatch(
             manager,
@@ -9705,10 +9705,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
 
         Encode_ID3D12GraphicsCommandList_CopyTiles(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
+            pTiledResource,
             pTileRegionStartCoordinate,
             pTileRegionSize,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            pBuffer,
             BufferStartOffsetInBytes,
             Flags);
 
@@ -9766,9 +9766,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
 
         Encode_ID3D12GraphicsCommandList_ResolveSubresource(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            pDstResource,
             DstSubresource,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            pSrcResource,
             SrcSubresource,
             Format);
 
@@ -9994,7 +9994,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
 
         Encode_ID3D12GraphicsCommandList_SetPipelineState(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipelineState));
+            pPipelineState);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
             manager,
@@ -10034,7 +10034,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
         Encode_ID3D12GraphicsCommandList_ResourceBarrier(
             GetCaptureId(),
             NumBarriers,
-            UnwrapStructArrayObjects(pBarriers, NumBarriers, unwrap_memory));
+            pBarriers);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
             manager,
@@ -10070,7 +10070,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteBundle(
 
         Encode_ID3D12GraphicsCommandList_ExecuteBundle(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(pCommandList));
+            pCommandList);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle>::Dispatch(
             manager,
@@ -10110,7 +10110,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
         Encode_ID3D12GraphicsCommandList_SetDescriptorHeaps(
             GetCaptureId(),
             NumDescriptorHeaps,
-            UnwrapObjects<ID3D12DescriptorHeap_Wrapper, ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps, unwrap_memory));
+            ppDescriptorHeaps);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
             manager,
@@ -10146,7 +10146,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootSignature(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+            pRootSignature);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
             manager,
@@ -10180,7 +10180,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature));
+            pRootSignature);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
             manager,
@@ -11041,7 +11041,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             GetCaptureId(),
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             Values,
             NumRects,
             pRects);
@@ -11105,7 +11105,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             GetCaptureId(),
             ViewGPUHandleInCurrentHeap,
             ViewCPUHandle,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             Values,
             NumRects,
             pRects);
@@ -11155,7 +11155,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
 
         Encode_ID3D12GraphicsCommandList_DiscardResource(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             pRegion);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
@@ -11198,7 +11198,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
 
         Encode_ID3D12GraphicsCommandList_BeginQuery(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            pQueryHeap,
             Type,
             Index);
 
@@ -11244,7 +11244,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
 
         Encode_ID3D12GraphicsCommandList_EndQuery(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            pQueryHeap,
             Type,
             Index);
 
@@ -11299,11 +11299,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
 
         Encode_ID3D12GraphicsCommandList_ResolveQueryData(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12QueryHeap_Wrapper, ID3D12QueryHeap>(pQueryHeap),
+            pQueryHeap,
             Type,
             StartIndex,
             NumQueries,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDestinationBuffer),
+            pDestinationBuffer,
             AlignedDestinationBufferOffset);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
@@ -11354,7 +11354,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
 
         Encode_ID3D12GraphicsCommandList_SetPredication(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pBuffer),
+            pBuffer,
             AlignedBufferOffset,
             Operation);
 
@@ -11529,11 +11529,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
 
         Encode_ID3D12GraphicsCommandList_ExecuteIndirect(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12CommandSignature_Wrapper, ID3D12CommandSignature>(pCommandSignature),
+            pCommandSignature,
             MaxCommandCount,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pArgumentBuffer),
+            pArgumentBuffer,
             ArgumentBufferOffset,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCountBuffer),
+            pCountBuffer,
             CountBufferOffset);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect>::Dispatch(
@@ -11602,12 +11602,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
 
         Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            pDstBuffer,
             DstOffset,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            pSrcBuffer,
             SrcOffset,
             Dependencies,
-            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            ppDependentResources,
             pDependentSubresourceRanges);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
@@ -11674,12 +11674,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
 
         Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstBuffer),
+            pDstBuffer,
             DstOffset,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcBuffer),
+            pSrcBuffer,
             SrcOffset,
             Dependencies,
-            UnwrapObjects<ID3D12Resource_Wrapper, ID3D12Resource>(ppDependentResources, Dependencies, unwrap_memory),
+            ppDependentResources,
             pDependentSubresourceRanges);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
@@ -11836,11 +11836,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
 
         Encode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            pDstResource,
             DstSubresource,
             DstX,
             DstY,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            pSrcResource,
             SrcSubresource,
             pSrcRect,
             Format,
@@ -12021,11 +12021,11 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::UpdateTileMappings(
 
         Encode_ID3D12CommandQueue_UpdateTileMappings(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             NumResourceRegions,
             pResourceRegionStartCoordinates,
             pResourceRegionSizes,
-            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            pHeap,
             NumRanges,
             pRangeFlags,
             pHeapRangeStartOffsets,
@@ -12097,9 +12097,9 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::CopyTileMappings(
 
         Encode_ID3D12CommandQueue_CopyTileMappings(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pDstResource),
+            pDstResource,
             pDstRegionStartCoordinate,
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pSrcResource),
+            pSrcResource,
             pSrcRegionStartCoordinate,
             pRegionSize,
             Flags);
@@ -12152,7 +12152,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
         Encode_ID3D12CommandQueue_ExecuteCommandLists(
             GetCaptureId(),
             NumCommandLists,
-            UnwrapObjects<ID3D12CommandList_Wrapper, ID3D12CommandList>(ppCommandLists, NumCommandLists, unwrap_memory));
+            ppCommandLists);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>::Dispatch(
             manager,
@@ -12314,7 +12314,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Signal(
         Encode_ID3D12CommandQueue_Signal(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            pFence,
             Value);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signal>::Dispatch(
@@ -12360,7 +12360,7 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::Wait(
         Encode_ID3D12CommandQueue_Wait(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFence),
+            pFence,
             Value);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Wait>::Dispatch(
@@ -12700,7 +12700,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
         Encode_ID3D12Device_CreateGraphicsPipelineState(
             GetCaptureId(),
             result,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -12759,7 +12759,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
         Encode_ID3D12Device_CreateComputePipelineState(
             GetCaptureId(),
             result,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -12827,8 +12827,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandList(
             result,
             nodeMask,
             type,
-            encode::GetWrappedObject<ID3D12CommandAllocator_Wrapper, ID3D12CommandAllocator>(pCommandAllocator),
-            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pInitialState),
+            pCommandAllocator,
+            pInitialState,
             riid,
             ppCommandList);
 
@@ -13141,7 +13141,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
 
         Encode_ID3D12Device_CreateShaderResourceView(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             pDesc,
             DestDescriptor);
 
@@ -13190,8 +13190,8 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
 
         Encode_ID3D12Device_CreateUnorderedAccessView(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pCounterResource),
+            pResource,
+            pCounterResource,
             pDesc,
             DestDescriptor);
 
@@ -13239,7 +13239,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
 
         Encode_ID3D12Device_CreateRenderTargetView(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             pDesc,
             DestDescriptor);
 
@@ -13285,7 +13285,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
 
         Encode_ID3D12Device_CreateDepthStencilView(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pResource),
+            pResource,
             pDesc,
             DestDescriptor);
 
@@ -13749,7 +13749,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreatePlacedResource(
         Encode_ID3D12Device_CreatePlacedResource(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            pHeap,
             HeapOffset,
             pDesc,
             InitialState,
@@ -13888,7 +13888,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSharedHandle(
         Encode_ID3D12Device_CreateSharedHandle(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject),
+            pObject,
             pAttributes,
             Access,
             Name,
@@ -14055,7 +14055,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
             GetCaptureId(),
             result,
             NumObjects,
-            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+            ppObjects);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_MakeResident>::Dispatch(
             manager,
@@ -14103,7 +14103,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
             GetCaptureId(),
             result,
             NumObjects,
-            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory));
+            ppObjects);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_Evict>::Dispatch(
             manager,
@@ -14430,7 +14430,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateCommandSignature(
             GetCaptureId(),
             result,
             pDesc,
-            encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(pRootSignature),
+            pRootSignature,
             riid,
             ppvCommandSignature);
 
@@ -14493,7 +14493,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::GetResourceTiling(
 
         Encode_ID3D12Device_GetResourceTiling(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTiledResource),
+            pTiledResource,
             pNumTilesForEntireResource,
             pPackedMipDesc,
             pStandardTileShapeForNonPackedMips,
@@ -14602,7 +14602,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::StorePipeline(
             GetCaptureId(),
             result,
             pName,
-            encode::GetWrappedObject<ID3D12PipelineState_Wrapper, ID3D12PipelineState>(pPipeline));
+            pPipeline);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline>::Dispatch(
             manager,
@@ -14661,7 +14661,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
             GetCaptureId(),
             result,
             pName,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -14726,7 +14726,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
             GetCaptureId(),
             result,
             pName,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -15002,7 +15002,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
         Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
             GetCaptureId(),
             result,
-            UnwrapObjects<ID3D12Fence_Wrapper, ID3D12Fence>(ppFences, NumFences, unwrap_memory),
+            ppFences,
             pFenceValues,
             NumFences,
             Flags,
@@ -15063,7 +15063,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
             GetCaptureId(),
             result,
             NumObjects,
-            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
+            ppObjects,
             pPriorities);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority>::Dispatch(
@@ -15303,8 +15303,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
             result,
             Flags,
             NumObjects,
-            UnwrapObjects<ID3D12Pageable_Wrapper, ID3D12Pageable>(ppObjects, NumObjects, unwrap_memory),
-            encode::GetWrappedObject<ID3D12Fence_Wrapper, ID3D12Fence>(pFenceToSignal),
+            ppObjects,
+            pFenceToSignal,
             FenceValueToSignal);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device3_EnqueueMakeResident>::Dispatch(
@@ -15653,7 +15653,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
             pDesc,
             InitialResourceState,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riidResource,
             ppvResource);
 
@@ -15724,7 +15724,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
             GetCaptureId(),
             result,
             pDesc,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riid,
             ppvHeap);
 
@@ -15795,7 +15795,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateReservedResource1(
             pDesc,
             InitialState,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riid,
             ppvResource);
 
@@ -16170,7 +16170,7 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
         Encode_ID3D12LifetimeTracker_DestroyOwnedObject(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12DeviceChild_Wrapper, ID3D12DeviceChild>(pObject));
+            pObject);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12LifetimeTracker_DestroyOwnedObject>::Dispatch(
             manager,
@@ -16405,7 +16405,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateLifetimeTracker(
         Encode_ID3D12Device5_CreateLifetimeTracker(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12LifetimeOwner_Wrapper, ID3D12LifetimeOwner>(pOwner),
+            pOwner,
             riid,
             ppvTracker);
 
@@ -17262,7 +17262,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
             GetCaptureId(),
             result,
             pAddition,
-            encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObjectToGrowFrom),
+            pStateObjectToGrowFrom,
             riid,
             ppNewStateObject);
 
@@ -17460,7 +17460,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
             pDesc,
             InitialResourceState,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riidResource,
             ppvResource);
 
@@ -17539,7 +17539,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreatePlacedResource1(
         Encode_ID3D12Device8_CreatePlacedResource1(
             GetCaptureId(),
             result,
-            encode::GetWrappedObject<ID3D12Heap_Wrapper, ID3D12Heap>(pHeap),
+            pHeap,
             HeapOffset,
             pDesc,
             InitialState,
@@ -17600,8 +17600,8 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
 
         Encode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pTargetedResource),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(pFeedbackResource),
+            pTargetedResource,
+            pFeedbackResource,
             DestDescriptor);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView>::Dispatch(
@@ -17868,7 +17868,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
         Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession_Wrapper, ID3D12ProtectedResourceSession>(pProtectedResourceSession));
+            pProtectedResourceSession);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
             manager,
@@ -18054,7 +18054,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
 
         Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pMetaCommand,
             pInitializationParametersData,
             InitializationParametersDataSizeInBytes);
 
@@ -18100,7 +18100,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
 
         Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12MetaCommand_Wrapper, ID3D12MetaCommand>(pMetaCommand),
+            pMetaCommand,
             pExecutionParametersData,
             ExecutionParametersDataSizeInBytes);
 
@@ -18278,7 +18278,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
 
         Encode_ID3D12GraphicsCommandList4_SetPipelineState1(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(pStateObject));
+            pStateObject);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1>::Dispatch(
             manager,
@@ -18474,7 +18474,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
 
         Encode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
             GetCaptureId(),
-            encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(shadingRateImage));
+            shadingRateImage);
 
         CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
             manager,

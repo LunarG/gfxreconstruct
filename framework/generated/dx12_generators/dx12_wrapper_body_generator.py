@@ -280,77 +280,71 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         return expr
 
-    def gen_function_pre_call(self, name, param_info, indent):
+    def gen_function_pre_call(self, name, wrapped_args, indent):
         expr = indent + 'CustomWrapperPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
             name
         )
 
         indent = self.increment_indent(indent)
-        args, unused = self.make_arg_list(param_info, False, indent)
-
         expr += indent + 'manager'
-        if args:
+        if wrapped_args:
             expr += ',\n'
-            expr += args
+            expr += wrapped_args
         expr += ');\n'
 
         return expr
 
-    def gen_function_post_call(self, return_type, name, param_info, indent):
+    def gen_function_post_call(self, return_type, name, wrapped_args, indent):
         expr = indent + 'CustomWrapperPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n'.format(
             name
         )
 
         indent = self.increment_indent(indent)
-        args, unused = self.make_arg_list(param_info, False, indent)
-
         expr += indent + 'manager'
         if return_type != 'void':
             expr += ',\n'
             expr += indent + 'result'
-        if args:
+        if wrapped_args:
             expr += ',\n'
-            expr += args
-        expr += ');\n'.format(args)
+            expr += wrapped_args
+        expr += ');\n'
 
         return expr
 
-    def gen_method_pre_call(self, class_name, method_name, param_info, indent):
+    def gen_method_pre_call(
+        self, class_name, method_name, wrapped_args, indent
+    ):
         expr = indent + 'CustomWrapperPreCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
             class_name, method_name
         )
 
         indent = self.increment_indent(indent)
-        args, unused = self.make_arg_list(param_info, False, indent)
-
         expr += indent + 'manager,\n'
         expr += indent + 'this'
-        if args:
+        if wrapped_args:
             expr += ',\n'
-            expr += args
-        expr += ');\n'.format(args)
+            expr += wrapped_args
+        expr += ');\n'
 
         return expr
 
     def gen_method_post_call(
-        self, return_type, class_name, method_name, param_info, indent
+        self, return_type, class_name, method_name, wrapped_args, indent
     ):
         expr = indent + 'CustomWrapperPostCall<format::ApiCallId::ApiCall_{}_{}>::Dispatch(\n'.format(
             class_name, method_name
         )
 
         indent = self.increment_indent(indent)
-        args, unused = self.make_arg_list(param_info, False, indent)
-
         expr += indent + 'manager,\n'
         expr += indent + 'this'
         if return_type != 'void':
             expr += ',\n'
             expr += indent + 'result'
-        if args:
+        if wrapped_args:
             expr += ',\n'
-            expr += args
-        expr += ');\n'.format(args)
+            expr += wrapped_args
+        expr += ');\n'
 
         return expr
 
@@ -389,15 +383,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        args = ''
+        wrapped_args = ''
+        unwrapped_args = ''
         need_unwrap_memory = False
         if parameters:
-            args, need_unwrap_memory = self.make_arg_list(
+            wrapped_args, unused = self.make_arg_list(
+                parameters, False, self.increment_indent(indent)
+            )
+            unwrapped_args, need_unwrap_memory = self.make_arg_list(
                 parameters, True, self.increment_indent(indent)
             )
 
         # Add custom pre call action.
-        expr += self.gen_function_pre_call(name, parameters, indent)
+        expr += self.gen_function_pre_call(name, wrapped_args, indent)
         expr += '\n'
 
         if need_unwrap_memory:
@@ -409,9 +407,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         if return_type != 'void':
             expr += 'result = '
         expr += '{}.{}('.format(table, name)
-        if args:
+        if unwrapped_args:
             expr += '\n'
-            expr += args
+            expr += unwrapped_args
         expr += ');\n'
 
         expr += self.gen_wrap_object(return_type, parameters, indent)
@@ -419,20 +417,20 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += '\n'
         expr += indent + 'Encode_{}('.format(name)
         encode_args = ''
-        if args or (return_type != 'void'):
+        if wrapped_args or (return_type != 'void'):
             expr += '\n'
             if return_type != 'void':
                 encode_args += self.increment_indent(indent) + 'result'
-            if args:
+            if wrapped_args:
                 if encode_args:
                     encode_args += ',\n'
-                encode_args += args
+                encode_args += wrapped_args
         expr += encode_args + ');\n'
 
         # Add custom post call action.
         expr += '\n'
         expr += self.gen_function_post_call(
-            return_type, name, parameters, indent
+            return_type, name, wrapped_args, indent
         )
 
         indent = self.decrement_indent(indent)
@@ -443,19 +441,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        args = ''
-        if parameters:
-            args, need_unwrap_memory = self.make_arg_list(
-                parameters, False, self.increment_indent(indent)
-            )
-
         expr += indent
         if return_type != 'void':
             expr += 'result = '
         expr += '{}.{}('.format(table, name)
-        if args:
+        if wrapped_args:
             expr += '\n'
-            expr += args
+            expr += wrapped_args
         expr += ');\n'
 
         indent = self.decrement_indent(indent)
@@ -569,16 +561,20 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
-            args = ''
+            wrapped_args = ''
+            unwrapped_args = ''
             need_unwrap_memory = False
             if parameters:
-                args, need_unwrap_memory = self.make_arg_list(
+                wrapped_args, unused = self.make_arg_list(
+                    parameters, False, self.increment_indent(indent)
+                )
+                unwrapped_args, need_unwrap_memory = self.make_arg_list(
                     parameters, True, self.increment_indent(indent)
                 )
 
             # Add custom pre call action.
             expr += self.gen_method_pre_call(
-                class_name, method_name, parameters, indent
+                class_name, method_name, wrapped_args, indent
             )
             expr += '\n'
 
@@ -591,9 +587,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             if return_type != 'void':
                 expr += 'result = '
             expr += 'object_->{}('.format(method_name)
-            if args:
+            if unwrapped_args:
                 expr += '\n'
-                expr += args
+                expr += unwrapped_args
             expr += ');\n'
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
@@ -601,19 +597,19 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += '\n'
             expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
             encode_args = self.increment_indent(indent) + 'GetCaptureId()'
-            if args or (return_type != 'void'):
+            if wrapped_args or (return_type != 'void'):
                 if return_type != 'void':
                     encode_args += ',\n'
                     encode_args += self.increment_indent(indent) + 'result'
-                if args:
+                if wrapped_args:
                     encode_args += ',\n'
-                    encode_args += args
+                    encode_args += wrapped_args
             expr += encode_args + ');\n'
 
             # Add custom post call action.
             expr += '\n'
             expr += self.gen_method_post_call(
-                return_type, class_name, method_name, parameters, indent
+                return_type, class_name, method_name, wrapped_args, indent
             )
 
             indent = self.decrement_indent(indent)
@@ -624,19 +620,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
-            args = ''
-            if parameters:
-                args, need_unwrap_memory = self.make_arg_list(
-                    parameters, False, self.increment_indent(indent)
-                )
-
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
             expr += 'object_->{}('.format(method_name)
-            if args:
+            if wrapped_args:
                 expr += '\n'
-                expr += args
+                expr += wrapped_args
             expr += ');\n'
 
             indent = self.decrement_indent(indent)
