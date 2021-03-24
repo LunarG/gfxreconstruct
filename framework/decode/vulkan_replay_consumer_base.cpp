@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -42,6 +42,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+const size_t kMaxEventStatusRetries = 16;
 
 const int32_t  kDefaultWindowPositionX = 0;
 const int32_t  kDefaultWindowPositionY = 0;
@@ -2995,11 +2997,14 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     VkResult result;
     VkDevice device = device_info->handle;
     VkEvent  event  = event_info->handle;
+    size_t   retries = 0;
 
     do
     {
         result = func(device, event);
-    } while ((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET));
+    } while ((((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET)) ||
+              ((original_result == VK_EVENT_RESET) && (result == VK_EVENT_SET))) &&
+             (++retries <= kMaxEventStatusRetries));
 
     return result;
 }
