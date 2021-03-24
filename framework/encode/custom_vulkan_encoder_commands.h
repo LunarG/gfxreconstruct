@@ -59,7 +59,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateInstance>
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager*, VkResult result, Args...)
     {
-        VulkanCaptureManager::CheckCreateInstanceStatus(result);
+        VulkanCaptureManager::CheckVkCreateInstanceStatus(result);
     }
 };
 

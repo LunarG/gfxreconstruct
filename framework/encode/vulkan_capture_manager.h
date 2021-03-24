@@ -25,9 +25,10 @@
 #ifndef GFXRECON_ENCODE_VULKAN_CAPTURE_MANAGER_H
 #define GFXRECON_ENCODE_VULKAN_CAPTURE_MANAGER_H
 
+#include "encode/capture_manager.h"
+
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
-#include "encode/handle_unwrap_memory.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
@@ -37,11 +38,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_command_buffer_util.h"
-#include "util/compressor.h"
 #include "util/defines.h"
-#include "util/file_output_stream.h"
-#include "util/keyboard.h"
-#include "util/memory_output_stream.h"
 
 #include "vulkan/vulkan.h"
 
@@ -50,162 +47,40 @@
 #include <memory>
 #include <mutex>
 #include <set>
-#include <string>
 #include <unordered_map>
 #include <vector>
-
-// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
-#if defined(WIN32)
-#include "encode/d3d12_dispatch_table.h"
-#include "encode/dxgi_dispatch_table.h"
-#include "generated/generated_dx12_wrappers.h"
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class VulkanCaptureManager
+class VulkanCaptureManager : public CaptureManager
 {
   public:
+    static VulkanCaptureManager* Get() { return instance_; }
+
+    // Creates the capture manager instance if none exists, or increments a reference count if an instance already
+    // exists.
+    static bool CreateInstance();
+
+    // Decrement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
+    // already zero.
+    static void DestroyInstance();
+
     // Register special layer provided functions, which perform layer specific initialization.
     // These must be set before the application calls vkCreateInstance.
     static void SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device);
 
-    // Creates the capture manager instance if none exists, or increments a reference count if an instance already
-    // exists. Intended to be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has
-    // been called, to initialize capture resources.
-    static bool CreateInstance();
-
     // Called by the layer's vkCreateInstance function, after the driver's vkCreateInstance function has been called, to
     // check for failure.  If vkCreateInstance failed, the reference count will be decremented and resources will be
-    // released as necessry.  Allows a failed vkCreateInstance call to be logged to the capture file while performing
+    // released as necessary.  Allows a failed vkCreateInstance call to be logged to the capture file while performing
     // the appropriate resource cleanup.
-    static void CheckCreateInstanceStatus(VkResult result);
-
-    // Dectement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
-    // already zero.
-    static void DestroyInstance();
-
-    static VulkanCaptureManager* Get() { return instance_; }
-
-    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+    static void CheckVkCreateInstanceStatus(VkResult result);
 
     static const LayerTable* GetLayerTable() { return &layer_table_; }
 
-    void InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
+    void InitVkInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
-    void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
-
-// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
-#if defined(WIN32)
-    //----------------------------------------------------------------------------
-    /// \brief Initializes the DXGI dispatch table.
-    ///
-    /// Initializes the CaptureManager's internal DXGI dispatch table with functions
-    /// loaded from the DXGI system DLL.  This dispatch table will be used by the
-    /// 'wrapper' functions to invoke the 'real' DXGI function prior to processing
-    /// the function parameters for encoding.
-    ///
-    /// \param dispatch_table A DxgiDispatchTable object contiaining the DXGI
-    ///                       function pointers to be used for initialization.
-    //----------------------------------------------------------------------------
-    void InitDxgiDispatchTable(const DxgiDispatchTable& dispatch_table) { dxgi_dispatch_table_ = dispatch_table; }
-
-    //----------------------------------------------------------------------------
-    /// \brief Initializes the D3D12 dispatch table.
-    ///
-    /// Initializes the CaptureManager's internal D3D12 dispatch table with
-    /// functions loaded from the D3D12 system DLL.  This dispatch table will be
-    /// used by the 'wrapper' functions to invoke the 'real' D3D12 function prior
-    /// to processing the function parameters for encoding.
-    ///
-    /// \param dispatch_table A D3D12DispatchTable object contiaining the DXGI
-    ///                       function pointers to be used for initialization.
-    //----------------------------------------------------------------------------
-    void InitD3D12DispatchTable(const D3D12DispatchTable& dispatch_table) { d3d12_dispatch_table_ = dispatch_table; }
-
-    //----------------------------------------------------------------------------
-    /// \brief Retrieves the DXGI dispatch table.
-    ///
-    /// Retrieves the CaptureManager's internal DXGI dispatch table. Intended to be
-    /// used by the 'wrapper' functions when invoking the 'real' DXGI functions.
-    ///
-    /// \return A DxgiDispatchTable object contiaining DXGI function pointers
-    ///         retrieved from the system DLL.
-    //----------------------------------------------------------------------------
-    const DxgiDispatchTable& GetDxgiDispatchTable() const { return dxgi_dispatch_table_; }
-
-    //----------------------------------------------------------------------------
-    /// \brief Retrieves the D3D12 dispatch table.
-    ///
-    /// Retrieves the CaptureManager's internal D3D12 dispatch table. Intended to be
-    /// used by the 'wrapper' functions when invoking the 'real' D3D12 functions.
-    ///
-    /// \return A D3D12DispatchTable object contiaining D3D12 function pointers
-    ///         retrieved from the system DLL.
-    //----------------------------------------------------------------------------
-    const D3D12DispatchTable& GetD3D12DispatchTable() const { return d3d12_dispatch_table_; }
-
-    //----------------------------------------------------------------------------
-    /// \brief Increments the scope count for the current thread.
-    ///
-    /// Increments a per-thread scope count that is intended to indicate if an
-    /// intercepted API call is being made directly by the application (count is
-    /// equal to 1) or by another API call (count is greater than 1).
-    ///
-    /// \return The scope count for the current thread.
-    //----------------------------------------------------------------------------
-    uint32_t IncrementCallScope() { return ++call_scope_; }
-
-    //----------------------------------------------------------------------------
-    /// \brief Decrements the scope count for the current thread.
-    ///
-    /// Decrements a per-thread scope count that is intended to indicate if an
-    /// intercepted API call is being made directly by the application (count is
-    /// equal to 1) or by another API call (count is greater than 1).
-    ///
-    /// \return The scope count for the current thread.
-    //----------------------------------------------------------------------------
-    uint32_t DecrementCallScope() { return --call_scope_; }
-#endif
-
-    HandleUnwrapMemory* GetHandleUnwrapMemory()
-    {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
-        thread_data->handle_unwrap_memory_.Reset();
-        return &thread_data->handle_unwrap_memory_;
-    }
-
-    ParameterEncoder* BeginTrackedApiCallTrace(format::ApiCallId call_id)
-    {
-        if (capture_mode_ != kModeDisabled)
-        {
-            return InitApiCallTrace(call_id);
-        }
-
-        return nullptr;
-    }
-
-    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id)
-    {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
-        {
-            return InitApiCallTrace(call_id);
-        }
-
-        return nullptr;
-    }
-
-    ParameterEncoder* BeginMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
-    {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
-        {
-            return InitMethodCallTrace(call_id, object_id);
-        }
-
-        return nullptr;
-    }
+    void InitVkDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
 
     // Single object creation.
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
@@ -375,20 +250,6 @@ class VulkanCaptureManager
 
         EndApiCallTrace(encoder);
     }
-
-    void EndApiCallTrace(ParameterEncoder* encoder);
-
-    void EndMethodCallTrace(ParameterEncoder* encoder);
-
-    void EndFrame();
-
-    void CheckContinueCaptureForWriteMode();
-
-    void CheckStartCaptureForTrackMode();
-
-    bool IsTrimHotkeyPressed();
-
-    void WriteDisplayMessageCmd(const char* message);
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
@@ -972,97 +833,22 @@ class VulkanCaptureManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
-#if defined(WIN32)
-    void PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
-                                                          HRESULT                      result,
-                                                          const D3D12_HEAP_PROPERTIES* heap_properties,
-                                                          D3D12_HEAP_FLAGS             heap_flags,
-                                                          const D3D12_RESOURCE_DESC*   desc,
-                                                          D3D12_RESOURCE_STATES        initial_resource_state,
-                                                          const D3D12_CLEAR_VALUE*     optimized_clear_value,
-                                                          REFIID                       riid,
-                                                          void**                       resource);
-
-    void PostProcess_ID3D12Device_CreatePlacedResource(ID3D12Device_Wrapper*      wrapper,
-                                                       HRESULT                    result,
-                                                       ID3D12Heap*                heap,
-                                                       UINT64                     heap_offset,
-                                                       const D3D12_RESOURCE_DESC* desc,
-                                                       D3D12_RESOURCE_STATES      initial_state,
-                                                       const D3D12_CLEAR_VALUE*   optimized_clear_value,
-                                                       REFIID                     riid,
-                                                       void**                     resource);
-
-    void PostProcess_ID3D12Resource_Map(
-        ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data);
-
-    void PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper* wrapper,
-                                         UINT                    subresource,
-                                         const D3D12_RANGE*      written_range);
-
-    void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
-
-    void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
-                                                           UINT                        num_lists,
-                                                           ID3D12CommandList* const*   lists);
-#endif
-
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
   protected:
-    VulkanCaptureManager();
+    VulkanCaptureManager() : CaptureManager() {}
 
-    ~VulkanCaptureManager();
+    virtual ~VulkanCaptureManager() override {}
 
-    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+
+    virtual void WriteTrackedState(format::ThreadId thread_id) override;
 
   private:
-    enum CaptureModeFlags : uint32_t
-    {
-        kModeDisabled      = 0x0,
-        kModeWrite         = 0x01,
-        kModeTrack         = 0x02,
-        kModeWriteAndTrack = (kModeWrite | kModeTrack)
-    };
-
-    enum PageGuardMemoryMode : uint32_t
-    {
-        kMemoryModeDisabled,
-        kMemoryModeShadowInternal,   // Internally managed shadow memory allocations.
-        kMemoryModeShadowPersistent, // Externally managed shadow memory allocations.
-        kMemoryModeExternal          // Imported host memory without shadow allocations.
-    };
-
-    typedef uint32_t CaptureMode;
-
-    class ThreadData
-    {
-      public:
-        ThreadData();
-
-        ~ThreadData() {}
-
-      public:
-        const format::ThreadId                    thread_id_;
-        format::ApiCallId                         call_id_;
-        format::HandleId                          object_id_;
-        std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
-        std::unique_ptr<ParameterEncoder>         parameter_encoder_;
-        std::vector<uint8_t>                      compressed_buffer_;
-        HandleUnwrapMemory                        handle_unwrap_memory_;
-
-      private:
-        static format::ThreadId GetThreadId();
-
-      private:
-        static std::mutex                                     count_lock_;
-        static format::ThreadId                               thread_count_;
-        static std::unordered_map<uint64_t, format::ThreadId> id_map_;
-    };
-
     struct HardwareBufferInfo
     {
         format::HandleId      memory_id;
@@ -1072,33 +858,10 @@ class VulkanCaptureManager
     typedef std::unordered_map<AHardwareBuffer*, HardwareBufferInfo> HardwareBufferMap;
 
   private:
-    ThreadData* GetThreadData()
-    {
-        if (!thread_data_)
-        {
-            thread_data_ = std::make_unique<ThreadData>();
-        }
-        return thread_data_.get();
-    }
-
-    std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
-    bool        CreateCaptureFile(const std::string& base_filename);
-    void        ActivateTrimming();
-
-    void WriteFileHeader();
-    void BuildOptionList(const format::EnabledOptions&        enabled_options,
-                         std::vector<format::FileOptionPair>* option_list);
-
-    ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
-
-    ParameterEncoder* InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id);
-
-    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
     void WriteResizeWindowCmd2(format::HandleId              surface_id,
                                uint32_t                      width,
                                uint32_t                      height,
                                VkSurfaceTransformFlagBitsKHR pre_transform);
-    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
     void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
@@ -1124,52 +887,12 @@ class VulkanCaptureManager
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
 
-// TODO (GH #9): Split TraceManager into separate Vulkan and D3D12 class implementations, with a common base class.
-#if defined(WIN32)
-    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
-                                      ID3D12Resource_Wrapper*    resource_wrapper,
-                                      const D3D12_RESOURCE_DESC* desc);
-#endif
-
   private:
-    static VulkanCaptureManager*                    instance_;
-    static uint32_t                                 instance_count_;
-    static std::mutex                               instance_lock_;
-    static thread_local std::unique_ptr<ThreadData> thread_data_;
-    static LayerTable                               layer_table_;
-    static std::atomic<format::HandleId>            unique_id_counter_;
-    format::EnabledOptions                          file_options_;
-    std::unique_ptr<util::FileOutputStream>         file_stream_;
-    std::string                                     base_filename_;
-    std::mutex                                      file_lock_;
-    bool                                            timestamp_filename_;
-    bool                                            force_file_flush_;
-    std::unique_ptr<util::Compressor>               compressor_;
-    CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
-    bool                                            page_guard_align_buffer_sizes_;
-    bool                                            page_guard_track_ahb_memory_;
-    PageGuardMemoryMode                             page_guard_memory_mode_;
-    std::mutex                                      mapped_memory_lock_;
-    std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
-    bool                                            trim_enabled_;
-    std::vector<CaptureSettings::TrimRange>         trim_ranges_;
-    std::string                                     trim_key_;
-    size_t                                          trim_current_range_;
-    uint32_t                                        current_frame_;
-    std::unique_ptr<VulkanStateTracker>             state_tracker_;
-    CaptureMode                                     capture_mode_;
-    HardwareBufferMap                               hardware_buffers_;
-    util::Keyboard                                  keyboard_;
-    bool                                            previous_hotkey_state_;
-
-// TODO (GH #9): Split CaptureManager into separate Vulkan and D3D12 class implementations, with a common base class.
-#if defined(WIN32)
-    std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
-    DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
-    D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
-    static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine whan an intercepted API call is
-                                              ///< being made directly by the application.
-#endif
+    static VulkanCaptureManager*        instance_;
+    static LayerTable                   layer_table_;
+    std::set<DeviceMemoryWrapper*>      mapped_memory_; // Track mapped memory for unassisted tracking mode.
+    std::unique_ptr<VulkanStateTracker> state_tracker_;
+    HardwareBufferMap                   hardware_buffers_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

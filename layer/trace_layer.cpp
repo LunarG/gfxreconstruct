@@ -129,7 +129,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
 
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitInstance(pInstance, fpGetInstanceProcAddr);
+                    manager->InitVkInstance(pInstance, fpGetInstanceProcAddr);
                 }
             }
         }
@@ -170,7 +170,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                 {
                     encode::VulkanCaptureManager* manager = encode::VulkanCaptureManager::Get();
                     assert(manager != nullptr);
-                    manager->InitDevice(pDevice, fpGetDeviceProcAddr);
+                    manager->InitVkDevice(pDevice, fpGetDeviceProcAddr);
                 }
             }
         }
