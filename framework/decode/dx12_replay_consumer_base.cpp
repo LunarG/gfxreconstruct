@@ -27,7 +27,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 void Dx12ReplayConsumerBase::RemoveObject(format::HandleId id)
 {
-    objects_.erase(id);
+    object_mapping::RemoveObject(id, &object_info_table_);
 }
 
 void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)

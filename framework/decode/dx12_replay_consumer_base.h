@@ -24,7 +24,7 @@
 #define GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 
 #include "generated/generated_dx12_consumer.h"
-#include <unordered_map>
+#include "decode/dx12_object_mapping_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -39,36 +39,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
-        auto entry = objects_.find(id);
-        if (entry != objects_.end())
-        {
-            return reinterpret_cast<T*>(entry->second);
-        }
-
-        return nullptr;
+        return object_mapping::MapObject<T>(id, object_info_table_);
     }
 
     template <typename T>
     std::vector<T*> MapObjects(const format::HandleId* p_ids, const size_t ids_len)
     {
-        std::vector<T*> objects(ids_len);
-        if (p_ids != nullptr)
-        {
-            for (uint32_t i = 0; i < ids_len; ++i)
-            {
-                objects[i] = MapObject<T>(p_ids[i]);
-            }
-        }
-        return objects;
+        return object_mapping::MapObjectArray<T>(p_ids, ids_len, object_info_table_);
     }
 
     template <typename T>
     void AddObject(const format::HandleId* p_id, T** pp_object)
     {
-        if ((p_id != nullptr) && (*p_id != format::kNullHandleId) && (pp_object != nullptr) && (*pp_object != nullptr))
-        {
-            objects_.insert(std::make_pair(*p_id, reinterpret_cast<IUnknown*>(*pp_object)));
-        }
+        object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
     }
 
     void RemoveObject(format::HandleId id);
@@ -111,8 +94,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     SrcSubresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox);
 
+    const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+
+    Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+
   private:
-    std::unordered_map<format::HandleId, IUnknown*> objects_;
+    Dx12ObjectInfoTable object_info_table_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
