@@ -2418,6 +2418,9 @@ void TraceManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      devic
     else
     {
         assert(device_wrapper != nullptr);
+        assert((desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) ||
+               (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
+               (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D));
 
         uint32_t        plane_count = 1;
         ID3D12Device*   device      = nullptr;
@@ -2437,8 +2440,15 @@ void TraceManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      devic
             plane_count = format_info.PlaneCount;
         }
 
-        auto num_subresources = full_desc.MipLevels * full_desc.DepthOrArraySize * plane_count;
-        auto layouts          = std::make_unique<D3D12_PLACED_SUBRESOURCE_FOOTPRINT[]>(num_subresources);
+        auto num_subresources = full_desc.MipLevels * plane_count;
+
+        if ((desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
+            (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D))
+        {
+            num_subresources *= full_desc.DepthOrArraySize;
+        }
+
+        auto layouts = std::make_unique<D3D12_PLACED_SUBRESOURCE_FOOTPRINT[]>(num_subresources);
 
         device->GetCopyableFootprints(desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
 
@@ -2449,7 +2459,8 @@ void TraceManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      devic
         for (size_t i = 0; i < num_subresources; ++i)
         {
             info->subresource_sizes[i] =
-                static_cast<uint64_t>(layouts[i].Footprint.RowPitch) * layouts[i].Footprint.Height;
+                (static_cast<uint64_t>(layouts[i].Footprint.RowPitch) * layouts[i].Footprint.Height) *
+                layouts[i].Footprint.Depth;
         }
     }
 }
