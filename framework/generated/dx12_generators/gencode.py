@@ -45,6 +45,8 @@ from dx12_wrapper_creators_header_generator import Dx12WrapperCreatorsHeaderGene
 from dx12_wrapper_creators_body_generator import Dx12WrapperCreatorsBodyGenerator
 from dx12_struct_unwrappers_header_generator import Dx12StructUnwrappersHeaderGenerator
 from dx12_struct_unwrappers_body_generator import Dx12StructUnwrappersBodyGenerator
+from dx12_struct_object_mappers_header_generator import Dx12StructObjectMappersHeaderGenerator
+from dx12_struct_object_mappers_body_generator import Dx12StructObjectMappersBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -374,6 +376,36 @@ def make_gen_opts(args):
         Dx12StructUnwrappersBodyGenerator,
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_unwrappers.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_object_mappers_header_generator.py'
+    )
+    gen_opts['generated_dx12_struct_object_mappers.h'] = [
+        Dx12StructObjectMappersHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_object_mappers.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_object_mappers_body_generator.py'
+    )
+    gen_opts['generated_dx12_struct_object_mappers.cpp'] = [
+        Dx12StructObjectMappersBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_object_mappers.cpp',
             directory=directory,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,

@@ -757,7 +757,7 @@ class BaseGenerator(OutputGenerator):
         handles = []
         has_handle_pointer = False
         for value in self.feature_struct_members[typename]:
-            if self.is_handle(value.base_type):
+            if self.is_handle(value.base_type) or self.is_class(value):
                 # The member is a handle.
                 handles.append(value)
                 if (
@@ -775,7 +775,7 @@ class BaseGenerator(OutputGenerator):
                     and (value.name in structs_with_handle_ptrs)
                 ):
                     has_handle_pointer = True
-            elif 'pNext' in value.name:
+            elif ('pNext' in value.name) and (not self.is_dx12_class()):
                 # The pNext chain may include a struct with handles.
                 has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
                     typename
@@ -1154,6 +1154,9 @@ class BaseGenerator(OutputGenerator):
             args.append(omit_output_param)
 
         return '{}({})'.format(method_call, ', '.join(args))
+
+    def is_dx12_class(self):
+        return True if ('Dx12' in self.__class__.__name__) else False
 
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.
