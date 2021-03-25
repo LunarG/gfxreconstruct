@@ -116,4 +116,4 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseDecoderBodyGenerator.generate_feature(self, 'Vulkan')
+        BaseDecoderBodyGenerator.generate_feature(self)

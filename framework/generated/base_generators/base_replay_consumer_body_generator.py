@@ -27,10 +27,12 @@ from base_generator import write
 class BaseReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
-    def generate_feature(self, type):
-        """Performs C++ code generation for the feature.
-        type: 'Vulkan' or 'Dx12'
-        """
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        platform_type = 'Vulkan'
+        if self.is_dx12_class():
+            platform_type = 'Dx12'
+
         first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
@@ -39,7 +41,8 @@ class BaseReplayConsumerBodyGenerator():
 
             cmddef = '' if first else '\n'
             cmddef += self.make_consumer_func_decl(
-                return_type, '{}ReplayConsumer::Process_'.format(type) + cmd,
+                return_type,
+                '{}ReplayConsumer::Process_'.format(platform_type) + cmd,
                 values
             ) + '\n'
             cmddef += '{\n'

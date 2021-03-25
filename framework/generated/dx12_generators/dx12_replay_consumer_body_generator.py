@@ -68,7 +68,7 @@ class Dx12ReplayConsumerBodyGenerator(
     def generate_feature(self):
         """Methond override."""
         Dx12BaseGenerator.generate_feature(self)
-        BaseReplayConsumerBodyGenerator.generate_feature(self, 'Dx12')
+        BaseReplayConsumerBodyGenerator.generate_feature(self)
         self.generate_dx12_method_feature()
 
     def generate_dx12_method_feature(self):

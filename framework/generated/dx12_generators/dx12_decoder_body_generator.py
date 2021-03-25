@@ -50,7 +50,7 @@ class Dx12DecoderBodyGenerator(
         self.method_names = []
         Dx12BaseGenerator.generate_feature(self)
         self.write_function_call()
-        BaseDecoderBodyGenerator.generate_feature(self, 'Dx12')
+        BaseDecoderBodyGenerator.generate_feature(self)
         self.newline()
         self.generate_dx12_method_feature()
 

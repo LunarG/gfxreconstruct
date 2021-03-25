@@ -27,10 +27,12 @@ from base_generator import ValueInfo, write
 class BaseDecoderBodyGenerator():
     """Base class for generating decoder body code."""
 
-    def generate_feature(self, type):
-        """Performs C++ code generation for the feature.
-        type: 'Vulkan' or 'Dx12'
-        """
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        platform_type = 'Vulkan'
+        if self.is_dx12_class():
+            platform_type = 'Dx12'
+
         first = True
         for cmd in self.get_filtered_cmd_names():
             self.cmd_names.append(cmd)
@@ -41,7 +43,7 @@ class BaseDecoderBodyGenerator():
 
             cmddef = '' if first else '\n'
             cmddef += 'size_t {}Decoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(
-                type, cmd
+                platform_type, cmd
             )
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'

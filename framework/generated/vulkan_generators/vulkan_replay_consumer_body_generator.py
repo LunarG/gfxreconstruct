@@ -154,7 +154,7 @@ class VulkanReplayConsumerBodyGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self, 'Vulkan')
+        BaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def use_instance_table(self, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
