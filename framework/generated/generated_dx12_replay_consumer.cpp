@@ -26,6 +26,7 @@
 */
 
 #include "generated_dx12_replay_consumer.h"
+#include "generated_dx12_struct_object_mappers.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -3167,6 +3168,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDst->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pSrc->GetMetaStructPointer(), GetObjectInfoTable());
         replay_object->CopyTextureRegion(pDst->GetPointer(),
                                          DstX,
                                          DstY,
@@ -4209,6 +4212,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -4233,6 +4237,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -4931,6 +4936,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -4957,6 +4963,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -5745,6 +5752,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", returnValue, replay_result);
     }
@@ -5771,6 +5779,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput1(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", returnValue, replay_result);
     }
@@ -5784,6 +5793,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetPageFaultAllocationOutput1(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
     }

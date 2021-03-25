@@ -21,6 +21,7 @@
 # IN THE SOFTWARE.
 
 import json
+import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator
@@ -55,6 +56,21 @@ class Dx12ReplayConsumerBodyGenerator(
 
     REPLAY_OVERRIDES = {}
 
+    def __init__(
+        self,
+        source_dict,
+        dx12_prefix_strings,
+        err_file=sys.stderr,
+        warn_file=sys.stderr,
+        diag_file=sys.stdout
+    ):
+        Dx12ReplayConsumerHeaderGenerator.__init__(
+            self, source_dict, dx12_prefix_strings, err_file, warn_file,
+            diag_file
+        )
+        self.structs_with_handles = dict()
+        self.structs_with_handle_ptrs = []
+
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12ReplayConsumerHeaderGenerator.beginFile(self, gen_opts)
@@ -64,6 +80,20 @@ class Dx12ReplayConsumerBodyGenerator(
     def write_include(self):
         """Methond override."""
         write('#include "generated_dx12_replay_consumer.h"', file=self.outFile)
+        write(
+            '#include "generated_dx12_struct_object_mappers.h"',
+            file=self.outFile
+        )
+
+    def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
+        Dx12BaseGenerator.genStruct(self, typeinfo, typename, alias)
+        if not alias:
+            for struct_name in self.get_filtered_struct_names():
+                self.check_struct_member_handles(
+                    struct_name, self.structs_with_handles,
+                    self.structs_with_handle_ptrs
+                )
 
     def generate_feature(self):
         """Methond override."""
@@ -147,7 +177,8 @@ class Dx12ReplayConsumerBodyGenerator(
                     handle_length = 1
                     if value.array_length:
                         print(
-                            'ERROR: It does not deal with array output objects.'
+                            'ERROR: It does not deal with array output objects, {}.'
+                            .format(value.name)
                         )
 
                     code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
@@ -208,6 +239,19 @@ class Dx12ReplayConsumerBodyGenerator(
                         code += '    auto in_{0} = PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'\
                                 .format(value.name, name)
                     arg_list.append('in_{}'.format(value.name))
+
+            elif (value.base_type in self.structs_with_handles
+                  ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
+                if value.is_array:
+                    print(
+                        'ERROR: It does not deal with array objects, {}, in struct(MapStructArrayObjects).'
+                        .format(value.name)
+                    )
+                else:
+                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable());\n'.format(
+                        value.name
+                    )
+                    arg_list.append(value.name + '->GetPointer()')
 
             else:
                 if is_override:
