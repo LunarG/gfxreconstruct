@@ -294,14 +294,14 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     return success;
 }
 
-ParameterEncoder* CaptureManager::InitApiCallTrace(format::ApiCallId call_id)
+ParameterEncoder* CaptureManager::InitApiCallCapture(format::ApiCallId call_id)
 {
     auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
     return thread_data->parameter_encoder_.get();
 }
 
-ParameterEncoder* CaptureManager::InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
+ParameterEncoder* CaptureManager::InitMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
 {
     auto thread_data        = GetThreadData();
     thread_data->call_id_   = call_id;
@@ -309,7 +309,7 @@ ParameterEncoder* CaptureManager::InitMethodCallTrace(format::ApiCallId call_id,
     return thread_data->parameter_encoder_.get();
 }
 
-void CaptureManager::EndApiCallTrace(ParameterEncoder* encoder)
+void CaptureManager::EndApiCallCapture(ParameterEncoder* encoder)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -397,7 +397,7 @@ void CaptureManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
-void CaptureManager::EndMethodCallTrace(ParameterEncoder* encoder)
+void CaptureManager::EndMethodCallCapture(ParameterEncoder* encoder)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {

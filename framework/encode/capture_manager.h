@@ -60,39 +60,39 @@ class CaptureManager
         return &thread_data->handle_unwrap_memory_;
     }
 
-    ParameterEncoder* BeginTrackedApiCallTrace(format::ApiCallId call_id)
+    ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
         if (capture_mode_ != kModeDisabled)
         {
-            return InitApiCallTrace(call_id);
+            return InitApiCallCapture(call_id);
         }
 
         return nullptr;
     }
 
-    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id)
+    ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
-            return InitApiCallTrace(call_id);
+            return InitApiCallCapture(call_id);
         }
 
         return nullptr;
     }
 
-    ParameterEncoder* BeginMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id)
+    ParameterEncoder* BeginMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
-            return InitMethodCallTrace(call_id, object_id);
+            return InitMethodCallCapture(call_id, object_id);
         }
 
         return nullptr;
     }
 
-    void EndApiCallTrace(ParameterEncoder* encoder);
+    void EndApiCallCapture(ParameterEncoder* encoder);
 
-    void EndMethodCallTrace(ParameterEncoder* encoder);
+    void EndMethodCallCapture(ParameterEncoder* encoder);
 
     void EndFrame();
 
@@ -181,9 +181,9 @@ class CaptureManager
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
-    ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
+    ParameterEncoder* InitApiCallCapture(format::ApiCallId call_id);
 
-    ParameterEncoder* InitMethodCallTrace(format::ApiCallId call_id, format::HandleId object_id);
+    ParameterEncoder* InitMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id);
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 

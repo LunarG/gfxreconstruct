@@ -220,12 +220,12 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         if class_name:
             body += (
-                '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallTrace(format::ApiCallId::ApiCall{}_{}, wrapper_id);\n'
+                '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall{}_{}, wrapper_id);\n'
                 .format(class_name, method_info['name'])
             )
         else:
             body += (
-                '    auto encoder = D3D12CaptureManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'
+                '    auto encoder = D3D12CaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_{});\n'
                 .format(method_info['name'])
             )
 
@@ -246,9 +246,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             body += '        {}\n'.format(encode)
 
         if class_name:
-            body += '        D3D12CaptureManager::Get()->EndMethodCallTrace(encoder);\n'
+            body += '        D3D12CaptureManager::Get()->EndMethodCallCapture(encoder);\n'
         else:
-            body += '        D3D12CaptureManager::Get()->EndApiCallTrace(encoder);\n'
+            body += '        D3D12CaptureManager::Get()->EndApiCallCapture(encoder);\n'
 
         body += '    }\n}'
         return body

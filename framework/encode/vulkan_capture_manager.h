@@ -84,11 +84,11 @@ class VulkanCaptureManager : public CaptureManager
 
     // Single object creation.
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
-    void EndCreateApiCallTrace(VkResult                      result,
-                               ParentHandle                  parent_handle,
-                               typename Wrapper::HandleType* handle,
-                               const CreateInfo*             create_info,
-                               ParameterEncoder*             encoder)
+    void EndCreateApiCallCapture(VkResult                      result,
+                                 ParentHandle                  parent_handle,
+                                 typename Wrapper::HandleType* handle,
+                                 const CreateInfo*             create_info,
+                                 ParameterEncoder*             encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && result == VK_SUCCESS)
         {
@@ -101,17 +101,17 @@ class VulkanCaptureManager : public CaptureManager
                 parent_handle, handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     // Pool allocation.
     template <typename ParentHandle, typename Wrapper, typename AllocateInfo>
-    void EndPoolCreateApiCallTrace(VkResult                      result,
-                                   ParentHandle                  parent_handle,
-                                   uint32_t                      count,
-                                   typename Wrapper::HandleType* handles,
-                                   const AllocateInfo*           alloc_info,
-                                   ParameterEncoder*             encoder)
+    void EndPoolCreateApiCallCapture(VkResult                      result,
+                                     ParentHandle                  parent_handle,
+                                     uint32_t                      count,
+                                     typename Wrapper::HandleType* handles,
+                                     const AllocateInfo*           alloc_info,
+                                     ParameterEncoder*             encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
         {
@@ -124,18 +124,18 @@ class VulkanCaptureManager : public CaptureManager
                 parent_handle, count, handles, alloc_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     // Multiple object creation.
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
-    void EndGroupCreateApiCallTrace(VkResult                      result,
-                                    ParentHandle                  parent_handle,
-                                    SecondaryHandle               secondary_handle,
-                                    uint32_t                      count,
-                                    typename Wrapper::HandleType* handles,
-                                    const CreateInfo*             create_infos,
-                                    ParameterEncoder*             encoder)
+    void EndGroupCreateApiCallCapture(VkResult                      result,
+                                      ParentHandle                  parent_handle,
+                                      SecondaryHandle               secondary_handle,
+                                      uint32_t                      count,
+                                      typename Wrapper::HandleType* handles,
+                                      const CreateInfo*             create_infos,
+                                      ParameterEncoder*             encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handles != nullptr))
@@ -155,17 +155,17 @@ class VulkanCaptureManager : public CaptureManager
                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     // Multiple implicit object creation inside output struct.
     template <typename ParentHandle, typename Wrapper, typename HandleStruct>
-    void EndStructGroupCreateApiCallTrace(VkResult                               result,
-                                          ParentHandle                           parent_handle,
-                                          uint32_t                               count,
-                                          HandleStruct*                          handle_structs,
-                                          std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
-                                          ParameterEncoder*                      encoder)
+    void EndStructGroupCreateApiCallCapture(VkResult                               result,
+                                            ParentHandle                           parent_handle,
+                                            uint32_t                               count,
+                                            HandleStruct*                          handle_structs,
+                                            std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
+                                            ParameterEncoder*                      encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handle_structs != nullptr))
@@ -183,12 +183,12 @@ class VulkanCaptureManager : public CaptureManager
                                                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     // Single object destruction.
     template <typename Wrapper>
-    void EndDestroyApiCallTrace(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
+    void EndDestroyApiCallCapture(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -196,12 +196,13 @@ class VulkanCaptureManager : public CaptureManager
             state_tracker_->RemoveEntry<Wrapper>(handle);
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     // Multiple object destruction.
     template <typename Wrapper>
-    void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
+    void
+    EndDestroyApiCallCapture(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (handles != nullptr))
         {
@@ -213,10 +214,10 @@ class VulkanCaptureManager : public CaptureManager
             }
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
-    void EndCommandApiCallTrace(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
+    void EndCommandApiCallCapture(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -228,14 +229,14 @@ class VulkanCaptureManager : public CaptureManager
             state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
-    void EndCommandApiCallTrace(VkCommandBuffer   command_buffer,
-                                ParameterEncoder* encoder,
-                                GetHandlesFunc    func,
-                                GetHandlesArgs... args)
+    void EndCommandApiCallCapture(VkCommandBuffer   command_buffer,
+                                  ParameterEncoder* encoder,
+                                  GetHandlesFunc    func,
+                                  GetHandlesArgs... args)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -248,7 +249,7 @@ class VulkanCaptureManager : public CaptureManager
                 command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallCapture(encoder);
     }
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
