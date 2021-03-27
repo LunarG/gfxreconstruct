@@ -44,6 +44,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.cpp
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h

@@ -23,9 +23,11 @@
 #ifndef GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 #define GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 
-#include "generated/generated_dx12_consumer.h"
+#include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/window.h"
+#include "format/format.h"
+#include "generated/generated_dx12_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -53,6 +55,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void AddObject(const format::HandleId* p_id, T** pp_object)
     {
         object_mapping::AddObject<T>(p_id, pp_object, &object_info_table_);
+    }
+
+    template <typename T>
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfoType extra_info_type, void* extra_info)
+    {
+        object_mapping::AddObject<T>(p_id, pp_object, extra_info_type, extra_info, &object_info_table_);
     }
 
     void RemoveObject(format::HandleId id);
@@ -133,6 +141,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+
+    DxObjectInfo* GetObjectInfo(format::HandleId id)
+    {
+        auto entry = object_info_table_.find(id);
+        if (entry != object_info_table_.end())
+        {
+            return &entry->second;
+        }
+
+        return nullptr;
+    }
 
   private:
     HRESULT

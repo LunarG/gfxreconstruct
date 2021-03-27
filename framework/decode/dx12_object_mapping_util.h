@@ -24,12 +24,14 @@
 #define GFXRECON_DECODE_DX12_OBJECT_MAPPING_UTIL_H
 
 #include "format/format.h"
+#include "decode/dx12_object_info.h"
+
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-typedef std::unordered_map<format::HandleId, IUnknown*> Dx12ObjectInfoTable;
+typedef std::unordered_map<format::HandleId, DxObjectInfo> Dx12ObjectInfoTable;
 
 GFXRECON_BEGIN_NAMESPACE(object_mapping)
 
@@ -39,7 +41,8 @@ static T* MapObject(format::HandleId id, const Dx12ObjectInfoTable& object_info_
     auto entry = object_info_table.find(id);
     if (entry != object_info_table.end())
     {
-        return reinterpret_cast<T*>(entry->second);
+        auto& info = entry->second;
+        return reinterpret_cast<T*>(info.object);
     }
 
     return nullptr;
@@ -63,11 +66,32 @@ MapObjectArray(const format::HandleId* p_ids, const size_t ids_len, const Dx12Ob
 template <typename T>
 static void AddObject(const format::HandleId* p_id, T** pp_object, Dx12ObjectInfoTable* object_info_table)
 {
+    AddObject(p_id, pp_object, DxObjectInfoType::kUnused, nullptr, object_info_table);
+}
+
+template <typename T>
+static void AddObject(const format::HandleId* p_id,
+                      T**                     pp_object,
+                      DxObjectInfoType        extra_info_type,
+                      void*                   extra_info,
+                      Dx12ObjectInfoTable*    object_info_table)
+{
     assert(object_info_table != nullptr);
 
     if ((p_id != nullptr) && (*p_id != format::kNullHandleId) && (pp_object != nullptr) && (*pp_object != nullptr))
     {
-        (*object_info_table)[*p_id] = reinterpret_cast<IUnknown*>(*pp_object);
+        auto id    = *p_id;
+        auto entry = object_info_table->find(id);
+        if (entry == object_info_table->end())
+        {
+            object_info_table->emplace(
+                id, DxObjectInfo{ reinterpret_cast<IUnknown*>(*pp_object), id, 1, extra_info_type, extra_info });
+        }
+        else
+        {
+            assert(entry->second.object == *pp_object);
+            ++(entry->second.ref_count);
+        }
     }
 }
 
