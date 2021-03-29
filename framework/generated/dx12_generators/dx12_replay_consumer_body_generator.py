@@ -119,11 +119,24 @@ class Dx12ReplayConsumerBodyGenerator(
             cmddef += '{\n'
 
             class_name = method[:method.find('_')]
-            cmddef += (
-                "    auto replay_object = MapObject<{}>(object_id);\n"
-                "    if (replay_object != nullptr)\n"
-                "    {{\n".format(class_name)
-            )
+            method_name = method[method.find('_') + 1:]
+            is_override = False
+            if class_name in self.REPLAY_OVERRIDES['classmethods']:
+                is_override = method_name in self.REPLAY_OVERRIDES[
+                    'classmethods'][class_name]
+
+            if is_override:
+                cmddef += (
+                    "    auto replay_object = GetObjectInfo(object_id);\n"
+                    "    if ((replay_object != nullptr) &&"
+                    " (replay_object->object != nullptr))\n"
+                )
+            else:
+                cmddef += (
+                    "    auto replay_object = MapObject<{}>(object_id);\n"
+                    "    if (replay_object != nullptr)\n".format(class_name)
+                )
+            cmddef += "    {\n"
 
             body = self.make_consumer_func_body(return_type, method, values)
             code_list = body.split('\n')
@@ -185,20 +198,33 @@ class Dx12ReplayConsumerBodyGenerator(
                         )
 
                     code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
-                            '    auto out_p_{0}    = {0}->GetPointer();\n'\
-                            '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
-                        .format(value.name, handle_length)
+                            .format(value.name, handle_length)
+                    if is_override:
+                        code += '    DxObjectInfo object_info{{}};\n'\
+                                '    {0}->SetConsumerData(0, &object_info);\n'\
+                                .format(value.name)
+                    else:
+                        code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                                '    auto out_hp_{0}   = {0}->GetHandlePointer();\n'\
+                                .format(value.name)
 
                     if is_override:
                         arg_list.append(value.name)
                     else:
                         arg_list.append('out_hp_{}'.format(value.name))
 
-                    add_object_list.append(
-                        'AddObject(out_p_{0}, out_hp_{0});\n'.format(
-                            value.name
+                    if is_override:
+                        add_object_list.append(
+                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), '\
+                            'object_info.extra_info_type, object_info.extra_info);\n'\
+                            .format(value.name)
                         )
-                    )
+                    else:
+                        add_object_list.append(
+                            'AddObject(out_p_{0}, out_hp_{0});\n'.format(
+                                value.name
+                            )
+                        )
 
                 else:
                     if value.pointer_count == 2:
@@ -208,9 +234,14 @@ class Dx12ReplayConsumerBodyGenerator(
                         arg_list.append('in_{}.data()'.format(value.name))
 
                     elif value.pointer_count == 1:
-                        code += '    auto in_{0} = MapObject<{1}>({0});\n'.format(
-                            value.name, value.base_type
-                        )
+                        if is_override:
+                            code += '    auto in_{0} = GetObjectInfo({0});\n'.format(
+                                value.name
+                            )
+                        else:
+                            code += '    auto in_{0} = MapObject<{1}>({0});\n'.format(
+                                value.name, value.base_type
+                            )
                         arg_list.append('in_{}'.format(value.name))
 
             elif is_extenal_object and not is_override:

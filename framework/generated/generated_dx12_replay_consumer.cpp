@@ -948,13 +948,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
     HandlePointerDecoder<IDXGISwapChain*>*      ppSwapChain)
 {
-    auto replay_object = MapObject<IDXGIFactory>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDevice = MapObject<IUnknown>(pDevice);
+        auto in_pDevice = GetObjectInfo(pDevice);
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
-        auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
-        auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
+        DxObjectInfo object_info{};
+        ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChain(replay_object,
                                                      returnValue,
                                                      in_pDevice,
@@ -962,7 +962,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
                                                      ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("IDXGIFactory_CreateSwapChain", returnValue, replay_result);
     }
@@ -1605,14 +1605,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     format::HandleId                            pRestrictToOutput,
     HandlePointerDecoder<IDXGISwapChain1*>*     ppSwapChain)
 {
-    auto replay_object = MapObject<IDXGIFactory2>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDevice = MapObject<IUnknown>(pDevice);
-        auto in_pRestrictToOutput = MapObject<IDXGIOutput>(pRestrictToOutput);
+        auto in_pDevice = GetObjectInfo(pDevice);
+        auto in_pRestrictToOutput = GetObjectInfo(pRestrictToOutput);
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
-        auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
-        auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
+        DxObjectInfo object_info{};
+        ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForHwnd(replay_object,
                                                             returnValue,
                                                             in_pDevice,
@@ -1623,7 +1623,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
                                                             ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForHwnd", returnValue, replay_result);
     }
@@ -1638,15 +1638,15 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     format::HandleId                            pRestrictToOutput,
     HandlePointerDecoder<IDXGISwapChain1*>*     ppSwapChain)
 {
-    auto replay_object = MapObject<IDXGIFactory2>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDevice = MapObject<IUnknown>(pDevice);
-        auto in_pWindow = MapObject<IUnknown>(pWindow);
-        auto in_pRestrictToOutput = MapObject<IDXGIOutput>(pRestrictToOutput);
+        auto in_pDevice = GetObjectInfo(pDevice);
+        auto in_pWindow = GetObjectInfo(pWindow);
+        auto in_pRestrictToOutput = GetObjectInfo(pRestrictToOutput);
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
-        auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
-        auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
+        DxObjectInfo object_info{};
+        ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForCoreWindow(replay_object,
                                                                   returnValue,
                                                                   in_pDevice,
@@ -1656,7 +1656,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
                                                                   ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForCoreWindow", returnValue, replay_result);
     }
@@ -1776,14 +1776,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     format::HandleId                            pRestrictToOutput,
     HandlePointerDecoder<IDXGISwapChain1*>*     ppSwapChain)
 {
-    auto replay_object = MapObject<IDXGIFactory2>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pDevice = MapObject<IUnknown>(pDevice);
-        auto in_pRestrictToOutput = MapObject<IDXGIOutput>(pRestrictToOutput);
+        auto in_pDevice = GetObjectInfo(pDevice);
+        auto in_pRestrictToOutput = GetObjectInfo(pRestrictToOutput);
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
-        auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
-        auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
+        DxObjectInfo object_info{};
+        ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForComposition(replay_object,
                                                                    returnValue,
                                                                    in_pDevice,
@@ -1792,7 +1792,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
                                                                    ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForComposition", returnValue, replay_result);
     }
@@ -2870,8 +2870,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     UINT                                        SrcRowPitch,
     UINT                                        SrcDepthPitch)
 {
-    auto replay_object = MapObject<ID3D12Resource>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideWriteToSubresource(replay_object,
                                                         returnValue,
@@ -2893,8 +2893,8 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     UINT                                        SrcSubresource,
     StructPointerDecoder<Decoded_D3D12_BOX>*    pSrcBox)
 {
-    auto replay_object = MapObject<ID3D12Resource>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideReadFromSubresource(replay_object,
                                                          returnValue,

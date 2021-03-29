@@ -22,9 +22,12 @@
 
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
-from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator , Dx12ConsumerHeaderGeneratorOptions
+from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12ConsumerHeaderGeneratorOptions
 
-class Dx12ReplayConsumerHeaderGeneratorOptions(Dx12ConsumerHeaderGeneratorOptions):
+
+class Dx12ReplayConsumerHeaderGeneratorOptions(
+    Dx12ConsumerHeaderGeneratorOptions
+):
     """Options for generating a C++ class for Dx12 capture file replay."""
 
     def __init__(
@@ -39,8 +42,8 @@ class Dx12ReplayConsumerHeaderGeneratorOptions(Dx12ConsumerHeaderGeneratorOption
         protect_feature=True
     ):
         Dx12ConsumerHeaderGeneratorOptions.__init__(
-            self, constructor_args, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+            self, constructor_args, blacklists, platform_types, filename,
+            directory, prefix_text, protect_file, protect_feature
         )
 
 
