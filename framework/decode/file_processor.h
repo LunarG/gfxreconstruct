@@ -26,6 +26,7 @@
 
 #include "format/api_call_id.h"
 #include "format/format.h"
+#include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -60,6 +61,8 @@ class FileProcessor
     FileProcessor();
 
     ~FileProcessor();
+
+    void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
@@ -112,6 +115,8 @@ class FileProcessor
 
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
+    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
+
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
     bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
@@ -127,6 +132,7 @@ class FileProcessor
     uint32_t                            current_frame_number_;
     uint64_t                            bytes_read_;
     Error                               error_state_;
+    AnnotationHandler*                  annotation_handler_;
     std::vector<ApiDecoder*>            decoders_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;

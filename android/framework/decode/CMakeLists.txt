@@ -2,6 +2,7 @@ add_library(gfxrecon_decode STATIC "")
 
 target_sources(gfxrecon_decode
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h

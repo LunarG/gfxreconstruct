@@ -71,6 +71,7 @@ enum BlockType : uint32_t
     kStateMarkerBlock            = 2, // Marker to denote state snapshot status, such as the start or end of a state snapshot.
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
+    kAnnotation                  = 5,
     kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
     kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock)
 };
@@ -80,6 +81,14 @@ enum MarkerType : uint32_t
     kUnknownMarker = 0,
     kBeginMarker   = 1,
     kEndMarker     = 2
+};
+
+enum AnnotationType : uint32_t
+{
+    kUnknown = 0,
+    kText    = 1,
+    kJson    = 2,
+    kXml     = 3
 };
 
 enum MetaDataType : uint32_t
@@ -201,6 +210,14 @@ struct MethodCallHeader
     ApiCallId        api_call_id;
     uint64_t         object_id;
     format::ThreadId thread_id;
+};
+
+struct AnnotationHeader
+{
+    BlockHeader    block_header;
+    AnnotationType annotation_type;
+    uint32_t       label_length;
+    uint32_t       data_length;
 };
 
 // Metadata block headers and data types.

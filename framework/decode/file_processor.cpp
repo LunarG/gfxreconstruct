@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
-    error_state_(kErrorInvalidFileDescriptor), compressor_(nullptr)
+    error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr)
 {}
 
 FileProcessor::~FileProcessor()
@@ -243,6 +243,30 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
+                }
+            }
+            else if (block_header.type == format::BlockType::kAnnotation)
+            {
+                if (annotation_handler_ != nullptr)
+                {
+                    format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
+
+                    success = ReadBytes(&annotation_type, sizeof(annotation_type));
+
+                    if (success)
+                    {
+                        success = ProcessAnnotation(block_header, annotation_type);
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
+                    }
+                }
+                else
+                {
+                    // If there is no annotation handler to process the annotation, we can skip the annotation block.
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                    success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
             }
             else
@@ -1096,6 +1120,55 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
     else
     {
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
+{
+    bool     success      = false;
+    uint32_t label_length = 0;
+    uint32_t data_length  = 0;
+
+    success = ReadBytes(&label_length, sizeof(label_length));
+    success = success && ReadBytes(&data_length, sizeof(data_length));
+
+    if (success)
+    {
+        if ((label_length > 0) || (data_length > 0))
+        {
+            std::string label;
+            std::string data;
+            auto        total_length = label_length + data_length;
+
+            success = ReadParameterBuffer(total_length);
+            if (success)
+            {
+                if (label_length > 0)
+                {
+                    auto label_start = parameter_buffer_.begin();
+                    label.assign(label_start, std::next(label_start, label_length));
+                }
+
+                if (data_length > 0)
+                {
+                    auto data_start = std::next(parameter_buffer_.begin(), label_length);
+                    data.assign(data_start, std::next(data_start, data_length));
+                }
+
+                assert(annotation_handler_ != nullptr);
+                annotation_handler_->ProcessAnnotation(annotation_type, label, data);
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read annotation block");
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
     }
 
     return success;
