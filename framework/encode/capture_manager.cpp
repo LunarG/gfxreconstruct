@@ -223,7 +223,6 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
         // Determine if trim starts at the first frame
         if (!trace_settings.trim_ranges.empty())
         {
-            trim_ranges_ = trace_settings.trim_ranges;
             if (trim_ranges_[0].first == current_frame_)
             {
                 // When capturing from the first frame, state tracking only needs to be enabled if there is more than
@@ -266,7 +265,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     if (success)
     {
         compressor_ = std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options_.compression_type));
-        if ((nullptr == compressor_) && (format::CompressionType::kNone != file_options_.compression_type))
+        if ((compressor_ == nullptr) && (file_options_.compression_type != format::CompressionType::kNone))
         {
             success = false;
         }
@@ -331,13 +330,13 @@ void CaptureManager::EndApiCallCapture(ParameterEncoder* encoder)
         size_t                               data_size           = 0;
         const void*                          data_pointer        = nullptr;
 
-        if (nullptr != compressor_)
+        if (compressor_ != nullptr)
         {
             size_t packet_size = 0;
             size_t compressed_size =
                 compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
 
-            if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+            if ((compressed_size > 0) && (compressed_size < uncompressed_size))
             {
                 data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
                 data_size      = compressed_size;
@@ -419,13 +418,13 @@ void CaptureManager::EndMethodCallCapture(ParameterEncoder* encoder)
         size_t                             data_size           = 0;
         const void*                        data_pointer        = nullptr;
 
-        if (nullptr != compressor_)
+        if (compressor_ != nullptr)
         {
             size_t packet_size = 0;
             size_t compressed_size =
                 compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
 
-            if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+            if ((compressed_size > 0) && (compressed_size < uncompressed_size))
             {
                 data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
                 data_size      = compressed_size;
