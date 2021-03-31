@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_DX12_OBJECT_INFO_H
 #define GFXRECON_DECODE_DX12_OBJECT_INFO_H
 
+#include "decode/window.h"
 #include "format/format.h"
 #include "util/defines.h"
 
@@ -38,7 +39,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 enum class DxObjectInfoType : uint32_t
 {
     kUnused = 0,
-    kID3D12ResourceInfo,
+    kIDxgiSwapchainInfo,
+    kID3D12ResourceInfo
 };
 
 struct DxObjectInfo
@@ -49,6 +51,11 @@ struct DxObjectInfo
     uint64_t         ref_count{ 0 };
     DxObjectInfoType extra_info_type{ DxObjectInfoType::kUnused };
     void*            extra_info{ nullptr };
+};
+
+struct DxgiSwapchainInfo
+{
+    Window* window{ nullptr };
 };
 
 struct D3D12ResourceInfo

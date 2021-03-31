@@ -29,6 +29,8 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 
+#include <unordered_set>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -86,7 +88,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     OverrideCreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
                                    HRESULT                                                        original_result,
                                    DxObjectInfo*                                                  device_info,
-                                   uint64_t                                                       hwnd,
+                                   uint64_t                                                       hwnd_id,
                                    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
                                    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
                                    DxObjectInfo*                           restrict_to_output_info,
@@ -126,8 +128,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
 
-    void DestroyWindowHandles();
-
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -148,18 +148,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
                            HRESULT                                                        original_result,
                            DxObjectInfo*                                                  device_info,
-                           uint64_t                                                       hwnd,
+                           uint64_t                                                       hwnd_id,
                            StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
                            StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void InsertWindowHandleToMap(uint64_t& hwnd, Window* window);
+    void SetSwapchainInfoWindow(DxObjectInfo* info, Window* window);
 
-    std::unordered_map<format::HandleId, IUnknown*> objects_;
-    std::unordered_map<uint64_t, Window*>           swapchain_windows_;
-    WindowFactory*                                  window_factory_ = nullptr;
-    Dx12ObjectInfoTable                             object_info_table_;
+    void DestroyActiveWindows();
+
+  private:
+    Dx12ObjectInfoTable         object_info_table_;
+    WindowFactory*              window_factory_;
+    std::unordered_set<Window*> active_windows_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
