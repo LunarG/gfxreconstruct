@@ -63,7 +63,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         object_mapping::AddObject<T>(p_id, pp_object, extra_info_type, extra_info, &object_info_table_);
     }
 
-    void RemoveObject(format::HandleId id);
+    void RemoveObject(DxObjectInfo* info);
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 
@@ -71,6 +71,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void PostProcessExternalObject(
         HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
+
+    ULONG OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result);
+
+    ULONG OverrideRelease(DxObjectInfo* replay_object_info, ULONG original_result);
 
     HRESULT OverrideCreateSwapChain(DxObjectInfo*                                       replay_object_info,
                                     HRESULT                                             original_result,

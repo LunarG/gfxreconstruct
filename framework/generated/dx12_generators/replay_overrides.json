@@ -2,6 +2,10 @@
   "functions": {
   },
   "classmethods": {
+    "IUnknown": {
+      "AddRef": "OverrideAddRef",
+      "Release": "OverrideRelease"
+    },
     "ID3D12Resource": {
       "ReadFromSubresource": "OverrideReadFromSubresource",
       "WriteToSubresource": "OverrideWriteToSubresource"
@@ -9,7 +13,6 @@
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },
-
     "IDXGIFactory2": {
       "CreateSwapChain": "OverrideCreateSwapChain",
       "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd",

@@ -152,18 +152,6 @@ class Dx12ReplayConsumerBodyGenerator(
 
     def make_consumer_func_body(self, return_type, name, values):
         """Methond override."""
-        if name == 'IUnknown_AddRef':
-            return '    replay_object->AddRef();\n'
-        elif name == 'IUnknown_Release':
-            return (
-                "    auto replay_count = replay_object->Release();\n"
-                "    if (replay_count == 0)\n"
-                "    {\n"
-                "        RemoveObject(object_id);\n"
-                "        GFXRECON_LOG_INFO(\"Object with ID %\" PRIu64 \" has been destroyed\", object_id);\n"
-                "    }\n"
-            )
-
         code = ''
         arg_list = []
         add_object_list = []

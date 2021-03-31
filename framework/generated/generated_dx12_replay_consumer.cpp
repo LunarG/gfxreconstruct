@@ -6364,10 +6364,11 @@ void Dx12ReplayConsumer::Process_IUnknown_AddRef(
     format::HandleId                            object_id,
     ULONG                                       returnValue)
 {
-    auto replay_object = MapObject<IUnknown>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->AddRef();
+        auto replay_result = OverrideAddRef(replay_object,
+                                            returnValue);
     }
 }
 
@@ -6375,15 +6376,11 @@ void Dx12ReplayConsumer::Process_IUnknown_Release(
     format::HandleId                            object_id,
     ULONG                                       returnValue)
 {
-    auto replay_object = MapObject<IUnknown>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_count = replay_object->Release();
-        if (replay_count == 0)
-        {
-            RemoveObject(object_id);
-            GFXRECON_LOG_INFO("Object with ID %" PRIu64 " has been destroyed", object_id);
-        }
+        auto replay_result = OverrideRelease(replay_object,
+                                             returnValue);
     }
 }
 

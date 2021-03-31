@@ -22,6 +22,8 @@
 
 #include "decode/dx12_replay_consumer_base.h"
 
+#include <cassert>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -35,9 +37,12 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     DestroyWindowHandles();
 }
 
-void Dx12ReplayConsumerBase::RemoveObject(format::HandleId id)
+void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
 {
-    object_mapping::RemoveObject(id, &object_info_table_);
+    if (info != nullptr)
+    {
+        object_mapping::RemoveObject(info->capture_id, &object_info_table_);
+    }
 }
 
 void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
@@ -88,6 +93,38 @@ void Dx12ReplayConsumerBase::PostProcessExternalObject(
                                  call_name);
             break;
     }
+}
+
+ULONG Dx12ReplayConsumerBase::OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result)
+{
+    if (replay_object_info != nullptr)
+    {
+        auto object = replay_object_info->object;
+
+        ++(replay_object_info->ref_count);
+
+        return object->AddRef();
+    }
+
+    return 0;
+}
+
+ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, ULONG original_result)
+{
+    if (replay_object_info != nullptr)
+    {
+        auto object = replay_object_info->object;
+
+        --(replay_object_info->ref_count);
+        if (replay_object_info->ref_count == 0)
+        {
+            RemoveObject(replay_object_info);
+        }
+
+        return object->Release();
+    }
+
+    return 0;
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
