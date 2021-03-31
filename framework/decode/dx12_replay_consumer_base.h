@@ -29,6 +29,7 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 
+#include <unordered_map>
 #include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -38,7 +39,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
     Dx12ReplayConsumerBase(WindowFactory* window_factory);
+
     virtual ~Dx12ReplayConsumerBase();
+
+    virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data);
 
   protected:
     template <typename T>
@@ -110,6 +114,16 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                   DxObjectInfo*                           restrict_to_output_info,
                                                   HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
+    HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
+                                HRESULT                                    original_result,
+                                UINT                                       subresource,
+                                StructPointerDecoder<Decoded_D3D12_RANGE>* read_range,
+                                PointerDecoder<uint64_t, void*>*           data);
+
+    void OverrideResourceUnmap(DxObjectInfo*                              replay_object_info,
+                               UINT                                       subresource,
+                               StructPointerDecoder<Decoded_D3D12_RANGE>* written_range);
+
     HRESULT
     OverrideWriteToSubresource(DxObjectInfo*                            replay_object_info,
                                HRESULT                                  original_result,
@@ -159,9 +173,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void DestroyActiveWindows();
 
   private:
-    Dx12ObjectInfoTable         object_info_table_;
-    WindowFactory*              window_factory_;
-    std::unordered_set<Window*> active_windows_;
+    Dx12ObjectInfoTable                 object_info_table_;
+    WindowFactory*                      window_factory_;
+    std::unordered_set<Window*>         active_windows_;
+    std::unordered_map<uint64_t, void*> mapped_memory_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -7,6 +7,8 @@
       "Release": "OverrideRelease"
     },
     "ID3D12Resource": {
+      "Map": "OverrideResourceMap",
+      "Unmap": "OverrideResourceUnmap",
       "ReadFromSubresource": "OverrideReadFromSubresource",
       "WriteToSubresource": "OverrideWriteToSubresource"
     },

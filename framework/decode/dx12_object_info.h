@@ -28,6 +28,7 @@
 #include "util/defines.h"
 
 #include <Unknwn.h>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -43,6 +44,12 @@ enum class DxObjectInfoType : uint32_t
     kID3D12ResourceInfo
 };
 
+struct MappedMemoryInfo
+{
+    uint32_t count{ 0 };     ///< Number of times that the memory has been mapped.
+    uint64_t memory_id{ 0 }; ///< Capture ID for the mapped memory.
+};
+
 struct DxObjectInfo
 {
     // Standard info stored for all DX objects.
@@ -55,12 +62,12 @@ struct DxObjectInfo
 
 struct DxgiSwapchainInfo
 {
-    Window* window{ nullptr };
+    Window* window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
 };
 
 struct D3D12ResourceInfo
 {
-    uint64_t mapped_data{ 0 };
+    std::unordered_map<uint32_t, MappedMemoryInfo> mapped_memory_info; ///< Map subresource index to mapped memory info.
 };
 
 GFXRECON_END_NAMESPACE(decode)

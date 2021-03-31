@@ -2813,16 +2813,15 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
     StructPointerDecoder<Decoded_D3D12_RANGE>*  pReadRange,
     PointerDecoder<uint64_t, void*>*            ppData)
 {
-    auto replay_object = MapObject<ID3D12Resource>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto out_p_ppData    = ppData->GetPointer();
-        auto out_op_ppData   = ppData->GetOutputPointer();
-        auto replay_result = replay_object->Map(Subresource,
-                                                pReadRange->GetPointer(),
-                                                out_op_ppData);
+        auto replay_result = OverrideResourceMap(replay_object,
+                                                 returnValue,
+                                                 Subresource,
+                                                 pReadRange,
+                                                 ppData);
         CheckReplayResult("ID3D12Resource_Map", returnValue, replay_result);
-        PostProcessExternalObject(replay_result, out_op_ppData, out_p_ppData, format::ApiCallId::ApiCall_ID3D12Resource_Map, "ID3D12Resource_Map");
     }
 }
 
@@ -2831,11 +2830,12 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Unmap(
     UINT                                        Subresource,
     StructPointerDecoder<Decoded_D3D12_RANGE>*  pWrittenRange)
 {
-    auto replay_object = MapObject<ID3D12Resource>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->Unmap(Subresource,
-                             pWrittenRange->GetPointer());
+        OverrideResourceUnmap(replay_object,
+                              Subresource,
+                              pWrittenRange);
     }
 }
 
