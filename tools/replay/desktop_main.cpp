@@ -182,7 +182,7 @@ int main(int argc, const char** argv)
 
 #if defined(WIN32)
                 // Initialize D3D12 API decoder and consumer(s).
-                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer;
+                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(window_factory.get());
                 gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);

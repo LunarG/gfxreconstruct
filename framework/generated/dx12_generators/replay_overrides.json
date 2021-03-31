@@ -2,12 +2,19 @@
   "functions": {
   },
   "classmethods": {
-    "IDXGIFactory2": {
-      "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd"
-    },
     "ID3D12Resource": {
       "ReadFromSubresource": "OverrideReadFromSubresource",
       "WriteToSubresource": "OverrideWriteToSubresource"
+    },
+    "IDXGIFactory": {
+      "CreateSwapChain": "OverrideCreateSwapChain"
+    },
+
+    "IDXGIFactory2": {
+      "CreateSwapChain": "OverrideCreateSwapChain",
+      "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd",
+      "CreateSwapChainForComposition": "OverrideCreateSwapChainForComposition",
+      "CreateSwapChainForCoreWindow": "OverrideCreateSwapChainForCoreWindow"
     }
   }
 }

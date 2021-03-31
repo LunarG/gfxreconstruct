@@ -24,15 +24,18 @@ import json
 import sys
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
-from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator
+from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator, Dx12ReplayConsumerHeaderGeneratorOptions
 from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
 
 
-class Dx12ReplayConsumerBodyGeneratorOptions(Dx12GeneratorOptions):
+class Dx12ReplayConsumerBodyGeneratorOptions(
+    Dx12ReplayConsumerHeaderGeneratorOptions
+):
     """Options for generating a C++ class for Dx12 capture file replay."""
 
     def __init__(
         self,
+        constructor_args,
         replay_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -42,9 +45,9 @@ class Dx12ReplayConsumerBodyGeneratorOptions(Dx12GeneratorOptions):
         protect_file=False,
         protect_feature=True
     ):
-        Dx12GeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+        Dx12ReplayConsumerHeaderGeneratorOptions.__init__(
+            self, constructor_args, blacklists, platform_types, filename,
+            directory, prefix_text, protect_file, protect_feature
         )
         self.replay_overrides = replay_overrides
 

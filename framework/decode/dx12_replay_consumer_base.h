@@ -25,6 +25,7 @@
 
 #include "generated/generated_dx12_consumer.h"
 #include "decode/dx12_object_mapping_util.h"
+#include "decode/window.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -32,8 +33,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
-    Dx12ReplayConsumerBase() {}
-    virtual ~Dx12ReplayConsumerBase() {}
+    Dx12ReplayConsumerBase(WindowFactory* window_factory);
+    virtual ~Dx12ReplayConsumerBase();
 
   protected:
     template <typename T>
@@ -63,16 +64,43 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void PostProcessExternalObject(
         HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
 
-    // TODO(GH-63): Implement function
+    HRESULT OverrideCreateSwapChain(IDXGIFactory*                                       replay_object,
+                                    HRESULT                                             original_result,
+                                    IUnknown*                                           device,
+                                    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* desc,
+                                    HandlePointerDecoder<IDXGISwapChain*>*              swapchain);
+
+    HRESULT OverrideCreateSwapChain(IDXGIFactory2*                          replay_object,
+                                    HRESULT                                 original_result,
+                                    IUnknown*                               device,
+                                    DXGI_SWAP_CHAIN_DESC1*                  desc,
+                                    HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+
     HRESULT
     OverrideCreateSwapChainForHwnd(IDXGIFactory2*                                                 replay_object,
                                    HRESULT                                                        original_result,
-                                   IUnknown*                                                      pDevice,
-                                   uint64_t                                                       hWnd,
-                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
-                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
-                                   IDXGIOutput*                                                   pRestrictToOutput,
-                                   HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain);
+                                   IUnknown*                                                      device,
+                                   uint64_t                                                       hwnd,
+                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
+                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
+                                   IDXGIOutput*                                                   restrict_to_output,
+                                   HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
+
+    HRESULT
+    OverrideCreateSwapChainForCoreWindow(IDXGIFactory2*                                       replay_object,
+                                         HRESULT                                              original_result,
+                                         IUnknown*                                            device,
+                                         IUnknown*                                            window,
+                                         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* desc,
+                                         IDXGIOutput*                                         restrict_to_output,
+                                         HandlePointerDecoder<IDXGISwapChain1*>*              swapchain);
+
+    HRESULT OverrideCreateSwapChainForComposition(IDXGIFactory2*                                       replay_object,
+                                                  HRESULT                                              original_result,
+                                                  IUnknown*                                            device,
+                                                  StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* desc,
+                                                  IDXGIOutput*                            restrict_to_output,
+                                                  HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
     // TODO(GH-71): Implement function
     HRESULT
@@ -82,8 +110,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
                                uint64_t                                 pSrcData,
                                UINT                                     SrcRowPitch,
-                               UINT                                     SrcDepthPitch);
-
+                               UINT                                     SrcDepthPitch)
+    {
+        return 0;
+    }
     // TODO(GH-71): Implement function
     HRESULT
     OverrideReadFromSubresource(ID3D12Resource*                          replay_object,
@@ -92,13 +122,34 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     DstRowPitch,
                                 UINT                                     DstDepthPitch,
                                 UINT                                     SrcSubresource,
-                                StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox);
+                                StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
+    {
+        return 0;
+    }
+
+    void DestroyWindowHandles();
+
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
   private:
+    HRESULT
+    CreateSwapChainForHwnd(IDXGIFactory2*                          replay_object,
+                           HRESULT                                 original_result,
+                           IUnknown*                               device,
+                           uint64_t                                hwnd,
+                           const DXGI_SWAP_CHAIN_DESC1*            desc,
+                           const DXGI_SWAP_CHAIN_FULLSCREEN_DESC*  full_screen_desc,
+                           IDXGIOutput*                            restrict_to_output,
+                           HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+    
+    void InsertWindowHandleToMap(uint64_t& hwnd, Window* window);
+
+    std::unordered_map<format::HandleId, IUnknown*> objects_;
+    std::unordered_map<uint64_t, Window*>           swapchain_windows_;
+    WindowFactory*                                  window_factory_ = nullptr;
     Dx12ObjectInfoTable object_info_table_;
 };
 

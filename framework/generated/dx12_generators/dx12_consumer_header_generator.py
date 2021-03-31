@@ -22,11 +22,33 @@
 
 import sys
 from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+
+
+class Dx12ConsumerHeaderGeneratorOptions(Dx12GeneratorOptions):
+    """Options for generating a C++ class for Dx12 capture file replay."""
+
+    def __init__(
+        self,
+        constructor_args='',
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        Dx12GeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
+        self.constructor_args = constructor_args
 
 
 class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
+    constructor_args = ''
 
     def __init__(
         self,
@@ -44,6 +66,9 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         """Methond override."""
         BaseGenerator.beginFile(self, gen_opts)
+
+        if gen_opts.constructor_args:
+            self.constructor_args = gen_opts.constructor_args
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -149,13 +174,30 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                    self.get_consumer_function_body(class_name, method_info))
         return code
 
-    def get_decoder_class_define(self, consumer_type):
-        declaration = 'class Dx12{0}Consumer : public Dx12{0}ConsumerBase\n'\
+    def write_constructor_class(self, consumer_type):
+        if self.constructor_args:
+            arg_list = ', '.join(
+                [
+                    arg.split(' ')[-1]
+                    for arg in self.constructor_args.split(',')
+                ]
+            )
+            return 'class Dx12{0}Consumer : public Dx12{0}ConsumerBase\n'\
+                      '{{\n'\
+                      '  public:\n'\
+                      '    Dx12{0}Consumer({1}) : Dx12{0}ConsumerBase({2}) {{}}\n'\
+                      '    virtual ~Dx12{0}Consumer() override {{}}\n'.format(
+                          consumer_type, self.constructor_args, arg_list)
+        else:
+            return 'class Dx12{0}Consumer : public Dx12{0}ConsumerBase\n'\
                       '{{\n'\
                       '  public:\n'\
                       '    Dx12{0}Consumer(){{}}\n'\
                       '    virtual ~Dx12{0}Consumer() override {{}}\n'.format(
                           consumer_type)
+
+    def get_decoder_class_define(self, consumer_type):
+        declaration = self.write_constructor_class(consumer_type)
 
         indent = '    virtual '
         function_class = ''

@@ -25,6 +25,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+constexpr int32_t kDefaultWindowPositionX = 0;
+constexpr int32_t kDefaultWindowPositionY = 0;
+
+Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory) : window_factory_(window_factory) {}
+
+Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
+{
+    DestroyWindowHandles();
+}
+
 void Dx12ReplayConsumerBase::RemoveObject(format::HandleId id)
 {
     object_mapping::RemoveObject(id, &object_info_table_);
@@ -83,43 +93,163 @@ void Dx12ReplayConsumerBase::PostProcessExternalObject(
 HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
     IDXGIFactory2*                                                 replay_object,
     HRESULT                                                        original_result,
-    IUnknown*                                                      pDevice,
-    uint64_t                                                       hWnd,
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           pDesc,
-    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
-    IDXGIOutput*                                                   pRestrictToOutput,
-    HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain)
+    IUnknown*                                                      device,
+    uint64_t                                                       hwnd,
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
+    IDXGIOutput*                                                   restrict_to_output,
+    HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain)
 {
-    return replay_object->CreateSwapChainForHwnd(pDevice,
-                                                 reinterpret_cast<HWND>(hWnd),
-                                                 pDesc->GetPointer(),
-                                                 pFullscreenDesc->GetPointer(),
-                                                 pRestrictToOutput,
-                                                 ppSwapChain->GetHandlePointer());
+    return CreateSwapChainForHwnd(replay_object,
+                                  original_result,
+                                  device,
+                                  hwnd,
+                                  desc->GetPointer(),
+                                  full_screen_desc->GetPointer(),
+                                  restrict_to_output,
+                                  swapchain);
 }
 
 HRESULT
-Dx12ReplayConsumerBase::OverrideWriteToSubresource(ID3D12Resource*                          replay_object,
-                                                   HRESULT                                  original_result,
-                                                   UINT                                     DstSubresource,
-                                                   StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
-                                                   uint64_t                                 pSrcData,
-                                                   UINT                                     SrcRowPitch,
-                                                   UINT                                     SrcDepthPitch)
+Dx12ReplayConsumerBase::OverrideCreateSwapChain(IDXGIFactory*                                       replay_object,
+                                                HRESULT                                             original_result,
+                                                IUnknown*                                           device,
+                                                StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* desc,
+                                                HandlePointerDecoder<IDXGISwapChain*>*              swapchain)
 {
-    return E_NOTIMPL;
+    HRESULT  result = E_FAIL;
+    uint64_t hwnd   = 0;
+    Window*  window = window_factory_->Create(kDefaultWindowPositionX,
+                                             kDefaultWindowPositionY,
+                                             desc->GetPointer()->BufferDesc.Width,
+                                             desc->GetPointer()->BufferDesc.Height);
+
+    if (window != nullptr)
+    {
+        if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+        {
+            result = replay_object->CreateSwapChain(device, desc->GetPointer(), swapchain->GetHandlePointer());
+
+            if (SUCCEEDED(result))
+            {
+                InsertWindowHandleToMap(hwnd, window);
+            }
+            else
+            {
+                GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to create a window.  Replay cannot continue.");
+    }
+
+    return result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChain(IDXGIFactory2*                          replay_object,
+                                                        HRESULT                                 original_result,
+                                                        IUnknown*                               device,
+                                                        DXGI_SWAP_CHAIN_DESC1*                  desc,
+                                                        HandlePointerDecoder<IDXGISwapChain1*>* swapchain)
+{
+    uint64_t hwnd = 0;
+    return CreateSwapChainForHwnd(replay_object, original_result, device, hwnd, desc, nullptr, nullptr, swapchain);
 }
 
 HRESULT
-Dx12ReplayConsumerBase::OverrideReadFromSubresource(ID3D12Resource*                          replay_object,
-                                                    HRESULT                                  original_result,
-                                                    uint64_t                                 pDstData,
-                                                    UINT                                     DstRowPitch,
-                                                    UINT                                     DstDepthPitch,
-                                                    UINT                                     SrcSubresource,
-                                                    StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
+Dx12ReplayConsumerBase::OverrideCreateSwapChainForCoreWindow(IDXGIFactory2* replay_object,
+                                                             HRESULT        original_result,
+                                                             IUnknown*      device,
+                                                             IUnknown*      window,
+                                                             StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* desc,
+                                                             IDXGIOutput*                            restrict_to_output,
+                                                             HandlePointerDecoder<IDXGISwapChain1*>* swapchain)
 {
-    return E_NOTIMPL;
+    uint64_t hwnd = 0;
+    return CreateSwapChainForHwnd(
+        replay_object, original_result, device, hwnd, desc->GetPointer(), nullptr, restrict_to_output, swapchain);
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateSwapChainForComposition(IDXGIFactory2* replay_object,
+                                                              HRESULT        original_result,
+                                                              IUnknown*      device,
+                                                              StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* desc,
+                                                              IDXGIOutput* restrict_to_output,
+                                                              HandlePointerDecoder<IDXGISwapChain1*>* swapchain)
+{
+    uint64_t hwnd = 0;
+    return CreateSwapChainForHwnd(
+        replay_object, original_result, device, hwnd, desc->GetPointer(), nullptr, restrict_to_output, swapchain);
+}
+
+void Dx12ReplayConsumerBase::DestroyWindowHandles()
+{
+    for (auto& entry : swapchain_windows_)
+    {
+        window_factory_->Destroy(entry.second);
+    }
+    swapchain_windows_.clear();
+}
+
+HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(IDXGIFactory2*                          replay_object,
+                                                       HRESULT                                 original_result,
+                                                       IUnknown*                               device,
+                                                       uint64_t                                hwnd,
+                                                       const DXGI_SWAP_CHAIN_DESC1*            desc,
+                                                       const DXGI_SWAP_CHAIN_FULLSCREEN_DESC*  full_screen_desc,
+                                                       IDXGIOutput*                            restrict_to_output,
+                                                       HandlePointerDecoder<IDXGISwapChain1*>* swapchain)
+{
+    HRESULT result = E_FAIL;
+    Window* window =
+        window_factory_->Create(kDefaultWindowPositionX, kDefaultWindowPositionY, desc->Width, desc->Height);
+
+    if (window != nullptr)
+    {
+        if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+        {
+            result = replay_object->CreateSwapChainForHwnd(device,
+                                                           *reinterpret_cast<HWND*>(&hwnd),
+                                                           desc,
+                                                           full_screen_desc,
+                                                           restrict_to_output,
+                                                           swapchain->GetHandlePointer());
+
+            if (SUCCEEDED(result))
+            {
+                InsertWindowHandleToMap(hwnd, window);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to retrieve handle from window");
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to create a window.  Replay cannot continue.");
+    }
+
+    return result;
+}
+
+void Dx12ReplayConsumerBase::InsertWindowHandleToMap(uint64_t& hwnd, Window* window)
+{
+    if (swapchain_windows_.find(hwnd) == swapchain_windows_.end())
+    {
+        swapchain_windows_.insert({ hwnd, window });
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Such swapchain handle already exists");
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

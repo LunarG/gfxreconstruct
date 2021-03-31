@@ -955,9 +955,11 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
         auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
-        auto replay_result = replay_object->CreateSwapChain(in_pDevice,
-                                                            pDesc->GetPointer(),
-                                                            out_hp_ppSwapChain);
+        auto replay_result = OverrideCreateSwapChain(replay_object,
+                                                     returnValue,
+                                                     in_pDevice,
+                                                     pDesc,
+                                                     ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
@@ -1645,11 +1647,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
         auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
-        auto replay_result = replay_object->CreateSwapChainForCoreWindow(in_pDevice,
-                                                                         in_pWindow,
-                                                                         pDesc->GetPointer(),
-                                                                         in_pRestrictToOutput,
-                                                                         out_hp_ppSwapChain);
+        auto replay_result = OverrideCreateSwapChainForCoreWindow(replay_object,
+                                                                  returnValue,
+                                                                  in_pDevice,
+                                                                  in_pWindow,
+                                                                  pDesc,
+                                                                  in_pRestrictToOutput,
+                                                                  ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
@@ -1780,10 +1784,12 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
         auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
         auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
-        auto replay_result = replay_object->CreateSwapChainForComposition(in_pDevice,
-                                                                          pDesc->GetPointer(),
-                                                                          in_pRestrictToOutput,
-                                                                          out_hp_ppSwapChain);
+        auto replay_result = OverrideCreateSwapChainForComposition(replay_object,
+                                                                   returnValue,
+                                                                   in_pDevice,
+                                                                   pDesc,
+                                                                   in_pRestrictToOutput,
+                                                                   ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);

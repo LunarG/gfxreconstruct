@@ -21,8 +21,27 @@
 # IN THE SOFTWARE.
 
 from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
-from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator , Dx12ConsumerHeaderGeneratorOptions
+
+class Dx12ReplayConsumerHeaderGeneratorOptions(Dx12ConsumerHeaderGeneratorOptions):
+    """Options for generating a C++ class for Dx12 capture file replay."""
+
+    def __init__(
+        self,
+        constructor_args=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        Dx12ConsumerHeaderGeneratorOptions.__init__(
+            self, constructor_args, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
 
 
 class Dx12ReplayConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
