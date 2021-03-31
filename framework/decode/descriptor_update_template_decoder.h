@@ -81,19 +81,23 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t Decode(const uint8_t* buffer, size_t buffer_size);
 
   private:
-    uint8_t*                        template_memory_{ nullptr };
-    Decoded_VkDescriptorImageInfo*  decoded_image_info_{ nullptr };
-    Decoded_VkDescriptorBufferInfo* decoded_buffer_info_{ nullptr };
-    format::HandleId*               decoded_texel_buffer_view_handle_ids_{ nullptr };
-    format::HandleId*               decoded_acceleration_structure_khr_handle_ids_{ nullptr };
+    uint8_t* template_memory_;
+
+    Decoded_VkDescriptorImageInfo*  decoded_image_info_;
+    Decoded_VkDescriptorBufferInfo* decoded_buffer_info_;
+    format::HandleId*               decoded_texel_buffer_view_handle_ids_;
     size_t                          image_info_count_;
     size_t                          buffer_info_count_;
     size_t                          texel_buffer_view_count_;
-    size_t                          acceleration_structure_khr_count_;
     VkDescriptorImageInfo*          image_info_;
     VkDescriptorBufferInfo*         buffer_info_;
     VkBufferView*                   texel_buffer_views_;
-    VkAccelerationStructureKHR*     acceleration_structures_khr_;
+
+    // The decode data buffer may not contain data for these fields, depending on whether they were used by the captured
+    // application.
+    format::HandleId*           decoded_acceleration_structure_khr_handle_ids_;
+    size_t                      acceleration_structure_khr_count_;
+    VkAccelerationStructureKHR* acceleration_structures_khr_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

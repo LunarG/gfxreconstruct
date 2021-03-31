@@ -124,12 +124,13 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
 
         // The update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
         // VkDescriptorBufferInfo, VkBufferView, and VkAccelerationStructureKHR types.  There will be one array per
-        // descriptor update entry.  We will write the total number of entries of each type before we write the entries,
-        // so that the decoder will know up front how much memory it needs to allocate for decoding.
+        // descriptor update entry.  For the required entries, we will write the total number of entries of each type
+        // before we write the entries, so that the decoder will know up front how much memory it needs to allocate for
+        // decoding. Optional entries must be encoded after the required entries, and must encode the number of elements
+        // in the array as well as VkDescriptorType.
         encoder->EncodeSizeTValue(info->image_info_count);
         encoder->EncodeSizeTValue(info->buffer_info_count);
         encoder->EncodeSizeTValue(info->texel_buffer_view_count);
-        encoder->EncodeSizeTValue(info->acceleration_structure_khr_count);
 
         // Write the individual template update entries, sorted by type, as tightly packed arrays.
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
@@ -166,15 +167,21 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
             }
         }
 
-        // Process VkAccelerationStructureKHR
-        for (const auto& entry_info : info->acceleration_structure_khr)
+        // Process VkAccelerationStructureKHR. This data is optional in the capture file, and must come after the
+        // required entries. Data is only written to the capture file if info->acceleration_structure_khr_count > 0.
+        if (info->acceleration_structure_khr_count > 0)
         {
-            for (size_t i = 0; i < entry_info.count; ++i)
+            encoder->EncodeSizeTValue(info->acceleration_structure_khr_count);
+            encoder->EncodeEnumValue(VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
+            for (const auto& entry_info : info->acceleration_structure_khr)
             {
-                size_t                            offset = entry_info.offset + (entry_info.stride * i);
-                const VkAccelerationStructureKHR* entry =
-                    reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
-                encoder->EncodeHandleValue(*entry);
+                for (size_t i = 0; i < entry_info.count; ++i)
+                {
+                    size_t                            offset = entry_info.offset + (entry_info.stride * i);
+                    const VkAccelerationStructureKHR* entry =
+                        reinterpret_cast<const VkAccelerationStructureKHR*>(bytes + offset);
+                    encoder->EncodeHandleValue(*entry);
+                }
             }
         }
     }
