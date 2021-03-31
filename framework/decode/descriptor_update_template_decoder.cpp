@@ -35,7 +35,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DescriptorUpdateTemplateDecoder::DescriptorUpdateTemplateDecoder() : texel_buffer_views_(nullptr) {}
+DescriptorUpdateTemplateDecoder::DescriptorUpdateTemplateDecoder() :
+    template_memory_(nullptr), decoded_image_info_(nullptr), decoded_buffer_info_(nullptr),
+    decoded_texel_buffer_view_handle_ids_(nullptr), image_info_count_(0), buffer_info_count_(0),
+    texel_buffer_view_count_(0), image_info_(nullptr), buffer_info_(nullptr), texel_buffer_views_(nullptr),
+    decoded_acceleration_structure_khr_handle_ids_(nullptr), acceleration_structure_khr_count_(0),
+    acceleration_structures_khr_(nullptr)
+{}
 
 DescriptorUpdateTemplateDecoder::~DescriptorUpdateTemplateDecoder() {}
 
@@ -56,14 +62,10 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
             ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &buffer_info_count_);
         bytes_read += ValueDecoder::DecodeSizeTValue(
             (buffer + bytes_read), (buffer_size - bytes_read), &texel_buffer_view_count_);
-        bytes_read += ValueDecoder::DecodeSizeTValue(
-            (buffer + bytes_read), (buffer_size - bytes_read), &acceleration_structure_khr_count_);
 
         size_t buffer_info_offset       = image_info_count_ * sizeof(VkDescriptorImageInfo);
         size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count_ * sizeof(VkDescriptorBufferInfo));
-        size_t accel_struct_offset      = texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
-        size_t total_size =
-            accel_struct_offset + (acceleration_structure_khr_count_ * sizeof(VkAccelerationStructureKHR));
+        size_t total_size               = texel_buffer_view_offset + (texel_buffer_view_count_ * sizeof(VkBufferView));
 
         assert(template_memory_ == nullptr);
         template_memory_ = DecodeAllocator::Allocate<uint8_t>(total_size);
@@ -99,24 +101,62 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
             decoded_texel_buffer_view_handle_ids_ =
                 DecodeAllocator::Allocate<format::HandleId>(texel_buffer_view_count_);
 
-            ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
-                                              (buffer_size - bytes_read),
-                                              decoded_texel_buffer_view_handle_ids_,
-                                              texel_buffer_view_count_);
+            bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
+                                                            (buffer_size - bytes_read),
+                                                            decoded_texel_buffer_view_handle_ids_,
+                                                            texel_buffer_view_count_);
         }
 
-        if (acceleration_structure_khr_count_ > 0)
+        // While there are remaining unread bytes in the buffer, decode the descriptor types which are optional in the
+        // capture file.
+        while (bytes_read < buffer_size)
         {
-            acceleration_structures_khr_ =
-                reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + accel_struct_offset);
-            decoded_acceleration_structure_khr_handle_ids_ =
-                DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
+            size_t struct_count = 0;
+            size_t current_size = total_size;
+            bytes_read +=
+                ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &struct_count);
+            if (struct_count > 0)
+            {
+                VkDescriptorType descriptor_type;
+                bytes_read +=
+                    ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &descriptor_type);
+                if (descriptor_type == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR)
+                {
+                    acceleration_structure_khr_count_ = struct_count;
+                    total_size =
+                        current_size + (acceleration_structure_khr_count_ * sizeof(VkAccelerationStructureKHR));
 
-            ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
-                                              (buffer_size - bytes_read),
-                                              decoded_acceleration_structure_khr_handle_ids_,
-                                              acceleration_structure_khr_count_);
+                    // Increase size of template_memory_ to hold these new descriptor structs.
+                    uint8_t* current_template_memory = template_memory_;
+                    template_memory_                 = DecodeAllocator::Allocate<uint8_t>(total_size);
+                    if (current_size > 0)
+                    {
+                        util::platform::MemoryCopy(template_memory_, total_size, current_template_memory, current_size);
+                    }
+
+                    acceleration_structures_khr_ =
+                        reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + current_size);
+                    decoded_acceleration_structure_khr_handle_ids_ =
+                        DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
+
+                    bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
+                                                                    (buffer_size - bytes_read),
+                                                                    decoded_acceleration_structure_khr_handle_ids_,
+                                                                    acceleration_structure_khr_count_);
+                }
+                else
+                {
+                    // If descriptor_type is not recognized, it is possible the capture file was created with a newer
+                    // version of the capture layer that had support for additional optional descriptor types. Display a
+                    // warning and exit the processing loop.
+                    GFXRECON_LOG_WARNING("Unrecognized VkDescriptorType %d found when decoding data for descriptor "
+                                         "update with template.",
+                                         static_cast<int>(descriptor_type));
+                    break;
+                }
+            }
         }
+        assert(bytes_read <= buffer_size);
     }
 
     return bytes_read;
