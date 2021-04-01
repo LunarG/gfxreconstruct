@@ -27,6 +27,10 @@
 #include "format/format.h"
 #include "util/defines.h"
 
+#include <d3d12.h>
+
+#include <array>
+#include <memory>
 #include <Unknwn.h>
 #include <unordered_map>
 
@@ -37,10 +41,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Structures for storing DirectX object info.
 //
 
+typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
+
 enum class DxObjectInfoType : uint32_t
 {
     kUnused = 0,
     kIDxgiSwapchainInfo,
+    kID3D12DeviceInfo,
+    kID3D12DescriptorHeapInfo,
     kID3D12ResourceInfo
 };
 
@@ -63,6 +71,29 @@ struct DxObjectInfo
 struct DxgiSwapchainInfo
 {
     Window* window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
+};
+
+struct D3D12DeviceInfo
+{
+    std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
+    std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
+};
+
+struct D3D12DescriptorHeapInfo
+{
+    std::shared_ptr<DescriptorIncrements> capture_increments;
+    std::shared_ptr<DescriptorIncrements> replay_increments;
+
+    D3D12_DESCRIPTOR_HEAP_TYPE descriptor_type{};
+    uint32_t                   descriptor_count{ 0 };
+
+    size_t   capture_cpu_addr_begin{ 0 };
+    size_t   capture_cpu_addr_end{ 0 };
+    uint64_t capture_gpu_addr_begin{ 0 };
+    uint64_t capture_gpu_addr_end{ 0 };
+
+    size_t   replay_cpu_addr_begin{ 0 };
+    uint64_t replay_gpu_addr_begin{ 0 };
 };
 
 struct D3D12ResourceInfo

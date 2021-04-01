@@ -208,17 +208,18 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppDevice)
 {
-    auto in_pAdapter = MapObject<IUnknown>(pAdapter);
+    auto in_pAdapter = GetObjectInfo(pAdapter);
     if(!ppDevice->IsNull()) ppDevice->SetHandleLength(1);
-    auto out_p_ppDevice    = ppDevice->GetPointer();
-    auto out_hp_ppDevice   = ppDevice->GetHandlePointer();
-    auto replay_result = D3D12CreateDevice(in_pAdapter,
-                                           MinimumFeatureLevel,
-                                           *riid.decoded_value,
-                                           out_hp_ppDevice);
+    DxObjectInfo object_info{};
+    ppDevice->SetConsumerData(0, &object_info);
+    auto replay_result = OverrideD3D12CreateDevice(returnValue,
+                                                   in_pAdapter,
+                                                   MinimumFeatureLevel,
+                                                   riid,
+                                                   ppDevice);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppDevice, out_hp_ppDevice);
+        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
     }
     CheckReplayResult("D3D12CreateDevice", returnValue, replay_result);
 }
@@ -3028,10 +3029,11 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForH
     format::HandleId                            object_id,
     Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         returnValue)
 {
-    auto replay_object = MapObject<ID3D12DescriptorHeap>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetCPUDescriptorHandleForHeapStart();
+        auto replay_result = OverrideGetCPUDescriptorHandleForHeapStart(replay_object,
+                                                                        returnValue);
     }
 }
 
@@ -3039,10 +3041,11 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForH
     format::HandleId                            object_id,
     Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         returnValue)
 {
-    auto replay_object = MapObject<ID3D12DescriptorHeap>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetGPUDescriptorHandleForHeapStart();
+        auto replay_result = OverrideGetGPUDescriptorHandleForHeapStart(replay_object,
+                                                                        returnValue);
     }
 }
 
@@ -4323,18 +4326,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
-        auto out_p_ppvHeap    = ppvHeap->GetPointer();
-        auto out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
-        auto replay_result = replay_object->CreateDescriptorHeap(pDescriptorHeapDesc->GetPointer(),
-                                                                 *riid.decoded_value,
-                                                                 out_hp_ppvHeap);
+        DxObjectInfo object_info{};
+        ppvHeap->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateDescriptorHeap(replay_object,
+                                                          returnValue,
+                                                          pDescriptorHeapDesc,
+                                                          riid,
+                                                          ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("ID3D12Device_CreateDescriptorHeap", returnValue, replay_result);
     }
@@ -4345,10 +4350,12 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     UINT                                        returnValue,
     D3D12_DESCRIPTOR_HEAP_TYPE                  DescriptorHeapType)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetDescriptorHandleIncrementSize(DescriptorHeapType);
+        auto replay_result = OverrideGetDescriptorHandleIncrementSize(replay_object,
+                                                                      returnValue,
+                                                                      DescriptorHeapType);
     }
 }
 

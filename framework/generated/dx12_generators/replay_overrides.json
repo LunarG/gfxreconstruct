@@ -1,10 +1,19 @@
 {
   "functions": {
+    "D3D12CreateDevice" : "OverrideD3D12CreateDevice"
   },
   "classmethods": {
     "IUnknown": {
       "AddRef": "OverrideAddRef",
       "Release": "OverrideRelease"
+    },
+    "ID3D12Device": {
+      "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",
+      "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
+    },
+    "ID3D12DescriptorHeap": {
+      "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",
+      "GetGPUDescriptorHandleForHeapStart": "OverrideGetGPUDescriptorHandleForHeapStart"
     },
     "ID3D12Resource": {
       "Map": "OverrideResourceMap",

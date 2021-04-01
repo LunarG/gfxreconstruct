@@ -80,6 +80,16 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
 
                 delete resource_info;
             }
+            else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
+            {
+                auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info->extra_info);
+                delete heap_info;
+            }
+            else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
+            {
+                auto device_info = reinterpret_cast<D3D12DeviceInfo*>(info->extra_info);
+                delete device_info;
+            }
             else if (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
             {
                 auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
@@ -153,36 +163,29 @@ void Dx12ReplayConsumerBase::PostProcessExternalObject(
 
 ULONG Dx12ReplayConsumerBase::OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result)
 {
-    if ((replay_object_info != nullptr) && (replay_object_info->object != nullptr))
-    {
-        auto object = replay_object_info->object;
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
 
-        ++(replay_object_info->ref_count);
+    auto object = replay_object_info->object;
 
-        return object->AddRef();
-    }
+    ++(replay_object_info->ref_count);
 
-    return 0;
+    return object->AddRef();
 }
 
 ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, ULONG original_result)
 {
-    if ((replay_object_info != nullptr) && (replay_object_info->object != nullptr))
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (replay_object_info->ref_count > 0));
+
+    auto object = replay_object_info->object;
+
+    --(replay_object_info->ref_count);
+    if (replay_object_info->ref_count == 0)
     {
-        assert(replay_object_info->ref_count > 0);
-
-        auto object = replay_object_info->object;
-
-        --(replay_object_info->ref_count);
-        if (replay_object_info->ref_count == 0)
-        {
-            RemoveObject(replay_object_info);
-        }
-
-        return object->Release();
+        RemoveObject(replay_object_info);
     }
 
-    return 0;
+    return object->Release();
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
@@ -292,6 +295,157 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChainForComposition(DxObjectInfo* repl
 {
     return CreateSwapChainForHwnd(
         replay_object_info, original_result, device_info, 0, desc, nullptr, restrict_to_output_info, swapchain);
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT                      original_result,
+                                                          DxObjectInfo*                adapter_info,
+                                                          D3D_FEATURE_LEVEL            minimum_feature_level,
+                                                          Decoded_GUID                 riid,
+                                                          HandlePointerDecoder<void*>* device)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert(device != nullptr);
+
+    IUnknown* adapter = nullptr;
+    if (adapter_info != nullptr)
+    {
+        adapter = adapter_info->object;
+    }
+
+    auto replay_result =
+        D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !device->IsNull())
+    {
+        auto object_info = reinterpret_cast<DxObjectInfo*>(device->GetConsumerData(0));
+        assert(object_info != nullptr);
+
+        object_info->extra_info_type = DxObjectInfoType::kID3D12DeviceInfo;
+        object_info->extra_info      = new D3D12DeviceInfo;
+    }
+
+    return replay_result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object_info,
+                                                     HRESULT       original_result,
+                                                     StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* desc,
+                                                     Decoded_GUID                                              riid,
+                                                     HandlePointerDecoder<void*>*                              heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (desc != nullptr) &&
+           (heap != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto desc_pointer  = desc->GetPointer();
+
+    auto replay_result =
+        replay_object->CreateDescriptorHeap(desc_pointer, *riid.decoded_value, heap->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && (desc_pointer != nullptr))
+    {
+        auto heap_info              = new D3D12DescriptorHeapInfo;
+        heap_info->descriptor_type  = desc_pointer->Type;
+        heap_info->descriptor_count = desc_pointer->NumDescriptors;
+
+        if ((replay_object_info->extra_info != nullptr) &&
+            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo))
+        {
+            auto device_info              = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info);
+            heap_info->capture_increments = device_info->capture_increments;
+            heap_info->replay_increments  = device_info->replay_increments;
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("ID3D12Device object does not have an associated info structure");
+        }
+
+        auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
+        assert(object_info != nullptr);
+
+        object_info->extra_info_type = DxObjectInfoType::kID3D12DescriptorHeapInfo;
+        object_info->extra_info      = heap_info;
+    }
+
+    return replay_result;
+}
+
+UINT Dx12ReplayConsumerBase::OverrideGetDescriptorHandleIncrementSize(DxObjectInfo*              replay_object_info,
+                                                                      UINT                       original_result,
+                                                                      D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto replay_result = replay_object->GetDescriptorHandleIncrementSize(descriptor_heap_type);
+
+    if ((replay_object_info->extra_info != nullptr) &&
+        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo))
+    {
+        auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info);
+        (*device_info->capture_increments)[descriptor_heap_type] = original_result;
+        (*device_info->replay_increments)[descriptor_heap_type]  = replay_result;
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("ID3D12Device object does not have an associated info structure");
+    }
+
+    return replay_result;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE
+Dx12ReplayConsumerBase::OverrideGetCPUDescriptorHandleForHeapStart(
+    DxObjectInfo* replay_object_info, const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& original_result)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12DescriptorHeap*>(replay_object_info->object);
+
+    auto replay_result = replay_object->GetCPUDescriptorHandleForHeapStart();
+
+    if ((replay_object_info->extra_info != nullptr) &&
+        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo))
+    {
+        auto heap_info                    = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info);
+        heap_info->capture_cpu_addr_begin = original_result.decoded_value->ptr;
+        heap_info->replay_cpu_addr_begin  = replay_result.ptr;
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("ID3D12DescriptorHeap object does not have an associated info structure");
+    }
+
+    return replay_result;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE
+Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
+    DxObjectInfo* replay_object_info, const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& original_result)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12DescriptorHeap*>(replay_object_info->object);
+
+    auto replay_result = replay_object->GetGPUDescriptorHandleForHeapStart();
+
+    if ((replay_object_info->extra_info != nullptr) &&
+        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo))
+    {
+        auto heap_info                    = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info);
+        heap_info->capture_gpu_addr_begin = original_result.decoded_value->ptr;
+        heap_info->replay_gpu_addr_begin  = replay_result.ptr;
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("ID3D12DescriptorHeap object does not have an associated info structure");
+    }
+
+    return replay_result;
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*                              replay_object_info,

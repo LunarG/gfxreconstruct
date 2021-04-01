@@ -114,6 +114,30 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                   DxObjectInfo*                           restrict_to_output_info,
                                                   HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
+    HRESULT OverrideD3D12CreateDevice(HRESULT                      original_result,
+                                      DxObjectInfo*                adapter_info,
+                                      D3D_FEATURE_LEVEL            minimum_feature_level,
+                                      Decoded_GUID                 riid,
+                                      HandlePointerDecoder<void*>* device);
+
+    HRESULT OverrideCreateDescriptorHeap(DxObjectInfo*                                             replay_object_info,
+                                         HRESULT                                                   original_result,
+                                         StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* desc,
+                                         Decoded_GUID                                              riid,
+                                         HandlePointerDecoder<void*>*                              heap);
+
+    UINT OverrideGetDescriptorHandleIncrementSize(DxObjectInfo*              replay_object_info,
+                                                  UINT                       original_result,
+                                                  D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE
+    OverrideGetCPUDescriptorHandleForHeapStart(DxObjectInfo*                              replay_object_info,
+                                               const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& original_result);
+
+    D3D12_GPU_DESCRIPTOR_HANDLE
+    OverrideGetGPUDescriptorHandleForHeapStart(DxObjectInfo*                              replay_object_info,
+                                               const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& original_result);
+
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
                                 UINT                                       subresource,
