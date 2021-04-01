@@ -237,6 +237,14 @@ class Dx12ReplayConsumerBodyGenerator(
                     code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
                             .format(value.name)
 
+                    length = '1'
+                    if value.array_length:
+                        if value.array_length[0] is '*':
+                            length = value.array_length + '->GetPointer()'
+                        else:
+                            length = value.array_length
+                    code += '    {}->AllocateOutputData({});\n'.format(value.name, length)
+
                     if value.platform_base_type:
                         code += '    auto out_op_{0}   = reinterpret_cast<{1}*>({0}->GetOutputPointer());\n'\
                                 .format(value.name, value.platform_base_type)

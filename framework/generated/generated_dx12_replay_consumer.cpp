@@ -354,6 +354,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     if (replay_object != nullptr)
     {
         auto out_p_pSharedHandle    = pSharedHandle->GetPointer();
+        pSharedHandle->AllocateOutputData(1);
         auto out_op_pSharedHandle   = reinterpret_cast<HANDLE*>(pSharedHandle->GetOutputPointer());
         auto replay_result = replay_object->GetSharedHandle(out_op_pSharedHandle);
         CheckReplayResult("IDXGIResource_GetSharedHandle", returnValue, replay_result);
@@ -478,6 +479,7 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     if (replay_object != nullptr)
     {
         auto out_p_phdc    = phdc->GetPointer();
+        phdc->AllocateOutputData(1);
         auto out_op_phdc   = reinterpret_cast<HDC*>(phdc->GetOutputPointer());
         auto replay_result = replay_object->GetDC(Discard,
                                                   out_op_phdc);
@@ -934,6 +936,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     if (replay_object != nullptr)
     {
         auto out_p_pWindowHandle    = pWindowHandle->GetPointer();
+        pWindowHandle->AllocateOutputData(1);
         auto out_op_pWindowHandle   = reinterpret_cast<HWND*>(pWindowHandle->GetOutputPointer());
         auto replay_result = replay_object->GetWindowAssociation(out_op_pWindowHandle);
         CheckReplayResult("IDXGIFactory_GetWindowAssociation", returnValue, replay_result);
@@ -1360,6 +1363,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     if (replay_object != nullptr)
     {
         auto out_p_pHandle    = pHandle->GetPointer();
+        pHandle->AllocateOutputData(1);
         auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(pAttributes->GetPointer(),
                                                                dwAccess,
@@ -1455,6 +1459,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     if (replay_object != nullptr)
     {
         auto out_p_pHwnd    = pHwnd->GetPointer();
+        pHwnd->AllocateOutputData(1);
         auto out_op_pHwnd   = reinterpret_cast<HWND*>(pHwnd->GetOutputPointer());
         auto replay_result = replay_object->GetHwnd(out_op_pHwnd);
         CheckReplayResult("IDXGISwapChain1_GetHwnd", returnValue, replay_result);
@@ -4665,6 +4670,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     {
         auto in_pObject = MapObject<ID3D12DeviceChild>(pObject);
         auto out_p_pHandle    = pHandle->GetPointer();
+        pHandle->AllocateOutputData(1);
         auto out_op_pHandle   = reinterpret_cast<HANDLE*>(pHandle->GetOutputPointer());
         auto replay_result = replay_object->CreateSharedHandle(in_pObject,
                                                                pAttributes->GetPointer(),
@@ -4712,6 +4718,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     if (replay_object != nullptr)
     {
         auto out_p_pNTHandle    = pNTHandle->GetPointer();
+        pNTHandle->AllocateOutputData(1);
         auto out_op_pNTHandle   = reinterpret_cast<HANDLE*>(pNTHandle->GetOutputPointer());
         auto replay_result = replay_object->OpenSharedHandleByName(Name->GetPointer(),
                                                                    Access,
