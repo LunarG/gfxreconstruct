@@ -29,6 +29,7 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -40,11 +41,19 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
   public:
     Dx12ReplayConsumerBase(WindowFactory* window_factory);
 
-    virtual ~Dx12ReplayConsumerBase();
+    virtual ~Dx12ReplayConsumerBase() override;
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data);
 
   protected:
+    void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle);
+
+    void MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+
+    void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
+
+    void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -197,10 +206,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void DestroyActiveWindows();
 
   private:
-    Dx12ObjectInfoTable                 object_info_table_;
-    WindowFactory*                      window_factory_;
-    std::unordered_set<Window*>         active_windows_;
-    std::unordered_map<uint64_t, void*> mapped_memory_;
+    Dx12ObjectInfoTable                          object_info_table_;
+    WindowFactory*                               window_factory_;
+    std::unordered_set<Window*>                  active_windows_;
+    std::unordered_map<uint64_t, void*>          mapped_memory_;
+    std::map<size_t, D3D12DescriptorHeapInfo*, std::greater<size_t>>     descriptor_cpu_addresses_;
+    std::map<uint64_t, D3D12DescriptorHeapInfo*, std::greater<uint64_t>> descriptor_gpu_addresses_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
