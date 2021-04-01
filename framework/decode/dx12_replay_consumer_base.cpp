@@ -48,8 +48,12 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
     if (entry != mapped_memory_.end())
     {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+        auto copy_size      = static_cast<size_t>(size);
         auto mapped_pointer = reinterpret_cast<uint8_t*>(entry->second) + offset;
-        util::platform::MemoryCopy(mapped_pointer, size, data, size);
+
+        util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
     }
     else
     {
