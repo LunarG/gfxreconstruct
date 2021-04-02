@@ -245,7 +245,8 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
 
             if (SUCCEEDED(result))
             {
-                SetSwapchainInfoWindow(replay_object_info, window);
+                auto object_info = reinterpret_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+                SetSwapchainInfoWindow(object_info, window);
             }
             else
             {
@@ -461,7 +462,8 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 
             if (SUCCEEDED(result))
             {
-                SetSwapchainInfoWindow(replay_object_info, window);
+                auto object_info = reinterpret_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+                SetSwapchainInfoWindow(object_info, window);
             }
             else
             {
