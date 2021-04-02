@@ -16,6 +16,7 @@
       "GetGPUDescriptorHandleForHeapStart": "OverrideGetGPUDescriptorHandleForHeapStart"
     },
     "ID3D12Resource": {
+      "GetGPUVirtualAddress": "OverrideGetGpuVirtualAddress",
       "Map": "OverrideResourceMap",
       "Unmap": "OverrideResourceUnmap",
       "ReadFromSubresource": "OverrideReadFromSubresource",

@@ -28,6 +28,7 @@
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
+#include "util/gpu_va_map.h"
 
 #include <map>
 #include <unordered_map>
@@ -53,6 +54,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
     void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+
+    void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
+
+    void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len);
 
     template <typename T>
     T* MapObject(const format::HandleId id)
@@ -147,6 +152,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     OverrideGetGPUDescriptorHandleForHeapStart(DxObjectInfo*                              replay_object_info,
                                                const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& original_result);
 
+    D3D12_GPU_VIRTUAL_ADDRESS OverrideGetGpuVirtualAddress(DxObjectInfo*             replay_object_info,
+                                                           D3D12_GPU_VIRTUAL_ADDRESS original_result);
+
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
                                 UINT                                       subresource,
@@ -212,6 +220,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>          mapped_memory_;
     std::map<size_t, D3D12DescriptorHeapInfo*, std::greater<size_t>>     descriptor_cpu_addresses_;
     std::map<uint64_t, D3D12DescriptorHeapInfo*, std::greater<uint64_t>> descriptor_gpu_addresses_;
+    util::GpuVaMap                                                       gpu_va_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

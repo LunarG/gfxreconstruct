@@ -2863,10 +2863,11 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     format::HandleId                            object_id,
     D3D12_GPU_VIRTUAL_ADDRESS                   returnValue)
 {
-    auto replay_object = MapObject<ID3D12Resource>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetGPUVirtualAddress();
+        auto replay_result = OverrideGetGpuVirtualAddress(replay_object,
+                                                          returnValue);
     }
 }
 

@@ -99,6 +99,8 @@ struct D3D12DescriptorHeapInfo
 struct D3D12ResourceInfo
 {
     std::unordered_map<uint32_t, MappedMemoryInfo> mapped_memory_info; ///< Map subresource index to mapped memory info.
+    uint64_t                                       capture_address_{ 0 }; ///< Capture GPU VA.
+    uint64_t                                       replay_address_{ 0 };  ///< Replay GPU VA.
 };
 
 GFXRECON_END_NAMESPACE(decode)

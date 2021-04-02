@@ -182,6 +182,19 @@ void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE
     }
 }
 
+void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
+{
+    address = gpu_va_map_.GetReplayGpuVa(address);
+}
+
+void Dx12ReplayConsumerBase::MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len)
+{
+    for (size_t i = 0; i < addresses_len; ++i)
+    {
+        MapGpuVirtualAddress(addresses[i]);
+    }
+}
+
 void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
 {
     if (info != nullptr)
@@ -191,6 +204,11 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
             if (info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
             {
                 auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(info->extra_info);
+
+                if (resource_info->capture_address_ != 0)
+                {
+                    gpu_va_map_.Remove(static_cast<ID3D12Resource*>(info->object));
+                }
 
                 for (const auto& entry : resource_info->mapped_memory_info)
                 {
@@ -579,6 +597,44 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
     else
     {
         GFXRECON_LOG_FATAL("ID3D12DescriptorHeap object does not have an associated info structure");
+    }
+
+    return replay_result;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS
+Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             replay_object_info,
+                                                     D3D12_GPU_VIRTUAL_ADDRESS original_result)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12Resource*>(replay_object_info->object);
+
+    auto replay_result = replay_object->GetGPUVirtualAddress();
+
+    if ((original_result != 0) && (replay_result != 0))
+    {
+        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info);
+
+        if (resource_info == nullptr)
+        {
+            resource_info = new D3D12ResourceInfo;
+
+            replay_object_info->extra_info_type = DxObjectInfoType::kID3D12ResourceInfo;
+            replay_object_info->extra_info      = resource_info;
+        }
+
+        assert(replay_object_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
+
+        // Only initialize on the first call.
+        if (resource_info->capture_address_ == 0)
+        {
+            resource_info->capture_address_ = original_result;
+            resource_info->replay_address_  = replay_result;
+
+            auto desc = replay_object->GetDesc();
+            gpu_va_map_.Add(replay_object, original_result, replay_result, &desc);
+        }
     }
 
     return replay_result;
