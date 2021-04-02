@@ -74,7 +74,7 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for k2, v2 in v.classes.items():
-                if (v2['declaration_method'] == 'class')\
+                if self.is_required_class_data(v2)\
                    and (v2['name'] != 'IUnknown'):
                     # Track class names
                     class_name = v2['name']

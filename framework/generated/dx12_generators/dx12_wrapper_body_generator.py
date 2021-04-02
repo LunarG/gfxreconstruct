@@ -50,6 +50,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # Unique set of names of all class names specified as base classes.
         self.class_parent_names = []
 
+        self.structs_with_wrap_objects = set()
+
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
@@ -57,7 +59,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for k2, v2 in v.classes.items():
-                if (v2['declaration_method'] == 'class')\
+                if self.is_required_class_data(v2)\
                    and (v2['name'] != 'IUnknown'):
                     # Track class names
                     class_name = v2['name']
@@ -101,21 +103,21 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     break
 
         header_dict = self.source_dict['header_dict']
+        self.collect_struct_with_wrap_objects(header_dict)
         for k, v in header_dict.items():
             self.newline()
             write(self.dx12_prefix_strings.format(k), file=self.outFile)
             self.newline()
 
             for m in v.functions:
-                if m['parent'] is None and m['name'][:7] != 'DEFINE_'\
-                   and m['name'][:8] != 'DECLARE_'\
-                   and m['name'] != 'InlineIsEqualGUID'\
-                   and m['name'] != 'IsEqualGUID'\
-                   and m['name'][:8] != 'operator':
+                if self.is_required_function_data(m):
                     self.write_function_def(m)
 
             for k2, v2 in v.classes.items():
-                if (v2['declaration_method'] == 'class')\
+                if k2 in self.structs_with_wrap_objects:
+                    self.write_struct_member_def(k2, v2['properties'])
+
+                if self.is_required_class_data(v2)\
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_member_def(v2)
 
@@ -205,11 +207,20 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def get_object_creation_params(self, param_info):
         refiid_value = None
         create_values = []
+        create_wrap_struct = []
 
         # Check for pairs of parameters with REFIID and void** types or a
         # parameter with a non-const double pointer class type.
         for param in param_info:
             value = self.get_value_info(param)
+
+            if (value.base_type != 'LARGE_INTEGER') and self.is_struct(
+                value.base_type
+            ) and (value.full_type.find('_Out_') != -1):
+                if value.base_type in self.structs_with_wrap_objects:
+                    create_wrap_struct.append(value)
+
+            data = []
             if not refiid_value:
                 if value.base_type == 'GUID':
                     refiid_value = value
@@ -236,7 +247,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     )
                 refiid_value = None
 
-        return create_values
+        return create_values, create_wrap_struct
 
     # Check for input parameters that need to be unwrapped.
     def get_wrapped_object_params(self, param_info):
@@ -255,16 +266,18 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
     def gen_wrap_object(self, return_type, param_info, indent):
         expr = ''
-        params = self.get_object_creation_params(param_info)
+        params_wrap_obejct, params_wrap_struct = self.get_object_creation_params(
+            param_info
+        )
 
-        if params:
+        if params_wrap_obejct or params_wrap_struct:
             expr += '\n'
             if return_type == 'HRESULT':
                 expr += indent + 'if (SUCCEEDED(result))\n'
                 expr += indent + '{\n'
                 indent = self.increment_indent(indent)
 
-            for tuple in params:
+            for tuple in params_wrap_obejct:
                 if not tuple[2]:
                     expr += indent + 'WrapObject({}, {}, nullptr);\n'.format(
                         tuple[0], tuple[1]
@@ -273,6 +286,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     expr += indent + 'WrapObjectArray({}, {}, {}, nullptr);\n'.format(
                         tuple[0], tuple[1], tuple[2]
                     )
+
+            for value in params_wrap_struct:
+                if value.pointer_count == 2:
+                    expr += indent + 'WrapStruct(*{});\n'.format(value.name)
+                else:
+                    expr += indent + 'WrapStruct({});\n'.format(value.name)
 
             if return_type == 'HRESULT':
                 indent = self.decrement_indent(indent)
@@ -644,6 +663,54 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '}\n'
 
             write(expr, file=self.outFile)
+
+    def collect_struct_with_wrap_objects(self, header_dict):
+        for k, v in header_dict.items():
+            for k2, v2 in v.classes.items():
+                if self.is_required_struct_data(k2, v2):
+                    for k, v in v2['properties'].items():
+                        for p in v:
+                            value = self.get_value_info(p)
+
+                            if (
+                                self.is_struct(value.base_type) and
+                                (value.full_type.find('_Out_') != -1) and (
+                                    value.base_type
+                                    in self.structs_with_wrap_objects
+                                )
+                            ) or (self.is_class(value)):
+                                self.structs_with_wrap_objects.add(k2)
+
+    def write_struct_member_def(self, name, properties):
+        expr = 'void WrapStruct(const {}* value)\n'.format(name)
+        expr += '{\n'
+
+        for k, v in properties.items():
+            for p in v:
+                value = self.get_value_info(p)
+
+                if self.is_struct(value.base_type) and (
+                    value.full_type.find('_Out_') != -1
+                ) and (value.base_type in self.structs_with_wrap_objects):
+                    expr += '    if(value->{0})\n'\
+                            '    {{\n'\
+                            '        WrapStruct(value->{0});\n'\
+                            '    }}\n'.format(value.name)
+
+                elif self.is_class(value):
+                    if value.is_const:
+                        expr += '    if(value->{1})\n'\
+                                '    {{\n'\
+                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(&const_cast<{0}*>(value->{1})), nullptr);\n'\
+                                '    }}\n'.format(value.base_type, value.name)
+                    else:
+                        expr += '    if(value->{1})\n'\
+                                '    {{\n'\
+                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(value->{1}), nullptr);\n'\
+                                '    }}\n'.format(value.base_type, value.name)
+
+        expr += '}\n'
+        write(expr, file=self.outFile)
 
     def make_param_decl_list(self, param_info, indent='    '):
         space_index = 0
