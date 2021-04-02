@@ -232,43 +232,50 @@ class Dx12ReplayConsumerBodyGenerator(
                             )
                         arg_list.append('in_{}'.format(value.name))
 
-            elif is_extenal_object and not is_override:
+            elif is_extenal_object:
                 if is_output:
-                    code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
-                            .format(value.name)
-
-                    length = '1'
-                    if value.array_length:
-                        if value.array_length[0] is '*':
-                            length = value.array_length + '->GetPointer()'
-                        else:
-                            length = value.array_length
-                    code += '    {}->AllocateOutputData({});\n'.format(value.name, length)
-
-                    if value.platform_base_type:
-                        code += '    auto out_op_{0}   = reinterpret_cast<{1}*>({0}->GetOutputPointer());\n'\
-                                .format(value.name, value.platform_base_type)
-                    else:
-                        code += '    auto out_op_{0}   = {0}->GetOutputPointer();\n'\
-                                .format(value.name)
+                    if value.full_type != '_Out_ void *':
+                        length = '1'
+                        if value.array_length:
+                            if value.array_length[0] is '*':
+                                length = value.array_length + '->GetPointer()'
+                            else:
+                                length = value.array_length
+                        code += '    {}->AllocateOutputData({});\n'.format(
+                            value.name, length
+                        )
 
                     if is_override:
                         arg_list.append(value.name)
-                    else:
-                        arg_list.append('out_op_{}'.format(value.name))
 
-                    post_extenal_object_list.append(
-                        'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
-                        .format(value.name, name)
-                    )
-                else:
-                    if value.platform_base_type:
-                        code += '    auto in_{0} = static_cast<{2}>(PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
-                                .format(value.name, name, value.platform_base_type)
                     else:
-                        code += '    auto in_{0} = PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'\
-                                .format(value.name, name)
-                    arg_list.append('in_{}'.format(value.name))
+                        code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
+                            .format(value.name)
+
+                        if value.platform_base_type:
+                            code += '    auto out_op_{0}   = reinterpret_cast<{1}*>({0}->GetOutputPointer());\n'\
+                                    .format(value.name, value.platform_base_type)
+                        else:
+                            code += '    auto out_op_{0}   = {0}->GetOutputPointer();\n'\
+                                    .format(value.name)
+
+                        arg_list.append('out_op_{}'.format(value.name))
+                        post_extenal_object_list.append(
+                            'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                            .format(value.name, name)
+                        )
+
+                else:
+                    if is_override:
+                        arg_list.append(value.name)
+                    else:
+                        if value.platform_base_type:
+                            code += '    auto in_{0} = static_cast<{2}>(PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
+                                    .format(value.name, name, value.platform_base_type)
+                        else:
+                            code += '    auto in_{0} = PreProcessExternalObject({0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'\
+                                    .format(value.name, name)
+                        arg_list.append('in_{}'.format(value.name))
 
             elif (value.base_type in self.structs_with_handles
                   ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
