@@ -43,8 +43,6 @@ void MapStructObjects(Decoded_D3D12_RESOURCE_ALIASING_BARRIER* wrapper, const Dx
 
 void MapStructObjects(Decoded_D3D12_RESOURCE_UAV_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
-void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
 void MapStructObjects(Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
 void MapStructObjects(Decoded_D3D12_LOCAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table);
@@ -55,21 +53,13 @@ void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE* wrapper, const Dx12Obj
 
 void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
 void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
-void MapStructObjects(Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
-void MapStructObjects(Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
-void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* wrapper, const Dx12ObjectInfoTable& object_info_table);
-
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* wrapper, const Dx12ObjectInfoTable& object_info_table);
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
 template <typename T>
 void MapStructArrayObjects(T* structs, size_t len, const Dx12ObjectInfoTable& object_info_table)

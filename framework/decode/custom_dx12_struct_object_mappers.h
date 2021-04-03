@@ -20,23 +20,26 @@
 ** IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_UNWRAPPERS_H
-#define GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_UNWRAPPERS_H
+#ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_OBJECT_MAPPERS_H
+#define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_OBJECT_MAPPERS_H
 
-#include "encode/handle_unwrap_memory.h"
+#include "decode/custom_dx12_struct_decoders_forward.h"
+#include "decode/dx12_object_mapping_util.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Structs with anonymous union members.
-void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
+void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
-void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory* unwrap_memory);
+void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12ObjectInfoTable& object_info_table);
 
-GFXRECON_END_NAMESPACE(encode)
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper, const Dx12ObjectInfoTable& object_info_table);
+
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_UNWRAPPERS_H
+#endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_OBJECT_MAPPERS_H

@@ -28,6 +28,7 @@
 #include "generated/generated_dx12_struct_object_mappers.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
+#include "decode/custom_dx12_struct_object_mappers.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "generated/generated_dx12_struct_decoders.h"
@@ -106,16 +107,6 @@ void MapStructObjects(Decoded_D3D12_RESOURCE_UAV_BARRIER* wrapper, const Dx12Obj
     }
 }
 
-void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        D3D12_TEXTURE_COPY_LOCATION* value = wrapper->decoded_value;
-
-        value->pResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pResource, object_info_table);
-    }
-}
-
 void MapStructObjects(Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -170,14 +161,6 @@ void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE1* wrapper, const Dx12Ob
     }
 }
 
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayObjects<Decoded_D3D12_AUTO_BREADCRUMB_NODE>(wrapper->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
 void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -185,50 +168,6 @@ void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12Ob
         D3D12_DRED_ALLOCATION_NODE1* value = wrapper->decoded_value;
 
         value->pObject = object_mapping::MapObject<IUnknown>(wrapper->pObject, object_info_table);
-    }
-}
-
-void MapStructObjects(Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayObjects<Decoded_D3D12_AUTO_BREADCRUMB_NODE>(wrapper->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
-void MapStructObjects(Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayObjects<Decoded_D3D12_AUTO_BREADCRUMB_NODE1>(wrapper->pHeadAutoBreadcrumbNode->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
-void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructArrayObjects<Decoded_D3D12_DRED_ALLOCATION_NODE1>(wrapper->pHeadExistingAllocationNode->GetMetaStructPointer(), 1, object_info_table);
-
-        MapStructArrayObjects<Decoded_D3D12_DRED_ALLOCATION_NODE1>(wrapper->pHeadRecentFreedAllocationNode->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructObjects(wrapper->AutoBreadcrumbsOutput, object_info_table);
-    }
-}
-
-void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* wrapper, const Dx12ObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        MapStructObjects(wrapper->AutoBreadcrumbsOutput, object_info_table);
-
-        MapStructObjects(wrapper->PageFaultOutput, object_info_table);
     }
 }
 
@@ -241,6 +180,24 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS
         value->pSrcResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pSrcResource, object_info_table);
 
         value->pDstResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pDstResource, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->EndingAccess, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->DepthEndingAccess, object_info_table);
+
+        MapStructObjects(wrapper->StencilEndingAccess, object_info_table);
     }
 }
 

@@ -748,7 +748,7 @@ class BaseGenerator(OutputGenerator):
         return found_handles, found_handle_ptrs
 
     def check_struct_member_handles(
-        self, typename, structs_with_handles, structs_with_handle_ptrs=None
+        self, typename, structs_with_handles, structs_with_handle_ptrs=None, ignore_output=False
     ):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
@@ -767,7 +767,7 @@ class BaseGenerator(OutputGenerator):
                     has_handle_pointer = True
             elif self.is_struct(
                 value.base_type
-            ) and (value.base_type in structs_with_handles):
+            ) and ((value.base_type in structs_with_handles) and ((not ignore_output) or (not '_Out_' in value.full_type))):
                 # The member is a struct that contains a handle.
                 handles.append(value)
                 if (
@@ -775,6 +775,15 @@ class BaseGenerator(OutputGenerator):
                     and (value.name in structs_with_handle_ptrs)
                 ):
                     has_handle_pointer = True
+            elif 'anon-union' in value.base_type:
+                # Check the anonymous union for objects.
+                for union_info in value.union_members:
+                    if self.is_struct(union_info[1]) and (union_info[1] in structs_with_handles):
+                        handles.append(value)
+                        has_handle_pointer = True
+                    elif union_info[1] in self.source_dict['class_list']:
+                        handles.append(value)
+                        has_handle_pointer = True
             elif ('pNext' in value.name) and (not self.is_dx12_class()):
                 # The pNext chain may include a struct with handles.
                 has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(

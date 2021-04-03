@@ -20,30 +20,31 @@
 ** IN THE SOFTWARE.
 */
 
-#include "encode/custom_dx12_struct_unwrappers.h"
+#include "decode/custom_dx12_struct_object_mappers.h"
 
-#include "encode/dx12_object_wrapper_util.h"
-#include "generated/generated_dx12_struct_unwrappers.h"
-#include "generated/generated_dx12_wrappers.h"
+#include "decode/custom_dx12_struct_decoders.h"
+#include "generated/generated_dx12_struct_object_mappers.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
-void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwrap_memory)
+void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table)
 {
-    if (value != nullptr)
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
+        auto value = wrapper->decoded_value;
+
         switch (value->Type)
         {
             case D3D12_RESOURCE_BARRIER_TYPE_TRANSITION:
-                UnwrapStructObjects(&value->Transition, unwrap_memory);
+                MapStructObjects(wrapper->Transition, object_info_table);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_ALIASING:
-                UnwrapStructObjects(&value->Aliasing, unwrap_memory);
+                MapStructObjects(wrapper->Aliasing, object_info_table);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_UAV:
-                UnwrapStructObjects(&value->UAV, unwrap_memory);
+                MapStructObjects(wrapper->UAV, object_info_table);
                 break;
             default:
                 break;
@@ -51,13 +52,30 @@ void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwr
     }
 }
 
-void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory* unwrap_memory)
+void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12ObjectInfoTable& object_info_table)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
-
-    if (value != nullptr)
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
-        value->pResource = encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResource);
+        auto value = wrapper->decoded_value;
+
+        value->pResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pResource, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper, const Dx12ObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D12_RENDER_PASS_ENDING_ACCESS* value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
+                MapStructObjects(wrapper->Resolve, object_info_table);
+                break;
+            default:
+                break;
+        }
     }
 }
 

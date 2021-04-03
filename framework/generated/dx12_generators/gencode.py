@@ -395,6 +395,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_object_mappers.h',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
@@ -410,6 +411,7 @@ def make_gen_opts(args):
         Dx12GeneratorOptions(
             filename='generated_dx12_struct_object_mappers.cpp',
             directory=directory,
+            blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,

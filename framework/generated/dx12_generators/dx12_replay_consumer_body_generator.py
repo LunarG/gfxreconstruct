@@ -82,9 +82,17 @@ class Dx12ReplayConsumerBodyGenerator(
 
     def write_include(self):
         """Methond override."""
-        write('#include "generated_dx12_replay_consumer.h"', file=self.outFile)
         write(
-            '#include "generated_dx12_struct_object_mappers.h"',
+            '#include "generated/generated_dx12_replay_consumer.h"',
+            file=self.outFile
+        )
+        self.newline()
+        write(
+            '#include "decode/custom_dx12_struct_object_mappers.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
 
@@ -95,7 +103,7 @@ class Dx12ReplayConsumerBodyGenerator(
             for struct_name in self.get_filtered_struct_names():
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
-                    self.structs_with_handle_ptrs
+                    self.structs_with_handle_ptrs, True
                 )
 
     def generate_feature(self):
@@ -280,15 +288,14 @@ class Dx12ReplayConsumerBodyGenerator(
             elif (value.base_type in self.structs_with_handles
                   ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
                 if value.is_array:
-                    print(
-                        'ERROR: It does not deal with array objects, {}, in struct(MapStructArrayObjects).'
-                        .format(value.name)
+                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable());\n'.format(
+                        value.name
                     )
                 else:
                     code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable());\n'.format(
                         value.name
                     )
-                    arg_list.append(value.name + '->GetPointer()')
+                arg_list.append(value.name + '->GetPointer()')
 
             else:
                 if is_override:

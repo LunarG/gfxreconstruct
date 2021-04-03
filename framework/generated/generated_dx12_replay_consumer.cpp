@@ -25,8 +25,10 @@
 **
 */
 
-#include "generated_dx12_replay_consumer.h"
-#include "generated_dx12_struct_object_mappers.h"
+#include "generated/generated_dx12_replay_consumer.h"
+
+#include "decode/custom_dx12_struct_object_mappers.h"
+#include "generated/generated_dx12_struct_object_mappers.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -3329,6 +3331,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructArrayObjects(pBarriers->GetMetaStructPointer(), pBarriers->GetLength(), GetObjectInfoTable());
         replay_object->ResourceBarrier(NumBarriers,
                                        pBarriers->GetPointer());
     }
@@ -5766,7 +5769,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", returnValue, replay_result);
     }
@@ -5793,7 +5795,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput1(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", returnValue, replay_result);
     }
@@ -5807,7 +5808,6 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable());
         auto replay_result = replay_object->GetPageFaultAllocationOutput1(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
     }
@@ -6114,6 +6114,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructArrayObjects(pRenderTargets->GetMetaStructPointer(), pRenderTargets->GetLength(), GetObjectInfoTable());
+        MapStructObjects(pDepthStencil->GetMetaStructPointer(), GetObjectInfoTable());
         replay_object->BeginRenderPass(NumRenderTargets,
                                        pRenderTargets->GetPointer(),
                                        pDepthStencil->GetPointer(),

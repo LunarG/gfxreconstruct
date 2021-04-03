@@ -72,6 +72,9 @@ class Dx12StructObjectMappersHeaderGenerator(
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
+
+        # Functions should not be generated for structs on the blacklist.
+        self.check_blacklist = True
         BaseStructHandleMappersHeaderGenerator.generate_feature(self)
 
     def endFile(self):
@@ -82,30 +85,14 @@ class Dx12StructObjectMappersHeaderGenerator(
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
+
+        # The list of structs with handles should include all structs, inlcuding structs on the blacklist.
+        self.check_blacklist = False
+
         Dx12BaseGenerator.genStruct(self, typeinfo, typename, alias)
         if not alias:
-            for struct_name in self.get_filtered_struct_names():
+            for struct_name in self.feature_struct_members:
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
-                    self.structs_with_handle_ptrs
+                    self.structs_with_handle_ptrs, True
                 )
-
-    def genCmd(self, cmdinfo, name, alias):
-        """Method override."""
-        Dx12BaseGenerator.genCmd(self, cmdinfo, name, alias)
-
-        # Look for output structs that contain handles and add to list
-        if not alias:
-            for k, v in self.feature_cmd_params.items():
-                for value_info in v[2]:
-                    if self.is_output_parameter(value_info) and (
-                        value_info.base_type
-                        in self.get_filtered_struct_names()
-                    ) and (value_info.base_type
-                           in self.structs_with_handles) and (
-                               value_info.base_type
-                               not in self.output_structs_with_handles
-                           ):
-                        self.output_structs_with_handles.append(
-                            value_info.base_type
-                        )
