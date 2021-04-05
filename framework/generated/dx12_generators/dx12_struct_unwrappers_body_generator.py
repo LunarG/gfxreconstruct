@@ -70,13 +70,6 @@ class Dx12StructUnwrappersBodyGenerator(Dx12BaseGenerator):
                 struct, structs_with_objects, None, True
             )
 
-        # Second pass to check for structs intended to be used as linked
-        # lists, which contain a member with the same struct type.
-        for struct in struct_list:
-            self.check_struct_member_handles(
-                struct, structs_with_objects, None, True
-            )
-
         # Generate unwrap functions for any structs that were added to
         # the table.
         for key, value in structs_with_objects.items():

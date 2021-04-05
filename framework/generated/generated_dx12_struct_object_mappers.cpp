@@ -146,6 +146,8 @@ void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE* wrapper, const Dx12Obj
         value->pCommandList = object_mapping::MapObject<ID3D12GraphicsCommandList>(wrapper->pCommandList, object_info_table);
 
         value->pCommandQueue = object_mapping::MapObject<ID3D12CommandQueue>(wrapper->pCommandQueue, object_info_table);
+
+        MapStructArrayObjects<Decoded_D3D12_AUTO_BREADCRUMB_NODE>(wrapper->pNext->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 
@@ -158,6 +160,8 @@ void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE1* wrapper, const Dx12Ob
         value->pCommandList = object_mapping::MapObject<ID3D12GraphicsCommandList>(wrapper->pCommandList, object_info_table);
 
         value->pCommandQueue = object_mapping::MapObject<ID3D12CommandQueue>(wrapper->pCommandQueue, object_info_table);
+
+        MapStructArrayObjects<Decoded_D3D12_AUTO_BREADCRUMB_NODE1>(wrapper->pNext->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 
@@ -168,6 +172,8 @@ void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12Ob
         D3D12_DRED_ALLOCATION_NODE1* value = wrapper->decoded_value;
 
         value->pObject = object_mapping::MapObject<IUnknown>(wrapper->pObject, object_info_table);
+
+        MapStructArrayObjects<Decoded_D3D12_DRED_ALLOCATION_NODE1>(wrapper->pNext->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 

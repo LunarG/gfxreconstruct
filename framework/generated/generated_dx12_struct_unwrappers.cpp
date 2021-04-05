@@ -140,8 +140,8 @@ void UnwrapStructObjects(D3D12_DRED_ALLOCATION_NODE1* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
         value->pObject = GetWrappedObject<IUnknown_Wrapper, IUnknown>(value->pObject);
+        value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
     }
 }
 

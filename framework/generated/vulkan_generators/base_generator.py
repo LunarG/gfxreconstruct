@@ -796,6 +796,18 @@ class BaseGenerator(OutputGenerator):
                     ) and has_pnext_handle_ptrs:
                         has_handle_pointer = True
         if handles:
+            # Process the list of struct members a second time to check for
+            # members with the same type as the struct.  The current struct
+            # type has not been added to the table of structs with handles
+            # yet, so we must check the struct members a second time, looking
+            # for members with the struct type, now that we know the current
+            # struct type contains members that are handles/objects.  Any
+            # struct members that have the same type as the struct must be
+            # added to the handle member list.
+            for value in self.feature_struct_members[typename]:
+                if (value.base_type == typename) and ((not ignore_output) or (not '_Out_' in value.full_type)):
+                    handles.append(value)
+
             structs_with_handles[typename] = handles
             if (structs_with_handle_ptrs is not None) and has_handle_pointer:
                 structs_with_handle_ptrs.append(typename)
