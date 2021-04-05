@@ -18140,10 +18140,12 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
             pDepthStencil,
             Flags);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         object_->BeginRenderPass(
             NumRenderTargets,
-            pRenderTargets,
-            pDepthStencil,
+            UnwrapStructArrayObjects(pRenderTargets, NumRenderTargets, unwrap_memory),
+            UnwrapStructPtrObjects(pDepthStencil, unwrap_memory),
             Flags);
 
         Encode_ID3D12GraphicsCommandList4_BeginRenderPass(

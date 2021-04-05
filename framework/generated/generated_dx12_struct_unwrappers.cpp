@@ -27,6 +27,7 @@
 
 #include "generated/generated_dx12_struct_unwrappers.h"
 
+#include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/dx12_object_wrapper_util.h"
 #include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
@@ -139,8 +140,8 @@ void UnwrapStructObjects(D3D12_DRED_ALLOCATION_NODE1* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pObject = GetWrappedObject<IUnknown_Wrapper, IUnknown>(value->pObject);
         value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
+        value->pObject = GetWrappedObject<IUnknown_Wrapper, IUnknown>(value->pObject);
     }
 }
 
@@ -150,6 +151,23 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* val
     {
         value->pSrcResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pSrcResource);
         value->pDstResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pDstResource);
+    }
+}
+
+void UnwrapStructObjects(D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapStructObjects(&value->EndingAccess, unwrap_memory);
+    }
+}
+
+void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapStructObjects(&value->DepthEndingAccess, unwrap_memory);
+        UnwrapStructObjects(&value->StencilEndingAccess, unwrap_memory);
     }
 }
 

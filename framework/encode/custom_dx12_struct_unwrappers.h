@@ -36,6 +36,8 @@ void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwr
 
 void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS* value, HandleUnwrapMemory* unwrap_memory);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

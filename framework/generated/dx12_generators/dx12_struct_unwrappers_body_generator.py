@@ -66,64 +66,22 @@ class Dx12StructUnwrappersBodyGenerator(Dx12BaseGenerator):
         # unwrapped.
         struct_list = self.source_dict['struct_list']
         for struct in struct_list:
-            members = self.feature_struct_members[struct]
+            self.check_struct_member_handles(
+                struct, structs_with_objects, None, True
+            )
 
-            # This intentionally ignores structs with anonymous
-            # union members, which are processed by the custom
-            # unwrap functions.
-            union_members = [
-                member for member in members
-                if 'anon-union' in member.base_type
-            ]
-            if union_members:
-                continue
-
-            for member in members:
-                base_type = member.base_type
-                full_type = member.full_type
-                name = member.name
-
-                # Check for the following:
-                # 1. A struct member with a class type.
-                # 2. A struct member that is a struct that has members that
-                #    require unwrapping.
-                if (
-                    self.is_class(member) or (
-                        self.is_struct(base_type) and
-                        (base_type in structs_with_objects) and
-                        (not '_Out_' in full_type)
-                    )
-                ):
-                    if struct in structs_with_objects:
-                        # If the struct is already in the table, append
-                        # the member to the existing list.
-                        if member not in structs_with_objects[struct]:
-                            structs_with_objects[struct].append(member)
-                    else:
-                        # Add a new entry to the table for the
-                        # current struct.
-                        structs_with_objects[struct] = [member]
-
-            # Second pass to check for structs intended to be used as linked
-            # lists, which contain a member with the same struct type.
-            for member in members:
-                base_type = member.base_type
-                full_type = member.full_type
-                name = member.name
-
-                # If the current member type matches the current struct type,
-                # and the current struct type has handles, add it to the list
-                # of members that require unwrapping.
-                if (base_type
-                    == struct) and (struct in structs_with_objects) and (
-                        not '_Out_' in full_type
-                    ) and (member not in structs_with_objects[struct]):
-                    structs_with_objects[struct].append(member)
+        # Second pass to check for structs intended to be used as linked
+        # lists, which contain a member with the same struct type.
+        for struct in struct_list:
+            self.check_struct_member_handles(
+                struct, structs_with_objects, None, True
+            )
 
         # Generate unwrap functions for any structs that were added to
         # the table.
         for key, value in structs_with_objects.items():
-            self.write_struct_unwrap_def(key, value, structs_with_objects)
+            if not self.is_struct_black_listed(key):
+                self.write_struct_unwrap_def(key, value, structs_with_objects)
 
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -196,6 +154,7 @@ class Dx12StructUnwrappersBodyGenerator(Dx12BaseGenerator):
 
         code += '#include "generated/generated_dx12_struct_unwrappers.h"\n'
         code += '\n'
+        code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'
         code += '#include "encode/dx12_object_wrapper_util.h"\n'
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '#include "util/defines.h"\n'

@@ -59,43 +59,21 @@ class Dx12StructUnwrappersHeaderGenerator(Dx12BaseGenerator):
         self.newline()
 
         # List containing names of structs with COM object members.
-        structs_with_objects = []
+        structs_with_objects = {}
 
         # Find structs with COM object members, which will need to be
         # unwrapped.
         struct_list = self.source_dict['struct_list']
         for struct in struct_list:
-            members = self.feature_struct_members[struct]
-
-            # This intentionally ignores structs with anonymous
-            # union members, which are processed by the custom
-            # unwrap functions.
-            union_members = [
-                member for member in members
-                if 'anon-union' in member.base_type
-            ]
-            if union_members:
-                continue
-
-            for member in members:
-                base_type = member.base_type
-                name = member.name
-
-                if (
-                    self.is_class(member) or (
-                        self.is_struct(base_type) and
-                        (name in structs_with_objects)
-                    )
-                ):
-                    if struct not in structs_with_objects:
-                        # Add a new entry to the table for the
-                        # current struct.
-                        structs_with_objects.append(struct)
+            self.check_struct_member_handles(
+                struct, structs_with_objects, None, True
+            )
 
         # Generate unwrap functions for any structs that were added to
         # the list.
-        for value in structs_with_objects:
-            self.write_struct_unwrap_def(value)
+        for key in structs_with_objects:
+            if not self.is_struct_black_listed(key):
+                self.write_struct_unwrap_def(key)
 
         write('template <typename T>', file=self.outFile)
         write(

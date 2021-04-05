@@ -74,6 +74,10 @@ void UnwrapStructObjects(D3D12_DRED_ALLOCATION_NODE1* value, HandleUnwrapMemory*
 
 void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructObjects(D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwrapMemory* unwrap_memory);
+
 template <typename T>
 T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {

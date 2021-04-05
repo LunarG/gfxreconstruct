@@ -61,5 +61,19 @@ void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory*
     }
 }
 
+void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        switch (value->Type)
+        {
+            case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
+                UnwrapStructObjects(&value->Resolve, unwrap_memory);
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

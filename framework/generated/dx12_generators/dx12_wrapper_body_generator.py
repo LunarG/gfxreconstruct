@@ -44,7 +44,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         )
 
         # A list of structures with object members that need to be unwrapped.
-        self.structs_with_objects = set()
+        self.structs_with_objects = {}
         # Unique set of names of all defined classes.
         self.class_names = []
         # Unique set of names of all class names specified as base classes.
@@ -96,11 +96,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # unwrapped.
         struct_list = self.source_dict['struct_list']
         for s in struct_list:
-            members = self.feature_struct_members[s]
-            for member in members:
-                if self.is_struct_object_member(member):
-                    self.structs_with_objects.add(s)
-                    break
+            self.check_struct_member_handles(
+                s, self.structs_with_objects, None, True
+            )
 
         header_dict = self.source_dict['header_dict']
         self.collect_struct_with_wrap_objects(header_dict)
