@@ -75,7 +75,7 @@ void VulkanCaptureManager::DestroyInstance()
 void VulkanCaptureManager::WriteTrackedState(format::ThreadId thread_id)
 {
     VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_id);
-    state_tracker_->WriteState(&state_writer, current_frame_);
+    state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }
 
 void VulkanCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
@@ -120,7 +120,7 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
                                                  uint32_t                      height,
                                                  VkSurfaceTransformFlagBitsKHR pre_transform)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
         format::ResizeWindowCommand2 resize_cmd2;
         resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
@@ -158,7 +158,7 @@ void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              s
             std::lock_guard<std::mutex> lock(file_lock_);
             file_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -170,7 +170,7 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
                                                         AHardwareBuffer*                                    buffer,
                                                         const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         assert(buffer != nullptr);
@@ -222,7 +222,7 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
                 file_stream_->Write(plane_info.data(), planes_size);
             }
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -239,7 +239,7 @@ void VulkanCaptureManager::WriteCreateHardwareBufferCmd(format::HandleId        
 
 void VulkanCaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         assert(buffer != nullptr);
@@ -260,7 +260,7 @@ void VulkanCaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer
 
             file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -274,7 +274,7 @@ void VulkanCaptureManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer
 void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
                                                            const VkPhysicalDeviceProperties& properties)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
         format::SetDevicePropertiesCommand properties_cmd;
 
@@ -304,7 +304,7 @@ void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId     
             file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
             file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -315,7 +315,7 @@ void VulkanCaptureManager::WriteSetDevicePropertiesCommand(format::HandleId     
 void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
     format::HandleId physical_device_id, const VkPhysicalDeviceMemoryProperties& memory_properties)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
         format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
 
@@ -356,7 +356,7 @@ void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
                 file_stream_->Write(&heap, sizeof(heap));
             }
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -368,7 +368,7 @@ void VulkanCaptureManager::WriteSetBufferAddressCommand(format::HandleId device_
                                                         format::HandleId buffer_id,
                                                         uint64_t         address)
 {
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
     {
         format::SetBufferAddressCommand buffer_address_cmd;
 
@@ -388,7 +388,7 @@ void VulkanCaptureManager::WriteSetBufferAddressCommand(format::HandleId device_
 
             file_stream_->Write(&buffer_address_cmd, sizeof(buffer_address_cmd));
 
-            if (force_file_flush_)
+            if (GetForceFileFlush())
             {
                 file_stream_->Flush();
             }
@@ -522,7 +522,7 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
 
     if (CreateInstance())
     {
-        if (instance_->page_guard_memory_mode_ == kMemoryModeExternal)
+        if (instance_->GetPageGuardMemoryMode() == kMemoryModeExternal)
         {
             assert(pCreateInfo != nullptr);
 
@@ -659,7 +659,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
         modified_extensions.push_back(entry);
 
-        if (page_guard_memory_mode_ == kMemoryModeExternal)
+        if (GetPageGuardMemoryMode() == kMemoryModeExternal)
         {
             if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
             {
@@ -676,7 +676,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         }
     }
 
-    if (page_guard_memory_mode_ == kMemoryModeExternal)
+    if (GetPageGuardMemoryMode() == kMemoryModeExternal)
     {
         if (!has_ext_mem_caps)
         {
@@ -705,7 +705,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         *modified_buffer_address_features = incoming_buffer_address_features;
     }
 
-    if ((result == VK_SUCCESS) && ((capture_mode_ & kModeTrack) != kModeTrack))
+    if ((result == VK_SUCCESS) && ((GetCaptureMode() & kModeTrack) != kModeTrack))
     {
         assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
@@ -784,7 +784,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             {
                 WriteSetBufferAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
 
-                if ((capture_mode_ & kModeTrack) == kModeTrack)
+                if ((GetCaptureMode() & kModeTrack) == kModeTrack)
                 {
                     state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
                 }
@@ -814,7 +814,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
 #endif
 
-    if (page_guard_memory_mode_ == kMemoryModeExternal)
+    if (GetPageGuardMemoryMode() == kMemoryModeExternal)
     {
         auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
         VkMemoryPropertyFlags properties     = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
@@ -870,7 +870,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
 
         memory_wrapper->external_allocation = external_memory;
 
-        if ((capture_mode_ & kModeTrack) != kModeTrack)
+        if ((GetCaptureMode() & kModeTrack) != kModeTrack)
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
             // here to ensure it is available for mapped memory tracking.
@@ -1060,8 +1060,8 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
             WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
             WriteFillMemoryCmd(memory_id, 0, memory_wrapper->allocation_size, data);
 
-            if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
-                page_guard_track_ahb_memory_)
+            if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+                GetPageGuardTrackAhbMemory())
             {
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, memory_wrapper->allocation_size);
 
@@ -1105,7 +1105,7 @@ void VulkanCaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardwar
     auto entry = hardware_buffers_.find(hardware_buffer);
     if ((entry != hardware_buffers_.end()) && (--entry->second.reference_count == 0))
     {
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
@@ -1161,7 +1161,7 @@ void VulkanCaptureManager::PostProcess_vkEnumeratePhysicalDevices(VkResult      
                     instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
                     instance_table->GetPhysicalDeviceMemoryProperties(physical_device_handle, &memory_properties);
 
-                    if ((capture_mode_ & kModeTrack) == kModeTrack)
+                    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
                     {
                         // Let the state tracker process the memory properties.
                         assert(state_tracker_ != nullptr);
@@ -1195,7 +1195,7 @@ void VulkanCaptureManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance         
 
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
     assert(pCreateInfo != nullptr);
-    if (pCreateInfo && !trim_key_.empty())
+    if (pCreateInfo && !GetTrimKey().empty())
     {
         if (!keyboard_.Initialize(pCreateInfo->dpy))
         {
@@ -1204,7 +1204,7 @@ void VulkanCaptureManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance         
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
-    if (!trim_key_.empty())
+    if (!GetTrimKey().empty())
     {
         GFXRECON_LOG_WARNING("Xlib keyboard capture trigger is not enabled on this system");
     }
@@ -1222,7 +1222,7 @@ void VulkanCaptureManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance          
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     assert(pCreateInfo != nullptr);
-    if (pCreateInfo && !trim_key_.empty())
+    if (pCreateInfo && !GetTrimKey().empty())
     {
         if (!keyboard_.Initialize(pCreateInfo->connection))
         {
@@ -1231,7 +1231,7 @@ void VulkanCaptureManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance          
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
-    if (!trim_key_.empty())
+    if (!GetTrimKey().empty())
     {
         GFXRECON_LOG_WARNING("Xcb keyboard capture trigger is not enabled on this system");
     }
@@ -1247,7 +1247,7 @@ void VulkanCaptureManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance      
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     GFXRECON_UNREFERENCED_PARAMETER(pSurface);
-    if (!trim_key_.empty())
+    if (!GetTrimKey().empty())
     {
         GFXRECON_LOG_WARNING("Wayland keyboard capture trigger is not implemented");
     }
@@ -1288,7 +1288,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
 
         if (wrapper->mapped_data == nullptr)
         {
-            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            if ((GetCaptureMode() & kModeTrack) == kModeTrack)
             {
                 assert(state_tracker_ != nullptr);
                 state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
@@ -1302,7 +1302,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                 wrapper->mapped_size   = size;
             }
 
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
                 // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to avoid
                 // duplicate memory tracking entries.
@@ -1327,12 +1327,12 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                     bool use_shadow_memory = true;
                     bool use_write_watch   = false;
 
-                    if (page_guard_memory_mode_ == kMemoryModeExternal)
+                    if (GetPageGuardMemoryMode() == kMemoryModeExternal)
                     {
                         use_shadow_memory = false;
                         use_write_watch   = true;
                     }
-                    else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                    else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
                              (wrapper->shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                     {
                         wrapper->shadow_allocation = manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
@@ -1349,7 +1349,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                                                           use_write_watch);
                 }
             }
-            else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
             {
                 // Need to keep track of mapped memory objects so memory content can be written at queue submit.
                 std::lock_guard<std::mutex> lock(mapped_memory_lock_);
@@ -1364,7 +1364,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
             GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
                                  memory);
 
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 assert((wrapper->mapped_offset == offset) && (wrapper->mapped_size == size));
 
@@ -1390,7 +1390,7 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
 
     if (pMemoryRanges != nullptr)
     {
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
             util::PageGuardManager*    manager                = util::PageGuardManager::Get();
@@ -1421,7 +1421,7 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
                 }
             }
         }
-        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kAssisted)
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kAssisted)
         {
             const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
 
@@ -1459,7 +1459,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
     if (wrapper->mapped_data != nullptr)
     {
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
@@ -1471,7 +1471,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
             manager->RemoveTrackedMemory(wrapper->handle_id);
         }
-        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
             VkDeviceSize size = wrapper->mapped_size;
             if (size == VK_WHOLE_SIZE)
@@ -1490,7 +1490,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
             }
         }
 
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
@@ -1522,7 +1522,7 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
     {
         auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
-        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
             (wrapper->mapped_data != nullptr))
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -1546,17 +1546,17 @@ void VulkanCaptureManager::PostProcess_vkFreeMemory(VkDevice                    
         // Destroy external resources.
         auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            if ((page_guard_memory_mode_ == kMemoryModeExternal) && (wrapper->external_allocation != nullptr))
+            if ((GetPageGuardMemoryMode() == kMemoryModeExternal) && (wrapper->external_allocation != nullptr))
             {
                 size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
                 manager->FreeMemory(wrapper->external_allocation, external_memory_size);
             }
-            else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+            else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
                      (wrapper->shadow_allocation != util::PageGuardManager::kNullShadowHandle))
             {
                 manager->FreePersistentShadowMemory(wrapper->shadow_allocation);
@@ -1582,7 +1582,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
-    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -1591,7 +1591,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
             WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
     }
-    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
         std::lock_guard<std::mutex> lock(mapped_memory_lock_);
 

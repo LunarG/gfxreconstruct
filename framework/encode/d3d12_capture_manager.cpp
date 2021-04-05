@@ -185,7 +185,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
         {
             mapped_subresource.data = (*data);
 
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
@@ -199,7 +199,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                 uint64_t size = info->subresource_sizes[subresource];
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-                if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
                     (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                 {
                     mapped_subresource.shadow_allocation =
@@ -216,7 +216,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                                                     use_shadow_memory,
                                                     use_write_watch);
             }
-            else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
             {
                 // Need to keep track of mapped memory objects so memory content can be written at queue submit.
                 mapped_resources_.insert(wrapper);
@@ -227,7 +227,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
             // The application has mapped the same ID3D12Resource object more than once and the pageguard
             // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
             // on the first map call.
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 // Return the shadow memory that was allocated for the previous map operation.
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -255,7 +255,7 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
         {
             if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
             {
-                if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                 {
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
@@ -269,7 +269,7 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
 
                     manager->RemoveTrackedMemory(memory_id);
                 }
-                else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+                else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                 {
                     uint64_t offset = 0;
                     uint64_t size   = info->subresource_sizes[subresource];
@@ -320,7 +320,7 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
@@ -335,7 +335,7 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
                 }
             }
         }
-        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
             bool is_mapped = false;
 
@@ -367,7 +367,7 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
     GFXRECON_UNREFERENCED_PARAMETER(lists);
 
-    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -376,7 +376,7 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
             WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
     }
-    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
         std::lock_guard<std::mutex> lock(mapped_memory_lock_);
         for (auto resource_wrapper : mapped_resources_)

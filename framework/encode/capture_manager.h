@@ -173,6 +173,15 @@ class CaptureManager
         return thread_data_.get();
     }
 
+    bool                                GetForceFileFlush() const { return force_file_flush_; }
+    CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const { return memory_tracking_mode_; }
+    bool                                GetPageGuardAlignBufferSizes() const { return page_guard_align_buffer_sizes_; }
+    bool                                GetPageGuardTrackAhbMemory() const { return page_guard_track_ahb_memory_; }
+    PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
+    const std::string&                  GetTrimKey() const { return trim_key_; }
+    uint32_t                            GetCurrentFrame() const { return current_frame_; }
+    CaptureMode                         GetCaptureMode() const { return capture_mode_; }
+
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
     void        ActivateTrimming();
@@ -190,29 +199,31 @@ class CaptureManager
     void WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
   protected:
+    std::unique_ptr<util::FileOutputStream> file_stream_;
+    std::mutex                              file_lock_;
+    std::unique_ptr<util::Compressor>       compressor_;
+    std::mutex                              mapped_memory_lock_;
+    util::Keyboard                          keyboard_;
+
+  private:
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
     format::EnabledOptions                          file_options_;
-    std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     base_filename_;
-    std::mutex                                      file_lock_;
     bool                                            timestamp_filename_;
     bool                                            force_file_flush_;
-    std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     bool                                            page_guard_align_buffer_sizes_;
     bool                                            page_guard_track_ahb_memory_;
     PageGuardMemoryMode                             page_guard_memory_mode_;
-    std::mutex                                      mapped_memory_lock_;
     bool                                            trim_enabled_;
     std::vector<CaptureSettings::TrimRange>         trim_ranges_;
     std::string                                     trim_key_;
     size_t                                          trim_current_range_;
     uint32_t                                        current_frame_;
     CaptureMode                                     capture_mode_;
-    util::Keyboard                                  keyboard_;
     bool                                            previous_hotkey_state_;
 };
 
