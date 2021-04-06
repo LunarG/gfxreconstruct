@@ -26,6 +26,9 @@
 #include "decode/api_decoder.h"
 #include "generated/generated_dx12_consumer.h"
 
+#include <algorithm>
+#include <vector>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
