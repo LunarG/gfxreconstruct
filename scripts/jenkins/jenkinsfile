@@ -475,7 +475,7 @@ pipeline {
             script {
                 echo "this was a failure"
                 if (email_recip_fail != "") {
-                     JTools.notifyFailed(email_recip_fail)
+                     JTools.notifyFailed(email_recip_fail, false)
                 }
             }
         }
@@ -485,7 +485,7 @@ pipeline {
                 echo "sending email to $email_recip_success"
                 echo "This was a success"
                 if (email_recip_success != "") {
-                    JTools.notifySuccessful(email_recip_success)
+                    JTools.notifySuccessful(email_recip_success, false)
                 }
             }
         }
