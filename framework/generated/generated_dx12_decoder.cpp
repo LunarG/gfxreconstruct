@@ -1333,7 +1333,7 @@ size_t Dx12Decoder::Decode_D3D12CreateRootSignatureDeserializer(const uint8_t* p
     HRESULT return_value;
 
     bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
     bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -1381,7 +1381,7 @@ size_t Dx12Decoder::Decode_D3D12CreateVersionedRootSignatureDeserializer(const u
     HRESULT return_value;
 
     bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDataSizeInBytes);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pRootSignatureDeserializerInterface);
     bytes_read += ppRootSignatureDeserializer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -6529,7 +6529,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateRootSignature(format::HandleId obj
 
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &nodeMask);
     bytes_read += pBlobWithRootSignature.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &blobLengthInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &blobLengthInBytes);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppvRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -7264,7 +7264,7 @@ size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_GetSerializedSize(format::Handl
 
     SIZE_T return_value;
 
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
@@ -7283,7 +7283,7 @@ size_t Dx12Decoder::Decode_ID3D12PipelineLibrary_Serialize(format::HandleId obje
     HRESULT return_value;
 
     bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DataSizeInBytes);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -7333,7 +7333,7 @@ size_t Dx12Decoder::Decode_ID3D12Device1_CreatePipelineLibrary(format::HandleId 
     HRESULT return_value;
 
     bytes_read += pLibraryBlob.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BlobLength);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &BlobLength);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppPipelineLibrary.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -8007,7 +8007,7 @@ size_t Dx12Decoder::Decode_ID3D12Device5_CreateMetaCommand(format::HandleId obje
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CommandId);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &NodeMask);
     bytes_read += pCreationParametersData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CreationParametersDataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CreationParametersDataSizeInBytes);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
     bytes_read += ppMetaCommand.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -8598,7 +8598,7 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_InitializeMetaCommand(form
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pMetaCommand);
     bytes_read += pInitializationParametersData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitializationParametersDataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &InitializationParametersDataSizeInBytes);
 
     for (auto consumer : GetConsumers())
     {
@@ -8618,7 +8618,7 @@ size_t Dx12Decoder::Decode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(format:
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pMetaCommand);
     bytes_read += pExecutionParametersData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ExecutionParametersDataSizeInBytes);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ExecutionParametersDataSizeInBytes);
 
     for (auto consumer : GetConsumers())
     {
@@ -8828,7 +8828,7 @@ size_t Dx12Decoder::Decode_ID3D10Blob_GetBufferSize(format::HandleId object_id, 
 
     SIZE_T return_value;
 
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {

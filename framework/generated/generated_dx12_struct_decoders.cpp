@@ -95,9 +95,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
     wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
     wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
@@ -192,9 +192,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
     wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
     wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
@@ -404,9 +404,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
     wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
     wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
@@ -532,9 +532,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAP
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
     wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
     wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
@@ -948,7 +948,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHA
 
     bytes_read += wrapper->pShaderBytecode.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
     value->pShaderBytecode = wrapper->pShaderBytecode.GetPointer();
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BytecodeLength));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->BytecodeLength));
 
     return bytes_read;
 }
@@ -996,7 +996,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CAC
 
     bytes_read += wrapper->pCachedBlob.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
     value->pCachedBlob = wrapper->pCachedBlob.GetPointer();
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CachedBlobSizeInBytes));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->CachedBlobSizeInBytes));
 
     return bytes_read;
 }
@@ -1101,7 +1101,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
     size_t bytes_read = 0;
     D3D12_PIPELINE_STATE_STREAM_DESC* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeInBytes));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeInBytes));
     bytes_read += wrapper->pPipelineStateSubobjectStream.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPipelineStateSubobjectStream = wrapper->pPipelineStateSubobjectStream.GetPointer();
 
@@ -1439,10 +1439,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NodeMask));
     bytes_read += wrapper->pQueryInputData.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
     value->pQueryInputData = wrapper->pQueryInputData.GetPointer();
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->QueryInputDataSizeInBytes));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->QueryInputDataSizeInBytes));
     bytes_read += wrapper->pQueryOutputData.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
     value->pQueryOutputData = wrapper->pQueryOutputData.GetPointer();
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->QueryOutputDataSizeInBytes));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->QueryOutputDataSizeInBytes));
 
     return bytes_read;
 }
@@ -1590,8 +1590,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAN
     size_t bytes_read = 0;
     D3D12_RANGE* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Begin));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->End));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Begin));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->End));
 
     return bytes_read;
 }
@@ -2480,7 +2480,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU
     size_t bytes_read = 0;
     D3D12_CPU_DESCRIPTOR_HANDLE* value = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ptr));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ptr));
 
     return bytes_read;
 }
@@ -3635,8 +3635,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUB
 
     bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pData));
     value->pData = nullptr;
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RowPitch));
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SlicePitch));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->RowPitch));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SlicePitch));
 
     return bytes_read;
 }
@@ -3650,8 +3650,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MEM
 
     bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pData));
     value->pData = nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RowPitch));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SlicePitch));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->RowPitch));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SlicePitch));
 
     return bytes_read;
 }

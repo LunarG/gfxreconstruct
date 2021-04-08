@@ -75,8 +75,8 @@ class Dx12BaseGenerator(BaseGenerator):
             ], 'UInt32'
         ],
         [['HRESULT', 'LONG', 'BOOL', 'INT', 'int'], 'Int32'],
-        [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS', 'SIZE_T'], 'UInt64'],
-        [['LONG_PTR'], 'Int64'],
+        [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS'], 'UInt64'],
+        [['LONG_PTR', 'SIZE_T'], 'SizeT'],
         [['FLOAT', 'float'], 'Float'],
         [['void'], 'Void'],
         [['char'], 'String'],

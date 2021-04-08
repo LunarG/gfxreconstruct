@@ -54,10 +54,6 @@ class ValueDecoder
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
     // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
-    // Oveload for WIN32 SIZE_T type in 32-bit sysyem.  Pointers from the SIZE_T typedef of unsigned long are not compatible with uint64_t pointers.
-    static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
-    // Oveload for WIN32 LONG_PTR type in 32-bit sysyem.  Pointers from the LONG_PTR typedef of long are not compatible with int64_t pointers.
-    static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
 #endif
 
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
@@ -72,6 +68,13 @@ class ValueDecoder
 #if (defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)) && !defined(GFXRECON_ARCH64)
     // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                 { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
+#elif defined(WIN32)
+#if !defined(GFXRECON_ARCH64)
+    // Oveload for 32-bit WIN32 SIZE_T type.  Pointers from the unsigned long typedef of are not compatible with size_t pointers.
+    static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, SIZE_T* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
+#endif
+    // Oveload for WIN32 LONG_PTR type.  Pointers from the LONG_PTR typedef of __int64 / long are not compatible with size_t pointers.
+    static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, LONG_PTR* value)                      { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #endif
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
