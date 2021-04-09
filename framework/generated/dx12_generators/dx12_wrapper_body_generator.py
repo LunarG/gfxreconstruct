@@ -112,9 +112,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     self.write_function_def(m)
 
             for k2, v2 in v.classes.items():
-                if k2 in self.structs_with_wrap_objects:
-                    self.write_struct_member_def(k2, v2['properties'])
-
                 if self.is_required_class_data(v2)\
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_member_def(v2)
@@ -679,37 +676,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                             ) or (self.is_class(value)):
                                 self.structs_with_wrap_objects.add(k2)
 
-    def write_struct_member_def(self, name, properties):
-        expr = 'void WrapStruct(const {}* value)\n'.format(name)
-        expr += '{\n'
-
-        for k, v in properties.items():
-            for p in v:
-                value = self.get_value_info(p)
-
-                if self.is_struct(value.base_type) and (
-                    value.full_type.find('_Out_') != -1
-                ) and (value.base_type in self.structs_with_wrap_objects):
-                    expr += '    if(value->{0})\n'\
-                            '    {{\n'\
-                            '        WrapStruct(value->{0});\n'\
-                            '    }}\n'.format(value.name)
-
-                elif self.is_class(value):
-                    if value.is_const:
-                        expr += '    if(value->{1})\n'\
-                                '    {{\n'\
-                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(&const_cast<{0}*>(value->{1})), nullptr);\n'\
-                                '    }}\n'.format(value.base_type, value.name)
-                    else:
-                        expr += '    if(value->{1})\n'\
-                                '    {{\n'\
-                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(value->{1}), nullptr);\n'\
-                                '    }}\n'.format(value.base_type, value.name)
-
-        expr += '}\n'
-        write(expr, file=self.outFile)
-
     def make_param_decl_list(self, param_info, indent='    '):
         space_index = 0
         parameters = ''
@@ -805,6 +771,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def write_include(self):
         code = ''
 
+        code += '#include "generated/generated_dx12_struct_wrappers.h"\n'
         code += '#include "generated/generated_dx12_wrappers.h"\n'
         code += '\n'
         code += '#include "encode/custom_dx12_struct_unwrappers.h"\n'

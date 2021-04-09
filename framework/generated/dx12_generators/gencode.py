@@ -47,6 +47,8 @@ from dx12_struct_unwrappers_header_generator import Dx12StructUnwrappersHeaderGe
 from dx12_struct_unwrappers_body_generator import Dx12StructUnwrappersBodyGenerator
 from dx12_struct_object_mappers_header_generator import Dx12StructObjectMappersHeaderGenerator
 from dx12_struct_object_mappers_body_generator import Dx12StructObjectMappersBodyGenerator
+from dx12_struct_wrapper_header_generator import Dx12StructWrapperHeaderGenerator
+from dx12_struct_wrapper_body_generator import Dx12StructWrapperBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -412,6 +414,36 @@ def make_gen_opts(args):
             filename='generated_dx12_struct_object_mappers.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_wrapper_header_generator.py'
+    )
+    gen_opts['generated_dx12_struct_wrappers.h'] = [
+        Dx12StructWrapperHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_wrappers.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_wrapper_body_generator.py'
+    )
+    gen_opts['generated_dx12_struct_wrappers.cpp'] = [
+        Dx12StructWrapperBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_wrappers.cpp',
+            directory=directory,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,

@@ -25,6 +25,7 @@
 **
 */
 
+#include "generated/generated_dx12_struct_wrappers.h"
 #include "generated/generated_dx12_wrappers.h"
 
 #include "encode/custom_dx12_struct_unwrappers.h"
@@ -8199,58 +8200,6 @@ ID3D12RootSignature_Wrapper* ID3D12RootSignature_Wrapper::GetExistingWrapper(IUn
     return FindMapEntry<ID3D12RootSignature_Wrapper>(object, object_map_, object_map_lock_);
 }
 
-void WrapStruct(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* value)
-{
-    if(value->pRootSignature)
-    {
-        WrapObject(IID_ID3D12RootSignature, reinterpret_cast<void**>(value->pRootSignature), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_COMPUTE_PIPELINE_STATE_DESC* value)
-{
-    if(value->pRootSignature)
-    {
-        WrapObject(IID_ID3D12RootSignature, reinterpret_cast<void**>(value->pRootSignature), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_RESOURCE_TRANSITION_BARRIER* value)
-{
-    if(value->pResource)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_RESOURCE_ALIASING_BARRIER* value)
-{
-    if(value->pResourceBefore)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResourceBefore), nullptr);
-    }
-    if(value->pResourceAfter)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResourceAfter), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_RESOURCE_UAV_BARRIER* value)
-{
-    if(value->pResource)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_TEXTURE_COPY_LOCATION* value)
-{
-    if(value->pResource)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
-    }
-}
-
 ID3D12RootSignatureDeserializer_Wrapper::ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, ID3D12RootSignatureDeserializer* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
 {
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
@@ -16421,30 +16370,6 @@ void STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::SetPipelineStackSize
     manager->DecrementCallScope();
 }
 
-void WrapStruct(const D3D12_GLOBAL_ROOT_SIGNATURE* value)
-{
-    if(value->pGlobalRootSignature)
-    {
-        WrapObject(IID_ID3D12RootSignature, reinterpret_cast<void**>(value->pGlobalRootSignature), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_LOCAL_ROOT_SIGNATURE* value)
-{
-    if(value->pLocalRootSignature)
-    {
-        WrapObject(IID_ID3D12RootSignature, reinterpret_cast<void**>(value->pLocalRootSignature), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_EXISTING_COLLECTION_DESC* value)
-{
-    if(value->pExistingCollection)
-    {
-        WrapObject(IID_ID3D12StateObject, reinterpret_cast<void**>(value->pExistingCollection), nullptr);
-    }
-}
-
 ID3D12Device5_Wrapper::ID3D12Device5_Wrapper(REFIID riid, ID3D12Device5* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Device4_Wrapper(riid, object, resources, destructor), object_(object)
 {
 }
@@ -16860,74 +16785,6 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
     manager->DecrementCallScope();
 
     return result;
-}
-
-void WrapStruct(const D3D12_AUTO_BREADCRUMB_NODE* value)
-{
-    if(value->pCommandList)
-    {
-        WrapObject(IID_ID3D12GraphicsCommandList, reinterpret_cast<void**>(value->pCommandList), nullptr);
-    }
-    if(value->pCommandQueue)
-    {
-        WrapObject(IID_ID3D12CommandQueue, reinterpret_cast<void**>(value->pCommandQueue), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_AUTO_BREADCRUMB_NODE1* value)
-{
-    if(value->pCommandList)
-    {
-        WrapObject(IID_ID3D12GraphicsCommandList, reinterpret_cast<void**>(value->pCommandList), nullptr);
-    }
-    if(value->pCommandQueue)
-    {
-        WrapObject(IID_ID3D12CommandQueue, reinterpret_cast<void**>(value->pCommandQueue), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_DEVICE_REMOVED_EXTENDED_DATA* value)
-{
-    if(value->pHeadAutoBreadcrumbNode)
-    {
-        WrapStruct(value->pHeadAutoBreadcrumbNode);
-    }
-}
-
-void WrapStruct(const D3D12_DRED_ALLOCATION_NODE1* value)
-{
-    if(value->pObject)
-    {
-        WrapObject(IID_IUnknown, reinterpret_cast<void**>(&const_cast<IUnknown*>(value->pObject)), nullptr);
-    }
-}
-
-void WrapStruct(const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* value)
-{
-    if(value->pHeadAutoBreadcrumbNode)
-    {
-        WrapStruct(value->pHeadAutoBreadcrumbNode);
-    }
-}
-
-void WrapStruct(const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* value)
-{
-    if(value->pHeadAutoBreadcrumbNode)
-    {
-        WrapStruct(value->pHeadAutoBreadcrumbNode);
-    }
-}
-
-void WrapStruct(const D3D12_DRED_PAGE_FAULT_OUTPUT1* value)
-{
-    if(value->pHeadExistingAllocationNode)
-    {
-        WrapStruct(value->pHeadExistingAllocationNode);
-    }
-    if(value->pHeadRecentFreedAllocationNode)
-    {
-        WrapStruct(value->pHeadRecentFreedAllocationNode);
-    }
 }
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper::ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor), object_(object)
@@ -18041,18 +17898,6 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
     }
 
     manager->DecrementCallScope();
-}
-
-void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value)
-{
-    if(value->pSrcResource)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pSrcResource), nullptr);
-    }
-    if(value->pDstResource)
-    {
-        WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pDstResource), nullptr);
-    }
 }
 
 ID3D12MetaCommand_Wrapper::ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor), object_(object)

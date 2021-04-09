@@ -99,9 +99,6 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
                    and (v2['name'] != 'IUnknown'):
                     self.write_class_decl(v2)
 
-                elif self.is_required_struct_data(k2, v2):
-                    self.write_struct_decl(k2, v2['properties'])
-
     # Get the names of the final classes in the DX class hierarchies.
     def get_final_class_names(self):
         final_class_names = []
@@ -270,25 +267,6 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         expr += indent + '};\n'
 
         write(expr, file=self.outFile)
-
-    def write_struct_decl(self, name, properties):
-        structs_with_wrap_objects = set()
-
-        for k, v in properties.items():
-            for p in v:
-                value = self.get_value_info(p)
-
-                if (
-                    self.is_struct(value.base_type) and
-                    (value.full_type.find('_Out_') != -1) and
-                    (value.base_type in structs_with_wrap_objects)
-                ) or (self.is_class(value)):
-                    if not name in structs_with_wrap_objects:
-                        structs_with_wrap_objects.add(name)
-                        write(
-                            'void WrapStruct(const {}* value);\n'.format(name),
-                            file=self.outFile
-                        )
 
     def make_param_decl_list(self, param_info, indent='    '):
         space_index = 0

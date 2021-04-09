@@ -1557,18 +1557,6 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
     ID3D12RootSignatureInfo info_;
 };
 
-void WrapStruct(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* value);
-
-void WrapStruct(const D3D12_COMPUTE_PIPELINE_STATE_DESC* value);
-
-void WrapStruct(const D3D12_RESOURCE_TRANSITION_BARRIER* value);
-
-void WrapStruct(const D3D12_RESOURCE_ALIASING_BARRIER* value);
-
-void WrapStruct(const D3D12_RESOURCE_UAV_BARRIER* value);
-
-void WrapStruct(const D3D12_TEXTURE_COPY_LOCATION* value);
-
 class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -3014,12 +3002,6 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     ID3D12StateObjectPropertiesInfo info_;
 };
 
-void WrapStruct(const D3D12_GLOBAL_ROOT_SIGNATURE* value);
-
-void WrapStruct(const D3D12_LOCAL_ROOT_SIGNATURE* value);
-
-void WrapStruct(const D3D12_EXISTING_COLLECTION_DESC* value);
-
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
 {
   public:
@@ -3071,12 +3053,6 @@ class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12Device5* object_;
 };
-
-void WrapStruct(const D3D12_AUTO_BREADCRUMB_NODE* value);
-
-void WrapStruct(const D3D12_AUTO_BREADCRUMB_NODE1* value);
-
-void WrapStruct(const D3D12_DRED_ALLOCATION_NODE1* value);
 
 class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
 {
@@ -3357,8 +3333,6 @@ class ID3D12GraphicsCommandList3_Wrapper : public ID3D12GraphicsCommandList2_Wra
     // Only the IUnkown base class maintains a reference to the object.
     ID3D12GraphicsCommandList3* object_;
 };
-
-void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value);
 
 class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
 {
