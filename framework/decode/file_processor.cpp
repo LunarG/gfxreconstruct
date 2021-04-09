@@ -1175,7 +1175,9 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
     // TODO: IDs of API calls that were treated as frame delimiters by the GFXReconstruct layer should be in the capture
     // file header.
-    return (call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR);
+    return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
+            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
+            (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
 }
 
 GFXRECON_END_NAMESPACE(decode)
