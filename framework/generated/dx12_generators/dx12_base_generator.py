@@ -60,6 +60,11 @@ class Dx12BaseGenerator(BaseGenerator):
             'D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES', 'pTypes',
             'Count'
         ],
+        [
+            'ID3D12GraphicsCommandList_OMSetRenderTargets',
+            'pRenderTargetDescriptors',
+            'RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors'
+        ],
     ]
 
     # convert base type into the encode function name
@@ -193,8 +198,12 @@ class Dx12BaseGenerator(BaseGenerator):
 
     def get_value_info(self, param):
         struct_name = ''
-        if 'parent' in param and 'name' in param['parent']:
+        if ('parent' in param) and ('name' in param['parent']):
             struct_name = param['parent']['name']
+            if (param['parent']['parent']
+                ) and ('name' in param['parent']['parent']):
+                struct_name = param['parent']['parent']['name'
+                                                        ] + '_' + struct_name
 
         name = param['name']
         full_type = param['type']

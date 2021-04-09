@@ -4868,7 +4868,7 @@ void Encode_ID3D12GraphicsCommandList_OMSetRenderTargets(
     if(encoder)
     {
         encoder->EncodeUInt32Value(NumRenderTargetDescriptors);
-        EncodeStructPtr(encoder, pRenderTargetDescriptors);
+        EncodeStructArray(encoder, pRenderTargetDescriptors, RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors);
         encoder->EncodeInt32Value(RTsSingleHandleToDescriptorRange);
         EncodeStructPtr(encoder, pDepthStencilDescriptor);
         D3D12CaptureManager::Get()->EndMethodCallCapture(encoder);

@@ -3620,7 +3620,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     {
         if (pRenderTargetDescriptors && !pRenderTargetDescriptors->IsNull())
         {
-            MapCpuDescriptorHandle(*pRenderTargetDescriptors->GetPointer());
+            MapCpuDescriptorHandles(pRenderTargetDescriptors->GetPointer(), RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors);
         }
         if (pDepthStencilDescriptor && !pDepthStencilDescriptor->IsNull())
         {
