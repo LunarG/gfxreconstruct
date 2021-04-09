@@ -141,7 +141,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const VulkanReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false),
     create_surface_count_(0)

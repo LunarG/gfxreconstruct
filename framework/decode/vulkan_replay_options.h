@@ -49,7 +49,7 @@ struct ScreenshotRange
     uint32_t last{ 0 };  // Last frame to capture.
 };
 
-struct ReplayOptions
+struct VulkanReplayOptions
 {
     bool                         sync_queue_submissions{ false };
     bool                         skip_failed_allocations{ false };

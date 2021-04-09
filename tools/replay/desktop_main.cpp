@@ -171,7 +171,7 @@ int main(int argc, const char** argv)
                 // Initialize Vulkan API decoder and consumer(s).
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayConsumer         vulkan_replay_consumer(
-                    window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
+                    window_factory.get(), GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
                 gfxrecon::decode::VulkanDecoder vulkan_decoder;
 
                 vulkan_replay_consumer.SetFatalErrorHandler(

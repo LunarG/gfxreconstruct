@@ -171,7 +171,7 @@ static gfxrecon::decode::VulkanResourceAllocator* CreateRebindAllocator()
 
 static gfxrecon::decode::CreateResourceAllocator
 InitRealignAllocatorCreateFunc(const std::string&                              filename,
-                               const gfxrecon::decode::ReplayOptions&          replay_options,
+                               const gfxrecon::decode::VulkanReplayOptions&    replay_options,
                                gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     // Enable first pass of replay to generate resource tracking information.
@@ -467,7 +467,7 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
                                const std::string&                              filename,
-                               const gfxrecon::decode::ReplayOptions&          replay_options,
+                               const gfxrecon::decode::VulkanReplayOptions&    replay_options,
                                gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::CreateResourceAllocator func  = CreateDefaultAllocator;
@@ -496,13 +496,13 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
     return func;
 }
 
-static gfxrecon::decode::ReplayOptions
-GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
-                 const std::string&                              filename,
-                 gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
+static gfxrecon::decode::VulkanReplayOptions
+GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
+                       const std::string&                              filename,
+                       gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
-    gfxrecon::decode::ReplayOptions replay_options;
-    const auto&                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+    gfxrecon::decode::VulkanReplayOptions replay_options;
+    const auto&                           override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
 
     if (!override_gpu.empty())
     {

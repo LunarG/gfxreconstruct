@@ -65,7 +65,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options);
+    VulkanReplayConsumerBase(WindowFactory* window_factory, const VulkanReplayOptions& options);
 
     virtual ~VulkanReplayConsumerBase() override;
 
@@ -910,7 +910,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     WindowFactory*                                                   window_factory_;
     VulkanObjectInfoTable                                            object_info_table_;
     ActiveWindows                                                    active_windows_;
-    ReplayOptions                                                    options_;
+    VulkanReplayOptions                                              options_;
     bool                                                             loading_trim_state_;
     bool                                                             have_imported_semaphores_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
