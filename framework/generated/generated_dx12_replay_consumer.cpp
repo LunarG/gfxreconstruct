@@ -3399,6 +3399,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescrip
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         replay_object->SetComputeRootDescriptorTable(RootParameterIndex,
                                                      *BaseDescriptor.decoded_value);
     }
@@ -3412,6 +3413,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescri
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         replay_object->SetGraphicsRootDescriptorTable(RootParameterIndex,
                                                       *BaseDescriptor.decoded_value);
     }
@@ -3489,6 +3491,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstan
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetComputeRootConstantBufferView(RootParameterIndex,
                                                         BufferLocation);
     }
@@ -3502,6 +3505,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConsta
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetGraphicsRootConstantBufferView(RootParameterIndex,
                                                          BufferLocation);
     }
@@ -3515,6 +3519,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderR
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetComputeRootShaderResourceView(RootParameterIndex,
                                                         BufferLocation);
     }
@@ -3528,6 +3533,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShader
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetGraphicsRootShaderResourceView(RootParameterIndex,
                                                          BufferLocation);
     }
@@ -3541,6 +3547,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorder
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetComputeRootUnorderedAccessView(RootParameterIndex,
                                                          BufferLocation);
     }
@@ -3554,6 +3561,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorde
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(BufferLocation);
         replay_object->SetGraphicsRootUnorderedAccessView(RootParameterIndex,
                                                           BufferLocation);
     }
@@ -3610,6 +3618,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        if (pRenderTargetDescriptors && !pRenderTargetDescriptors->IsNull())
+        {
+            MapCpuDescriptorHandle(*pRenderTargetDescriptors->GetPointer());
+        }
+        if (pDepthStencilDescriptor && !pDepthStencilDescriptor->IsNull())
+        {
+            MapCpuDescriptorHandle(*pDepthStencilDescriptor->GetPointer());
+        }
         replay_object->OMSetRenderTargets(NumRenderTargetDescriptors,
                                           pRenderTargetDescriptors->GetPointer(),
                                           RTsSingleHandleToDescriptorRange,
@@ -3629,6 +3645,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapCpuDescriptorHandle(*DepthStencilView.decoded_value);
         replay_object->ClearDepthStencilView(*DepthStencilView.decoded_value,
                                              ClearFlags,
                                              Depth,
@@ -3648,6 +3665,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapCpuDescriptorHandle(*RenderTargetView.decoded_value);
         replay_object->ClearRenderTargetView(*RenderTargetView.decoded_value,
                                              ColorRGBA->GetPointer(),
                                              NumRects,
@@ -3667,6 +3685,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuDescriptorHandle(*ViewGPUHandleInCurrentHeap.decoded_value);
+        MapCpuDescriptorHandle(*ViewCPUHandle.decoded_value);
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         replay_object->ClearUnorderedAccessViewUint(*ViewGPUHandleInCurrentHeap.decoded_value,
                                                     *ViewCPUHandle.decoded_value,
@@ -3689,6 +3709,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuDescriptorHandle(*ViewGPUHandleInCurrentHeap.decoded_value);
+        MapCpuDescriptorHandle(*ViewCPUHandle.decoded_value);
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         replay_object->ClearUnorderedAccessViewFloat(*ViewGPUHandleInCurrentHeap.decoded_value,
                                                      *ViewCPUHandle.decoded_value,
@@ -4396,6 +4418,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateConstantBufferView(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateConstantBufferView(pDesc->GetPointer(),
                                                 *DestDescriptor.decoded_value);
     }
@@ -4411,6 +4434,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateShaderResourceView(
     if (replay_object != nullptr)
     {
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateShaderResourceView(in_pResource,
                                                 pDesc->GetPointer(),
                                                 *DestDescriptor.decoded_value);
@@ -4429,6 +4453,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
     {
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         auto in_pCounterResource = MapObject<ID3D12Resource>(pCounterResource);
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateUnorderedAccessView(in_pResource,
                                                  in_pCounterResource,
                                                  pDesc->GetPointer(),
@@ -4446,6 +4471,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRenderTargetView(
     if (replay_object != nullptr)
     {
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateRenderTargetView(in_pResource,
                                               pDesc->GetPointer(),
                                               *DestDescriptor.decoded_value);
@@ -4462,6 +4488,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDepthStencilView(
     if (replay_object != nullptr)
     {
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateDepthStencilView(in_pResource,
                                               pDesc->GetPointer(),
                                               *DestDescriptor.decoded_value);
@@ -4476,6 +4503,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSampler(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateSampler(pDesc->GetPointer(),
                                      *DestDescriptor.decoded_value);
     }
@@ -4494,6 +4522,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CopyDescriptors(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        if (pDestDescriptorRangeStarts && !pDestDescriptorRangeStarts->IsNull())
+        {
+            MapCpuDescriptorHandles(pDestDescriptorRangeStarts->GetPointer(), NumDestDescriptorRanges);
+        }
+        if (pSrcDescriptorRangeStarts && !pSrcDescriptorRangeStarts->IsNull())
+        {
+            MapCpuDescriptorHandles(pSrcDescriptorRangeStarts->GetPointer(), NumSrcDescriptorRanges);
+        }
         replay_object->CopyDescriptors(NumDestDescriptorRanges,
                                        pDestDescriptorRangeStarts->GetPointer(),
                                        pDestDescriptorRangeSizes->GetPointer(),
@@ -4514,6 +4550,8 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapCpuDescriptorHandle(*DestDescriptorRangeStart.decoded_value);
+        MapCpuDescriptorHandle(*SrcDescriptorRangeStart.decoded_value);
         replay_object->CopyDescriptorsSimple(NumDescriptors,
                                              *DestDescriptorRangeStart.decoded_value,
                                              *SrcDescriptorRangeStart.decoded_value,
@@ -6000,6 +6038,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcc
     {
         auto in_pTargetedResource = MapObject<ID3D12Resource>(pTargetedResource);
         auto in_pFeedbackResource = MapObject<ID3D12Resource>(pFeedbackResource);
+        MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateSamplerFeedbackUnorderedAccessView(in_pTargetedResource,
                                                                 in_pFeedbackResource,
                                                                 *DestDescriptor.decoded_value);
@@ -6197,6 +6236,10 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccele
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        if (pSourceAccelerationStructureData && !pSourceAccelerationStructureData->IsNull())
+        {
+            MapGpuVirtualAddresses(pSourceAccelerationStructureData->GetPointer(), NumSourceAccelerationStructures);
+        }
         replay_object->EmitRaytracingAccelerationStructurePostbuildInfo(pDesc->GetPointer(),
                                                                         NumSourceAccelerationStructures,
                                                                         pSourceAccelerationStructureData->GetPointer());
@@ -6212,6 +6255,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccele
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        MapGpuVirtualAddress(DestAccelerationStructureData);
+        MapGpuVirtualAddress(SourceAccelerationStructureData);
         replay_object->CopyRaytracingAccelerationStructure(DestAccelerationStructureData,
                                                            SourceAccelerationStructureData,
                                                            Mode);

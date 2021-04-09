@@ -262,6 +262,15 @@ class BaseGenerator(OutputGenerator):
     # These types represent pointers to non-Vulkan or non-Dx12 objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
+    MAP_STRUCT_TYPE = {
+        'D3D12_CPU_DESCRIPTOR_HANDLE':
+        ['MapCpuDescriptorHandle', 'MapCpuDescriptorHandles'],
+        'D3D12_GPU_DESCRIPTOR_HANDLE':
+        ['MapGpuDescriptorHandle', 'MapGpuDescriptorHandles'],
+        'D3D12_GPU_VIRTUAL_ADDRESS':
+        ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses']
+    }
+
     # Dispatchable handle types.
     DISPATCHABLE_HANDLE_TYPES = [
         'VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue',

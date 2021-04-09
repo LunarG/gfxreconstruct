@@ -298,6 +298,34 @@ class Dx12ReplayConsumerBodyGenerator(
                 arg_list.append(value.name + '->GetPointer()')
 
             else:
+                if not is_output:
+                    map_func = self.MAP_STRUCT_TYPE.get(value.base_type)
+                    if map_func:
+                        if value.is_array:
+                            code += '    if ({0} && !{0}->IsNull())\n'\
+                                    '    {{\n'\
+                                    '        {2}({0}->GetPointer(), {1});\n'\
+                                    '    }}\n'.format(
+                                value.name, value.array_length, map_func[1]
+                            )
+                        else:
+                            if value.is_pointer:
+                                code += '    if ({0} && !{0}->IsNull())\n'\
+                                        '    {{\n'\
+                                        '        {1}(*{0}->GetPointer());\n'\
+                                        '    }}\n'.format(
+                                    value.name, map_func[0]
+                                )
+                            else:
+                                if is_struct:
+                                    code += '    {}(*{}.decoded_value);\n'.format(
+                                        map_func[0], value.name
+                                    )
+                                else:
+                                    code += '    {}({});\n'.format(
+                                        map_func[0], value.name
+                                    )
+
                 if is_override:
                     arg_list.append(value.name)
 
