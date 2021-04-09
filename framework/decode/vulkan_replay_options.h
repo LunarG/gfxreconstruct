@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2019-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,6 +23,8 @@
 
 #ifndef GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 #define GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
+
+#include "decode/replay_options.h"
 
 #include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
@@ -49,7 +51,7 @@ struct ScreenshotRange
     uint32_t last{ 0 };  // Last frame to capture.
 };
 
-struct VulkanReplayOptions
+struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         sync_queue_submissions{ false };
     bool                         skip_failed_allocations{ false };
