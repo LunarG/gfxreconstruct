@@ -33,6 +33,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
 
+VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
+                           std::vector<VkLayerProperties>*        layers);
+
+bool IsSupportedLayer(const std::vector<VkLayerProperties>& properties, const char* layer);
+
 VkResult GetInstanceExtensions(PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc,
                                std::vector<VkExtensionProperties>*        properties);
 
@@ -42,6 +47,8 @@ VkResult GetDeviceExtensions(VkPhysicalDevice                         physical_d
 
 void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& properties,
                                  std::vector<const char*>*                 extensions);
+
+bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension);
 
 // This is a declaration for a generated function.
 void RemoveUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,

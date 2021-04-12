@@ -24,10 +24,48 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
+
+VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
+                           std::vector<VkLayerProperties>*        layers)
+{
+    assert(layers != nullptr);
+
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (instance_layer_proc != nullptr)
+    {
+        uint32_t layer_count = 0;
+        result               = instance_layer_proc(&layer_count, nullptr);
+
+        if ((result == VK_SUCCESS) && (layer_count > 0))
+        {
+            layers->resize(layer_count);
+            result = instance_layer_proc(&layer_count, layers->data());
+        }
+    }
+
+    return result;
+}
+
+bool IsSupportedLayer(const std::vector<VkLayerProperties>& properties, const char* layer)
+{
+    assert(layer != nullptr);
+
+    for (const auto& property : properties)
+    {
+        if (strcmp(property.layerName, layer) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 VkResult GetInstanceExtensions(PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc,
                                std::vector<VkExtensionProperties>*        properties)
@@ -74,6 +112,21 @@ VkResult GetDeviceExtensions(VkPhysicalDevice                         physical_d
     return result;
 }
 
+bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto& property : properties)
+    {
+        if (strcmp(property.extensionName, extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& properties,
                                  std::vector<const char*>*                 extensions)
 {
@@ -82,17 +135,7 @@ void RemoveUnsupportedExtensions(const std::vector<VkExtensionProperties>& prope
     auto extensionIter = extensions->begin();
     while (extensionIter != extensions->end())
     {
-        bool found = false;
-        for (const auto& property : properties)
-        {
-            if (strcmp(property.extensionName, *extensionIter) == 0)
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (found == false)
+        if (!IsSupportedExtension(properties, *extensionIter))
         {
             GFXRECON_LOG_WARNING("Extension %s, which is not supported by the replay device, will not be enabled",
                                  *extensionIter);
