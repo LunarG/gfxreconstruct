@@ -51,6 +51,7 @@ class Dx12StructObjectMappersBodyGenerator(
         self.structs_with_handle_ptrs = []
         # List of structs containing handles that are also used as output parameters for a command
         self.output_structs_with_handles = []
+        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -107,7 +108,8 @@ class Dx12StructObjectMappersBodyGenerator(
             for struct_name in self.get_filtered_struct_names():
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
-                    self.structs_with_handle_ptrs, True
+                    self.structs_with_handle_ptrs, True,
+                    self.structs_with_map_data
                 )
 
     def generate_feature(self):

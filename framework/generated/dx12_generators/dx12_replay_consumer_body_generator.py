@@ -73,6 +73,7 @@ class Dx12ReplayConsumerBodyGenerator(
         )
         self.structs_with_handles = dict()
         self.structs_with_handle_ptrs = []
+        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -103,7 +104,8 @@ class Dx12ReplayConsumerBodyGenerator(
             for struct_name in self.get_filtered_struct_names():
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
-                    self.structs_with_handle_ptrs, True
+                    self.structs_with_handle_ptrs, True,
+                    self.structs_with_map_data
                 )
 
     def generate_feature(self):
@@ -285,14 +287,15 @@ class Dx12ReplayConsumerBodyGenerator(
                                     .format(value.name, name)
                         arg_list.append('in_{}'.format(value.name))
 
-            elif (value.base_type in self.structs_with_handles
-                  ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
+            elif (value.base_type in self.structs_with_handles) or (
+                value.base_type in self.GENERIC_HANDLE_STRUCTS
+            ) or (value.base_type in self.structs_with_map_data):
                 if value.is_array:
-                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable());\n'.format(
+                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());\n'.format(
                         value.name
                     )
                 else:
-                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable());\n'.format(
+                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());\n'.format(
                         value.name
                     )
                 arg_list.append(value.name + '->GetPointer()')

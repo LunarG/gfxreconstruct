@@ -74,6 +74,7 @@ class VulkanStructHandleMappersHeaderGenerator(
         self.structs_with_handle_ptrs = []
         # List of structs containing handles that are also used as output parameters for a command
         self.output_structs_with_handles = []
+        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""

@@ -76,6 +76,7 @@ class VulkanStructHandleMappersBodyGenerator(
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         # List of structs containing handles that are also used as output parameters for a command
         self.output_structs_with_handles = []
+        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""

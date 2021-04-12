@@ -29,7 +29,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table)
+void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
+                      const Dx12ObjectInfoTable&      object_info_table,
+                      const Dx12CpuDescriptorMap&     descriptor_cpu_addresses,
+                      const Dx12GpuDescriptorMap&     descriptor_gpu_addresses,
+                      const util::GpuVaMap&           gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -38,13 +42,22 @@ void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper, const Dx12ObjectI
         switch (value->Type)
         {
             case D3D12_RESOURCE_BARRIER_TYPE_TRANSITION:
-                MapStructObjects(wrapper->Transition, object_info_table);
+                MapStructObjects(wrapper->Transition,
+                                 object_info_table,
+                                 descriptor_cpu_addresses,
+                                 descriptor_gpu_addresses,
+                                 gpu_va_map);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_ALIASING:
-                MapStructObjects(wrapper->Aliasing, object_info_table);
+                MapStructObjects(wrapper->Aliasing,
+                                 object_info_table,
+                                 descriptor_cpu_addresses,
+                                 descriptor_gpu_addresses,
+                                 gpu_va_map);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_UAV:
-                MapStructObjects(wrapper->UAV, object_info_table);
+                MapStructObjects(
+                    wrapper->UAV, object_info_table, descriptor_cpu_addresses, descriptor_gpu_addresses, gpu_va_map);
                 break;
             default:
                 break;
@@ -52,7 +65,11 @@ void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper, const Dx12ObjectI
     }
 }
 
-void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12ObjectInfoTable& object_info_table)
+void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper,
+                      const Dx12ObjectInfoTable&           object_info_table,
+                      const Dx12CpuDescriptorMap&          descriptor_cpu_addresses,
+                      const Dx12GpuDescriptorMap&          descriptor_gpu_addresses,
+                      const util::GpuVaMap&                gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -62,7 +79,11 @@ void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper, const Dx12Ob
     }
 }
 
-void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper, const Dx12ObjectInfoTable& object_info_table)
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
+                      const Dx12ObjectInfoTable&               object_info_table,
+                      const Dx12CpuDescriptorMap&              descriptor_cpu_addresses,
+                      const Dx12GpuDescriptorMap&              descriptor_gpu_addresses,
+                      const util::GpuVaMap&                    gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -71,7 +92,11 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper, const Dx
         switch (value->Type)
         {
             case D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE:
-                MapStructObjects(wrapper->Resolve, object_info_table);
+                MapStructObjects(wrapper->Resolve,
+                                 object_info_table,
+                                 descriptor_cpu_addresses,
+                                 descriptor_gpu_addresses,
+                                 gpu_va_map);
                 break;
             default:
                 break;

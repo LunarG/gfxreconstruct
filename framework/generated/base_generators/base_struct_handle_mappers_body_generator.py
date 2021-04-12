@@ -99,20 +99,25 @@ class BaseStructHandleMappersBodyGenerator():
         """Performs C++ code generation for the feature."""
         platform_type = 'Vulkan'
         map_types = 'Handles'
+        map_table = ''
         if self.is_dx12_class():
             platform_type = 'Dx12'
             map_types = 'Objects'
+            map_table = ', const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map'
 
         for struct in self.get_filtered_struct_names():
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
+                or (struct in self.structs_with_map_data)
             ):
                 handle_members = dict()
                 generic_handle_members = dict()
 
                 if struct in self.structs_with_handles:
                     handle_members = self.structs_with_handles[struct]
+                if struct in self.structs_with_map_data:
+                    handle_members = self.structs_with_map_data[struct]
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
@@ -125,15 +130,18 @@ class BaseStructHandleMappersBodyGenerator():
                 else:
                     for member in handle_members:
                         if (
-                            self.is_handle(member.base_type)
-                            or self.is_class(member)
-                        ) and not (member.is_array and not member.is_dynamic):
+                            (
+                                self.is_handle(member.base_type)
+                                or self.is_class(member)
+                            ) and
+                            not (member.is_array and not member.is_dynamic)
+                        ) or (member.base_type in self.MAP_STRUCT_TYPE):
                             needs_value_ptr = True
                             break
 
                 body = '\n'
-                body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table)\n'.format(
-                    map_types, struct, platform_type
+                body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{})\n'.format(
+                    map_types, struct, platform_type, map_table
                 )
                 body += '{\n'
 
@@ -163,34 +171,60 @@ class BaseStructHandleMappersBodyGenerator():
         map_type = 'Object'
         base_type = 'object'
         object_info_table_get = ''
+        given_object = ', descriptor_cpu_addresses, descriptor_gpu_addresses, gpu_va_map'
         is_dx12_class = self.is_dx12_class()
         if not is_dx12_class:
             map_types = 'Handles'
             map_type = 'Handle'
             base_type = 'handle'
+            given_object = ''
 
         body = ''
         for member in handle_members:
             body += '\n'
+            map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
             if ('pNext' in member.name) and (not is_dx12_class):
                 body += '        if (wrapper->pNext)\n'
                 body += '        {\n'
                 body += '            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);\n'
                 body += '        }\n'
+            elif map_func:
+                if member.is_array:
+                    body += '    if ({0})\n'\
+                            '    {{\n'\
+                            '        object_mapping::{2}(value->{0}->GetPointer(), {1}, {3});\n'\
+                            '    }}\n'.format(
+                        member.name, member.array_length, map_func[1], map_func[2]
+                    )
+                else:
+                    if member.is_pointer:
+                        body += '    if ({0})\n'\
+                                '    {{\n'\
+                                '        object_mapping::{1}(value->{0}->GetPointer(), {2});\n'\
+                                '    }}\n'.format(
+                            member.name, map_func[0], map_func[2]
+                        )
+                    else:
+                        body += '        object_mapping::{}(value->{}, {});\n'.format(
+                            map_func[0], member.name, map_func[2]
+                        )
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        MapStructArray{}<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table);\n'.format(
-                        map_types, member.base_type, name=member.name
+                    body += '        MapStructArray{}<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table{});\n'.format(
+                        map_types,
+                        member.base_type,
+                        given_object,
+                        name=member.name
                     )
                 elif member.is_pointer:
-                    body += '        MapStructArray{}<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_info_table);\n'.format(
-                        map_types, member.base_type, member.name
+                    body += '        MapStructArray{}<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_info_table{});\n'.format(
+                        map_types, member.base_type, member.name, given_object
                     )
                 else:
-                    body += '        MapStruct{}(wrapper->{}, object_info_table);\n'.format(
-                        map_types, member.name
+                    body += '        MapStruct{}(wrapper->{}, object_info_table{});\n'.format(
+                        map_types, member.name, given_object
                     )
             else:
                 type = member.base_type
@@ -250,15 +284,17 @@ class BaseStructHandleMappersBodyGenerator():
         map_types = 'Handles'
         map_type = 'Handle'
         base_type = 'handle'
+        map_table = ''
         is_dx12_class = self.is_dx12_class()
         if is_dx12_class:
             platform_type = 'Dx12'
             map_types = 'Objects'
             map_type = 'Object'
             base_type = 'object'
+            map_table = ', Dx12CpuDescriptorMap* descriptor_cpu_addresses, Dx12GpuDescriptorMap* descriptor_gpu_addresses, util::GpuVaMap* gpu_va_map'
 
-        body = 'void AddStruct{}(format::HandleId parent_id, const Decoded_{name}* id_wrapper, const {name}* handle_struct, {}ObjectInfoTable* object_info_table)\n'.format(
-            map_types, platform_type, name=name
+        body = 'void AddStruct{}(format::HandleId parent_id, const Decoded_{name}* id_wrapper, const {name}* handle_struct, {}ObjectInfoTable* object_info_table{})\n'.format(
+            map_types, platform_type, map_table, name=name
         )
         body += '{\n'
         body += '    if (id_wrapper != nullptr)\n'

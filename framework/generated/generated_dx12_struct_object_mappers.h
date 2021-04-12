@@ -33,48 +33,86 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructObjects(Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RESOURCE_TRANSITION_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_RESOURCE_TRANSITION_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RESOURCE_ALIASING_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_RESOURCE_ALIASING_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RESOURCE_UAV_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_RESOURCE_UAV_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_LOCAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_EXISTING_COLLECTION_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_VERTEX_BUFFER_VIEW* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_INDEX_BUFFER_VIEW* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_LOCAL_ROOT_SIGNATURE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table);
+void MapStructObjects(Decoded_D3D12_EXISTING_COLLECTION_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RAYTRACING_INSTANCE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_AUTO_BREADCRUMB_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DRED_ALLOCATION_NODE1* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DISPATCH_RAYS_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map);
 
 template <typename T>
-void MapStructArrayObjects(T* structs, size_t len, const Dx12ObjectInfoTable& object_info_table)
+void MapStructArrayObjects(T* structs, size_t len, const Dx12ObjectInfoTable& object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map)
 {
     if (structs != nullptr)
     {
         for (size_t i = 0; i < len; ++i)
         {
-            MapStructObjects(&structs[i], object_info_table);
+            MapStructObjects(&structs[i], object_info_table, descriptor_cpu_addresses, descriptor_gpu_addresses, gpu_va_map);
         }
     }
 }
 
 template <typename T>
-void AddStructArrayObjects(format::HandleId parent_id, const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, Dx12ObjectInfoTable* object_info_table)
+void AddStructArrayObjects(format::HandleId parent_id, const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, Dx12ObjectInfoTable* object_info_table, const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map)
 {
     if (id_wrappers != nullptr && handle_structs != nullptr)
     {

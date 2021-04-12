@@ -3186,8 +3186,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pDst->GetMetaStructPointer(), GetObjectInfoTable());
-        MapStructObjects(pSrc->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pDst->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
+        MapStructObjects(pSrc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->CopyTextureRegion(pDst->GetPointer(),
                                          DstX,
                                          DstY,
@@ -3335,7 +3335,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructArrayObjects(pBarriers->GetMetaStructPointer(), pBarriers->GetLength(), GetObjectInfoTable());
+        MapStructArrayObjects(pBarriers->GetMetaStructPointer(), pBarriers->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->ResourceBarrier(NumBarriers,
                                        pBarriers->GetPointer());
     }
@@ -3574,6 +3574,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pView->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->IASetIndexBuffer(pView->GetPointer());
     }
 }
@@ -3587,6 +3588,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructArrayObjects(pViews->GetMetaStructPointer(), pViews->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->IASetVertexBuffers(StartSlot,
                                           NumViews,
                                           pViews->GetPointer());
@@ -3602,6 +3604,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructArrayObjects(pViews->GetMetaStructPointer(), pViews->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->SOSetTargets(StartSlot,
                                     NumViews,
                                     pViews->GetPointer());
@@ -3999,6 +4002,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate
     auto replay_object = MapObject<ID3D12GraphicsCommandList2>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructArrayObjects(pParams->GetMetaStructPointer(), pParams->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->WriteBufferImmediate(Count,
                                             pParams->GetPointer(),
                                             pModes->GetPointer());
@@ -4253,7 +4257,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -4278,7 +4282,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -4418,6 +4422,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateConstantBufferView(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         MapCpuDescriptorHandle(*DestDescriptor.decoded_value);
         replay_object->CreateConstantBufferView(pDesc->GetPointer(),
                                                 *DestDescriptor.decoded_value);
@@ -4999,7 +5004,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -5026,7 +5031,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -5828,6 +5833,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAll
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         auto replay_result = replay_object->GetPageFaultAllocationOutput(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput", returnValue, replay_result);
     }
@@ -5854,6 +5860,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         auto replay_result = replay_object->GetPageFaultAllocationOutput1(pOutput->GetPointer());
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
     }
@@ -6161,8 +6168,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructArrayObjects(pRenderTargets->GetMetaStructPointer(), pRenderTargets->GetLength(), GetObjectInfoTable());
-        MapStructObjects(pDepthStencil->GetMetaStructPointer(), GetObjectInfoTable());
+        MapStructArrayObjects(pRenderTargets->GetMetaStructPointer(), pRenderTargets->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
+        MapStructObjects(pDepthStencil->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->BeginRenderPass(NumRenderTargets,
                                        pRenderTargets->GetPointer(),
                                        pDepthStencil->GetPointer(),
@@ -6221,6 +6228,8 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccel
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
+        MapStructArrayObjects(pPostbuildInfoDescs->GetMetaStructPointer(), pPostbuildInfoDescs->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->BuildRaytracingAccelerationStructure(pDesc->GetPointer(),
                                                             NumPostbuildInfoDescs,
                                                             pPostbuildInfoDescs->GetPointer());
@@ -6236,6 +6245,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccele
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if (pSourceAccelerationStructureData && !pSourceAccelerationStructureData->IsNull())
         {
             MapGpuVirtualAddresses(pSourceAccelerationStructureData->GetPointer(), NumSourceAccelerationStructures);
@@ -6282,6 +6292,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
     auto replay_object = MapObject<ID3D12GraphicsCommandList4>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         replay_object->DispatchRays(pDesc->GetPointer());
     }
 }

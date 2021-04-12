@@ -263,12 +263,16 @@ class BaseGenerator(OutputGenerator):
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     MAP_STRUCT_TYPE = {
-        'D3D12_CPU_DESCRIPTOR_HANDLE':
-        ['MapCpuDescriptorHandle', 'MapCpuDescriptorHandles'],
-        'D3D12_GPU_DESCRIPTOR_HANDLE':
-        ['MapGpuDescriptorHandle', 'MapGpuDescriptorHandles'],
+        'D3D12_CPU_DESCRIPTOR_HANDLE': [
+            'MapCpuDescriptorHandle', 'MapCpuDescriptorHandles',
+            'descriptor_cpu_addresses'
+        ],
+        'D3D12_GPU_DESCRIPTOR_HANDLE': [
+            'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
+            'descriptor_gpu_addresses'
+        ],
         'D3D12_GPU_VIRTUAL_ADDRESS':
-        ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses']
+        ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
     }
 
     # Dispatchable handle types.
@@ -757,7 +761,12 @@ class BaseGenerator(OutputGenerator):
         return found_handles, found_handle_ptrs
 
     def check_struct_member_handles(
-        self, typename, structs_with_handles, structs_with_handle_ptrs=None, ignore_output=False
+        self,
+        typename,
+        structs_with_handles,
+        structs_with_handle_ptrs=None,
+        ignore_output=False,
+        structs_with_map_data=None
     ):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
@@ -765,6 +774,7 @@ class BaseGenerator(OutputGenerator):
         """
         handles = []
         has_handle_pointer = False
+        map_data = []
         for value in self.feature_struct_members[typename]:
             if self.is_handle(value.base_type) or self.is_class(value):
                 # The member is a handle.
@@ -774,9 +784,10 @@ class BaseGenerator(OutputGenerator):
                     and (value.is_pointer or value.is_array)
                 ):
                     has_handle_pointer = True
-            elif self.is_struct(
-                value.base_type
-            ) and ((value.base_type in structs_with_handles) and ((not ignore_output) or (not '_Out_' in value.full_type))):
+            elif self.is_struct(value.base_type) and (
+                (value.base_type in structs_with_handles) and
+                ((not ignore_output) or (not '_Out_' in value.full_type))
+            ):
                 # The member is a struct that contains a handle.
                 handles.append(value)
                 if (
@@ -787,7 +798,9 @@ class BaseGenerator(OutputGenerator):
             elif 'anon-union' in value.base_type:
                 # Check the anonymous union for objects.
                 for union_info in value.union_members:
-                    if self.is_struct(union_info[1]) and (union_info[1] in structs_with_handles):
+                    if self.is_struct(
+                        union_info[1]
+                    ) and (union_info[1] in structs_with_handles):
                         handles.append(value)
                         has_handle_pointer = True
                     elif union_info[1] in self.source_dict['class_list']:
@@ -804,6 +817,16 @@ class BaseGenerator(OutputGenerator):
                         structs_with_handle_ptrs is not None
                     ) and has_pnext_handle_ptrs:
                         has_handle_pointer = True
+
+            if (structs_with_map_data is not None) and (
+                (value.base_type in self.MAP_STRUCT_TYPE) or
+                (value.base_type in self.structs_with_map_data)
+            ):
+                map_data.append(value)
+
+        if map_data:
+            structs_with_map_data[typename] = map_data
+
         if handles:
             # Process the list of struct members a second time to check for
             # members with the same type as the struct.  The current struct
@@ -814,7 +837,9 @@ class BaseGenerator(OutputGenerator):
             # struct members that have the same type as the struct must be
             # added to the handle member list.
             for value in self.feature_struct_members[typename]:
-                if (value.base_type == typename) and ((not ignore_output) or (not '_Out_' in value.full_type)):
+                if (value.base_type == typename) and (
+                    (not ignore_output) or (not '_Out_' in value.full_type)
+                ):
                     handles.append(value)
 
             structs_with_handles[typename] = handles
