@@ -64,135 +64,32 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
 void Dx12ReplayConsumerBase::MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle)
 {
-    size_t replay_addr = 0;
-    auto   entry       = descriptor_cpu_addresses_.lower_bound(handle.ptr);
-
-    if (entry != descriptor_cpu_addresses_.end())
-    {
-        auto info              = entry->second;
-        auto type              = info->descriptor_type;
-        auto start_addr        = info->capture_cpu_addr_begin;
-        auto capture_increment = (*info->capture_increments)[type];
-        auto replay_increment  = (*info->replay_increments)[type];
-
-        // Check to see if the descriptor address is withing the range of the captured descriptor heap address
-        // boundaries.
-        if (info->capture_cpu_addr_end == 0)
-        {
-            // Compute the end address for the heap.
-            auto size                  = capture_increment * info->descriptor_count;
-            info->capture_cpu_addr_end = start_addr + size;
-        }
-
-        if (handle.ptr < info->capture_cpu_addr_end)
-        {
-            replay_addr = info->replay_cpu_addr_begin;
-
-            // Compute offset from address.
-            auto offset = handle.ptr - start_addr;
-            if (offset > 0)
-            {
-                if (capture_increment == replay_increment)
-                {
-                    replay_addr += offset;
-                }
-                else
-                {
-                    replay_addr += (offset / capture_increment) * replay_increment;
-                }
-            }
-        }
-    }
-
-    if (replay_addr != 0)
-    {
-        handle.ptr = replay_addr;
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("Failed to map CPU descriptor handle 0x%" PRIxPTR, handle.ptr);
-    }
+    object_mapping::MapCpuDescriptorHandle(handle, descriptor_cpu_addresses_);
 }
 
 void Dx12ReplayConsumerBase::MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    for (size_t i = 0; i < handles_len; ++i)
-    {
-        MapCpuDescriptorHandle(handles[i]);
-    }
+    object_mapping::MapCpuDescriptorHandles(handles, handles_len, descriptor_cpu_addresses_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle)
 {
-    uint64_t replay_addr = 0;
-    auto     entry       = descriptor_gpu_addresses_.lower_bound(handle.ptr);
-
-    if (entry != descriptor_gpu_addresses_.end())
-    {
-        auto info              = entry->second;
-        auto type              = info->descriptor_type;
-        auto start_addr        = info->capture_gpu_addr_begin;
-        auto capture_increment = (*info->capture_increments)[type];
-        auto replay_increment  = (*info->replay_increments)[type];
-
-        // Check to see if the descriptor address is withing the range of the captured descriptor heap address
-        // boundaries.
-        if (info->capture_gpu_addr_end == 0)
-        {
-            // Compute the end address for the heap.
-            auto size                  = capture_increment * info->descriptor_count;
-            info->capture_gpu_addr_end = start_addr + size;
-        }
-
-        if (handle.ptr < info->capture_gpu_addr_end)
-        {
-            replay_addr = info->replay_gpu_addr_begin;
-
-            // Compute offset from address.
-            auto offset = handle.ptr - start_addr;
-            if (offset > 0)
-            {
-                if (capture_increment == replay_increment)
-                {
-                    replay_addr += offset;
-                }
-                else
-                {
-                    replay_addr += (offset / capture_increment) * replay_increment;
-                }
-            }
-        }
-    }
-
-    if (replay_addr != 0)
-    {
-        handle.ptr = replay_addr;
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("Failed to map GPU descriptor handle 0x%" PRIxPTR, handle.ptr);
-    }
+    object_mapping::MapGpuDescriptorHandle(handle, descriptor_gpu_addresses_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    for (size_t i = 0; i < handles_len; ++i)
-    {
-        MapGpuDescriptorHandle(handles[i]);
-    }
+    object_mapping::MapGpuDescriptorHandles(handles, handles_len, descriptor_gpu_addresses_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
 {
-    address = gpu_va_map_.GetReplayGpuVa(address);
+    object_mapping::MapGpuVirtualAddress(address, gpu_va_map_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len)
 {
-    for (size_t i = 0; i < addresses_len; ++i)
-    {
-        MapGpuVirtualAddress(addresses[i]);
-    }
+    object_mapping::MapGpuVirtualAddresses(addresses, addresses_len, gpu_va_map_);
 }
 
 void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)

@@ -30,7 +30,6 @@
 #include "generated/generated_dx12_consumer.h"
 #include "util/gpu_va_map.h"
 
-#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -198,6 +197,18 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return nullptr;
     }
 
+    const Dx12CpuDescriptorMap& GetCpuAddressTable() const { return descriptor_cpu_addresses_; }
+
+    Dx12CpuDescriptorMap& GetCpuAddressTable() { return descriptor_cpu_addresses_; }
+
+    const Dx12GpuDescriptorMap& GetGpuAddressTable() const { return descriptor_gpu_addresses_; }
+
+    Dx12GpuDescriptorMap& GetGpuAddressTable() { return descriptor_gpu_addresses_; }
+
+    const util::GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
+
+    util::GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
+
   private:
     HRESULT
     CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
@@ -214,13 +225,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void DestroyActiveWindows();
 
   private:
-    Dx12ObjectInfoTable                          object_info_table_;
-    WindowFactory*                               window_factory_;
-    std::unordered_set<Window*>                  active_windows_;
-    std::unordered_map<uint64_t, void*>          mapped_memory_;
-    std::map<size_t, D3D12DescriptorHeapInfo*, std::greater<size_t>>     descriptor_cpu_addresses_;
-    std::map<uint64_t, D3D12DescriptorHeapInfo*, std::greater<uint64_t>> descriptor_gpu_addresses_;
-    util::GpuVaMap                                                       gpu_va_map_;
+    Dx12ObjectInfoTable                 object_info_table_;
+    WindowFactory*                      window_factory_;
+    std::unordered_set<Window*>         active_windows_;
+    std::unordered_map<uint64_t, void*> mapped_memory_;
+    Dx12CpuDescriptorMap                descriptor_cpu_addresses_;
+    Dx12GpuDescriptorMap                descriptor_gpu_addresses_;
+    util::GpuVaMap                      gpu_va_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
