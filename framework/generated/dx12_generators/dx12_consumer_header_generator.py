@@ -106,7 +106,6 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         parameters = ''
         if class_name:
             parameters = '        format::HandleId object_id'
-            class_name = "_" + class_name
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
@@ -164,14 +163,18 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                 elif space_index == 0:
                     break
 
+        _class_name = ''
+        if class_name:
+            _class_name = '_' + class_name
+
         code = '{}void {}Process{}_{}(\n'\
-               '{}){}\n\n'.format(
-                   indent,
-                   function_class,
-                   class_name,
-                   method_info['name'],
-                   parameters,
-                   self.get_consumer_function_body(class_name, method_info))
+            '{}){}\n\n'.format(
+                indent,
+                function_class,
+                _class_name,
+                method_info['name'],
+                parameters,
+                self.get_consumer_function_body(class_name, method_info))
         return code
 
     def write_constructor_class(self, consumer_type):

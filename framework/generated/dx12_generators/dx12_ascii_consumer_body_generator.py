@@ -51,7 +51,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             code = '\n'\
                    '{{\n'\
                    '    fprintf(GetFile(), "%s\\n", "{}::{}");\n'\
-                   '}}\n'.format(class_name[1:], method_info['name'])
+                   '}}\n'.format(class_name, method_info['name'])
         else:
             code = '\n'\
                    '{{\n'\

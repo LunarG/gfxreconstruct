@@ -123,7 +123,6 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         parameters = ''
         if class_name:
             parameters = '    format::HandleId wrapper_id'
-            class_name = "_" + class_name
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
@@ -177,8 +176,12 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
                 elif space_index == 0:
                     break
 
+        _class_name = ''
+        if class_name:
+            _class_name = '_' + class_name
+
         code = 'void Encode{}_{}(\n'\
-               '{})'.format(class_name, method_info['name'], parameters)
+            '{})'.format(_class_name, method_info['name'], parameters)
 
         code += self.get_encode_function_body(class_name, method_info)
         write(code, file=self.outFile)

@@ -220,7 +220,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         if class_name:
             body += (
-                '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall{}_{}, wrapper_id);\n'
+                '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_{}_{}, wrapper_id);\n'
                 .format(class_name, method_info['name'])
             )
         else:
