@@ -67,13 +67,16 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
             self.newline()
 
             for m in v.functions:
-                if self.is_required_function_data(m):
+                if self.is_required_function_data(m) and (
+                    not self.is_cmd_black_listed(m['name'])
+                ):
                     self.write_encode_function('', m)
 
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
-                        self.write_encode_function(k2, m)
+                        if not self.is_method_black_listed(k2, m['name']):
+                            self.write_encode_function(k2, m)
 
                 elif self.is_required_struct_data(k2, v2):
                     self.write_encode_struct(k2, v2['properties'])

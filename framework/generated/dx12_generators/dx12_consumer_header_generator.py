@@ -217,7 +217,9 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         for k, v in header_dict.items():
             code_length = len(code)
             for m in v.functions:
-                if self.is_required_function_data(m):
+                if self.is_required_function_data(m) and (
+                    not self.is_cmd_black_listed(m['name'])
+                ):
                     code += self.get_consumer_function(
                         '', m, consumer_type, indent, function_class
                     )
@@ -225,9 +227,10 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
-                        code += self.get_consumer_function(
-                            k2, m, consumer_type, indent, function_class
-                        )
+                        if not self.is_method_black_listed(k2, m['name']):
+                            code += self.get_consumer_function(
+                                k2, m, consumer_type, indent, function_class
+                            )
 
             code_length2 = len(code)
             if code_length2 > code_length:

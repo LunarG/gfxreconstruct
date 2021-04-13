@@ -78,8 +78,9 @@ void Dx12Decoder::DecodeFunctionCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_D3D12EnableExperimentalFeatures:
         Decode_D3D12EnableExperimentalFeatures(parameter_buffer, buffer_size);
         break;
-default:
-    break;
+    default:
+        Dx12DecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
+        break;
     }
 }
 
@@ -88,7 +89,7 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
                                    format::HandleId   object_id,
                                    const ApiCallInfo& call_info,
                                    const uint8_t*     parameter_buffer,
-                                   size_t             buffer_size) 
+                                   size_t             buffer_size)
 {
     GFXRECON_UNREFERENCED_PARAMETER(call_info);
     switch (call_id)
@@ -1182,8 +1183,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_IUnknown_Release:
         Decode_IUnknown_Release(object_id, parameter_buffer, buffer_size);
         break;
-default:
-    break;
+    default:
+        Dx12DecoderBase::DecodeMethodCall(call_id, object_id, call_info, parameter_buffer, buffer_size);
+        break;
     }
 }
 

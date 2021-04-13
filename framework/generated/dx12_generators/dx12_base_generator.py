@@ -353,7 +353,10 @@ class Dx12BaseGenerator(BaseGenerator):
                         )
 
     def get_filtered_method_names(self):
-        return [key for key in self.feature_method_params]
+        return [
+            key for key in self.feature_method_params
+            if not self.is_method_black_listed(key)
+        ]
 
     def make_value_info(self, params):
         """Methond override."""

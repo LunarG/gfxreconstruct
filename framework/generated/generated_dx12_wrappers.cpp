@@ -28,6 +28,7 @@
 #include "generated/generated_dx12_struct_wrappers.h"
 #include "generated/generated_dx12_wrappers.h"
 
+#include "encode/custom_dx12_api_call_encoders.h"
 #include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/custom_dx12_wrapper_commands.h"
 #include "encode/d3d12_capture_manager.h"

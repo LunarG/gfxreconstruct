@@ -223,6 +223,9 @@ class BaseGenerator(OutputGenerator):
     # These API calls should not be processed by the code generator.  They require special implementations.
     APICALL_BLACKLIST = []
 
+    # These method calls should not be processed by the code generator.  They require special implementations.
+    METHODCALL_BLACKLIST = []
+
     # These structures should not be processed by the code generator.  They require special implementations.
     STRUCT_BLACKLIST = []
 
@@ -685,8 +688,17 @@ class BaseGenerator(OutputGenerator):
         return False
 
     def is_cmd_black_listed(self, name):
-        """Determines if a struct with the specified typename is blacklisted."""
+        """Determines if a function with the specified typename is blacklisted."""
         if name in self.APICALL_BLACKLIST:
+            return True
+        return False
+
+    def is_method_black_listed(self, class_name, method_name=None):
+        """Determines if a method call with the specified typename is blacklisted."""
+        combined_name = class_name
+        if method_name:
+            combined_name +=  '_' + method_name
+        if combined_name in self.METHODCALL_BLACKLIST:
             return True
         return False
 
@@ -1243,6 +1255,10 @@ class BaseGenerator(OutputGenerator):
         lists = json.loads(open(filename, 'r').read())
         self.APICALL_BLACKLIST += lists['functions']
         self.STRUCT_BLACKLIST += lists['structures']
+        if 'classmethods' in lists:
+            for class_name, method_list in lists['classmethods'].items():
+                for method_name in method_list:
+                    self.METHODCALL_BLACKLIST.append(class_name + '_' + method_name)
 
     def __load_platform_types(self, filename):
         platforms = json.loads(open(filename, 'r').read())

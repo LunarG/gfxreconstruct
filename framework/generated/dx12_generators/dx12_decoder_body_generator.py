@@ -89,7 +89,7 @@ class Dx12DecoderBodyGenerator(
             "                                   format::HandleId   object_id,\n"
             "                                   const ApiCallInfo& call_info,\n"
             "                                   const uint8_t*     parameter_buffer,\n"
-            "                                   size_t             buffer_size) {}\n"
+            "                                   size_t             buffer_size){}\n"
             .format(
                 self.get_decode_function_call_body(),
                 self.get_decode_method_call_body()
@@ -108,15 +108,18 @@ class Dx12DecoderBodyGenerator(
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for m in v.functions:
-                if self.is_required_function_data(m):
+                if self.is_required_function_data(m) and (
+                    not self.is_cmd_black_listed(m['name'])
+                ):
                     code += (
                         "    case format::ApiCallId::ApiCall_{0}:\n"
                         "        Decode_{0}(parameter_buffer, buffer_size);\n"
                         "        break;\n".format(m['name'])
                     )
 
-        code += 'default:\n'\
-                '    break;\n'\
+        code += '    default:\n'\
+                '        Dx12DecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);\n'\
+                '        break;\n'\
                 '    }\n'\
                 '}\n'
         return code
@@ -134,14 +137,16 @@ class Dx12DecoderBodyGenerator(
             for k2, v2 in v.classes.items():
                 if self.is_required_class_data(v2):
                     for m in v2['methods']['public']:
-                        code += (
-                            "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
-                            "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
-                            "        break;\n".format(k2, m['name'])
-                        )
+                        if not self.is_method_black_listed(k2, m['name']):
+                            code += (
+                                "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
+                                "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
+                                "        break;\n".format(k2, m['name'])
+                            )
 
-        code += 'default:\n'\
-                '    break;\n'\
+        code += '    default:\n'\
+                '        Dx12DecoderBase::DecodeMethodCall(call_id, object_id, call_info, parameter_buffer, buffer_size);\n'\
+                '        break;\n'\
                 '    }\n'\
                 '}\n'
         return code
