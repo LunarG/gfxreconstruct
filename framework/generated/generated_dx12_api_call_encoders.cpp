@@ -5537,24 +5537,6 @@ void Encode_ID3D12Device_CreateCommandList(
     }
 }
 
-void Encode_ID3D12Device_CheckFeatureSupport(
-    format::HandleId wrapper_id,
-    HRESULT result,
-    D3D12_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport, wrapper_id);
-    if(encoder)
-    {
-        encoder->EncodeEnumValue(Feature);
-        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize);
-        encoder->EncodeUInt32Value(FeatureSupportDataSize);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture(encoder);
-    }
-}
-
 void Encode_ID3D12Device_CreateDescriptorHeap(
     format::HandleId wrapper_id,
     HRESULT result,

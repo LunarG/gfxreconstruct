@@ -841,9 +841,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList:
         Decode_ID3D12Device_CreateCommandList(object_id, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport:
-        Decode_ID3D12Device_CheckFeatureSupport(object_id, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_ID3D12Device_CreateDescriptorHeap:
         Decode_ID3D12Device_CreateDescriptorHeap(object_id, parameter_buffer, buffer_size);
         break;
@@ -6447,28 +6444,6 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateCommandList(format::HandleId objec
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12Device_CreateCommandList(object_id, return_value, nodeMask, type, pCommandAllocator, pInitialState, riid, &ppCommandList);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    D3D12_FEATURE Feature;
-    PointerDecoder<uint8_t> pFeatureSupportData;
-    UINT FeatureSupportDataSize;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Feature);
-    bytes_read += pFeatureSupportData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &FeatureSupportDataSize);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_ID3D12Device_CheckFeatureSupport(object_id, return_value, Feature, &pFeatureSupportData, FeatureSupportDataSize);
     }
 
     return bytes_read;

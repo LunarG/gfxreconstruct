@@ -348,7 +348,6 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12Device_CreateGraphicsPipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device_CreateComputePipelineState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device_CreateCommandList(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
-    size_t Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device_CreateDescriptorHeap(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device_GetDescriptorHandleIncrementSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Device_CreateRootSignature(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);

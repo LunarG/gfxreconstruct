@@ -1599,13 +1599,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandList);
 
-    virtual void Process_ID3D12Device_CheckFeatureSupport(
-        format::HandleId object_id,
-        HRESULT returnValue,
-        D3D12_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize);
-
     virtual void Process_ID3D12Device_CreateDescriptorHeap(
         format::HandleId object_id,
         HRESULT returnValue,

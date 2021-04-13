@@ -42,6 +42,13 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
 
     const std::string& GetFilename() const { return m_filename; }
 
+    void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                  HRESULT          original_result,
+                                                  D3D12_FEATURE    feature,
+                                                  const void*      capture_feature_data,
+                                                  void*            replay_feature_data,
+                                                  UINT             feature_data_size) override;
+
   protected:
     FILE* GetFile() const { return m_file; }
 

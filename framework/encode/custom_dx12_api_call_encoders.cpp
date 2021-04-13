@@ -20,14 +20,14 @@
 ** IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CUSTOM_DX12_API_CALL_ENCODERS_H
-#define GFXRECON_ENCODE_CUSTOM_DX12_API_CALL_ENCODERS_H
+#include "encode/custom_dx12_api_call_encoders.h"
 
-#include "format/format.h"
+#include "encode/custom_dx12_struct_encoders.h"
+#include "encode/d3d12_capture_manager.h"
 #include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
+#include "format/api_call_id.h"
 #include "util/defines.h"
-
-#include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -36,9 +36,19 @@ void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
                                              HRESULT          result,
                                              D3D12_FEATURE    Feature,
                                              void*            pFeatureSupportData,
-                                             UINT             FeatureSupportDataSize);
+                                             UINT             FeatureSupportDataSize)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport, wrapper_id);
+    if (encoder)
+    {
+        encoder->EncodeEnumValue(Feature);
+        EncodeD3D12FeatureStruct(encoder, pFeatureSupportData, Feature);
+        encoder->EncodeUInt32Value(FeatureSupportDataSize);
+        encoder->EncodeInt32Value(result);
+        D3D12CaptureManager::Get()->EndMethodCallCapture(encoder);
+    }
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_ENCODE_CUSTOM_DX12_API_CALL_ENCODERS_H

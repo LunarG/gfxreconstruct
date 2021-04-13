@@ -374,5 +374,95 @@ void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
     encoder->EncodeInt64Value(value.QuadPart);
 }
 
+void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature)
+{
+    switch (feature)
+    {
+        case D3D12_FEATURE_D3D12_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS*>(feature_data));
+            break;
+        case D3D12_FEATURE_ARCHITECTURE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_ARCHITECTURE*>(feature_data));
+            break;
+        case D3D12_FEATURE_FEATURE_LEVELS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_FEATURE_LEVELS*>(feature_data));
+            break;
+        case D3D12_FEATURE_FORMAT_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_FORMAT_SUPPORT*>(feature_data));
+            break;
+        case D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS*>(feature_data));
+            break;
+        case D3D12_FEATURE_FORMAT_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_FORMAT_INFO*>(feature_data));
+            break;
+        case D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT*>(feature_data));
+            break;
+        case D3D12_FEATURE_SHADER_MODEL:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_SHADER_MODEL*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS1*>(feature_data));
+            break;
+        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_SUPPORT:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT*>(feature_data));
+            break;
+        case D3D12_FEATURE_ROOT_SIGNATURE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_ROOT_SIGNATURE*>(feature_data));
+            break;
+        case D3D12_FEATURE_ARCHITECTURE1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_ARCHITECTURE1*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS2:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS2*>(feature_data));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_SHADER_CACHE*>(feature_data));
+            break;
+        case D3D12_FEATURE_COMMAND_QUEUE_PRIORITY:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS3:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS3*>(feature_data));
+            break;
+        case D3D12_FEATURE_EXISTING_HEAPS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_EXISTING_HEAPS*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS4:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS4*>(feature_data));
+            break;
+        case D3D12_FEATURE_SERIALIZATION:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_SERIALIZATION*>(feature_data));
+            break;
+        case D3D12_FEATURE_CROSS_NODE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_CROSS_NODE*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS5:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS5*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS6:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS6*>(feature_data));
+            break;
+        case D3D12_FEATURE_QUERY_META_COMMAND:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_QUERY_META_COMMAND*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS7:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS7*>(feature_data));
+            break;
+        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT*>(feature_data));
+            break;
+        case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES*>(feature_data));
+            break;
+        default:
+            break;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

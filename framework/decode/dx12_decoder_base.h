@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_DX12_DECODER_BASE_H
 
 #include "decode/api_decoder.h"
+#include "decode/struct_pointer_decoder.h"
 #include "generated/generated_dx12_consumer.h"
 
 #include <algorithm>
@@ -64,8 +65,7 @@ class Dx12DecoderBase : public ApiDecoder
                                   format::HandleId   object_id,
                                   const ApiCallInfo& call_options,
                                   const uint8_t*     parameter_buffer,
-                                  size_t             buffer_size) override
-    {}
+                                  size_t             buffer_size) override;
 
     virtual void DispatchStateBeginMarker(uint64_t frame_number) override;
 
@@ -153,6 +153,44 @@ class Dx12DecoderBase : public ApiDecoder
 
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
+
+  private:
+    template <typename T>
+    size_t DecodeCheckFeatureSupport(format::HandleId object_id,
+                                     D3D12_FEATURE    feature,
+                                     const uint8_t*   parameter_buffer,
+                                     size_t           buffer_size)
+    {
+        size_t bytes_read = 0;
+
+        StructPointerDecoder<T> feature_data;
+        UINT                    feature_data_size;
+        HRESULT                 return_value;
+
+        bytes_read += feature_data.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        bytes_read += ValueDecoder::DecodeUInt32Value(
+            (parameter_buffer + bytes_read), (buffer_size - bytes_read), &feature_data_size);
+        bytes_read +=
+            ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+        auto* capture_data = feature_data.GetPointer();
+        if (capture_data != nullptr)
+        {
+            feature_data.AllocateOutputData(1, *capture_data);
+        }
+
+        for (auto consumer : GetConsumers())
+        {
+            consumer->Process_ID3D12Device_CheckFeatureSupport(
+                object_id, return_value, feature, capture_data, feature_data.GetOutputPointer(), feature_data_size);
+        }
+
+        return bytes_read;
+    }
+
+    size_t Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                   const uint8_t*   parameter_buffer,
+                                                   size_t           buffer_size);
 
   private:
     std::vector<Dx12Consumer*> consumers_;

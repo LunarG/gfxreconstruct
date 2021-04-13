@@ -43,7 +43,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
-    virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data);
+    virtual void
+    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+
+    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                          HRESULT          original_result,
+                                                          D3D12_FEATURE    feature,
+                                                          const void*      capture_feature_data,
+                                                          void*            replay_feature_data,
+                                                          UINT             feature_data_size) override;
 
   protected:
     void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle);

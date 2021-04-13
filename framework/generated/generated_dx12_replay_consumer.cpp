@@ -4329,23 +4329,6 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
     }
 }
 
-void Dx12ReplayConsumer::Process_ID3D12Device_CheckFeatureSupport(
-    format::HandleId                            object_id,
-    HRESULT                                     returnValue,
-    D3D12_FEATURE                               Feature,
-    PointerDecoder<uint8_t>*                    pFeatureSupportData,
-    UINT                                        FeatureSupportDataSize)
-{
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
-    {
-        auto replay_result = replay_object->CheckFeatureSupport(Feature,
-                                                                pFeatureSupportData->GetPointer(),
-                                                                FeatureSupportDataSize);
-        CheckReplayResult("ID3D12Device_CheckFeatureSupport", returnValue, replay_result);
-    }
-}
-
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,

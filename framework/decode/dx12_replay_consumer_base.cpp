@@ -756,5 +756,23 @@ void Dx12ReplayConsumerBase::DestroyActiveWindows()
     active_windows_.clear();
 }
 
+void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                                      HRESULT          original_result,
+                                                                      D3D12_FEATURE    feature,
+                                                                      const void*      capture_feature_data,
+                                                                      void*            replay_feature_data,
+                                                                      UINT             feature_data_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+
+    auto replay_object = MapObject<ID3D12Device>(object_id);
+
+    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    {
+        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        CheckReplayResult("ID3D12Device::CheckFeatureSupport", original_result, replay_result);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

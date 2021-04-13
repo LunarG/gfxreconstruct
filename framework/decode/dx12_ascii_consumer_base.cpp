@@ -57,5 +57,22 @@ void Dx12AsciiConsumerBase::Destroy()
     }
 }
 
+void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                                     HRESULT          original_result,
+                                                                     D3D12_FEATURE    feature,
+                                                                     const void*      capture_feature_data,
+                                                                     void*            replay_feature_data,
+                                                                     UINT             feature_data_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(object_id);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(feature);
+    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+    GFXRECON_UNREFERENCED_PARAMETER(replay_feature_data);
+    GFXRECON_UNREFERENCED_PARAMETER(feature_data_size);
+
+    fprintf(GetFile(), "%s\n", "ID3D12Device::CheckFeatureSupport");
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

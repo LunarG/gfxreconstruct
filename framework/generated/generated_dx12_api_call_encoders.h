@@ -1968,13 +1968,6 @@ void Encode_ID3D12Device_CreateCommandList(
     REFIID riid,
     void** ppCommandList);
 
-void Encode_ID3D12Device_CheckFeatureSupport(
-    format::HandleId wrapper_id,
-    HRESULT result,
-    D3D12_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize);
-
 void Encode_ID3D12Device_CreateDescriptorHeap(
     format::HandleId wrapper_id,
     HRESULT result,

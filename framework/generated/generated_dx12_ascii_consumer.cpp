@@ -2632,17 +2632,6 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
 }
 
 
-void Dx12AsciiConsumer::Process_ID3D12Device_CheckFeatureSupport(
-        format::HandleId object_id,
-        HRESULT returnValue,
-        D3D12_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize)
-{
-    fprintf(GetFile(), "%s\n", "ID3D12Device::CheckFeatureSupport");
-}
-
-
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         format::HandleId object_id,
         HRESULT returnValue,

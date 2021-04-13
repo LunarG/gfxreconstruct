@@ -1,6 +1,10 @@
 {
-  "functions": [
-  ],
+  "functions": [],
+  "classmethods": {
+    "ID3D12Device": [
+      "CheckFeatureSupport"
+    ]
+  },
   "structures": [
     "D3D12_CLEAR_VALUE",
     "D3D12_RESOURCE_BARRIER",

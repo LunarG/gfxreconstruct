@@ -25,6 +25,8 @@
 
 #include "decode/handle_pointer_decoder.h"
 
+#include <d3d12.h>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -106,6 +108,14 @@ class Dx12ConsumerBase
                                          uint32_t                     layout,
                                          const std::vector<uint64_t>& level_sizes,
                                          const uint8_t*               data)
+    {}
+
+    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
+                                                          HRESULT          original_result,
+                                                          D3D12_FEATURE    feature,
+                                                          const void*      capture_feature_data,
+                                                          void*            replay_feature_data,
+                                                          UINT             feature_data_size)
     {}
 };
 
