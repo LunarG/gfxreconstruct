@@ -66,6 +66,7 @@ const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kSyncOption[]                       = "--sync";
 const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
+const char kValidateOption[]                   = "--validate";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kScreenshotAllOption[]              = "--screenshot-all";
 const char kScreenshotRangeArgument[]          = "--screenshots";
@@ -74,7 +75,7 @@ const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-                        "opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all";
+                        "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--screenshot-all";
 const char kArguments[] =
     "--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--replace-shaders,--screenshots,--"
     "screenshot-format,--screenshot-dir,--screenshot-prefix";
@@ -496,14 +497,23 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
     return func;
 }
 
+static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kValidateOption))
+    {
+        options.enable_validation_layer = true;
+    }
+}
+
 static gfxrecon::decode::VulkanReplayOptions
 GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                        const std::string&                              filename,
                        gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::VulkanReplayOptions replay_options;
-    const auto&                           override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+    GetReplayOptions(replay_options, arg_parser);
 
+    const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
     if (!override_gpu.empty())
     {
         replay_options.override_gpu_index = std::stoi(override_gpu);
@@ -592,7 +602,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [--remove-unsupported]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
@@ -656,6 +666,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
     GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
     GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

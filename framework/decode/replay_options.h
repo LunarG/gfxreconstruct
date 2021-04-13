@@ -30,7 +30,9 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct ReplayOptions
-{};
+{
+    bool enable_validation_layer{ false };
+};
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
