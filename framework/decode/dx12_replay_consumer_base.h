@@ -160,6 +160,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
 
+    HRESULT OverrideCreateFence(DxObjectInfo*                replay_object_info,
+                                HRESULT                      original_result,
+                                UINT64                       initial_value,
+                                D3D12_FENCE_FLAGS            flags,
+                                Decoded_GUID                 riid,
+                                HandlePointerDecoder<void*>* fence);
+
     UINT OverrideGetDescriptorHandleIncrementSize(DxObjectInfo*              replay_object_info,
                                                   UINT                       original_result,
                                                   D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type);
@@ -174,6 +181,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     D3D12_GPU_VIRTUAL_ADDRESS OverrideGetGpuVirtualAddress(DxObjectInfo*             replay_object_info,
                                                            D3D12_GPU_VIRTUAL_ADDRESS original_result);
+
+    HRESULT OverrideEnqueueMakeResident(DxObjectInfo*                          replay_object_info,
+                                        HRESULT                                original_result,
+                                        D3D12_RESIDENCY_FLAGS                  flags,
+                                        UINT                                   num_objects,
+                                        HandlePointerDecoder<ID3D12Pageable*>* objects,
+                                        DxObjectInfo*                          fence_info,
+                                        UINT64                                 fence_value);
 
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
@@ -202,6 +217,18 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     dst_depth_pitch,
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
+
+    HRESULT OverrideCommandQueueSignal(DxObjectInfo* replay_object_info,
+                                       HRESULT       original_result,
+                                       DxObjectInfo* fence_info,
+                                       UINT64        value);
+
+    HRESULT OverrideSetEventOnCompletion(DxObjectInfo* replay_object_info,
+                                         HRESULT       original_result,
+                                         UINT64        value,
+                                         uint64_t      event_id);
+
+    HRESULT OverrideFenceSignal(DxObjectInfo* replay_object_info, HRESULT original_result, UINT64 value);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
@@ -245,15 +272,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void DestroyActiveWindows();
 
+    void DestroyActiveEvents();
+
+    void ProcessFenceSignal(DxObjectInfo* info, uint64_t value);
+
   private:
-    Dx12ObjectInfoTable                 object_info_table_;
-    WindowFactory*                      window_factory_;
-    std::unordered_set<Window*>         active_windows_;
-    std::unordered_map<uint64_t, HWND>  window_handles_;
-    std::unordered_map<uint64_t, void*> mapped_memory_;
-    Dx12CpuDescriptorMap                descriptor_cpu_addresses_;
-    Dx12GpuDescriptorMap                descriptor_gpu_addresses_;
-    util::GpuVaMap                      gpu_va_map_;
+    Dx12ObjectInfoTable                  object_info_table_;
+    WindowFactory*                       window_factory_;
+    std::unordered_set<Window*>          active_windows_;
+    std::unordered_map<uint64_t, HWND>   window_handles_;
+    std::unordered_map<uint64_t, void*>  mapped_memory_;
+    std::unordered_map<uint64_t, HANDLE> event_objects_;
+    Dx12CpuDescriptorMap                 descriptor_cpu_addresses_;
+    Dx12GpuDescriptorMap                 descriptor_gpu_addresses_;
+    util::GpuVaMap                       gpu_va_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

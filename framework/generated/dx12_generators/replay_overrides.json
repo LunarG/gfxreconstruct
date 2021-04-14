@@ -1,6 +1,6 @@
 {
   "functions": {
-    "D3D12CreateDevice" : "OverrideD3D12CreateDevice"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
   },
   "classmethods": {
     "IUnknown": {
@@ -9,7 +9,11 @@
     },
     "ID3D12Device": {
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",
+      "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
+    },
+    "ID3D12Device3": {
+      "EnqueueMakeResident": "OverrideEnqueueMakeResident"
     },
     "ID3D12DescriptorHeap": {
       "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",
@@ -21,6 +25,13 @@
       "Unmap": "OverrideResourceUnmap",
       "ReadFromSubresource": "OverrideReadFromSubresource",
       "WriteToSubresource": "OverrideWriteToSubresource"
+    },
+    "ID3D12CommandQueue": {
+      "Signal": "OverrideCommandQueueSignal"
+    },
+    "ID3D12Fence": {
+      "SetEventOnCompletion": "OverrideSetEventOnCompletion",
+      "Signal": "OverrideFenceSignal"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"

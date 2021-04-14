@@ -2961,12 +2961,13 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     UINT64                                      Value,
     uint64_t                                    hEvent)
 {
-    auto replay_object = MapObject<ID3D12Fence>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion, "ID3D12Fence_SetEventOnCompletion"));
-        auto replay_result = replay_object->SetEventOnCompletion(Value,
-                                                                 in_hEvent);
+        auto replay_result = OverrideSetEventOnCompletion(replay_object,
+                                                          returnValue,
+                                                          Value,
+                                                          hEvent);
         CheckReplayResult("ID3D12Fence_SetEventOnCompletion", returnValue, replay_result);
     }
 }
@@ -2976,10 +2977,12 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_Signal(
     HRESULT                                     returnValue,
     UINT64                                      Value)
 {
-    auto replay_object = MapObject<ID3D12Fence>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->Signal(Value);
+        auto replay_result = OverrideFenceSignal(replay_object,
+                                                 returnValue,
+                                                 Value);
         CheckReplayResult("ID3D12Fence_Signal", returnValue, replay_result);
     }
 }
@@ -4123,12 +4126,14 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     format::HandleId                            pFence,
     UINT64                                      Value)
 {
-    auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pFence = MapObject<ID3D12Fence>(pFence);
-        auto replay_result = replay_object->Signal(in_pFence,
-                                                   Value);
+        auto in_pFence = GetObjectInfo(pFence);
+        auto replay_result = OverrideCommandQueueSignal(replay_object,
+                                                        returnValue,
+                                                        in_pFence,
+                                                        Value);
         CheckReplayResult("ID3D12CommandQueue_Signal", returnValue, replay_result);
     }
 }
@@ -4806,19 +4811,21 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFence)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppFence->IsNull()) ppFence->SetHandleLength(1);
-        auto out_p_ppFence    = ppFence->GetPointer();
-        auto out_hp_ppFence   = ppFence->GetHandlePointer();
-        auto replay_result = replay_object->CreateFence(InitialValue,
-                                                        Flags,
-                                                        *riid.decoded_value,
-                                                        out_hp_ppFence);
+        DxObjectInfo object_info{};
+        ppFence->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateFence(replay_object,
+                                                 returnValue,
+                                                 InitialValue,
+                                                 Flags,
+                                                 riid,
+                                                 ppFence);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppFence, out_hp_ppFence);
+            AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("ID3D12Device_CreateFence", returnValue, replay_result);
     }
@@ -5232,16 +5239,18 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     format::HandleId                            pFenceToSignal,
     UINT64                                      FenceValueToSignal)
 {
-    auto replay_object = MapObject<ID3D12Device3>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
-        auto in_pFenceToSignal = MapObject<ID3D12Fence>(pFenceToSignal);
-        auto replay_result = replay_object->EnqueueMakeResident(Flags,
-                                                                NumObjects,
-                                                                in_ppObjects,
-                                                                in_pFenceToSignal,
-                                                                FenceValueToSignal);
+        MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
+        auto in_pFenceToSignal = GetObjectInfo(pFenceToSignal);
+        auto replay_result = OverrideEnqueueMakeResident(replay_object,
+                                                         returnValue,
+                                                         Flags,
+                                                         NumObjects,
+                                                         ppObjects,
+                                                         in_pFenceToSignal,
+                                                         FenceValueToSignal);
         CheckReplayResult("ID3D12Device3_EnqueueMakeResident", returnValue, replay_result);
     }
 }

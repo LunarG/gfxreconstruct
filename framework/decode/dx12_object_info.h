@@ -33,6 +33,7 @@
 #include <memory>
 #include <Unknwn.h>
 #include <unordered_map>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -42,6 +43,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //
 
 typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
+typedef std::unordered_map<UINT64, HANDLE>                     FenceEvents;
+typedef std::unordered_set<UINT64>                             PendingFenceValues;
 
 enum class DxObjectInfoType : uint32_t
 {
@@ -49,6 +52,7 @@ enum class DxObjectInfoType : uint32_t
     kIDxgiSwapchainInfo,
     kID3D12DeviceInfo,
     kID3D12DescriptorHeapInfo,
+    kID3D12FenceInfo,
     kID3D12ResourceInfo
 };
 
@@ -95,6 +99,12 @@ struct D3D12DescriptorHeapInfo
 
     size_t   replay_cpu_addr_begin{ 0 };
     uint64_t replay_gpu_addr_begin{ 0 };
+};
+
+struct D3D12FenceInfo
+{
+    FenceEvents        event_objects;
+    PendingFenceValues signaled_values;
 };
 
 struct D3D12ResourceInfo

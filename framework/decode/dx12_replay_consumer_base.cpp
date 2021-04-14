@@ -29,14 +29,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr int32_t kDefaultWindowPositionX = 0;
-constexpr int32_t kDefaultWindowPositionY = 0;
+constexpr int32_t  kDefaultWindowPositionX = 0;
+constexpr int32_t  kDefaultWindowPositionY = 0;
+constexpr uint32_t kDefaultWaitTimeout     = 16;
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory) : window_factory_(window_factory) {}
 
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
 {
     DestroyActiveWindows();
+    DestroyActiveEvents();
 }
 
 void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -114,6 +116,11 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
                 }
 
                 delete resource_info;
+            }
+            else if (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
+            {
+                auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+                delete fence_info;
             }
             else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
             {
@@ -435,6 +442,34 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreateFence(DxObjectInfo*                replay_object_info,
+                                                    HRESULT                      original_result,
+                                                    UINT64                       initial_value,
+                                                    D3D12_FENCE_FLAGS            flags,
+                                                    Decoded_GUID                 riid,
+                                                    HandlePointerDecoder<void*>* fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (fence != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+
+    auto replay_result =
+        replay_object->CreateFence(initial_value, flags, *riid.decoded_value, fence->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        auto object_info = reinterpret_cast<DxObjectInfo*>(fence->GetConsumerData(0));
+        assert(object_info != nullptr);
+
+        object_info->extra_info_type = DxObjectInfoType::kID3D12FenceInfo;
+        object_info->extra_info      = new D3D12FenceInfo;
+    }
+
+    return replay_result;
+}
+
 UINT Dx12ReplayConsumerBase::OverrideGetDescriptorHandleIncrementSize(DxObjectInfo*              replay_object_info,
                                                                       UINT                       original_result,
                                                                       D3D12_DESCRIPTOR_HEAP_TYPE descriptor_heap_type)
@@ -561,6 +596,37 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideEnqueueMakeResident(DxObjectInfo*                          replay_object_info,
+                                                            HRESULT                                original_result,
+                                                            D3D12_RESIDENCY_FLAGS                  flags,
+                                                            UINT                                   num_objects,
+                                                            HandlePointerDecoder<ID3D12Pageable*>* objects,
+                                                            DxObjectInfo*                          fence_info,
+                                                            UINT64                                 fence_value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (objects != nullptr));
+
+    auto         replay_object = static_cast<ID3D12Device3*>(replay_object_info->object);
+    ID3D12Fence* fence         = nullptr;
+
+    if (fence_info != nullptr)
+    {
+        fence = static_cast<ID3D12Fence*>(fence_info->object);
+    }
+
+    auto replay_result =
+        replay_object->EnqueueMakeResident(flags, num_objects, objects->GetHandlePointer(), fence, fence_value);
+
+    if (SUCCEEDED(replay_result))
+    {
+        ProcessFenceSignal(fence_info, fence_value);
+    }
+
+    return replay_result;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                                     HRESULT                                    original_result,
                                                     UINT                                       subresource,
@@ -674,6 +740,114 @@ Dx12ReplayConsumerBase::OverrideReadFromSubresource(DxObjectInfo*               
     return E_FAIL;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideCommandQueueSignal(DxObjectInfo* replay_object_info,
+                                                           HRESULT       original_result,
+                                                           DxObjectInfo* fence_info,
+                                                           UINT64        value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto         replay_object = static_cast<ID3D12CommandQueue*>(replay_object_info->object);
+    ID3D12Fence* fence         = nullptr;
+
+    if (fence_info != nullptr)
+    {
+        fence = static_cast<ID3D12Fence*>(fence_info->object);
+    }
+
+    auto replay_result = replay_object->Signal(fence, value);
+
+    if (SUCCEEDED(replay_result))
+    {
+        ProcessFenceSignal(fence_info, value);
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* replay_object_info,
+                                                             HRESULT       original_result,
+                                                             UINT64        value,
+                                                             uint64_t      event_id)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto   replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
+    auto   event_entry   = event_objects_.find(event_id);
+    HANDLE event_object  = nullptr;
+
+    if (event_entry != event_objects_.end())
+    {
+        event_object = event_entry->second;
+        ResetEvent(event_object);
+    }
+    else
+    {
+        event_object = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+        if (event_object != nullptr)
+        {
+            event_objects_[event_id] = event_object;
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Event creation failed for ID3D12Fence::SetEventOnCompletion");
+        }
+    }
+
+    auto replay_result = replay_object->SetEventOnCompletion(value, event_object);
+
+    if (SUCCEEDED(replay_result) && (event_object != nullptr))
+    {
+        if ((replay_object_info->extra_info != nullptr) &&
+            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        {
+            auto fence_info    = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info);
+            auto pending_entry = fence_info->signaled_values.find(value);
+
+            if (pending_entry != fence_info->signaled_values.end())
+            {
+                // The value has already been signaled, so it can be waited on immediately.
+                WaitForSingleObject(event_object, kDefaultWaitTimeout);
+                fence_info->signaled_values.erase(pending_entry);
+            }
+            else
+            {
+                // Store the event handle so that it can be waited on after the fence is signaled.
+                fence_info->event_objects[value] = event_object;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
+                               replay_object_info->capture_id);
+        }
+    }
+
+    return replay_result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideFenceSignal(DxObjectInfo* replay_object_info, HRESULT original_result, UINT64 value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
+    auto replay_result = replay_object->Signal(value);
+
+    if (SUCCEEDED(replay_result))
+    {
+        ProcessFenceSignal(replay_object_info, value);
+    }
+
+    return replay_result;
+}
+
 HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     DxObjectInfo*                                                  replay_object_info,
     HRESULT                                                        original_result,
@@ -785,6 +959,45 @@ void Dx12ReplayConsumerBase::DestroyActiveWindows()
 
     active_windows_.clear();
     window_handles_.clear();
+}
+
+void Dx12ReplayConsumerBase::DestroyActiveEvents()
+{
+    for (const auto& entry : event_objects_)
+    {
+        CloseHandle(entry.second);
+    }
+
+    event_objects_.clear();
+}
+
+void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t value)
+{
+    if (info != nullptr)
+    {
+        if ((info->extra_info != nullptr) && (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        {
+            auto fence_info  = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+            auto event_entry = fence_info->event_objects.find(value);
+
+            if (event_entry != fence_info->event_objects.end())
+            {
+                // An event is already waiting to be signaled, so it can be waited on immediately.
+                WaitForSingleObject(event_entry->second, kDefaultWaitTimeout);
+                fence_info->event_objects.erase(event_entry);
+            }
+            else
+            {
+                // Store the value so that a wait can be performed when an event is associated with it.
+                fence_info->signaled_values.insert(value);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
+                               info->capture_id);
+        }
+    }
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
