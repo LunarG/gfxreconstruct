@@ -1,5 +1,6 @@
 {
   "functions": {
+    "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
     "D3D12CreateDevice": "OverrideD3D12CreateDevice"
   },
   "classmethods": {

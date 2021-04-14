@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 #define GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 
+#include "decode/dx_replay_options.h"
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/window.h"
@@ -39,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
-    Dx12ReplayConsumerBase(WindowFactory* window_factory);
+    Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options);
 
     virtual ~Dx12ReplayConsumerBase() override;
 
@@ -147,6 +148,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                   StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* desc,
                                                   DxObjectInfo*                           restrict_to_output_info,
                                                   HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
+
+    HRESULT
+    OverrideCreateDXGIFactory2(HRESULT                      original_result,
+                               UINT                         flags,
+                               Decoded_GUID                 riid,
+                               HandlePointerDecoder<void*>* ppFactory);
 
     HRESULT OverrideD3D12CreateDevice(HRESULT                      original_result,
                                       DxObjectInfo*                adapter_info,
@@ -279,6 +286,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
   private:
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;
+    DxReplayOptions                      options_;
     std::unordered_set<Window*>          active_windows_;
     std::unordered_map<uint64_t, HWND>   window_handles_;
     std::unordered_map<uint64_t, void*>  mapped_memory_;

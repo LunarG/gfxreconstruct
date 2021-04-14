@@ -239,7 +239,7 @@ def make_gen_opts(args):
         Dx12ReplayConsumerHeaderGeneratorOptions(
             filename='generated_dx12_replay_consumer.h',
             directory=directory,
-            constructor_args='WindowFactory* window_factory',
+            constructor_args='WindowFactory* window_factory, const DxReplayOptions& options',
             blacklists=blacklists,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,

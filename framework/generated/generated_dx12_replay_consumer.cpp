@@ -73,14 +73,15 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
     HandlePointerDecoder<void*>*                ppFactory)
 {
     if(!ppFactory->IsNull()) ppFactory->SetHandleLength(1);
-    auto out_p_ppFactory    = ppFactory->GetPointer();
-    auto out_hp_ppFactory   = ppFactory->GetHandlePointer();
-    auto replay_result = CreateDXGIFactory2(Flags,
-                                            *riid.decoded_value,
-                                            out_hp_ppFactory);
+    DxObjectInfo object_info{};
+    ppFactory->SetConsumerData(0, &object_info);
+    auto replay_result = OverrideCreateDXGIFactory2(returnValue,
+                                                    Flags,
+                                                    riid,
+                                                    ppFactory);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppFactory, out_hp_ppFactory);
+        AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
     }
     CheckReplayResult("CreateDXGIFactory2", returnValue, replay_result);
 }

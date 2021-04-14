@@ -34,7 +34,24 @@ constexpr int32_t  kDefaultWindowPositionX = 0;
 constexpr int32_t  kDefaultWindowPositionY = 0;
 constexpr uint32_t kDefaultWaitTimeout     = 16;
 
-Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory) : window_factory_(window_factory) {}
+Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
+    window_factory_(window_factory), options_(options)
+{
+    if (options_.enable_validation_layer)
+    {
+        ID3D12Debug* dx12_debug = nullptr;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dx12_debug))))
+        {
+            dx12_debug->EnableDebugLayer();
+            dx12_debug->Release();
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to enable D3D12 debug layer for replay option '--validate'.");
+            options_.enable_validation_layer = false;
+        }
+    }
+}
 
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
 {
@@ -364,6 +381,24 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChainForComposition(DxObjectInfo* repl
 {
     return CreateSwapChainForHwnd(
         replay_object_info, original_result, device_info, 0, desc, nullptr, restrict_to_output_info, swapchain);
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateDXGIFactory2(HRESULT                      original_result,
+                                                           UINT                         flags,
+                                                           Decoded_GUID                 riid,
+                                                           HandlePointerDecoder<void*>* factory)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert(factory != nullptr);
+
+    if (options_.enable_validation_layer)
+    {
+        flags |= DXGI_CREATE_FACTORY_DEBUG;
+    }
+    auto replay_result = CreateDXGIFactory2(flags, *riid.decoded_value, factory->GetHandlePointer());
+
+    return replay_result;
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT                      original_result,

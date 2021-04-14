@@ -22,6 +22,9 @@
 
 #include "project_version.h"
 
+#if defined(WIN32)
+#include "decode/dx_replay_options.h"
+#endif
 #include "decode/file_processor.h"
 #include "decode/vulkan_default_allocator.h"
 #include "decode/vulkan_realign_allocator.h"
@@ -559,6 +562,16 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     return replay_options;
 }
 
+#if defined(WIN32)
+static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    gfxrecon::decode::DxReplayOptions replay_options;
+    GetReplayOptions(replay_options, arg_parser);
+
+    return replay_options;
+}
+#endif
+
 static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
@@ -666,7 +679,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
     GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
     GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a Vulkan");
+    GFXRECON_WRITE_CONSOLE("            \t\tcapture or the Direct3D debug layer when replaying a DX capture.");
+#else
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
+#endif
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");
