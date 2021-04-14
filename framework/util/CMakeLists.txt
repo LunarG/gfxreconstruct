@@ -164,6 +164,7 @@ if (${RUN_TESTS})
             $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
             $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/gpu_va_map_tests.cpp>
+            $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/getwritewatch_tests.cpp>
             $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.h>
             $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/test/dxgi_pointers.h>)
     target_link_libraries(gfxrecon_util_test
