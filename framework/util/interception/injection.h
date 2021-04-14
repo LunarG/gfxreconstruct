@@ -42,7 +42,9 @@ GFXRECON_BEGIN_NAMESPACE(interception)
 
 //----------------------------------------------------------------------------
 /// Loads the DLL into the target process.
+///
 /// \param target_proc_handle Handle to target application process
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle);
@@ -50,8 +52,10 @@ static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle);
 //----------------------------------------------------------------------------
 /// Allocated memory that will contain the injected memory.
 /// This memory will be accessible by the target process.
+///
 /// \param target_proc_handle Handle to target application process
 /// \param size_of_memory_to_inject Size of memory to inject, in bytes
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 static bool AllocateSpaceForInjectedMemory(HANDLE target_proc_handle, size_t size_of_memory_to_inject);
@@ -60,31 +64,38 @@ static bool AllocateSpaceForInjectedMemory(HANDLE target_proc_handle, size_t siz
 /// Injects the memory into the target process.
 /// This function should be called after allocateSpaceForInjectedMemory()
 /// was called.
+///
 /// \param target_proc_handle Handle to target application process
 /// \param dll_path Full path and name of dll to be injected
 /// \param size_of_memory_to_inject Size of memory to inject, in bytes
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 static bool InjectMemory(HANDLE target_proc_handle, LPCSTR dll_path, size_t size_of_memory_to_inject);
 
 //----------------------------------------------------------------------------
 /// Injects the DLL path into the target process.
+///
 /// \param target_proc_handle Handle to target application process
 /// \param dll_path Full path and name of dll to be injected
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 static bool InjectDllPathIntoTargetProcess(HANDLE target_proc_handle, LPCSTR dll_path);
 
 //----------------------------------------------------------------------------
 /// Loads the DLL into the target process via a process handle
-/// \param dllPath Full path and name of dll to be injected
+///
+/// \param dll_path Full path and name of dll to be injected
 /// \param process_handle Handle to target application process into.
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
-bool InjectDllIntoProcess(LPCSTR dll_path, HANDLE process_handle);
+bool InjectLoadDllIntoProcess(LPCSTR dll_path, HANDLE process_handle);
 
 //----------------------------------------------------------------------------
-/// Launch an application and inject our DLLs into it
+/// Launch an application and inject our DLLs into it.
+///
 /// \param application_name Application name
 /// \param command_line Command line
 /// \param process_attributes Process attributes
@@ -95,7 +106,9 @@ bool InjectDllIntoProcess(LPCSTR dll_path, HANDLE process_handle);
 /// \param current_directory Current directory
 /// \param startup_info Startup info
 /// \param process_information Process info
-/// \return True or false
+/// \param interceptor_path path to GFXR interceptor
+///
+/// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 bool LaunchAndInjectA(LPCSTR                lpApplicationName,
                       LPSTR                 lpCommandLine,
@@ -106,10 +119,12 @@ bool LaunchAndInjectA(LPCSTR                lpApplicationName,
                       LPVOID                lpEnvironment,
                       LPCSTR                lpCurrentDirectory,
                       LPSTARTUPINFOA        lpStartupInfo,
-                      LPPROCESS_INFORMATION lpProcessInformation);
+                      LPPROCESS_INFORMATION lpProcessInformation,
+                      LPCSTR                interceptor_path);
 
 //----------------------------------------------------------------------------
-/// Launch an application and inject our DLLs into it
+/// Launch an application and inject our DLLs into it.
+///
 /// \param application_name Application name
 /// \param command_line Command line
 /// \param process_attributes Process attributes
@@ -120,18 +135,81 @@ bool LaunchAndInjectA(LPCSTR                lpApplicationName,
 /// \param current_directory Current directory
 /// \param startup_info Startup info
 /// \param process_information Process info
-/// \return True or false
+/// \param interceptor_path path to GFXR interceptor
+///
+/// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
-bool LaunchAndInjectW(LPCWSTR               lpApplicationName,
-                      LPWSTR                lpCommandLine,
-                      LPSECURITY_ATTRIBUTES lpProcessAttributes,
-                      LPSECURITY_ATTRIBUTES lpThreadAttributes,
-                      BOOL                  bInheritHandles,
-                      DWORD                 dwCreationFlags,
-                      LPVOID                lpEnvironment,
-                      LPCWSTR               lpCurrentDirectory,
-                      LPSTARTUPINFOW        lpStartupInfo,
-                      LPPROCESS_INFORMATION lpProcessInformation);
+bool LaunchAndInjectW(LPCWSTR               application_name,
+                      LPWSTR                command_line,
+                      LPSECURITY_ATTRIBUTES process_attributes,
+                      LPSECURITY_ATTRIBUTES thread_attributes,
+                      BOOL                  inherit_handles,
+                      DWORD                 creation_flags,
+                      LPVOID                environment,
+                      LPCWSTR               current_directory,
+                      LPSTARTUPINFOW        startup_info,
+                      LPPROCESS_INFORMATION process_information,
+                      LPCSTR                interceptor_path);
+
+//----------------------------------------------------------------------------
+/// Inject into a target DLL.
+///
+/// \param  cmd_line Target executable and its process ID.
+//----------------------------------------------------------------------------
+void Inject(LPSTR cmd_line);
+
+//----------------------------------------------------------------------------
+/// Convert a wide string to regular string.
+///
+/// \param  src
+///
+/// \return Converted string.
+//----------------------------------------------------------------------------
+std::string WideStringToString(const std::wstring& src);
+
+//----------------------------------------------------------------------------
+/// Construct path to the GFXR interceptor DLL.
+///
+/// \param  target Path to where our interceptor will be injected into
+///
+/// \return Path to our 32-bit or 64-bit interceptor.
+//----------------------------------------------------------------------------
+std::string GetInterceptorPath(std::string target);
+
+//----------------------------------------------------------------------------
+/// Construct path to the GFXR interceptor DLL.
+///
+/// \param  target Path to where our interceptor will be injected into
+///
+/// \return Path to our 32-bit or 64-bit interceptor.
+//----------------------------------------------------------------------------
+std::string GetInterceptorPath(std::wstring target);
+
+//----------------------------------------------------------------------------
+/// Determine if the current module has the same bitness as target executable.
+///
+/// \param  target Path to target executable to test against.
+///
+/// \return True if bitness is the same, false otherwise.
+//----------------------------------------------------------------------------
+bool TargetHasEqualBitness(const std::string& target);
+
+//----------------------------------------------------------------------------
+/// Determine if the current module has the same bitness as target executable.
+///
+/// \param  target Path to target executable to test against.
+///
+/// \return True if bitness is the same, false otherwise.
+//----------------------------------------------------------------------------
+bool TargetHasEqualBitness(const std::wstring& target);
+
+//----------------------------------------------------------------------------
+/// Utility function to determine if we've enabled CreateProcess
+/// hopping between apps of different bitness.
+///
+/// \return True if bitness is the same, false otherwise.
+//----------------------------------------------------------------------------
+bool EnableBitnessHopping();
 
 GFXRECON_END_NAMESPACE(interception)
 GFXRECON_END_NAMESPACE(util)

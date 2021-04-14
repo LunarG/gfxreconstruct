@@ -22,11 +22,39 @@
 
 #include "injection.h"
 
+#include "util/logging.h"
+#include "util/options.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(interception)
 
 static void* target_memory_address_ = nullptr;
+
+//----------------------------------------------------------------------------
+/// Convert a wide string to regular
+/// \param  src Input string
+/// \return Converted string or empty if not successful
+//----------------------------------------------------------------------------
+std::string WideStringToString(const std::wstring& src)
+{
+    std::string out = "";
+
+    if (src.empty() == false)
+    {
+        const int src_len = static_cast<int>(src.length());
+        const int out_len = ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, nullptr, 0, nullptr, nullptr);
+
+        if (out_len > 0)
+        {
+            out.resize(out_len);
+
+            ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, &out[0], out_len, nullptr, nullptr);
+        }
+    }
+
+    return out;
+}
 
 static bool LoadDllIntoTargetProcess(HANDLE target_proc_handle)
 {
@@ -127,7 +155,7 @@ static bool InjectDllPathIntoTargetProcess(HANDLE target_proc_handle, LPCSTR dll
     return ret_val;
 }
 
-bool InjectDllIntoProcess(LPCSTR dll_path, HANDLE process_handle)
+bool InjectLoadDllIntoProcess(LPCSTR dll_path, HANDLE process_handle)
 {
     bool ret_val = InjectDllPathIntoTargetProcess(process_handle, dll_path);
 
@@ -139,6 +167,107 @@ bool InjectDllIntoProcess(LPCSTR dll_path, HANDLE process_handle)
     return ret_val;
 }
 
+bool InjectDllIntoProcess(LPCSTR dll_path, DWORD process_id)
+{
+    HANDLE target_process_handle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION |
+                                                   PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
+                                               FALSE,
+                                               process_id);
+    bool   ret_val               = InjectLoadDllIntoProcess(dll_path, target_process_handle);
+    CloseHandle(target_process_handle);
+    return ret_val;
+}
+
+// ---------------------------------------------------------------------------
+/// Execute rundll32.exe and use it to call InjectDLL inside our injector.
+/// This is needed to inject a 64-bit process from a 32-bit process.
+///
+/// \param dll_name The full path and name of the dll to be injected.
+/// \param app_process_id The process ID of the application to be injected into.
+// ---------------------------------------------------------------------------
+void StartRundllA(LPCSTR dll_name, DWORD app_process_id)
+{
+    const uint32_t kCommandLineSize = 1024;
+
+    char  exe_name[kCommandLineSize]     = {};
+    char  command_line[kCommandLineSize] = {};
+    char  win_dir[MAX_PATH]              = {};
+    DWORD len                            = GetEnvironmentVariableA("WINDIR", win_dir, ARRAYSIZE(win_dir));
+
+#ifdef GFXRECON_ARCH64
+    const char* sys_dir = "SysWOW64";
+#else
+    const char*  sys_dir = "System32";
+#endif
+
+    sprintf_s(exe_name, "%s\\%s\\rundll32.exe", win_dir, sys_dir);
+    sprintf_s(command_line,
+              "%s\\%s\\rundll32.exe \"%s\",InjectDLL %d %s",
+              win_dir,
+              sys_dir,
+              dll_name,
+              app_process_id,
+              dll_name);
+
+    STARTUPINFOA si = {};
+    si.cb           = sizeof(si);
+
+    PROCESS_INFORMATION pi = {};
+
+    CreateProcessA(exe_name, command_line, nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &si, &pi);
+    ResumeThread(pi.hThread);
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+}
+
+// ---------------------------------------------------------------------------
+/// Execute rundll32.exe and use it to call InjectDLL inside our injector.
+/// This is needed to inject a 64-bit process from a 32-bit process.
+///
+/// \param dll_name The full path and name of the dll to be injected.
+/// \param app_process_id The process ID of the application to be injected into.
+// ---------------------------------------------------------------------------
+void StartRundllW(LPCSTR dll_name, DWORD app_process_id)
+{
+    const uint32_t kCommandLineSize = 1024;
+
+    WCHAR exe_name[kCommandLineSize]     = {};
+    WCHAR command_line[kCommandLineSize] = {};
+    WCHAR win_dir[MAX_PATH]              = {};
+    DWORD len                            = GetEnvironmentVariableW(L"WINDIR", win_dir, ARRAYSIZE(win_dir));
+
+#ifdef GFXRECON_ARCH64
+    const WCHAR* sys_dir = L"SysWOW64";
+#else
+    const WCHAR* sys_dir = L"System32";
+#endif
+
+    swprintf_s(exe_name, L"%s\\%s\\rundll32.exe", win_dir, sys_dir);
+    swprintf_s(command_line,
+               L"%s\\%s\\rundll32.exe \"%hs\",InjectDLL %d %hs",
+               win_dir,
+               sys_dir,
+               dll_name,
+               app_process_id,
+               dll_name);
+
+    STARTUPINFOW si = {};
+    si.cb           = sizeof(si);
+
+    PROCESS_INFORMATION pi = {};
+
+    CreateProcessW(exe_name, command_line, nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &si, &pi);
+    ResumeThread(pi.hThread);
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+}
+
 bool LaunchAndInjectA(LPCSTR                application_name,
                       LPSTR                 command_line,
                       LPSECURITY_ATTRIBUTES process_attributes,
@@ -148,24 +277,44 @@ bool LaunchAndInjectA(LPCSTR                application_name,
                       LPVOID                environment,
                       LPCSTR                current_directory,
                       LPSTARTUPINFOA        startup_info,
-                      LPPROCESS_INFORMATION process_information)
+                      LPPROCESS_INFORMATION process_information,
+                      LPCSTR                interceptor_path)
 {
-    bool ret_val = true;
+    DWORD flags = creation_flags | CREATE_SUSPENDED;
 
-    CreateProcessA(application_name,
-                   command_line,
-                   process_attributes,
-                   thread_attributes,
-                   inherit_handles,
-                   creation_flags,
-                   environment,
-                   current_directory,
-                   startup_info,
-                   process_information);
+    bool ret_val = CreateProcessA(application_name,
+                                  command_line,
+                                  process_attributes,
+                                  thread_attributes,
+                                  inherit_handles,
+                                  flags,
+                                  environment,
+                                  current_directory,
+                                  startup_info,
+                                  process_information);
 
-    InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
+    if (ret_val == true)
+    {
+        if (EnableBitnessHopping() == true)
+        {
+            const bool target_equal_bitness = TargetHasEqualBitness(command_line);
 
-    ResumeThread(process_information->hThread);
+            if (target_equal_bitness == true)
+            {
+                InjectLoadDllIntoProcess(interceptor_path, process_information->hProcess);
+            }
+            else
+            {
+                StartRundllA(interceptor_path, process_information->dwProcessId);
+            }
+        }
+        else
+        {
+            InjectLoadDllIntoProcess(interceptor_path, process_information->hProcess);
+        }
+
+        ResumeThread(process_information->hThread);
+    }
 
     return ret_val;
 }
@@ -179,26 +328,175 @@ bool LaunchAndInjectW(LPCWSTR               application_name,
                       LPVOID                environment,
                       LPCWSTR               current_directory,
                       LPSTARTUPINFOW        startup_info,
-                      LPPROCESS_INFORMATION process_information)
+                      LPPROCESS_INFORMATION process_information,
+                      LPCSTR                interceptor_path)
 {
-    bool ret_val = true;
+    DWORD flags = creation_flags | CREATE_SUSPENDED;
 
-    CreateProcessW(application_name,
-                   command_line,
-                   process_attributes,
-                   thread_attributes,
-                   inherit_handles,
-                   creation_flags,
-                   environment,
-                   current_directory,
-                   startup_info,
-                   process_information);
+    bool ret_val = CreateProcessW(application_name,
+                                  command_line,
+                                  process_attributes,
+                                  thread_attributes,
+                                  inherit_handles,
+                                  flags,
+                                  environment,
+                                  current_directory,
+                                  startup_info,
+                                  process_information);
 
-    InjectDllIntoProcess(GFXR_INTERCEPTOR_PATH, process_information->hProcess);
+    if (ret_val == true)
+    {
+        if (EnableBitnessHopping() == true)
+        {
+            const bool target_equal_bitness = TargetHasEqualBitness(command_line);
 
-    ResumeThread(process_information->hThread);
+            if (target_equal_bitness == true)
+            {
+                InjectLoadDllIntoProcess(interceptor_path, process_information->hProcess);
+            }
+            else
+            {
+                StartRundllW(interceptor_path, process_information->dwProcessId);
+            }
+        }
+        else
+        {
+            InjectLoadDllIntoProcess(interceptor_path, process_information->hProcess);
+        }
+
+        ResumeThread(process_information->hThread);
+    }
 
     return ret_val;
+}
+
+void Inject(LPSTR cmd_line)
+{
+    char module_name[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+
+    // find end of process ID and put null-terminate
+    char* dll_name = cmd_line;
+    for (int i = 0; i < 6; i++)
+    {
+        if (*dll_name == ' ')
+        {
+            *dll_name++ = '\0';
+            break;
+        }
+        else
+        {
+            dll_name++;
+        }
+    }
+
+    DWORD process_id = (DWORD)atoi(cmd_line);
+
+    if (InjectDllIntoProcess(dll_name, process_id) == false)
+    {
+        GFXRECON_LOG_ERROR("Failed to inject");
+    }
+
+    ExitProcess(0);
+}
+
+bool GetTargetBinaryType(const std::string target, DWORD& app_type)
+{
+    bool success = false;
+
+    const size_t ext_loc = target.rfind(".exe");
+
+    if (ext_loc != std::string::npos)
+    {
+        std::string app_path = target.substr(0, ext_loc + 4);
+        app_path.erase(std::remove(app_path.begin(), app_path.end(), '"'), app_path.end());
+
+        success = GetBinaryTypeA(app_path.c_str(), &app_type);
+    }
+
+    return success;
+}
+
+bool TargetHasEqualBitness(const std::string& target)
+{
+    char current_filename[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, current_filename, MAX_PATH);
+
+    DWORD current_type = 0;
+    GetBinaryTypeA(current_filename, &current_type);
+
+    DWORD app_type = current_type;
+
+    GetTargetBinaryType(target, app_type);
+
+    return app_type == current_type;
+}
+
+bool TargetHasEqualBitness(const std::wstring& target)
+{
+    const std::string target_exe = gfxrecon::util::interception::WideStringToString(target);
+
+    return TargetHasEqualBitness(target_exe);
+}
+
+std::string GetInterceptorPath(std::string target)
+{
+    std::string out = GFXR_INTERCEPTOR_PATH;
+
+    if (EnableBitnessHopping() == true)
+    {
+        // TODO:
+        // Enabling hopping across processes of different bitness implies that we need
+        // both 32-bit and 64-bit builds of our gfxrecon-interceptor.
+        // These paths need to be set by the developer for debugging purposes.
+        // They should point to the root build directories of the 32-bit and 64-bit builds.
+        // This will also need to be modified to work with install scripts
+        const std::string gfxr_root_32_bit = "";
+        const std::string gfxr_root_64_bit = "";
+
+        DWORD app_type = 0;
+
+        if (GetTargetBinaryType(target, app_type) == true)
+        {
+#ifdef _DEBUG
+            const std::string config = "Debug";
+#else
+            const std::string config = "Release";
+#endif
+
+            if (app_type == SCS_64BIT_BINARY)
+            {
+                out = gfxr_root_64_bit + "\\layer\\gfxrecon_interceptor\\" + config + "\\gfxrecon_interceptor.dll";
+            }
+            else
+            {
+                out = gfxr_root_32_bit + "\\layer\\gfxrecon_interceptor\\" + config + "\\gfxrecon_interceptor.dll";
+            }
+        }
+    }
+
+    return out;
+}
+
+std::string GetInterceptorPath(std::wstring target)
+{
+    const std::string dest_str = gfxrecon::util::interception::WideStringToString(target);
+
+    return GetInterceptorPath(dest_str);
+}
+
+bool EnableBitnessHopping()
+{
+    bool bitness_hop = false;
+
+    const std::string value = gfxrecon::util::platform::GetEnv("GFXRECON_ENABLE_BITNESS_HOPPING");
+
+    if (gfxrecon::util::ParseBoolString(value, false) == true)
+    {
+        bitness_hop = true;
+    }
+
+    return bitness_hop;
 }
 
 GFXRECON_END_NAMESPACE(interception)

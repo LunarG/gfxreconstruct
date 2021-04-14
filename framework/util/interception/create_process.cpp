@@ -41,6 +41,16 @@ const static LPCSTR kBlackList[] = {
     { "fxc.exe" },
     { "cmd.exe" },
     { "dev.exe" },
+    { "steamwebhelper.exe" },
+    { "gldriverquery.exe" },
+    { "gldriverquery64.exe" },
+    { "vulkandriverquery.exe" },
+    { "vulkandriverquery64.exe" },
+    { "galaxyclient helper.exe" },
+    { "gog galaxy notifications renderer.exe" },
+    { "galaxyoverlay.exe" },
+    { "epicwebhelper.exe" },
+    { "epiconlineservicesuserhelper.exe" },
 };
 
 /// Function pointers and their typedefs to create process
@@ -81,31 +91,6 @@ static void ToLowerCase(std::string& str)
 }
 
 //----------------------------------------------------------------------------
-/// Convert a wide string to regular
-/// \param  src Input string
-/// \return Converted string or empty if not successful
-//----------------------------------------------------------------------------
-static std::string WideStringToString(const std::wstring& src)
-{
-    std::string out = "";
-
-    if (src.empty() == false)
-    {
-        const int src_len = static_cast<int>(src.length());
-        const int out_len = ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, nullptr, 0, nullptr, nullptr);
-
-        if (out_len > 0)
-        {
-            out.resize(out_len);
-
-            ::WideCharToMultiByte(CP_UTF8, 0, src.data(), src_len, &out[0], out_len, nullptr, nullptr);
-        }
-    }
-
-    return out;
-}
-
-//----------------------------------------------------------------------------
 /// Try to detect blacklisted app
 /// \param  app_name
 /// \return True if disallowed, false otherwise
@@ -114,15 +99,11 @@ static bool CheckBlackList(std::string app_name)
 {
     ToLowerCase(app_name);
 
-    std::string black_list_file;
-
     const int count = sizeof(kBlackList) / sizeof(kBlackList[0]);
 
     for (int i = 0; i < count; ++i)
     {
-        black_list_file += kBlackList[i];
-
-        if (strstr(app_name.c_str(), black_list_file.c_str()) != nullptr)
+        if (app_name.find(kBlackList[i]) != std::string::npos)
         {
             return true;
         }
@@ -266,16 +247,18 @@ BOOL WINAPI Mine_CreateProcessA(LPCSTR                application_name,
             // Update the current hop count
             total_hop_count_ = hop_count + 1;
 
-            ret_val = gfxrecon::util::interception::LaunchAndInjectA(application_name,
-                                                                     command_line,
-                                                                     process_attributes,
-                                                                     thread_attributes,
-                                                                     inherit_handles,
-                                                                     creation_flags,
-                                                                     environment,
-                                                                     current_directory,
-                                                                     startup_info,
-                                                                     process_information);
+            ret_val = gfxrecon::util::interception::LaunchAndInjectA(
+                application_name,
+                command_line,
+                process_attributes,
+                thread_attributes,
+                inherit_handles,
+                creation_flags,
+                environment,
+                current_directory,
+                startup_info,
+                process_information,
+                gfxrecon::util::interception::GetInterceptorPath(command_line).c_str());
         }
     }
     else
@@ -350,16 +333,18 @@ BOOL WINAPI Mine_CreateProcessW(LPCWSTR               application_name,
             // Update the current hop count
             total_hop_count_ = hop_count + 1;
 
-            ret_val = gfxrecon::util::interception::LaunchAndInjectW(application_name,
-                                                                     command_line,
-                                                                     process_attributes,
-                                                                     thread_attributes,
-                                                                     inherit_handles,
-                                                                     creation_flags,
-                                                                     environment,
-                                                                     current_directory,
-                                                                     startup_info,
-                                                                     process_information);
+            ret_val = gfxrecon::util::interception::LaunchAndInjectW(
+                application_name,
+                command_line,
+                process_attributes,
+                thread_attributes,
+                inherit_handles,
+                creation_flags,
+                environment,
+                current_directory,
+                startup_info,
+                process_information,
+                gfxrecon::util::interception::GetInterceptorPath(command_line).c_str());
         }
     }
     else

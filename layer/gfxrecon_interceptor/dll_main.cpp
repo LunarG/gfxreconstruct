@@ -22,9 +22,15 @@
 
 #include "util/interception/load_library.h"
 #include "util/interception/create_process.h"
+#include "util/interception/injection.h"
 
 #include <Windows.h>
 #include <string>
+
+extern "C" __declspec(dllexport) void InjectDLL(HWND wnd, HINSTANCE instance, LPSTR cmd_line, INT cmd_show)
+{
+    gfxrecon::util::interception::Inject(cmd_line);
+}
 
 //----------------------------------------------------------------------------
 /// This DLL gets injected into victim application and then is able to
@@ -37,6 +43,14 @@
 //----------------------------------------------------------------------------
 BOOL APIENTRY DllMain(HMODULE module, DWORD ul_reason_for_call, LPVOID reserved)
 {
+    char module_name[MAX_PATH] = {};
+    GetModuleFileNameA(NULL, module_name, MAX_PATH);
+
+    if (strstr(module_name, "rundll") != NULL)
+    {
+        return TRUE;
+    }
+
     switch (ul_reason_for_call)
     {
         case DLL_PROCESS_ATTACH:
@@ -47,5 +61,6 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD ul_reason_for_call, LPVOID reserved)
         case DLL_PROCESS_DETACH:
             break;
     }
+
     return TRUE;
 }

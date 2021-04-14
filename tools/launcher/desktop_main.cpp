@@ -43,10 +43,37 @@ void PrintUsage(const std::string& launcher_name)
 }
 
 //----------------------------------------------------------------------------
+/// Surround a path to an exe with quotes.
+///
+/// \param  cmd The command to executable and its parameters.
+///
+/// \return Original command, but quoted if necessary.
+//----------------------------------------------------------------------------
+std::string QuoteCommand(const std::string& cmd)
+{
+    std::string out_str = cmd;
+
+    // Only needed if there are spaces
+    if (out_str.find(" ") != std::string::npos)
+    {
+        std::string quotes = "\"";
+        std::string str    = quotes;
+        str += out_str;
+        str += quotes;
+
+        out_str = str;
+    }
+
+    return out_str;
+}
+
+//----------------------------------------------------------------------------
 /// Given some positional arguments, fill in a CreateProcessInfo struct that
 /// contains everything needed for launching an app with CreateProcess()
+///
 /// \param  positional_arguments GFXR positional arguments
 /// \param  process_info outgoing CreateProcessInfo struct
+///
 /// \return True if successful, false otherwise.
 //----------------------------------------------------------------------------
 bool GetProcessInfo(const std::vector<std::string>& positional_arguments, CreateProcessInfo& process_info)
@@ -66,6 +93,8 @@ bool GetProcessInfo(const std::vector<std::string>& positional_arguments, Create
             process_info.app_path_plus_args = process_info.app_path + user_app.substr(args_loc);
             process_info.app_dir            = user_app.substr(0, user_app.rfind("\\"));
 
+            process_info.app_path_plus_args = QuoteCommand(process_info.app_path_plus_args);
+
             success = true;
         }
     }
@@ -76,8 +105,10 @@ bool GetProcessInfo(const std::vector<std::string>& positional_arguments, Create
 //----------------------------------------------------------------------------
 /// Basic app launcher that will inject our interceptor DLL and eventually
 /// hook into D3D12 and DXGI
+///
 /// \param  argc Number of args
 /// \param  argv Arg array
+///
 /// \return Zero if normal exit, else abnormal exit.
 //----------------------------------------------------------------------------
 int main(int argc, const char** argv)
@@ -103,7 +134,8 @@ int main(int argc, const char** argv)
                 si.cb           = sizeof(si);
 
                 PROCESS_INFORMATION pi = {};
-                ZeroMemory(&pi, sizeof(pi));
+
+                std::string interceptor_path = gfxrecon::util::interception::GetInterceptorPath(process_info.app_path);
 
                 gfxrecon::util::interception::LaunchAndInjectA(
                     process_info.app_path.c_str(),
@@ -115,7 +147,8 @@ int main(int argc, const char** argv)
                     nullptr,
                     process_info.app_dir.c_str(),
                     &si,
-                    &pi);
+                    &pi,
+                    interceptor_path.c_str());
             }
         }
         catch (std::runtime_error error)
