@@ -226,10 +226,16 @@ class Dx12ReplayConsumerBodyGenerator(
 
                 else:
                     if value.pointer_count == 2:
-                        code += '    auto in_{0} = MapObjects<{1}>({0}->GetPointer(), {2});\n'.format(
-                            value.name, value.base_type, value.array_length
-                        )
-                        arg_list.append('in_{}.data()'.format(value.name))
+                        if is_override:
+                            code += '    MapObjects<{1}>({0}, {2});\n'.format(
+                                value.name, value.base_type, value.array_length
+                            )
+                            arg_list.append(value.name)
+                        else:
+                            code += '    auto in_{0} = MapObjects<{1}>({0}, {2});\n'.format(
+                                value.name, value.base_type, value.array_length
+                            )
+                            arg_list.append('in_{}'.format(value.name))
 
                     elif value.pointer_count == 1:
                         if is_override:

@@ -1055,8 +1055,8 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
     auto replay_object = MapObject<IDXGIDevice>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppResources = MapObjects<IUnknown>(ppResources->GetPointer(), NumResources);
-        auto replay_result = replay_object->QueryResourceResidency(in_ppResources.data(),
+        auto in_ppResources = MapObjects<IUnknown>(ppResources, NumResources);
+        auto replay_result = replay_object->QueryResourceResidency(in_ppResources,
                                                                    pResidencyStatus->GetPointer(),
                                                                    NumResources);
         CheckReplayResult("IDXGIDevice_QueryResourceResidency", returnValue, replay_result);
@@ -1387,9 +1387,9 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
     auto replay_object = MapObject<IDXGIDevice2>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppResources = MapObjects<IDXGIResource>(ppResources->GetPointer(), NumResources);
+        auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
         auto replay_result = replay_object->OfferResources(NumResources,
-                                                           in_ppResources.data(),
+                                                           in_ppResources,
                                                            Priority);
         CheckReplayResult("IDXGIDevice2_OfferResources", returnValue, replay_result);
     }
@@ -1405,9 +1405,9 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
     auto replay_object = MapObject<IDXGIDevice2>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppResources = MapObjects<IDXGIResource>(ppResources->GetPointer(), NumResources);
+        auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
         auto replay_result = replay_object->ReclaimResources(NumResources,
-                                                             in_ppResources.data(),
+                                                             in_ppResources,
                                                              pDiscarded->GetPointer());
         CheckReplayResult("IDXGIDevice2_ReclaimResources", returnValue, replay_result);
     }
@@ -2320,14 +2320,14 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     auto replay_object = MapObject<IDXGISwapChain3>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppPresentQueue = MapObjects<IUnknown>(ppPresentQueue->GetPointer(), BufferCount);
+        auto in_ppPresentQueue = MapObjects<IUnknown>(ppPresentQueue, BufferCount);
         auto replay_result = replay_object->ResizeBuffers1(BufferCount,
                                                            Width,
                                                            Height,
                                                            Format,
                                                            SwapChainFlags,
                                                            pCreationNodeMask->GetPointer(),
-                                                           in_ppPresentQueue.data());
+                                                           in_ppPresentQueue);
         CheckReplayResult("IDXGISwapChain3_ResizeBuffers1", returnValue, replay_result);
     }
 }
@@ -2543,9 +2543,9 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
     auto replay_object = MapObject<IDXGIDevice4>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppResources = MapObjects<IDXGIResource>(ppResources->GetPointer(), NumResources);
+        auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
         auto replay_result = replay_object->OfferResources1(NumResources,
-                                                            in_ppResources.data(),
+                                                            in_ppResources,
                                                             Priority,
                                                             Flags);
         CheckReplayResult("IDXGIDevice4_OfferResources1", returnValue, replay_result);
@@ -2562,9 +2562,9 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
     auto replay_object = MapObject<IDXGIDevice4>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppResources = MapObjects<IDXGIResource>(ppResources->GetPointer(), NumResources);
+        auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
         auto replay_result = replay_object->ReclaimResources1(NumResources,
-                                                              in_ppResources.data(),
+                                                              in_ppResources,
                                                               pResults->GetPointer());
         CheckReplayResult("IDXGIDevice4_ReclaimResources1", returnValue, replay_result);
     }
@@ -3361,9 +3361,9 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppDescriptorHeaps = MapObjects<ID3D12DescriptorHeap>(ppDescriptorHeaps->GetPointer(), NumDescriptorHeaps);
+        auto in_ppDescriptorHeaps = MapObjects<ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps);
         replay_object->SetDescriptorHeaps(NumDescriptorHeaps,
-                                          in_ppDescriptorHeaps.data());
+                                          in_ppDescriptorHeaps);
     }
 }
 
@@ -3888,13 +3888,13 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     {
         auto in_pDstBuffer = MapObject<ID3D12Resource>(pDstBuffer);
         auto in_pSrcBuffer = MapObject<ID3D12Resource>(pSrcBuffer);
-        auto in_ppDependentResources = MapObjects<ID3D12Resource>(ppDependentResources->GetPointer(), Dependencies);
+        auto in_ppDependentResources = MapObjects<ID3D12Resource>(ppDependentResources, Dependencies);
         replay_object->AtomicCopyBufferUINT(in_pDstBuffer,
                                             DstOffset,
                                             in_pSrcBuffer,
                                             SrcOffset,
                                             Dependencies,
-                                            in_ppDependentResources.data(),
+                                            in_ppDependentResources,
                                             pDependentSubresourceRanges->GetPointer());
     }
 }
@@ -3914,13 +3914,13 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
     {
         auto in_pDstBuffer = MapObject<ID3D12Resource>(pDstBuffer);
         auto in_pSrcBuffer = MapObject<ID3D12Resource>(pSrcBuffer);
-        auto in_ppDependentResources = MapObjects<ID3D12Resource>(ppDependentResources->GetPointer(), Dependencies);
+        auto in_ppDependentResources = MapObjects<ID3D12Resource>(ppDependentResources, Dependencies);
         replay_object->AtomicCopyBufferUINT64(in_pDstBuffer,
                                               DstOffset,
                                               in_pSrcBuffer,
                                               SrcOffset,
                                               Dependencies,
-                                              in_ppDependentResources.data(),
+                                              in_ppDependentResources,
                                               pDependentSubresourceRanges->GetPointer());
     }
 }
@@ -4071,9 +4071,9 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppCommandLists = MapObjects<ID3D12CommandList>(ppCommandLists->GetPointer(), NumCommandLists);
+        auto in_ppCommandLists = MapObjects<ID3D12CommandList>(ppCommandLists, NumCommandLists);
         replay_object->ExecuteCommandLists(NumCommandLists,
-                                           in_ppCommandLists.data());
+                                           in_ppCommandLists);
     }
 }
 
@@ -4775,9 +4775,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects->GetPointer(), NumObjects);
+        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto replay_result = replay_object->MakeResident(NumObjects,
-                                                         in_ppObjects.data());
+                                                         in_ppObjects);
         CheckReplayResult("ID3D12Device_MakeResident", returnValue, replay_result);
     }
 }
@@ -4791,9 +4791,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects->GetPointer(), NumObjects);
+        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto replay_result = replay_object->Evict(NumObjects,
-                                                  in_ppObjects.data());
+                                                  in_ppObjects);
         CheckReplayResult("ID3D12Device_Evict", returnValue, replay_result);
     }
 }
@@ -5120,9 +5120,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
     auto replay_object = MapObject<ID3D12Device1>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppFences = MapObjects<ID3D12Fence>(ppFences->GetPointer(), NumFences);
+        auto in_ppFences = MapObjects<ID3D12Fence>(ppFences, NumFences);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_ID3D12Device1_SetEventOnMultipleFenceCompletion, "ID3D12Device1_SetEventOnMultipleFenceCompletion"));
-        auto replay_result = replay_object->SetEventOnMultipleFenceCompletion(in_ppFences.data(),
+        auto replay_result = replay_object->SetEventOnMultipleFenceCompletion(in_ppFences,
                                                                               pFenceValues->GetPointer(),
                                                                               NumFences,
                                                                               Flags,
@@ -5141,9 +5141,9 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
     auto replay_object = MapObject<ID3D12Device1>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects->GetPointer(), NumObjects);
+        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto replay_result = replay_object->SetResidencyPriority(NumObjects,
-                                                                 in_ppObjects.data(),
+                                                                 in_ppObjects,
                                                                  pPriorities->GetPointer());
         CheckReplayResult("ID3D12Device1_SetResidencyPriority", returnValue, replay_result);
     }
@@ -5235,11 +5235,11 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     auto replay_object = MapObject<ID3D12Device3>(object_id);
     if (replay_object != nullptr)
     {
-        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects->GetPointer(), NumObjects);
+        auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto in_pFenceToSignal = MapObject<ID3D12Fence>(pFenceToSignal);
         auto replay_result = replay_object->EnqueueMakeResident(Flags,
                                                                 NumObjects,
-                                                                in_ppObjects.data(),
+                                                                in_ppObjects,
                                                                 in_pFenceToSignal,
                                                                 FenceValueToSignal);
         CheckReplayResult("ID3D12Device3_EnqueueMakeResident", returnValue, replay_result);

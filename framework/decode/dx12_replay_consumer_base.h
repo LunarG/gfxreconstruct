@@ -73,9 +73,22 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
-    std::vector<T*> MapObjects(const format::HandleId* p_ids, const size_t ids_len)
+    T** MapObjects(HandlePointerDecoder<T*>* handles_pointer, size_t handles_len)
     {
-        return object_mapping::MapObjectArray<T>(p_ids, ids_len, object_info_table_);
+        // This parameter is only referenced by debug builds.
+        GFXRECON_UNREFERENCED_PARAMETER(handles_len);
+
+        T** handles = nullptr;
+
+        if (handles_pointer != nullptr)
+        {
+            // The handle and ID array sizes are expected to be the same for mapping operations.
+            assert(handles_len == handles_pointer->GetLength());
+
+            handles = object_mapping::MapObjectArray(handles_pointer, object_info_table_);
+        }
+
+        return handles;
     }
 
     template <typename T>

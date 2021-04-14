@@ -25,6 +25,7 @@
 
 #include "format/format.h"
 #include "decode/dx12_object_info.h"
+#include "decode/handle_pointer_decoder.h"
 #include "util/gpu_va_map.h"
 
 #include <unordered_map>
@@ -71,18 +72,40 @@ static T* MapObject(format::HandleId id, const Dx12ObjectInfoTable& object_info_
 }
 
 template <typename T>
-static std::vector<T*>
-MapObjectArray(const format::HandleId* p_ids, const size_t ids_len, const Dx12ObjectInfoTable& object_info_table)
+static T** MapObjectArray(HandlePointerDecoder<T*>* handles_pointer, const Dx12ObjectInfoTable& object_info_table)
 {
-    std::vector<T*> objects(ids_len);
-    if (p_ids != nullptr)
+    assert(handles_pointer != nullptr);
+
+    T** handles = nullptr;
+
+    if (!handles_pointer->IsNull())
     {
-        for (uint32_t i = 0; i < ids_len; ++i)
+        size_t                  len = handles_pointer->GetLength();
+        const format::HandleId* ids = handles_pointer->GetPointer();
+
+        handles_pointer->SetHandleLength(len);
+
+        handles = handles_pointer->GetHandlePointer();
+
+        for (size_t i = 0; i < len; ++i)
         {
-            objects[i] = MapObject<T>(p_ids[i], object_info_table);
+            if (ids[i] != format::kNullHandleId)
+            {
+                auto object = MapObject<T>(ids[i], object_info_table);
+                if (object != nullptr)
+                {
+                    handles[i] = object;
+                }
+                else
+                {
+                    handles[i] = nullptr;
+                    GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, ids[i]);
+                }
+            }
         }
     }
-    return objects;
+
+    return handles;
 }
 
 template <typename T>
