@@ -21,14 +21,40 @@
 # IN THE SOFTWARE.
 
 import sys
+import json
 from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+
+
+class Dx12WrapperBodyGeneratorOptions(Dx12GeneratorOptions):
+    """Options for generating C++ functions for Dx12 capture."""
+
+    def __init__(
+        self,
+        capture_overrides=None,  # Path to JSON file listing Vulkan API calls to override on capture.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        Dx12GeneratorOptions.__init__(
+            self, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
+        self.capture_overrides = capture_overrides
 
 
 # Generates function/class wrappers for DX12 capture.
 class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     # Default C++ code indentation size.
     INDENT_SIZE = 4
+
+    # Map of Dx12 function names to override function names.  Calls to Dx12 functions in the map
+    # will be replaced by the override value.
+    CAPTURE_OVERRIDES = {}
 
     def __init__(
         self,
@@ -55,6 +81,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
+
+        if genOpts.capture_overrides:
+            self.__load_capture_overrides(genOpts.capture_overrides)
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
@@ -420,7 +449,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent
         if return_type != 'void':
             expr += 'result = '
-        expr += '{}.{}('.format(table, name)
+
+        if name in self.CAPTURE_OVERRIDES['functions']:
+            expr += '{}('.format(self.CAPTURE_OVERRIDES['functions'][name])
+        else:
+            expr += '{}.{}('.format(table, name)
+
         if unwrapped_args:
             expr += '\n'
             expr += unwrapped_args
@@ -600,7 +634,21 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
-            expr += 'object_->{}('.format(method_name)
+
+            if (class_name in self.CAPTURE_OVERRIDES['classmethods']) and (
+                method_name
+                in self.CAPTURE_OVERRIDES['classmethods'][class_name]
+            ):
+                expr += '{}('.format(
+                    self.CAPTURE_OVERRIDES['classmethods'][class_name]
+                    [method_name]
+                )
+                unwrapped_args = self.increment_indent(
+                    indent
+                ) + 'this,\n' + unwrapped_args
+            else:
+                expr += 'object_->{}('.format(method_name)
+
             if unwrapped_args:
                 expr += '\n'
                 expr += unwrapped_args
@@ -797,3 +845,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
     def decrement_indent(self, indent):
         return indent[:-self.INDENT_SIZE]
+
+    def __load_capture_overrides(self, filename):
+        self.CAPTURE_OVERRIDES = json.loads(open(filename, 'r').read())

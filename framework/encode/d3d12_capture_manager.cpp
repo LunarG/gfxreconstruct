@@ -398,5 +398,15 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
 
 D3D12CaptureManager::D3D12CaptureManager() : CaptureManager(), dxgi_dispatch_table_{}, d3d12_dispatch_table_{} {}
 
+HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
+                                                             const D3D12_HEAP_DESC* desc,
+                                                             REFIID                 riid,
+                                                             void**                 heap)
+{
+    ID3D12Device* device = nullptr;
+    wrapper->GetWrappedObject(&device);
+    return device->CreateHeap(desc, riid, heap);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

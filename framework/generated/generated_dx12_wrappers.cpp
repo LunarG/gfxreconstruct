@@ -13668,7 +13668,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateHeap(
             riid,
             ppvHeap);
 
-        result = object_->CreateHeap(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap(
+            this,
             pDesc,
             riid,
             ppvHeap);

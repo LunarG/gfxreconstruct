@@ -40,7 +40,7 @@ from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator,
 from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
 from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator
 from dx12_wrapper_header_generator import Dx12WrapperHeaderGenerator
-from dx12_wrapper_body_generator import Dx12WrapperBodyGenerator
+from dx12_wrapper_body_generator import Dx12WrapperBodyGenerator, Dx12WrapperBodyGeneratorOptions
 from dx12_wrapper_creators_header_generator import Dx12WrapperCreatorsHeaderGenerator
 from dx12_wrapper_creators_body_generator import Dx12WrapperCreatorsBodyGenerator
 from dx12_struct_unwrappers_header_generator import Dx12StructUnwrappersHeaderGenerator
@@ -319,10 +319,11 @@ def make_gen_opts(args):
     )
     gen_opts['generated_dx12_wrappers.cpp'] = [
         Dx12WrapperBodyGenerator,
-        Dx12GeneratorOptions(
+        Dx12WrapperBodyGeneratorOptions(
             filename='generated_dx12_wrappers.cpp',
             directory=directory,
             platform_types=platform_types,
+            capture_overrides=capture_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False

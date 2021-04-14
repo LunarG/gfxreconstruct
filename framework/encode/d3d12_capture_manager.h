@@ -153,6 +153,11 @@ class D3D12CaptureManager : public CaptureManager
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);
 
+    HRESULT OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
+                                            const D3D12_HEAP_DESC* desc,
+                                            REFIID                 riid,
+                                            void**                 heap);
+
   protected:
     D3D12CaptureManager();
 
