@@ -70,7 +70,8 @@ struct DxObjectInfo
 
 struct DxgiSwapchainInfo
 {
-    Window* window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
+    Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
+    uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
 };
 
 struct D3D12DeviceInfo

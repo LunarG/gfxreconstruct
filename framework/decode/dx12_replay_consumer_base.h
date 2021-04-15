@@ -241,7 +241,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void SetSwapchainInfoWindow(DxObjectInfo* info, Window* window);
+    void SetSwapchainInfoWindow(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd);
 
     void DestroyActiveWindows();
 
@@ -249,6 +249,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     Dx12ObjectInfoTable                 object_info_table_;
     WindowFactory*                      window_factory_;
     std::unordered_set<Window*>         active_windows_;
+    std::unordered_map<uint64_t, HWND>  window_handles_;
     std::unordered_map<uint64_t, void*> mapped_memory_;
     Dx12CpuDescriptorMap                descriptor_cpu_addresses_;
     Dx12GpuDescriptorMap                descriptor_gpu_addresses_;
