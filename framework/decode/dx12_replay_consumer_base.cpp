@@ -22,6 +22,7 @@
 
 #include "decode/dx12_replay_consumer_base.h"
 
+#include "decode/dx12_enum_util.h"
 #include "util/platform.h"
 
 #include <cassert>
@@ -166,10 +167,10 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
 {
     if (capture_result != replay_result)
     {
-        GFXRECON_LOG_ERROR("%s returned %d, which does not match the value returned at capture",
+        GFXRECON_LOG_ERROR("%s returned %s, which does not match the value returned at capture %s",
                            call_name,
-                           replay_result,
-                           capture_result);
+                           enumutil::GetResultValueString(replay_result).c_str(),
+                           enumutil::GetResultValueString(capture_result).c_str());
     }
 }
 
