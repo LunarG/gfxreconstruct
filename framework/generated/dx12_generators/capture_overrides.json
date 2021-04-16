@@ -1,5 +1,6 @@
 {
   "functions": {
+    "CreateDXGIFactory2" : "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
   },
   "classmethods": {
     "ID3D12Device": {

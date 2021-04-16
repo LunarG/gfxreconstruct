@@ -75,6 +75,7 @@ class CaptureSettings
         bool                   page_guard_persistent_memory{ false };
         bool                   page_guard_align_buffer_sizes{ false };
         bool                   page_guard_track_ahb_memory{ false };
+        bool                   debug_layer{ false };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

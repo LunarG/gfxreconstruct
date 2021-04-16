@@ -408,5 +408,48 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     return device->CreateHeap(desc, riid, heap);
 }
 
+HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
+{
+    HRESULT result = E_FAIL;
+
+    if (GetDebugLayer())
+    {
+        PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
+
+        if (get_debug_interface == nullptr)
+        {
+            HMODULE d3d12_dll = LoadLibraryA("d3d12_ms.dll");
+
+            if (d3d12_dll == NULL)
+            {
+                d3d12_dll = LoadLibraryA("d3d12.dll");
+            }
+
+            if (d3d12_dll != nullptr)
+            {
+                get_debug_interface = reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(
+                    GetProcAddress(d3d12_dll, "D3D12GetDebugInterface"));
+            }
+        }
+
+        if (get_debug_interface != nullptr)
+        {
+            ID3D12Debug* debugController = nullptr;
+            result                       = get_debug_interface(IID_PPV_ARGS(&debugController));
+
+            if (result == S_OK)
+            {
+                debugController->EnableDebugLayer();
+            }
+        }
+
+        Flags |= DXGI_CREATE_FACTORY_DEBUG;
+    }
+
+    result = dxgi_dispatch_table_.CreateDXGIFactory2(Flags, riid, ppFactory);
+
+    return result;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

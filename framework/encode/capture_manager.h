@@ -181,6 +181,7 @@ class CaptureManager
     const std::string&                  GetTrimKey() const { return trim_key_; }
     uint32_t                            GetCurrentFrame() const { return current_frame_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
+    bool                                GetDebugLayer() const { return debug_layer_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
@@ -225,6 +226,7 @@ class CaptureManager
     uint32_t                                        current_frame_;
     CaptureMode                                     capture_mode_;
     bool                                            previous_hotkey_state_;
+    bool                                            debug_layer_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

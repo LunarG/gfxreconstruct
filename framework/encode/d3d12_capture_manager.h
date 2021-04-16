@@ -158,6 +158,8 @@ class D3D12CaptureManager : public CaptureManager
                                             REFIID                 riid,
                                             void**                 heap);
 
+    HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
+
   protected:
     D3D12CaptureManager();
 

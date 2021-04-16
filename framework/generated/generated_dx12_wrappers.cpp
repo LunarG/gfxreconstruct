@@ -4986,7 +4986,7 @@ HRESULT WINAPI CreateDXGIFactory2(
             riid,
             ppFactory);
 
-        result = manager->GetDxgiDispatchTable().CreateDXGIFactory2(
+        result = D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2(
             Flags,
             riid,
             ppFactory);

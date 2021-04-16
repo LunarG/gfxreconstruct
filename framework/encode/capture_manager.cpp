@@ -83,7 +83,8 @@ CaptureManager::CaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
-    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    debug_layer_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -171,6 +172,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     timestamp_filename_   = trace_settings.time_stamp_file;
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
+    debug_layer_          = trace_settings.debug_layer;
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {

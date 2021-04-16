@@ -89,6 +89,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define PAGE_GUARD_TRACK_AHB_MEMORY_UPPER   "PAGE_GUARD_TRACK_AHB_MEMORY"
 #define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
 #define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
+#define DEBUG_LAYER_LOWER                   "debug_layer"
+#define DEBUG_LAYER_UPPER                   "DEBUG_LAYER"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -121,6 +123,7 @@ const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER;
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_LOWER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
+const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 
 #else
 // Desktop environment settings
@@ -152,6 +155,7 @@ const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
+const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -182,6 +186,7 @@ const std::string kOptionKeyPageGuardPersistentMemory = std::string(kSettingsFil
 const std::string kOptionKeyPageGuardAlignBufferSizes = std::string(kSettingsFilter) + std::string(PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER);
 const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_TRACK_AHB_MEMORY_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
+const std::string kDebugLayer                         = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -269,6 +274,9 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kPageGuardAlignBufferSizesEnvVar, kOptionKeyPageGuardAlignBufferSizes);
     LoadSingleOptionEnvVar(options, kPageGuardTrackAhbMemoryEnvVar, kOptionKeyPageGuardTrackAhbMemory);
     LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
+
+    // Debug environment variables
+    LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -345,6 +353,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionKeyPageGuardTrackAhbMemory), settings->trace_settings_.page_guard_track_ahb_memory);
     settings->trace_settings_.page_guard_external_memory = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardExternalMemory), settings->trace_settings_.page_guard_external_memory);
+
+    // Debug options
+    settings->trace_settings_.debug_layer =
+        ParseBoolString(FindOption(options, kDebugLayer), settings->trace_settings_.debug_layer);
 
     // Log options
     settings->log_settings_.use_indent =
