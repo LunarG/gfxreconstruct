@@ -435,7 +435,9 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
         heap_properties, heap_flags, desc, initial_resource_state, optimized_clear_value, riid_resource, ppv_resource);
 }
 
-D3D12CaptureManager::D3D12CaptureManager() : CaptureManager(), dxgi_dispatch_table_{}, d3d12_dispatch_table_{} {}
+D3D12CaptureManager::D3D12CaptureManager() :
+    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{}
+{}
 
 HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                                              const D3D12_HEAP_DESC* desc,

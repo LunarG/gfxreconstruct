@@ -83,7 +83,7 @@ enum MarkerType : uint32_t
     kEndMarker     = 2
 };
 
-enum MetaDataType : uint32_t
+enum class MetaDataType : uint16_t
 {
     kUnknownMetaDataType                = 0,
     kDisplayMessageCommand              = 1,
@@ -101,6 +101,25 @@ enum MetaDataType : uint32_t
     kResizeWindowCommand2               = 13,
     kSetBufferAddressCommand            = 14
 };
+
+// MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
+typedef uint32_t MetaDataId;
+
+constexpr uint32_t MakeMetaDataId(ApiFamilyId api_family, MetaDataType meta_data_type)
+{
+    return ((static_cast<uint32_t>(api_family) << 16) & 0xffff0000) |
+           (static_cast<uint32_t>(meta_data_type) & 0x0000ffff);
+}
+
+inline ApiFamilyId GetMetaDataApi(MetaDataId meta_data_id)
+{
+    return static_cast<ApiFamilyId>((meta_data_id >> 16) & 0x0000ffff);
+}
+
+inline MetaDataType GetMetaDataType(MetaDataId meta_data_id)
+{
+    return static_cast<MetaDataType>(meta_data_id & 0x0000ffff);
+}
 
 enum CompressionType : uint32_t
 {
@@ -216,7 +235,7 @@ struct CompressedMethodCallHeader
 struct MetaDataHeader
 {
     BlockHeader  block_header;
-    MetaDataType meta_data_type;
+    MetaDataId   meta_data_id; // Encodes ApiFamilyId in upper 2 bytes and MetaDataType in lower 2 bytes.
 };
 
 struct FillMemoryCommandHeader
@@ -234,7 +253,7 @@ struct DisplayMessageCommandHeader
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
-    // NOTE: Message size is determined by subtracting the sizeof(MetaDataType) + sizeof(ThreadId) from
+    // NOTE: Message size is determined by subtracting the sizeof(MetaDataId) + sizeof(ThreadId) from
     // BlockHeader::size.  This computed size is the length of the ASCII message string, not including the null
     // terminator.
 };

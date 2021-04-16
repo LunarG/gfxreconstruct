@@ -129,7 +129,7 @@ class FileTransformer
 
     virtual bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
-    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
+    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
     virtual bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 

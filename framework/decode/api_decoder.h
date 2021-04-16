@@ -47,6 +47,8 @@ class ApiDecoder
 
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
+    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) = 0;
+
     virtual void DecodeFunctionCall(format::ApiCallId  id,
                                     const ApiCallInfo& call_info,
                                     const uint8_t*     buffer,

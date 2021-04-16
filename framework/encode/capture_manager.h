@@ -154,7 +154,7 @@ class CaptureManager
     static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc,
                                 std::function<void()>                  DeleteInstanceFunc);
 
-    CaptureManager();
+    CaptureManager(format::ApiFamilyId api_family);
 
     virtual ~CaptureManager();
 
@@ -211,22 +211,25 @@ class CaptureManager
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
-    format::EnabledOptions                          file_options_;
-    std::string                                     base_filename_;
-    bool                                            timestamp_filename_;
-    bool                                            force_file_flush_;
-    CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
-    bool                                            page_guard_align_buffer_sizes_;
-    bool                                            page_guard_track_ahb_memory_;
-    PageGuardMemoryMode                             page_guard_memory_mode_;
-    bool                                            trim_enabled_;
-    std::vector<CaptureSettings::TrimRange>         trim_ranges_;
-    std::string                                     trim_key_;
-    size_t                                          trim_current_range_;
-    uint32_t                                        current_frame_;
-    CaptureMode                                     capture_mode_;
-    bool                                            previous_hotkey_state_;
-    bool                                            debug_layer_;
+
+    const format::ApiFamilyId api_family_;
+
+    format::EnabledOptions                  file_options_;
+    std::string                             base_filename_;
+    bool                                    timestamp_filename_;
+    bool                                    force_file_flush_;
+    CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
+    bool                                    page_guard_align_buffer_sizes_;
+    bool                                    page_guard_track_ahb_memory_;
+    PageGuardMemoryMode                     page_guard_memory_mode_;
+    bool                                    trim_enabled_;
+    std::vector<CaptureSettings::TrimRange> trim_ranges_;
+    std::string                             trim_key_;
+    size_t                                  trim_current_range_;
+    uint32_t                                current_frame_;
+    CaptureMode                             capture_mode_;
+    bool                                    previous_hotkey_state_;
+    bool                                    debug_layer_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -58,6 +58,13 @@ class VulkanDecoderBase : public ApiDecoder
         return (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_Vulkan);
     }
 
+    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override
+    {
+        // For backwards compatibility, an encoded API of ApiFamily_None indicates the Vulkan API.
+        format::ApiFamilyId api = format::GetMetaDataApi(meta_data_id);
+        return (api == format::ApiFamilyId::ApiFamily_None) || (api == format::ApiFamilyId::ApiFamily_Vulkan);
+    }
+
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_options,
                                     const uint8_t*     parameter_buffer,

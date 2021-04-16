@@ -239,13 +239,14 @@ bool FileProcessor::ProcessBlocks()
             }
             else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
             {
-                format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
+                format::MetaDataId meta_data_id = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None,
+                                                                         format::MetaDataType::kUnknownMetaDataType);
 
-                success = ReadBytes(&meta_type, sizeof(meta_type));
+                success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
 
                 if (success)
                 {
-                    success = ProcessMetaData(block_header, meta_type);
+                    success = ProcessMetaData(block_header, meta_data_id);
                 }
                 else
                 {
@@ -530,11 +531,12 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
     return success;
 }
 
-bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
 {
     bool success = false;
 
-    if (meta_type == format::MetaDataType::kFillMemoryCommand)
+    format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+    if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
 
@@ -550,7 +552,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             if (format::IsBlockCompressed(block_header.type))
             {
                 size_t uncompressed_size = 0;
-                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_type) -
+                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_data_id) -
                                          sizeof(header.thread_id) - sizeof(header.memory_id) -
                                          sizeof(header.memory_offset) - sizeof(header.memory_size);
 
@@ -566,11 +568,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchFillMemoryCommand(header.thread_id,
-                                                       header.memory_id,
-                                                       header.memory_offset,
-                                                       header.memory_size,
-                                                       parameter_buffer_.data());
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchFillMemoryCommand(header.thread_id,
+                                                           header.memory_id,
+                                                           header.memory_offset,
+                                                           header.memory_size,
+                                                           parameter_buffer_.data());
+                    }
                 }
             }
             else
@@ -591,7 +596,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read fill memory meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kResizeWindowCommand)
+    else if (meta_data_type == format::MetaDataType::kResizeWindowCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -607,8 +612,11 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchResizeWindowCommand(
-                    command.thread_id, command.surface_id, command.width, command.height);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchResizeWindowCommand(
+                        command.thread_id, command.surface_id, command.width, command.height);
+                }
             }
         }
         else
@@ -616,7 +624,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read resize window meta-data block");
         }
     }
-    else if (meta_type == format::MetaDataType::kResizeWindowCommand2)
+    else if (meta_data_type == format::MetaDataType::kResizeWindowCommand2)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -633,8 +641,11 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchResizeWindowCommand2(
-                    command.thread_id, command.surface_id, command.width, command.height, command.pre_transform);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchResizeWindowCommand2(
+                        command.thread_id, command.surface_id, command.width, command.height, command.pre_transform);
+                }
             }
         }
         else
@@ -642,7 +653,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read resize window 2 meta-data block");
         }
     }
-    else if (meta_type == format::MetaDataType::kDisplayMessageCommand)
+    else if (meta_data_type == format::MetaDataType::kDisplayMessageCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -653,7 +664,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            uint64_t message_size = block_header.size - sizeof(meta_type) - sizeof(header.thread_id);
+            uint64_t message_size = block_header.size - sizeof(meta_data_id) - sizeof(header.thread_id);
 
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, message_size);
 
@@ -666,7 +677,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchDisplayMessageCommand(header.thread_id, message);
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchDisplayMessageCommand(header.thread_id, message);
+                    }
                 }
             }
             else
@@ -679,7 +693,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kCreateHardwareBufferCommand)
+    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand)
     {
         format::CreateHardwareBufferCommandHeader header;
 
@@ -715,16 +729,19 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
-                                                                 header.memory_id,
-                                                                 header.buffer_id,
-                                                                 header.format,
-                                                                 header.width,
-                                                                 header.height,
-                                                                 header.stride,
-                                                                 header.usage,
-                                                                 header.layers,
-                                                                 entries);
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                     header.memory_id,
+                                                                     header.buffer_id,
+                                                                     header.format,
+                                                                     header.width,
+                                                                     header.height,
+                                                                     header.stride,
+                                                                     header.usage,
+                                                                     header.layers,
+                                                                     entries);
+                    }
                 }
             }
             else
@@ -747,7 +764,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read create hardware buffer meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kDestroyHardwareBufferCommand)
+    else if (meta_data_type == format::MetaDataType::kDestroyHardwareBufferCommand)
     {
         format::DestroyHardwareBufferCommand command;
 
@@ -758,7 +775,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchDestroyHardwareBufferCommand(command.thread_id, command.buffer_id);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchDestroyHardwareBufferCommand(command.thread_id, command.buffer_id);
+                }
             }
         }
         else
@@ -766,7 +786,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
         }
     }
-    else if (meta_type == format::MetaDataType::kSetDevicePropertiesCommand)
+    else if (meta_data_type == format::MetaDataType::kSetDevicePropertiesCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -797,15 +817,18 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
-                                                                header.physical_device_id,
-                                                                header.api_version,
-                                                                header.driver_version,
-                                                                header.vendor_id,
-                                                                header.device_id,
-                                                                header.device_type,
-                                                                header.pipeline_cache_uuid,
-                                                                device_name);
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
+                                                                    header.physical_device_id,
+                                                                    header.api_version,
+                                                                    header.driver_version,
+                                                                    header.vendor_id,
+                                                                    header.device_id,
+                                                                    header.device_type,
+                                                                    header.pipeline_cache_uuid,
+                                                                    device_name);
+                    }
                 }
             }
             else
@@ -820,7 +843,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read set device memory properties meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
+    else if (meta_data_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -867,8 +890,11 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchSetDeviceMemoryPropertiesCommand(
-                        header.thread_id, header.physical_device_id, types, heaps);
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchSetDeviceMemoryPropertiesCommand(
+                            header.thread_id, header.physical_device_id, types, heaps);
+                    }
                 }
             }
             else
@@ -883,7 +909,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read set device memory properties meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kSetBufferAddressCommand)
+    else if (meta_data_type == format::MetaDataType::kSetBufferAddressCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -899,8 +925,11 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchSetBufferAddressCommand(
-                    header.thread_id, header.device_id, header.buffer_id, header.address);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchSetBufferAddressCommand(
+                        header.thread_id, header.device_id, header.buffer_id, header.address);
+                }
             }
         }
         else
@@ -908,7 +937,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set buffer address meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)
+    else if (meta_data_type == format::MetaDataType::kSetSwapchainImageStateCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -942,8 +971,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchSetSwapchainImageStateCommand(
-                        header.thread_id, header.device_id, header.swapchain_id, header.last_presented_image, entries);
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchSetSwapchainImageStateCommand(header.thread_id,
+                                                                       header.device_id,
+                                                                       header.swapchain_id,
+                                                                       header.last_presented_image,
+                                                                       entries);
+                    }
                 }
             }
             else
@@ -958,7 +993,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read set swapchain image state meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kBeginResourceInitCommand)
+    else if (meta_data_type == format::MetaDataType::kBeginResourceInitCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -974,8 +1009,11 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchBeginResourceInitCommand(
-                    header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchBeginResourceInitCommand(
+                        header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
+                }
             }
         }
         else
@@ -983,7 +1021,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read begin resource init meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kEndResourceInitCommand)
+    else if (meta_data_type == format::MetaDataType::kEndResourceInitCommand)
     {
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
@@ -997,7 +1035,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
+                }
             }
         }
         else
@@ -1005,7 +1046,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read end resource init meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kInitBufferCommand)
+    else if (meta_data_type == format::MetaDataType::kInitBufferCommand)
     {
         format::InitBufferCommandHeader header;
 
@@ -1036,11 +1077,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchInitBufferCommand(header.thread_id,
-                                                       header.device_id,
-                                                       header.buffer_id,
-                                                       header.data_size,
-                                                       parameter_buffer_.data());
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchInitBufferCommand(header.thread_id,
+                                                           header.device_id,
+                                                           header.buffer_id,
+                                                           header.data_size,
+                                                           parameter_buffer_.data());
+                    }
                 }
             }
             else
@@ -1061,7 +1105,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init buffer data meta-data block header");
         }
     }
-    else if (meta_type == format::MetaDataType::kInitImageCommand)
+    else if (meta_data_type == format::MetaDataType::kInitImageCommand)
     {
         format::InitImageCommandHeader header;
         std::vector<uint64_t>          level_sizes;
@@ -1105,14 +1149,17 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchInitImageCommand(header.thread_id,
-                                                  header.device_id,
-                                                  header.image_id,
-                                                  header.data_size,
-                                                  header.aspect,
-                                                  header.layout,
-                                                  level_sizes,
-                                                  parameter_buffer_.data());
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchInitImageCommand(header.thread_id,
+                                                      header.device_id,
+                                                      header.image_id,
+                                                      header.data_size,
+                                                      header.aspect,
+                                                      header.layout,
+                                                      level_sizes,
+                                                      parameter_buffer_.data());
+                }
             }
         }
         else
@@ -1131,10 +1178,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     else
     {
         // Unrecognized metadata type.
-        GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %u", meta_type);
+        GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
 
-        success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_type));
+        success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_data_id));
     }
 
     return success;

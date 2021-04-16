@@ -55,6 +55,12 @@ class Dx12DecoderBase : public ApiDecoder
                 (family_id == format::ApiFamilyId::ApiFamily_D3D12));
     }
 
+    virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override
+    {
+        format::ApiFamilyId api = format::GetMetaDataApi(meta_data_id);
+        return (api == format::ApiFamilyId::ApiFamily_Dxgi) || (api == format::ApiFamilyId::ApiFamily_D3D12);
+    }
+
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_options,
                                     const uint8_t*     parameter_buffer,

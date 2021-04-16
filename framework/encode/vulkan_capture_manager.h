@@ -843,7 +843,7 @@ class VulkanCaptureManager : public CaptureManager
 #endif
 
   protected:
-    VulkanCaptureManager() : CaptureManager() {}
+    VulkanCaptureManager() : CaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
     virtual ~VulkanCaptureManager() override {}
 
