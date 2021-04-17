@@ -5075,6 +5075,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     auto replay_object = MapObject<ID3D12PipelineLibrary1>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
@@ -5167,6 +5168,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
     auto replay_object = MapObject<ID3D12Device2>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
         auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
         auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();

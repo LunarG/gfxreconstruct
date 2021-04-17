@@ -652,6 +652,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
                 subobject->type  = type;
                 subobject->value = nullptr;
 
+                // Store the pointer to the root signature object in the wrapper to simplify the handle mapping process.
+                wrapper->root_signature_ptr = &subobject->value;
+
                 bytes_read += ValueDecoder::DecodeHandleIdValue(
                     (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->root_signature));
 

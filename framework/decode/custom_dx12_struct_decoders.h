@@ -200,6 +200,7 @@ struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
     D3D12_PIPELINE_STATE_STREAM_DESC* decoded_value{ nullptr };
 
     format::HandleId                    root_signature{ format::kNullHandleId };
+    ID3D12RootSignature**               root_signature_ptr{ nullptr };
     Decoded_D3D12_SHADER_BYTECODE       vs_bytecode;
     Decoded_D3D12_SHADER_BYTECODE       ps_bytecode;
     Decoded_D3D12_SHADER_BYTECODE       ds_bytecode;

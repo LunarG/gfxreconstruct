@@ -95,6 +95,14 @@ class Dx12BaseGenerator(BaseGenerator):
         ['D3D12_RAYTRACING_INSTANCE_DESC', 'Flags', ':8'],
     ]
 
+    # Dictionary for structs with members that contain objects that must be
+    # unwrapped ormapped on replay, for cases such as
+    # D3D12_PIPELINE_STATE_STREAM_DESC that contain an array of bytes with
+    # embedded objects.
+    CUSTOM_STRUCT_HANDLE_MAP = {
+        'D3D12_PIPELINE_STATE_STREAM_DESC': ['pPipelineStateSubobjectStream']
+    }
+
     # Some functions annotate COM pointer parameters that have a void**
     # with the '_Out_' token instead of '_COM_Outptr_'.  This table
     # contains the COM pointer parameters that are not annotated as

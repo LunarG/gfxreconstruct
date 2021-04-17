@@ -104,5 +104,18 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
+                      const Dx12ObjectInfoTable&                object_info_table,
+                      const Dx12CpuDescriptorMap&               descriptor_cpu_addresses,
+                      const Dx12GpuDescriptorMap&               descriptor_gpu_addresses,
+                      const util::GpuVaMap&                     gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->root_signature_ptr != nullptr))
+    {
+        (*wrapper->root_signature_ptr) =
+            object_mapping::MapObject<ID3D12RootSignature>(wrapper->root_signature, object_info_table);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

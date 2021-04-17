@@ -14861,9 +14861,11 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
             riid,
             ppPipelineState);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->LoadPipeline(
             pName,
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
@@ -15113,8 +15115,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
             riid,
             ppPipelineState);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = object_->CreatePipelineState(
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppPipelineState);
 
