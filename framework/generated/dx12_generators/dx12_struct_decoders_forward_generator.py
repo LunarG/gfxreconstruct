@@ -56,12 +56,21 @@ class Dx12StructDecodersForwardGenerator(
 
     def generate_feature(self):
         """Methond override."""
+        code = ''
+        struct_list = self.source_dict['struct_list']
+        for name in struct_list:
+            code += 'struct Decoded_{};\n'.format(name)
+        code += 'struct Decoded_LARGE_INTEGER;\n'
+        write(code, file=self.outFile)
+
         Dx12BaseGenerator.generate_feature(self)
         self.write_struct()
 
     def write_include(self):
         """Methond override."""
-        code = ("\n" "#include \"generated_dx12_struct_decoders.h\"\n" "\n")
+        code = ("#include \"util/defines.h\"\n")
+        code += "\n"
+        code += ("#include <cstdint>\n")
         write(code, file=self.outFile)
 
     def get_struct_function_body(self, properties):

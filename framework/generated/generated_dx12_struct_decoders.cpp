@@ -25,12 +25,10 @@
 **
 */
 
-
 #include "generated_dx12_struct_decoders.h"
-#include "generated_dx12_struct_decoders_forward.h"
-#include "decode/custom_dx12_struct_decoders.h"
-#include "decode/custom_dx12_struct_decoders_forward.h"
 
+#include "decode/custom_dx12_struct_decoders.h"
+#include "decode/decode_allocator.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

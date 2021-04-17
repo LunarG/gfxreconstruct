@@ -20,9 +20,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "custom_dx12_struct_decoders_forward.h"
 #include "custom_dx12_struct_decoders.h"
-#include "generated/generated_dx12_struct_decoders_forward.h"
+
+#include "generated/generated_dx12_struct_decoders.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

@@ -23,7 +23,14 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 
-#include "generated/generated_dx12_struct_decoders.h"
+#include "decode/custom_dx12_struct_decoders_forward.h"
+#include "decode/pointer_decoder.h"
+#include "decode/struct_pointer_decoder.h"
+#include "format/format.h"
+#include "generated/generated_dx12_struct_decoders_forward.h"
+#include "util/defines.h"
+
+#include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -179,6 +186,7 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS
     Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* Resolve{ nullptr };
 };
 
+// Platform types.
 struct Decoded_LARGE_INTEGER
 {
     using struct_type = LARGE_INTEGER;

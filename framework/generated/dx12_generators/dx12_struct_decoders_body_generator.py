@@ -51,12 +51,10 @@ class Dx12StructDecodersBodyGenerator(
     def write_include(self):
         """Methond override."""
         code = (
-            "\n"
             "#include \"generated_dx12_struct_decoders.h\"\n"
-            "#include \"generated_dx12_struct_decoders_forward.h\"\n"
-            "#include \"decode/custom_dx12_struct_decoders.h\"\n"
-            "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
             "\n"
+            "#include \"decode/custom_dx12_struct_decoders.h\"\n"
+            "#include \"decode/decode_allocator.h\"\n"
         )
         write(code, file=self.outFile)
 

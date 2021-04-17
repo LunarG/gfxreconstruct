@@ -23,13 +23,30 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H
 
-#include "generated/generated_dx12_struct_decoders.h"
-#include "custom_dx12_struct_decoders.h"
+#include "generated/generated_dx12_struct_decoders_forward.h"
+#include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Unions.
+struct Decoded_D3D12_CLEAR_VALUE;
+struct Decoded_D3D12_RESOURCE_BARRIER;
+struct Decoded_D3D12_TEXTURE_COPY_LOCATION;
+struct Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC;
+struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC;
+struct Decoded_D3D12_RENDER_TARGET_VIEW_DESC;
+struct Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC;
+struct Decoded_D3D12_ROOT_PARAMETER;
+struct Decoded_D3D12_ROOT_PARAMETER1;
+struct Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC;
+struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC;
+struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC;
+struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
+struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA;
+struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS;
+struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS;
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CLEAR_VALUE* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RESOURCE_BARRIER* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper);
@@ -46,6 +63,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUI
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper);
+
+// Platform types.
+struct Decoded_LARGE_INTEGER;
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)

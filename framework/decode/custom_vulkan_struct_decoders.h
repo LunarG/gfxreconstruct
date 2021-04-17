@@ -36,8 +36,6 @@
 
 #include "vulkan/vulkan.h"
 
-#include <memory>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 

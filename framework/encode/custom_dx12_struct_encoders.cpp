@@ -21,9 +21,10 @@
 */
 
 #include "encode/custom_dx12_struct_encoders.h"
-#include "generated/generated_dx12_api_call_encoders.h"
-#include "encode/struct_pointer_encoder.h"
+
 #include "encode/dx12_object_wrapper_util.h"
+#include "encode/struct_pointer_encoder.h"
+#include "generated/generated_dx12_api_call_encoders.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)

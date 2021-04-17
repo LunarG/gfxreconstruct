@@ -23,8 +23,9 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 #define GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 
-#include "util/defines.h"
 #include "encode/parameter_encoder.h"
+#include "util/defines.h"
+
 #include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
