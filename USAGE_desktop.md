@@ -334,7 +334,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
-                        [--surface-index <N>] [--remove-unsupported]
+                        [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         <file>
 
@@ -395,6 +395,8 @@ Optional arguments:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
+  --validate            Enables the Khronos Vulkan validation layer when replaying a Vulkan
+                        capture or the Direct3D debug layer when replaying a DX capture.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
