@@ -46,10 +46,6 @@ class Dx12GeneratorOptions(BaseGeneratorOptions):
 class Dx12BaseGenerator(BaseGenerator):
 
     ARRAY_SIZE_LIST = [
-        [
-            'D3D12_PIPELINE_STATE_STREAM_DESC',
-            'pPipelineStateSubobjectStream', 'SizeInBytes'
-        ],
         ['D3D12_AUTO_BREADCRUMB_NODE', 'pCommandHistory', 'BreadcrumbCount'],
         ['D3D12_AUTO_BREADCRUMB_NODE1', 'pCommandHistory', 'BreadcrumbCount'],
         [

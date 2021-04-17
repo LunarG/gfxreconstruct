@@ -27,7 +27,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "format/format.h"
-#include "generated/generated_dx12_struct_decoders_forward.h"
+#include "generated/generated_dx12_struct_decoders.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
@@ -191,6 +191,33 @@ struct Decoded_LARGE_INTEGER
 {
     using struct_type = LARGE_INTEGER;
     LARGE_INTEGER* decoded_value{ nullptr };
+};
+
+// Types requiring special processing.
+struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
+{
+    using struct_type = D3D12_PIPELINE_STATE_STREAM_DESC;
+    D3D12_PIPELINE_STATE_STREAM_DESC* decoded_value{ nullptr };
+
+    format::HandleId                    root_signature{ format::kNullHandleId };
+    Decoded_D3D12_SHADER_BYTECODE       vs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       ps_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       ds_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       hs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       gs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       cs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       as_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE       ms_bytecode;
+    Decoded_D3D12_STREAM_OUTPUT_DESC    stream_output;
+    Decoded_D3D12_BLEND_DESC            blend;
+    Decoded_D3D12_RASTERIZER_DESC       rasterizer;
+    Decoded_D3D12_DEPTH_STENCIL_DESC    depth_stencil;
+    Decoded_D3D12_INPUT_LAYOUT_DESC     input_layout;
+    Decoded_D3D12_RT_FORMAT_ARRAY       render_target_formats;
+    Decoded_DXGI_SAMPLE_DESC            sample_desc;
+    Decoded_D3D12_CACHED_PIPELINE_STATE cached_pso;
+    Decoded_D3D12_DEPTH_STENCIL_DESC1   depth_stencil1;
+    Decoded_D3D12_VIEW_INSTANCING_DESC  view_instancing;
 };
 
 GFXRECON_END_NAMESPACE(decode)

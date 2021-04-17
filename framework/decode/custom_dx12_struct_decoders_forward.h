@@ -69,6 +69,11 @@ struct Decoded_LARGE_INTEGER;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper);
 
+// Types requiring special processing.
+struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC;
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

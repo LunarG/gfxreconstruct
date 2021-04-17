@@ -22,7 +22,7 @@
 
 #include "custom_dx12_struct_decoders.h"
 
-#include "generated/generated_dx12_struct_decoders.h"
+#include "format/dx12_subobject_types.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -618,6 +618,337 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INT
     LARGE_INTEGER* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->QuadPart));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                            bytes_read = 0;
+    D3D12_PIPELINE_STATE_STREAM_DESC* value      = wrapper->decoded_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeInBytes));
+
+    size_t   offset = 0;
+    uint8_t* start  = DecodeAllocator::Allocate<uint8_t>(value->SizeInBytes, false);
+
+    value->pPipelineStateSubobjectStream = start;
+
+    while (offset < value->SizeInBytes)
+    {
+        D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type{};
+        auto                                current = start + offset;
+
+        bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &type);
+
+        switch (type)
+        {
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE:
+            {
+                auto subobject   = reinterpret_cast<format::Dx12SignatureSubobject*>(current);
+                subobject->type  = type;
+                subobject->value = nullptr;
+
+                bytes_read += ValueDecoder::DecodeHandleIdValue(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->root_signature));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->vs_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->vs_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->ps_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->ps_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->ds_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->ds_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->hs_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->hs_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->gs_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->gs_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->cs_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->cs_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_AS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->as_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->as_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MS:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->ms_bytecode.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->ms_bytecode));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+            {
+                auto subobject                       = reinterpret_cast<format::Dx12StreamOutputSubobject*>(current);
+                subobject->type                      = type;
+                wrapper->stream_output.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->stream_output));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND:
+            {
+                auto subobject               = reinterpret_cast<format::Dx12BlendSubobject*>(current);
+                subobject->type              = type;
+                wrapper->blend.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->blend));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12UIntSubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeUInt32Value(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER:
+            {
+                auto subobject                    = reinterpret_cast<format::Dx12RasterizerSubobject*>(current);
+                subobject->type                   = type;
+                wrapper->rasterizer.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+            {
+                auto subobject                       = reinterpret_cast<format::Dx12DepthStencilSubobject*>(current);
+                subobject->type                      = type;
+                wrapper->depth_stencil.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->depth_stencil));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+            {
+                auto subobject                      = reinterpret_cast<format::Dx12InputLayoutSubobject*>(current);
+                subobject->type                     = type;
+                wrapper->input_layout.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->input_layout));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12StripCutSubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeEnumValue(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12PrimitiveTopologySubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeEnumValue(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12RenderTargetFormatsSubobject*>(current);
+                subobject->type = type;
+                wrapper->render_target_formats.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->render_target_formats));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12FormatSubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeEnumValue(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12SampleDescSubobject*>(current);
+                subobject->type                    = type;
+                wrapper->sample_desc.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sample_desc));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12UIntSubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeUInt32Value(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CACHED_PSO:
+            {
+                auto subobject                    = reinterpret_cast<format::Dx12CachedPsoSubobject*>(current);
+                subobject->type                   = type;
+                wrapper->cached_pso.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->cached_pso));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12TypeFlagsSubobject*>(current);
+                subobject->type = type;
+
+                bytes_read += ValueDecoder::DecodeEnumValue(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(subobject->value));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+            {
+                auto subobject                        = reinterpret_cast<format::Dx12DepthStencil1Subobject*>(current);
+                subobject->type                       = type;
+                wrapper->depth_stencil1.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->depth_stencil1));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12ViewInstancingSubobject*>(current);
+                subobject->type = type;
+                wrapper->view_instancing.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->view_instancing));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            default:
+                // Type is unrecognized.  Check for an invalid type value to determine if capture did not recogize the
+                // type and log a warning.
+                offset = value->SizeInBytes;
+
+                if (type == format::kInvalidSubobjectType)
+                {
+                    GFXRECON_LOG_FATAL(
+                        "A pipeline state subobject encoding indicates that the stream contained an unrecognized "
+                        "subobject type during capture and the captured data is incomplete, which may cause replay to "
+                        "fail.");
+                }
+                else
+                {
+                    GFXRECON_LOG_FATAL("Pipeline state subobject decoding encountered unrecognized subobject type "
+                                       "D3D12_PIPELINE_STATE_SUBOBJECT_TYPE = %d, which may cause replay to fail.",
+                                       type);
+                }
+
+                break;
+        }
+    }
 
     return bytes_read;
 }

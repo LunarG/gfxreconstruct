@@ -53,6 +53,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
 
 // Types requiring special processing.
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value);
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature);
 
 GFXRECON_END_NAMESPACE(encode)

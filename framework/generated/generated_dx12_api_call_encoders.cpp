@@ -3215,12 +3215,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RT_FORMAT_ARRAY& value)
     encoder->EncodeUInt32Value(value.NumRenderTargets);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value)
-{
-    encoder->EncodeSizeTValue(value.SizeInBytes);
-    encoder->EncodeVoidArray(value.pPipelineStateSubobjectStream, value.SizeInBytes);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS& value)
 {
     encoder->EncodeInt32Value(value.DoublePrecisionFloatShaderOps);

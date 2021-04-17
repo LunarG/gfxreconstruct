@@ -31,6 +31,7 @@ add_library(gfxrecon_format STATIC "")
 target_sources(gfxrecon_format
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/api_call_id.h
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_subobject_types.h>
                     ${CMAKE_CURRENT_LIST_DIR}/format.h
                     ${CMAKE_CURRENT_LIST_DIR}/format_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/format_util.cpp

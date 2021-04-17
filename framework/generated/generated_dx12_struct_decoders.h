@@ -578,15 +578,6 @@ struct Decoded_D3D12_RT_FORMAT_ARRAY
     PointerDecoder<DXGI_FORMAT> RTFormats;
 };
 
-struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
-{
-    using struct_type = D3D12_PIPELINE_STATE_STREAM_DESC;
-
-    D3D12_PIPELINE_STATE_STREAM_DESC* decoded_value{ nullptr };
-
-    PointerDecoder<uint8_t> pPipelineStateSubobjectStream;
-};
-
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS
 {
     using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS;

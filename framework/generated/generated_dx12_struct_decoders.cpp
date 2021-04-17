@@ -1092,20 +1092,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RT_
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_PIPELINE_STATE_STREAM_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeInBytes));
-    bytes_read += wrapper->pPipelineStateSubobjectStream.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pPipelineStateSubobjectStream = wrapper->pPipelineStateSubobjectStream.GetPointer();
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

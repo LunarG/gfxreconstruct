@@ -23,6 +23,7 @@
 #include "encode/custom_dx12_struct_encoders.h"
 
 #include "encode/dx12_object_wrapper_util.h"
+#include "format/dx12_subobject_types.h"
 #include "encode/struct_pointer_encoder.h"
 #include "generated/generated_dx12_api_call_encoders.h"
 
@@ -373,6 +374,191 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value)
+{
+    encoder->EncodeSizeTValue(value.SizeInBytes);
+
+    if ((value.SizeInBytes > 0) && (value.pPipelineStateSubobjectStream != nullptr))
+    {
+        size_t   offset = 0;
+        uint8_t* start  = reinterpret_cast<uint8_t*>(value.pPipelineStateSubobjectStream);
+
+        while (offset < value.SizeInBytes)
+        {
+            auto current = start + offset;
+            auto type    = *reinterpret_cast<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE*>(current);
+
+            switch (type)
+            {
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12SignatureSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeObjectValue(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_HS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_GS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_AS:
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MS:
+                {
+                    // These subobject types can share the same encoding code for the D3D12_SHADER_BYTECODE type.
+                    auto subobject = reinterpret_cast<format::Dx12ShaderBytecodeSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12StreamOutputSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12BlendSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12UIntSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeUInt32Value(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12RasterizerSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12DepthStencilSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12InputLayoutSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12StripCutSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeEnumValue(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12PrimitiveTopologySubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeEnumValue(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12RenderTargetFormatsSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12FormatSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeEnumValue(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12SampleDescSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12UIntSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeUInt32Value(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CACHED_PSO:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12CachedPsoSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_FLAGS:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12TypeFlagsSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    encoder->EncodeEnumValue(subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12DepthStencil1Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12ViewInstancingSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                default:
+                    // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
+                    // and log a warning.
+                    encoder->EncodeUInt32Value(format::kInvalidSubobjectType);
+                    offset = value.SizeInBytes;
+
+                    GFXRECON_LOG_WARNING(
+                        "A pipeline state subobject with unrecognized D3D12_PIPELINE_STATE_SUBOBJECT_TYPE = %d was "
+                        "omitted from the capture file, which may cause replay to fail.",
+                        type);
+
+                    break;
+            }
+        }
+    }
 }
 
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature)
