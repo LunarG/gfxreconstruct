@@ -33,29 +33,37 @@ void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle, const Dx12CpuDe
 
     if (entry != descriptor_cpu_addresses.end())
     {
-        auto info              = entry->second;
-        auto type              = info->descriptor_type;
-        auto start_addr        = info->capture_cpu_addr_begin;
-        auto capture_increment = (*info->capture_increments)[type];
-        auto replay_increment  = (*info->replay_increments)[type];
+        auto info = entry->second;
 
-        // Check to see if the descriptor address is withing the range of the captured descriptor heap address
-        // boundaries.
-        if (info->capture_cpu_addr_end == 0)
-        {
-            // Compute the end address for the heap.
-            auto size                  = capture_increment * info->descriptor_count;
-            info->capture_cpu_addr_end = start_addr + size;
-        }
+        assert((info != nullptr) && (info->capture_cpu_addr_begin == entry->first));
 
-        if (handle.ptr < info->capture_cpu_addr_end)
+        // Skip the offset calculation when the target address matches the heap start address.
+        if (handle.ptr == info->capture_cpu_addr_begin)
         {
             replay_addr = info->replay_cpu_addr_begin;
+        }
+        else
+        {
+            auto type              = info->descriptor_type;
+            auto start_addr        = info->capture_cpu_addr_begin;
+            auto capture_increment = (*info->capture_increments)[type];
+            auto replay_increment  = (*info->replay_increments)[type];
 
-            // Compute offset from address.
-            auto offset = handle.ptr - start_addr;
-            if (offset > 0)
+            // Check to see if the descriptor address is withing the range of the captured descriptor heap address
+            // boundaries.
+            if (info->capture_cpu_addr_end == 0)
             {
+                // Compute the end address for the heap.
+                auto size                  = capture_increment * info->descriptor_count;
+                info->capture_cpu_addr_end = start_addr + size;
+            }
+
+            if (handle.ptr < info->capture_cpu_addr_end)
+            {
+                replay_addr = info->replay_cpu_addr_begin;
+
+                // Compute offset from address.
+                auto offset = handle.ptr - start_addr;
                 if (capture_increment == replay_increment)
                 {
                     replay_addr += offset;
@@ -95,29 +103,37 @@ void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12GpuDe
 
     if (entry != descriptor_gpu_addresses.end())
     {
-        auto info              = entry->second;
-        auto type              = info->descriptor_type;
-        auto start_addr        = info->capture_gpu_addr_begin;
-        auto capture_increment = (*info->capture_increments)[type];
-        auto replay_increment  = (*info->replay_increments)[type];
+        auto info = entry->second;
 
-        // Check to see if the descriptor address is withing the range of the captured descriptor heap address
-        // boundaries.
-        if (info->capture_gpu_addr_end == 0)
-        {
-            // Compute the end address for the heap.
-            auto size                  = capture_increment * info->descriptor_count;
-            info->capture_gpu_addr_end = start_addr + size;
-        }
+        assert((info != nullptr) && (info->capture_gpu_addr_begin == entry->first));
 
-        if (handle.ptr < info->capture_gpu_addr_end)
+        // Skip the offset calculation when the target address matches the heap start address.
+        if (handle.ptr == info->capture_gpu_addr_begin)
         {
             replay_addr = info->replay_gpu_addr_begin;
+        }
+        else
+        {
+            auto type              = info->descriptor_type;
+            auto start_addr        = info->capture_gpu_addr_begin;
+            auto capture_increment = (*info->capture_increments)[type];
+            auto replay_increment  = (*info->replay_increments)[type];
 
-            // Compute offset from address.
-            auto offset = handle.ptr - start_addr;
-            if (offset > 0)
+            // Check to see if the descriptor address is withing the range of the captured descriptor heap address
+            // boundaries.
+            if (info->capture_gpu_addr_end == 0)
             {
+                // Compute the end address for the heap.
+                auto size                  = capture_increment * info->descriptor_count;
+                info->capture_gpu_addr_end = start_addr + size;
+            }
+
+            if (handle.ptr < info->capture_gpu_addr_end)
+            {
+                replay_addr = info->replay_gpu_addr_begin;
+
+                // Compute offset from address.
+                auto offset = handle.ptr - start_addr;
                 if (capture_increment == replay_increment)
                 {
                     replay_addr += offset;
