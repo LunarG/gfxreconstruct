@@ -281,6 +281,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void SetSwapchainInfoWindow(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd);
 
+    void DestroyObjectExtraInfo(DxObjectInfo* info);
+
+    void DestroyActiveObjects();
+
     void DestroyActiveWindows();
 
     void DestroyActiveEvents();

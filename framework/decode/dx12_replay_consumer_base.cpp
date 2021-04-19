@@ -55,6 +55,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
 
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
 {
+    DestroyActiveObjects();
     DestroyActiveWindows();
     DestroyActiveEvents();
 }
@@ -116,66 +117,7 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
 {
     if (info != nullptr)
     {
-        if (info->extra_info != nullptr)
-        {
-            if (info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
-            {
-                auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(info->extra_info);
-
-                if (resource_info->capture_address_ != 0)
-                {
-                    gpu_va_map_.Remove(static_cast<ID3D12Resource*>(info->object));
-                }
-
-                for (const auto& entry : resource_info->mapped_memory_info)
-                {
-                    auto& mapped_info = entry.second;
-                    mapped_memory_.erase(mapped_info.memory_id);
-                }
-
-                delete resource_info;
-            }
-            else if (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
-            {
-                auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
-                delete fence_info;
-            }
-            else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
-            {
-                auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info->extra_info);
-                descriptor_cpu_addresses_.erase(heap_info->capture_cpu_addr_begin);
-                descriptor_gpu_addresses_.erase(heap_info->capture_gpu_addr_begin);
-                delete heap_info;
-            }
-            else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
-            {
-                auto device_info = reinterpret_cast<D3D12DeviceInfo*>(info->extra_info);
-                delete device_info;
-            }
-            else if (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
-            {
-                auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
-
-                window_factory_->Destroy(swapchain_info->window);
-                active_windows_.erase(swapchain_info->window);
-
-                if (swapchain_info->hwnd_id != 0)
-                {
-                    window_handles_.erase(swapchain_info->hwnd_id);
-                }
-
-                delete swapchain_info;
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Failed to destroy extra object info for unrecognized object info type %d",
-                                   info->extra_info_type);
-            }
-
-            info->extra_info_type = DxObjectInfoType::kUnused;
-            info->extra_info      = nullptr;
-        }
-
+        DestroyObjectExtraInfo(info);
         object_mapping::RemoveObject(info->capture_id, &object_info_table_);
     }
 }
@@ -980,6 +922,87 @@ void Dx12ReplayConsumerBase::SetSwapchainInfoWindow(DxObjectInfo* info, Window* 
 
         active_windows_.insert(window);
     }
+}
+
+void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
+{
+    if (info->extra_info != nullptr)
+    {
+        if (info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
+        {
+            auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(info->extra_info);
+
+            if (resource_info->capture_address_ != 0)
+            {
+                gpu_va_map_.Remove(static_cast<ID3D12Resource*>(info->object));
+            }
+
+            for (const auto& entry : resource_info->mapped_memory_info)
+            {
+                auto& mapped_info = entry.second;
+                mapped_memory_.erase(mapped_info.memory_id);
+            }
+
+            delete resource_info;
+        }
+        else if (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
+        {
+            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+            delete fence_info;
+        }
+        else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
+        {
+            auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info->extra_info);
+            descriptor_cpu_addresses_.erase(heap_info->capture_cpu_addr_begin);
+            descriptor_gpu_addresses_.erase(heap_info->capture_gpu_addr_begin);
+            delete heap_info;
+        }
+        else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
+        {
+            auto device_info = reinterpret_cast<D3D12DeviceInfo*>(info->extra_info);
+            delete device_info;
+        }
+        else if (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
+        {
+            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
+
+            window_factory_->Destroy(swapchain_info->window);
+            active_windows_.erase(swapchain_info->window);
+
+            if (swapchain_info->hwnd_id != 0)
+            {
+                window_handles_.erase(swapchain_info->hwnd_id);
+            }
+
+            delete swapchain_info;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to destroy extra object info for unrecognized object info type %d",
+                               info->extra_info_type);
+        }
+
+        info->extra_info_type = DxObjectInfoType::kUnused;
+        info->extra_info      = nullptr;
+    }
+}
+
+void Dx12ReplayConsumerBase::DestroyActiveObjects()
+{
+    for (auto& entry : object_info_table_)
+    {
+        auto& info = entry.second;
+
+        // Release all of the replay tool's references to the object.
+        for (uint32_t i = 0; i < info.ref_count; ++i)
+        {
+            info.object->Release();
+        }
+
+        DestroyObjectExtraInfo(&info);
+    }
+
+    object_info_table_.clear();
 }
 
 void Dx12ReplayConsumerBase::DestroyActiveWindows()
