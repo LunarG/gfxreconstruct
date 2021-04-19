@@ -96,6 +96,10 @@ class Dx12ReplayConsumerBodyGenerator(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
+        write(
+            '#include "generated/generated_dx12_struct_add_objects.h"',
+            file=self.outFile
+        )
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
@@ -110,6 +114,10 @@ class Dx12ReplayConsumerBodyGenerator(
 
     def generate_feature(self):
         """Methond override."""
+        header_dict = self.source_dict['header_dict']
+        self.structs_with_objects = self.collect_struct_with_objects(
+            header_dict
+        )
         Dx12BaseGenerator.generate_feature(self)
         BaseReplayConsumerBodyGenerator.generate_feature(self)
         self.generate_dx12_method_feature()
@@ -165,6 +173,7 @@ class Dx12ReplayConsumerBodyGenerator(
         code = ''
         arg_list = []
         add_object_list = []
+        struct_add_object_list = []
         post_extenal_object_list = []
 
         is_override = name in self.REPLAY_OVERRIDES
@@ -185,6 +194,12 @@ class Dx12ReplayConsumerBodyGenerator(
             ) and not value.is_array
             is_output = self.is_output(value)
             is_struct = self.is_struct(value.base_type)
+
+            if is_output and value.base_type in self.structs_with_objects:
+                struct_add_object_list.append(
+                    'StructAddObject({0}, {0}->GetPointer(), GetObjectInfoTable());\n'
+                    .format(value.name)
+                )
 
             if is_class:
                 if is_output:
@@ -402,9 +417,11 @@ class Dx12ReplayConsumerBodyGenerator(
         code += ');\n'
 
         if return_type == 'HRESULT':
-            if len(add_object_list):
+            if len(add_object_list) or len(struct_add_object_list):
                 code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
                 for e in add_object_list:
+                    code += '        {}'.format(e)
+                for e in struct_add_object_list:
                     code += '        {}'.format(e)
                 code += "    }\n"
 

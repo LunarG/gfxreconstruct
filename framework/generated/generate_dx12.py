@@ -45,7 +45,9 @@ GENERATE_TARGETS = [
     'generated_dx12_struct_unwrappers.cpp',
     'generated_dx12_struct_object_mappers.h',
     'generated_dx12_struct_object_mappers.cpp',
-    'generated_dx12_struct_wrappers.h', 'generated_dx12_struct_wrappers.cpp'
+    'generated_dx12_struct_wrappers.h', 'generated_dx12_struct_wrappers.cpp',
+    'generated_dx12_struct_add_objects.h',
+    'generated_dx12_struct_add_objects.cpp'
 ]
 
 DX12_SOURCE_LIST = [
