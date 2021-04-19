@@ -76,8 +76,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # Unique set of names of all class names specified as base classes.
         self.class_parent_names = []
 
-        self.structs_with_wrap_objects = set()
-
     # Method override
     def beginFile(self, genOpts):
         Dx12BaseGenerator.beginFile(self, genOpts)
@@ -130,7 +128,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             )
 
         header_dict = self.source_dict['header_dict']
-        self.collect_struct_with_wrap_objects(header_dict)
+        self.structs_with_wrap_objects = self.collect_struct_with_objects(
+            header_dict
+        )
         for k, v in header_dict.items():
             self.newline()
             write(self.dx12_prefix_strings.format(k), file=self.outFile)
@@ -706,23 +706,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '}\n'
 
             write(expr, file=self.outFile)
-
-    def collect_struct_with_wrap_objects(self, header_dict):
-        for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
-                    for k, v in v2['properties'].items():
-                        for p in v:
-                            value = self.get_value_info(p)
-
-                            if (
-                                self.is_struct(value.base_type) and
-                                (value.full_type.find('_Out_') != -1) and (
-                                    value.base_type
-                                    in self.structs_with_wrap_objects
-                                )
-                            ) or (self.is_class(value)):
-                                self.structs_with_wrap_objects.add(k2)
 
     def make_param_decl_list(self, param_info, indent='    '):
         space_index = 0

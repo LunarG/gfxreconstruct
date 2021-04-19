@@ -42,7 +42,6 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
             diag_file
         )
-        self.structs_with_wrap_objects = set()
 
     def beginFile(self, genOpts):
         """Methond override."""
@@ -65,14 +64,10 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
         Dx12BaseGenerator.generate_feature(self)
 
         header_dict = self.source_dict['header_dict']
-        for k, v in header_dict.items():
-            print_prefix_strings = False
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
-                    print_prefix_strings = self.write_struct_decl(
-                        k2, v2['properties'], print_prefix_strings,
-                        self.dx12_prefix_strings.format(k)
-                    )
+        self.structs_with_objects = self.collect_struct_with_objects(
+            header_dict
+        )
+        self.write_struct_decl()
 
     def write_include(self):
         code = ''
@@ -86,27 +81,9 @@ class Dx12StructWrapperHeaderGenerator(Dx12BaseGenerator):
 
         write(code, file=self.outFile)
 
-    def write_struct_decl(
-        self, name, properties, print_prefix_strings, dx12_prefix_strings
-    ):
-        for k, v in properties.items():
-            for p in v:
-                value = self.get_value_info(p)
-                if (
-                    self.is_struct(value.base_type) and
-                    (value.full_type.find('_Out_') != -1) and
-                    (value.base_type in self.structs_with_wrap_objects)
-                ) or (self.is_class(value)):
-                    if not name in self.structs_with_wrap_objects:
-                        if not print_prefix_strings:
-                            self.newline()
-                            write(dx12_prefix_strings, file=self.outFile)
-                            self.newline()
-                            print_prefix_strings = True
-                        self.structs_with_wrap_objects.add(name)
-                        write(
-                            'void WrapStruct(const {}* value);\n'.format(name),
-                            file=self.outFile
-                        )
-
-        return print_prefix_strings
+    def write_struct_decl(self):
+        for k, v in self.structs_with_objects.items():
+            write(
+                'void WrapStruct(const {}* value);\n'.format(k),
+                file=self.outFile
+            )

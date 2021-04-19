@@ -471,3 +471,25 @@ class Dx12BaseGenerator(BaseGenerator):
         ):
             return True
         return False
+
+    def collect_struct_with_objects(self, header_dict):
+        structs_with_objects = dict()
+
+        for k, v in header_dict.items():
+            for k2, v2 in v.classes.items():
+                if self.is_required_struct_data(k2, v2):
+                    values = []
+                    for k3, v3 in v2['properties'].items():
+                        for p in v3:
+                            value = self.get_value_info(p)
+
+                            if (
+                                self.is_struct(value.base_type) and
+                                (value.full_type.find('_Out_') != -1) and
+                                (value.base_type in structs_with_objects)
+                            ) or (self.is_class(value)):
+                                values.append(value)
+                    if values:
+                        structs_with_objects[k2] = values
+
+        return structs_with_objects

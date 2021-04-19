@@ -43,7 +43,6 @@ class Dx12StructWrapperBodyGenerator(Dx12BaseGenerator):
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
             diag_file
         )
-        self.structs_with_wrap_objects = set()
 
     def beginFile(self, genOpts):
         """Methond override."""
@@ -68,53 +67,18 @@ class Dx12StructWrapperBodyGenerator(Dx12BaseGenerator):
         Dx12BaseGenerator.generate_feature(self)
 
         header_dict = self.source_dict['header_dict']
-        self.collect_struct_with_wrap_objects(header_dict)
+        self.structs_with_objects = self.collect_struct_with_objects(
+            header_dict
+        )
+        self.write_struct_member_def()
 
-        for k, v in header_dict.items():
-            print_prefix_strings = False
-            for k2, v2 in v.classes.items():
-                if k2 in self.structs_with_wrap_objects:
+    def write_struct_member_def(self):
+        for k, v in self.structs_with_objects.items():
+            expr = 'void WrapStruct(const {}* value)\n'.format(k)
+            expr += '{\n'
 
-                    if not print_prefix_strings:
-                        self.newline()
-                        write(
-                            self.dx12_prefix_strings.format(k),
-                            file=self.outFile
-                        )
-                        self.newline()
-                        print_prefix_strings = True
-
-                    self.write_struct_member_def(k2, v2['properties'])
-
-    def collect_struct_with_wrap_objects(self, header_dict):
-        for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
-                    for k, v in v2['properties'].items():
-                        for p in v:
-                            value = self.get_value_info(p)
-
-                            if (
-                                self.is_struct(value.base_type) and
-                                (value.full_type.find('_Out_') != -1) and (
-                                    value.base_type
-                                    in self.structs_with_wrap_objects
-                                )
-                            ) or (self.is_class(value)):
-                                #print('   22222', k2)
-                                self.structs_with_wrap_objects.add(k2)
-
-    def write_struct_member_def(self, name, properties):
-        expr = 'void WrapStruct(const {}* value)\n'.format(name)
-        expr += '{\n'
-
-        for k, v in properties.items():
-            for p in v:
-                value = self.get_value_info(p)
-
-                if self.is_struct(value.base_type) and (
-                    value.full_type.find('_Out_') != -1
-                ) and (value.base_type in self.structs_with_wrap_objects):
+            for value in v:
+                if self.is_struct(value.base_type):
                     expr += '    if(value->{0})\n'\
                             '    {{\n'\
                             '        WrapStruct(value->{0});\n'\
@@ -132,8 +96,8 @@ class Dx12StructWrapperBodyGenerator(Dx12BaseGenerator):
                                 '        WrapObject(IID_{0}, reinterpret_cast<void**>(value->{1}), nullptr);\n'\
                                 '    }}\n'.format(value.base_type, value.name)
 
-        expr += '}\n'
-        write(expr, file=self.outFile)
+            expr += '}\n'
+            write(expr, file=self.outFile)
 
     def write_include(self):
         code = ''

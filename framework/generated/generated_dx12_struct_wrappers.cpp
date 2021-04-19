@@ -49,12 +49,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-
-/*
-** This part is generated from d3d12.h in Windows SDK: 10.0.19041.0
-**
-*/
-
 void WrapStruct(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* value)
 {
     if(value->pRootSignature)
