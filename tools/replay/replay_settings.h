@@ -76,12 +76,19 @@ const char kScreenshotRangeArgument[]          = "--screenshots";
 const char kScreenshotFormatArgument[]         = "--screenshot-format";
 const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
+#if defined(WIN32)
+const char kApiFamilyOption[] = "--api";
+#endif
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
                         "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--screenshot-all";
 const char kArguments[] =
     "--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--replace-shaders,--screenshots,--"
-    "screenshot-format,--screenshot-dir,--screenshot-prefix";
+    "screenshot-format,--screenshot-dir,--screenshot-prefix"
+#if defined(WIN32)
+    ",--api"
+#endif
+    ;
 
 enum class WsiPlatform
 {
@@ -102,6 +109,12 @@ const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
 const char kMemoryTranslationRealign[] = "realign";
 const char kMemoryTranslationRebind[]  = "rebind";
+
+#if defined(WIN32)
+const char kApiFamilyVulkan[] = "vulkan";
+const char kApiFamilyDx12[]   = "dx12";
+const char kApiFamilyAll[]    = "all";
+#endif
 
 const char kScreenshotFormatBmp[] = "bmp";
 
@@ -500,6 +513,40 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
     return func;
 }
 
+#if defined(WIN32)
+static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parser, gfxrecon::format::ApiFamilyId api)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kApiFamilyOption);
+
+    // If the --api argument was specified, parse the option.
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyAll, value.c_str()) == 0)
+        {
+            return true;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyVulkan, value.c_str()) == 0)
+        {
+            return (api == gfxrecon::format::ApiFamilyId::ApiFamily_Vulkan);
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyDx12, value.c_str()) == 0)
+        {
+            return (api == gfxrecon::format::ApiFamilyId::ApiFamily_D3D12);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized API option \"%s\"", value.c_str());
+            return true;
+        }
+    }
+    // If the --api argument was not specified, default so that all APIs are enabled.
+    else
+    {
+        return true;
+    }
+}
+#endif
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kValidateOption))
@@ -515,6 +562,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 {
     gfxrecon::decode::VulkanReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
+
+#if defined(WIN32)
+    replay_options.enable_vulkan = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_Vulkan);
+#else
+    replay_options.enable_vulkan = true;
+#endif
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
     if (!override_gpu.empty())
@@ -568,6 +621,8 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
 
+    replay_options.enable_dx12 = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
+
     return replay_options;
 }
 #endif
@@ -618,7 +673,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--surface-index <N>] [--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
 #if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
+#elif defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] <file>\n");
 #else
     GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
 #endif
@@ -702,9 +759,16 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay. Available values are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the DirectX 12 API enabled.", kApiFamilyDx12);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and DirectX 12 APIs", kApiFamilyAll);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
+#if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 #endif
 }
 

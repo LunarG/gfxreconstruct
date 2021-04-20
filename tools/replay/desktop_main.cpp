@@ -170,27 +170,37 @@ int main(int argc, const char** argv)
             {
                 // Initialize Vulkan API decoder and consumer(s).
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayConsumer         vulkan_replay_consumer(
-                    window_factory.get(), GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                gfxrecon::decode::VulkanDecoder vulkan_decoder;
+                gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
+                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
 
-                vulkan_replay_consumer.SetFatalErrorHandler(
-                    [](const char* message) { throw std::runtime_error(message); });
+                gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(window_factory.get(),
+                                                                              vulkan_replay_options);
+                gfxrecon::decode::VulkanDecoder        vulkan_decoder;
 
-                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
-                file_processor.AddDecoder(&vulkan_decoder);
+                if (vulkan_replay_options.enable_vulkan)
+                {
+                    vulkan_replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
+
+                    vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                    file_processor.AddDecoder(&vulkan_decoder);
+                }
 
 #if defined(WIN32)
                 // Initialize D3D12 API decoder and consumer(s).
-                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(window_factory.get(),
-                                                                          GetDxReplayOptions(arg_parser));
+                gfxrecon::decode::DxReplayOptions dx_replay_options = GetDxReplayOptions(arg_parser);
+
+                gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(window_factory.get(), dx_replay_options);
                 gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
-                dx12_replay_consumer.SetFatalErrorHandler(
-                    [](const char* message) { throw std::runtime_error(message); });
+                if (dx_replay_options.enable_dx12)
+                {
+                    dx12_replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
 
-                dx12_decoder.AddConsumer(&dx12_replay_consumer);
-                file_processor.AddDecoder(&dx12_decoder);
+                    dx12_decoder.AddConsumer(&dx12_replay_consumer);
+                    file_processor.AddDecoder(&dx12_decoder);
+                }
 #endif
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));

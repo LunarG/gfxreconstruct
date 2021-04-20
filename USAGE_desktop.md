@@ -336,7 +336,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
-                        <file>
+                        [--api <api>] [--no-debug-popup] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -414,6 +414,13 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
+  --api <api>           Use the specified API for replay. Available values are:
+                            vulkan      Replay with the Vulkan API enabled.
+                            dx12        Replay with the DirectX 12 API enabled.
+                            all         Replay with both the Vulkan and DirectX 12 APIs
+                                        enabled. This is the default.
+  --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
+                        displayed when abort() is called (Windows debug only).
 ```
 
 ### Keyboard Controls
