@@ -186,6 +186,9 @@ int main(int argc, const char** argv)
                                                                           GetDxReplayOptions(arg_parser));
                 gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
+                dx12_replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
+
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor.AddDecoder(&dx12_decoder);
 #endif

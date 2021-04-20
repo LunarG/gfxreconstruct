@@ -184,10 +184,22 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
 {
     if (capture_result != replay_result)
     {
-        GFXRECON_LOG_ERROR("%s returned %s, which does not match the value returned at capture %s",
-                           call_name,
-                           enumutil::GetResultValueString(replay_result).c_str(),
-                           enumutil::GetResultValueString(capture_result).c_str());
+        if (replay_result == DXGI_ERROR_DEVICE_REMOVED)
+        {
+            GFXRECON_LOG_FATAL(
+                "%s returned %s, which does not match the value returned at capture %s.  Replay cannot continue.",
+                call_name,
+                enumutil::GetResultValueString(replay_result).c_str(),
+                enumutil::GetResultValueString(capture_result).c_str());
+            RaiseFatalError(enumutil::GetResultDescription(replay_result));
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("%s returned %s, which does not match the value returned at capture %s.",
+                                 call_name,
+                                 enumutil::GetResultValueString(replay_result).c_str(),
+                                 enumutil::GetResultValueString(capture_result).c_str());
+        }
     }
 }
 
@@ -1064,6 +1076,15 @@ void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Ha
     {
         auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
         CheckReplayResult("ID3D12Device::CheckFeatureSupport", original_result, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::RaiseFatalError(const char* message) const
+{
+    // TODO: Should there be a default action if no error handler has been provided?
+    if (fatal_error_handler_ != nullptr)
+    {
+        fatal_error_handler_(message);
     }
 }
 

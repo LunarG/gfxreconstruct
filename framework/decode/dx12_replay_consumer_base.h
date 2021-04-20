@@ -44,6 +44,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
+    void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
@@ -265,6 +267,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     util::GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
 
   private:
+    void RaiseFatalError(const char* message) const;
+
     HRESULT
     CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
                            HRESULT                                                        original_result,
@@ -293,6 +297,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, HWND>   window_handles_;
     std::unordered_map<uint64_t, void*>  mapped_memory_;
     std::unordered_map<uint64_t, HANDLE> event_objects_;
+    std::function<void(const char*)>     fatal_error_handler_;
     Dx12CpuDescriptorMap                 descriptor_cpu_addresses_;
     Dx12GpuDescriptorMap                 descriptor_gpu_addresses_;
     util::GpuVaMap                       gpu_va_map_;
