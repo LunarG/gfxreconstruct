@@ -1035,7 +1035,7 @@ class BaseGenerator(OutputGenerator):
             'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
             'ggp' : 'VK_USE_PLATFORM_GGP',
             'directfb' : 'VK_USE_PLATFORM_DIRECTFB_EXT',
-            'headless: VK_USE_PLATFORM_HEADLESS'
+            'headless' : 'VK_USE_PLATFORM_HEADLESS'
         }
 
         platform = interface.get('platform')
