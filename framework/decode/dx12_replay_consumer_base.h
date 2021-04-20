@@ -283,6 +283,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ProcessFenceSignal(DxObjectInfo* info, uint64_t value);
 
+    HANDLE GetEventObject(uint64_t event_id, bool reset);
+
   private:
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;

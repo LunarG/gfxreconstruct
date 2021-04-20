@@ -198,6 +198,9 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
     void* object = nullptr;
     switch (call_id)
     {
+        case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
+            object = GetEventObject(object_id, false);
+            break;
         case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
         {
             auto entry = window_handles_.find(object_id);
@@ -813,26 +816,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
 
     auto   replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
-    auto   event_entry   = event_objects_.find(event_id);
-    HANDLE event_object  = nullptr;
-
-    if (event_entry != event_objects_.end())
-    {
-        event_object = event_entry->second;
-        ResetEvent(event_object);
-    }
-    else
-    {
-        event_object = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-        if (event_object != nullptr)
-        {
-            event_objects_[event_id] = event_object;
-        }
-        else
-        {
-            GFXRECON_LOG_FATAL("Event creation failed for ID3D12Fence::SetEventOnCompletion");
-        }
-    }
+    HANDLE event_object  = GetEventObject(event_id, true);
 
     auto replay_result = replay_object->SetEventOnCompletion(value, event_object);
 
@@ -1034,6 +1018,35 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
                                info->capture_id);
         }
     }
+}
+
+HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
+{
+    HANDLE event_object = nullptr;
+
+    auto event_entry = event_objects_.find(event_id);
+    if (event_entry != event_objects_.end())
+    {
+        event_object = event_entry->second;
+        if (reset)
+        {
+            ResetEvent(event_object);
+        }
+    }
+    else
+    {
+        event_object = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+        if (event_object != nullptr)
+        {
+            event_objects_[event_id] = event_object;
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Event creation failed for ID3D12Fence::SetEventOnCompletion");
+        }
+    }
+
+    return event_object;
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
