@@ -28,8 +28,8 @@
 #include "decode/handle_pointer_decoder.h"
 #include "util/gpu_va_map.h"
 
-#include <unordered_map>
 #include <map>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -137,6 +137,12 @@ static void AddObject(const format::HandleId* p_id,
             assert(entry->second.object == *pp_object);
             ++(entry->second.ref_count);
         }
+    }
+    else if ((pp_object != nullptr) && (*pp_object != nullptr))
+    {
+        // The ID was null, but the object was not, the object creation failed at capture, but succeeded at replay.
+        // Release the object to avoid leaking.
+        reinterpret_cast<IUnknown*>(*pp_object)->Release();
     }
 }
 
