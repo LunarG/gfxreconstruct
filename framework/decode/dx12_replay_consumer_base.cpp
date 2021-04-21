@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 constexpr int32_t  kDefaultWindowPositionX = 0;
 constexpr int32_t  kDefaultWindowPositionY = 0;
-constexpr uint32_t kDefaultWaitTimeout     = 16;
+constexpr uint32_t kDefaultWaitTimeout     = 256;
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options)
@@ -760,6 +760,76 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandQueueSignal(DxObjectInfo* replay_
     return replay_result;
 }
 
+UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_object_info, UINT64 original_result)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
+    auto replay_result = replay_object->GetCompletedValue();
+
+    if (original_result > replay_result)
+    {
+        if ((replay_object_info->extra_info != nullptr) &&
+            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        {
+            // Replay is ahead of capture, so wait on the fence value to avoid performing any new work that may
+            // invalidate work in progress.
+            auto fence_info   = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info);
+            auto event_handle = fence_info->completion_event;
+
+            if (event_handle != nullptr)
+            {
+                ResetEvent(event_handle);
+            }
+            else
+            {
+                event_handle                 = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+                fence_info->completion_event = event_handle;
+            }
+
+            if (event_handle != nullptr)
+            {
+                replay_object->SetEventOnCompletion(original_result, event_handle);
+                auto wait_result = WaitForSingleObject(event_handle, kDefaultWaitTimeout);
+
+                if (wait_result == WAIT_TIMEOUT)
+                {
+                    GFXRECON_LOG_DEBUG("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization",
+                                       replay_object_info->capture_id);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_FATAL("Failed to create event for ID3D12Fence object %" PRId64 " synchronization",
+                                   replay_object_info->capture_id);
+            }
+
+            // Clear pending wait/signal entries for values that have completed, which may not have been waited on
+            // by the application.
+            auto& signaled_values = fence_info->signaled_values;
+            auto  signaled_entry  = signaled_values.lower_bound(original_result);
+            if (signaled_entry != signaled_values.end())
+            {
+                signaled_values.erase(signaled_values.begin(), signaled_entry);
+            }
+
+            auto& event_objects = fence_info->event_objects;
+            auto  event_entry   = event_objects.lower_bound(original_result);
+            if (event_entry != event_objects.end())
+            {
+                event_objects.erase(event_objects.begin(), event_entry);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
+                               replay_object_info->capture_id);
+        }
+    }
+
+    return replay_result;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* replay_object_info,
                                                              HRESULT       original_result,
                                                              UINT64        value,
@@ -785,7 +855,14 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
             if (pending_entry != fence_info->signaled_values.end())
             {
                 // The value has already been signaled, so it can be waited on immediately.
-                WaitForSingleObject(event_object, kDefaultWaitTimeout);
+                auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
+
+                if (wait_result == WAIT_TIMEOUT)
+                {
+                    GFXRECON_LOG_DEBUG("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization",
+                                       replay_object_info->capture_id);
+                }
+
                 fence_info->signaled_values.erase(pending_entry);
             }
             else
@@ -948,6 +1025,12 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
         else if (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
         {
             auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+
+            if (fence_info->completion_event != nullptr)
+            {
+                CloseHandle(fence_info->completion_event);
+            }
+
             delete fence_info;
         }
         else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
@@ -1038,7 +1121,14 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
             if (event_entry != fence_info->event_objects.end())
             {
                 // An event is already waiting to be signaled, so it can be waited on immediately.
-                WaitForSingleObject(event_entry->second, kDefaultWaitTimeout);
+                auto wait_result = WaitForSingleObject(event_entry->second, kDefaultWaitTimeout);
+
+                if (wait_result == WAIT_TIMEOUT)
+                {
+                    GFXRECON_LOG_DEBUG("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization",
+                                       info->capture_id);
+                }
+
                 fence_info->event_objects.erase(event_entry);
             }
             else

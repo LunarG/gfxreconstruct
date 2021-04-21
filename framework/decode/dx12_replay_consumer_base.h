@@ -232,6 +232,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                        DxObjectInfo* fence_info,
                                        UINT64        value);
 
+    UINT64 OverrideGetCompletedValue(DxObjectInfo* replay_object_info, UINT64 original_result);
+
     HRESULT OverrideSetEventOnCompletion(DxObjectInfo* replay_object_info,
                                          HRESULT       original_result,
                                          UINT64        value,

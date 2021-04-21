@@ -2949,10 +2949,11 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
     format::HandleId                            object_id,
     UINT64                                      returnValue)
 {
-    auto replay_object = MapObject<ID3D12Fence>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetCompletedValue();
+        auto replay_result = OverrideGetCompletedValue(replay_object,
+                                                       returnValue);
     }
 }
 

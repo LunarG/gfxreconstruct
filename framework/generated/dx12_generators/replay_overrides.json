@@ -31,6 +31,7 @@
       "Signal": "OverrideCommandQueueSignal"
     },
     "ID3D12Fence": {
+      "GetCompletedValue":  "OverrideGetCompletedValue",
       "SetEventOnCompletion": "OverrideSetEventOnCompletion",
       "Signal": "OverrideFenceSignal"
     },
