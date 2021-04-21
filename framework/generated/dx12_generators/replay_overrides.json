@@ -14,7 +14,8 @@
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
     },
     "ID3D12Device3": {
-      "EnqueueMakeResident": "OverrideEnqueueMakeResident"
+      "EnqueueMakeResident": "OverrideEnqueueMakeResident",
+      "OpenExistingHeapFromAddress": "OverrideOpenExistingHeapFromAddress"
     },
     "ID3D12DescriptorHeap": {
       "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",

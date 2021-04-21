@@ -49,6 +49,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
+    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override;
+
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
                                                           D3D12_FEATURE    feature,
@@ -199,6 +201,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         DxObjectInfo*                          fence_info,
                                         UINT64                                 fence_value);
 
+    HRESULT
+    Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo*                replay_object_info,
+                                                                HRESULT                      original_result,
+                                                                uint64_t                     allocation_id,
+                                                                Decoded_GUID                 riid,
+                                                                HandlePointerDecoder<void*>* heap);
+
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
                                 UINT                                       subresource,
@@ -291,6 +300,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void DestroyActiveEvents();
 
+    void DestroyHeapAllocations();
+
     void ProcessFenceSignal(DxObjectInfo* info, uint64_t value);
 
     HANDLE GetEventObject(uint64_t event_id, bool reset);
@@ -302,6 +313,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_set<Window*>          active_windows_;
     std::unordered_map<uint64_t, HWND>   window_handles_;
     std::unordered_map<uint64_t, void*>  mapped_memory_;
+    std::unordered_map<uint64_t, void*>  heap_allocations_;
     std::unordered_map<uint64_t, HANDLE> event_objects_;
     std::function<void(const char*)>     fatal_error_handler_;
     Dx12CpuDescriptorMap                 descriptor_cpu_addresses_;

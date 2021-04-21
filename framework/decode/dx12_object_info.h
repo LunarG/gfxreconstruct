@@ -54,6 +54,7 @@ enum class DxObjectInfoType : uint32_t
     kID3D12DeviceInfo,
     kID3D12DescriptorHeapInfo,
     kID3D12FenceInfo,
+    kID3D12HeapInfo,
     kID3D12ResourceInfo
 };
 
@@ -107,6 +108,11 @@ struct D3D12FenceInfo
     HANDLE             completion_event{ nullptr };
     FenceEvents        event_objects;
     PendingFenceValues signaled_values;
+};
+
+struct D3D12HeapInfo
+{
+    void* external_allocation{ nullptr };
 };
 
 struct D3D12ResourceInfo

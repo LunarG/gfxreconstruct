@@ -64,6 +64,8 @@ class Dx12ConsumerBase
 
     virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) {}
 
+    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) {}
+
     virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
                                                    uint32_t           api_version,
                                                    uint32_t           driver_version,

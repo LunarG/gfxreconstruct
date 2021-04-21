@@ -199,6 +199,8 @@ class CaptureManager
 
     void WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
+    void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size);
+
   protected:
     std::unique_ptr<util::FileOutputStream> file_stream_;
     std::mutex                              file_lock_;

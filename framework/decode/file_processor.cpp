@@ -786,6 +786,30 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kCreateHeapAllocationCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::CreateHeapAllocationCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.allocation_id, sizeof(header.allocation_id));
+        success = success && ReadBytes(&header.allocation_size, sizeof(header.allocation_size));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchCreateHeapAllocationCommand(
+                    header.thread_id, header.allocation_id, header.allocation_size);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read create heap allocation meta-data block");
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kSetDevicePropertiesCommand)
     {
         // This command does not support compression.

@@ -5191,19 +5191,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
 {
-    auto replay_object = MapObject<ID3D12Device3>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pAddress = PreProcessExternalObject(pAddress, format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress, "ID3D12Device3_OpenExistingHeapFromAddress");
         if(!ppvHeap->IsNull()) ppvHeap->SetHandleLength(1);
-        auto out_p_ppvHeap    = ppvHeap->GetPointer();
-        auto out_hp_ppvHeap   = ppvHeap->GetHandlePointer();
-        auto replay_result = replay_object->OpenExistingHeapFromAddress(in_pAddress,
-                                                                        *riid.decoded_value,
-                                                                        out_hp_ppvHeap);
+        DxObjectInfo object_info{};
+        ppvHeap->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideOpenExistingHeapFromAddress(replay_object,
+                                                                 returnValue,
+                                                                 pAddress,
+                                                                 riid,
+                                                                 ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvHeap, out_hp_ppvHeap);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("ID3D12Device3_OpenExistingHeapFromAddress", returnValue, replay_result);
     }

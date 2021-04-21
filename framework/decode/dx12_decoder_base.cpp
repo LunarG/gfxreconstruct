@@ -120,6 +120,18 @@ void Dx12DecoderBase::DispatchDestroyHardwareBufferCommand(format::ThreadId thre
     }
 }
 
+void Dx12DecoderBase::DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
+                                                          uint64_t         allocation_id,
+                                                          uint64_t         allocation_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessCreateHeapAllocationCommand(allocation_id, allocation_size);
+    }
+}
+
 void Dx12DecoderBase::DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                          format::HandleId   physical_device_id,
                                                          uint32_t           api_version,

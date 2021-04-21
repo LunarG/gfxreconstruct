@@ -85,21 +85,23 @@ enum MarkerType : uint32_t
 
 enum class MetaDataType : uint16_t
 {
-    kUnknownMetaDataType                = 0,
-    kDisplayMessageCommand              = 1,
-    kFillMemoryCommand                  = 2,
-    kResizeWindowCommand                = 3,
-    kSetSwapchainImageStateCommand      = 4,
-    kBeginResourceInitCommand           = 5,
-    kEndResourceInitCommand             = 6,
-    kInitBufferCommand                  = 7,
-    kInitImageCommand                   = 8,
-    kCreateHardwareBufferCommand        = 9,
-    kDestroyHardwareBufferCommand       = 10,
-    kSetDevicePropertiesCommand         = 11,
-    kSetDeviceMemoryPropertiesCommand   = 12,
-    kResizeWindowCommand2               = 13,
-    kSetBufferAddressCommand            = 14
+    kUnknownMetaDataType                    = 0,
+    kDisplayMessageCommand                  = 1,
+    kFillMemoryCommand                      = 2,
+    kResizeWindowCommand                    = 3,
+    kSetSwapchainImageStateCommand          = 4,
+    kBeginResourceInitCommand               = 5,
+    kEndResourceInitCommand                 = 6,
+    kInitBufferCommand                      = 7,
+    kInitImageCommand                       = 8,
+    kCreateHardwareBufferCommand            = 9,
+    kDestroyHardwareBufferCommand           = 10,
+    kSetDevicePropertiesCommand             = 11,
+    kSetDeviceMemoryPropertiesCommand       = 12,
+    kResizeWindowCommand2                   = 13,
+    kSetBufferAddressCommand                = 14,
+    kSetRayTracingShaderGroupHandlesCommand = 15,
+    kCreateHeapAllocationCommand            = 16
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -414,6 +416,14 @@ struct SetBufferAddressCommand
     format::HandleId device_id;
     format::HandleId buffer_id;
     uint64_t         address;
+};
+
+struct CreateHeapAllocationCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         allocation_id;
+    uint64_t         allocation_size;
 };
 
 #pragma pack(pop)

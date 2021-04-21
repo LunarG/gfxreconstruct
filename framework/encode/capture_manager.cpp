@@ -803,5 +803,35 @@ void CaptureManager::WriteFillMemoryCmd(format::HandleId memory_id, uint64_t off
     }
 }
 
+void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size)
+{
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    {
+        format::CreateHeapAllocationCommand allocation_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        allocation_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        allocation_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(allocation_cmd);
+        allocation_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family_, format::MetaDataType::kCreateHeapAllocationCommand);
+        allocation_cmd.thread_id       = thread_data->thread_id_;
+        allocation_cmd.allocation_id   = allocation_id;
+        allocation_cmd.allocation_size = allocation_size;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            file_stream_->Write(&allocation_cmd, sizeof(allocation_cmd));
+
+            if (GetForceFileFlush())
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -248,6 +248,30 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
     }
 }
 
+void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
+                                                                               const void*            address,
+                                                                               REFIID                 riid,
+                                                                               void**                 heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(heap);
+
+    MEMORY_BASIC_INFORMATION info{};
+
+    auto result = VirtualQuery(address, &info, sizeof(info));
+    if (result > 0)
+    {
+        WriteCreateHeapAllocationCmd(reinterpret_cast<uint64_t>(address), info.RegionSize);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
+                           "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
+                           GetLastError());
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
     ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data)
 {

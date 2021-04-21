@@ -58,6 +58,7 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     DestroyActiveObjects();
     DestroyActiveWindows();
     DestroyActiveEvents();
+    DestroyHeapAllocations();
 }
 
 void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -80,6 +81,27 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
     {
         GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized mapped memory object (ID = %" PRIu64 ")",
                              memory_id);
+    }
+}
+
+void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
+{
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, allocation_size);
+
+    auto heap_allocation =
+        VirtualAlloc(nullptr, static_cast<size_t>(allocation_size), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+    if (heap_allocation != nullptr)
+    {
+        assert(heap_allocations_.find(allocation_id) == heap_allocations_.end());
+
+        heap_allocations_[allocation_id] = heap_allocation;
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to create extertnal heap allocation (ID = %" PRIu64 ") of size %" PRIu64,
+                           allocation_id,
+                           allocation_size);
     }
 }
 
@@ -620,6 +642,56 @@ HRESULT Dx12ReplayConsumerBase::OverrideEnqueueMakeResident(DxObjectInfo*       
     return replay_result;
 }
 
+HRESULT
+Dx12ReplayConsumerBase::Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo* replay_object_info,
+                                                                                    HRESULT       original_result,
+                                                                                    uint64_t      allocation_id,
+                                                                                    Decoded_GUID  riid,
+                                                                                    HandlePointerDecoder<void*>* heap)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (heap != nullptr));
+
+    HRESULT result        = E_FAIL;
+    auto    replay_object = static_cast<ID3D12Device3*>(replay_object_info->object);
+
+    const auto& entry = heap_allocations_.find(allocation_id);
+    if (entry != heap_allocations_.end())
+    {
+        assert(entry->second != nullptr);
+
+        result =
+            replay_object->OpenExistingHeapFromAddress(entry->second, *riid.decoded_value, heap->GetHandlePointer());
+
+        if (SUCCEEDED(result))
+        {
+            // Transfer the allocation to the heap info record.
+            auto heap_info                 = new D3D12HeapInfo;
+            heap_info->external_allocation = entry->second;
+
+            auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
+            assert(object_info != nullptr);
+
+            object_info->extra_info_type = DxObjectInfoType::kID3D12HeapInfo;
+            object_info->extra_info      = heap_info;
+        }
+        else
+        {
+            // The allocation won't be used.
+            VirtualFree(entry->second, 0, MEM_RELEASE);
+        }
+
+        heap_allocations_.erase(entry);
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("No heap allocation has been created for ID3D12Device3::OpenExistingHeapFromAddress "
+                           "allocation ID = %" PRIu64,
+                           allocation_id);
+    }
+
+    return result;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                                     HRESULT                                    original_result,
                                                     UINT                                       subresource,
@@ -1040,6 +1112,17 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
             descriptor_gpu_addresses_.erase(heap_info->capture_gpu_addr_begin);
             delete heap_info;
         }
+        else if (info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)
+        {
+            auto heap_info = reinterpret_cast<D3D12HeapInfo*>(info->extra_info);
+
+            if (heap_info->external_allocation != nullptr)
+            {
+                VirtualFree(heap_info->external_allocation, 0, MEM_RELEASE);
+            }
+
+            delete heap_info;
+        }
         else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
         {
             auto device_info = reinterpret_cast<D3D12DeviceInfo*>(info->extra_info);
@@ -1107,6 +1190,16 @@ void Dx12ReplayConsumerBase::DestroyActiveEvents()
     }
 
     event_objects_.clear();
+}
+
+void Dx12ReplayConsumerBase::DestroyHeapAllocations()
+{
+    for (const auto& entry : heap_allocations_)
+    {
+        VirtualFree(entry.second, 0, MEM_RELEASE);
+    }
+
+    heap_allocations_.clear();
 }
 
 void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t value)

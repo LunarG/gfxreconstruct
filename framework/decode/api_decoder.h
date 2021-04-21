@@ -95,6 +95,10 @@ class ApiDecoder
 
     virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) = 0;
 
+    virtual void DispatchCreateHeapAllocationCommand(format::ThreadId thread_id,
+                                                     uint64_t         allocation_id,
+                                                     uint64_t         allocation_size) = 0;
+
     virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
                                                     format::HandleId   physical_device_id,
                                                     uint32_t           api_version,
