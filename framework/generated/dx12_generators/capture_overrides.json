@@ -4,7 +4,8 @@
   },
   "classmethods": {
     "ID3D12Device": {
-      "CreateHeap": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap"
+      "CreateHeap": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap",
+      "CreateCommittedResource": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource"
     }
   }
 }

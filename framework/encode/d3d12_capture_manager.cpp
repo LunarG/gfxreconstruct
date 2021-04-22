@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -117,6 +117,16 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
 }
 
+bool D3D12CaptureManager::IsCpuVisible(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
+{
+    if ((type == D3D12_HEAP_TYPE_UPLOAD) || (type == D3D12_HEAP_TYPE_READBACK) ||
+        ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE)))
+    {
+        return true;
+    }
+    return false;
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     ID3D12Device_Wrapper*        wrapper,
     HRESULT                      result,
@@ -190,11 +200,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
 
-                // D3D12 capture currently only supports tracking with shadow memory.
-                // TODO(GH-88): Investigate 'external memory' support with D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH or
-                // OpenExistingHeapFromAddress.
                 bool use_shadow_memory = true;
                 bool use_write_watch   = false;
+
+                if (GetPageGuardMemoryMode() == kMemoryModeExternal)
+                {
+                    use_shadow_memory = false;
+                    use_write_watch   = true;
+                }
 
                 uint64_t size = info->subresource_sizes[subresource];
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
@@ -396,6 +409,32 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
     }
 }
 
+HRESULT
+D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
+                                                                  const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                  D3D12_HEAP_FLAGS             heap_flags,
+                                                                  const D3D12_RESOURCE_DESC*   desc,
+                                                                  D3D12_RESOURCE_STATES        initial_resource_state,
+                                                                  const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                                  REFIID                       riid_resource,
+                                                                  void**                       ppv_resource)
+{
+    if (desc == nullptr || heap_properties == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    {
+        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+    }
+
+    ID3D12Device* device = nullptr;
+    wrapper->GetWrappedObject(&device);
+    return device->CreateCommittedResource(
+        heap_properties, heap_flags, desc, initial_resource_state, optimized_clear_value, riid_resource, ppv_resource);
+}
+
 D3D12CaptureManager::D3D12CaptureManager() : CaptureManager(), dxgi_dispatch_table_{}, d3d12_dispatch_table_{} {}
 
 HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
@@ -405,7 +444,22 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
 {
     ID3D12Device* device = nullptr;
     wrapper->GetWrappedObject(&device);
-    return device->CreateHeap(desc, riid, heap);
+
+    if (desc == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+             IsCpuVisible(desc->Properties.Type, desc->Properties.CPUPageProperty))
+    {
+        D3D12_HEAP_DESC desc_copy = *desc;
+        desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        return device->CreateHeap(&desc_copy, riid, heap);
+    }
+    else
+    {
+        return device->CreateHeap(desc, riid, heap);
+    }
 }
 
 HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)

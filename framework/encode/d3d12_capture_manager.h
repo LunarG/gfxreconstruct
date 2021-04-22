@@ -153,6 +153,15 @@ class D3D12CaptureManager : public CaptureManager
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);
 
+    HRESULT OverrideID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
+                                                         const D3D12_HEAP_PROPERTIES* heapproperties,
+                                                         D3D12_HEAP_FLAGS             heap_flags,
+                                                         const D3D12_RESOURCE_DESC*   desc,
+                                                         D3D12_RESOURCE_STATES        initial_resource_state,
+                                                         const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                         REFIID                       riid_resource,
+                                                         void**                       ppv_resource);
+
     HRESULT OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                             const D3D12_HEAP_DESC* desc,
                                             REFIID                 riid,
@@ -173,6 +182,9 @@ class D3D12CaptureManager : public CaptureManager
     void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
                                       ID3D12Resource_Wrapper*    resource_wrapper,
                                       const D3D12_RESOURCE_DESC* desc);
+
+  private:
+    bool D3D12CaptureManager::IsCpuVisible(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
 
   private:
     static D3D12CaptureManager*       instance_;
