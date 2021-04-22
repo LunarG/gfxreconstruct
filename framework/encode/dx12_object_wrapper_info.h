@@ -141,10 +141,17 @@ struct ID3D12ResourceInfo
     size_t                               num_subresources{ 0 };
     std::unique_ptr<uint64_t[]>          subresource_sizes;
     std::unique_ptr<MappedSubresource[]> mapped_subresources;
+    bool                                 has_write_watch{ false };
+    D3D12_HEAP_TYPE                      heap_type{};
+    D3D12_CPU_PAGE_PROPERTY              page_property{};
 };
 
 struct ID3D12HeapInfo
-{};
+{
+    bool                    has_write_watch{ false };
+    D3D12_HEAP_TYPE         heap_type{};
+    D3D12_CPU_PAGE_PROPERTY page_property{};
+};
 
 struct ID3D12MetaCommandInfo
 {};

@@ -53,12 +53,19 @@ void D3D12CaptureManager::DestroyInstance()
 
 void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
                                                        ID3D12Resource_Wrapper*    resource_wrapper,
-                                                       const D3D12_RESOURCE_DESC* desc)
+                                                       const D3D12_RESOURCE_DESC* desc,
+                                                       D3D12_HEAP_TYPE            heap_type,
+                                                       D3D12_CPU_PAGE_PROPERTY    page_property,
+                                                       bool                       has_write_watch)
 {
     assert((resource_wrapper != nullptr) && (desc != nullptr));
 
     auto info = resource_wrapper->GetObjectInfo();
     assert(info != nullptr);
+
+    info->heap_type       = heap_type;
+    info->page_property   = page_property;
+    info->has_write_watch = has_write_watch;
 
     if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
@@ -117,14 +124,44 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
 }
 
-bool D3D12CaptureManager::IsCpuVisible(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
+bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
 {
-    if ((type == D3D12_HEAP_TYPE_UPLOAD) || (type == D3D12_HEAP_TYPE_READBACK) ||
-        ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE)))
+    if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+        ((type == D3D12_HEAP_TYPE_UPLOAD) || (type == D3D12_HEAP_TYPE_READBACK) ||
+         ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE) &&
+          (page_property != D3D12_CPU_PAGE_PROPERTY_UNKNOWN))))
     {
         return true;
     }
     return false;
+}
+
+bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
+{
+    if ((type == D3D12_HEAP_TYPE_UPLOAD) ||
+        ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE) &&
+         (page_property != D3D12_CPU_PAGE_PROPERTY_UNKNOWN)))
+    {
+        return true;
+    }
+    return false;
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
+    ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (heap != nullptr) && ((*heap) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+        auto info             = resource_wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        info->heap_type       = desc->Properties.Type;
+        info->page_property   = desc->Properties.CPUPageProperty;
+        info->has_write_watch = UseWriteWatch(info->heap_type, info->page_property);
+    }
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
@@ -138,18 +175,22 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     REFIID                       riid,
     void**                       resource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
     GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
     GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
-    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
-        ((*resource) != nullptr))
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap_properties != nullptr) && (desc != nullptr) &&
+        (resource != nullptr) && ((*resource) != nullptr))
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        InitializeID3D12ResourceInfo(wrapper, resource_wrapper, desc);
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc,
+                                     heap_properties->Type,
+                                     heap_properties->CPUPageProperty,
+                                     UseWriteWatch(heap_properties->Type, heap_properties->CPUPageProperty));
     }
 }
 
@@ -163,18 +204,25 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
                                                                         REFIID                   riid,
                                                                         void**                   resource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(heap);
     GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
     GFXRECON_UNREFERENCED_PARAMETER(initial_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
-    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap != nullptr) && (desc != nullptr) && (resource != nullptr) &&
         ((*resource) != nullptr))
     {
+        auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+        auto heap_info        = heap_wrapper->GetObjectInfo();
+        assert(heap_info != nullptr);
 
-        InitializeID3D12ResourceInfo(wrapper, resource_wrapper, desc);
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc,
+                                     heap_info->heap_type,
+                                     heap_info->page_property,
+                                     heap_info->has_write_watch);
     }
 }
 
@@ -188,65 +236,68 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
         auto info = wrapper->GetObjectInfo();
         assert((info != nullptr) && (subresource < info->num_subresources));
 
-        auto& mapped_subresource = info->mapped_subresources[subresource];
-
-        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
-        if (++mapped_subresource.map_count == 1)
+        if (IsUploadResource(info->heap_type, info->page_property) || info->has_write_watch)
         {
-            mapped_subresource.data = (*data);
+            auto& mapped_subresource = info->mapped_subresources[subresource];
 
-            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+            if (++mapped_subresource.map_count == 1)
             {
-                util::PageGuardManager* manager = util::PageGuardManager::Get();
-                assert(manager != nullptr);
+                mapped_subresource.data = (*data);
 
-                bool use_shadow_memory = true;
-                bool use_write_watch   = false;
-
-                if (GetPageGuardMemoryMode() == kMemoryModeExternal)
+                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                 {
-                    use_shadow_memory = false;
-                    use_write_watch   = true;
+                    util::PageGuardManager* manager = util::PageGuardManager::Get();
+                    assert(manager != nullptr);
+
+                    bool use_shadow_memory = true;
+                    bool use_write_watch   = false;
+
+                    if (info->has_write_watch)
+                    {
+                        use_shadow_memory = false;
+                        use_write_watch   = true;
+                    }
+
+                    uint64_t size = info->subresource_sizes[subresource];
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+                    if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
+                        (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                    {
+                        mapped_subresource.shadow_allocation =
+                            manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                    }
+
+                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
+                    // not the mapped memory.
+                    (*data) = manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                        mapped_subresource.data,
+                                                        0,
+                                                        static_cast<size_t>(size),
+                                                        mapped_subresource.shadow_allocation,
+                                                        use_shadow_memory,
+                                                        use_write_watch);
                 }
-
-                uint64_t size = info->subresource_sizes[subresource];
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-                if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
-                    (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                 {
-                    mapped_subresource.shadow_allocation =
-                        manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                    // Need to keep track of mapped memory objects so memory content can be written at queue submit.
+                    mapped_resources_.insert(wrapper);
                 }
-
-                // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
-                // not the mapped memory.
-                (*data) = manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                    mapped_subresource.data,
-                                                    0,
-                                                    static_cast<size_t>(size),
-                                                    mapped_subresource.shadow_allocation,
-                                                    use_shadow_memory,
-                                                    use_write_watch);
             }
-            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            else
             {
-                // Need to keep track of mapped memory objects so memory content can be written at queue submit.
-                mapped_resources_.insert(wrapper);
-            }
-        }
-        else
-        {
-            // The application has mapped the same ID3D12Resource object more than once and the pageguard
-            // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
-            // on the first map call.
-            if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
-            {
-                // Return the shadow memory that was allocated for the previous map operation.
-                util::PageGuardManager* manager = util::PageGuardManager::Get();
-                assert(manager != nullptr);
+                // The application has mapped the same ID3D12Resource object more than once and the pageguard
+                // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+                // on the first map call.
+                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                {
+                    // Return the shadow memory that was allocated for the previous map operation.
+                    util::PageGuardManager* manager = util::PageGuardManager::Get();
+                    assert(manager != nullptr);
 
-                manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
+                    manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
+                }
             }
         }
     }
@@ -423,8 +474,7 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
     {
         return E_INVALIDARG;
     }
-    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    else if (UseWriteWatch(heap_properties->Type, heap_properties->CPUPageProperty))
     {
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
@@ -451,8 +501,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     {
         return E_INVALIDARG;
     }
-    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-             IsCpuVisible(desc->Properties.Type, desc->Properties.CPUPageProperty))
+    else if (UseWriteWatch(desc->Properties.Type, desc->Properties.CPUPageProperty))
     {
         D3D12_HEAP_DESC desc_copy = *desc;
         desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;

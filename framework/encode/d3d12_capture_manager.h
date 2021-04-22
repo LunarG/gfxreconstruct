@@ -120,6 +120,9 @@ class D3D12CaptureManager : public CaptureManager
     //----------------------------------------------------------------------------
     uint32_t DecrementCallScope() { return --call_scope_; }
 
+    void PostProcess_ID3D12Device_CreateHeap(
+        ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap);
+
     void PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
                                                           HRESULT                      result,
                                                           const D3D12_HEAP_PROPERTIES* heap_properties,
@@ -181,10 +184,14 @@ class D3D12CaptureManager : public CaptureManager
 
     void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
                                       ID3D12Resource_Wrapper*    resource_wrapper,
-                                      const D3D12_RESOURCE_DESC* desc);
+                                      const D3D12_RESOURCE_DESC* desc,
+                                      D3D12_HEAP_TYPE            heap_type,
+                                      D3D12_CPU_PAGE_PROPERTY    page_property,
+                                      bool                       has_write_watch);
 
   private:
-    bool D3D12CaptureManager::IsCpuVisible(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
 
   private:
     static D3D12CaptureManager*       instance_;
