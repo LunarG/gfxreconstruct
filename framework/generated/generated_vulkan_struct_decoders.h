@@ -5421,6 +5421,25 @@ struct Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV
     format::HandleId indirectCommandsLayout{ format::kNullHandleId };
 };
 
+struct Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceInheritedViewportScissorFeaturesNV;
+
+    VkPhysicalDeviceInheritedViewportScissorFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkCommandBufferInheritanceViewportScissorInfoNV
+{
+    using struct_type = VkCommandBufferInheritanceViewportScissorInfoNV;
+
+    VkCommandBufferInheritanceViewportScissorInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkViewport>* pViewportDepths{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT;
@@ -5615,6 +5634,15 @@ struct Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR> combinerOps;
 };
 
+struct Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT;
+
+    VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT
 {
     using struct_type = VkPhysicalDeviceFragmentDensityMap2FeaturesEXT;
@@ -5697,6 +5725,120 @@ struct Decoded_VkMutableDescriptorTypeCreateInfoVALVE
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkMutableDescriptorTypeListVALVE>* pMutableDescriptorTypeLists{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT;
+
+    VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVertexInputBindingDescription2EXT
+{
+    using struct_type = VkVertexInputBindingDescription2EXT;
+
+    VkVertexInputBindingDescription2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVertexInputAttributeDescription2EXT
+{
+    using struct_type = VkVertexInputAttributeDescription2EXT;
+
+    VkVertexInputAttributeDescription2EXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImportMemoryZirconHandleInfoFUCHSIA
+{
+    using struct_type = VkImportMemoryZirconHandleInfoFUCHSIA;
+
+    VkImportMemoryZirconHandleInfoFUCHSIA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkMemoryZirconHandlePropertiesFUCHSIA
+{
+    using struct_type = VkMemoryZirconHandlePropertiesFUCHSIA;
+
+    VkMemoryZirconHandlePropertiesFUCHSIA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkMemoryGetZirconHandleInfoFUCHSIA
+{
+    using struct_type = VkMemoryGetZirconHandleInfoFUCHSIA;
+
+    VkMemoryGetZirconHandleInfoFUCHSIA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA
+{
+    using struct_type = VkImportSemaphoreZirconHandleInfoFUCHSIA;
+
+    VkImportSemaphoreZirconHandleInfoFUCHSIA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId semaphore{ format::kNullHandleId };
+};
+
+struct Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA
+{
+    using struct_type = VkSemaphoreGetZirconHandleInfoFUCHSIA;
+
+    VkSemaphoreGetZirconHandleInfoFUCHSIA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId semaphore{ format::kNullHandleId };
+};
+
+struct Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceExtendedDynamicState2FeaturesEXT;
+
+    VkPhysicalDeviceExtendedDynamicState2FeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkScreenSurfaceCreateInfoQNX
+{
+    using struct_type = VkScreenSurfaceCreateInfoQNX;
+
+    VkScreenSurfaceCreateInfoQNX* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t context{ 0 };
+    uint64_t window{ 0 };
+};
+
+struct Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceColorWriteEnableFeaturesEXT;
+
+    VkPhysicalDeviceColorWriteEnableFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineColorWriteCreateInfoEXT
+{
+    using struct_type = VkPipelineColorWriteCreateInfoEXT;
+
+    VkPipelineColorWriteCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkBool32> pColorWriteEnables;
 };
 
 struct Decoded_VkAccelerationStructureBuildRangeInfoKHR

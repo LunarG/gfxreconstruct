@@ -216,20 +216,105 @@ struct VkImagePipeSurfaceCreateInfoFUCHSIA
     zx_handle_t                          imagePipeHandle;
 };
 
+typedef VkResult(VKAPI_PTR* PFN_vkCreateImagePipeSurfaceFUCHSIA)(VkInstance                                 instance,
+                                                                 const VkImagePipeSurfaceCreateInfoFUCHSIA* pCreateInfo,
+                                                                 const VkAllocationCallbacks*               pAllocator,
+                                                                 VkSurfaceKHR*                              pSurface);
+
+struct VkImportMemoryZirconHandleInfoFUCHSIA
+{
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+    zx_handle_t                        handle;
+};
+
+struct VkMemoryZirconHandlePropertiesFUCHSIA
+{
+    VkStructureType sType;
+    void*           pNext;
+    uint32_t        memoryTypeBits;
+};
+
+struct VkMemoryGetZirconHandleInfoFUCHSIA
+{
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkDeviceMemory                     memory;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+};
+
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryZirconHandleFUCHSIA)(
+    VkDevice device, const VkMemoryGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle);
+
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryZirconHandlePropertiesFUCHSIA)(
+    VkDevice                               device,
+    VkExternalMemoryHandleTypeFlagBits     handleType,
+    zx_handle_t                            zirconHandle,
+    VkMemoryZirconHandlePropertiesFUCHSIA* pMemoryZirconHandleProperties);
+
+struct VkImportSemaphoreZirconHandleInfoFUCHSIA
+{
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkSemaphore                           semaphore;
+    VkSemaphoreImportFlags                flags;
+    VkExternalSemaphoreHandleTypeFlagBits handleType;
+    zx_handle_t                           zirconHandle;
+};
+
+struct VkSemaphoreGetZirconHandleInfoFUCHSIA
+{
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkSemaphore                           semaphore;
+    VkExternalSemaphoreHandleTypeFlagBits handleType;
+};
+
+typedef VkResult(VKAPI_PTR* PFN_vkImportSemaphoreZirconHandleFUCHSIA)(
+    VkDevice device, const VkImportSemaphoreZirconHandleInfoFUCHSIA* pImportSemaphoreZirconHandleInfo);
+typedef VkResult(VKAPI_PTR* PFN_vkGetSemaphoreZirconHandleFUCHSIA)(
+    VkDevice device, const VkSemaphoreGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle);
+
 extern "C"
 {
-    typedef VkResult(VKAPI_PTR* PFN_vkCreateImagePipeSurfaceFUCHSIA)(
-        VkInstance                                 instance,
-        const VkImagePipeSurfaceCreateInfoFUCHSIA* pCreateInfo,
-        const VkAllocationCallbacks*               pAllocator,
-        VkSurfaceKHR*                              pSurface);
-
     static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
                                                                           const VkImagePipeSurfaceCreateInfoFUCHSIA*,
                                                                           const VkAllocationCallbacks*,
                                                                           VkSurfaceKHR*)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(
+        VkDevice device, const VkMemoryGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryZirconHandleFUCHSIA");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL
+    vkGetMemoryZirconHandlePropertiesFUCHSIA(VkDevice                               device,
+                                             VkExternalMemoryHandleTypeFlagBits     handleType,
+                                             zx_handle_t                            zirconHandle,
+                                             VkMemoryZirconHandlePropertiesFUCHSIA* pMemoryZirconHandleProperties)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryZirconHandlePropertiesFUCHSIA");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(
+        VkDevice device, const VkImportSemaphoreZirconHandleInfoFUCHSIA* pImportSemaphoreZirconHandleInfo)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreZirconHandleFUCHSIA");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(
+        VkDevice device, const VkSemaphoreGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreZirconHandleFUCHSIA");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 }
@@ -953,10 +1038,10 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateStreamDescriptorSurfaceGGP)(
 extern "C"
 {
     static VKAPI_ATTR VkResult VKAPI_CALL
-                               vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
-                                                                  const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
-                                                                  const VkAllocationCallbacks*                  pAllocator,
-                                                                  VkSurfaceKHR*                                 pSurface)
+    vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
+                                       const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+                                       const VkAllocationCallbacks*                  pAllocator,
+                                       VkSurfaceKHR*                                 pSurface)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateStreamDescriptorSurfaceGGP");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
@@ -1012,5 +1097,52 @@ extern "C"
     }
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
+
+#if !defined(VK_USE_PLATFORM_SCREEN_QNX)
+#define VK_QNX_SCREEN_SURFACE_EXTENSION_NAME "VK_QNX_screen_surface"
+
+typedef VkFlags VkScreenSurfaceCreateFlagsQNX;
+
+struct _screen_context;
+struct _screen_window;
+struct VkScreenSurfaceCreateInfoQNX
+{
+    VkStructureType               sType;
+    const void*                   pNext;
+    VkScreenSurfaceCreateFlagsQNX flags;
+    struct _screen_context*       context;
+    struct _screen_window*        window;
+};
+
+typedef VkResult(VKAPI_PTR* PFN_vkCreateScreenSurfaceQNX)(VkInstance                          instance,
+                                                          const VkScreenSurfaceCreateInfoQNX* pCreateInfo,
+                                                          const VkAllocationCallbacks*        pAllocator,
+                                                          VkSurfaceKHR*                       pSurface);
+
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX)(VkPhysicalDevice physicalDevice,
+                                                                                 uint32_t         queueFamilyIndex,
+                                                                                 struct _screen_window* window);
+
+extern "C"
+{
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance                          instance,
+                                                                   const VkScreenSurfaceCreateInfoQNX* pCreateInfo,
+                                                                   const VkAllocationCallbacks*        pAllocator,
+                                                                   VkSurfaceKHR*                       pSurface)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateScreenSurfaceQNX");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
+        VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct _screen_window* window)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceScreenPresentationSupportQNX");
+        return VK_FALSE;
+    }
+}
+
+#endif // VK_USE_PLATFORM_SCREEN_QNX
 
 #endif // GFXRECON_PLATFORM_TYPES_H

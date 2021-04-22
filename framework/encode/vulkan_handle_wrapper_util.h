@@ -154,9 +154,9 @@ inline const DeviceTable* GetDeviceTable(VkCommandBuffer handle)
 }
 
 // Wrapper for create wrapper template instantiations that do not make use of all handle parameters.
-struct NoParentWrapper : public HandleWrapper<uint64_t>
+struct NoParentWrapper : public HandleWrapper<void*>
 {
-    static const uint64_t kHandleValue{ VK_NULL_HANDLE };
+    static constexpr void* kHandleValue{ VK_NULL_HANDLE };
 };
 
 template <typename ParentWrapper, typename Wrapper>

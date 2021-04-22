@@ -59,5 +59,12 @@
       "IDirectFBSurface" : { "baseType" : "void", "replaceWith" : "void"}
     },
     "structs": []
+  },
+  "screen": {
+    "types": {
+      "_screen_context" : { "baseType" : "void", "replaceWith" : "void"},
+      "_screen_window"  : { "baseType" : "void", "replaceWith" : "void"}
+    },
+    "structs": []
   }
 }

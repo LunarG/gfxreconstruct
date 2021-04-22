@@ -54,7 +54,15 @@ def _makeREstring(list, default = None):
 # From Khronos genvk.py
 _defaultExtensions  = 'vulkan'
 _extensions         = _features         = []
-_removeExtensions   = _emitExtensions   = []
+_emitExtensions     = []
+
+# Exclude beta video extensions
+_removeExtensions   = ["VK_KHR_video_queue",
+                       "VK_KHR_video_decode_queue",
+                       "VK_KHR_video_encode_queue",
+                       "VK_EXT_video_encode_h264",
+                       "VK_EXT_video_decode_h264",
+                       "VK_EXT_video_decode_h265"]
 
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
