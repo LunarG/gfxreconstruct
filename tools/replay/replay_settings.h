@@ -112,7 +112,7 @@ const char kMemoryTranslationRebind[]  = "rebind";
 
 #if defined(WIN32)
 const char kApiFamilyVulkan[] = "vulkan";
-const char kApiFamilyDx12[]   = "dx12";
+const char kApiFamilyD3D12[]  = "d3d12";
 const char kApiFamilyAll[]    = "all";
 #endif
 
@@ -529,7 +529,7 @@ static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parse
         {
             return (api == gfxrecon::format::ApiFamilyId::ApiFamily_Vulkan);
         }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyDx12, value.c_str()) == 0)
+        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyD3D12, value.c_str()) == 0)
         {
             return (api == gfxrecon::format::ApiFamilyId::ApiFamily_D3D12);
         }
@@ -621,7 +621,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
 
-    replay_options.enable_dx12 = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
+    replay_options.enable_d3d12 = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
 
     return replay_options;
 }
@@ -737,8 +737,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --remove-unsupported\tRemove unsupported extensions and features from instance");
     GFXRECON_WRITE_CONSOLE("                      \tand device creation parameters.");
 #if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a Vulkan");
-    GFXRECON_WRITE_CONSOLE("            \t\tcapture or the Direct3D debug layer when replaying a DX capture.");
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
+    GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
+    GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
 #else
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
 #endif
@@ -760,10 +761,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
 #if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay. Available values are:");
+    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the DirectX 12 API enabled.", kApiFamilyDx12);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and DirectX 12 APIs", kApiFamilyAll);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");

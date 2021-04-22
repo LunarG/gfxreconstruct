@@ -395,8 +395,9 @@ Optional arguments:
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   --remove-unsupported  Remove unsupported extensions and features from instance
                         and device creation parameters.
-  --validate            Enables the Khronos Vulkan validation layer when replaying a Vulkan
-                        capture or the Direct3D debug layer when replaying a DX capture.
+  --validate            Enables the Khronos Vulkan validation layer when replaying a
+                        Vulkan capture or the Direct3D debug layer when replaying a
+                        Direct3D 12 capture.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:
@@ -414,10 +415,11 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
-  --api <api>           Use the specified API for replay. Available values are:
+  --api <api>           Use the specified API for replay (Windows only).
+                        Available values are:
                             vulkan      Replay with the Vulkan API enabled.
-                            dx12        Replay with the DirectX 12 API enabled.
-                            all         Replay with both the Vulkan and DirectX 12 APIs
+                            d3d12       Replay with the Direct3D API enabled.
+                            all         Replay with both the Vulkan and Direct3D 12 APIs
                                         enabled. This is the default.
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).

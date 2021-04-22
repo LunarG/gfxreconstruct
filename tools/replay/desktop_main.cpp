@@ -193,7 +193,7 @@ int main(int argc, const char** argv)
                 gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(window_factory.get(), dx_replay_options);
                 gfxrecon::decode::Dx12Decoder        dx12_decoder;
 
-                if (dx_replay_options.enable_dx12)
+                if (dx_replay_options.enable_d3d12)
                 {
                     dx12_replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });

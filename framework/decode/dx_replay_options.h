@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct DxReplayOptions : public ReplayOptions
 {
-    bool enable_dx12{ true };
+    bool enable_d3d12{ true };
 };
 
 GFXRECON_END_NAMESPACE(decode)
