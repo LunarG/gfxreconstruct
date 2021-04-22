@@ -297,11 +297,11 @@ class Dx12ReplayConsumerBodyGenerator(
                 value.base_type in self.GENERIC_HANDLE_STRUCTS
             ) or (value.base_type in self.structs_with_map_data):
                 if value.is_array:
-                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());\n'.format(
+                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
                         value.name
                     )
                 else:
-                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetCpuAddressTable(), GetGpuAddressTable(), GetGpuVaTable());\n'.format(
+                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
                         value.name
                     )
                 arg_list.append(value.name + '->GetPointer()')

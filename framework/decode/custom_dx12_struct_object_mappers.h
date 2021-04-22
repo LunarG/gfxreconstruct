@@ -35,26 +35,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Structs with anonymous union members.
 void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
                       const Dx12ObjectInfoTable&      object_info_table,
-                      const Dx12CpuDescriptorMap&     descriptor_cpu_addresses,
-                      const Dx12GpuDescriptorMap&     descriptor_gpu_addresses,
+                      const Dx12DescriptorMap&        descriptor_map,
                       const util::GpuVaMap&           gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
-                      const Dx12CpuDescriptorMap&          descriptor_cpu_addresses,
-                      const Dx12GpuDescriptorMap&          descriptor_gpu_addresses,
+                      const Dx12DescriptorMap&             descriptor_map,
                       const util::GpuVaMap&                gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
-                      const Dx12CpuDescriptorMap&              descriptor_cpu_addresses,
-                      const Dx12GpuDescriptorMap&              descriptor_gpu_addresses,
+                      const Dx12DescriptorMap&                 descriptor_map,
                       const util::GpuVaMap&                    gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
                       const Dx12ObjectInfoTable&                object_info_table,
-                      const Dx12CpuDescriptorMap&               descriptor_cpu_addresses,
-                      const Dx12GpuDescriptorMap&               descriptor_gpu_addresses,
+                      const Dx12DescriptorMap&                  descriptor_map,
                       const util::GpuVaMap&                     gpu_va_map);
 
 GFXRECON_END_NAMESPACE(decode)

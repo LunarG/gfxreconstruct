@@ -40,8 +40,8 @@ class BaseStructHandleMappersHeaderGenerator():
             platform_type = 'Dx12'
             map_types = 'Objects'
             map_type = 'Object'
-            map_table = ', const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map'
-            map_object = ', descriptor_cpu_addresses, descriptor_gpu_addresses, gpu_va_map'
+            map_table = ', const Dx12DescriptorMap& descriptor_map, const util::GpuVaMap& gpu_va_map'
+            map_object = ', descriptor_map, gpu_va_map'
 
         if not is_dx12_class:
             self.newline()
@@ -152,7 +152,7 @@ class BaseStructHandleMappersHeaderGenerator():
         if self.is_dx12_class():
             platform_type = 'Dx12'
             map_type = 'Objects'
-            map_table = ', const Dx12CpuDescriptorMap& descriptor_cpu_addresses, const Dx12GpuDescriptorMap& descriptor_gpu_addresses, const util::GpuVaMap& gpu_va_map'
+            map_table = ', const Dx12DescriptorMap& descriptor_map, const util::GpuVaMap& gpu_va_map'
 
         for struct in self.get_filtered_struct_names():
             if (

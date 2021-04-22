@@ -107,22 +107,22 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
 
 void Dx12ReplayConsumerBase::MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle)
 {
-    object_mapping::MapCpuDescriptorHandle(handle, descriptor_cpu_addresses_);
+    object_mapping::MapCpuDescriptorHandle(handle, descriptor_map_);
 }
 
 void Dx12ReplayConsumerBase::MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    object_mapping::MapCpuDescriptorHandles(handles, handles_len, descriptor_cpu_addresses_);
+    object_mapping::MapCpuDescriptorHandles(handles, handles_len, descriptor_map_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle)
 {
-    object_mapping::MapGpuDescriptorHandle(handle, descriptor_gpu_addresses_);
+    object_mapping::MapGpuDescriptorHandle(handle, descriptor_map_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    object_mapping::MapGpuDescriptorHandles(handles, handles_len, descriptor_gpu_addresses_);
+    object_mapping::MapGpuDescriptorHandles(handles, handles_len, descriptor_map_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
@@ -528,9 +528,13 @@ Dx12ReplayConsumerBase::OverrideGetCPUDescriptorHandleForHeapStart(
         if (heap_info->capture_cpu_addr_begin == 0)
         {
             heap_info->capture_cpu_addr_begin = original_result.decoded_value->ptr;
-            heap_info->replay_cpu_addr_begin  = replay_result.ptr;
 
-            descriptor_cpu_addresses_[heap_info->capture_cpu_addr_begin] = heap_info;
+            descriptor_map_.AddCpuDescriptorHeap(*original_result.decoded_value,
+                                                 replay_result,
+                                                 heap_info->descriptor_type,
+                                                 heap_info->descriptor_count,
+                                                 heap_info->capture_increments,
+                                                 heap_info->replay_increments);
         }
     }
     else
@@ -560,9 +564,13 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
         if (heap_info->capture_gpu_addr_begin == 0)
         {
             heap_info->capture_gpu_addr_begin = original_result.decoded_value->ptr;
-            heap_info->replay_gpu_addr_begin  = replay_result.ptr;
 
-            descriptor_gpu_addresses_[heap_info->capture_gpu_addr_begin] = heap_info;
+            descriptor_map_.AddGpuDescriptorHeap(*original_result.decoded_value,
+                                                 replay_result,
+                                                 heap_info->descriptor_type,
+                                                 heap_info->descriptor_count,
+                                                 heap_info->capture_increments,
+                                                 heap_info->replay_increments);
         }
     }
     else
@@ -1108,8 +1116,8 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
         else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
         {
             auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info->extra_info);
-            descriptor_cpu_addresses_.erase(heap_info->capture_cpu_addr_begin);
-            descriptor_gpu_addresses_.erase(heap_info->capture_gpu_addr_begin);
+            descriptor_map_.RemoveCpuDescriptorHeap(heap_info->capture_cpu_addr_begin);
+            descriptor_map_.RemoveGpuDescriptorHeap(heap_info->capture_gpu_addr_begin);
             delete heap_info;
         }
         else if (info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)

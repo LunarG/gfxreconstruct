@@ -265,13 +265,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return nullptr;
     }
 
-    const Dx12CpuDescriptorMap& GetCpuAddressTable() const { return descriptor_cpu_addresses_; }
+    const Dx12DescriptorMap& GetDescriptorMap() const { return descriptor_map_; }
 
-    Dx12CpuDescriptorMap& GetCpuAddressTable() { return descriptor_cpu_addresses_; }
-
-    const Dx12GpuDescriptorMap& GetGpuAddressTable() const { return descriptor_gpu_addresses_; }
-
-    Dx12GpuDescriptorMap& GetGpuAddressTable() { return descriptor_gpu_addresses_; }
+    Dx12DescriptorMap& GetDescriptorMap() { return descriptor_map_; }
 
     const util::GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
 
@@ -316,8 +312,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>  heap_allocations_;
     std::unordered_map<uint64_t, HANDLE> event_objects_;
     std::function<void(const char*)>     fatal_error_handler_;
-    Dx12CpuDescriptorMap                 descriptor_cpu_addresses_;
-    Dx12GpuDescriptorMap                 descriptor_gpu_addresses_;
+    Dx12DescriptorMap                    descriptor_map_;
     util::GpuVaMap                       gpu_va_map_;
 };
 
