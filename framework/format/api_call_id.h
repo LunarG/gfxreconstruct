@@ -521,6 +521,19 @@ enum ApiCallId : uint32_t
     ApiCall_vkQueueSubmit2KHR                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1230),
     ApiCall_vkCmdWriteBufferMarker2AMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1231),
     ApiCall_vkGetQueueCheckpointData2NV                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1232),
+    ApiCall_vkCmdSetVertexInputEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1233),
+    ApiCall_vkGetMemoryZirconHandleFUCHSIA                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1234),
+    ApiCall_vkGetMemoryZirconHandlePropertiesFUCHSIA                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1235),
+    ApiCall_vkImportSemaphoreZirconHandleFUCHSIA                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1236),
+    ApiCall_vkGetSemaphoreZirconHandleFUCHSIA                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1237),
+    ApiCall_vkCmdSetPatchControlPointsEXT                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1238),
+    ApiCall_vkCmdSetRasterizerDiscardEnableEXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1239),
+    ApiCall_vkCmdSetDepthBiasEnableEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x123a),
+    ApiCall_vkCmdSetLogicOpEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x123b),
+    ApiCall_vkCmdSetPrimitiveRestartEnableEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x123c),
+    ApiCall_vkCreateScreenSurfaceQNX                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x123d),
+    ApiCall_vkGetPhysicalDeviceScreenPresentationSupportQNX                                       = MakeApiCallId(ApiFamily_Vulkan, 0x123e),
+    ApiCall_vkCmdSetColorWriteEnableEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x123f),
 
     ApiCall_VulkanLast
     // clang-format on

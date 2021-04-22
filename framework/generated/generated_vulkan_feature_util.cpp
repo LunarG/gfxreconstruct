@@ -1615,6 +1615,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
+            {
+                const VkPhysicalDeviceInheritedViewportScissorFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(next);
+                VkPhysicalDeviceInheritedViewportScissorFeaturesNV query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->inheritedViewportScissor2D == VK_TRUE) && (query.inheritedViewportScissor2D == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature inheritedViewportScissor2D, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(currentNext)->inheritedViewportScissor2D = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
             {
                 const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(next);
@@ -1744,6 +1757,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(next);
+                VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->ycbcr2plane444Formats == VK_TRUE) && (query.ycbcr2plane444Formats == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature ycbcr2plane444Formats, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(currentNext)->ycbcr2plane444Formats = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
             {
                 const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(next);
@@ -1798,6 +1824,55 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature mutableDescriptorType, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE*>(currentNext)->mutableDescriptorType = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(next);
+                VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->vertexInputDynamicState == VK_TRUE) && (query.vertexInputDynamicState == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature vertexInputDynamicState, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(currentNext)->vertexInputDynamicState = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(next);
+                VkPhysicalDeviceExtendedDynamicState2FeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->extendedDynamicState2 == VK_TRUE) && (query.extendedDynamicState2 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState2, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(currentNext)->extendedDynamicState2 = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState2LogicOp == VK_TRUE) && (query.extendedDynamicState2LogicOp == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState2LogicOp, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(currentNext)->extendedDynamicState2LogicOp = VK_FALSE;
+                }
+                if ((currentNext->extendedDynamicState2PatchControlPoints == VK_TRUE) && (query.extendedDynamicState2PatchControlPoints == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature extendedDynamicState2PatchControlPoints, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(currentNext)->extendedDynamicState2PatchControlPoints = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceColorWriteEnableFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(next);
+                VkPhysicalDeviceColorWriteEnableFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->colorWriteEnable == VK_TRUE) && (query.colorWriteEnable == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature colorWriteEnable, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(currentNext)->colorWriteEnable = VK_FALSE;
                 }
                 break;
              }

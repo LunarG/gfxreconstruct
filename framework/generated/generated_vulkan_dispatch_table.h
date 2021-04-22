@@ -152,6 +152,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL AcquireWinrtDisplayNV(VkPhysicalDevice, Vk
 static VKAPI_ATTR VkResult VKAPI_CALL GetWinrtDisplayNV(VkPhysicalDevice, uint32_t, VkDisplayKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkGetWinrtDisplayNV was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(VkInstance, const VkDirectFBSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateDirectFBSurfaceEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice, uint32_t, IDirectFB*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceDirectFBPresentationSupportEXT was called, resulting in no-op behavior."); return VK_TRUE; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateScreenSurfaceQNX(VkInstance, const VkScreenSurfaceCreateInfoQNX*, const VkAllocationCallbacks*, VkSurfaceKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateScreenSurfaceQNX was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceScreenPresentationSupportQNX(VkPhysicalDevice, uint32_t, struct _screen_window*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPhysicalDeviceScreenPresentationSupportQNX was called, resulting in no-op behavior."); return VK_TRUE; }
 static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceProcAddr was called, resulting in no-op behavior."); return nullptr; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyDevice was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) { GFXRECON_LOG_WARNING("Unsupported function vkGetDeviceQueue was called, resulting in no-op behavior."); }
@@ -486,6 +488,17 @@ static VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(VkDevice, VkPrivateD
 static VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t) { GFXRECON_LOG_WARNING("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlotEXT, uint64_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(VkCommandBuffer, VkFragmentShadingRateNV, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetFragmentShadingRateEnumNV was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetVertexInputEXT(VkCommandBuffer, uint32_t, const VkVertexInputBindingDescription2EXT*, uint32_t, const VkVertexInputAttributeDescription2EXT*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetVertexInputEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandleFUCHSIA(VkDevice, const VkMemoryGetZirconHandleInfoFUCHSIA*, zx_handle_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryZirconHandleFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandlePropertiesFUCHSIA(VkDevice, VkExternalMemoryHandleTypeFlagBits, zx_handle_t, VkMemoryZirconHandlePropertiesFUCHSIA*) { GFXRECON_LOG_WARNING("Unsupported function vkGetMemoryZirconHandlePropertiesFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreZirconHandleFUCHSIA(VkDevice, const VkImportSemaphoreZirconHandleInfoFUCHSIA*) { GFXRECON_LOG_WARNING("Unsupported function vkImportSemaphoreZirconHandleFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(VkDevice, const VkSemaphoreGetZirconHandleInfoFUCHSIA*, zx_handle_t*) { GFXRECON_LOG_WARNING("Unsupported function vkGetSemaphoreZirconHandleFUCHSIA was called, resulting in no-op behavior."); return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetPatchControlPointsEXT(VkCommandBuffer, uint32_t) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPatchControlPointsEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetRasterizerDiscardEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetRasterizerDiscardEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBiasEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetDepthBiasEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetLogicOpEXT(VkCommandBuffer, VkLogicOp) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetLogicOpEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveRestartEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetPrimitiveRestartEnableEXT was called, resulting in no-op behavior."); }
+static VKAPI_ATTR void                                    VKAPI_CALL CmdSetColorWriteEnableEXT(VkCommandBuffer, uint32_t, const VkBool32*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdSetColorWriteEnableEXT was called, resulting in no-op behavior."); }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 static VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
@@ -612,6 +625,8 @@ struct InstanceTable
     PFN_vkGetWinrtDisplayNV GetWinrtDisplayNV{ noop::GetWinrtDisplayNV };
     PFN_vkCreateDirectFBSurfaceEXT CreateDirectFBSurfaceEXT{ noop::CreateDirectFBSurfaceEXT };
     PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT GetPhysicalDeviceDirectFBPresentationSupportEXT{ noop::GetPhysicalDeviceDirectFBPresentationSupportEXT };
+    PFN_vkCreateScreenSurfaceQNX CreateScreenSurfaceQNX{ noop::CreateScreenSurfaceQNX };
+    PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX GetPhysicalDeviceScreenPresentationSupportQNX{ noop::GetPhysicalDeviceScreenPresentationSupportQNX };
 };
 
 struct DeviceTable
@@ -950,6 +965,17 @@ struct DeviceTable
     PFN_vkSetPrivateDataEXT SetPrivateDataEXT{ noop::SetPrivateDataEXT };
     PFN_vkGetPrivateDataEXT GetPrivateDataEXT{ noop::GetPrivateDataEXT };
     PFN_vkCmdSetFragmentShadingRateEnumNV CmdSetFragmentShadingRateEnumNV{ noop::CmdSetFragmentShadingRateEnumNV };
+    PFN_vkCmdSetVertexInputEXT CmdSetVertexInputEXT{ noop::CmdSetVertexInputEXT };
+    PFN_vkGetMemoryZirconHandleFUCHSIA GetMemoryZirconHandleFUCHSIA{ noop::GetMemoryZirconHandleFUCHSIA };
+    PFN_vkGetMemoryZirconHandlePropertiesFUCHSIA GetMemoryZirconHandlePropertiesFUCHSIA{ noop::GetMemoryZirconHandlePropertiesFUCHSIA };
+    PFN_vkImportSemaphoreZirconHandleFUCHSIA ImportSemaphoreZirconHandleFUCHSIA{ noop::ImportSemaphoreZirconHandleFUCHSIA };
+    PFN_vkGetSemaphoreZirconHandleFUCHSIA GetSemaphoreZirconHandleFUCHSIA{ noop::GetSemaphoreZirconHandleFUCHSIA };
+    PFN_vkCmdSetPatchControlPointsEXT CmdSetPatchControlPointsEXT{ noop::CmdSetPatchControlPointsEXT };
+    PFN_vkCmdSetRasterizerDiscardEnableEXT CmdSetRasterizerDiscardEnableEXT{ noop::CmdSetRasterizerDiscardEnableEXT };
+    PFN_vkCmdSetDepthBiasEnableEXT CmdSetDepthBiasEnableEXT{ noop::CmdSetDepthBiasEnableEXT };
+    PFN_vkCmdSetLogicOpEXT CmdSetLogicOpEXT{ noop::CmdSetLogicOpEXT };
+    PFN_vkCmdSetPrimitiveRestartEnableEXT CmdSetPrimitiveRestartEnableEXT{ noop::CmdSetPrimitiveRestartEnableEXT };
+    PFN_vkCmdSetColorWriteEnableEXT CmdSetColorWriteEnableEXT{ noop::CmdSetColorWriteEnableEXT };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::CreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::DestroyAccelerationStructureKHR };
     PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::CmdBuildAccelerationStructuresKHR };
@@ -1081,6 +1107,8 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetWinrtDisplayNV", &table->GetWinrtDisplayNV);
     LoadFunction(gpa, instance, "vkCreateDirectFBSurfaceEXT", &table->CreateDirectFBSurfaceEXT);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceDirectFBPresentationSupportEXT", &table->GetPhysicalDeviceDirectFBPresentationSupportEXT);
+    LoadFunction(gpa, instance, "vkCreateScreenSurfaceQNX", &table->CreateScreenSurfaceQNX);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceScreenPresentationSupportQNX", &table->GetPhysicalDeviceScreenPresentationSupportQNX);
 }
 
 static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
@@ -1421,6 +1449,17 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkSetPrivateDataEXT", &table->SetPrivateDataEXT);
     LoadFunction(gpa, device, "vkGetPrivateDataEXT", &table->GetPrivateDataEXT);
     LoadFunction(gpa, device, "vkCmdSetFragmentShadingRateEnumNV", &table->CmdSetFragmentShadingRateEnumNV);
+    LoadFunction(gpa, device, "vkCmdSetVertexInputEXT", &table->CmdSetVertexInputEXT);
+    LoadFunction(gpa, device, "vkGetMemoryZirconHandleFUCHSIA", &table->GetMemoryZirconHandleFUCHSIA);
+    LoadFunction(gpa, device, "vkGetMemoryZirconHandlePropertiesFUCHSIA", &table->GetMemoryZirconHandlePropertiesFUCHSIA);
+    LoadFunction(gpa, device, "vkImportSemaphoreZirconHandleFUCHSIA", &table->ImportSemaphoreZirconHandleFUCHSIA);
+    LoadFunction(gpa, device, "vkGetSemaphoreZirconHandleFUCHSIA", &table->GetSemaphoreZirconHandleFUCHSIA);
+    LoadFunction(gpa, device, "vkCmdSetPatchControlPointsEXT", &table->CmdSetPatchControlPointsEXT);
+    LoadFunction(gpa, device, "vkCmdSetRasterizerDiscardEnableEXT", &table->CmdSetRasterizerDiscardEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetDepthBiasEnableEXT", &table->CmdSetDepthBiasEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetLogicOpEXT", &table->CmdSetLogicOpEXT);
+    LoadFunction(gpa, device, "vkCmdSetPrimitiveRestartEnableEXT", &table->CmdSetPrimitiveRestartEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetColorWriteEnableEXT", &table->CmdSetColorWriteEnableEXT);
     LoadFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);

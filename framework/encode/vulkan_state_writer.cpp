@@ -3285,12 +3285,16 @@ VkImageAspectFlags VulkanStateWriter::GetFormatAspectMask(VkFormat format)
             return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
         default:
             return VK_IMAGE_ASPECT_COLOR_BIT;
@@ -3340,12 +3344,16 @@ void VulkanStateWriter::GetFormatAspects(VkFormat                            for
             break;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             aspects->push_back(VK_IMAGE_ASPECT_PLANE_0_BIT);
             aspects->push_back(VK_IMAGE_ASPECT_PLANE_1_BIT);
             break;
@@ -3400,6 +3408,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R8_UNORM;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R8_UNORM;
@@ -3416,6 +3425,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R10X6_UNORM_PACK16;
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R10X6_UNORM_PACK16;
@@ -3432,6 +3442,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R12X4_UNORM_PACK16;
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
         case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R12X4_UNORM_PACK16;
@@ -3448,6 +3459,7 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
             return VK_FORMAT_R16_UNORM;
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
             if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
             {
                 return VK_FORMAT_R16_UNORM;

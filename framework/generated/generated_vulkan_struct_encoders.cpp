@@ -5078,6 +5078,22 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsMemoryRequ
     encoder->EncodeUInt32Value(value.maxSequencesCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInheritedViewportScissorFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.inheritedViewportScissor2D);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceViewportScissorInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.viewportScissor2D);
+    encoder->EncodeUInt32Value(value.viewportDepthCount);
+    EncodeStructPtr(encoder, value.pViewportDepths);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5246,6 +5262,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineFragmentShadingRate
     encoder->EncodeEnumArray(value.combinerOps, 2);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.ycbcr2plane444Formats);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5313,6 +5336,107 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMutableDescriptorTypeCreate
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.mutableDescriptorTypeListCount);
     EncodeStructArray(encoder, value.pMutableDescriptorTypeLists, value.mutableDescriptorTypeListCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.vertexInputDynamicState);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputBindingDescription2EXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.binding);
+    encoder->EncodeUInt32Value(value.stride);
+    encoder->EncodeEnumValue(value.inputRate);
+    encoder->EncodeUInt32Value(value.divisor);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputAttributeDescription2EXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.location);
+    encoder->EncodeUInt32Value(value.binding);
+    encoder->EncodeEnumValue(value.format);
+    encoder->EncodeUInt32Value(value.offset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryZirconHandleInfoFUCHSIA& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.handleType);
+    encoder->EncodeUInt32Value(value.handle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryZirconHandlePropertiesFUCHSIA& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.memoryTypeBits);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetZirconHandleInfoFUCHSIA& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.memory);
+    encoder->EncodeEnumValue(value.handleType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImportSemaphoreZirconHandleInfoFUCHSIA& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.semaphore);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.handleType);
+    encoder->EncodeUInt32Value(value.zirconHandle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetZirconHandleInfoFUCHSIA& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.semaphore);
+    encoder->EncodeEnumValue(value.handleType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.extendedDynamicState2);
+    encoder->EncodeVkBool32Value(value.extendedDynamicState2LogicOp);
+    encoder->EncodeVkBool32Value(value.extendedDynamicState2PatchControlPoints);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkScreenSurfaceCreateInfoQNX& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeVoidPtr(value.context);
+    encoder->EncodeVoidPtr(value.window);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceColorWriteEnableFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.colorWriteEnable);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.attachmentCount);
+    encoder->EncodeVkBool32Array(value.pColorWriteEnables, value.attachmentCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

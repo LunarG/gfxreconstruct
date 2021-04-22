@@ -894,6 +894,32 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdSetVertexInputEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetMemoryZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetMemoryZirconHandlePropertiesFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkImportSemaphoreZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetSemaphoreZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPatchControlPointsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetRasterizerDiscardEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthBiasEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetLogicOpEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPrimitiveRestartEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateScreenSurfaceQNX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceScreenPresentationSupportQNX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetColorWriteEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
