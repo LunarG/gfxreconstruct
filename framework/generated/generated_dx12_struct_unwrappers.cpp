@@ -55,7 +55,7 @@ void UnwrapStructObjects(D3D12_GRAPHICS_PIPELINE_STATE_DESC* value, HandleUnwrap
 {
     if (value != nullptr)
     {
-        value->pRootSignature = GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(value->pRootSignature);
+        value->pRootSignature = GetWrappedObject<ID3D12RootSignature>(value->pRootSignature);
     }
 }
 
@@ -63,7 +63,7 @@ void UnwrapStructObjects(D3D12_COMPUTE_PIPELINE_STATE_DESC* value, HandleUnwrapM
 {
     if (value != nullptr)
     {
-        value->pRootSignature = GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(value->pRootSignature);
+        value->pRootSignature = GetWrappedObject<ID3D12RootSignature>(value->pRootSignature);
     }
 }
 
@@ -71,7 +71,7 @@ void UnwrapStructObjects(D3D12_RESOURCE_TRANSITION_BARRIER* value, HandleUnwrapM
 {
     if (value != nullptr)
     {
-        value->pResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResource);
+        value->pResource = GetWrappedObject<ID3D12Resource>(value->pResource);
     }
 }
 
@@ -79,8 +79,8 @@ void UnwrapStructObjects(D3D12_RESOURCE_ALIASING_BARRIER* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        value->pResourceBefore = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResourceBefore);
-        value->pResourceAfter = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResourceAfter);
+        value->pResourceBefore = GetWrappedObject<ID3D12Resource>(value->pResourceBefore);
+        value->pResourceAfter = GetWrappedObject<ID3D12Resource>(value->pResourceAfter);
     }
 }
 
@@ -88,7 +88,7 @@ void UnwrapStructObjects(D3D12_RESOURCE_UAV_BARRIER* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->pResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResource);
+        value->pResource = GetWrappedObject<ID3D12Resource>(value->pResource);
     }
 }
 
@@ -96,7 +96,7 @@ void UnwrapStructObjects(D3D12_GLOBAL_ROOT_SIGNATURE* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pGlobalRootSignature = GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(value->pGlobalRootSignature);
+        value->pGlobalRootSignature = GetWrappedObject<ID3D12RootSignature>(value->pGlobalRootSignature);
     }
 }
 
@@ -104,7 +104,7 @@ void UnwrapStructObjects(D3D12_LOCAL_ROOT_SIGNATURE* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->pLocalRootSignature = GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(value->pLocalRootSignature);
+        value->pLocalRootSignature = GetWrappedObject<ID3D12RootSignature>(value->pLocalRootSignature);
     }
 }
 
@@ -112,7 +112,7 @@ void UnwrapStructObjects(D3D12_EXISTING_COLLECTION_DESC* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->pExistingCollection = GetWrappedObject<ID3D12StateObject_Wrapper, ID3D12StateObject>(value->pExistingCollection);
+        value->pExistingCollection = GetWrappedObject<ID3D12StateObject>(value->pExistingCollection);
     }
 }
 
@@ -120,8 +120,8 @@ void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE* value, HandleUnwrapMemory* 
 {
     if (value != nullptr)
     {
-        value->pCommandList = GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(value->pCommandList);
-        value->pCommandQueue = GetWrappedObject<ID3D12CommandQueue_Wrapper, ID3D12CommandQueue>(value->pCommandQueue);
+        value->pCommandList = GetWrappedObject<ID3D12GraphicsCommandList>(value->pCommandList);
+        value->pCommandQueue = GetWrappedObject<ID3D12CommandQueue>(value->pCommandQueue);
         value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
     }
 }
@@ -130,8 +130,8 @@ void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE1* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pCommandList = GetWrappedObject<ID3D12GraphicsCommandList_Wrapper, ID3D12GraphicsCommandList>(value->pCommandList);
-        value->pCommandQueue = GetWrappedObject<ID3D12CommandQueue_Wrapper, ID3D12CommandQueue>(value->pCommandQueue);
+        value->pCommandList = GetWrappedObject<ID3D12GraphicsCommandList>(value->pCommandList);
+        value->pCommandQueue = GetWrappedObject<ID3D12CommandQueue>(value->pCommandQueue);
         value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
     }
 }
@@ -140,7 +140,7 @@ void UnwrapStructObjects(D3D12_DRED_ALLOCATION_NODE1* value, HandleUnwrapMemory*
 {
     if (value != nullptr)
     {
-        value->pObject = GetWrappedObject<IUnknown_Wrapper, IUnknown>(value->pObject);
+        value->pObject = GetWrappedObject<IUnknown>(value->pObject);
         value->pNext = UnwrapStructPtrObjects(value->pNext, unwrap_memory);
     }
 }
@@ -149,8 +149,8 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* val
 {
     if (value != nullptr)
     {
-        value->pSrcResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pSrcResource);
-        value->pDstResource = GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pDstResource);
+        value->pSrcResource = GetWrappedObject<ID3D12Resource>(value->pSrcResource);
+        value->pDstResource = GetWrappedObject<ID3D12Resource>(value->pDstResource);
     }
 }
 

@@ -26,7 +26,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <>
-IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(IUnknown* wrapped_object)
+IUnknown* GetWrappedObject<IUnknown>(IUnknown* wrapped_object)
 {
     IUnknown*         object  = wrapped_object;
     IUnknown_Wrapper* wrapper = nullptr;
@@ -41,7 +41,7 @@ IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(IUnknown* wrapped_object)
 }
 
 template <>
-const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object)
+const IUnknown* GetWrappedObject<IUnknown>(const IUnknown* wrapped_object)
 {
     // Need to remove const for QueryInterface.
     IUnknown*         object  = const_cast<IUnknown*>(wrapped_object);
@@ -57,7 +57,7 @@ const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wra
 }
 
 template <>
-format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object)
+format::HandleId GetWrappedId<IUnknown>(const IUnknown* wrapped_object)
 {
     // Need to remove const for QueryInterface.
     IUnknown*         object  = const_cast<IUnknown*>(wrapped_object);

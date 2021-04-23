@@ -207,6 +207,12 @@ class ParameterEncoder
 
 #if defined(WIN32)
     template <typename T>
+    void EncodeObjectValue(const T* value)
+    {
+        EncodeHandleIdValue(GetWrappedId<T>(value));
+    }
+
+    template <typename T>
     void EncodeObjectPtr(const T* const* value, bool omit_data = false, bool omit_addr = false)
     {
         EncodeWrappedObjectPointer(value, omit_data, omit_addr);
@@ -217,8 +223,8 @@ class ParameterEncoder
         EncodeWrappedObjectPointer(reinterpret_cast<const IUnknown* const*>(value), omit_data, omit_addr);
     }
 
-    template <typename SrcT>
-    void EncodeWrappedObjectPointer(const SrcT* const* ptr, bool omit_data = false, bool omit_addr = false)
+    template <typename T>
+    void EncodeWrappedObjectPointer(const T* const* ptr, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
@@ -234,37 +240,19 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                EncodeObjectValue(*ptr);
+                EncodeObjectValue<T>(*ptr);
             }
         }
     }
 
-    template <typename T, typename U>
-    void EncodeObjectValue(const U* value)
+    template <typename T>
+    void EncodeObjectArray(T* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
     {
-        EncodeHandleIdValue(GetWrappedId<T, U>(value));
+        EncodeWrappedObjectArray<T>(arr, len, omit_data, omit_addr);
     }
 
-    template <typename U>
-    void EncodeObjectValue(const U* value)
-    {
-        EncodeHandleIdValue(GetWrappedId<IUnknown_Wrapper, U>(value));
-    }
-
-    template <typename T, typename U>
-    void EncodeObjectArray(U* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
-    {
-        EncodeWrappedObjectArray<T, U>(arr, len, omit_data, omit_addr);
-    }
-
-    template <typename U>
-    void EncodeObjectArray(U* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
-    {
-        EncodeWrappedObjectArray<IUnknown_Wrapper, U>(arr, len, omit_data, omit_addr);
-    }
-
-    template <typename T, typename SrcT>
-    void EncodeWrappedObjectArray(SrcT* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    template <typename T>
+    void EncodeWrappedObjectArray(T* const* arr, size_t len, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
@@ -285,7 +273,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    EncodeObjectValue(arr[i]);
+                    EncodeObjectValue<T>(arr[i]);
                 }
             }
         }

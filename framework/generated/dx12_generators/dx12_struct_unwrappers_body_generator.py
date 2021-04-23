@@ -103,20 +103,20 @@ class Dx12StructUnwrappersBodyGenerator(Dx12BaseGenerator):
                 # If it is an array or pointer, map with the utility function.
                 if member.is_array:
                     if member.is_dynamic:
-                        expr += indent + 'value->{name} = UnwrapObjects<{type}_Wrapper, {type}>(value->{name}, value->{}, unwrap_memory);\n'.format(
+                        expr += indent + 'value->{name} = UnwrapObjects<{}>(value->{name}, value->{}, unwrap_memory);\n'.format(
+                            member.base_type,
                             member.array_length,
-                            name=member.name,
-                            type=member.base_type
+                            name=member.name
                         )
                     else:
-                        expr += indent + 'std::transform(value->{name}, value->{name} + value->{}, value->{name}, GetWrappedObject<{type}_Wrapper, {type}>);\n'.format(
+                        expr += indent + 'std::transform(value->{name}, value->{name} + value->{}, value->{name}, GetWrappedObject<{}>);\n'.format(
                             member.array_length,
-                            name=member.name,
-                            type=member.base_type
+                            member.base_type,
+                            name=member.name
                         )
                 else:
-                    expr += indent + 'value->{name} = GetWrappedObject<{type}_Wrapper, {type}>(value->{name});\n'.format(
-                        name=member.name, type=member.base_type
+                    expr += indent + 'value->{name} = GetWrappedObject<{}>(value->{name});\n'.format(
+                        member.base_type, name=member.name
                     )
             else:
                 # This is a struct that includes handles.

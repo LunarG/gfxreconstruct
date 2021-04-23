@@ -59,7 +59,7 @@ void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory*
 
     if (value != nullptr)
     {
-        value->pResource = encode::GetWrappedObject<ID3D12Resource_Wrapper, ID3D12Resource>(value->pResource);
+        value->pResource = encode::GetWrappedObject<ID3D12Resource>(value->pResource);
     }
 }
 
@@ -98,9 +98,8 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
                 // The only subobject in the stream that contains a handle to be unwrapped is the root signature
                 // subobject, so we can unwrap it and then break from the loop.  There will only be one root signature
                 // per-stream, so there is no need to continue processing the stream after it has been unwrapped.
-                auto subobject = reinterpret_cast<format::Dx12SignatureSubobject*>(current);
-                subobject->value =
-                    encode::GetWrappedObject<ID3D12RootSignature_Wrapper, ID3D12RootSignature>(subobject->value);
+                auto subobject   = reinterpret_cast<format::Dx12SignatureSubobject*>(current);
+                subobject->value = encode::GetWrappedObject<ID3D12RootSignature>(subobject->value);
                 offset += sizeof(*subobject);
                 break;
             }

@@ -46,16 +46,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 /// \return A pointer to the object retrieved from the object wrapper, or
 ///         nullptr if #wrapped_object was null.
 //----------------------------------------------------------------------------
-template <typename Wrapper, typename Object>
+template <typename Object>
 Object* GetWrappedObject(Object* wrapped_object)
 {
-    if (wrapped_object != nullptr)
-    {
-        auto unknown = reinterpret_cast<Wrapper*>(wrapped_object);
-        return unknown->GetWrappedObjectAs<Object>();
-    }
-
-    return nullptr;
+    return (wrapped_object != nullptr)
+               ? reinterpret_cast<IUnknown_Wrapper*>(wrapped_object)->GetWrappedObjectAs<Object>()
+               : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -71,16 +67,12 @@ Object* GetWrappedObject(Object* wrapped_object)
 /// \return A const pointer to the object retrieved from the object wrapper,
 ///         or nullptr if #wrapped_object was null.
 //----------------------------------------------------------------------------
-template <typename Wrapper, typename Object>
+template <typename Object>
 const Object* GetWrappedObject(const Object* wrapped_object)
 {
-    if (wrapped_object != nullptr)
-    {
-        auto unknown = reinterpret_cast<const Wrapper*>(wrapped_object);
-        return unknown->GetWrappedObjectAs<Object>();
-    }
-
-    return nullptr;
+    return (wrapped_object != nullptr)
+               ? reinterpret_cast<const IUnknown_Wrapper*>(wrapped_object)->GetWrappedObjectAs<Object>()
+               : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -100,7 +92,7 @@ const Object* GetWrappedObject(const Object* wrapped_object)
 ///         object wrapper.
 //----------------------------------------------------------------------------
 template <>
-IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(IUnknown* wrapped_object);
+IUnknown* GetWrappedObject<IUnknown>(IUnknown* wrapped_object);
 
 //----------------------------------------------------------------------------
 /// \brief Retrieves a const object from a const object wrapper.
@@ -119,7 +111,7 @@ IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(IUnknown* wrapped_object)
 ///         object wrapper.
 //----------------------------------------------------------------------------
 template <>
-const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object);
+const IUnknown* GetWrappedObject<IUnknown>(const IUnknown* wrapped_object);
 
 //----------------------------------------------------------------------------
 /// \brief Retrieves an object ID from an object wrapper.
@@ -134,10 +126,10 @@ const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wra
 /// \return The unique object ID retrieved from the object wrapper, or
 ///         format::kNullHandleId if #wrapped_object was null.
 //----------------------------------------------------------------------------
-template <typename Wrapper, typename Object>
+template <typename Object>
 format::HandleId GetWrappedId(const Object* wrapped_object)
 {
-    return (wrapped_object != nullptr) ? reinterpret_cast<const Wrapper*>(wrapped_object)->GetCaptureId()
+    return (wrapped_object != nullptr) ? reinterpret_cast<const IUnknown_Wrapper*>(wrapped_object)->GetCaptureId()
                                        : format::kNullHandleId;
 }
 
@@ -158,7 +150,7 @@ format::HandleId GetWrappedId(const Object* wrapped_object)
 ///         not a valid object wrapper.
 //----------------------------------------------------------------------------
 template <>
-format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrapped_object);
+format::HandleId GetWrappedId<IUnknown>(const IUnknown* wrapped_object);
 
 //----------------------------------------------------------------------------
 /// \brief Unwraps an array of handles.
@@ -184,7 +176,7 @@ format::HandleId GetWrappedId<IUnknown_Wrapper, IUnknown>(const IUnknown* wrappe
 ///         object wrappers is not empty.  Pointer to the array of object
 ///         wrappers if the array is empty.
 //----------------------------------------------------------------------------
-template <typename Wrapper, typename Object>
+template <typename Object>
 Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((objects != nullptr) && (len > 0))
@@ -196,7 +188,7 @@ Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapM
 
         for (uint32_t i = 0; i < len; ++i)
         {
-            unwrapped_objects[i] = GetWrappedObject<Wrapper, Object>(objects[i]);
+            unwrapped_objects[i] = GetWrappedObject<Object>(objects[i]);
         }
 
         return unwrapped_objects;

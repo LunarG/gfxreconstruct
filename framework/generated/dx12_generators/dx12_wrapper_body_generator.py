@@ -766,13 +766,12 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     if value.array_length:
                         need_unwrap_memory = True
 
-                        name = 'UnwrapObjects<{type}_Wrapper, {type}>'\
+                        name = 'UnwrapObjects<{}>'\
                             '({}, {}, unwrap_memory)'.format(
-                                name, value.array_length, type=wrappers[name].base_type)
+                                wrappers[name].base_type, name, value.array_length)
                     else:
-                        name = 'encode::GetWrappedObject<{type}_Wrapper,'\
-                            ' {type}>({})'.format(
-                                name, type=wrappers[name].base_type)
+                        name = 'encode::GetWrappedObject<{}>({})'\
+                            .format(wrappers[name].base_type, name)
                 else:
                     if value.base_type in self.structs_with_objects:
                         need_unwrap_memory = True
