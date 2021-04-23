@@ -224,12 +224,15 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                         '', m, consumer_type, indent, function_class
                     )
 
-            for k2, v2 in v.classes.items():
-                if self.is_required_class_data(v2):
-                    for m in v2['methods']['public']:
-                        if not self.is_method_black_listed(k2, m['name']):
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value):
+                    for m in class_value['methods']['public']:
+                        if not self.is_method_black_listed(
+                            class_name, m['name']
+                        ):
                             code += self.get_consumer_function(
-                                k2, m, consumer_type, indent, function_class
+                                class_name, m, consumer_type, indent,
+                                function_class
                             )
 
             code_length2 = len(code)

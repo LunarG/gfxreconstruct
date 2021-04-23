@@ -72,14 +72,18 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
                 ):
                     self.write_encode_function('', m)
 
-            for k2, v2 in v.classes.items():
-                if self.is_required_class_data(v2):
-                    for m in v2['methods']['public']:
-                        if not self.is_method_black_listed(k2, m['name']):
-                            self.write_encode_function(k2, m)
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value):
+                    for m in class_value['methods']['public']:
+                        if not self.is_method_black_listed(
+                            class_name, m['name']
+                        ):
+                            self.write_encode_function(class_name, m)
 
-                elif self.is_required_struct_data(k2, v2):
-                    self.write_encode_struct(k2, v2['properties'])
+                elif self.is_required_struct_data(class_name, class_value):
+                    self.write_encode_struct(
+                        class_name, class_value['properties']
+                    )
 
     def write_include(self):
         code = ''

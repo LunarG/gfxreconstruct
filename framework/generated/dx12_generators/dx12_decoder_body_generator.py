@@ -134,14 +134,18 @@ class Dx12DecoderBodyGenerator(
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_class_data(v2):
-                    for m in v2['methods']['public']:
-                        if not self.is_method_black_listed(k2, m['name']):
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value):
+                    for m in class_value['methods']['public']:
+                        if not self.is_method_black_listed(
+                            class_name, m['name']
+                        ):
                             code += (
                                 "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
                                 "        Decode_{0}_{1}(object_id, parameter_buffer, buffer_size);\n"
-                                "        break;\n".format(k2, m['name'])
+                                "        break;\n".format(
+                                    class_name, m['name']
+                                )
                             )
 
         code += '    default:\n'\

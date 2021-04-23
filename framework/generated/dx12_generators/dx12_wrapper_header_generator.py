@@ -53,16 +53,15 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_class_data(v2)\
-                   and (v2['name'] != 'IUnknown'):
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value)\
+                   and (class_value['name'] != 'IUnknown'):
                     # Track class names
-                    class_name = v2['name']
                     if class_name not in self.class_names:
                         self.class_names.append(class_name)
 
                     # Track names of classes inherited from
-                    for entry in v2['inherits']:
+                    for entry in class_value['inherits']:
                         decl_name = entry['decl_name']
                         if decl_name not in self.class_parent_names:
                             self.class_parent_names.append(decl_name)
@@ -94,10 +93,10 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
                 if self.is_required_function_data(m):
                     self.write_function_decl(m)
 
-            for k2, v2 in v.classes.items():
-                if self.is_required_class_data(v2)\
-                   and (v2['name'] != 'IUnknown'):
-                    self.write_class_decl(v2)
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value)\
+                   and (class_value['name'] != 'IUnknown'):
+                    self.write_class_decl(class_value)
 
     # Get the names of the final classes in the DX class hierarchies.
     def get_final_class_names(self):

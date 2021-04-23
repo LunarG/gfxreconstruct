@@ -147,23 +147,24 @@ if __name__ == '__main__':
     struct_list = list()
 
     for k, v in header_dict.items():
-        for k2 in list(v.classes):
-            v2 = v.classes[k2]
+        for class_name in list(v.classes):
+            class_value = v.classes[class_name]
             if (
-                v2['declaration_method'] == 'struct' and k2[-4:] != 'Vtbl'
-                and k2.find("::<anon-union-") == -1
+                class_value['declaration_method'] == 'struct'
+                and class_name[-4:] != 'Vtbl'
+                and class_name.find("::<anon-union-") == -1
             ):
-                if k2 in struct_list:
-                    # print('WARNING:', k2, 'is duplicated.')
-                    del v.classes[k2]
+                if class_name in struct_list:
+                    # print('WARNING:', class_name, 'is duplicated.')
+                    del v.classes[class_name]
                 else:
-                    struct_list.append(k2)
+                    struct_list.append(class_name)
 
-            elif v2['declaration_method'] == 'union':
-                union_dict[v2['name']] = v2
+            elif class_value['declaration_method'] == 'union':
+                union_dict[class_value['name']] = class_value
 
-            elif v2['declaration_method'] == 'class':
-                class_list.append(k2)
+            elif class_value['declaration_method'] == 'class':
+                class_list.append(class_name)
 
         for enum in v.enums:
             enum_set.add(enum['name'])

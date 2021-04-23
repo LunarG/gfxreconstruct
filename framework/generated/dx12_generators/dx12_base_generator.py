@@ -326,11 +326,12 @@ class Dx12BaseGenerator(BaseGenerator):
         """Methond override."""
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
-                    self.feature_struct_members[k2] = self.make_value_info(
-                        v2['properties']['public']
-                    )
+            for class_name, class_value in v.classes.items():
+                if self.is_required_struct_data(class_name, class_value):
+                    self.feature_struct_members[
+                        class_name] = self.make_value_info(
+                            class_value['properties']['public']
+                        )
 
     def genCmd(self, cmdinfo, name, alias):
         """Methond override."""
@@ -476,11 +477,11 @@ class Dx12BaseGenerator(BaseGenerator):
         structs_with_objects = dict()
 
         for k, v in header_dict.items():
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
+            for class_name, class_value in v.classes.items():
+                if self.is_required_struct_data(class_name, class_value):
                     values = []
-                    for k3, v3 in v2['properties'].items():
-                        for p in v3:
+                    for prop_type, props in class_value['properties'].items():
+                        for p in props:
                             value = self.get_value_info(p)
 
                             if (
@@ -490,6 +491,6 @@ class Dx12BaseGenerator(BaseGenerator):
                             ) or (self.is_class(value)):
                                 values.append(value)
                     if values:
-                        structs_with_objects[k2] = values
+                        structs_with_objects[class_name] = values
 
         return structs_with_objects

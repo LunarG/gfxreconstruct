@@ -90,9 +90,11 @@ class Dx12StructDecodersForwardGenerator(
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             code_length = len(code)
-            for k2, v2 in v.classes.items():
-                if self.is_required_struct_data(k2, v2):
-                    code += self.get_struct_function(k2, v2['properties'])
+            for class_name, class_value in v.classes.items():
+                if self.is_required_struct_data(class_name, class_value):
+                    code += self.get_struct_function(
+                        class_name, class_value['properties']
+                    )
 
             code_length2 = len(code)
             if code_length2 > code_length:
