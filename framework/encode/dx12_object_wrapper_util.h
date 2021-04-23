@@ -49,14 +49,13 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 template <typename Wrapper, typename Object>
 Object* GetWrappedObject(Object* wrapped_object)
 {
-    Object* object = nullptr;
-
     if (wrapped_object != nullptr)
     {
-        reinterpret_cast<Wrapper*>(wrapped_object)->GetWrappedObject(&object);
+        auto unknown = reinterpret_cast<Wrapper*>(wrapped_object);
+        return unknown->GetWrappedObjectAs<Object>();
     }
 
-    return object;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -75,14 +74,13 @@ Object* GetWrappedObject(Object* wrapped_object)
 template <typename Wrapper, typename Object>
 const Object* GetWrappedObject(const Object* wrapped_object)
 {
-    const Object* object = nullptr;
-
     if (wrapped_object != nullptr)
     {
-        reinterpret_cast<const Wrapper*>(wrapped_object)->GetWrappedObject(&object);
+        auto unknown = reinterpret_cast<const Wrapper*>(wrapped_object);
+        return unknown->GetWrappedObjectAs<Object>();
     }
 
-    return object;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -81,12 +81,9 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
                (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D));
 
-        uint32_t        plane_count = 1;
-        ID3D12Device*   device      = nullptr;
-        ID3D12Resource* resource    = nullptr;
-
-        device_wrapper->GetWrappedObject(&device);
-        resource_wrapper->GetWrappedObject(&resource);
+        uint32_t plane_count = 1;
+        auto     device      = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+        auto     resource    = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
 
         // Retrieve the D3D12_RESOURCE_DESC from the resource, which has MipLevel set to the actual number of
         // miplevels computed by the implementation when the application set it to 0.
@@ -573,8 +570,7 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
 
-    ID3D12Device* device = nullptr;
-    wrapper->GetWrappedObject(&device);
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
     return device->CreateCommittedResource(
         heap_properties, heap_flags, desc, initial_resource_state, optimized_clear_value, riid_resource, ppv_resource);
 }
@@ -599,8 +595,7 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
 
-    ID3D12Device4* device = nullptr;
-    wrapper->GetWrappedObject(&device);
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device4>();
     return device->CreateCommittedResource1(heap_properties,
                                             heap_flags,
                                             desc,
@@ -631,8 +626,7 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
 
-    ID3D12Device8* device = nullptr;
-    wrapper->GetWrappedObject(&device);
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device8>();
     return device->CreateCommittedResource2(heap_properties,
                                             heap_flags,
                                             desc,
@@ -652,8 +646,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
                                                              REFIID                 riid,
                                                              void**                 heap)
 {
-    ID3D12Device* device = nullptr;
-    wrapper->GetWrappedObject(&device);
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
 
     if (desc == nullptr)
     {
@@ -677,8 +670,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
                                                               REFIID                          riid,
                                                               void**                          heap)
 {
-    ID3D12Device4* device = nullptr;
-    wrapper->GetWrappedObject(&device);
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device4>();
 
     if (desc == nullptr)
     {

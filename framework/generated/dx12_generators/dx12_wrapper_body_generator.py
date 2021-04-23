@@ -525,9 +525,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 initlist_expr += ', '
             initlist_expr += '{}_Wrapper(riid, object, resources,'\
                 ' destructor)'.format(entry['decl_name'])
-        initlist_expr += ', object_(object)'
         expr += indent + '{name}_Wrapper::{name}_Wrapper(REFIID riid,'\
-            ' {name}* object, DxWrapperResources* resources,' \
+            ' IUnknown* object, DxWrapperResources* resources,' \
             ' const std::function<void(IUnknown_Wrapper*)>& destructor)'\
             ' : {}\n'.format(
                 initlist_expr, name=class_name
@@ -549,8 +548,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
             expr += indent + 'CustomWrapperDestroyCall(this);\n'
-            expr += indent + 'RemoveWrapperMapEntry(object_, object_map_,'\
-                ' object_map_lock_);\n'
+            expr += indent + 'RemoveWrapperMapEntry(GetWrappedObjectAs<{}>(),'\
+                ' object_map_, object_map_lock_);\n'.format(class_name)
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
 
@@ -646,7 +645,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     indent
                 ) + 'this,\n' + unwrapped_args
             else:
-                expr += 'object_->{}('.format(method_name)
+                expr += 'GetWrappedObjectAs<{}>()->{}('.format(class_name, method_name)
 
             if unwrapped_args:
                 expr += '\n'
@@ -684,7 +683,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
-            expr += 'object_->{}('.format(method_name)
+            expr += 'GetWrappedObjectAs<{}>()->{}('.format(class_name, method_name)
             if wrapped_args:
                 expr += '\n'
                 expr += wrapped_args

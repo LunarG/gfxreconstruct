@@ -130,29 +130,38 @@ IUnknown_Wrapper : public IUnknown
     //----------------------------------------------------------------------------
     /// Get the wrapped object.
     ///
-    /// \param object Address of the pointer to which the wrapped object will be
-    ///               assigned.
+    /// \return a pointer to the wrapped object with the IUnknown type.
     //----------------------------------------------------------------------------
-    void GetWrappedObject(IUnknown** object)
+    IUnknown* GetWrappedObject() { return object_; }
+
+    //----------------------------------------------------------------------------
+    /// Get the wrapped object.
+    ///
+    /// \return a const pointer to the wrapped object with the IUnknown type.
+    //----------------------------------------------------------------------------
+    const IUnknown* GetWrappedObject() const { return object_; }
+
+    //----------------------------------------------------------------------------
+    /// Get the wrapped object.
+    ///
+    /// \return a pointer to the wrapped object with the type specified by T.
+    //----------------------------------------------------------------------------
+    template <typename T>
+    T* GetWrappedObjectAs()
     {
-        if (object != nullptr)
-        {
-            (*object) = object_;
-        }
+        return reinterpret_cast<T*>(object_.GetInterfacePtr());
     }
 
     //----------------------------------------------------------------------------
     /// Get the wrapped object.
     ///
-    /// \param object Address of the pointer to which the wrapped object will be
-    ///               assigned.
+    /// \return a const pointer to the wrapped object with the type specified
+    ///         by T.
     //----------------------------------------------------------------------------
-    void GetWrappedObject(const IUnknown** object) const
+    template <typename T>
+    const T* GetWrappedObjectAs() const
     {
-        if (object != nullptr)
-        {
-            (*object) = object_;
-        }
+        return reinterpret_cast<const T*>(object_.GetInterfacePtr());
     }
 
   protected:

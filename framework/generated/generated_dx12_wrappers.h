@@ -70,9 +70,7 @@ HRESULT WINAPI CreateDXGIFactory1(
 class IDXGIObject_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIObject_Wrapper(REFIID riid, IDXGIObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIObject_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIObject** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIObject_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE SetPrivateData(
         REFGUID Name,
@@ -92,33 +90,23 @@ class IDXGIObject_Wrapper : public IUnknown_Wrapper
         REFIID riid,
         void** ppParent);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIObject* object_;
 };
 
 class IDXGIDeviceSubObject_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIDeviceSubObject_Wrapper(REFIID riid, IDXGIDeviceSubObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDeviceSubObject_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIDeviceSubObject** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIDeviceSubObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDeviceSubObject_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDevice(
         REFIID riid,
         void** ppDevice);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDeviceSubObject* object_;
 };
 
 class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGIResource_Wrapper(REFIID riid, IDXGIResource* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource_Wrapper*>(u); });
+    IDXGIResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource_Wrapper*>(u); });
 
     ~IDXGIResource_Wrapper();
 
@@ -127,8 +115,6 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
     const IDXGIResourceInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIResourceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIResource** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetSharedHandle(
         HANDLE* pSharedHandle);
@@ -148,16 +134,13 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIResource* object_;
     IDXGIResourceInfo info_;
 };
 
 class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGIKeyedMutex_Wrapper(REFIID riid, IDXGIKeyedMutex* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(u); });
+    IDXGIKeyedMutex_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(u); });
 
     ~IDXGIKeyedMutex_Wrapper();
 
@@ -166,8 +149,6 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
     const IDXGIKeyedMutexInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIKeyedMutexInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIKeyedMutex** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE AcquireSync(
         UINT64 Key,
@@ -182,16 +163,13 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIKeyedMutex* object_;
     IDXGIKeyedMutexInfo info_;
 };
 
 class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGISurface_Wrapper(REFIID riid, IDXGISurface* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface_Wrapper*>(u); });
+    IDXGISurface_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface_Wrapper*>(u); });
 
     ~IDXGISurface_Wrapper();
 
@@ -200,8 +178,6 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
     const IDXGISurfaceInfo* GetObjectInfo() const { return &info_; }
 
     IDXGISurfaceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGISurface** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
         DXGI_SURFACE_DESC* pDesc);
@@ -218,18 +194,13 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISurface* object_;
     IDXGISurfaceInfo info_;
 };
 
 class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
 {
   public:
-    IDXGISurface1_Wrapper(REFIID riid, IDXGISurface1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISurface1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISurface1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDC(
         BOOL Discard,
@@ -238,16 +209,12 @@ class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
     virtual HRESULT STDMETHODCALLTYPE ReleaseDC(
         RECT* pDirtyRect);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISurface1* object_;
 };
 
 class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIAdapter_Wrapper(REFIID riid, IDXGIAdapter* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter_Wrapper*>(u); });
+    IDXGIAdapter_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter_Wrapper*>(u); });
 
     ~IDXGIAdapter_Wrapper();
 
@@ -256,8 +223,6 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
     const IDXGIAdapterInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIAdapterInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIAdapter** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE EnumOutputs(
         UINT Output,
@@ -276,16 +241,13 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIAdapter* object_;
     IDXGIAdapterInfo info_;
 };
 
 class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIOutput_Wrapper(REFIID riid, IDXGIOutput* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput_Wrapper*>(u); });
+    IDXGIOutput_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput_Wrapper*>(u); });
 
     ~IDXGIOutput_Wrapper();
 
@@ -294,8 +256,6 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
     const IDXGIOutputInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIOutputInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIOutput** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
         DXGI_OUTPUT_DESC* pDesc);
@@ -343,16 +303,13 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput* object_;
     IDXGIOutputInfo info_;
 };
 
 class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
 {
   public:
-    IDXGISwapChain_Wrapper(REFIID riid, IDXGISwapChain* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain_Wrapper*>(u); });
+    IDXGISwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain_Wrapper*>(u); });
 
     ~IDXGISwapChain_Wrapper();
 
@@ -361,8 +318,6 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
     const IDXGISwapChainInfo* GetObjectInfo() const { return &info_; }
 
     IDXGISwapChainInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGISwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE Present(
         UINT SyncInterval,
@@ -409,16 +364,13 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChain* object_;
     IDXGISwapChainInfo info_;
 };
 
 class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIFactory_Wrapper(REFIID riid, IDXGIFactory* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory_Wrapper*>(u); });
+    IDXGIFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory_Wrapper*>(u); });
 
     ~IDXGIFactory_Wrapper();
 
@@ -427,8 +379,6 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
     const IDXGIFactoryInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIFactoryInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIFactory** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapters(
         UINT Adapter,
@@ -456,16 +406,13 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory* object_;
     IDXGIFactoryInfo info_;
 };
 
 class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIDevice_Wrapper(REFIID riid, IDXGIDevice* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice_Wrapper*>(u); });
+    IDXGIDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice_Wrapper*>(u); });
 
     ~IDXGIDevice_Wrapper();
 
@@ -474,8 +421,6 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
     const IDXGIDeviceInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIDeviceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIDevice** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetAdapter(
         IDXGIAdapter** pAdapter);
@@ -504,18 +449,13 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDevice* object_;
     IDXGIDeviceInfo info_;
 };
 
 class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
 {
   public:
-    IDXGIFactory1_Wrapper(REFIID riid, IDXGIFactory1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapters1(
         UINT Adapter,
@@ -523,34 +463,22 @@ class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
 
     virtual BOOL STDMETHODCALLTYPE IsCurrent();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory1* object_;
 };
 
 class IDXGIAdapter1_Wrapper : public IDXGIAdapter_Wrapper
 {
   public:
-    IDXGIAdapter1_Wrapper(REFIID riid, IDXGIAdapter1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIAdapter1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIAdapter1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc1(
         DXGI_ADAPTER_DESC1* pDesc);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIAdapter1* object_;
 };
 
 class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 {
   public:
-    IDXGIDevice1_Wrapper(REFIID riid, IDXGIDevice1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIDevice1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE SetMaximumFrameLatency(
         UINT MaxLatency);
@@ -558,10 +486,6 @@ class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
     virtual HRESULT STDMETHODCALLTYPE GetMaximumFrameLatency(
         UINT* pMaxLatency);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDevice1* object_;
 };
 
 
@@ -573,7 +497,7 @@ class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIDisplayControl_Wrapper(REFIID riid, IDXGIDisplayControl* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDisplayControl_Wrapper*>(u); });
+    IDXGIDisplayControl_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDisplayControl_Wrapper*>(u); });
 
     ~IDXGIDisplayControl_Wrapper();
 
@@ -582,8 +506,6 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
     const IDXGIDisplayControlInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIDisplayControlInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIDisplayControl** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual BOOL STDMETHODCALLTYPE IsStereoEnabled();
 
@@ -596,16 +518,13 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDisplayControl* object_;
     IDXGIDisplayControlInfo info_;
 };
 
 class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
 {
   public:
-    IDXGIOutputDuplication_Wrapper(REFIID riid, IDXGIOutputDuplication* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(u); });
+    IDXGIOutputDuplication_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(u); });
 
     ~IDXGIOutputDuplication_Wrapper();
 
@@ -614,8 +533,6 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
     const IDXGIOutputDuplicationInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIOutputDuplicationInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIOutputDuplication** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE GetDesc(
         DXGI_OUTDUPL_DESC* pDesc);
@@ -654,36 +571,25 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutputDuplication* object_;
     IDXGIOutputDuplicationInfo info_;
 };
 
 class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
 {
   public:
-    IDXGISurface2_Wrapper(REFIID riid, IDXGISurface2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISurface2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISurface2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISurface2_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetResource(
         REFIID riid,
         void** ppParentResource,
         UINT* pSubresourceIndex);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISurface2* object_;
 };
 
 class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
 {
   public:
-    IDXGIResource1_Wrapper(REFIID riid, IDXGIResource1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIResource1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIResource1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIResource1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CreateSubresourceSurface(
         UINT index,
@@ -695,18 +601,12 @@ class IDXGIResource1_Wrapper : public IDXGIResource_Wrapper
         LPCWSTR lpName,
         HANDLE* pHandle);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIResource1* object_;
 };
 
 class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
 {
   public:
-    IDXGIDevice2_Wrapper(REFIID riid, IDXGIDevice2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIDevice2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice2_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE OfferResources(
         UINT NumResources,
@@ -721,18 +621,12 @@ class IDXGIDevice2_Wrapper : public IDXGIDevice1_Wrapper
     virtual HRESULT STDMETHODCALLTYPE EnqueueSetEvent(
         HANDLE hEvent);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDevice2* object_;
 };
 
 class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
 {
   public:
-    IDXGISwapChain1_Wrapper(REFIID riid, IDXGISwapChain1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISwapChain1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISwapChain1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc1(
         DXGI_SWAP_CHAIN_DESC1* pDesc);
@@ -769,18 +663,12 @@ class IDXGISwapChain1_Wrapper : public IDXGISwapChain_Wrapper
     virtual HRESULT STDMETHODCALLTYPE GetRotation(
         DXGI_MODE_ROTATION* pRotation);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChain1* object_;
 };
 
 class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
 {
   public:
-    IDXGIFactory2_Wrapper(REFIID riid, IDXGIFactory2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory2_Wrapper*>(u); });
 
     virtual BOOL STDMETHODCALLTYPE IsWindowedStereoEnabled();
 
@@ -833,34 +721,22 @@ class IDXGIFactory2_Wrapper : public IDXGIFactory1_Wrapper
         IDXGIOutput* pRestrictToOutput,
         IDXGISwapChain1** ppSwapChain);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory2* object_;
 };
 
 class IDXGIAdapter2_Wrapper : public IDXGIAdapter1_Wrapper
 {
   public:
-    IDXGIAdapter2_Wrapper(REFIID riid, IDXGIAdapter2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIAdapter2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIAdapter2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter2_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc2(
         DXGI_ADAPTER_DESC2* pDesc);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIAdapter2* object_;
 };
 
 class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
 {
   public:
-    IDXGIOutput1_Wrapper(REFIID riid, IDXGIOutput1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput1_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput1** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDisplayModeList1(
         DXGI_FORMAT EnumFormat,
@@ -880,10 +756,6 @@ class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
         IUnknown* pDevice,
         IDXGIOutputDuplication** ppOutputDuplication);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput1* object_;
 };
 
 
@@ -905,24 +777,16 @@ HRESULT WINAPI DXGIGetDebugInterface1(
 class IDXGIDevice3_Wrapper : public IDXGIDevice2_Wrapper
 {
   public:
-    IDXGIDevice3_Wrapper(REFIID riid, IDXGIDevice3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice3_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIDevice3** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIDevice3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice3_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE Trim();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDevice3* object_;
 };
 
 class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
 {
   public:
-    IDXGISwapChain2_Wrapper(REFIID riid, IDXGISwapChain2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISwapChain2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISwapChain2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain2_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE SetSourceSize(
         UINT Width,
@@ -946,46 +810,30 @@ class IDXGISwapChain2_Wrapper : public IDXGISwapChain1_Wrapper
     virtual HRESULT STDMETHODCALLTYPE GetMatrixTransform(
         DXGI_MATRIX_3X2_F* pMatrix);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChain2* object_;
 };
 
 class IDXGIOutput2_Wrapper : public IDXGIOutput1_Wrapper
 {
   public:
-    IDXGIOutput2_Wrapper(REFIID riid, IDXGIOutput2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput2_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput2** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput2_Wrapper*>(u); });
 
     virtual BOOL STDMETHODCALLTYPE SupportsOverlays();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput2* object_;
 };
 
 class IDXGIFactory3_Wrapper : public IDXGIFactory2_Wrapper
 {
   public:
-    IDXGIFactory3_Wrapper(REFIID riid, IDXGIFactory3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory3_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory3** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory3_Wrapper*>(u); });
 
     virtual UINT STDMETHODCALLTYPE GetCreationFlags();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory3* object_;
 };
 
 class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IDXGIDecodeSwapChain* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(u); });
+    IDXGIDecodeSwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(u); });
 
     ~IDXGIDecodeSwapChain_Wrapper();
 
@@ -994,8 +842,6 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
     const IDXGIDecodeSwapChainInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIDecodeSwapChainInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIDecodeSwapChain** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE PresentBuffer(
         UINT BufferToPresent,
@@ -1033,16 +879,13 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDecodeSwapChain* object_;
     IDXGIDecodeSwapChainInfo info_;
 };
 
 class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGIFactoryMedia_Wrapper(REFIID riid, IDXGIFactoryMedia* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(u); });
+    IDXGIFactoryMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(u); });
 
     ~IDXGIFactoryMedia_Wrapper();
 
@@ -1051,8 +894,6 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
     const IDXGIFactoryMediaInfo* GetObjectInfo() const { return &info_; }
 
     IDXGIFactoryMediaInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGIFactoryMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCompositionSurfaceHandle(
         IUnknown* pDevice,
@@ -1075,16 +916,13 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactoryMedia* object_;
     IDXGIFactoryMediaInfo info_;
 };
 
 class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
 {
   public:
-    IDXGISwapChainMedia_Wrapper(REFIID riid, IDXGISwapChainMedia* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(u); });
+    IDXGISwapChainMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(u); });
 
     ~IDXGISwapChainMedia_Wrapper();
 
@@ -1093,8 +931,6 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
     const IDXGISwapChainMediaInfo* GetObjectInfo() const { return &info_; }
 
     IDXGISwapChainMediaInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(IDXGISwapChainMedia** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetFrameStatisticsMedia(
         DXGI_FRAME_STATISTICS_MEDIA* pStats);
@@ -1113,28 +949,19 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChainMedia* object_;
     IDXGISwapChainMediaInfo info_;
 };
 
 class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 {
   public:
-    IDXGIOutput3_Wrapper(REFIID riid, IDXGIOutput3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput3_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput3** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput3_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CheckOverlaySupport(
         DXGI_FORMAT EnumFormat,
         IUnknown* pConcernedDevice,
         UINT* pFlags);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput3* object_;
 };
 
 
@@ -1146,9 +973,7 @@ class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
 {
   public:
-    IDXGISwapChain3_Wrapper(REFIID riid, IDXGISwapChain3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain3_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISwapChain3** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISwapChain3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain3_Wrapper*>(u); });
 
     virtual UINT STDMETHODCALLTYPE GetCurrentBackBufferIndex();
 
@@ -1168,18 +993,12 @@ class IDXGISwapChain3_Wrapper : public IDXGISwapChain2_Wrapper
         const UINT* pCreationNodeMask,
         IUnknown* const* ppPresentQueue);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChain3* object_;
 };
 
 class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
 {
   public:
-    IDXGIOutput4_Wrapper(REFIID riid, IDXGIOutput4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput4_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput4** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CheckOverlayColorSpaceSupport(
         DXGI_FORMAT Format,
@@ -1187,18 +1006,12 @@ class IDXGIOutput4_Wrapper : public IDXGIOutput3_Wrapper
         IUnknown* pConcernedDevice,
         UINT* pFlags);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput4* object_;
 };
 
 class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
 {
   public:
-    IDXGIFactory4_Wrapper(REFIID riid, IDXGIFactory4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory4_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory4** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapterByLuid(
         LUID AdapterLuid,
@@ -1209,18 +1022,12 @@ class IDXGIFactory4_Wrapper : public IDXGIFactory3_Wrapper
         REFIID riid,
         void** ppvAdapter);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory4* object_;
 };
 
 class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 {
   public:
-    IDXGIAdapter3_Wrapper(REFIID riid, IDXGIAdapter3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter3_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIAdapter3** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIAdapter3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter3_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE RegisterHardwareContentProtectionTeardownStatusEvent(
         HANDLE hEvent,
@@ -1246,10 +1053,6 @@ class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
     virtual void STDMETHODCALLTYPE UnregisterVideoMemoryBudgetChangeNotification(
         DWORD dwCookie);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIAdapter3* object_;
 };
 
 
@@ -1261,9 +1064,7 @@ class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
 {
   public:
-    IDXGIOutput5_Wrapper(REFIID riid, IDXGIOutput5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput5_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput5** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput5_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE DuplicateOutput1(
         IUnknown* pDevice,
@@ -1272,36 +1073,24 @@ class IDXGIOutput5_Wrapper : public IDXGIOutput4_Wrapper
         const DXGI_FORMAT* pSupportedFormats,
         IDXGIOutputDuplication** ppOutputDuplication);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput5* object_;
 };
 
 class IDXGISwapChain4_Wrapper : public IDXGISwapChain3_Wrapper
 {
   public:
-    IDXGISwapChain4_Wrapper(REFIID riid, IDXGISwapChain4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain4_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGISwapChain4** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGISwapChain4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGISwapChain4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE SetHDRMetaData(
         DXGI_HDR_METADATA_TYPE Type,
         UINT Size,
         void* pMetaData);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGISwapChain4* object_;
 };
 
 class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
 {
   public:
-    IDXGIDevice4_Wrapper(REFIID riid, IDXGIDevice4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice4_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIDevice4** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIDevice4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIDevice4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE OfferResources1(
         UINT NumResources,
@@ -1314,28 +1103,18 @@ class IDXGIDevice4_Wrapper : public IDXGIDevice3_Wrapper
         IDXGIResource* const* ppResources,
         DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIDevice4* object_;
 };
 
 class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
 {
   public:
-    IDXGIFactory5_Wrapper(REFIID riid, IDXGIFactory5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory5_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory5** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory5_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CheckFeatureSupport(
         DXGI_FEATURE Feature,
         void* pFeatureSupportData,
         UINT FeatureSupportDataSize);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory5* object_;
 };
 
 
@@ -1349,25 +1128,17 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport();
 class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
 {
   public:
-    IDXGIAdapter4_Wrapper(REFIID riid, IDXGIAdapter4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter4_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIAdapter4** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIAdapter4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIAdapter4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc3(
         DXGI_ADAPTER_DESC3* pDesc);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIAdapter4* object_;
 };
 
 class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
 {
   public:
-    IDXGIOutput6_Wrapper(REFIID riid, IDXGIOutput6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput6_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIOutput6** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIOutput6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIOutput6_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc1(
         DXGI_OUTPUT_DESC1* pDesc);
@@ -1375,18 +1146,12 @@ class IDXGIOutput6_Wrapper : public IDXGIOutput5_Wrapper
     virtual HRESULT STDMETHODCALLTYPE CheckHardwareCompositionSupport(
         UINT* pFlags);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIOutput6* object_;
 };
 
 class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
 {
   public:
-    IDXGIFactory6_Wrapper(REFIID riid, IDXGIFactory6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory6_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory6** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory6_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapterByGpuPreference(
         UINT Adapter,
@@ -1394,18 +1159,12 @@ class IDXGIFactory6_Wrapper : public IDXGIFactory5_Wrapper
         REFIID riid,
         void** ppvAdapter);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory6* object_;
 };
 
 class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
 {
   public:
-    IDXGIFactory7_Wrapper(REFIID riid, IDXGIFactory7* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory7_Wrapper*>(u); });
-
-    void GetWrappedObject(IDXGIFactory7** object) const { if (object != nullptr) { (*object) = object_; } }
+    IDXGIFactory7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<IDXGIFactory7_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE RegisterAdaptersChangedEvent(
         HANDLE hEvent,
@@ -1414,10 +1173,6 @@ class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
     virtual HRESULT STDMETHODCALLTYPE UnregisterAdaptersChangedEvent(
         DWORD dwCookie);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    IDXGIFactory7* object_;
 };
 
 
@@ -1486,9 +1241,7 @@ HRESULT WINAPI D3D12EnableExperimentalFeatures(
 class ID3D12Object_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12Object_Wrapper(REFIID riid, ID3D12Object* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Object_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Object** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Object_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Object_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetPrivateData(
         REFGUID guid,
@@ -1507,33 +1260,23 @@ class ID3D12Object_Wrapper : public IUnknown_Wrapper
     virtual HRESULT STDMETHODCALLTYPE SetName(
         LPCWSTR Name);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Object* object_;
 };
 
 class ID3D12DeviceChild_Wrapper : public ID3D12Object_Wrapper
 {
   public:
-    ID3D12DeviceChild_Wrapper(REFIID riid, ID3D12DeviceChild* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceChild_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12DeviceChild** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12DeviceChild_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceChild_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetDevice(
         REFIID riid,
         void** ppvDevice);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DeviceChild* object_;
 };
 
 class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12RootSignature_Wrapper(REFIID riid, ID3D12RootSignature* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignature_Wrapper*>(u); });
+    ID3D12RootSignature_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignature_Wrapper*>(u); });
 
     ~ID3D12RootSignature_Wrapper();
 
@@ -1543,24 +1286,19 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
 
     ID3D12RootSignatureInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12RootSignature** object) const { if (object != nullptr) { (*object) = object_; } }
-
   private:
     // Map to prevent creation of more than one interface wrapper per object.
     typedef std::unordered_map<IUnknown*, ID3D12RootSignature_Wrapper*> ObjectMap;
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12RootSignature* object_;
     ID3D12RootSignatureInfo info_;
 };
 
 class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, ID3D12RootSignatureDeserializer* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignatureDeserializer_Wrapper*>(u); });
+    ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12RootSignatureDeserializer_Wrapper*>(u); });
 
     ~ID3D12RootSignatureDeserializer_Wrapper();
 
@@ -1570,8 +1308,6 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 
     ID3D12RootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12RootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
-
     virtual const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE GetRootSignatureDesc();
 
   private:
@@ -1580,16 +1316,13 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12RootSignatureDeserializer* object_;
     ID3D12RootSignatureDeserializerInfo info_;
 };
 
 class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, ID3D12VersionedRootSignatureDeserializer* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12VersionedRootSignatureDeserializer_Wrapper*>(u); });
+    ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12VersionedRootSignatureDeserializer_Wrapper*>(u); });
 
     ~ID3D12VersionedRootSignatureDeserializer_Wrapper();
 
@@ -1598,8 +1331,6 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     const ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12VersionedRootSignatureDeserializer** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetRootSignatureDescAtVersion(
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
@@ -1613,29 +1344,20 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12VersionedRootSignatureDeserializer* object_;
     ID3D12VersionedRootSignatureDeserializerInfo info_;
 };
 
 class ID3D12Pageable_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12Pageable_Wrapper(REFIID riid, ID3D12Pageable* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Pageable_Wrapper*>(u); });
+    ID3D12Pageable_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Pageable_Wrapper*>(u); });
 
-    void GetWrappedObject(ID3D12Pageable** object) const { if (object != nullptr) { (*object) = object_; } }
-
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Pageable* object_;
 };
 
 class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Heap_Wrapper(REFIID riid, ID3D12Heap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap_Wrapper*>(u); });
+    ID3D12Heap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap_Wrapper*>(u); });
 
     ~ID3D12Heap_Wrapper();
 
@@ -1645,8 +1367,6 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
 
     ID3D12HeapInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12Heap** object) const { if (object != nullptr) { (*object) = object_; } }
-
     virtual D3D12_HEAP_DESC STDMETHODCALLTYPE GetDesc();
 
   private:
@@ -1655,16 +1375,13 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Heap* object_;
     ID3D12HeapInfo info_;
 };
 
 class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Resource_Wrapper(REFIID riid, ID3D12Resource* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource_Wrapper*>(u); });
+    ID3D12Resource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource_Wrapper*>(u); });
 
     ~ID3D12Resource_Wrapper();
 
@@ -1673,8 +1390,6 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12ResourceInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12ResourceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12Resource** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE Map(
         UINT Subresource,
@@ -1713,16 +1428,13 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Resource* object_;
     ID3D12ResourceInfo info_;
 };
 
 class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandAllocator_Wrapper(REFIID riid, ID3D12CommandAllocator* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(u); });
+    ID3D12CommandAllocator_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(u); });
 
     ~ID3D12CommandAllocator_Wrapper();
 
@@ -1732,8 +1444,6 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
 
     ID3D12CommandAllocatorInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12CommandAllocator** object) const { if (object != nullptr) { (*object) = object_; } }
-
     virtual HRESULT STDMETHODCALLTYPE Reset();
 
   private:
@@ -1742,16 +1452,13 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12CommandAllocator* object_;
     ID3D12CommandAllocatorInfo info_;
 };
 
 class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12Fence_Wrapper(REFIID riid, ID3D12Fence* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence_Wrapper*>(u); });
+    ID3D12Fence_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence_Wrapper*>(u); });
 
     ~ID3D12Fence_Wrapper();
 
@@ -1760,8 +1467,6 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12FenceInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12FenceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12Fence** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual UINT64 STDMETHODCALLTYPE GetCompletedValue();
 
@@ -1778,31 +1483,22 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Fence* object_;
     ID3D12FenceInfo info_;
 };
 
 class ID3D12Fence1_Wrapper : public ID3D12Fence_Wrapper
 {
   public:
-    ID3D12Fence1_Wrapper(REFIID riid, ID3D12Fence1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Fence1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Fence1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Fence1_Wrapper*>(u); });
 
     virtual D3D12_FENCE_FLAGS STDMETHODCALLTYPE GetCreationFlags();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Fence1* object_;
 };
 
 class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12PipelineState_Wrapper(REFIID riid, ID3D12PipelineState* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineState_Wrapper*>(u); });
+    ID3D12PipelineState_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineState_Wrapper*>(u); });
 
     ~ID3D12PipelineState_Wrapper();
 
@@ -1811,8 +1507,6 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12PipelineStateInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12PipelineStateInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12PipelineState** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetCachedBlob(
         ID3DBlob** ppBlob);
@@ -1823,16 +1517,13 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12PipelineState* object_;
     ID3D12PipelineStateInfo info_;
 };
 
 class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12DescriptorHeap_Wrapper(REFIID riid, ID3D12DescriptorHeap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(u); });
+    ID3D12DescriptorHeap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(u); });
 
     ~ID3D12DescriptorHeap_Wrapper();
 
@@ -1841,8 +1532,6 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12DescriptorHeapInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12DescriptorHeapInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12DescriptorHeap** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE GetDesc();
 
@@ -1856,16 +1545,13 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DescriptorHeap* object_;
     ID3D12DescriptorHeapInfo info_;
 };
 
 class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12QueryHeap_Wrapper(REFIID riid, ID3D12QueryHeap* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12QueryHeap_Wrapper*>(u); });
+    ID3D12QueryHeap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12QueryHeap_Wrapper*>(u); });
 
     ~ID3D12QueryHeap_Wrapper();
 
@@ -1875,24 +1561,19 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
 
     ID3D12QueryHeapInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12QueryHeap** object) const { if (object != nullptr) { (*object) = object_; } }
-
   private:
     // Map to prevent creation of more than one interface wrapper per object.
     typedef std::unordered_map<IUnknown*, ID3D12QueryHeap_Wrapper*> ObjectMap;
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12QueryHeap* object_;
     ID3D12QueryHeapInfo info_;
 };
 
 class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandSignature_Wrapper(REFIID riid, ID3D12CommandSignature* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandSignature_Wrapper*>(u); });
+    ID3D12CommandSignature_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandSignature_Wrapper*>(u); });
 
     ~ID3D12CommandSignature_Wrapper();
 
@@ -1902,39 +1583,28 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
 
     ID3D12CommandSignatureInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12CommandSignature** object) const { if (object != nullptr) { (*object) = object_; } }
-
   private:
     // Map to prevent creation of more than one interface wrapper per object.
     typedef std::unordered_map<IUnknown*, ID3D12CommandSignature_Wrapper*> ObjectMap;
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12CommandSignature* object_;
     ID3D12CommandSignatureInfo info_;
 };
 
 class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12CommandList_Wrapper(REFIID riid, ID3D12CommandList* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandList_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12CommandList** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12CommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandList_Wrapper*>(u); });
 
     virtual D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE GetType();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12CommandList* object_;
 };
 
 class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList_Wrapper(REFIID riid, ID3D12GraphicsCommandList* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(u); });
+    ID3D12GraphicsCommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(u); });
 
     ~ID3D12GraphicsCommandList_Wrapper();
 
@@ -1943,8 +1613,6 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
     const ID3D12GraphicsCommandListInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12GraphicsCommandListInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12GraphicsCommandList** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE Close();
 
@@ -2200,18 +1868,13 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList* object_;
     ID3D12GraphicsCommandListInfo info_;
 };
 
 class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList1_Wrapper(REFIID riid, ID3D12GraphicsCommandList1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE AtomicCopyBufferUINT(
         ID3D12Resource* pDstBuffer,
@@ -2254,34 +1917,24 @@ class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrap
     virtual void STDMETHODCALLTYPE SetViewInstanceMask(
         UINT Mask);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList1* object_;
 };
 
 class ID3D12GraphicsCommandList2_Wrapper : public ID3D12GraphicsCommandList1_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList2_Wrapper(REFIID riid, ID3D12GraphicsCommandList2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList2_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList2** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList2_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE WriteBufferImmediate(
         UINT Count,
         const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* pParams,
         const D3D12_WRITEBUFFERIMMEDIATE_MODE* pModes);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList2* object_;
 };
 
 class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12CommandQueue_Wrapper(REFIID riid, ID3D12CommandQueue* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandQueue_Wrapper*>(u); });
+    ID3D12CommandQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandQueue_Wrapper*>(u); });
 
     ~ID3D12CommandQueue_Wrapper();
 
@@ -2290,8 +1943,6 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12CommandQueueInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12CommandQueueInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12CommandQueue** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE UpdateTileMappings(
         ID3D12Resource* pResource,
@@ -2352,16 +2003,13 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12CommandQueue* object_;
     ID3D12CommandQueueInfo info_;
 };
 
 class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
 {
   public:
-    ID3D12Device_Wrapper(REFIID riid, ID3D12Device* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device_Wrapper*>(u); });
+    ID3D12Device_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device_Wrapper*>(u); });
 
     ~ID3D12Device_Wrapper();
 
@@ -2370,8 +2018,6 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
     const ID3D12DeviceInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12DeviceInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12Device** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual UINT STDMETHODCALLTYPE GetNodeCount();
 
@@ -2580,16 +2226,13 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device* object_;
     ID3D12DeviceInfo info_;
 };
 
 class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12PipelineLibrary_Wrapper(REFIID riid, ID3D12PipelineLibrary* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary_Wrapper*>(u); });
+    ID3D12PipelineLibrary_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary_Wrapper*>(u); });
 
     ~ID3D12PipelineLibrary_Wrapper();
 
@@ -2598,8 +2241,6 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
     const ID3D12PipelineLibraryInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12PipelineLibraryInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12PipelineLibrary** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE StorePipeline(
         LPCWSTR pName,
@@ -2629,18 +2270,13 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12PipelineLibrary* object_;
     ID3D12PipelineLibraryInfo info_;
 };
 
 class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
 {
   public:
-    ID3D12PipelineLibrary1_Wrapper(REFIID riid, ID3D12PipelineLibrary1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12PipelineLibrary1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12PipelineLibrary1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineLibrary1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE LoadPipeline(
         LPCWSTR pName,
@@ -2648,18 +2284,12 @@ class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
         REFIID riid,
         void** ppPipelineState);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12PipelineLibrary1* object_;
 };
 
 class ID3D12Device1_Wrapper : public ID3D12Device_Wrapper
 {
   public:
-    ID3D12Device1_Wrapper(REFIID riid, ID3D12Device1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CreatePipelineLibrary(
         const void* pLibraryBlob,
@@ -2679,36 +2309,24 @@ class ID3D12Device1_Wrapper : public ID3D12Device_Wrapper
         ID3D12Pageable* const* ppObjects,
         const D3D12_RESIDENCY_PRIORITY* pPriorities);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device1* object_;
 };
 
 class ID3D12Device2_Wrapper : public ID3D12Device1_Wrapper
 {
   public:
-    ID3D12Device2_Wrapper(REFIID riid, ID3D12Device2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device2_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device2** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device2_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CreatePipelineState(
         const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc,
         REFIID riid,
         void** ppPipelineState);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device2* object_;
 };
 
 class ID3D12Device3_Wrapper : public ID3D12Device2_Wrapper
 {
   public:
-    ID3D12Device3_Wrapper(REFIID riid, ID3D12Device3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device3_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device3** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device3_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE OpenExistingHeapFromAddress(
         const void* pAddress,
@@ -2727,18 +2345,12 @@ class ID3D12Device3_Wrapper : public ID3D12Device2_Wrapper
         ID3D12Fence* pFenceToSignal,
         UINT64 FenceValueToSignal);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device3* object_;
 };
 
 class ID3D12ProtectedSession_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12ProtectedSession_Wrapper(REFIID riid, ID3D12ProtectedSession* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedSession_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12ProtectedSession** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12ProtectedSession_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedSession_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetStatusFence(
         REFIID riid,
@@ -2746,16 +2358,12 @@ class ID3D12ProtectedSession_Wrapper : public ID3D12DeviceChild_Wrapper
 
     virtual D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE GetSessionStatus();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12ProtectedSession* object_;
 };
 
 class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wrapper
 {
   public:
-    ID3D12ProtectedResourceSession_Wrapper(REFIID riid, ID3D12ProtectedResourceSession* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(u); });
+    ID3D12ProtectedResourceSession_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(u); });
 
     ~ID3D12ProtectedResourceSession_Wrapper();
 
@@ -2765,8 +2373,6 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
 
     ID3D12ProtectedResourceSessionInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12ProtectedResourceSession** object) const { if (object != nullptr) { (*object) = object_; } }
-
     virtual D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE GetDesc();
 
   private:
@@ -2775,18 +2381,13 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12ProtectedResourceSession* object_;
     ID3D12ProtectedResourceSessionInfo info_;
 };
 
 class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
 {
   public:
-    ID3D12Device4_Wrapper(REFIID riid, ID3D12Device4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device4_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device4** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device4_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CreateCommandList1(
         UINT nodeMask,
@@ -2830,16 +2431,12 @@ class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
         const D3D12_RESOURCE_DESC* pResourceDescs,
         D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device4* object_;
 };
 
 class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12LifetimeOwner_Wrapper(REFIID riid, ID3D12LifetimeOwner* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeOwner_Wrapper*>(u); });
+    ID3D12LifetimeOwner_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeOwner_Wrapper*>(u); });
 
     ~ID3D12LifetimeOwner_Wrapper();
 
@@ -2848,8 +2445,6 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
     const ID3D12LifetimeOwnerInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12LifetimeOwnerInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12LifetimeOwner** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE LifetimeStateUpdated(
         D3D12_LIFETIME_STATE NewState);
@@ -2860,16 +2455,13 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12LifetimeOwner* object_;
     ID3D12LifetimeOwnerInfo info_;
 };
 
 class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12SwapChainAssistant_Wrapper(REFIID riid, ID3D12SwapChainAssistant* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SwapChainAssistant_Wrapper*>(u); });
+    ID3D12SwapChainAssistant_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SwapChainAssistant_Wrapper*>(u); });
 
     ~ID3D12SwapChainAssistant_Wrapper();
 
@@ -2878,8 +2470,6 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
     const ID3D12SwapChainAssistantInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12SwapChainAssistantInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12SwapChainAssistant** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual LUID STDMETHODCALLTYPE GetLUID();
 
@@ -2901,16 +2491,13 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12SwapChainAssistant* object_;
     ID3D12SwapChainAssistantInfo info_;
 };
 
 class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
 {
   public:
-    ID3D12LifetimeTracker_Wrapper(REFIID riid, ID3D12LifetimeTracker* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeTracker_Wrapper*>(u); });
+    ID3D12LifetimeTracker_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12LifetimeTracker_Wrapper*>(u); });
 
     ~ID3D12LifetimeTracker_Wrapper();
 
@@ -2919,8 +2506,6 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
     const ID3D12LifetimeTrackerInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12LifetimeTrackerInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12LifetimeTracker** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE DestroyOwnedObject(
         ID3D12DeviceChild* pObject);
@@ -2931,16 +2516,13 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12LifetimeTracker* object_;
     ID3D12LifetimeTrackerInfo info_;
 };
 
 class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12StateObject_Wrapper(REFIID riid, ID3D12StateObject* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObject_Wrapper*>(u); });
+    ID3D12StateObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObject_Wrapper*>(u); });
 
     ~ID3D12StateObject_Wrapper();
 
@@ -2950,24 +2532,19 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
 
     ID3D12StateObjectInfo* GetObjectInfo() { return &info_; }
 
-    void GetWrappedObject(ID3D12StateObject** object) const { if (object != nullptr) { (*object) = object_; } }
-
   private:
     // Map to prevent creation of more than one interface wrapper per object.
     typedef std::unordered_map<IUnknown*, ID3D12StateObject_Wrapper*> ObjectMap;
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12StateObject* object_;
     ID3D12StateObjectInfo info_;
 };
 
 class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12StateObjectProperties_Wrapper(REFIID riid, ID3D12StateObjectProperties* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(u); });
+    ID3D12StateObjectProperties_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(u); });
 
     ~ID3D12StateObjectProperties_Wrapper();
 
@@ -2976,8 +2553,6 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     const ID3D12StateObjectPropertiesInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12StateObjectPropertiesInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12StateObjectProperties** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void* STDMETHODCALLTYPE GetShaderIdentifier(
         LPCWSTR pExportName);
@@ -2996,18 +2571,13 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12StateObjectProperties* object_;
     ID3D12StateObjectPropertiesInfo info_;
 };
 
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
 {
   public:
-    ID3D12Device5_Wrapper(REFIID riid, ID3D12Device5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device5_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device5** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device5_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE CreateLifetimeTracker(
         ID3D12LifetimeOwner* pOwner,
@@ -3048,16 +2618,12 @@ class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
         D3D12_SERIALIZED_DATA_TYPE SerializedDataType,
         const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* pIdentifierToCheck);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device5* object_;
 };
 
 class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings_Wrapper*>(u); });
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings_Wrapper*>(u); });
 
     ~ID3D12DeviceRemovedExtendedDataSettings_Wrapper();
 
@@ -3066,8 +2632,6 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
     const ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12DeviceRemovedExtendedDataSettings** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE SetAutoBreadcrumbsEnablement(
         D3D12_DRED_ENABLEMENT Enablement);
@@ -3084,32 +2648,23 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DeviceRemovedExtendedDataSettings* object_;
     ID3D12DeviceRemovedExtendedDataSettingsInfo info_;
 };
 
 class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemovedExtendedDataSettings_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedDataSettings1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12DeviceRemovedExtendedDataSettings1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings1_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE SetBreadcrumbContextEnablement(
         D3D12_DRED_ENABLEMENT Enablement);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DeviceRemovedExtendedDataSettings1* object_;
 };
 
 class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(u); });
+    ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(u); });
 
     ~ID3D12DeviceRemovedExtendedData_Wrapper();
 
@@ -3118,8 +2673,6 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
     const ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12DeviceRemovedExtendedData** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE GetAutoBreadcrumbsOutput(
         D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* pOutput);
@@ -3133,18 +2686,13 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DeviceRemovedExtendedData* object_;
     ID3D12DeviceRemovedExtendedDataInfo info_;
 };
 
 class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExtendedData_Wrapper
 {
   public:
-    ID3D12DeviceRemovedExtendedData1_Wrapper(REFIID riid, ID3D12DeviceRemovedExtendedData1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12DeviceRemovedExtendedData1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12DeviceRemovedExtendedData1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceRemovedExtendedData1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetAutoBreadcrumbsOutput1(
         D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* pOutput);
@@ -3152,18 +2700,12 @@ class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExten
     virtual HRESULT STDMETHODCALLTYPE GetPageFaultAllocationOutput1(
         D3D12_DRED_PAGE_FAULT_OUTPUT1* pOutput);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12DeviceRemovedExtendedData1* object_;
 };
 
 class ID3D12Device6_Wrapper : public ID3D12Device5_Wrapper
 {
   public:
-    ID3D12Device6_Wrapper(REFIID riid, ID3D12Device6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device6_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device6** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device6_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE SetBackgroundProcessingMode(
         D3D12_BACKGROUND_PROCESSING_MODE Mode,
@@ -3171,33 +2713,21 @@ class ID3D12Device6_Wrapper : public ID3D12Device5_Wrapper
         HANDLE hEventToSignalUponCompletion,
         BOOL* pbFurtherMeasurementsDesired);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device6* object_;
 };
 
 class ID3D12ProtectedResourceSession1_Wrapper : public ID3D12ProtectedResourceSession_Wrapper
 {
   public:
-    ID3D12ProtectedResourceSession1_Wrapper(REFIID riid, ID3D12ProtectedResourceSession1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12ProtectedResourceSession1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12ProtectedResourceSession1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12ProtectedResourceSession1_Wrapper*>(u); });
 
     virtual D3D12_PROTECTED_RESOURCE_SESSION_DESC1 STDMETHODCALLTYPE GetDesc1();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12ProtectedResourceSession1* object_;
 };
 
 class ID3D12Device7_Wrapper : public ID3D12Device6_Wrapper
 {
   public:
-    ID3D12Device7_Wrapper(REFIID riid, ID3D12Device7* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device7_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device7** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device7_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device7_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE AddToStateObject(
         const D3D12_STATE_OBJECT_DESC* pAddition,
@@ -3210,18 +2740,12 @@ class ID3D12Device7_Wrapper : public ID3D12Device6_Wrapper
         REFIID riid,
         void** ppSession);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device7* object_;
 };
 
 class ID3D12Device8_Wrapper : public ID3D12Device7_Wrapper
 {
   public:
-    ID3D12Device8_Wrapper(REFIID riid, ID3D12Device8* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device8_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Device8** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Device8_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Device8_Wrapper*>(u); });
 
     virtual D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE GetResourceAllocationInfo2(
         UINT visibleMask,
@@ -3263,81 +2787,53 @@ class ID3D12Device8_Wrapper : public ID3D12Device7_Wrapper
         UINT64* pRowSizeInBytes,
         UINT64* pTotalBytes);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Device8* object_;
 };
 
 class ID3D12Resource1_Wrapper : public ID3D12Resource_Wrapper
 {
   public:
-    ID3D12Resource1_Wrapper(REFIID riid, ID3D12Resource1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Resource1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Resource1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetProtectedResourceSession(
         REFIID riid,
         void** ppProtectedSession);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Resource1* object_;
 };
 
 class ID3D12Resource2_Wrapper : public ID3D12Resource1_Wrapper
 {
   public:
-    ID3D12Resource2_Wrapper(REFIID riid, ID3D12Resource2* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource2_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Resource2** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Resource2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Resource2_Wrapper*>(u); });
 
     virtual D3D12_RESOURCE_DESC1 STDMETHODCALLTYPE GetDesc1();
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Resource2* object_;
 };
 
 class ID3D12Heap1_Wrapper : public ID3D12Heap_Wrapper
 {
   public:
-    ID3D12Heap1_Wrapper(REFIID riid, ID3D12Heap1* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap1_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12Heap1** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12Heap1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Heap1_Wrapper*>(u); });
 
     virtual HRESULT STDMETHODCALLTYPE GetProtectedResourceSession(
         REFIID riid,
         void** ppProtectedSession);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Heap1* object_;
 };
 
 class ID3D12GraphicsCommandList3_Wrapper : public ID3D12GraphicsCommandList2_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList3_Wrapper(REFIID riid, ID3D12GraphicsCommandList3* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList3_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList3** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList3_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE SetProtectedResourceSession(
         ID3D12ProtectedResourceSession* pProtectedResourceSession);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList3* object_;
 };
 
 class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
-    ID3D12MetaCommand_Wrapper(REFIID riid, ID3D12MetaCommand* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12MetaCommand_Wrapper*>(u); });
+    ID3D12MetaCommand_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12MetaCommand_Wrapper*>(u); });
 
     ~ID3D12MetaCommand_Wrapper();
 
@@ -3346,8 +2842,6 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
     const ID3D12MetaCommandInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12MetaCommandInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12MetaCommand** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual UINT64 STDMETHODCALLTYPE GetRequiredParameterResourceSize(
         D3D12_META_COMMAND_PARAMETER_STAGE Stage,
@@ -3359,18 +2853,13 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12MetaCommand* object_;
     ID3D12MetaCommandInfo info_;
 };
 
 class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList4_Wrapper(REFIID riid, ID3D12GraphicsCommandList4* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList4** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE BeginRenderPass(
         UINT NumRenderTargets,
@@ -3411,16 +2900,12 @@ class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wra
     virtual void STDMETHODCALLTYPE DispatchRays(
         const D3D12_DISPATCH_RAYS_DESC* pDesc);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList4* object_;
 };
 
 class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D12Tools_Wrapper(REFIID riid, ID3D12Tools* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools_Wrapper*>(u); });
+    ID3D12Tools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools_Wrapper*>(u); });
 
     ~ID3D12Tools_Wrapper();
 
@@ -3429,8 +2914,6 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     const ID3D12ToolsInfo* GetObjectInfo() const { return &info_; }
 
     ID3D12ToolsInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D12Tools** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual void STDMETHODCALLTYPE EnableShaderInstrumentation(
         BOOL bEnable);
@@ -3443,18 +2926,13 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12Tools* object_;
     ID3D12ToolsInfo info_;
 };
 
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList5_Wrapper(REFIID riid, ID3D12GraphicsCommandList5* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList5_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList5** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList5_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE RSSetShadingRate(
         D3D12_SHADING_RATE baseShadingRate,
@@ -3463,28 +2941,18 @@ class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wra
     virtual void STDMETHODCALLTYPE RSSetShadingRateImage(
         ID3D12Resource* shadingRateImage);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList5* object_;
 };
 
 class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wrapper
 {
   public:
-    ID3D12GraphicsCommandList6_Wrapper(REFIID riid, ID3D12GraphicsCommandList6* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList6_Wrapper*>(u); });
-
-    void GetWrappedObject(ID3D12GraphicsCommandList6** object) const { if (object != nullptr) { (*object) = object_; } }
+    ID3D12GraphicsCommandList6_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12GraphicsCommandList6_Wrapper*>(u); });
 
     virtual void STDMETHODCALLTYPE DispatchMesh(
         UINT ThreadGroupCountX,
         UINT ThreadGroupCountY,
         UINT ThreadGroupCountZ);
 
-  private:
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D12GraphicsCommandList6* object_;
 };
 
 
@@ -3496,7 +2964,7 @@ class ID3D12GraphicsCommandList6_Wrapper : public ID3D12GraphicsCommandList5_Wra
 class ID3D10Blob_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3D10Blob_Wrapper(REFIID riid, ID3D10Blob* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D10Blob_Wrapper*>(u); });
+    ID3D10Blob_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D10Blob_Wrapper*>(u); });
 
     ~ID3D10Blob_Wrapper();
 
@@ -3505,8 +2973,6 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
     const ID3D10BlobInfo* GetObjectInfo() const { return &info_; }
 
     ID3D10BlobInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3D10Blob** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual LPVOID STDMETHODCALLTYPE GetBufferPointer();
 
@@ -3518,16 +2984,13 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3D10Blob* object_;
     ID3D10BlobInfo info_;
 };
 
 class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
 {
   public:
-    ID3DDestructionNotifier_Wrapper(REFIID riid, ID3DDestructionNotifier* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3DDestructionNotifier_Wrapper*>(u); });
+    ID3DDestructionNotifier_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3DDestructionNotifier_Wrapper*>(u); });
 
     ~ID3DDestructionNotifier_Wrapper();
 
@@ -3536,8 +2999,6 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
     const ID3DDestructionNotifierInfo* GetObjectInfo() const { return &info_; }
 
     ID3DDestructionNotifierInfo* GetObjectInfo() { return &info_; }
-
-    void GetWrappedObject(ID3DDestructionNotifier** object) const { if (object != nullptr) { (*object) = object_; } }
 
     virtual HRESULT STDMETHODCALLTYPE RegisterDestructionCallback(
         PFN_DESTRUCTION_CALLBACK callbackFn,
@@ -3553,9 +3014,6 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    // Store a raw pointer to the wrapped object.
-    // Only the IUnkown base class maintains a reference to the object.
-    ID3DDestructionNotifier* object_;
     ID3DDestructionNotifierInfo info_;
 };
 

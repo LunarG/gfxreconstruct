@@ -195,7 +195,7 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
         indent = self.increment_indent(indent)
 
         # Constructor
-        expr += indent + '{name}_Wrapper(REFIID riid, {name}* object,'\
+        expr += indent + '{name}_Wrapper(REFIID riid, IUnknown* object,'\
             ' DxWrapperResources* resources = nullptr,' \
             ' const std::function<void(IUnknown_Wrapper*)>& destructor' \
             ' = [](IUnknown_Wrapper* u){{' \
@@ -221,13 +221,6 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
             expr += indent + '{}Info* GetObjectInfo()'.format(name)
             expr += ' { return &info_; }\n'
 
-        # Object "getter"
-        expr += '\n'
-        expr += indent + 'void GetWrappedObject({}** object) const'.format(
-            name
-        )
-        expr += ' { if (object != nullptr) { (*object) = object_; } }\n'
-
         # Public methods
         for method in methods:
             return_type = method['rtnType'].replace(' *', '*')
@@ -244,9 +237,9 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
         # Pointer to wrapped object
         expr += '\n'
-        expr += indent[:-2] + 'private:\n'
 
         if is_map_class:
+            expr += indent[:-2] + 'private:\n'
             expr += indent + '// Map to prevent creation of more than one interface wrapper per object.\n'
             expr += indent + 'typedef std::unordered_map<IUnknown*, {}_Wrapper*> ObjectMap;\n'.format(
                 name
@@ -254,11 +247,6 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
             expr += indent + 'static ObjectMap  object_map_;\n'
             expr += indent + 'static std::mutex object_map_lock_;\n'
             expr += '\n'
-
-        expr += indent + '// Store a raw pointer to the wrapped object.\n'
-        expr += indent + '// Only the IUnkown base class maintains a reference to the object.\n'
-        expr += indent + '{}* object_;\n'.format(name)
-        if is_map_class:
             expr += indent + '{}Info info_;\n'.format(name)
 
         # End class declaration

@@ -34,7 +34,7 @@ IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(IUnknown* wrapped_object)
     if ((object != nullptr) &&
         SUCCEEDED(object->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper))))
     {
-        wrapper->GetWrappedObject(&object);
+        object = wrapper->GetWrappedObject();
     }
 
     return object;
@@ -50,7 +50,7 @@ const IUnknown* GetWrappedObject<IUnknown_Wrapper, IUnknown>(const IUnknown* wra
     if ((object != nullptr) &&
         SUCCEEDED(object->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper))))
     {
-        wrapper->GetWrappedObject(&object);
+        object = wrapper->GetWrappedObject();
     }
 
     return object;
