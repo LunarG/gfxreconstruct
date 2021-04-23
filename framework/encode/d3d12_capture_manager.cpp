@@ -250,6 +250,9 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
 
+                    uint64_t size = info->subresource_sizes[subresource];
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
                     bool use_shadow_memory = true;
                     bool use_write_watch   = false;
 
@@ -258,12 +261,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                         use_shadow_memory = false;
                         use_write_watch   = true;
                     }
-
-                    uint64_t size = info->subresource_sizes[subresource];
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-                    if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
-                        (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                    else if ((GetPageGuardMemoryMode() == kMemoryModeShadowPersistent) &&
+                             (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                     {
                         mapped_subresource.shadow_allocation =
                             manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
@@ -392,10 +391,17 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
             // Remove memory tracking.
             for (size_t i = 0; i < info->num_subresources; ++i)
             {
-                auto memory_id = reinterpret_cast<uint64_t>(info->mapped_subresources[i].data);
+                auto& mapped_subresource = info->mapped_subresources[i];
+
+                auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
                 if (memory_id != 0)
                 {
                     manager->RemoveTrackedMemory(memory_id);
+                }
+
+                if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
+                {
+                    manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
                 }
             }
         }

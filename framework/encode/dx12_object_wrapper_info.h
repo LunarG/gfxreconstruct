@@ -24,6 +24,7 @@
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 
 #include "util/defines.h"
+#include "util/page_guard_manager.h"
 
 #include <memory>
 
@@ -33,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 struct MappedSubresource
 {
     void*     data{ nullptr };
-    uintptr_t shadow_allocation{ 0 };
+    uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
 };
 
