@@ -161,7 +161,7 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
 
     def gen_catch_all_create(self, final_class_names, indent):
         decl = indent
-        decl += 'IUnknown_Wrapper* WrapObject(REFIID riid, void** object,'\
+        decl += 'void WrapObject(REFIID riid, void** object,'\
             ' DxWrapperResources* resources)\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
@@ -173,13 +173,11 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         decl += indent + 'if (it != kFunctionTable.end())\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
-        decl += indent + 'return it->second(riid,object,resources);\n'
+        decl += indent + 'it->second(riid,object,resources);\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
-        decl += '\n'
-        decl += indent + 'return nullptr;\n'
 
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
@@ -193,19 +191,19 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'IUnknown_Wrapper* {}(REFIID riid, void** obj,'\
+        decl += 'void {}(REFIID riid, void** object,'\
             ' DxWrapperResources* resources)\n'.format(func_name)
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
 
-        decl += indent + 'assert((obj != nullptr) &&'\
-            ' (*obj != nullptr));\n'
-        decl += indent + first_class + '** object = reinterpret_cast <' + first_class + ' **>(obj);' + '\n'
+        decl += indent + 'assert((object != nullptr) &&'\
+            ' (*object != nullptr));\n'
+        decl += indent + 'auto wrap_object = reinterpret_cast<IUnknown**>(object);' + '\n'
         decl += '\n'
 
         # Check for an existing wrapper.
         decl += indent + 'auto existing ='\
-            ' {}_Wrapper::GetExistingWrapper(*object);\n'.format(first_class)
+            ' {}_Wrapper::GetExistingWrapper(*wrap_object);\n'.format(first_class)
         decl += indent + 'if (existing != nullptr)\n'
         decl += indent + '{\n'
         indent = self.increment_indent(indent)
@@ -213,72 +211,24 @@ class Dx12WrapperCreatorsBodyGenerator(Dx12BaseGenerator):
             ' the wrapper so that the wrapper holds a single reference to'\
             ' the object.\n'
         decl += indent + 'existing->AddRef();\n'
-        decl += indent + '(*object)->Release();\n'
-        decl += indent + '(*object) = reinterpret_cast<{}*>('\
-            'existing);\n'.format(first_class)
-        decl += indent + 'return existing;\n'
+        decl += indent + '(*wrap_object)->Release();\n'
+        decl += indent + '(*object) = existing;\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
-        decl += '\n'
 
-        # Generate logic that attempts to promote the current class type to
-        # the most recent supported version.  We start with the typename of
-        # the most recent class and work toward the least recent version.
-        class_family_names.reverse()
-        for i, name in enumerate(class_family_names):
-            if i > 0:
-                decl += '\n'
-
-            cast_value = 'reinterpret_cast<{}*>(wrapper)'.format(name)
-
-            # If the current type is already the version being checked,
-            # no conversion is needed.
-            decl += indent + 'if (IsEqualIID(riid, IID_{}))\n'.format(name)
-            decl += indent + '{\n'
-            indent = self.increment_indent(indent)
-
-            arg_list = 'IID_{name}, static_cast<{name}*>(*object),'\
-                ' resources'.format(name=name)
-            decl += indent + 'auto wrapper = new {}_Wrapper({});\n'.format(
-                name, arg_list
-            )
-            decl += indent + '(*object) = {};\n'.format(cast_value)
-            decl += indent + 'return wrapper;\n'
-
-            indent = self.decrement_indent(indent)
-            decl += indent + '}\n'
-
-            # Attempt to promote the object with QueryInterface.
-            decl += indent + 'else\n'
-            decl += indent + '{\n'
-            indent = self.increment_indent(indent)
-
-            decl += indent + '{}* converted = nullptr;\n'.format(name)
-            decl += indent +'auto result = (*object)->QueryInterface(' \
-                'IID_PPV_ARGS(&converted));\n'
-            decl += indent + 'if (SUCCEEDED(result))\n'
-            decl += indent + '{\n'
-            indent = self.increment_indent(indent)
-
-            arg_list = 'IID_{}, converted, resources'.format(name)
-            decl += indent + '(*object)->Release();\n'
-            decl += indent + 'auto wrapper = new {}_Wrapper({});\n'.format(
-                name, arg_list
-            )
-            decl += indent + '(*object) = {};\n'.format(cast_value)
-            decl += indent + 'return wrapper;\n'
-
-            indent = self.decrement_indent(indent)
-            decl += indent + '}\n'
-
-            indent = self.decrement_indent(indent)
-            decl += indent + '}\n'
-
-        decl += '\n'
-        decl += indent + 'GFXRECON_LOG_FATAL("'\
-            'Failed to wrap unsupported {} object type for capture"'\
-            ');\n'.format(first_class)
-        decl += indent + 'return nullptr;\n'
+        # Create a wrapper for the latest interface version.
+        decl += indent + 'else\n'
+        decl += indent + '{\n'
+        indent = self.increment_indent(indent)
+        decl += indent + '// Create a wrapper for the latest interface'\
+            ' version.  The application will only use the wrapper as the'\
+            ' interface type that it expects it to be.\n'
+        arg_list = 'riid, *wrap_object, resources'
+        decl += indent + '(*object) = new {}_Wrapper({});\n'.format(
+            final_class_name, arg_list
+        )
+        indent = self.decrement_indent(indent)
+        decl += indent + '}\n'
 
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'

@@ -65,31 +65,35 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         decl += indent + 'return p[0] ^ p[1] ^ p[2] ^ p[3];\n'
         indent = self.decrement_indent(indent)
         decl += indent + '}\n'
-        decl += '};\n'
+        decl += '};'
         indent = self.decrement_indent(indent)
         write(decl, file=self.outFile)
 
     # Method override
     def endFile(self):
         self.generate_all()
+        indent = ''
         final_class_names = self.get_final_class_names()
 
         write(
-            'const std::unordered_map<IID, std::function<IUnknown_Wrapper*(REFIID, void**,DxWrapperResources*)>,IidHash> kFunctionTable',
+            'const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResources*)>,IidHash> kFunctionTable',
             file=self.outFile
         )
-        write('{\n', file=self.outFile)
+        write('{', file=self.outFile)
+        indent = self.increment_indent(indent)
         for final_class_name in final_class_names:
             class_family_names = self.get_class_family_names(final_class_name)
             for name in class_family_names:
-                code = ''
-                code += '{IID_'
+                code = indent
+                code += '{ IID_'
                 code += name + ', ' + self.gen_create_func_name(
                     class_family_names
                 )
-                code += '},'
+                code += ' },'
                 write(code, file=self.outFile)
-        write('\n};', file=self.outFile)
+        indent = self.decrement_indent(indent)
+        write('};', file=self.outFile)
+        self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -156,7 +160,7 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
 
     def gen_catch_all_create(self, final_class_names, indent):
         decl = indent
-        decl += 'IUnknown_Wrapper* WrapObject(REFIID riid, void** object,'\
+        decl += 'void WrapObject(REFIID riid, void** object,'\
             ' DxWrapperResources* resources);\n'
         return decl
 
@@ -168,7 +172,7 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         func_name = self.gen_create_func_name(class_family_names)
 
         decl = indent
-        decl += 'IUnknown_Wrapper*  {}(REFIID riid, void** object,'\
+        decl += 'void {}(REFIID riid, void** object,'\
             ' DxWrapperResources* resources);\n'.format(func_name)
         return decl
 
