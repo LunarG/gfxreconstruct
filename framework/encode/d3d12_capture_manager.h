@@ -150,7 +150,14 @@ class D3D12CaptureManager : public CaptureManager
                                          UINT                    subresource,
                                          const D3D12_RANGE*      written_range);
 
+    void PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                      HRESULT                 result,
+                                                      D3D12_HEAP_PROPERTIES*  heap_properties,
+                                                      D3D12_HEAP_FLAGS*       heap_flags);
+
     void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
+
+    void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
 
     void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                            UINT                        num_lists,
@@ -165,19 +172,20 @@ class D3D12CaptureManager : public CaptureManager
                                                          REFIID                       riid_resource,
                                                          void**                       ppv_resource);
 
-    HRESULT OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4_Wrapper*        wrapper,
-                                                          const D3D12_HEAP_PROPERTIES* heap_properties,
-                                                          D3D12_HEAP_FLAGS             heap_flags,
-                                                          const D3D12_RESOURCE_DESC*   desc,
-                                                          D3D12_RESOURCE_STATES        initial_resource_state,
-                                                          const D3D12_CLEAR_VALUE*     optimized_clear_value,
+    HRESULT OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4_Wrapper*          wrapper,
+                                                          const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                          D3D12_HEAP_FLAGS                heap_flags,
+                                                          const D3D12_RESOURCE_DESC*      desc,
+                                                          D3D12_RESOURCE_STATES           initial_resource_state,
+                                                          const D3D12_CLEAR_VALUE*        optimized_clear_value,
                                                           ID3D12ProtectedResourceSession* protected_session,
-                                                          REFIID                       riid_resource,
-                                                          void**                       ppv_resource);
+                                                          REFIID                          riid_resource,
+                                                          void**                          ppv_resource);
+
     HRESULT OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8_Wrapper*          wrapper,
                                                           const D3D12_HEAP_PROPERTIES*    heap_properties,
                                                           D3D12_HEAP_FLAGS                heap_flags,
-                                                          const D3D12_RESOURCE_DESC1*      desc,
+                                                          const D3D12_RESOURCE_DESC1*     desc,
                                                           D3D12_RESOURCE_STATES           initial_resource_state,
                                                           const D3D12_CLEAR_VALUE*        optimized_clear_value,
                                                           ID3D12ProtectedResourceSession* protected_session,
@@ -215,7 +223,7 @@ class D3D12CaptureManager : public CaptureManager
                                       bool                       has_write_watch);
 
   private:
-    bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
 
   private:

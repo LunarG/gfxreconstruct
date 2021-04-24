@@ -124,12 +124,13 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
 }
 
-bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
+bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE         type,
+                                        D3D12_HEAP_FLAGS        flags,
+                                        D3D12_CPU_PAGE_PROPERTY page_property)
 {
     if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-        ((type == D3D12_HEAP_TYPE_UPLOAD) || (type == D3D12_HEAP_TYPE_READBACK) ||
-         ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE) &&
-          (page_property != D3D12_CPU_PAGE_PROPERTY_UNKNOWN))))
+        ((flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) != D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) &&
+        IsUploadResource(type, page_property))
     {
         return true;
     }
@@ -154,13 +155,23 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
 
     if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (heap != nullptr) && ((*heap) != nullptr))
     {
-        auto resource_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
-        auto info             = resource_wrapper->GetObjectInfo();
+        auto heap_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+        auto info         = heap_wrapper->GetObjectInfo();
         assert(info != nullptr);
 
         info->heap_type       = desc->Properties.Type;
         info->page_property   = desc->Properties.CPUPageProperty;
-        info->has_write_watch = UseWriteWatch(info->heap_type, info->page_property);
+        info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
+
+        // Report that write watch was ignored because the application enabled it on the heap.
+        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+            ((desc->Flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+        {
+            GFXRECON_LOG_WARNING(
+                "Write watch memory tracking was disabled for heap %" PRId64
+                " because the application created the heap with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+                heap_wrapper->GetCaptureId());
+        }
     }
 }
 
@@ -185,12 +196,23 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     {
         auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
 
-        InitializeID3D12ResourceInfo(wrapper,
-                                     resource_wrapper,
-                                     desc,
-                                     heap_properties->Type,
-                                     heap_properties->CPUPageProperty,
-                                     UseWriteWatch(heap_properties->Type, heap_properties->CPUPageProperty));
+        InitializeID3D12ResourceInfo(
+            wrapper,
+            resource_wrapper,
+            desc,
+            heap_properties->Type,
+            heap_properties->CPUPageProperty,
+            UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
+
+        // Report that write watch was ignored because the application enabled it on the heap.
+        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+        {
+            GFXRECON_LOG_WARNING(
+                "Write watch memory tracking was disabled for resource %" PRId64
+                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+                resource_wrapper->GetCaptureId());
+        }
     }
 }
 
@@ -236,7 +258,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
         auto info = wrapper->GetObjectInfo();
         assert((info != nullptr) && (subresource < info->num_subresources));
 
-        if (IsUploadResource(info->heap_type, info->page_property) || info->has_write_watch)
+        if (IsUploadResource(info->heap_type, info->page_property))
         {
             auto& mapped_subresource = info->mapped_subresources[subresource];
 
@@ -295,7 +317,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_Map(
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
 
-                    manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
+                    auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data), data);
+                    if (!found)
+                    {
+                        GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+                    }
                 }
             }
         }
@@ -376,6 +402,27 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                                       HRESULT                 result,
+                                                                       D3D12_HEAP_PROPERTIES*  heap_properties,
+                                                                       D3D12_HEAP_FLAGS*       heap_flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
+
+    if (SUCCEEDED(result) && (heap_flags != nullptr) && (GetPageGuardMemoryMode() == kMemoryModeExternal))
+    {
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
+        if (info->has_write_watch)
+        {
+            (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        }
+    }
+}
+
 void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper)
 {
     if (wrapper != nullptr)
@@ -429,6 +476,23 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if ((GetPageGuardMemoryMode() == kMemoryModeExternal))
+    {
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
+        if (info->has_write_watch)
+        {
+            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        }
+    }
+}
+
 void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                                             UINT                        num_lists,
                                                                             ID3D12CommandList* const*   lists)
@@ -476,11 +540,11 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
                                                                   REFIID                       riid_resource,
                                                                   void**                       ppv_resource)
 {
-    if (desc == nullptr || heap_properties == nullptr)
+    if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
-    else if (UseWriteWatch(heap_properties->Type, heap_properties->CPUPageProperty))
+    else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
@@ -502,12 +566,11 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4
                                                                    REFIID                          riid_resource,
                                                                    void**                          ppv_resource)
 {
-    if (desc == nullptr || heap_properties == nullptr)
+    if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
-    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
@@ -535,12 +598,11 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                                                    REFIID                          riid_resource,
                                                                    void**                          ppv_resource)
 {
-    if (desc == nullptr || heap_properties == nullptr)
+    if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
-    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
         heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
     }
@@ -573,7 +635,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     {
         return E_INVALIDARG;
     }
-    else if (UseWriteWatch(desc->Properties.Type, desc->Properties.CPUPageProperty))
+    else if (UseWriteWatch(desc->Properties.Type, desc->Flags, desc->Properties.CPUPageProperty))
     {
         D3D12_HEAP_DESC desc_copy = *desc;
         desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
@@ -598,8 +660,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
     {
         return E_INVALIDARG;
     }
-    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-             IsCpuVisible(desc->Properties.Type, desc->Properties.CPUPageProperty))
+    else if (UseWriteWatch(desc->Properties.Type, desc->Flags, desc->Properties.CPUPageProperty))
     {
         D3D12_HEAP_DESC desc_copy = *desc;
         desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
