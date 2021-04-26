@@ -526,7 +526,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper)
+size_t DecodeStruct(const uint8_t*                                                buffer,
+                    size_t                                                        buffer_size,
+                    Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
@@ -572,7 +574,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUI
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper)
+size_t
+DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
@@ -978,6 +981,98 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
 
                 break;
         }
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_SUBOBJECT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                 bytes_read = 0;
+    D3D12_STATE_SUBOBJECT* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+    auto buffer2      = buffer + bytes_read;
+    auto buffer_size2 = buffer_size - bytes_read;
+    switch (value->Type)
+    {
+        case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+            wrapper->state_object_config =
+                +DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_CONFIG>>();
+            bytes_read += wrapper->state_object_config->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->state_object_config->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
+            wrapper->global_root_signature =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_GLOBAL_ROOT_SIGNATURE>>();
+            bytes_read += wrapper->global_root_signature->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->global_root_signature->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
+            wrapper->local_root_signature =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_LOCAL_ROOT_SIGNATURE>>();
+            bytes_read += wrapper->local_root_signature->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->local_root_signature->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+            wrapper->node_mask = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_MASK>>();
+            bytes_read += wrapper->node_mask->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->node_mask->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
+            wrapper->dxil_library_desc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DXIL_LIBRARY_DESC>>();
+            bytes_read += wrapper->dxil_library_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->dxil_library_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
+            wrapper->existing_collection_desc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_EXISTING_COLLECTION_DESC>>();
+            bytes_read += wrapper->existing_collection_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->existing_collection_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+            wrapper->subobject_to_exports_association =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION>>();
+            bytes_read += wrapper->subobject_to_exports_association->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->subobject_to_exports_association->GetPointer();
+            break;
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+            wrapper->dxil_subobject_to_exports_association =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION>>();
+            bytes_read += wrapper->dxil_subobject_to_exports_association->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->dxil_subobject_to_exports_association->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+            wrapper->raytracing_shader_config =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_SHADER_CONFIG>>();
+            bytes_read += wrapper->raytracing_shader_config->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->raytracing_shader_config->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+            wrapper->raytracing_pipeline_config =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG>>();
+            bytes_read += wrapper->raytracing_pipeline_config->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->raytracing_pipeline_config->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+            wrapper->hit_group_desc = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_HIT_GROUP_DESC>>();
+            bytes_read += wrapper->hit_group_desc->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->hit_group_desc->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+            wrapper->raytracing_pipeline_config1 =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1>>();
+            bytes_read += wrapper->raytracing_pipeline_config1->Decode(buffer2, buffer_size2);
+            value->pDesc = wrapper->raytracing_pipeline_config1->GetPointer();
+            break;
+        case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
+            break;
+        default:
+            break;
     }
 
     return bytes_read;

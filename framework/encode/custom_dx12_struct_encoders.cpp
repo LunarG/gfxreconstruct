@@ -686,5 +686,57 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
+{
+    encoder->EncodeEnumValue(value.Type);
+    if (value.pDesc)
+    {
+        switch (value.Type)
+        {
+            case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_STATE_OBJECT_CONFIG*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_GLOBAL_ROOT_SIGNATURE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_LOCAL_ROOT_SIGNATURE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_NODE_MASK*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DXIL_LIBRARY_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_EXISTING_COLLECTION_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                EncodeStructPtr(encoder,
+                                reinterpret_cast<const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RAYTRACING_SHADER_CONFIG*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RAYTRACING_PIPELINE_CONFIG*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_HIT_GROUP_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RAYTRACING_PIPELINE_CONFIG1*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

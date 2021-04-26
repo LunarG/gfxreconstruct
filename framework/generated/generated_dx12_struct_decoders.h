@@ -1381,15 +1381,6 @@ struct Decoded_D3D12_META_COMMAND_DESC
     WStringDecoder Name;
 };
 
-struct Decoded_D3D12_STATE_SUBOBJECT
-{
-    using struct_type = D3D12_STATE_SUBOBJECT;
-
-    D3D12_STATE_SUBOBJECT* decoded_value{ nullptr };
-
-    uint64_t pDesc{ 0 };
-};
-
 struct Decoded_D3D12_STATE_OBJECT_CONFIG
 {
     using struct_type = D3D12_STATE_OBJECT_CONFIG;

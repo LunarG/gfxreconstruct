@@ -240,6 +240,28 @@ struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
     Decoded_D3D12_VIEW_INSTANCING_DESC  view_instancing;
 };
 
+struct Decoded_D3D12_STATE_SUBOBJECT
+{
+    using struct_type = D3D12_STATE_SUBOBJECT;
+
+    D3D12_STATE_SUBOBJECT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_CONFIG>*              state_object_config{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_GLOBAL_ROOT_SIGNATURE>*            global_root_signature{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_LOCAL_ROOT_SIGNATURE>*             local_root_signature{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_NODE_MASK>*                        node_mask{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DXIL_LIBRARY_DESC>*                dxil_library_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_EXISTING_COLLECTION_DESC>*         existing_collection_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION>* subobject_to_exports_association{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION>* dxil_subobject_to_exports_association{
+        nullptr
+    };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_SHADER_CONFIG>*    raytracing_shader_config{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG>*  raytracing_pipeline_config{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_HIT_GROUP_DESC>*              hit_group_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1>* raytracing_pipeline_config1{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -7682,12 +7682,6 @@ void Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    encoder->EncodeVoidPtr(value.pDesc);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_CONFIG& value)
 {
     encoder->EncodeEnumValue(value.Flags);

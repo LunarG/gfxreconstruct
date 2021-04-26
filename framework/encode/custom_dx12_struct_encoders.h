@@ -52,6 +52,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
 
 // Platform types.
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);

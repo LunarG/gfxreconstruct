@@ -2397,8 +2397,6 @@ void Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
     format::HandleId wrapper_id,
     UINT64 PipelineStackSizeInBytes);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_CONFIG& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GLOBAL_ROOT_SIGNATURE& value);
