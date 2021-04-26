@@ -553,6 +553,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     {
         options.enable_validation_layer = true;
     }
+
+    if (arg_parser.IsOptionSet(kSyncOption))
+    {
+        options.sync_queue_submissions = true;
+    }
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -573,11 +578,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (!override_gpu.empty())
     {
         replay_options.override_gpu_index = std::stoi(override_gpu);
-    }
-
-    if (arg_parser.IsOptionSet(kSyncOption))
-    {
-        replay_options.sync_queue_submissions = true;
     }
 
     if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))

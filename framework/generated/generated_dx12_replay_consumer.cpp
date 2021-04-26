@@ -4073,12 +4073,13 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     UINT                                        NumCommandLists,
     HandlePointerDecoder<ID3D12CommandList*>*   ppCommandLists)
 {
-    auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_ppCommandLists = MapObjects<ID3D12CommandList>(ppCommandLists, NumCommandLists);
-        replay_object->ExecuteCommandLists(NumCommandLists,
-                                           in_ppCommandLists);
+        MapObjects<ID3D12CommandList>(ppCommandLists, NumCommandLists);
+        OverrideExecuteCommandLists(replay_object,
+                                    NumCommandLists,
+                                    ppCommandLists);
     }
 }
 
@@ -4213,18 +4214,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppCommandQueue)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppCommandQueue->IsNull()) ppCommandQueue->SetHandleLength(1);
-        auto out_p_ppCommandQueue    = ppCommandQueue->GetPointer();
-        auto out_hp_ppCommandQueue   = ppCommandQueue->GetHandlePointer();
-        auto replay_result = replay_object->CreateCommandQueue(pDesc->GetPointer(),
-                                                               *riid.decoded_value,
-                                                               out_hp_ppCommandQueue);
+        DxObjectInfo object_info{};
+        ppCommandQueue->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateCommandQueue(replay_object,
+                                                        returnValue,
+                                                        pDesc,
+                                                        riid,
+                                                        ppCommandQueue);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandQueue, out_hp_ppCommandQueue);
+            AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
         }
         CheckReplayResult("ID3D12Device_CreateCommandQueue", returnValue, replay_result);
     }

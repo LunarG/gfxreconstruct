@@ -34,6 +34,8 @@ constexpr int32_t  kDefaultWindowPositionX = 0;
 constexpr int32_t  kDefaultWindowPositionY = 0;
 constexpr uint32_t kDefaultWaitTimeout     = 256;
 
+constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
+
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options)
 {
@@ -406,6 +408,47 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
         object_info->extra_info_type = DxObjectInfoType::kID3D12DeviceInfo;
         object_info->extra_info      = new D3D12DeviceInfo;
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_object_info,
+                                                           HRESULT       original_result,
+                                                           StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* desc,
+                                                           Decoded_GUID                                            riid,
+                                                           HandlePointerDecoder<void*>* command_queue)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (desc != nullptr) &&
+           (command_queue != nullptr));
+
+    auto                    replay_object     = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto                    replay_result =
+        replay_object->CreateCommandQueue(desc->GetPointer(), *riid.decoded_value, command_queue->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        auto command_queue_info = new D3D12CommandQueueInfo;
+
+        // Create the fence for the replay --sync option.
+        if (options_.sync_queue_submissions)
+        {
+            auto fence_result =
+                replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
+
+            if (FAILED(fence_result))
+            {
+                GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object for the replay --sync option");
+            }
+        }
+
+        auto object_info = reinterpret_cast<DxObjectInfo*>(command_queue->GetConsumerData(0));
+        assert(object_info != nullptr);
+
+        object_info->extra_info_type = DxObjectInfoType::kID3D12CommandQueueInfo;
+        object_info->extra_info      = command_queue_info;
     }
 
     return replay_result;
@@ -813,6 +856,45 @@ Dx12ReplayConsumerBase::OverrideReadFromSubresource(DxObjectInfo*               
     return E_FAIL;
 }
 
+void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
+                                                         UINT                                      num_command_lists,
+                                                         HandlePointerDecoder<ID3D12CommandList*>* command_lists)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (command_lists != nullptr));
+
+    auto replay_object = static_cast<ID3D12CommandQueue*>(replay_object_info->object);
+
+    replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
+
+    if (options_.sync_queue_submissions && !command_lists->IsNull())
+    {
+        if ((replay_object_info->extra_info != nullptr) &&
+            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo))
+        {
+            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(replay_object_info->extra_info);
+            auto sync_event         = GetEventObject(kInternalEventId, true);
+
+            if (sync_event != nullptr)
+            {
+                auto& sync_fence = command_queue_info->sync_fence;
+
+                replay_object->Signal(sync_fence, ++command_queue_info->sync_value);
+                sync_fence->SetEventOnCompletion(command_queue_info->sync_value, sync_event);
+                WaitForSingleObject(sync_event, INFINITE);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to create synchronization event object for the replay --sync option");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("ID3D12CommandList object %" PRId64 " does not have an associated info structure",
+                               replay_object_info->capture_id);
+        }
+    }
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCommandQueueSignal(DxObjectInfo* replay_object_info,
                                                            HRESULT       original_result,
                                                            DxObjectInfo* fence_info,
@@ -1130,6 +1212,11 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
             }
 
             delete heap_info;
+        }
+        else if (info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
+        {
+            auto command_list_info = reinterpret_cast<D3D12CommandQueueInfo*>(info->extra_info);
+            delete command_list_info;
         }
         else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
         {

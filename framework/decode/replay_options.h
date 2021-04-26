@@ -32,6 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct ReplayOptions
 {
     bool enable_validation_layer{ false };
+    bool sync_queue_submissions{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

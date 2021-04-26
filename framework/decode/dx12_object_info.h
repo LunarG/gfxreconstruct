@@ -30,6 +30,7 @@
 
 #include <d3d12.h>
 
+#include <comdef.h>
 #include <memory>
 #include <Unknwn.h>
 #include <map>
@@ -39,9 +40,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-//
-// Structures for storing DirectX object info.
-//
+typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>> ID3D12FencePtr;
 
 typedef std::map<UINT64, HANDLE>                               FenceEvents;
 typedef std::set<UINT64>                                       PendingFenceValues;
@@ -50,12 +49,17 @@ enum class DxObjectInfoType : uint32_t
 {
     kUnused = 0,
     kIDxgiSwapchainInfo,
+    kID3D12CommandQueueInfo,
     kID3D12DeviceInfo,
     kID3D12DescriptorHeapInfo,
     kID3D12FenceInfo,
     kID3D12HeapInfo,
     kID3D12ResourceInfo
 };
+
+//
+// Structures for storing DirectX object info.
+//
 
 struct MappedMemoryInfo
 {
@@ -77,6 +81,12 @@ struct DxgiSwapchainInfo
 {
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
+};
+
+struct D3D12CommandQueueInfo
+{
+    ID3D12FencePtr sync_fence;
+    uint64_t       sync_value{ 0 };
 };
 
 struct D3D12DeviceInfo

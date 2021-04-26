@@ -54,7 +54,6 @@ struct ScreenshotRange
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
-    bool                         sync_queue_submissions{ false };
     bool                         skip_failed_allocations{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };

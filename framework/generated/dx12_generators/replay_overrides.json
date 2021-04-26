@@ -9,6 +9,7 @@
       "Release": "OverrideRelease"
     },
     "ID3D12Device": {
+      "CreateCommandQueue": "OverrideCreateCommandQueue",
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",
       "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
@@ -29,6 +30,7 @@
       "WriteToSubresource": "OverrideWriteToSubresource"
     },
     "ID3D12CommandQueue": {
+      "ExecuteCommandLists": "OverrideExecuteCommandLists",
       "Signal": "OverrideCommandQueueSignal"
     },
     "ID3D12Fence": {

@@ -165,6 +165,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                       Decoded_GUID                 riid,
                                       HandlePointerDecoder<void*>* device);
 
+    HRESULT OverrideCreateCommandQueue(DxObjectInfo*                                           replay_object_info,
+                                       HRESULT                                                 original_result,
+                                       StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* desc,
+                                       Decoded_GUID                                            riid,
+                                       HandlePointerDecoder<void*>*                            command_queue);
+
     HRESULT OverrideCreateDescriptorHeap(DxObjectInfo*                                             replay_object_info,
                                          HRESULT                                                   original_result,
                                          StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* desc,
@@ -235,6 +241,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     dst_depth_pitch,
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
+
+    void OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
+                                     UINT                                      num_command_lists,
+                                     HandlePointerDecoder<ID3D12CommandList*>* command_lists);
 
     HRESULT OverrideCommandQueueSignal(DxObjectInfo* replay_object_info,
                                        HRESULT       original_result,
