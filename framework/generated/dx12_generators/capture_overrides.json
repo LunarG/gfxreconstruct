@@ -5,7 +5,10 @@
   "classmethods": {
     "ID3D12Device": {
       "CreateHeap": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap",
-      "CreateCommittedResource": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource"
+      "CreateHeap1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1",
+      "CreateCommittedResource": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource",
+      "CreateCommittedResource1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource1",
+      "CreateCommittedResource2": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource2"
     }
   }
 }

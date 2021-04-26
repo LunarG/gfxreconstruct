@@ -157,7 +157,7 @@ class D3D12CaptureManager : public CaptureManager
                                                            ID3D12CommandList* const*   lists);
 
     HRESULT OverrideID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
-                                                         const D3D12_HEAP_PROPERTIES* heapproperties,
+                                                         const D3D12_HEAP_PROPERTIES* heap_properties,
                                                          D3D12_HEAP_FLAGS             heap_flags,
                                                          const D3D12_RESOURCE_DESC*   desc,
                                                          D3D12_RESOURCE_STATES        initial_resource_state,
@@ -165,10 +165,35 @@ class D3D12CaptureManager : public CaptureManager
                                                          REFIID                       riid_resource,
                                                          void**                       ppv_resource);
 
+    HRESULT OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4_Wrapper*        wrapper,
+                                                          const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                          D3D12_HEAP_FLAGS             heap_flags,
+                                                          const D3D12_RESOURCE_DESC*   desc,
+                                                          D3D12_RESOURCE_STATES        initial_resource_state,
+                                                          const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                          ID3D12ProtectedResourceSession* protected_session,
+                                                          REFIID                       riid_resource,
+                                                          void**                       ppv_resource);
+    HRESULT OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8_Wrapper*          wrapper,
+                                                          const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                          D3D12_HEAP_FLAGS                heap_flags,
+                                                          const D3D12_RESOURCE_DESC1*      desc,
+                                                          D3D12_RESOURCE_STATES           initial_resource_state,
+                                                          const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                          ID3D12ProtectedResourceSession* protected_session,
+                                                          REFIID                          riid_resource,
+                                                          void**                          ppv_resource);
+
     HRESULT OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                             const D3D12_HEAP_DESC* desc,
                                             REFIID                 riid,
                                             void**                 heap);
+
+    HRESULT OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrapper*          wrapper,
+                                             const D3D12_HEAP_DESC*          desc,
+                                             ID3D12ProtectedResourceSession* protected_session,
+                                             REFIID                          riid,
+                                             void**                          heap);
 
     HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
 

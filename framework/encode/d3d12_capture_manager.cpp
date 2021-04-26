@@ -491,6 +491,72 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
         heap_properties, heap_flags, desc, initial_resource_state, optimized_clear_value, riid_resource, ppv_resource);
 }
 
+HRESULT
+D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4_Wrapper*       wrapper,
+                                                                   const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                   D3D12_HEAP_FLAGS             heap_flags,
+                                                                   const D3D12_RESOURCE_DESC*   desc,
+                                                                   D3D12_RESOURCE_STATES        initial_resource_state,
+                                                                   const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                                   ID3D12ProtectedResourceSession* protected_session,
+                                                                   REFIID                          riid_resource,
+                                                                   void**                          ppv_resource)
+{
+    if (desc == nullptr || heap_properties == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    {
+        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+    }
+
+    ID3D12Device4* device = nullptr;
+    wrapper->GetWrappedObject(&device);
+    return device->CreateCommittedResource1(heap_properties,
+                                            heap_flags,
+                                            desc,
+                                            initial_resource_state,
+                                            optimized_clear_value,
+                                            protected_session,
+                                            riid_resource,
+                                            ppv_resource);
+}
+
+HRESULT
+D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8_Wrapper*       wrapper,
+                                                                   const D3D12_HEAP_PROPERTIES* heap_properties,
+                                                                   D3D12_HEAP_FLAGS             heap_flags,
+                                                                   const D3D12_RESOURCE_DESC1*  desc,
+                                                                   D3D12_RESOURCE_STATES        initial_resource_state,
+                                                                   const D3D12_CLEAR_VALUE*     optimized_clear_value,
+                                                                   ID3D12ProtectedResourceSession* protected_session,
+                                                                   REFIID                          riid_resource,
+                                                                   void**                          ppv_resource)
+{
+    if (desc == nullptr || heap_properties == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+             IsCpuVisible(heap_properties->Type, heap_properties->CPUPageProperty))
+    {
+        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+    }
+
+    ID3D12Device8* device = nullptr;
+    wrapper->GetWrappedObject(&device);
+    return device->CreateCommittedResource2(heap_properties,
+                                            heap_flags,
+                                            desc,
+                                            initial_resource_state,
+                                            optimized_clear_value,
+                                            protected_session,
+                                            riid_resource,
+                                            ppv_resource);
+}
+
 D3D12CaptureManager::D3D12CaptureManager() :
     CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{}
 {}
@@ -516,6 +582,32 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     else
     {
         return device->CreateHeap(desc, riid, heap);
+    }
+}
+
+HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrapper*          wrapper,
+                                                              const D3D12_HEAP_DESC*          desc,
+                                                              ID3D12ProtectedResourceSession* protected_session,
+                                                              REFIID                          riid,
+                                                              void**                          heap)
+{
+    ID3D12Device4* device = nullptr;
+    wrapper->GetWrappedObject(&device);
+
+    if (desc == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    else if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+             IsCpuVisible(desc->Properties.Type, desc->Properties.CPUPageProperty))
+    {
+        D3D12_HEAP_DESC desc_copy = *desc;
+        desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        return device->CreateHeap1(&desc_copy, protected_session, riid, heap);
+    }
+    else
+    {
+        return device->CreateHeap1(desc, protected_session, riid, heap);
     }
 }
 
