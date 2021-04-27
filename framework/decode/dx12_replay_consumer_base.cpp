@@ -1167,13 +1167,13 @@ void Dx12ReplayConsumerBase::DestroyActiveObjects()
     {
         auto& info = entry.second;
 
+        DestroyObjectExtraInfo(&info);
+
         // Release all of the replay tool's references to the object.
         for (uint32_t i = 0; i < info.ref_count; ++i)
         {
             info.object->Release();
         }
-
-        DestroyObjectExtraInfo(&info);
     }
 
     object_info_table_.clear();
