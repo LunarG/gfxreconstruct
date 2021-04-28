@@ -832,7 +832,7 @@ class BaseGenerator(OutputGenerator):
 
             if (structs_with_map_data is not None) and (
                 (value.base_type in self.MAP_STRUCT_TYPE) or
-                (value.base_type in self.structs_with_map_data)
+                (value.base_type in structs_with_map_data)
             ):
                 map_data.append(value)
 

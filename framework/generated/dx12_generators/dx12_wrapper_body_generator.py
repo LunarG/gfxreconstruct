@@ -70,7 +70,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         )
 
         # A list of structures with object members that need to be unwrapped.
-        self.structs_with_objects = self.CUSTOM_STRUCT_HANDLE_MAP
+        self.structs_with_objects = self.CUSTOM_STRUCT_HANDLE_MAP.copy()
         # Unique set of names of all defined classes.
         self.class_names = []
         # Unique set of names of all class names specified as base classes.

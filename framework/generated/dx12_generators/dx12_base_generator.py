@@ -96,7 +96,7 @@ class Dx12BaseGenerator(BaseGenerator):
     ]
 
     # Dictionary for structs with members that contain objects that must be
-    # unwrapped ormapped on replay, for cases such as
+    # unwrapped or mapped on replay, for cases such as
     # D3D12_PIPELINE_STATE_STREAM_DESC that contain an array of bytes with
     # embedded objects.
     CUSTOM_STRUCT_HANDLE_MAP = {

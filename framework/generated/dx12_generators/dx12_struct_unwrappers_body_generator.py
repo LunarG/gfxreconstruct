@@ -60,7 +60,7 @@ class Dx12StructUnwrappersBodyGenerator(Dx12BaseGenerator):
 
         # Table mapping struct names to member values that are either COM
         # objects or structs with COM object members.
-        structs_with_objects = {}
+        structs_with_objects = self.CUSTOM_STRUCT_HANDLE_MAP.copy()
 
         # Find structs with COM object members, which will need to be
         # unwrapped.
