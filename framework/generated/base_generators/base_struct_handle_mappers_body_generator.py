@@ -103,7 +103,7 @@ class BaseStructHandleMappersBodyGenerator():
         if self.is_dx12_class():
             platform_type = 'Dx12'
             map_types = 'Objects'
-            map_table = ', const Dx12DescriptorMap& descriptor_map, const util::GpuVaMap& gpu_va_map'
+            map_table = ', const util::GpuVaMap& gpu_va_map'
 
         for struct in self.get_filtered_struct_names():
             if (
@@ -175,7 +175,7 @@ class BaseStructHandleMappersBodyGenerator():
         map_type = 'Object'
         base_type = 'object'
         object_info_table_get = ''
-        given_object = ', descriptor_map, gpu_va_map'
+        given_object = ', gpu_va_map'
         is_dx12_class = self.is_dx12_class()
         if not is_dx12_class:
             map_types = 'Handles'
@@ -295,7 +295,7 @@ class BaseStructHandleMappersBodyGenerator():
             map_types = 'Objects'
             map_type = 'Object'
             base_type = 'object'
-            map_table = ', Dx12DescriptorMap* descriptor_map, util::GpuVaMap* gpu_va_map'
+            map_table = ', util::GpuVaMap* gpu_va_map'
 
         body = 'void AddStruct{}(format::HandleId parent_id, const Decoded_{name}* id_wrapper, const {name}* handle_struct, {}ObjectInfoTable* object_info_table{})\n'.format(
             map_types, platform_type, map_table, name=name

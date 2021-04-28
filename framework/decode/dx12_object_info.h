@@ -26,10 +26,10 @@
 #include "decode/window.h"
 #include "format/format.h"
 #include "util/defines.h"
-#include "decode/dx12_descriptor_map.h"
 
 #include <d3d12.h>
 
+#include <array>
 #include <comdef.h>
 #include <memory>
 #include <Unknwn.h>
@@ -40,10 +40,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>> ID3D12FencePtr;
+constexpr size_t kNullCpuAddress = 0;
+constexpr size_t kNullGpuAddress = 0;
 
 typedef std::map<UINT64, HANDLE>                               FenceEvents;
 typedef std::set<UINT64>                                       PendingFenceValues;
+typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
+
+typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>> ID3D12FencePtr;
 
 enum class DxObjectInfoType : uint32_t
 {
@@ -95,22 +99,15 @@ struct D3D12CommandQueueInfo
 
 struct D3D12DeviceInfo
 {
-    std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
 };
 
 struct D3D12DescriptorHeapInfo
 {
-    std::shared_ptr<DescriptorIncrements> capture_increments;
     std::shared_ptr<DescriptorIncrements> replay_increments;
-
-    D3D12_DESCRIPTOR_HEAP_TYPE descriptor_type{};
-    uint32_t                   descriptor_count{ 0 };
-
-    size_t   capture_cpu_addr_begin{ Dx12DescriptorMap::kNullCpuAddress };
-    uint64_t capture_gpu_addr_begin{ Dx12DescriptorMap::kNullGpuAddress };
-    size_t   replay_cpu_addr_begin{ Dx12DescriptorMap::kNullCpuAddress };
-    uint64_t replay_gpu_addr_begin{ Dx12DescriptorMap::kNullGpuAddress };
+    D3D12_DESCRIPTOR_HEAP_TYPE            descriptor_type{};
+    size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
+    uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 };
 
 struct D3D12FenceInfo
