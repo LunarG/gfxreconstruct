@@ -70,7 +70,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         )
 
         # A list of structures with object members that need to be unwrapped.
-        self.structs_with_objects = self.CUSTOM_STRUCT_HANDLE_MAP.copy()
+        self.structs_with_objects = {**self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE' : ['ptr'], 'D3D12_GPU_DESCRIPTOR_HANDLE' : ['ptr']}
         # Unique set of names of all defined classes.
         self.class_names = []
         # Unique set of names of all class names specified as base classes.
@@ -641,9 +641,14 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     self.CAPTURE_OVERRIDES['classmethods'][class_name]
                     [method_name]
                 )
-                unwrapped_args = self.increment_indent(
-                    indent
-                ) + 'this,\n' + unwrapped_args
+                if unwrapped_args:
+                    unwrapped_args = self.increment_indent(
+                        indent
+                    ) + 'this,\n' + unwrapped_args
+                else:
+                    unwrapped_args = self.increment_indent(
+                        indent
+                    ) + 'this\n'
             else:
                 expr += 'GetWrappedObjectAs<{}>()->{}('.format(class_name, method_name)
 
@@ -776,12 +781,15 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     if value.base_type in self.structs_with_objects:
                         need_unwrap_memory = True
 
-                        if value.array_length:
-                            name = 'UnwrapStructArrayObjects({}, {}'.format(
-                                name, value.array_length
-                            )
+                        if value.is_pointer:
+                            if value.array_length:
+                                name = 'UnwrapStructArrayObjects({}, {}'.format(
+                                    name, value.array_length
+                                )
+                            else:
+                                name = 'UnwrapStructPtrObjects({}'.format(name)
                         else:
-                            name = 'UnwrapStructPtrObjects({}'.format(name)
+                                name = '*UnwrapStructPtrObjects(&{}'.format(name)
 
                         name += ', unwrap_memory)'
 

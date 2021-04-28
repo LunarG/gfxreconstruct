@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 #define GFXRECON_DECODE_DX12_REPLAY_CONSUMER_BASE_H
 
+#include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/dx_replay_options.h"
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
@@ -59,13 +60,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                           UINT             feature_data_size) override;
 
   protected:
-    void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle);
+    void MapCpuDescriptorHandle(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& handle);
 
-    void MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+    void MapCpuDescriptorHandles(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
 
-    void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
+    void MapGpuDescriptorHandle(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
-    void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+    void MapGpuDescriptorHandles(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
 
     void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
 

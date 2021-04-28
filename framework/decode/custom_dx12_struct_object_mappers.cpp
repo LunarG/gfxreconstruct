@@ -23,11 +23,34 @@
 #include "decode/custom_dx12_struct_object_mappers.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
+#include "decode/dx12_object_mapping_util.h"
 #include "generated/generated_dx12_struct_object_mappers.h"
 #include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
+                      const Dx12ObjectInfoTable&           object_info_table,
+                      const Dx12DescriptorMap&             descriptor_map,
+                      const util::GpuVaMap&                gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        object_mapping::MapCpuDescriptorHandle(*wrapper, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper,
+                      const Dx12ObjectInfoTable&           object_info_table,
+                      const Dx12DescriptorMap&             descriptor_map,
+                      const util::GpuVaMap&                gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        object_mapping::MapGpuDescriptorHandle(*wrapper, object_info_table);
+    }
+}
 
 void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
                       const Dx12ObjectInfoTable&      object_info_table,

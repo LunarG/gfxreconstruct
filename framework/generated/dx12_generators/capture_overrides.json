@@ -1,8 +1,12 @@
 {
   "functions": {
-    "CreateDXGIFactory2" : "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
+    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
   },
   "classmethods": {
+    "ID3D12DescriptorHeap": {
+      "GetCPUDescriptorHandleForHeapStart": "D3D12CaptureManager::Get()->OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart",
+      "GetGPUDescriptorHandleForHeapStart": "D3D12CaptureManager::Get()->OverrideID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart"
+    },
     "ID3D12Device": {
       "CreateHeap": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap",
       "CreateHeap1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1",

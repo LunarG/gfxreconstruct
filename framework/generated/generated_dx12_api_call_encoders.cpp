@@ -3940,16 +3940,6 @@ void Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignature
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_CPU_DESCRIPTOR_HANDLE& value)
-{
-    encoder->EncodeSizeTValue(value.ptr);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& value)
-{
-    encoder->EncodeUInt64Value(value.ptr);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISCARD_REGION& value)
 {
     encoder->EncodeUInt32Value(value.NumRects);

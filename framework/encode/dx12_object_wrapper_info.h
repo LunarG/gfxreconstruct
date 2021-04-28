@@ -23,8 +23,12 @@
 #ifndef GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 
+#include "format/format.h"
 #include "util/defines.h"
 #include "util/page_guard_manager.h"
+
+#include <d3d12.h>
+#include <dxgi.h>
 
 #include <memory>
 
@@ -38,6 +42,14 @@ struct MappedSubresource
     void*     data{ nullptr };
     uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
+};
+
+struct DxDescriptorInfo
+{
+    size_t           cpu_address{ 0 };
+    uint64_t         gpu_address{ 0 };
+    format::HandleId heap_id{ format::kNullHandleId };
+    uint32_t         index{ 0 };
 };
 
 struct IDXGIKeyedMutexInfo
@@ -102,7 +114,10 @@ struct ID3D12PipelineStateInfo
 {};
 
 struct ID3D12DescriptorHeapInfo
-{};
+{
+    std::unique_ptr<uint8_t[]>          descriptor_memory;
+    std::unique_ptr<DxDescriptorInfo[]> descriptor_info;
+};
 
 struct ID3D12QueryHeapInfo
 {};

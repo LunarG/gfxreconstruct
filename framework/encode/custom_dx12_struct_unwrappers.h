@@ -31,6 +31,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+// Structs with descriptor handles.
+void UnwrapStructObjects(D3D12_CPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D12_GPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory);
+
 // Structs with anonymous union members.
 void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
 

@@ -47,7 +47,7 @@ class Dx12StructObjectMappersBodyGenerator(
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
-        self.structs_with_handles = self.CUSTOM_STRUCT_HANDLE_MAP.copy()
+        self.structs_with_handles = {**self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE' : ['ptr'], 'D3D12_GPU_DESCRIPTOR_HANDLE' : ['ptr']}
         self.structs_with_handle_ptrs = []
         # List of structs containing handles that are also used as output parameters for a command
         self.output_structs_with_handles = []

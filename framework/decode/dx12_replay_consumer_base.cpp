@@ -107,24 +107,24 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
     }
 }
 
-void Dx12ReplayConsumerBase::MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle)
+void Dx12ReplayConsumerBase::MapCpuDescriptorHandle(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& handle)
 {
-    object_mapping::MapCpuDescriptorHandle(handle, descriptor_map_);
+    object_mapping::MapCpuDescriptorHandle(handle, object_info_table_);
 }
 
-void Dx12ReplayConsumerBase::MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
+void Dx12ReplayConsumerBase::MapCpuDescriptorHandles(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    object_mapping::MapCpuDescriptorHandles(handles, handles_len, descriptor_map_);
+    object_mapping::MapCpuDescriptorHandles(handles, handles_len, object_info_table_);
 }
 
-void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle)
+void Dx12ReplayConsumerBase::MapGpuDescriptorHandle(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& handle)
 {
-    object_mapping::MapGpuDescriptorHandle(handle, descriptor_map_);
+    object_mapping::MapGpuDescriptorHandle(handle, object_info_table_);
 }
 
-void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
+void Dx12ReplayConsumerBase::MapGpuDescriptorHandles(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len)
 {
-    object_mapping::MapGpuDescriptorHandles(handles, handles_len, descriptor_map_);
+    object_mapping::MapGpuDescriptorHandles(handles, handles_len, object_info_table_);
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
@@ -424,8 +424,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (desc != nullptr) &&
            (command_queue != nullptr));
 
-    auto                    replay_object     = static_cast<ID3D12Device*>(replay_object_info->object);
-    auto                    replay_result =
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto replay_result =
         replay_object->CreateCommandQueue(desc->GetPointer(), *riid.decoded_value, command_queue->GetHandlePointer());
 
     if (SUCCEEDED(replay_result))
@@ -571,6 +571,7 @@ Dx12ReplayConsumerBase::OverrideGetCPUDescriptorHandleForHeapStart(
         if (heap_info->capture_cpu_addr_begin == 0)
         {
             heap_info->capture_cpu_addr_begin = original_result.decoded_value->ptr;
+            heap_info->replay_cpu_addr_begin  = replay_result.ptr;
 
             descriptor_map_.AddCpuDescriptorHeap(*original_result.decoded_value,
                                                  replay_result,
@@ -607,6 +608,7 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
         if (heap_info->capture_gpu_addr_begin == 0)
         {
             heap_info->capture_gpu_addr_begin = original_result.decoded_value->ptr;
+            heap_info->replay_gpu_addr_begin  = replay_result.ptr;
 
             descriptor_map_.AddGpuDescriptorHeap(*original_result.decoded_value,
                                                  replay_result,

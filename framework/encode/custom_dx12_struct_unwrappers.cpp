@@ -32,6 +32,36 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+static DxDescriptorInfo* GetDescriptorInfo(size_t descriptor_ptr)
+{
+    DxDescriptorInfo* descriptor_info = nullptr;
+
+    // The descriptor increment isn't required to be a multiple of sizeof(void*), so copy the address of the current
+    // item instead of dereferencing a potentially unaligned address for assignment.
+    util::platform::MemoryCopy(
+        &descriptor_info, sizeof(descriptor_info), reinterpret_cast<void*>(descriptor_ptr), sizeof(descriptor_info));
+
+    return descriptor_info;
+}
+
+void UnwrapStructObjects(D3D12_CPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value->ptr != 0)
+    {
+        DxDescriptorInfo* descriptor_info = GetDescriptorInfo(value->ptr);
+        value->ptr                        = descriptor_info->cpu_address;
+    }
+}
+
+void UnwrapStructObjects(D3D12_GPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value->ptr != 0)
+    {
+        DxDescriptorInfo* descriptor_info = GetDescriptorInfo(static_cast<size_t>(value->ptr));
+        value->ptr                        = descriptor_info->gpu_address;
+    }
+}
+
 void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)

@@ -35,6 +35,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// Descriptor handles.
+struct Decoded_D3D12_CPU_DESCRIPTOR_HANDLE
+{
+    using struct_type = D3D12_CPU_DESCRIPTOR_HANDLE;
+    D3D12_CPU_DESCRIPTOR_HANDLE* decoded_value{ nullptr };
+
+    format::HandleId heap_id{ format::kNullHandleId };
+    uint32_t         index{ 0 };
+};
+
+struct Decoded_D3D12_GPU_DESCRIPTOR_HANDLE
+{
+    using struct_type = D3D12_GPU_DESCRIPTOR_HANDLE;
+    D3D12_GPU_DESCRIPTOR_HANDLE* decoded_value{ nullptr };
+
+    format::HandleId heap_id{ format::kNullHandleId };
+    uint32_t         index{ 0 };
+};
+
 // Unions.
 struct Decoded_D3D12_CLEAR_VALUE
 {

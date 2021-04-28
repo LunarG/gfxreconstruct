@@ -9099,7 +9099,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetC
             manager,
             this);
 
-        result = GetWrappedObjectAs<ID3D12DescriptorHeap>()->GetCPUDescriptorHandleForHeapStart();
+        result = D3D12CaptureManager::Get()->OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
+            this
+);
 
         Encode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
             GetCaptureId(),
@@ -9133,7 +9135,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
             manager,
             this);
 
-        result = GetWrappedObjectAs<ID3D12DescriptorHeap>()->GetGPUDescriptorHandleForHeapStart();
+        result = D3D12CaptureManager::Get()->OverrideID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
+            this
+);
 
         Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
             GetCaptureId(),
@@ -10213,9 +10217,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
             RootParameterIndex,
             BaseDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->SetComputeRootDescriptorTable(
             RootParameterIndex,
-            BaseDescriptor);
+            *UnwrapStructPtrObjects(&BaseDescriptor, unwrap_memory));
 
         Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
             GetCaptureId(),
@@ -10253,9 +10259,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
             RootParameterIndex,
             BaseDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->SetGraphicsRootDescriptorTable(
             RootParameterIndex,
-            BaseDescriptor);
+            *UnwrapStructPtrObjects(&BaseDescriptor, unwrap_memory));
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
             GetCaptureId(),
@@ -10859,11 +10867,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
             RTsSingleHandleToDescriptorRange,
             pDepthStencilDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->OMSetRenderTargets(
             NumRenderTargetDescriptors,
-            pRenderTargetDescriptors,
+            UnwrapStructArrayObjects(pRenderTargetDescriptors, RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors, unwrap_memory),
             RTsSingleHandleToDescriptorRange,
-            pDepthStencilDescriptor);
+            UnwrapStructPtrObjects(pDepthStencilDescriptor, unwrap_memory));
 
         Encode_ID3D12GraphicsCommandList_OMSetRenderTargets(
             GetCaptureId(),
@@ -10915,8 +10925,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
             NumRects,
             pRects);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearDepthStencilView(
-            DepthStencilView,
+            *UnwrapStructPtrObjects(&DepthStencilView, unwrap_memory),
             ClearFlags,
             Depth,
             Stencil,
@@ -10975,8 +10987,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
             NumRects,
             pRects);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearRenderTargetView(
-            RenderTargetView,
+            *UnwrapStructPtrObjects(&RenderTargetView, unwrap_memory),
             ColorRGBA,
             NumRects,
             pRects);
@@ -11031,9 +11045,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             NumRects,
             pRects);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewUint(
-            ViewGPUHandleInCurrentHeap,
-            ViewCPUHandle,
+            *UnwrapStructPtrObjects(&ViewGPUHandleInCurrentHeap, unwrap_memory),
+            *UnwrapStructPtrObjects(&ViewCPUHandle, unwrap_memory),
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             Values,
             NumRects,
@@ -11095,9 +11111,11 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             NumRects,
             pRects);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewFloat(
-            ViewGPUHandleInCurrentHeap,
-            ViewCPUHandle,
+            *UnwrapStructPtrObjects(&ViewGPUHandleInCurrentHeap, unwrap_memory),
+            *UnwrapStructPtrObjects(&ViewCPUHandle, unwrap_memory),
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             Values,
             NumRects,
@@ -13094,9 +13112,11 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateConstantBufferView(
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateConstantBufferView(
             GetCaptureId(),
@@ -13136,10 +13156,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateShaderResourceView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateShaderResourceView(
             GetCaptureId(),
@@ -13184,11 +13206,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             encode::GetWrappedObject<ID3D12Resource>(pCounterResource),
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateUnorderedAccessView(
             GetCaptureId(),
@@ -13234,10 +13258,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateRenderTargetView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateRenderTargetView(
             GetCaptureId(),
@@ -13280,10 +13306,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateDepthStencilView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateDepthStencilView(
             GetCaptureId(),
@@ -13324,9 +13352,11 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
             pDesc,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CreateSampler(
             pDesc,
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device_CreateSampler(
             GetCaptureId(),
@@ -13374,12 +13404,14 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
             pSrcDescriptorRangeSizes,
             DescriptorHeapsType);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CopyDescriptors(
             NumDestDescriptorRanges,
-            pDestDescriptorRangeStarts,
+            UnwrapStructArrayObjects(pDestDescriptorRangeStarts, NumDestDescriptorRanges, unwrap_memory),
             pDestDescriptorRangeSizes,
             NumSrcDescriptorRanges,
-            pSrcDescriptorRangeStarts,
+            UnwrapStructArrayObjects(pSrcDescriptorRangeStarts, NumSrcDescriptorRanges, unwrap_memory),
             pSrcDescriptorRangeSizes,
             DescriptorHeapsType);
 
@@ -13438,10 +13470,12 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
             SrcDescriptorRangeStart,
             DescriptorHeapsType);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device>()->CopyDescriptorsSimple(
             NumDescriptors,
-            DestDescriptorRangeStart,
-            SrcDescriptorRangeStart,
+            *UnwrapStructPtrObjects(&DestDescriptorRangeStart, unwrap_memory),
+            *UnwrapStructPtrObjects(&SrcDescriptorRangeStart, unwrap_memory),
             DescriptorHeapsType);
 
         Encode_ID3D12Device_CopyDescriptorsSimple(
@@ -17616,10 +17650,12 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
             pFeedbackResource,
             DestDescriptor);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         GetWrappedObjectAs<ID3D12Device8>()->CreateSamplerFeedbackUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource>(pTargetedResource),
             encode::GetWrappedObject<ID3D12Resource>(pFeedbackResource),
-            DestDescriptor);
+            *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
         Encode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
             GetCaptureId(),

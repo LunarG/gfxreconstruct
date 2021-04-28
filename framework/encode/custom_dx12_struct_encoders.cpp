@@ -22,13 +22,58 @@
 
 #include "encode/custom_dx12_struct_encoders.h"
 
+#include "encode/dx12_object_wrapper_info.h"
 #include "encode/dx12_object_wrapper_util.h"
-#include "format/dx12_subobject_types.h"
 #include "encode/struct_pointer_encoder.h"
+#include "format/dx12_subobject_types.h"
+#include "format/format.h"
 #include "generated/generated_dx12_api_call_encoders.h"
+#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_CPU_DESCRIPTOR_HANDLE& value)
+{
+    format::HandleId heap_id = format::kNullHandleId;
+    uint32_t         index   = 0;
+
+    if (value.ptr != 0)
+    {
+        void*             descriptor_memory = reinterpret_cast<void*>(value.ptr);
+        DxDescriptorInfo* descriptor_info   = nullptr;
+
+        util::platform::MemoryCopy(
+            &descriptor_info, sizeof(descriptor_info), descriptor_memory, sizeof(descriptor_info));
+
+        heap_id = descriptor_info->heap_id;
+        index   = descriptor_info->index;
+    }
+
+    encoder->EncodeHandleIdValue(heap_id);
+    encoder->EncodeUInt32Value(index);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& value)
+{
+    format::HandleId heap_id = format::kNullHandleId;
+    uint32_t         index   = 0;
+
+    if (value.ptr != 0)
+    {
+        void*             descriptor_memory = reinterpret_cast<void*>(value.ptr);
+        DxDescriptorInfo* descriptor_info   = nullptr;
+
+        util::platform::MemoryCopy(
+            &descriptor_info, sizeof(descriptor_info), descriptor_memory, sizeof(descriptor_info));
+
+        heap_id = descriptor_info->heap_id;
+        index   = descriptor_info->index;
+    }
+
+    encoder->EncodeHandleIdValue(heap_id);
+    encoder->EncodeUInt32Value(index);
+}
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value)
 {

@@ -369,6 +369,48 @@ void D3D12CaptureManager::Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper
     ReleaseSwapChainImages(wrapper);
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
+    ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_DESCRIPTOR_HEAP_DESC* desc, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (heap != nullptr) && ((*heap) != nullptr))
+    {
+        auto heap_wrapper = reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(*heap);
+        auto info         = heap_wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        auto device          = wrapper->GetWrappedObjectAs<ID3D12Device>();
+        auto descriptor_heap = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
+
+        auto num_descriptors = desc->NumDescriptors;
+        auto increment       = device->GetDescriptorHandleIncrementSize(desc->Type);
+
+        info->descriptor_memory = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
+        info->descriptor_info   = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
+
+        size_t offset    = 0;
+        auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        auto   gpu_start = descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+
+        for (uint32_t i = 0; i < num_descriptors; ++i)
+        {
+            auto current = &info->descriptor_info[i];
+
+            current->heap_id     = heap_wrapper->GetCaptureId();
+            current->index       = i;
+            current->cpu_address = cpu_start.ptr + offset;
+            current->gpu_address = gpu_start.ptr + offset;
+
+            // The increment isn't required to be a multiple of sizeof(void*), so copy the address of the current item
+            // instead of dereferencing a potentially unaligned address for assignment.
+            util::platform::MemoryCopy(&info->descriptor_memory[offset], sizeof(current), &current, sizeof(current));
+
+            offset += increment;
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
     ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap)
 {
@@ -773,6 +815,34 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
             }
         }
     }
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
+    ID3D12DescriptorHeap_Wrapper* wrapper)
+{
+    auto heap = wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
+    auto info = wrapper->GetObjectInfo();
+    assert(info != nullptr);
+
+    auto result = heap->GetCPUDescriptorHandleForHeapStart();
+
+    result.ptr = reinterpret_cast<size_t>(info->descriptor_memory.get());
+
+    return result;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
+    ID3D12DescriptorHeap_Wrapper* wrapper)
+{
+    auto heap = wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
+    auto info = wrapper->GetObjectInfo();
+    assert(info != nullptr);
+
+    auto result = heap->GetGPUDescriptorHandleForHeapStart();
+
+    result.ptr = reinterpret_cast<uint64_t>(info->descriptor_memory.get());
+
+    return result;
 }
 
 HRESULT

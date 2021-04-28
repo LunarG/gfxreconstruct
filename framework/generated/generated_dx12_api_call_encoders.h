@@ -1381,10 +1381,6 @@ void Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignature
     format::HandleId wrapper_id,
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC * result);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_CPU_DESCRIPTOR_HANDLE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISCARD_REGION& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_QUERY_HEAP_DESC& value);

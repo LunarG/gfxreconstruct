@@ -71,7 +71,7 @@ class Dx12ReplayConsumerBodyGenerator(
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
             diag_file
         )
-        self.structs_with_handles = self.CUSTOM_STRUCT_HANDLE_MAP.copy()
+        self.structs_with_handles = {**self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE' : ['ptr'], 'D3D12_GPU_DESCRIPTOR_HANDLE' : ['ptr']}
         self.structs_with_handle_ptrs = []
         self.structs_with_map_data = dict()
 
@@ -307,16 +307,21 @@ class Dx12ReplayConsumerBodyGenerator(
             elif (value.base_type in self.structs_with_handles) or (
                 value.base_type in self.GENERIC_HANDLE_STRUCTS
             ) or (value.base_type in self.structs_with_map_data):
-                if value.is_array:
-                    code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
-                        value.name
-                    )
+                if value.is_pointer:
+                    if value.is_array:
+                        code += '    MapStructArrayObjects({0}->GetMetaStructPointer(), {0}->GetLength(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
+                            value.name
+                        )
+                    else:
+                        code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
+                            value.name
+                        )
+                    arg_list.append(value.name + '->GetPointer()')
                 else:
-                    code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
+                    code += '    MapStructObjects(&{}, GetObjectInfoTable(), GetDescriptorMap(), GetGpuVaTable());\n'.format(
                         value.name
                     )
-                arg_list.append(value.name + '->GetPointer()')
-
+                    arg_list.append('*{}.decoded_value'.format(value.name))
             else:
                 if not is_output:
                     map_func = self.MAP_STRUCT_TYPE.get(value.base_type)

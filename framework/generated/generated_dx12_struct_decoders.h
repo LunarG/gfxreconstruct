@@ -1260,20 +1260,6 @@ struct Decoded_D3D12_ROOT_SIGNATURE_DESC1
     StructPointerDecoder<Decoded_D3D12_STATIC_SAMPLER_DESC>* pStaticSamplers{ nullptr };
 };
 
-struct Decoded_D3D12_CPU_DESCRIPTOR_HANDLE
-{
-    using struct_type = D3D12_CPU_DESCRIPTOR_HANDLE;
-
-    D3D12_CPU_DESCRIPTOR_HANDLE* decoded_value{ nullptr };
-};
-
-struct Decoded_D3D12_GPU_DESCRIPTOR_HANDLE
-{
-    using struct_type = D3D12_GPU_DESCRIPTOR_HANDLE;
-
-    D3D12_GPU_DESCRIPTOR_HANDLE* decoded_value{ nullptr };
-};
-
 struct Decoded_D3D12_DISCARD_REGION
 {
     using struct_type = D3D12_DISCARD_REGION;

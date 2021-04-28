@@ -109,6 +109,8 @@ struct D3D12DescriptorHeapInfo
 
     size_t   capture_cpu_addr_begin{ Dx12DescriptorMap::kNullCpuAddress };
     uint64_t capture_gpu_addr_begin{ Dx12DescriptorMap::kNullGpuAddress };
+    size_t   replay_cpu_addr_begin{ Dx12DescriptorMap::kNullCpuAddress };
+    uint64_t replay_gpu_addr_begin{ Dx12DescriptorMap::kNullGpuAddress };
 };
 
 struct D3D12FenceInfo

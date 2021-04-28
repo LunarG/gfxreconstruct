@@ -375,27 +375,23 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS
 
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12DescriptorMap& descriptor_map, const util::GpuVaMap& gpu_va_map)
 {
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    if (wrapper != nullptr)
     {
-        D3D12_RENDER_PASS_RENDER_TARGET_DESC* value = wrapper->decoded_value;
+        MapStructObjects(wrapper->cpuDescriptor, object_info_table, descriptor_map, gpu_va_map);
 
         MapStructObjects(wrapper->EndingAccess, object_info_table, descriptor_map, gpu_va_map);
-
-        object_mapping::MapCpuDescriptorHandle(value->cpuDescriptor, descriptor_map);
     }
 }
 
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const Dx12DescriptorMap& descriptor_map, const util::GpuVaMap& gpu_va_map)
 {
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    if (wrapper != nullptr)
     {
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value = wrapper->decoded_value;
+        MapStructObjects(wrapper->cpuDescriptor, object_info_table, descriptor_map, gpu_va_map);
 
         MapStructObjects(wrapper->DepthEndingAccess, object_info_table, descriptor_map, gpu_va_map);
 
         MapStructObjects(wrapper->StencilEndingAccess, object_info_table, descriptor_map, gpu_va_map);
-
-        object_mapping::MapCpuDescriptorHandle(value->cpuDescriptor, descriptor_map);
     }
 }
 

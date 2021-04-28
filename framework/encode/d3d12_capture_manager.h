@@ -186,6 +186,12 @@ class D3D12CaptureManager : public CaptureManager
 
     void Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper);
 
+    void PostProcess_ID3D12Device_CreateDescriptorHeap(ID3D12Device_Wrapper*             wrapper,
+                                                       HRESULT                           result,
+                                                       const D3D12_DESCRIPTOR_HEAP_DESC* desc,
+                                                       REFIID                            riid,
+                                                       void**                            heap);
+
     void PostProcess_ID3D12Device_CreateHeap(
         ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap);
 
@@ -233,6 +239,12 @@ class D3D12CaptureManager : public CaptureManager
     void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE
+    OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
+
+    D3D12_GPU_DESCRIPTOR_HANDLE
+    OverrideID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
     HRESULT OverrideID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
                                                          const D3D12_HEAP_PROPERTIES* heap_properties,

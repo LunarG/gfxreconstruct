@@ -266,14 +266,6 @@ class BaseGenerator(OutputGenerator):
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     MAP_STRUCT_TYPE = {
-        'D3D12_CPU_DESCRIPTOR_HANDLE': [
-            'MapCpuDescriptorHandle', 'MapCpuDescriptorHandles',
-            'descriptor_map'
-        ],
-        'D3D12_GPU_DESCRIPTOR_HANDLE': [
-            'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
-            'descriptor_map'
-        ],
         'D3D12_GPU_VIRTUAL_ADDRESS':
         ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
     }

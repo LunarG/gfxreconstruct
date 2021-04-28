@@ -158,6 +158,7 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, HandleUnwr
 {
     if (value != nullptr)
     {
+        UnwrapStructObjects(&value->cpuDescriptor, unwrap_memory);
         UnwrapStructObjects(&value->EndingAccess, unwrap_memory);
     }
 }
@@ -166,6 +167,7 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwr
 {
     if (value != nullptr)
     {
+        UnwrapStructObjects(&value->cpuDescriptor, unwrap_memory);
         UnwrapStructObjects(&value->DepthEndingAccess, unwrap_memory);
         UnwrapStructObjects(&value->StencilEndingAccess, unwrap_memory);
     }

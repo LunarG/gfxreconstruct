@@ -29,6 +29,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// Descriptor handles.
+struct Decoded_D3D12_CPU_DESCRIPTOR_HANDLE;
+struct Decoded_D3D12_GPU_DESCRIPTOR_HANDLE;
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper);
+
 // Unions.
 struct Decoded_D3D12_CLEAR_VALUE;
 struct Decoded_D3D12_RESOURCE_BARRIER;

@@ -24,9 +24,10 @@
 #define GFXRECON_DECODE_DX12_OBJECT_MAPPING_UTIL_H
 
 #include "format/format.h"
+#include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/dx12_object_info.h"
-#include "decode/handle_pointer_decoder.h"
 #include "decode/dx12_descriptor_map.h"
+#include "decode/handle_pointer_decoder.h"
 #include "util/gpu_va_map.h"
 
 #include <map>
@@ -39,17 +40,17 @@ typedef std::unordered_map<format::HandleId, DxObjectInfo> Dx12ObjectInfoTable;
 
 GFXRECON_BEGIN_NAMESPACE(object_mapping)
 
-void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle, const Dx12DescriptorMap& descriptor_map);
+void MapCpuDescriptorHandle(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& handle, const Dx12ObjectInfoTable& object_info_table);
 
-void MapCpuDescriptorHandles(D3D12_CPU_DESCRIPTOR_HANDLE* handles,
-                             size_t                       handles_len,
-                             const Dx12DescriptorMap&     descriptor_map);
+void MapCpuDescriptorHandles(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* handles,
+                             size_t                               handles_len,
+                             const Dx12ObjectInfoTable&           object_info_table);
 
-void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12DescriptorMap& descriptor_map);
+void MapGpuDescriptorHandle(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12ObjectInfoTable& object_info_table);
 
-void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles,
-                             size_t                       handles_len,
-                             const Dx12DescriptorMap&     descriptor_map);
+void MapGpuDescriptorHandles(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* handles,
+                             size_t                               handles_len,
+                             const Dx12ObjectInfoTable&           object_info_table);
 
 void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const util::GpuVaMap& gpu_va_map);
 
