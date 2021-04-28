@@ -77,6 +77,11 @@ class Dx12StructObjectMappersHeaderGenerator(
         # Functions should not be generated for structs on the blacklist.
         self.check_blacklist = True
         BaseStructHandleMappersHeaderGenerator.generate_feature(self)
+        header_dict = self.source_dict['header_dict']
+        self.structs_with_objects = self.collect_struct_with_objects(
+            header_dict
+        )
+        self.write_struct_member_def()
 
     def endFile(self):
         """Method override."""
@@ -98,3 +103,10 @@ class Dx12StructObjectMappersHeaderGenerator(
                     self.structs_with_handle_ptrs, True,
                     self.structs_with_map_data
                 )
+
+    def write_struct_member_def(self):
+        for k, v in self.structs_with_objects.items():
+            expr = 'void AddStructObjects(const StructPointerDecoder<Decoded_{0}>* capture_value, const {0}* new_value, Dx12ObjectInfoTable& object_info_table);\n'.format(
+                k
+            )
+            write(expr, file=self.outFile)

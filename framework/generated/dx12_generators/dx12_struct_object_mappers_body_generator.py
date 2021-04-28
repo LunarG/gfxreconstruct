@@ -118,3 +118,33 @@ class Dx12StructObjectMappersBodyGenerator(
         # Functions should not be generated for structs on the blacklist.
         self.check_blacklist = True
         BaseStructHandleMappersBodyGenerator.generate_feature(self)
+
+        header_dict = self.source_dict['header_dict']
+        self.structs_with_objects = self.collect_struct_with_objects(
+            header_dict
+        )
+        self.write_struct_member_def()
+
+    def write_struct_member_def(self):
+        for k, v in self.structs_with_objects.items():
+            expr = 'void AddStructObjects(const StructPointerDecoder<Decoded_{0}>* capture_value, const {0}* new_value, Dx12ObjectInfoTable& object_info_table)\n'.format(
+                k
+            )
+            expr += '{\n'
+            expr += '    auto decoded_struct = capture_value->GetMetaStructPointer();\n'
+
+            for value in v:
+                if self.is_struct(value.base_type):
+                    expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
+                            '    {{\n'\
+                            '        AddStructObjects(decoded_struct->{0}, new_value->{0}, object_info_table);\n'\
+                            '    }}\n'.format(value.name)
+
+                elif self.is_class(value):
+                    expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
+                            '    {{\n'\
+                            '        object_mapping::AddObject(&decoded_struct->{0}, const_cast<{1}**>(&new_value->{0}), &object_info_table);\n'\
+                            '    }}\n'.format(value.name, value.base_type)
+
+            expr += '}\n'
+            write(expr, file=self.outFile)

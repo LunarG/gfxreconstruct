@@ -96,10 +96,6 @@ class Dx12ReplayConsumerBodyGenerator(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
-        write(
-            '#include "generated/generated_dx12_struct_add_objects.h"',
-            file=self.outFile
-        )
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
@@ -197,7 +193,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
             if is_output and value.base_type in self.structs_with_objects:
                 struct_add_object_list.append(
-                    'StructAddObject({0}, {0}->GetPointer(), GetObjectInfoTable());\n'
+                    'AddStructObjects({0}, {0}->GetPointer(), GetObjectInfoTable());\n'
                     .format(value.name)
                 )
 

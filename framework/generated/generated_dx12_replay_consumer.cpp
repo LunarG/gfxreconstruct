@@ -29,7 +29,6 @@
 
 #include "decode/custom_dx12_struct_object_mappers.h"
 #include "generated/generated_dx12_struct_object_mappers.h"
-#include "generated/generated_dx12_struct_add_objects.h"
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -5821,7 +5820,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput(pOutput->GetPointer());
         if (SUCCEEDED(replay_result))
         {
-            StructAddObject(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
+            AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", returnValue, replay_result);
     }
@@ -5852,7 +5851,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
         auto replay_result = replay_object->GetAutoBreadcrumbsOutput1(pOutput->GetPointer());
         if (SUCCEEDED(replay_result))
         {
-            StructAddObject(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
+            AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", returnValue, replay_result);
     }
@@ -5870,7 +5869,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
         auto replay_result = replay_object->GetPageFaultAllocationOutput1(pOutput->GetPointer());
         if (SUCCEEDED(replay_result))
         {
-            StructAddObject(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
+            AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
         CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
     }
