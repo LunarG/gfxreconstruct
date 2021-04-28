@@ -428,20 +428,7 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             uncompressed_header.block_header.size = packet_size;
         }
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            // Write appropriate function call block header.
-            file_stream_->Write(header_pointer, header_size);
-
-            // Write parameter data.
-            file_stream_->Write(data_pointer, data_size);
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        CombineAndWriteToFile({ { header_pointer, header_size }, { data_pointer, data_size } });
 
         encoder->Reset();
     }
@@ -641,13 +628,8 @@ void TraceManager::WriteFileHeader()
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
-    file_stream_->Write(&file_header, sizeof(file_header));
-    file_stream_->Write(option_list.data(), option_list.size() * sizeof(format::FileOptionPair));
-
-    if (force_file_flush_)
-    {
-        file_stream_->Flush();
-    }
+    CombineAndWriteToFile({ { &file_header, sizeof(file_header) },
+                            { option_list.data(), option_list.size() * sizeof(format::FileOptionPair) } });
 }
 
 void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -670,17 +652,7 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
         message_cmd.meta_header.meta_data_type    = format::MetaDataType::kDisplayMessageCommand;
         message_cmd.thread_id                     = GetThreadData()->thread_id_;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&message_cmd, sizeof(message_cmd));
-            file_stream_->Write(message, message_length);
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        CombineAndWriteToFile({ { &message_cmd, sizeof(message_cmd) }, { message, message_length } });
     }
 }
 
@@ -698,15 +670,7 @@ void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t wi
         resize_cmd.width      = width;
         resize_cmd.height     = height;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-            file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        WriteToFile(&resize_cmd, sizeof(resize_cmd));
     }
 }
 
@@ -749,15 +713,7 @@ void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_i
                 break;
         }
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-            file_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        WriteToFile(&resize_cmd2, sizeof(resize_cmd2));
     }
 }
 
@@ -802,17 +758,7 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         // Calculate size of packet with compressed or uncompressed data size.
         fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + write_size;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-            file_stream_->Write(write_address, write_size);
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        CombineAndWriteToFile({ { &fill_cmd, sizeof(fill_cmd) }, { write_address, write_size } });
     }
 }
 
@@ -863,18 +809,14 @@ void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                
         }
 
         {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
-
             if (planes_size > 0)
             {
-                file_stream_->Write(plane_info.data(), planes_size);
+                CombineAndWriteToFile(
+                    { { &create_buffer_cmd, sizeof(create_buffer_cmd) }, { plane_info.data(), planes_size } });
             }
-
-            if (force_file_flush_)
+            else
             {
-                file_stream_->Flush();
+                WriteToFile(&create_buffer_cmd, sizeof(create_buffer_cmd));
             }
         }
 #else
@@ -905,16 +847,7 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
         destroy_buffer_cmd.thread_id                     = thread_data->thread_id_;
         destroy_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(buffer);
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        WriteToFile(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
 #else
         GFXRECON_LOG_ERROR("Skipping destroy AHardwareBuffer command write for unsupported platform");
 #endif
@@ -948,17 +881,8 @@ void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId             
             properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
         properties_cmd.device_name_len = device_name_len;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
-            file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        CombineAndWriteToFile(
+            { { &properties_cmd, sizeof(properties_cmd) }, { properties.deviceName, properties_cmd.device_name_len } });
     }
 }
 
@@ -983,34 +907,37 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
         memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
         memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
 
+        // Since the number of file writes below is dynamic, CombineAndWriteToFile is not suitable. Instead, manually
+        // populate thread_data's scratch_buffer_ then write to file.
+        auto& scratch_buffer = thread_data->GetScratchBuffer();
+        scratch_buffer.clear();
+        scratch_buffer.insert(scratch_buffer.end(),
+                              reinterpret_cast<uint8_t*>(&memory_properties_cmd),
+                              reinterpret_cast<uint8_t*>(&memory_properties_cmd) + sizeof(memory_properties_cmd));
+
+        format::DeviceMemoryType type;
+        for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
         {
-            std::lock_guard<std::mutex> lock(file_lock_);
+            type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
+            type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
 
-            file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
-
-            format::DeviceMemoryType type;
-            for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-            {
-                type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
-                type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
-
-                file_stream_->Write(&type, sizeof(type));
-            }
-
-            format::DeviceMemoryHeap heap;
-            for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
-            {
-                heap.size  = memory_properties.memoryHeaps[i].size;
-                heap.flags = memory_properties.memoryHeaps[i].flags;
-
-                file_stream_->Write(&heap, sizeof(heap));
-            }
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
+            scratch_buffer.insert(scratch_buffer.end(),
+                                  reinterpret_cast<uint8_t*>(&type),
+                                  reinterpret_cast<uint8_t*>(&type) + sizeof(type));
         }
+
+        format::DeviceMemoryHeap heap;
+        for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
+        {
+            heap.size  = memory_properties.memoryHeaps[i].size;
+            heap.flags = memory_properties.memoryHeaps[i].flags;
+
+            scratch_buffer.insert(scratch_buffer.end(),
+                                  reinterpret_cast<uint8_t*>(&heap),
+                                  reinterpret_cast<uint8_t*>(&heap) + sizeof(heap));
+        }
+
+        WriteToFile(scratch_buffer.data(), scratch_buffer.size());
     }
 }
 
@@ -1033,16 +960,7 @@ void TraceManager::WriteSetOpaqueAddressCommand(format::HandleId device_id,
         opaque_address_cmd.object_id                     = object_id;
         opaque_address_cmd.address                       = address;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        WriteToFile(&opaque_address_cmd, sizeof(opaque_address_cmd));
     }
 }
 
@@ -1066,17 +984,7 @@ void TraceManager::WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId 
         set_handles_cmd.pipeline_id                   = pipeline_id;
         set_handles_cmd.data_size                     = data_size;
 
-        {
-            std::lock_guard<std::mutex> lock(file_lock_);
-
-            file_stream_->Write(&set_handles_cmd, sizeof(set_handles_cmd));
-            file_stream_->Write(data, data_size);
-
-            if (force_file_flush_)
-            {
-                file_stream_->Flush();
-            }
-        }
+        CombineAndWriteToFile({ { &set_handles_cmd, sizeof(set_handles_cmd) }, { data, data_size } });
     }
 }
 
@@ -2590,6 +2498,16 @@ void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*    
     }
 }
 #endif
+
+void TraceManager::WriteToFile(const void* data, size_t size)
+{
+    std::unique_lock<std::mutex> lock(file_lock_);
+    file_stream_->Write(data, size);
+    if (force_file_flush_)
+    {
+        file_stream_->Flush();
+    }
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

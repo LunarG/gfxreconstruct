@@ -953,6 +953,8 @@ class TraceManager
 
         ~ThreadData() {}
 
+        std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
+
       public:
         const format::ThreadId                    thread_id_;
         format::ApiCallId                         call_id_;
@@ -968,6 +970,10 @@ class TraceManager
         static std::mutex                                     count_lock_;
         static format::ThreadId                               thread_count_;
         static std::unordered_map<uint64_t, format::ThreadId> id_map_;
+
+      private:
+        // Used for combining multiple buffers for a single file write.
+        std::vector<uint8_t> scratch_buffer_;
     };
 
     struct HardwareBufferInfo
@@ -1036,6 +1042,26 @@ class TraceManager
 
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
+
+    void WriteToFile(const void* data, size_t size);
+
+    template <size_t N>
+    void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
+    {
+        static_assert(N != 1, "Use WriteToFile(void*, size) when writing a single buffer.");
+
+        // Combine buffers for a single write.
+        std::vector<uint8_t>& scratch_buffer = GetThreadData()->GetScratchBuffer();
+        scratch_buffer.clear();
+        for (size_t i = 0; i < N; ++i)
+        {
+            const uint8_t* const data = reinterpret_cast<const uint8_t*>(buffers[i].first);
+            const size_t         size = buffers[i].second;
+            scratch_buffer.insert(scratch_buffer.end(), data, data + size);
+        }
+
+        WriteToFile(scratch_buffer.data(), scratch_buffer.size());
+    }
 
   private:
     static TraceManager*                            instance_;
