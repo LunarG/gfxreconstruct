@@ -114,6 +114,29 @@ IUnknown_Wrapper : public IUnknown
     virtual ULONG STDMETHODCALLTYPE Release() override;
 
     //----------------------------------------------------------------------------
+    /// \brief Make a reference internal.
+    ///
+    /// Decrements the wrapper's individual reference count without decrementing
+    /// its shared reference count to convert an application reference to a
+    /// reference that is only internal.
+    //----------------------------------------------------------------------------
+    void MakeRefInternal();
+
+    //----------------------------------------------------------------------------
+    /// \brief Increment the wrapper's internal reference count.
+    ///
+    /// Increments the wrapper's shared reference count maintained by #resources_.
+    //----------------------------------------------------------------------------
+    void AddRefInternal();
+
+    //----------------------------------------------------------------------------
+    /// \brief Decrement the wrapper's internal reference count.
+    ///
+    /// Decrements the wrapper's shared reference count maintained by #resources_.
+    //----------------------------------------------------------------------------
+    void ReleaseRefInternal();
+
+    //----------------------------------------------------------------------------
     /// Get the IID of the wrapped object's interface.
     ///
     /// \return The wrapped object's IID.

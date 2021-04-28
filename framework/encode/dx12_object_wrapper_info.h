@@ -31,6 +31,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+class ID3D12Resource_Wrapper;
+
 struct MappedSubresource
 {
     void*     data{ nullptr };
@@ -63,7 +65,11 @@ struct IDXGISwapChainMediaInfo
 {};
 
 struct IDXGISwapChainInfo
-{};
+{
+    DXGI_SWAP_EFFECT                           swap_effect{};
+    uint32_t                                   image_count{ 0 };
+    std::unique_ptr<ID3D12Resource_Wrapper*[]> images;
+};
 
 struct IDXGIDeviceInfo
 {};

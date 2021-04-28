@@ -25,12 +25,17 @@
 #include "encode/d3d12_capture_manager.h"
 
 #include "encode/dx12_object_wrapper_info.h"
+#include "generated/generated_dx12_wrapper_creators.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 D3D12CaptureManager*  D3D12CaptureManager::instance_   = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
+
+D3D12CaptureManager::D3D12CaptureManager() :
+    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{}
+{}
 
 bool D3D12CaptureManager::CreateInstance()
 {
@@ -49,6 +54,61 @@ void D3D12CaptureManager::DestroyInstance()
                                         delete instance_;
                                         instance_ = nullptr;
                                     });
+}
+
+void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
+                                                    uint32_t                image_count,
+                                                    DXGI_SWAP_EFFECT        swap_effect)
+{
+    // We only expect to process the DXGI_SWAP_EFFECT_FLIP_* effects with DX12.
+    if ((swap_effect != DXGI_SWAP_EFFECT_DISCARD) && (swap_effect != DXGI_SWAP_EFFECT_SEQUENTIAL))
+    {
+        assert(wrapper != nullptr);
+
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        if (info->images == nullptr)
+        {
+            auto swap_chain   = wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+            info->images      = std::make_unique<ID3D12Resource_Wrapper*[]>(image_count);
+            info->image_count = image_count;
+            info->swap_effect = swap_effect;
+
+            for (uint32_t i = 0; i < image_count; ++i)
+            {
+                ID3D12Resource* resource = nullptr;
+                swap_chain->GetBuffer(i, IID_PPV_ARGS(&resource));
+                WrapID3D12Resource(IID_PPV_ARGS(&resource), nullptr);
+
+                // Convert the application reference to an internal-only reference to avoid altering the application
+                // reference count by only holding an internal reference to the wrapped resource.
+                ID3D12Resource_Wrapper* resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
+                resource_wrapper->MakeRefInternal();
+                info->images[i] = resource_wrapper;
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        if (info->images != nullptr)
+        {
+            for (uint32_t i = 0; i < info->image_count; ++i)
+            {
+                auto resource_wrapper = info->images[i];
+                resource_wrapper->ReleaseRefInternal();
+            }
+
+            info->images.reset();
+        }
+    }
 }
 
 void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
@@ -143,6 +203,170 @@ bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_
         return true;
     }
     return false;
+}
+
+void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,
+                                                                   HRESULT               result,
+                                                                   IUnknown*             device,
+                                                                   DXGI_SWAP_CHAIN_DESC* desc,
+                                                                   IDXGISwapChain**      swap_chain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if (SUCCEEDED(result) && (desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
+    {
+        auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(*swap_chain);
+
+        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper*                 wrapper,
+    HRESULT                                result,
+    IUnknown*                              device,
+    HWND                                   hwnd,
+    const DXGI_SWAP_CHAIN_DESC1*           desc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fullscreen_desc,
+    IDXGIOutput*                           restrict_to_output,
+    IDXGISwapChain1**                      swap_chain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(hwnd);
+    GFXRECON_UNREFERENCED_PARAMETER(fullscreen_desc);
+    GFXRECON_UNREFERENCED_PARAMETER(restrict_to_output);
+
+    if (SUCCEEDED(result) && (desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
+    {
+        auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
+
+        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       wrapper,
+                                                                                 HRESULT                      result,
+                                                                                 IUnknown*                    device,
+                                                                                 IUnknown*                    window,
+                                                                                 const DXGI_SWAP_CHAIN_DESC1* desc,
+                                                                                 IDXGIOutput*      restrict_to_output,
+                                                                                 IDXGISwapChain1** swap_chain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(window);
+    GFXRECON_UNREFERENCED_PARAMETER(restrict_to_output);
+
+    if (SUCCEEDED(result) && (desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
+    {
+        auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
+
+        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       wrapper,
+                                                                                  HRESULT                      result,
+                                                                                  IUnknown*                    device,
+                                                                                  const DXGI_SWAP_CHAIN_DESC1* desc,
+                                                                                  IDXGIOutput*      restrict_to_output,
+                                                                                  IDXGISwapChain1** swap_chain)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(restrict_to_output);
+
+    if (SUCCEEDED(result) && (desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
+    {
+        auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
+
+        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+    }
+}
+
+void D3D12CaptureManager::PreProcess_IDXGISwapchain_ResizeBuffers(
+    IDXGISwapChain_Wrapper* wrapper, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(new_format);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+
+    ReleaseSwapChainImages(wrapper);
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+                                                                   HRESULT                 result,
+                                                                   UINT                    buffer_count,
+                                                                   UINT                    width,
+                                                                   UINT                    height,
+                                                                   DXGI_FORMAT             new_format,
+                                                                   UINT                    flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(new_format);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr))
+    {
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        PreAcquireSwapChainImages(wrapper, buffer_count, info->swap_effect);
+    }
+}
+
+void D3D12CaptureManager::PreProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+                                                                    UINT                    buffer_count,
+                                                                    UINT                    width,
+                                                                    UINT                    height,
+                                                                    DXGI_FORMAT             new_format,
+                                                                    UINT                    flags,
+                                                                    const UINT*             node_mask,
+                                                                    IUnknown* const*        present_queue)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(new_format);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(node_mask);
+    GFXRECON_UNREFERENCED_PARAMETER(present_queue);
+
+    ReleaseSwapChainImages(wrapper);
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+                                                                     HRESULT                 result,
+                                                                     UINT                    buffer_count,
+                                                                     UINT                    width,
+                                                                     UINT                    height,
+                                                                     DXGI_FORMAT             new_format,
+                                                                     UINT                    flags,
+                                                                     const UINT*             node_mask,
+                                                                     IUnknown* const*        present_queue)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(new_format);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(node_mask);
+    GFXRECON_UNREFERENCED_PARAMETER(present_queue);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr))
+    {
+        auto info = wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        PreAcquireSwapChainImages(wrapper, buffer_count, info->swap_effect);
+    }
+}
+
+void D3D12CaptureManager::Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper)
+{
+    ReleaseSwapChainImages(wrapper);
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
@@ -636,10 +860,6 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                             riid_resource,
                                             ppv_resource);
 }
-
-D3D12CaptureManager::D3D12CaptureManager() :
-    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{}
-{}
 
 HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrapper*  wrapper,
                                                              const D3D12_HEAP_DESC* desc,

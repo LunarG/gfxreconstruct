@@ -134,5 +134,26 @@ ULONG IUnknown_Wrapper::Release()
     return local_count;
 }
 
+void IUnknown_Wrapper::MakeRefInternal()
+{
+    // Decrement the local reference count, while leaving the shared reference count unmodified.
+    --ref_count_;
+}
+
+void IUnknown_Wrapper::AddRefInternal()
+{
+    resources_->IncrementSharedCount();
+}
+
+void IUnknown_Wrapper::ReleaseRefInternal()
+{
+    auto shared_count = resources_->DecrementSharedCount();
+    if (shared_count == 0)
+    {
+        // The resources_ destructor destroys this wrapper and all other wrappers linked to it.
+        delete resources_;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

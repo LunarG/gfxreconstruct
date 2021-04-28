@@ -120,6 +120,72 @@ class D3D12CaptureManager : public CaptureManager
     //----------------------------------------------------------------------------
     uint32_t DecrementCallScope() { return --call_scope_; }
 
+    void PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,
+                                                  HRESULT               result,
+                                                  IUnknown*             device,
+                                                  DXGI_SWAP_CHAIN_DESC* desc,
+                                                  IDXGISwapChain**      swap_chain);
+
+    void PostProcess_IDXGIFactory2_CreateSwapChainForHwnd(IDXGIFactory2_Wrapper*                 wrapper,
+                                                          HRESULT                                result,
+                                                          IUnknown*                              device,
+                                                          HWND                                   hwnd,
+                                                          const DXGI_SWAP_CHAIN_DESC1*           desc,
+                                                          const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fullscreen_desc,
+                                                          IDXGIOutput*                           restrict_to_output,
+                                                          IDXGISwapChain1**                      swap_chain);
+
+    void PostProcess_IDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       wrapper,
+                                                                HRESULT                      result,
+                                                                IUnknown*                    device,
+                                                                IUnknown*                    window,
+                                                                const DXGI_SWAP_CHAIN_DESC1* desc,
+                                                                IDXGIOutput*                 restrict_to_output,
+                                                                IDXGISwapChain1**            swap_chain);
+
+    void PostProcess_IDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       wrapper,
+                                                                 HRESULT                      result,
+                                                                 IUnknown*                    device,
+                                                                 const DXGI_SWAP_CHAIN_DESC1* desc,
+                                                                 IDXGIOutput*                 restrict_to_output,
+                                                                 IDXGISwapChain1**            swap_chain);
+
+    void PreProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+                                                 UINT                    buffer_count,
+                                                 UINT                    width,
+                                                 UINT                    height,
+                                                 DXGI_FORMAT             new_format,
+                                                 UINT                    flags);
+
+    void PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+                                                  HRESULT                 result,
+                                                  UINT                    buffer_count,
+                                                  UINT                    width,
+                                                  UINT                    height,
+                                                  DXGI_FORMAT             new_format,
+                                                  UINT                    flags);
+
+    void PreProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+                                                   UINT                    buffer_count,
+                                                   UINT                    width,
+                                                   UINT                    height,
+                                                   DXGI_FORMAT             new_format,
+                                                   UINT                    flags,
+                                                   const UINT*             node_mask,
+                                                   IUnknown* const*        present_queue);
+
+    void PostProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+                                                    HRESULT                 result,
+                                                    UINT                    buffer_count,
+                                                    UINT                    width,
+                                                    UINT                    height,
+                                                    DXGI_FORMAT             new_format,
+                                                    UINT                    flags,
+                                                    const UINT*             node_mask,
+                                                    IUnknown* const*        present_queue);
+
+    void Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper);
+
     void PostProcess_ID3D12Device_CreateHeap(
         ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap);
 
@@ -219,6 +285,10 @@ class D3D12CaptureManager : public CaptureManager
     virtual void CreateStateTracker() override {}
     virtual void DestroyStateTracker() override {}
     virtual void WriteTrackedState(format::ThreadId) override {}
+
+    void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, uint32_t image_count, DXGI_SWAP_EFFECT swap_effect);
+
+    void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 
     void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
                                       ID3D12Resource_Wrapper*    resource_wrapper,
