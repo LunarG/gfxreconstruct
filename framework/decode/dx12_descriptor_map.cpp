@@ -21,6 +21,7 @@
 */
 
 #include "decode/dx12_descriptor_map.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

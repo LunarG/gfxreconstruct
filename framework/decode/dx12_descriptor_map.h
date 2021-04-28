@@ -24,12 +24,13 @@
 #define GFXRECON_DECODE_DX12_DESCRIPTOR_MAP_H
 
 #include "format/format.h"
-#include "decode/handle_pointer_decoder.h"
-#include "util/gpu_va_map.h"
+
+#include <d3d12.h>
 
 #include <array>
-#include <unordered_map>
 #include <map>
+#include <memory>
+#include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
