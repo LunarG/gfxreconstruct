@@ -210,5 +210,33 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
     }
 }
 
+void UnwrapStructObjects(D3D12_STATE_SUBOBJECT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if ((value != nullptr) && (value->pDesc != nullptr))
+    {
+        switch (value->Type)
+        {
+            case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
+                value->pDesc = UnwrapStructPtrObjects(
+                    reinterpret_cast<const D3D12_GLOBAL_ROOT_SIGNATURE*>(value->pDesc), unwrap_memory);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
+                value->pDesc = UnwrapStructPtrObjects(reinterpret_cast<const D3D12_LOCAL_ROOT_SIGNATURE*>(value->pDesc),
+                                                      unwrap_memory);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
+                value->pDesc = UnwrapStructPtrObjects(
+                    reinterpret_cast<const D3D12_EXISTING_COLLECTION_DESC*>(value->pDesc), unwrap_memory);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                value->pDesc = UnwrapStructPtrObjects(
+                    reinterpret_cast<const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(value->pDesc), unwrap_memory);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

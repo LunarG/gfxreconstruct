@@ -100,7 +100,8 @@ class Dx12BaseGenerator(BaseGenerator):
     # D3D12_PIPELINE_STATE_STREAM_DESC that contain an array of bytes with
     # embedded objects.
     CUSTOM_STRUCT_HANDLE_MAP = {
-        'D3D12_PIPELINE_STATE_STREAM_DESC': ['pPipelineStateSubobjectStream']
+        'D3D12_PIPELINE_STATE_STREAM_DESC': ['pPipelineStateSubobjectStream'],
+        'D3D12_STATE_SUBOBJECT': ['pDesc']
     }
 
     # Some functions annotate COM pointer parameters that have a void**

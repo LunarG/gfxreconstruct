@@ -61,6 +61,10 @@ void MapStructObjects(Decoded_D3D12_LOCAL_ROOT_SIGNATURE* wrapper, const Dx12Obj
 
 void MapStructObjects(Decoded_D3D12_EXISTING_COLLECTION_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_STATE_OBJECT_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
+
 void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
@@ -98,6 +102,7 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, con
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_DISPATCH_RAYS_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
+
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* capture_value, const D3D12_GRAPHICS_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table);
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* capture_value, const D3D12_COMPUTE_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table);

@@ -116,6 +116,22 @@ void UnwrapStructObjects(D3D12_EXISTING_COLLECTION_DESC* value, HandleUnwrapMemo
     }
 }
 
+void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pSubobjectToAssociate = UnwrapStructPtrObjects(value->pSubobjectToAssociate, unwrap_memory);
+    }
+}
+
+void UnwrapStructObjects(D3D12_STATE_OBJECT_DESC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pSubobjects = UnwrapStructArrayObjects(value->pSubobjects, value->NumSubobjects, unwrap_memory);
+    }
+}
+
 void UnwrapStructObjects(D3D12_AUTO_BREADCRUMB_NODE* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)

@@ -71,7 +71,11 @@ class Dx12ReplayConsumerBodyGenerator(
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
             diag_file
         )
-        self.structs_with_handles = {**self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE' : ['ptr'], 'D3D12_GPU_DESCRIPTOR_HANDLE' : ['ptr']}
+        self.structs_with_handles = {
+            **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
+            ['ptr'],
+            'D3D12_GPU_DESCRIPTOR_HANDLE': ['ptr']
+        }
         self.structs_with_handle_ptrs = []
         self.structs_with_map_data = dict()
 

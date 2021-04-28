@@ -45,6 +45,8 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS* value, HandleUnwrapMem
 
 void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructObjects(D3D12_STATE_SUBOBJECT* value, HandleUnwrapMemory* unwrap_memory);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

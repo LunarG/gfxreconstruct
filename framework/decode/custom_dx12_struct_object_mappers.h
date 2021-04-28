@@ -66,6 +66,10 @@ void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
                       const Dx12ObjectInfoTable&                object_info_table,
                       const util::GpuVaMap&                     gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT* wrapper,
+                      const Dx12ObjectInfoTable&     object_info_table,
+                      const util::GpuVaMap&          gpu_va_map);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

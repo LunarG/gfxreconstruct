@@ -16710,8 +16710,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
             riid,
             ppStateObject);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = GetWrappedObjectAs<ID3D12Device5>()->CreateStateObject(
-            pDesc,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
             ppStateObject);
 
@@ -17310,8 +17312,10 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
             riid,
             ppNewStateObject);
 
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
         result = GetWrappedObjectAs<ID3D12Device7>()->AddToStateObject(
-            pAddition,
+            UnwrapStructPtrObjects(pAddition, unwrap_memory),
             encode::GetWrappedObject<ID3D12StateObject>(pStateObjectToGrowFrom),
             riid,
             ppNewStateObject);

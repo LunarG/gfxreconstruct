@@ -5729,6 +5729,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
     auto replay_object = MapObject<ID3D12Device5>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppStateObject->IsNull()) ppStateObject->SetHandleLength(1);
         auto out_p_ppStateObject    = ppStateObject->GetPointer();
         auto out_hp_ppStateObject   = ppStateObject->GetHandlePointer();
@@ -5923,6 +5924,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
     auto replay_object = MapObject<ID3D12Device7>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pAddition->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         auto in_pStateObjectToGrowFrom = MapObject<ID3D12StateObject>(pStateObjectToGrowFrom);
         if(!ppNewStateObject->IsNull()) ppNewStateObject->SetHandleLength(1);
         auto out_p_ppNewStateObject    = ppNewStateObject->GetPointer();

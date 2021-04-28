@@ -208,5 +208,35 @@ void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT* wrapper,
+                      const Dx12ObjectInfoTable&     object_info_table,
+                      const util::GpuVaMap&          gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
+                MapStructObjects(wrapper->global_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
+                MapStructObjects(wrapper->local_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
+                MapStructObjects(
+                    wrapper->existing_collection_desc->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                MapStructObjects(
+                    wrapper->subobject_to_exports_association->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
