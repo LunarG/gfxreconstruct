@@ -37,7 +37,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class FileOutputStream : public OutputStream
 {
   public:
-    FileOutputStream(const std::string& filename, bool append = false);
+    // buffer_size controls the size of file stream buffer. If buffer_size is 0, file writes will be unbuffered.
+    FileOutputStream(const std::string& filename, size_t buffer_size, bool append = false);
 
     FileOutputStream(FILE* file, bool owned = false);
 

@@ -520,6 +520,11 @@ inline size_t FileRead(void* buffer, size_t element_size, size_t element_count, 
     return fread(buffer, element_size, element_count, stream);
 }
 
+inline int32_t SetFileBufferSize(FILE* stream, size_t buffer_size)
+{
+    return setvbuf(stream, nullptr, (buffer_size == 0) ? _IONBF : _IOFBF, buffer_size);
+}
+
 inline int32_t FileClose(FILE* stream)
 {
     return fclose(stream);
