@@ -54,7 +54,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 // One based frame count.
-const uint32_t kFirstFrame = 1;
+const uint32_t kFirstFrame           = 1;
+const size_t   kFileStreamBufferSize = 256 * 1024;
 
 std::mutex                                     TraceManager::ThreadData::count_lock_;
 format::ThreadId                               TraceManager::ThreadData::thread_count_ = 0;
@@ -572,7 +573,7 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
         capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
     }
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename);
+    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename, kFileStreamBufferSize);
 
     if (file_stream_->IsValid())
     {
