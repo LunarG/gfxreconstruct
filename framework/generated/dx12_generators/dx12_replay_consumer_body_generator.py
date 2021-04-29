@@ -225,7 +225,7 @@ class Dx12ReplayConsumerBodyGenerator(
                     if is_override:
                         add_object_list.append(
                             'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), '\
-                            'object_info.extra_info_type, object_info.extra_info);\n'\
+                            'std::move(object_info));\n'\
                             .format(value.name)
                         )
                     else:

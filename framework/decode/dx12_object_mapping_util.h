@@ -110,14 +110,13 @@ static T** MapObjectArray(HandlePointerDecoder<T*>* handles_pointer, const Dx12O
 template <typename T>
 static void AddObject(const format::HandleId* p_id, T** pp_object, Dx12ObjectInfoTable* object_info_table)
 {
-    AddObject(p_id, pp_object, DxObjectInfoType::kUnused, nullptr, object_info_table);
+    AddObject(p_id, pp_object, DxObjectInfo{}, object_info_table);
 }
 
 template <typename T>
 static void AddObject(const format::HandleId* p_id,
                       T**                     pp_object,
-                      DxObjectInfoType        extra_info_type,
-                      void*                   extra_info,
+                      DxObjectInfo&&          initial_info,
                       Dx12ObjectInfoTable*    object_info_table)
 {
     assert(object_info_table != nullptr);
@@ -128,8 +127,9 @@ static void AddObject(const format::HandleId* p_id,
         auto entry = object_info_table->find(id);
         if (entry == object_info_table->end())
         {
-            object_info_table->emplace(
-                id, DxObjectInfo{ reinterpret_cast<IUnknown*>(*pp_object), id, 1, extra_info_type, extra_info });
+            initial_info.capture_id = id;
+            initial_info.object     = reinterpret_cast<IUnknown*>(*pp_object);
+            object_info_table->emplace(id, std::move(initial_info));
         }
         else
         {

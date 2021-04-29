@@ -72,7 +72,7 @@ struct DxObjectInfo
     // Standard info stored for all DX objects.
     IUnknown*        object{ nullptr };
     format::HandleId capture_id{ format::kNullHandleId };
-    uint64_t         ref_count{ 0 };
+    uint64_t         ref_count{ 1 };
     DxObjectInfoType extra_info_type{ DxObjectInfoType::kUnused };
     void*            extra_info{ nullptr };
 };

@@ -103,9 +103,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
-    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfoType extra_info_type, void* extra_info)
+    void AddObject(const format::HandleId* p_id, T** pp_object, DxObjectInfo&& initial_info)
     {
-        object_mapping::AddObject<T>(p_id, pp_object, extra_info_type, extra_info, &object_info_table_);
+        object_mapping::AddObject<T>(p_id, pp_object, std::move(initial_info), &object_info_table_);
     }
 
     void RemoveObject(DxObjectInfo* info);

@@ -81,7 +81,7 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
                                                     ppFactory);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+        AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), std::move(object_info));
     }
     CheckReplayResult("CreateDXGIFactory2", returnValue, replay_result);
 }
@@ -220,7 +220,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
                                                    ppDevice);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info));
     }
     CheckReplayResult("D3D12CreateDevice", returnValue, replay_result);
 }
@@ -969,7 +969,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
                                                      ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("IDXGIFactory_CreateSwapChain", returnValue, replay_result);
     }
@@ -1632,7 +1632,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
                                                             ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForHwnd", returnValue, replay_result);
     }
@@ -1665,7 +1665,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
                                                                   ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForCoreWindow", returnValue, replay_result);
     }
@@ -1801,7 +1801,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
                                                                    ppSwapChain);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("IDXGIFactory2_CreateSwapChainForComposition", returnValue, replay_result);
     }
@@ -4227,7 +4227,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
                                                         ppCommandQueue);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateCommandQueue", returnValue, replay_result);
     }
@@ -4359,7 +4359,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
                                                           ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateDescriptorHeap", returnValue, replay_result);
     }
@@ -4830,7 +4830,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
                                                  ppFence);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateFence", returnValue, replay_result);
     }
@@ -5207,7 +5207,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
                                                                  ppvHeap);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), object_info.extra_info_type, object_info.extra_info);
+            AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device3_OpenExistingHeapFromAddress", returnValue, replay_result);
     }
