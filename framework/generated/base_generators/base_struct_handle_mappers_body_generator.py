@@ -111,13 +111,17 @@ class BaseStructHandleMappersBodyGenerator():
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
                 or (struct in self.structs_with_map_data)
             ):
-                handle_members = dict()
+                handle_members = list()
                 generic_handle_members = dict()
 
                 if struct in self.structs_with_handles:
-                    handle_members = self.structs_with_handles[struct]
+                    handle_members = self.structs_with_handles[struct].copy()
+
                 if struct in self.structs_with_map_data:
-                    handle_members = self.structs_with_map_data[struct]
+                    handle_members.extend(
+                        self.structs_with_map_data[struct].copy()
+                    )
+
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]

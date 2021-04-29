@@ -379,6 +379,8 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* wrapper, con
     {
         D3D12_RENDER_PASS_RENDER_TARGET_DESC* value = wrapper->decoded_value;
 
+        MapStructObjects(wrapper->EndingAccess, object_info_table, descriptor_map, gpu_va_map);
+
         object_mapping::MapCpuDescriptorHandle(value->cpuDescriptor, descriptor_map);
     }
 }
@@ -388,6 +390,10 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, con
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value = wrapper->decoded_value;
+
+        MapStructObjects(wrapper->DepthEndingAccess, object_info_table, descriptor_map, gpu_va_map);
+
+        MapStructObjects(wrapper->StencilEndingAccess, object_info_table, descriptor_map, gpu_va_map);
 
         object_mapping::MapCpuDescriptorHandle(value->cpuDescriptor, descriptor_map);
     }
