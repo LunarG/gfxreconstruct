@@ -34,7 +34,7 @@
       "Signal": "OverrideCommandQueueSignal"
     },
     "ID3D12Fence": {
-      "GetCompletedValue":  "OverrideGetCompletedValue",
+      "GetCompletedValue": "OverrideGetCompletedValue",
       "SetEventOnCompletion": "OverrideSetEventOnCompletion",
       "Signal": "OverrideFenceSignal"
     },
@@ -46,6 +46,13 @@
       "CreateSwapChainForHwnd": "OverrideCreateSwapChainForHwnd",
       "CreateSwapChainForComposition": "OverrideCreateSwapChainForComposition",
       "CreateSwapChainForCoreWindow": "OverrideCreateSwapChainForCoreWindow"
+    },
+    "IDXGISwapChain": {
+      "GetBuffer": "OverrideGetBuffer",
+      "ResizeBuffers": "OverrideResizeBuffers"
+    },
+    "IDXGISwapChain3": {
+      "ResizeBuffers1": "OverrideResizeBuffers1"
     }
   }
 }

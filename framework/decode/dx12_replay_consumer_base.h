@@ -260,6 +260,30 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     HRESULT OverrideFenceSignal(DxObjectInfo* replay_object_info, HRESULT original_result, UINT64 value);
 
+    HRESULT OverrideGetBuffer(DxObjectInfo*                replay_object_info,
+                              HRESULT                      original_result,
+                              UINT                         buffer,
+                              Decoded_GUID                 riid,
+                              HandlePointerDecoder<void*>* ppSurface);
+
+    HRESULT OverrideResizeBuffers(DxObjectInfo* replay_object_info,
+                                  HRESULT       original_result,
+                                  UINT          buffer_count,
+                                  UINT          width,
+                                  UINT          height,
+                                  DXGI_FORMAT   new_format,
+                                  UINT          flags);
+
+    HRESULT OverrideResizeBuffers1(DxObjectInfo*                    replay_object_info,
+                                   HRESULT                          original_result,
+                                   UINT                             buffer_count,
+                                   UINT                             width,
+                                   UINT                             height,
+                                   DXGI_FORMAT                      new_format,
+                                   UINT                             flags,
+                                   PointerDecoder<UINT>*            node_mask,
+                                   HandlePointerDecoder<IUnknown*>* present_queue);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -296,9 +320,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void SetSwapchainInfoWindow(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd);
+    void SetSwapchainInfo(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count);
 
-    void DestroyObjectExtraInfo(DxObjectInfo* info);
+    void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count);
+
+    void ReleaseSwapchainImages(DxgiSwapchainInfo* info);
+
+    void DestroyObjectExtraInfo(DxObjectInfo* info, bool release_extra_refs);
 
     void DestroyActiveObjects();
 

@@ -141,7 +141,7 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
 {
     if (info != nullptr)
     {
-        DestroyObjectExtraInfo(info);
+        DestroyObjectExtraInfo(info, true);
         object_mapping::RemoveObject(info->capture_id, &object_info_table_);
     }
 }
@@ -236,7 +236,7 @@ ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, 
     auto object = replay_object_info->object;
 
     --(replay_object_info->ref_count);
-    if (replay_object_info->ref_count == 0)
+    if ((replay_object_info->ref_count == 0) && (replay_object_info->extra_ref == 0))
     {
         RemoveObject(replay_object_info);
     }
@@ -316,7 +316,7 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                     hwnd_id = meta_info->OutputWindow;
                 }
 
-                SetSwapchainInfoWindow(object_info, window, hwnd_id, hwnd);
+                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount);
             }
             else
             {
@@ -1061,6 +1061,95 @@ Dx12ReplayConsumerBase::OverrideFenceSignal(DxObjectInfo* replay_object_info, HR
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                replay_object_info,
+                                                  HRESULT                      original_result,
+                                                  UINT                         buffer,
+                                                  Decoded_GUID                 riid,
+                                                  HandlePointerDecoder<void*>* surface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (surface != nullptr));
+
+    auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
+    auto replay_result = replay_object->GetBuffer(buffer, *riid.decoded_value, surface->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result) && !surface->IsNull())
+    {
+        if ((replay_object_info->extra_info != nullptr) &&
+            (replay_object_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo))
+        {
+            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(replay_object_info->extra_info);
+
+            if (swapchain_info->images[buffer] == nullptr)
+            {
+                auto object_info = reinterpret_cast<DxObjectInfo*>(surface->GetConsumerData(0));
+
+                // Increment the replay reference to prevent the swapchain image info entry from being removed from the
+                // object info table while the swapchain is active.
+                ++object_info->extra_ref;
+                swapchain_info->images[buffer] = object_info;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("IDXGISwapChain object %" PRId64 " does not have an associated info structure",
+                               replay_object_info->capture_id);
+        }
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers(DxObjectInfo* replay_object_info,
+                                                      HRESULT       original_result,
+                                                      UINT          buffer_count,
+                                                      UINT          width,
+                                                      UINT          height,
+                                                      DXGI_FORMAT   new_format,
+                                                      UINT          flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
+    auto replay_result = replay_object->ResizeBuffers(buffer_count, width, height, new_format, flags);
+
+    if (SUCCEEDED(replay_result))
+    {
+        ResetSwapchainImages(replay_object_info, buffer_count);
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*                    replay_object_info,
+                                                       HRESULT                          original_result,
+                                                       UINT                             buffer_count,
+                                                       UINT                             width,
+                                                       UINT                             height,
+                                                       DXGI_FORMAT                      new_format,
+                                                       UINT                             flags,
+                                                       PointerDecoder<UINT>*            node_mask,
+                                                       HandlePointerDecoder<IUnknown*>* present_queue)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_object = static_cast<IDXGISwapChain3*>(replay_object_info->object);
+    auto replay_result = replay_object->ResizeBuffers1(
+        buffer_count, width, height, new_format, flags, node_mask->GetPointer(), present_queue->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        ResetSwapchainImages(replay_object_info, buffer_count);
+    }
+
+    return replay_result;
+}
+
 HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     DxObjectInfo*                                                  replay_object_info,
     HRESULT                                                        original_result,
@@ -1115,7 +1204,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
             if (SUCCEEDED(result))
             {
                 auto object_info = reinterpret_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
-                SetSwapchainInfoWindow(object_info, window, hwnd_id, hwnd);
+                SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount);
             }
             else
             {
@@ -1136,7 +1225,8 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     return result;
 }
 
-void Dx12ReplayConsumerBase::SetSwapchainInfoWindow(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd)
+void Dx12ReplayConsumerBase::SetSwapchainInfo(
+    DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count)
 {
     if (window != nullptr)
     {
@@ -1144,8 +1234,11 @@ void Dx12ReplayConsumerBase::SetSwapchainInfoWindow(DxObjectInfo* info, Window* 
         {
             assert(info->extra_info == nullptr);
 
-            auto swapchain_info    = new DxgiSwapchainInfo;
-            swapchain_info->window = window;
+            auto swapchain_info         = new DxgiSwapchainInfo;
+            swapchain_info->window      = window;
+            swapchain_info->hwnd_id     = hwnd_id;
+            swapchain_info->image_count = image_count;
+            swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(image_count);
 
             info->extra_info_type = DxObjectInfoType::kIDxgiSwapchainInfo;
             info->extra_info      = swapchain_info;
@@ -1163,7 +1256,48 @@ void Dx12ReplayConsumerBase::SetSwapchainInfoWindow(DxObjectInfo* info, Window* 
     }
 }
 
-void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
+void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) &&
+        (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo))
+    {
+        auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
+
+        // Clear the old info entries from the object info table and reset the swapchain info's image count.
+        ReleaseSwapchainImages(swapchain_info);
+
+        swapchain_info->image_count = buffer_count;
+        swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(buffer_count);
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("IDXGISwapChain object %" PRId64 " does not have an associated info structure",
+                           info->capture_id);
+    }
+}
+
+void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
+{
+    if ((info != nullptr) && (info->images != nullptr))
+    {
+        for (uint32_t i = 0; i < info->image_count; ++i)
+        {
+            auto image_info = info->images[i];
+            if ((image_info != nullptr) && (image_info->extra_ref > 0))
+            {
+                --(image_info->extra_ref);
+                if ((image_info->ref_count == 0) && (image_info->extra_ref == 0))
+                {
+                    RemoveObject(image_info);
+                }
+            }
+        }
+
+        info->images.reset();
+    }
+}
+
+void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool release_extra_refs)
 {
     if (info->extra_info != nullptr)
     {
@@ -1227,6 +1361,11 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info)
         {
             auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
 
+            if (release_extra_refs)
+            {
+                ReleaseSwapchainImages(swapchain_info);
+            }
+
             window_factory_->Destroy(swapchain_info->window);
             active_windows_.erase(swapchain_info->window);
 
@@ -1254,7 +1393,7 @@ void Dx12ReplayConsumerBase::DestroyActiveObjects()
     {
         auto& info = entry.second;
 
-        DestroyObjectExtraInfo(&info);
+        DestroyObjectExtraInfo(&info, false);
 
         // Release all of the replay tool's references to the object.
         for (uint32_t i = 0; i < info.ref_count; ++i)

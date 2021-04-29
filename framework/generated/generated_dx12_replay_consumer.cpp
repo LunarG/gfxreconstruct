@@ -745,18 +745,20 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppSurface)
 {
-    auto replay_object = MapObject<IDXGISwapChain>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppSurface->IsNull()) ppSurface->SetHandleLength(1);
-        auto out_p_ppSurface    = ppSurface->GetPointer();
-        auto out_hp_ppSurface   = ppSurface->GetHandlePointer();
-        auto replay_result = replay_object->GetBuffer(Buffer,
-                                                      *riid.decoded_value,
-                                                      out_hp_ppSurface);
+        DxObjectInfo object_info{};
+        ppSurface->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideGetBuffer(replay_object,
+                                               returnValue,
+                                               Buffer,
+                                               riid,
+                                               ppSurface);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppSurface, out_hp_ppSurface);
+            AddObject(ppSurface->GetPointer(), ppSurface->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("IDXGISwapChain_GetBuffer", returnValue, replay_result);
     }
@@ -822,14 +824,16 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
     DXGI_FORMAT                                 NewFormat,
     UINT                                        SwapChainFlags)
 {
-    auto replay_object = MapObject<IDXGISwapChain>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->ResizeBuffers(BufferCount,
-                                                          Width,
-                                                          Height,
-                                                          NewFormat,
-                                                          SwapChainFlags);
+        auto replay_result = OverrideResizeBuffers(replay_object,
+                                                   returnValue,
+                                                   BufferCount,
+                                                   Width,
+                                                   Height,
+                                                   NewFormat,
+                                                   SwapChainFlags);
         CheckReplayResult("IDXGISwapChain_ResizeBuffers", returnValue, replay_result);
     }
 }
@@ -2318,17 +2322,19 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     PointerDecoder<UINT>*                       pCreationNodeMask,
     HandlePointerDecoder<IUnknown*>*            ppPresentQueue)
 {
-    auto replay_object = MapObject<IDXGISwapChain3>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_ppPresentQueue = MapObjects<IUnknown>(ppPresentQueue, BufferCount);
-        auto replay_result = replay_object->ResizeBuffers1(BufferCount,
-                                                           Width,
-                                                           Height,
-                                                           Format,
-                                                           SwapChainFlags,
-                                                           pCreationNodeMask->GetPointer(),
-                                                           in_ppPresentQueue);
+        MapObjects<IUnknown>(ppPresentQueue, BufferCount);
+        auto replay_result = OverrideResizeBuffers1(replay_object,
+                                                    returnValue,
+                                                    BufferCount,
+                                                    Width,
+                                                    Height,
+                                                    Format,
+                                                    SwapChainFlags,
+                                                    pCreationNodeMask,
+                                                    ppPresentQueue);
         CheckReplayResult("IDXGISwapChain3_ResizeBuffers1", returnValue, replay_result);
     }
 }

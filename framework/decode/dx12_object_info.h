@@ -73,6 +73,7 @@ struct DxObjectInfo
     IUnknown*        object{ nullptr };
     format::HandleId capture_id{ format::kNullHandleId };
     uint64_t         ref_count{ 1 };
+    uint64_t         extra_ref{ 0 };
     DxObjectInfoType extra_info_type{ DxObjectInfoType::kUnused };
     void*            extra_info{ nullptr };
 };
@@ -81,6 +82,9 @@ struct DxgiSwapchainInfo
 {
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
+    uint32_t image_count{ 0 };  ///< The number of swapchain images.
+    std::unique_ptr<DxObjectInfo*[]> images; ///< Pointers to swapchain image info entries to be kept in the info table
+                                             ///< while the swapchain is active.
 };
 
 struct D3D12CommandQueueInfo
