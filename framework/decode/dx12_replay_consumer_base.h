@@ -322,7 +322,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void SetSwapchainInfo(DxObjectInfo* info, Window* window, uint64_t hwnd_id, HWND hwnd, uint32_t image_count);
 
-    void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count);
+    void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count, uint32_t width, uint32_t height);
 
     void ReleaseSwapchainImages(DxgiSwapchainInfo* info);
 

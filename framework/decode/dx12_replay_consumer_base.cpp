@@ -1118,7 +1118,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers(DxObjectInfo* replay_objec
 
     if (SUCCEEDED(replay_result))
     {
-        ResetSwapchainImages(replay_object_info, buffer_count);
+        ResetSwapchainImages(replay_object_info, buffer_count, width, height);
     }
 
     return replay_result;
@@ -1144,7 +1144,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
 
     if (SUCCEEDED(replay_result))
     {
-        ResetSwapchainImages(replay_object_info, buffer_count);
+        ResetSwapchainImages(replay_object_info, buffer_count, width, height);
     }
 
     return replay_result;
@@ -1256,7 +1256,10 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(
     }
 }
 
-void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count)
+void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
+                                                  uint32_t      buffer_count,
+                                                  uint32_t      width,
+                                                  uint32_t      height)
 {
     if ((info != nullptr) && (info->extra_info != nullptr) &&
         (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo))
@@ -1268,6 +1271,9 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info, uint32_t b
 
         swapchain_info->image_count = buffer_count;
         swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(buffer_count);
+
+        // Resize the swapchain's window.
+        swapchain_info->window->SetSize(width, height);
     }
     else
     {
