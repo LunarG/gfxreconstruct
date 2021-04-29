@@ -68,8 +68,6 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 {
     assert(command_pool != VK_NULL_HANDLE);
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper = reinterpret_cast<CommandPoolWrapper*>(command_pool);
 
     for (const auto& entry : wrapper->child_buffers)
@@ -90,8 +88,6 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
 
     wrapper->memory_properties = *properties;
@@ -102,8 +98,6 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
                                                                   const VkQueueFamilyProperties* properties)
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper                             = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
     wrapper->queue_family_properties_call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties;
@@ -118,8 +112,6 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
                                                                    const VkQueueFamilyProperties2* properties)
 {
     assert((physical_device != VK_NULL_HANDLE) && (properties != nullptr));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper                             = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
     wrapper->queue_family_properties_call_id = call_id;
@@ -168,8 +160,6 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice phys
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto  wrapper             = reinterpret_cast<SurfaceKHRWrapper*>(surface);
     auto& entry               = wrapper->surface_support[GetWrappedId(physical_device)];
     entry[queue_family_index] = supported;
@@ -181,8 +171,6 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper                                                 = reinterpret_cast<SurfaceKHRWrapper*>(surface);
     wrapper->surface_capabilities[GetWrappedId(physical_device)] = capabilities;
 }
@@ -193,8 +181,6 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
                                                            const VkSurfaceFormatKHR* formats)
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (formats != nullptr));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface);
     auto& entry   = wrapper->surface_formats[GetWrappedId(physical_device)];
@@ -208,8 +194,6 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
 {
     assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE) && (modes != nullptr));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto  wrapper = reinterpret_cast<SurfaceKHRWrapper*>(surface);
     auto& entry   = wrapper->surface_present_modes[GetWrappedId(physical_device)];
     entry.assign(modes, modes + mode_count);
@@ -218,8 +202,6 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
 void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper       = reinterpret_cast<BufferWrapper*>(buffer);
     wrapper->device_id = GetWrappedId(device);
@@ -233,8 +215,6 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
 {
     assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper            = reinterpret_cast<BufferWrapper*>(buffer);
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->bind_memory_id = GetWrappedId(memory);
@@ -247,8 +227,6 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
                                                  VkDeviceSize   memoryOffset)
 {
     assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
     wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
@@ -265,8 +243,6 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper           = reinterpret_cast<DeviceMemoryWrapper*>(memory);
     wrapper->map_device    = reinterpret_cast<DeviceWrapper*>(device);
     wrapper->mapped_data   = mapped_data;
@@ -279,8 +255,6 @@ void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, co
 {
     assert((command_buffer != VK_NULL_HANDLE) && (begin_info != nullptr));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper                     = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
     wrapper->active_render_pass      = reinterpret_cast<RenderPassWrapper*>(begin_info->renderPass);
     wrapper->render_pass_framebuffer = reinterpret_cast<FramebufferWrapper*>(begin_info->framebuffer);
@@ -289,8 +263,6 @@ void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, co
 void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
 {
     assert(command_buffer != VK_NULL_HANDLE);
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
     assert((wrapper->active_render_pass != VK_NULL_HANDLE) && (wrapper->render_pass_framebuffer != VK_NULL_HANDLE));
@@ -318,8 +290,6 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
                                               const VkCommandBuffer* command_buffers)
 {
     assert((command_buffer != VK_NULL_HANDLE) && (command_buffers != nullptr));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto primary_wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
 
@@ -361,8 +331,6 @@ void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
@@ -381,8 +349,6 @@ void VulkanStateTracker::TrackImageBarriers2KHR(VkCommandBuffer                 
 
     if ((image_barrier_count > 0) && (image_barriers != nullptr))
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
 
         for (uint32_t i = 0; i < image_barrier_count; ++i)
@@ -397,8 +363,6 @@ void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, co
 {
     if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferCount > 0))
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         for (uint32_t submit = 0; submit < submit_count; ++submit)
         {
             uint32_t               command_buffer_count = submits[submit].commandBufferCount;
@@ -447,8 +411,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                                                    uint32_t                    copy_count,
                                                    const VkCopyDescriptorSet*  copies)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
-
     // When processing descriptor updates, we pack the unique handle ID into the stored
     // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
     // exists at state write time by checking for the ID in the active state table.
@@ -730,8 +692,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
     // exists at state write time by checking for the ID in the active state table.
     if ((template_info != nullptr) && (data != nullptr))
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         auto           wrapper = reinterpret_cast<DescriptorSetWrapper*>(set);
         const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
 
@@ -948,11 +908,10 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
 {
     assert(descriptor_pool != VK_NULL_HANDLE);
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper = reinterpret_cast<DescriptorPoolWrapper*>(descriptor_pool);
 
     // Pool reset implicitly frees descriptor sets, so remove all wrappers from the state tracker.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& set_entry : wrapper->child_sets)
     {
         state_table_.RemoveWrapper(set_entry.second);
@@ -963,8 +922,6 @@ void VulkanStateTracker::TrackQueryActivation(
     VkCommandBuffer command_buffer, VkQueryPool query_pool, uint32_t query, VkQueryControlFlags flags, uint32_t index)
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto                      wrapper              = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
     const CommandPoolWrapper* command_pool_wrapper = wrapper->parent_pool;
@@ -984,8 +941,6 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
 {
     assert((command_buffer != VK_NULL_HANDLE) && (query_pool != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto  wrapper         = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
     auto& query_pool_info = wrapper->recorded_queries[reinterpret_cast<QueryPoolWrapper*>(query_pool)];
 
@@ -998,8 +953,6 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
 void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_query, uint32_t query_count)
 {
     assert(query_pool != VK_NULL_HANDLE);
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper = reinterpret_cast<QueryPoolWrapper*>(query_pool);
     assert((first_query + query_count) <= wrapper->pending_queries.size());
@@ -1014,8 +967,6 @@ void VulkanStateTracker::TrackSemaphoreSignalState(VkSemaphore signal)
 {
     if (signal != VK_NULL_HANDLE)
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signal);
         assert(wrapper != nullptr);
         wrapper->signaled = true;
@@ -1029,8 +980,6 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
 {
     if (((waits != nullptr) && (wait_count > 0)) || ((signals != nullptr) && (signal_count > 0)))
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-
         if (waits != nullptr)
         {
             for (uint32_t i = 0; i < wait_count; ++i)
@@ -1056,8 +1005,6 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
 void VulkanStateTracker::TrackAcquireImage(
     uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
 
     assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
@@ -1074,8 +1021,6 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
                                               VkQueue               queue)
 {
     assert((count > 0) && (swapchains != nullptr) && (image_indices != nullptr));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     for (uint32_t i = 0; i < count; ++i)
     {
@@ -1096,8 +1041,6 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
 {
     assert((device != VK_NULL_HANDLE) && (accel_struct != VK_NULL_HANDLE));
 
-    std::unique_lock<std::mutex> lock(mutex_);
-
     auto wrapper       = reinterpret_cast<AccelerationStructureKHRWrapper*>(accel_struct);
     wrapper->device_id = GetWrappedId(device);
     wrapper->address   = address;
@@ -1106,8 +1049,6 @@ void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice    
 void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address)
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper       = reinterpret_cast<DeviceMemoryWrapper*>(memory);
     wrapper->device_id = GetWrappedId(device);
@@ -1120,8 +1061,6 @@ void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
                                                            const void* data)
 {
     assert((device != VK_NULL_HANDLE) && (pipeline != VK_NULL_HANDLE));
-
-    std::unique_lock<std::mutex> lock(mutex_);
 
     auto           wrapper   = reinterpret_cast<PipelineWrapper*>(pipeline);
     const uint8_t* byte_data = reinterpret_cast<const uint8_t*>(data);
@@ -1136,6 +1075,7 @@ void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
 
     // Physical devices are not explicitly destroyed, so need to be removed from the state tracker when their parent
     // instance is destroyed.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto physical_device_entry : wrapper->child_physical_devices)
     {
         for (const auto display_entry : physical_device_entry->child_displays)
@@ -1159,6 +1099,7 @@ void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
 
     // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
     // destroyed.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& entry : wrapper->child_queues)
     {
         state_table_.RemoveWrapper(entry);
@@ -1172,6 +1113,7 @@ void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
 
     // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
     // tracking.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& entry : wrapper->child_buffers)
     {
         state_table_.RemoveWrapper(entry.second);
@@ -1185,6 +1127,7 @@ void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
 
     // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
     // tracking.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& entry : wrapper->child_sets)
     {
         state_table_.RemoveWrapper(entry.second);
@@ -1198,6 +1141,7 @@ void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
 
     // Swapchain images are not explicitly destroyed, so need to be removed from state tracking when the parent
     // swapchain is destroyed.
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (auto entry : wrapper->child_images)
     {
         state_table_.RemoveWrapper(entry);
