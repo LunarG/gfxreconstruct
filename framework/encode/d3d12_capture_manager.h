@@ -220,6 +220,45 @@ class D3D12CaptureManager : public CaptureManager
                                                               REFIID                 riid,
                                                               void**                 heap);
 
+    void PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wrapper*          wrapper,
+                                               HRESULT                         result,
+                                               const D3D12_HEAP_DESC*          desc,
+                                               ID3D12ProtectedResourceSession* protected_session,
+                                               REFIID                          riid,
+                                               void**                          heap);
+
+    void PostProcess_ID3D12Device4_CreateCommittedResource1(ID3D12Device4_Wrapper*          wrapper,
+                                                            HRESULT                         result,
+                                                            const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                            D3D12_HEAP_FLAGS                heap_flags,
+                                                            const D3D12_RESOURCE_DESC*      desc,
+                                                            D3D12_RESOURCE_STATES           initial_resource_state,
+                                                            const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                            ID3D12ProtectedResourceSession* protected_session,
+                                                            REFIID                          riid,
+                                                            void**                          resource);
+
+    void PostProcess_ID3D12Device8_CreateCommittedResource2(ID3D12Device8_Wrapper*          wrapper,
+                                                            HRESULT                         result,
+                                                            const D3D12_HEAP_PROPERTIES*    heap_properties,
+                                                            D3D12_HEAP_FLAGS                heap_flags,
+                                                            const D3D12_RESOURCE_DESC1*     desc,
+                                                            D3D12_RESOURCE_STATES           initial_resource_state,
+                                                            const D3D12_CLEAR_VALUE*        optimized_clear_value,
+                                                            ID3D12ProtectedResourceSession* protected_session,
+                                                            REFIID                          riid,
+                                                            void**                          resource);
+
+    void PostProcess_ID3D12Device8_CreatePlacedResource1(ID3D12Device8_Wrapper*      wrapper,
+                                                         HRESULT                     result,
+                                                         ID3D12Heap*                 heap,
+                                                         UINT64                      heap_offset,
+                                                         const D3D12_RESOURCE_DESC1* desc,
+                                                         D3D12_RESOURCE_STATES       initial_state,
+                                                         const D3D12_CLEAR_VALUE*    optimized_clear_value,
+                                                         REFIID                      riid,
+                                                         void**                      resource);
+
     void PostProcess_ID3D12Resource_Map(
         ID3D12Resource_Wrapper* wrapper, HRESULT result, UINT subresource, const D3D12_RANGE* read_range, void** data);
 
@@ -323,12 +362,13 @@ class D3D12CaptureManager : public CaptureManager
 
     void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 
-    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
-                                      ID3D12Resource_Wrapper*    resource_wrapper,
-                                      const D3D12_RESOURCE_DESC* desc,
-                                      D3D12_HEAP_TYPE            heap_type,
-                                      D3D12_CPU_PAGE_PROPERTY    page_property,
-                                      bool                       has_write_watch);
+    void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
+                                      ID3D12Resource_Wrapper*  resource_wrapper,
+                                      D3D12_RESOURCE_DIMENSION dimension,
+                                      UINT64                   width,
+                                      D3D12_HEAP_TYPE          heap_type,
+                                      D3D12_CPU_PAGE_PROPERTY  page_property,
+                                      bool                     has_write_watch);
 
   private:
     bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);

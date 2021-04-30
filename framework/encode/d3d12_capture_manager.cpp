@@ -111,14 +111,15 @@ void D3D12CaptureManager::ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper
     }
 }
 
-void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*      device_wrapper,
-                                                       ID3D12Resource_Wrapper*    resource_wrapper,
-                                                       const D3D12_RESOURCE_DESC* desc,
-                                                       D3D12_HEAP_TYPE            heap_type,
-                                                       D3D12_CPU_PAGE_PROPERTY    page_property,
-                                                       bool                       has_write_watch)
+void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
+                                                       ID3D12Resource_Wrapper*  resource_wrapper,
+                                                       D3D12_RESOURCE_DIMENSION dimension,
+                                                       UINT64                   width,
+                                                       D3D12_HEAP_TYPE          heap_type,
+                                                       D3D12_CPU_PAGE_PROPERTY  page_property,
+                                                       bool                     has_write_watch)
 {
-    assert((resource_wrapper != nullptr) && (desc != nullptr));
+    assert(resource_wrapper != nullptr);
 
     auto info = resource_wrapper->GetObjectInfo();
     assert(info != nullptr);
@@ -127,19 +128,18 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     info->page_property   = page_property;
     info->has_write_watch = has_write_watch;
 
-    if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+    if (dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
     {
         info->num_subresources     = 1;
         info->mapped_subresources  = std::make_unique<MappedSubresource[]>(info->num_subresources);
         info->subresource_sizes    = std::make_unique<uint64_t[]>(info->num_subresources);
-        info->subresource_sizes[0] = desc->Width;
+        info->subresource_sizes[0] = width;
     }
     else
     {
         assert(device_wrapper != nullptr);
-        assert((desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) ||
-               (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
-               (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D));
+        assert((dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) || (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
+               (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D));
 
         uint32_t plane_count = 1;
         auto     device      = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
@@ -158,15 +158,14 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
 
         auto num_subresources = full_desc.MipLevels * plane_count;
 
-        if ((desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
-            (desc->Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D))
+        if ((dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) || (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D))
         {
             num_subresources *= full_desc.DepthOrArraySize;
         }
 
         auto layouts = std::make_unique<D3D12_PLACED_SUBRESOURCE_FOOTPRINT[]>(num_subresources);
 
-        device->GetCopyableFootprints(desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
+        device->GetCopyableFootprints(&full_desc, 0, num_subresources, 0, layouts.get(), nullptr, nullptr, nullptr);
 
         info->num_subresources    = num_subresources;
         info->mapped_subresources = std::make_unique<MappedSubresource[]>(num_subresources);
@@ -469,7 +468,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
         InitializeID3D12ResourceInfo(
             wrapper,
             resource_wrapper,
-            desc,
+            desc->Dimension,
+            desc->Width,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
@@ -511,7 +511,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
 
         InitializeID3D12ResourceInfo(wrapper,
                                      resource_wrapper,
-                                     desc,
+                                     desc->Dimension,
+                                     desc->Width,
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->has_write_watch);
@@ -539,6 +540,160 @@ void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(I
         GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
                            "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
                            GetLastError());
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wrapper*          wrapper,
+                                                                HRESULT                         result,
+                                                                const D3D12_HEAP_DESC*          desc,
+                                                                ID3D12ProtectedResourceSession* protected_session,
+                                                                REFIID                          riid,
+                                                                void**                          heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (heap != nullptr) && ((*heap) != nullptr))
+    {
+        auto heap_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+        auto info         = heap_wrapper->GetObjectInfo();
+        assert(info != nullptr);
+
+        info->heap_type       = desc->Properties.Type;
+        info->page_property   = desc->Properties.CPUPageProperty;
+        info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
+
+        // Report that write watch was ignored because the application enabled it on the heap.
+        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+            ((desc->Flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+        {
+            GFXRECON_LOG_WARNING(
+                "Write watch memory tracking was disabled for heap %" PRId64
+                " because the application created the heap with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+                heap_wrapper->GetCaptureId());
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
+    ID3D12Device4_Wrapper*          wrapper,
+    HRESULT                         result,
+    const D3D12_HEAP_PROPERTIES*    heap_properties,
+    D3D12_HEAP_FLAGS                heap_flags,
+    const D3D12_RESOURCE_DESC*      desc,
+    D3D12_RESOURCE_STATES           initial_resource_state,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap_properties != nullptr) && (desc != nullptr) &&
+        (resource != nullptr) && ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(
+            wrapper,
+            resource_wrapper,
+            desc->Dimension,
+            desc->Width,
+            heap_properties->Type,
+            heap_properties->CPUPageProperty,
+            UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
+
+        // Report that write watch was ignored because the application enabled it on the heap.
+        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+        {
+            GFXRECON_LOG_WARNING(
+                "Write watch memory tracking was disabled for resource %" PRId64
+                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+                resource_wrapper->GetCaptureId());
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
+    ID3D12Device8_Wrapper*          wrapper,
+    HRESULT                         result,
+    const D3D12_HEAP_PROPERTIES*    heap_properties,
+    D3D12_HEAP_FLAGS                heap_flags,
+    const D3D12_RESOURCE_DESC1*     desc,
+    D3D12_RESOURCE_STATES           initial_resource_state,
+    const D3D12_CLEAR_VALUE*        optimized_clear_value,
+    ID3D12ProtectedResourceSession* protected_session,
+    REFIID                          riid,
+    void**                          resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(protected_session);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap_properties != nullptr) && (desc != nullptr) &&
+        (resource != nullptr) && ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(
+            wrapper,
+            resource_wrapper,
+            desc->Dimension,
+            desc->Width,
+            heap_properties->Type,
+            heap_properties->CPUPageProperty,
+            UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
+
+        // Report that write watch was ignored because the application enabled it on the heap.
+        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+        {
+            GFXRECON_LOG_WARNING(
+                "Write watch memory tracking was disabled for resource %" PRId64
+                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+                resource_wrapper->GetCaptureId());
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
+    ID3D12Device8_Wrapper*      wrapper,
+    HRESULT                     result,
+    ID3D12Heap*                 heap,
+    UINT64                      heap_offset,
+    const D3D12_RESOURCE_DESC1* desc,
+    D3D12_RESOURCE_STATES       initial_state,
+    const D3D12_CLEAR_VALUE*    optimized_clear_value,
+    REFIID                      riid,
+    void**                      resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_state);
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (heap != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+        auto heap_info        = heap_wrapper->GetObjectInfo();
+        assert(heap_info != nullptr);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Width,
+                                     heap_info->heap_type,
+                                     heap_info->page_property,
+                                     heap_info->has_write_watch);
     }
 }
 
