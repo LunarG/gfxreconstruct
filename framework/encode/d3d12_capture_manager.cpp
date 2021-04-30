@@ -376,15 +376,22 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
 
     if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (heap != nullptr) && ((*heap) != nullptr))
     {
+        auto device    = wrapper->GetWrappedObjectAs<ID3D12Device>();
+        auto increment = device->GetDescriptorHandleIncrementSize(desc->Type);
+
+        if (increment < sizeof(void*))
+        {
+            // The actual descriptor size is too small to store the pointer to the descriptor wrapper.
+            GFXRECON_LOG_FATAL("The descriptor increment size %u is too small to support descriptor wrapping",
+                               increment);
+        }
+
         auto heap_wrapper = reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(*heap);
         auto info         = heap_wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        auto device          = wrapper->GetWrappedObjectAs<ID3D12Device>();
         auto descriptor_heap = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
-
         auto num_descriptors = desc->NumDescriptors;
-        auto increment       = device->GetDescriptorHandleIncrementSize(desc->Type);
 
         info->descriptor_memory = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
         info->descriptor_info   = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
