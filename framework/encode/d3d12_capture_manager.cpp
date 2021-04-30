@@ -985,6 +985,65 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
     }
 }
 
+HRESULT D3D12CaptureManager::OverrideID3D12Device1_CreatePipelineLibrary(
+    ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library)
+{
+    if ((library_blob != nullptr) && (blob_length > 0))
+    {
+        return D3D12_ERROR_DRIVER_VERSION_MISMATCH;
+    }
+
+    auto device1 = wrapper->GetWrappedObjectAs<ID3D12Device1>();
+    return device1->CreatePipelineLibrary(library_blob, blob_length, riid, library);
+}
+
+HRESULT
+D3D12CaptureManager::OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
+                                                                       LPCWSTR                                  name,
+                                                                       const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
+                                                                       REFIID                                   riid,
+                                                                       void** pipeline_state)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(name);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(pipeline_state);
+
+    return E_INVALIDARG;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(ID3D12PipelineLibrary_Wrapper* wrapper,
+                                                                        LPCWSTR                        name,
+                                                                        const D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
+                                                                        REFIID                                    riid,
+                                                                        void** pipeline_state)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(name);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(pipeline_state);
+
+    return E_INVALIDARG;
+}
+
+HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12PipelineLibrary_Wrapper* wrapper,
+                                                                         LPCWSTR                        name,
+                                                                         const D3D12_PIPELINE_STATE_STREAM_DESC* desc,
+                                                                         REFIID                                  riid,
+                                                                         void** pipeline_state)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(name);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(pipeline_state);
+
+    return E_INVALIDARG;
+}
+
 HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
 {
     HRESULT result = E_FAIL;

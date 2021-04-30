@@ -14684,7 +14684,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
 
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
-        result = GetWrappedObjectAs<ID3D12PipelineLibrary>()->LoadGraphicsPipeline(
+        result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(
+            this,
             pName,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
@@ -14749,7 +14750,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
 
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
-        result = GetWrappedObjectAs<ID3D12PipelineLibrary>()->LoadComputePipeline(
+        result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadComputePipeline(
+            this,
             pName,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
@@ -14898,7 +14900,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
 
         auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
-        result = GetWrappedObjectAs<ID3D12PipelineLibrary1>()->LoadPipeline(
+        result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary1_LoadPipeline(
+            this,
             pName,
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
             riid,
@@ -14965,7 +14968,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::CreatePipelineLibrary(
             riid,
             ppPipelineLibrary);
 
-        result = GetWrappedObjectAs<ID3D12Device1>()->CreatePipelineLibrary(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device1_CreatePipelineLibrary(
+            this,
             pLibraryBlob,
             BlobLength,
             riid,

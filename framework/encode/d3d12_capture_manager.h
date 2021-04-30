@@ -286,6 +286,27 @@ class D3D12CaptureManager : public CaptureManager
                                              REFIID                          riid,
                                              void**                          heap);
 
+    HRESULT OverrideID3D12Device1_CreatePipelineLibrary(
+        ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library);
+
+    HRESULT OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
+                                                              LPCWSTR                                  name,
+                                                              const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
+                                                              REFIID                                   riid,
+                                                              void**                                   pipeline_state);
+
+    HRESULT OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(ID3D12PipelineLibrary_Wrapper*            wrapper,
+                                                               LPCWSTR                                   name,
+                                                               const D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
+                                                               REFIID                                    riid,
+                                                               void** pipeline_state);
+
+    HRESULT OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12PipelineLibrary_Wrapper*          wrapper,
+                                                        LPCWSTR                                 name,
+                                                        const D3D12_PIPELINE_STATE_STREAM_DESC* desc,
+                                                        REFIID                                  riid,
+                                                        void**                                  pipeline_state);
+
     HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
 
   protected:
