@@ -15676,7 +15676,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
             riidResource,
             ppvResource);
 
-        result = GetWrappedObjectAs<ID3D12Device4>()->CreateCommittedResource1(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource1(
+            this,
             pHeapProperties,
             HeapFlags,
             pDesc,
@@ -15755,7 +15756,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
             riid,
             ppvHeap);
 
-        result = GetWrappedObjectAs<ID3D12Device4>()->CreateHeap1(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1(
+            this,
             pDesc,
             encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
             riid,
@@ -17498,7 +17500,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
             riidResource,
             ppvResource);
 
-        result = GetWrappedObjectAs<ID3D12Device8>()->CreateCommittedResource2(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource2(
+            this,
             pHeapProperties,
             HeapFlags,
             pDesc,
