@@ -40,14 +40,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr size_t kNullCpuAddress = 0;
-constexpr size_t kNullGpuAddress = 0;
+constexpr size_t   kNullCpuAddress = 0;
+constexpr uint64_t kNullGpuAddress = 0;
 
 typedef std::map<UINT64, HANDLE>                               FenceEvents;
 typedef std::set<UINT64>                                       PendingFenceValues;
 typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
 
-typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>> ID3D12FencePtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>> ID3D12DevicePtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>>   ID3D12FencePtr;
 
 enum class DxObjectInfoType : uint32_t
 {

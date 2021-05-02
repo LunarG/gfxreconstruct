@@ -57,6 +57,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
 
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
 {
+    // Wait for pending work to complete before destroying resources.
+    WaitIdle();
     DestroyActiveObjects();
     DestroyActiveWindows();
     DestroyActiveEvents();
@@ -1363,6 +1365,52 @@ void Dx12ReplayConsumerBase::ReleaseSwapchainImages(DxgiSwapchainInfo* info)
         }
 
         info->images.reset();
+    }
+}
+
+void Dx12ReplayConsumerBase::WaitIdle()
+{
+    for (auto& entry : object_info_table_)
+    {
+        auto& info = entry.second;
+        if (info.extra_info != nullptr)
+        {
+            auto extra_info = info.extra_info.get();
+            if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
+            {
+                auto queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(extra_info);
+                auto queue      = reinterpret_cast<ID3D12CommandQueue*>(info.object);
+                auto sync_event = GetEventObject(kInternalEventId, true);
+
+                if (sync_event != nullptr)
+                {
+                    if (queue_info->sync_fence == nullptr)
+                    {
+                        // Create a temporary fence to wait on the object.
+                        // Get the parent device, create a fence, and wait on queue operations to complete.
+                        ID3D12DevicePtr device;
+                        if (SUCCEEDED(queue->GetDevice(IID_PPV_ARGS(&device))))
+                        {
+                            ID3D12FencePtr fence;
+                            if (SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
+                            {
+                                queue->Signal(fence, 1);
+                                fence->SetEventOnCompletion(1, sync_event);
+                                WaitForSingleObject(sync_event, INFINITE);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // The --sync option was specified, so the queue already has a fence for synchronization.
+                        auto& sync_fence = queue_info->sync_fence;
+                        queue->Signal(sync_fence, ++queue_info->sync_value);
+                        sync_fence->SetEventOnCompletion(queue_info->sync_value, sync_event);
+                        WaitForSingleObject(sync_event, INFINITE);
+                    }
+                }
+            }
+        }
     }
 }
 
