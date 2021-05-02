@@ -386,8 +386,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
         auto object_info = reinterpret_cast<DxObjectInfo*>(device->GetConsumerData(0));
         assert(object_info != nullptr);
 
-        object_info->extra_info_type = DxObjectInfoType::kID3D12DeviceInfo;
-        object_info->extra_info      = new D3D12DeviceInfo;
+        object_info->extra_info = std::make_unique<D3D12DeviceInfo>();
     }
 
     return replay_result;
@@ -410,7 +409,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
 
     if (SUCCEEDED(replay_result))
     {
-        auto command_queue_info = new D3D12CommandQueueInfo;
+        auto command_queue_info = std::make_unique<D3D12CommandQueueInfo>();
 
         // Create the fence for the replay --sync option.
         if (options_.sync_queue_submissions)
@@ -427,8 +426,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
         auto object_info = reinterpret_cast<DxObjectInfo*>(command_queue->GetConsumerData(0));
         assert(object_info != nullptr);
 
-        object_info->extra_info_type = DxObjectInfoType::kID3D12CommandQueueInfo;
-        object_info->extra_info      = command_queue_info;
+        object_info->extra_info = std::move(command_queue_info);
     }
 
     return replay_result;
@@ -454,13 +452,14 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
 
     if (SUCCEEDED(replay_result) && (desc_pointer != nullptr))
     {
-        auto heap_info             = new D3D12DescriptorHeapInfo;
+        auto heap_info             = std::make_unique<D3D12DescriptorHeapInfo>();
         heap_info->descriptor_type = desc_pointer->Type;
 
-        if ((replay_object_info->extra_info != nullptr) &&
-            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo))
+        if (replay_object_info->extra_info != nullptr)
         {
-            auto device_info             = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info);
+            auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info.get());
+            assert(device_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo);
+
             heap_info->replay_increments = device_info->replay_increments;
         }
         else
@@ -471,8 +470,7 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
         auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
         assert(object_info != nullptr);
 
-        object_info->extra_info_type = DxObjectInfoType::kID3D12DescriptorHeapInfo;
-        object_info->extra_info      = heap_info;
+        object_info->extra_info = std::move(heap_info);
     }
 
     return replay_result;
@@ -499,8 +497,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateFence(DxObjectInfo*               
         auto object_info = reinterpret_cast<DxObjectInfo*>(fence->GetConsumerData(0));
         assert(object_info != nullptr);
 
-        object_info->extra_info_type = DxObjectInfoType::kID3D12FenceInfo;
-        object_info->extra_info      = new D3D12FenceInfo;
+        object_info->extra_info = std::make_unique<D3D12FenceInfo>();
     }
 
     return replay_result;
@@ -517,10 +514,11 @@ UINT Dx12ReplayConsumerBase::OverrideGetDescriptorHandleIncrementSize(DxObjectIn
     auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
     auto replay_result = replay_object->GetDescriptorHandleIncrementSize(descriptor_heap_type);
 
-    if ((replay_object_info->extra_info != nullptr) &&
-        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo))
+    if (replay_object_info->extra_info != nullptr)
     {
-        auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info);
+        auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info.get());
+        assert(device_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo);
+
         (*device_info->replay_increments)[descriptor_heap_type] = replay_result;
     }
     else
@@ -543,10 +541,10 @@ Dx12ReplayConsumerBase::OverrideGetCPUDescriptorHandleForHeapStart(
 
     auto replay_result = replay_object->GetCPUDescriptorHandleForHeapStart();
 
-    if ((replay_object_info->extra_info != nullptr) &&
-        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo))
+    if (replay_object_info->extra_info != nullptr)
     {
-        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info);
+        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info.get());
+        assert(heap_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo);
 
         // Only initialize on the first call.
         if (heap_info->replay_cpu_addr_begin == kNullCpuAddress)
@@ -574,10 +572,10 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
 
     auto replay_result = replay_object->GetGPUDescriptorHandleForHeapStart();
 
-    if ((replay_object_info->extra_info != nullptr) &&
-        (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo))
+    if (replay_object_info->extra_info != nullptr)
     {
-        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info);
+        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info.get());
+        assert(heap_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo);
 
         // Only initialize on the first call.
         if (heap_info->replay_gpu_addr_begin == kNullGpuAddress)
@@ -605,17 +603,14 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
 
     if ((original_result != 0) && (replay_result != 0))
     {
-        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info);
-
-        if (resource_info == nullptr)
+        if (replay_object_info->extra_info == nullptr)
         {
-            resource_info = new D3D12ResourceInfo;
-
-            replay_object_info->extra_info_type = DxObjectInfoType::kID3D12ResourceInfo;
-            replay_object_info->extra_info      = resource_info;
+            // Create resource info record on first use.
+            replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
         }
 
-        assert(replay_object_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
+        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
+        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
 
         // Only initialize on the first call.
         if (resource_info->capture_address_ == 0)
@@ -710,14 +705,13 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddr
         if (SUCCEEDED(result))
         {
             // Transfer the allocation to the heap info record.
-            auto heap_info                 = new D3D12HeapInfo;
+            auto heap_info                 = std::make_unique<D3D12HeapInfo>();
             heap_info->external_allocation = entry->second;
 
             auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
             assert(object_info != nullptr);
 
-            object_info->extra_info_type = DxObjectInfoType::kID3D12HeapInfo;
-            object_info->extra_info      = heap_info;
+            object_info->extra_info = std::move(heap_info);
         }
         else
         {
@@ -754,17 +748,14 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
 
     if (SUCCEEDED(result) && (id_pointer != nullptr) && (data_pointer != nullptr) && (*data_pointer != nullptr))
     {
-        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info);
-
-        if (resource_info == nullptr)
+        if (replay_object_info->extra_info == nullptr)
         {
-            resource_info = new D3D12ResourceInfo;
-
-            replay_object_info->extra_info_type = DxObjectInfoType::kID3D12ResourceInfo;
-            replay_object_info->extra_info      = resource_info;
+            // Create resource info record on first use.
+            replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
         }
 
-        assert(replay_object_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
+        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
+        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
 
         auto& memory_info     = resource_info->mapped_memory_info[subresource];
         memory_info.memory_id = *id_pointer;
@@ -783,11 +774,11 @@ void Dx12ReplayConsumerBase::OverrideResourceUnmap(DxObjectInfo*                
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (written_range != nullptr));
 
     auto replay_object = static_cast<ID3D12Resource*>(replay_object_info->object);
-    auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info);
 
-    if (resource_info != nullptr)
+    if (replay_object_info->extra_info != nullptr)
     {
-        assert(replay_object_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
+        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
+        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
 
         auto entry = resource_info->mapped_memory_info.find(subresource);
         if (entry != resource_info->mapped_memory_info.end())
@@ -862,12 +853,12 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
 
     if (options_.sync_queue_submissions && !command_lists->IsNull())
     {
-        if ((replay_object_info->extra_info != nullptr) &&
-            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo))
+        if (replay_object_info->extra_info != nullptr)
         {
-            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(replay_object_info->extra_info);
-            auto sync_event         = GetEventObject(kInternalEventId, true);
+            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(replay_object_info->extra_info.get());
+            assert(command_queue_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
 
+            auto sync_event = GetEventObject(kInternalEventId, true);
             if (sync_event != nullptr)
             {
                 auto& sync_fence = command_queue_info->sync_fence;
@@ -925,14 +916,14 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
 
     if (original_result > replay_result)
     {
-        if ((replay_object_info->extra_info != nullptr) &&
-            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        if (replay_object_info->extra_info != nullptr)
         {
             // Replay is ahead of capture, so wait on the fence value to avoid performing any new work that may
             // invalidate work in progress.
-            auto fence_info   = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info);
-            auto event_handle = fence_info->completion_event;
+            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info.get());
+            assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
 
+            auto event_handle = fence_info->completion_event;
             if (event_handle != nullptr)
             {
                 ResetEvent(event_handle);
@@ -1002,10 +993,11 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
 
     if (SUCCEEDED(replay_result) && (event_object != nullptr))
     {
-        if ((replay_object_info->extra_info != nullptr) &&
-            (replay_object_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        if (replay_object_info->extra_info != nullptr)
         {
-            auto fence_info    = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info);
+            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info.get());
+            assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
+
             auto pending_entry = fence_info->signaled_values.find(value);
 
             if (pending_entry != fence_info->signaled_values.end())
@@ -1070,10 +1062,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
 
     if (SUCCEEDED(replay_result) && !surface->IsNull())
     {
-        if ((replay_object_info->extra_info != nullptr) &&
-            (replay_object_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo))
+        if (replay_object_info->extra_info != nullptr)
         {
-            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(replay_object_info->extra_info);
+            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(replay_object_info->extra_info.get());
+            assert(swapchain_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo);
 
             if (swapchain_info->images[buffer] == nullptr)
             {
@@ -1306,14 +1298,13 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(
         {
             assert(info->extra_info == nullptr);
 
-            auto swapchain_info         = new DxgiSwapchainInfo;
+            auto swapchain_info         = std::make_unique<DxgiSwapchainInfo>();
             swapchain_info->window      = window;
             swapchain_info->hwnd_id     = hwnd_id;
             swapchain_info->image_count = image_count;
             swapchain_info->images      = std::make_unique<DxObjectInfo*[]>(image_count);
 
-            info->extra_info_type = DxObjectInfoType::kIDxgiSwapchainInfo;
-            info->extra_info      = swapchain_info;
+            info->extra_info = std::move(swapchain_info);
 
             // Functions such as CreateSwapChainForCoreWindow and CreateSwapchainForComposition, which are mapped to
             // CreateSwapChainForHwnd for replay, won't have HWND IDs because they don't use HWND handles.
@@ -1333,10 +1324,10 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
                                                   uint32_t      width,
                                                   uint32_t      height)
 {
-    if ((info != nullptr) && (info->extra_info != nullptr) &&
-        (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo))
+    if ((info != nullptr) && (info->extra_info != nullptr))
     {
-        auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
+        auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info.get());
+        assert(swapchain_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo);
 
         // Clear the old info entries from the object info table and reset the swapchain info's image count.
         ReleaseSwapchainImages(swapchain_info);
@@ -1379,9 +1370,10 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 {
     if (info->extra_info != nullptr)
     {
-        if (info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
+        auto extra_info = info->extra_info.get();
+        if (extra_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
         {
-            auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(info->extra_info);
+            auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(extra_info);
 
             if (resource_info->capture_address_ != 0)
             {
@@ -1393,49 +1385,28 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
                 auto& mapped_info = entry.second;
                 mapped_memory_.erase(mapped_info.memory_id);
             }
-
-            delete resource_info;
         }
-        else if (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
+        else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo)
         {
-            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(extra_info);
 
             if (fence_info->completion_event != nullptr)
             {
                 CloseHandle(fence_info->completion_event);
             }
-
-            delete fence_info;
         }
-        else if (info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo)
+        else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)
         {
-            auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info->extra_info);
-            delete heap_info;
-        }
-        else if (info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)
-        {
-            auto heap_info = reinterpret_cast<D3D12HeapInfo*>(info->extra_info);
+            auto heap_info = reinterpret_cast<D3D12HeapInfo*>(extra_info);
 
             if (heap_info->external_allocation != nullptr)
             {
                 VirtualFree(heap_info->external_allocation, 0, MEM_RELEASE);
             }
-
-            delete heap_info;
         }
-        else if (info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
+        else if (extra_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
         {
-            auto command_list_info = reinterpret_cast<D3D12CommandQueueInfo*>(info->extra_info);
-            delete command_list_info;
-        }
-        else if (info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo)
-        {
-            auto device_info = reinterpret_cast<D3D12DeviceInfo*>(info->extra_info);
-            delete device_info;
-        }
-        else if (info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
-        {
-            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info);
+            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(extra_info);
 
             if (release_extra_refs)
             {
@@ -1449,17 +1420,9 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 window_handles_.erase(swapchain_info->hwnd_id);
             }
-
-            delete swapchain_info;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to destroy extra object info for unrecognized object info type %d",
-                               info->extra_info_type);
         }
 
-        info->extra_info_type = DxObjectInfoType::kUnused;
-        info->extra_info      = nullptr;
+        info->extra_info.reset();
     }
 }
 
@@ -1516,9 +1479,11 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
 {
     if (info != nullptr)
     {
-        if ((info->extra_info != nullptr) && (info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo))
+        if (info->extra_info != nullptr)
         {
-            auto fence_info  = reinterpret_cast<D3D12FenceInfo*>(info->extra_info);
+            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info.get());
+            assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
+
             auto event_entry = fence_info->event_objects.find(value);
 
             if (event_entry != fence_info->event_objects.end())

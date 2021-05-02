@@ -71,19 +71,28 @@ struct MappedMemoryInfo
     uint64_t memory_id{ 0 }; ///< Capture ID for the mapped memory.
 };
 
+struct DxObjectExtraInfo
+{
+    DxObjectExtraInfo(DxObjectInfoType type) : extra_info_type(type) {}
+    virtual ~DxObjectExtraInfo() {}
+
+    const DxObjectInfoType extra_info_type;
+};
+
 struct DxObjectInfo
 {
     // Standard info stored for all DX objects.
-    IUnknown*        object{ nullptr };
-    format::HandleId capture_id{ format::kNullHandleId };
-    uint64_t         ref_count{ 1 };
-    uint64_t         extra_ref{ 0 };
-    DxObjectInfoType extra_info_type{ DxObjectInfoType::kUnused };
-    void*            extra_info{ nullptr };
+    IUnknown*                          object{ nullptr };
+    format::HandleId                   capture_id{ format::kNullHandleId };
+    uint64_t                           ref_count{ 1 };
+    uint64_t                           extra_ref{ 0 };
+    std::unique_ptr<DxObjectExtraInfo> extra_info;
 };
 
-struct DxgiSwapchainInfo
+struct DxgiSwapchainInfo : DxObjectExtraInfo
 {
+    DxgiSwapchainInfo() : DxObjectExtraInfo(DxObjectInfoType::kIDxgiSwapchainInfo) {}
+
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
     uint32_t image_count{ 0 };  ///< The number of swapchain images.
@@ -91,39 +100,51 @@ struct DxgiSwapchainInfo
                                              ///< while the swapchain is active.
 };
 
-struct D3D12CommandQueueInfo
+struct D3D12CommandQueueInfo : DxObjectExtraInfo
 {
+    D3D12CommandQueueInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12CommandQueueInfo) {}
+
     ID3D12FencePtr sync_fence;
     uint64_t       sync_value{ 0 };
 };
 
-struct D3D12DeviceInfo
+struct D3D12DeviceInfo : DxObjectExtraInfo
 {
+    D3D12DeviceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12DeviceInfo) {}
+
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
 };
 
-struct D3D12DescriptorHeapInfo
+struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 {
+    D3D12DescriptorHeapInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12DescriptorHeapInfo) {}
+
     std::shared_ptr<DescriptorIncrements> replay_increments;
     D3D12_DESCRIPTOR_HEAP_TYPE            descriptor_type{};
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
 };
 
-struct D3D12FenceInfo
+struct D3D12FenceInfo : DxObjectExtraInfo
 {
+    D3D12FenceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12FenceInfo) {}
+
     HANDLE             completion_event{ nullptr };
     FenceEvents        event_objects;
     PendingFenceValues signaled_values;
 };
 
-struct D3D12HeapInfo
+struct D3D12HeapInfo : DxObjectExtraInfo
 {
+    D3D12HeapInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12HeapInfo) {}
+
     void* external_allocation{ nullptr };
 };
 
-struct D3D12ResourceInfo
+struct D3D12ResourceInfo : DxObjectExtraInfo
 {
+    D3D12ResourceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12ResourceInfo) {}
+
     std::unordered_map<uint32_t, MappedMemoryInfo> mapped_memory_info; ///< Map subresource index to mapped memory info.
     uint64_t                                       capture_address_{ 0 }; ///< Capture GPU VA.
     uint64_t                                       replay_address_{ 0 };  ///< Replay GPU VA.

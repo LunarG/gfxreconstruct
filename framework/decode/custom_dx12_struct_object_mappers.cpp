@@ -44,7 +44,8 @@ void MapDescriptorStructObjects(Handle*                    wrapper,
             auto  index     = wrapper->index;
             auto  value     = wrapper->decoded_value;
             auto& info      = entry->second;
-            auto  heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info.extra_info);
+            auto  heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info.extra_info.get());
+            assert(heap_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo);
 
             value->ptr = get_begin_addr(heap_info);
             if (index > 0)
