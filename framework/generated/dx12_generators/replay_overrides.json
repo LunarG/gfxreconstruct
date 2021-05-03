@@ -14,6 +14,9 @@
       "CreateFence": "OverrideCreateFence",
       "GetDescriptorHandleIncrementSize": "OverrideGetDescriptorHandleIncrementSize"
     },
+    "ID3D12Device1": {
+      "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"
+    },
     "ID3D12Device3": {
       "EnqueueMakeResident": "OverrideEnqueueMakeResident",
       "OpenExistingHeapFromAddress": "OverrideOpenExistingHeapFromAddress"
@@ -37,6 +40,13 @@
       "GetCompletedValue": "OverrideGetCompletedValue",
       "SetEventOnCompletion": "OverrideSetEventOnCompletion",
       "Signal": "OverrideFenceSignal"
+    },
+    "ID3D12PipelineLibrary": {
+      "LoadComputePipeline": "OverrideLoadComputePipeline",
+      "LoadGraphicsPipeline": "OverrideLoadGraphicsPipeline"
+    },
+    "ID3D12PipelineLibrary1": {
+      "LoadPipeline": "OverrideLoadPipeline"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"

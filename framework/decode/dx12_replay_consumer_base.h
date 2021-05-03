@@ -192,6 +192,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     D3D12_GPU_VIRTUAL_ADDRESS OverrideGetGpuVirtualAddress(DxObjectInfo*             replay_object_info,
                                                            D3D12_GPU_VIRTUAL_ADDRESS original_result);
 
+    HRESULT OverrideCreatePipelineLibrary(DxObjectInfo*                replay_object_info,
+                                          HRESULT                      original_result,
+                                          PointerDecoder<uint8_t>*     library_blob,
+                                          SIZE_T                       blob_length,
+                                          Decoded_GUID                 riid,
+                                          HandlePointerDecoder<void*>* library);
+
     HRESULT OverrideEnqueueMakeResident(DxObjectInfo*                          replay_object_info,
                                         HRESULT                                original_result,
                                         D3D12_RESIDENCY_FLAGS                  flags,
@@ -201,11 +208,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         UINT64                                 fence_value);
 
     HRESULT
-    Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo*                replay_object_info,
-                                                                HRESULT                      original_result,
-                                                                uint64_t                     allocation_id,
-                                                                Decoded_GUID                 riid,
-                                                                HandlePointerDecoder<void*>* heap);
+    OverrideOpenExistingHeapFromAddress(DxObjectInfo*                replay_object_info,
+                                        HRESULT                      original_result,
+                                        uint64_t                     allocation_id,
+                                        Decoded_GUID                 riid,
+                                        HandlePointerDecoder<void*>* heap);
 
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
@@ -276,6 +283,27 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                    UINT                             flags,
                                    PointerDecoder<UINT>*            node_mask,
                                    HandlePointerDecoder<IUnknown*>* present_queue);
+
+    HRESULT OverrideLoadGraphicsPipeline(DxObjectInfo*                             replay_object_info,
+                                         HRESULT                                   original_result,
+                                         WStringDecoder*                           name,
+                                         const D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
+                                         Decoded_GUID                              riid,
+                                         HandlePointerDecoder<void*>*              state);
+
+    HRESULT OverrideLoadComputePipeline(DxObjectInfo*                            replay_object_info,
+                                        HRESULT                                  original_result,
+                                        WStringDecoder*                          name,
+                                        const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
+                                        Decoded_GUID                             riid,
+                                        HandlePointerDecoder<void*>*             state);
+
+    HRESULT OverrideLoadPipeline(DxObjectInfo*                           replay_object_info,
+                                 HRESULT                                 original_result,
+                                 WStringDecoder*                         name,
+                                 const D3D12_PIPELINE_STATE_STREAM_DESC* desc,
+                                 Decoded_GUID                            riid,
+                                 HandlePointerDecoder<void*>*            state);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

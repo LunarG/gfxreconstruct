@@ -4990,20 +4990,22 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
 {
-    auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
-        auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
-        auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
-        auto replay_result = replay_object->LoadGraphicsPipeline(pName->GetPointer(),
-                                                                 pDesc->GetPointer(),
-                                                                 *riid.decoded_value,
-                                                                 out_hp_ppPipelineState);
+        DxObjectInfo object_info{};
+        ppPipelineState->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideLoadGraphicsPipeline(replay_object,
+                                                          returnValue,
+                                                          pName,
+                                                          pDesc->GetPointer(),
+                                                          riid,
+                                                          ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12PipelineLibrary_LoadGraphicsPipeline", returnValue, replay_result);
     }
@@ -5017,20 +5019,22 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
 {
-    auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
-        auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
-        auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
-        auto replay_result = replay_object->LoadComputePipeline(pName->GetPointer(),
-                                                                pDesc->GetPointer(),
-                                                                *riid.decoded_value,
-                                                                out_hp_ppPipelineState);
+        DxObjectInfo object_info{};
+        ppPipelineState->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideLoadComputePipeline(replay_object,
+                                                         returnValue,
+                                                         pName,
+                                                         pDesc->GetPointer(),
+                                                         riid,
+                                                         ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12PipelineLibrary_LoadComputePipeline", returnValue, replay_result);
     }
@@ -5070,20 +5074,22 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
 {
-    auto replay_object = MapObject<ID3D12PipelineLibrary1>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         if(!ppPipelineState->IsNull()) ppPipelineState->SetHandleLength(1);
-        auto out_p_ppPipelineState    = ppPipelineState->GetPointer();
-        auto out_hp_ppPipelineState   = ppPipelineState->GetHandlePointer();
-        auto replay_result = replay_object->LoadPipeline(pName->GetPointer(),
-                                                         pDesc->GetPointer(),
-                                                         *riid.decoded_value,
-                                                         out_hp_ppPipelineState);
+        DxObjectInfo object_info{};
+        ppPipelineState->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideLoadPipeline(replay_object,
+                                                  returnValue,
+                                                  pName,
+                                                  pDesc->GetPointer(),
+                                                  riid,
+                                                  ppPipelineState);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
+            AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12PipelineLibrary1_LoadPipeline", returnValue, replay_result);
     }
@@ -5097,19 +5103,21 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineLibrary)
 {
-    auto replay_object = MapObject<ID3D12Device1>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppPipelineLibrary->IsNull()) ppPipelineLibrary->SetHandleLength(1);
-        auto out_p_ppPipelineLibrary    = ppPipelineLibrary->GetPointer();
-        auto out_hp_ppPipelineLibrary   = ppPipelineLibrary->GetHandlePointer();
-        auto replay_result = replay_object->CreatePipelineLibrary(pLibraryBlob->GetPointer(),
-                                                                  BlobLength,
-                                                                  *riid.decoded_value,
-                                                                  out_hp_ppPipelineLibrary);
+        DxObjectInfo object_info{};
+        ppPipelineLibrary->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreatePipelineLibrary(replay_object,
+                                                           returnValue,
+                                                           pLibraryBlob,
+                                                           BlobLength,
+                                                           riid,
+                                                           ppPipelineLibrary);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppPipelineLibrary, out_hp_ppPipelineLibrary);
+            AddObject(ppPipelineLibrary->GetPointer(), ppPipelineLibrary->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device1_CreatePipelineLibrary", returnValue, replay_result);
     }
