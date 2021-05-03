@@ -27,12 +27,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper)
+template <typename T>
+size_t DecodeDescriptorStruct(const uint8_t* buffer, size_t buffer_size, T* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
-    size_t                       bytes_read = 0;
-    D3D12_CPU_DESCRIPTOR_HANDLE* value      = wrapper->decoded_value;
+    size_t                   bytes_read = 0;
+    typename T::struct_type* value      = wrapper->decoded_value;
 
     bytes_read +=
         ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->heap_id));
@@ -43,20 +44,14 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper)
+{
+    return DecodeDescriptorStruct(buffer, buffer_size, wrapper);
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t                       bytes_read = 0;
-    D3D12_GPU_DESCRIPTOR_HANDLE* value      = wrapper->decoded_value;
-
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->heap_id));
-    value->ptr = 0;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->index));
-
-    return bytes_read;
+    return DecodeDescriptorStruct(buffer, buffer_size, wrapper);
 }
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CLEAR_VALUE* wrapper)

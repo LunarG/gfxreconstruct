@@ -30,9 +30,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
-                      const Dx12ObjectInfoTable&           object_info_table,
-                      const util::GpuVaMap&                gpu_va_map)
+template <typename Handle, typename Function>
+void MapDescriptorStructObjects(Handle*                    wrapper,
+                                const Dx12ObjectInfoTable& object_info_table,
+                                const util::GpuVaMap&      gpu_va_map,
+                                Function                   get_begin_addr)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -44,7 +46,7 @@ void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
             auto& info      = entry->second;
             auto  heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info.extra_info);
 
-            value->ptr = heap_info->replay_cpu_addr_begin;
+            value->ptr = get_begin_addr(heap_info);
             if (index > 0)
             {
                 auto offset = (*heap_info->replay_increments)[heap_info->descriptor_type] * index;
@@ -54,28 +56,22 @@ void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
+                      const Dx12ObjectInfoTable&           object_info_table,
+                      const util::GpuVaMap&                gpu_va_map)
+{
+    MapDescriptorStructObjects(wrapper, object_info_table, gpu_va_map, [](const D3D12DescriptorHeapInfo* info) {
+        return info->replay_cpu_addr_begin;
+    });
+}
+
 void MapStructObjects(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
                       const util::GpuVaMap&                gpu_va_map)
 {
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        auto entry = object_info_table.find(wrapper->heap_id);
-        if (entry != object_info_table.end())
-        {
-            auto  index     = wrapper->index;
-            auto  value     = wrapper->decoded_value;
-            auto& info      = entry->second;
-            auto  heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(info.extra_info);
-
-            value->ptr = heap_info->replay_gpu_addr_begin;
-            if (index > 0)
-            {
-                auto offset = (*heap_info->replay_increments)[heap_info->descriptor_type] * index;
-                value->ptr += offset;
-            }
-        }
-    }
+    MapDescriptorStructObjects(wrapper, object_info_table, gpu_va_map, [](const D3D12DescriptorHeapInfo* info) {
+        return info->replay_gpu_addr_begin;
+    });
 }
 
 void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
