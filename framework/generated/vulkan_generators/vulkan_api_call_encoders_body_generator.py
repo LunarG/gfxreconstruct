@@ -337,7 +337,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
                 if 'pAllocateInfo->' in lengthName:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
-                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {})'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
                 else:
                     # This is a multi-object creation call (e.g. pipeline creation, or swapchain image retrieval), which receives
                     # separate create info structures for each object being created. Many multi-object creation calls receive a
@@ -352,22 +352,22 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         if not memberArrayLength:
                             unwrapHandleDef = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(handle.baseType, memberHandleName, wrapper=memberHandleType[2:])
 
-                        decl += 'EndStructGroupCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, memberHandleType[2:], handle.baseType, returnValue, parentHandle.name, lengthName, handle.name, unwrapHandleDef)
+                        decl += 'EndStructGroupCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {})'.format(parentHandle.baseType, memberHandleType[2:], handle.baseType, returnValue, parentHandle.name, lengthName, handle.name, unwrapHandleDef)
                     elif self.isHandle(values[1].baseType):
                         secondHandle = values[1]
-                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, secondHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, secondHandle.name, lengthName, handle.name, infoName)
+                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {})'.format(parentHandle.baseType, secondHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, secondHandle.name, lengthName, handle.name, infoName)
                     else:
-                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {})'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
 
             else:
                 if handle.baseType in self.structNames:
                     # TODO: No cases in current Vulkan spec of handle inside non-array output structure
                     raise NotImplementedError
                 elif parentHandle:
-                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
+                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {})'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
                 else:
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
-                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
+                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {})'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
 
         elif name.startswith('vkDestroy') or name.startswith('vkFree') or (name == 'vkReleasePerformanceConfigurationINTEL'):
             handle = None
@@ -381,18 +381,18 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     handle = values[3]
 
             if handle.isArray:
-                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {}, encoder)'.format(handle.baseType[2:], handle.arrayLength, handle.name)
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {})'.format(handle.baseType[2:], handle.arrayLength, handle.name)
             else:
-                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({})'.format(handle.baseType[2:], handle.name)
 
         elif values[0].baseType == 'VkCommandBuffer':
             getHandlesExpr = self.makeGetCommandHandlesExpr(name, values[1:])
             if getHandlesExpr:
-                decl += 'EndCommandApiCallTrace({}, encoder, {})'.format(values[0].name, getHandlesExpr)
+                decl += 'EndCommandApiCallTrace({}, {})'.format(values[0].name, getHandlesExpr)
             else:
-                decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
+                decl += 'EndCommandApiCallTrace({})'.format(values[0].name)
         else:
-            decl += 'EndApiCallTrace(encoder)'
+            decl += 'EndApiCallTrace()'
 
         decl += ';\n'
         return decl

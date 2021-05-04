@@ -41,6 +41,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_wrappers.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_info.h
+                    ${CMAKE_CURRENT_LIST_DIR}/parameter_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/trace_manager.h

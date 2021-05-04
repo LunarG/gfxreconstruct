@@ -27,6 +27,7 @@
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
+#include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
@@ -40,7 +41,6 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
-#include "util/memory_output_stream.h"
 
 #include "vulkan/vulkan.h"
 
@@ -121,8 +121,7 @@ class TraceManager
     void EndCreateApiCallTrace(VkResult                      result,
                                ParentHandle                  parent_handle,
                                typename Wrapper::HandleType* handle,
-                               const CreateInfo*             create_info,
-                               ParameterEncoder*             encoder)
+                               const CreateInfo*             create_info)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && result == VK_SUCCESS)
         {
@@ -135,7 +134,7 @@ class TraceManager
                 parent_handle, handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     // Pool allocation.
@@ -144,8 +143,7 @@ class TraceManager
                                    ParentHandle                  parent_handle,
                                    uint32_t                      count,
                                    typename Wrapper::HandleType* handles,
-                                   const AllocateInfo*           alloc_info,
-                                   ParameterEncoder*             encoder)
+                                   const AllocateInfo*           alloc_info)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
         {
@@ -158,7 +156,7 @@ class TraceManager
                 parent_handle, count, handles, alloc_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     // Multiple object creation.
@@ -168,8 +166,7 @@ class TraceManager
                                     SecondaryHandle               secondary_handle,
                                     uint32_t                      count,
                                     typename Wrapper::HandleType* handles,
-                                    const CreateInfo*             create_infos,
-                                    ParameterEncoder*             encoder)
+                                    const CreateInfo*             create_infos)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handles != nullptr))
@@ -189,7 +186,7 @@ class TraceManager
                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     // Multiple implicit object creation inside output struct.
@@ -198,8 +195,7 @@ class TraceManager
                                           ParentHandle                           parent_handle,
                                           uint32_t                               count,
                                           HandleStruct*                          handle_structs,
-                                          std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
-                                          ParameterEncoder*                      encoder)
+                                          std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
             (handle_structs != nullptr))
@@ -217,12 +213,12 @@ class TraceManager
                                                 thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     // Single object destruction.
     template <typename Wrapper>
-    void EndDestroyApiCallTrace(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
+    void EndDestroyApiCallTrace(typename Wrapper::HandleType handle)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -230,12 +226,12 @@ class TraceManager
             state_tracker_->RemoveEntry<Wrapper>(handle);
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     // Multiple object destruction.
     template <typename Wrapper>
-    void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
+    void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (handles != nullptr))
         {
@@ -247,10 +243,10 @@ class TraceManager
             }
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
-    void EndCommandApiCallTrace(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
+    void EndCommandApiCallTrace(VkCommandBuffer command_buffer)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -262,12 +258,11 @@ class TraceManager
             state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
     void EndCommandApiCallTrace(VkCommandBuffer   command_buffer,
-                                ParameterEncoder* encoder,
                                 GetHandlesFunc    func,
                                 GetHandlesArgs... args)
     {
@@ -282,10 +277,10 @@ class TraceManager
                 command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
         }
 
-        EndApiCallTrace(encoder);
+        EndApiCallTrace();
     }
 
-    void EndApiCallTrace(ParameterEncoder* encoder);
+    void EndApiCallTrace();
 
     void EndFrame();
 
@@ -956,12 +951,12 @@ class TraceManager
         std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
 
       public:
-        const format::ThreadId                    thread_id_;
-        format::ApiCallId                         call_id_;
-        std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
-        std::unique_ptr<ParameterEncoder>         parameter_encoder_;
-        std::vector<uint8_t>                      compressed_buffer_;
-        HandleUnwrapMemory                        handle_unwrap_memory_;
+        const format::ThreadId                   thread_id_;
+        format::ApiCallId                        call_id_;
+        std::unique_ptr<encode::ParameterBuffer> parameter_buffer_;
+        std::unique_ptr<ParameterEncoder>        parameter_encoder_;
+        std::vector<uint8_t>                     compressed_buffer_;
+        HandleUnwrapMemory                       handle_unwrap_memory_;
 
       private:
         static format::ThreadId GetThreadId();
