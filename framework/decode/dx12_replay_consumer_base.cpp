@@ -23,6 +23,7 @@
 #include "decode/dx12_replay_consumer_base.h"
 
 #include "decode/dx12_enum_util.h"
+#include "util/gpu_va_range.h"
 #include "util/platform.h"
 
 #include <cassert>
@@ -1425,7 +1426,14 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             if (resource_info->capture_address_ != 0)
             {
-                gpu_va_map_.Remove(static_cast<ID3D12Resource*>(info->object));
+                ID3D12Resource* resource = static_cast<ID3D12Resource*>(info->object);
+
+                auto desc = resource->GetDesc();
+
+                gfxrecon::util::GpuVaRange capture_range{ resource_info->capture_address_,
+                                                          (resource_info->capture_address_ + desc.Width) };
+
+                gpu_va_map_.Remove(resource, capture_range);
             }
 
             for (const auto& entry : resource_info->mapped_memory_info)
