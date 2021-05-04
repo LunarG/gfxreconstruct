@@ -180,6 +180,19 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
 }
 
+void D3D12CaptureManager::CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id)
+{
+    // Report that write watch was ignored because the application enabled it.
+    if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
+        ((flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
+    {
+        GFXRECON_LOG_WARNING(
+            "Write watch memory tracking was disabled for object %" PRId64
+            " because the application created the object with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
+            id);
+    }
+}
+
 bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE         type,
                                         D3D12_HEAP_FLAGS        flags,
                                         D3D12_CPU_PAGE_PROPERTY page_property)
@@ -432,15 +445,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
         info->page_property   = desc->Properties.CPUPageProperty;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
 
-        // Report that write watch was ignored because the application enabled it on the heap.
-        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-            ((desc->Flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
-        {
-            GFXRECON_LOG_WARNING(
-                "Write watch memory tracking was disabled for heap %" PRId64
-                " because the application created the heap with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
-                heap_wrapper->GetCaptureId());
-        }
+        CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
 }
 
@@ -474,15 +479,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
             heap_properties->CPUPageProperty,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
-        // Report that write watch was ignored because the application enabled it on the heap.
-        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
-        {
-            GFXRECON_LOG_WARNING(
-                "Write watch memory tracking was disabled for resource %" PRId64
-                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
-                resource_wrapper->GetCaptureId());
-        }
+        CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
     }
 }
 
@@ -563,15 +560,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wr
         info->page_property   = desc->Properties.CPUPageProperty;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
 
-        // Report that write watch was ignored because the application enabled it on the heap.
-        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-            ((desc->Flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
-        {
-            GFXRECON_LOG_WARNING(
-                "Write watch memory tracking was disabled for heap %" PRId64
-                " because the application created the heap with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
-                heap_wrapper->GetCaptureId());
-        }
+        CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
 }
 
@@ -607,15 +596,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
             heap_properties->CPUPageProperty,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
-        // Report that write watch was ignored because the application enabled it on the heap.
-        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
-        {
-            GFXRECON_LOG_WARNING(
-                "Write watch memory tracking was disabled for resource %" PRId64
-                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
-                resource_wrapper->GetCaptureId());
-        }
+        CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
     }
 }
 
@@ -651,15 +632,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
             heap_properties->CPUPageProperty,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
-        // Report that write watch was ignored because the application enabled it on the heap.
-        if ((GetPageGuardMemoryMode() == kMemoryModeExternal) &&
-            ((heap_flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) == D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH))
-        {
-            GFXRECON_LOG_WARNING(
-                "Write watch memory tracking was disabled for resource %" PRId64
-                " because the application created the resource with the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag",
-                resource_wrapper->GetCaptureId());
-        }
+        CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
     }
 }
 
