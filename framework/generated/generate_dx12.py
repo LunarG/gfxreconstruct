@@ -176,8 +176,7 @@ if __name__ == '__main__':
 
     for target in GENERATE_TARGETS:
         print('Generating', target)
-        thread = GenCode(
+        GenCode(
             target, source_dict, WINDOWS_SDK_VERSION[:-1], CURRENT_DIR,
             GENERATOR_DIR
         )
-        thread.start()

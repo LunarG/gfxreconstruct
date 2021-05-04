@@ -22,7 +22,6 @@
 
 import os
 import sys
-import threading
 
 # API Call Encoders
 from base_generator import write
@@ -494,19 +493,17 @@ def gen_target(args, source_dict):
         return None
 
 
-class GenCode(threading.Thread):
+class GenCode():
 
     def __init__(
         self, target, source_dict, windows_sdk_version, directory, configs
     ):
-        threading.Thread.__init__(self)
         self.target = target
         self.source_dict = source_dict
         self.windows_sdk_version = windows_sdk_version
         self.directory = directory
         self.configs = configs
 
-    def run(self):
         (gen, options) = gen_target(self, self.source_dict)
 
         gen.beginFile(options)
