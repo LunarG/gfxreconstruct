@@ -56,27 +56,31 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         )
         write(code, file=self.outFile)
 
-    def get_encode_struct(self, value, is_generating_struct):
+    def get_encode_struct(self, value, is_generating_struct, is_result):
         """Methond override."""
         write_parameter_value = ''
         if is_generating_struct:
             write_parameter_value = 'value.'
 
+        omit_output_data = ''
+        if is_result and self.is_output(value):
+            omit_output_data = ', omit_output_data'
+
         if value.array_length and type(value.array_length) == str:
-            return 'EncodeStructArray(encoder, {}{}, {}{});'.format(
+            return 'EncodeStructArray(encoder, {}{}, {}{}{});'.format(
                 write_parameter_value, value.name, write_parameter_value,
-                value.array_length
+                value.array_length, omit_output_data
             )
 
         elif value.pointer_count == 1:
             if value.array_capacity == 0:
-                return 'EncodeStructPtr(encoder, {}{});'.format(
-                    write_parameter_value, value.name
+                return 'EncodeStructPtr(encoder, {}{}{});'.format(
+                    write_parameter_value, value.name, omit_output_data
                 )
 
         elif value.pointer_count == 2:
-            return 'EncodeStructPtr(encoder, *{}{});'.format(
-                write_parameter_value, value.name
+            return 'EncodeStructPtr(encoder, *{}{}{});'.format(
+                write_parameter_value, value.name, omit_output_data
             )
 
         else:
@@ -85,13 +89,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     write_parameter_value, value.name
                 )
             else:
-                return 'EncodeStructArray(encoder, {}{}, {});'.format(
-                    write_parameter_value, value.name, value.array_capacity
+                return 'EncodeStructArray(encoder, {}{}, {}{});'.format(
+                    write_parameter_value, value.name, value.array_capacity,
+                    omit_output_data
                 )
         return ''
 
     def get_encode_value(
-        self, value, function_name, function_value, is_generating_struct
+        self, value, function_name, function_value, is_generating_struct,
+        is_result
     ):
         """Methond override."""
         write_parameter_value = ''
@@ -102,21 +108,30 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if function_value:
             write_function_value = 'Value'
 
+        omit_output_data = ''
+        if is_result and self.is_output(value):
+            omit_output_data = ', omit_output_data'
+
         if value.array_length and type(value.array_length) == str:
-            return 'encoder->Encode{}Array({}{}, {}{});'.format(
+            return 'encoder->Encode{}Array({}{}, {}{}{});'.format(
                 function_name, write_parameter_value, value.name,
-                write_parameter_value, value.array_length
+                write_parameter_value, value.array_length, omit_output_data
             )
 
         elif value.pointer_count == 1:
             if value.array_capacity == 0:
-                return 'encoder->Encode{}Ptr({}{});'.format(
-                    function_name, write_parameter_value, value.name
+                if value.base_type == 'void':
+                    omit_output_data = ''
+
+                return 'encoder->Encode{}Ptr({}{}{});'.format(
+                    function_name, write_parameter_value, value.name,
+                    omit_output_data
                 )
 
         elif value.pointer_count == 2:
-            return 'encoder->Encode{}PtrPtr({}{});'.format(
-                function_name, write_parameter_value, value.name
+            return 'encoder->Encode{}PtrPtr({}{}{});'.format(
+                function_name, write_parameter_value, value.name,
+                omit_output_data
             )
 
         else:
@@ -127,37 +142,43 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 )
             else:
                 if value.array_dimension > 0:
-                    return 'encoder->Encode{}Array(*{}{}, {});'.format(
+                    return 'encoder->Encode{}Array(*{}{}, {}{});'.format(
                         function_name, write_parameter_value, value.name,
-                        value.array_capacity
+                        value.array_capacity, omit_output_data
                     )
                 else:
-                    return 'encoder->Encode{}Array({}{}, {});'.format(
+                    return 'encoder->Encode{}Array({}{}, {}{});'.format(
                         function_name, write_parameter_value, value.name,
-                        value.array_capacity
+                        value.array_capacity, omit_output_data
                     )
         return ''
 
-    def get_encode_parameter(self, parameter, is_generating_struct):
+    def get_encode_parameter(self, parameter, is_generating_struct, is_result):
         rtn = ''
         value = self.get_value_info(parameter)
 
+        omit_output_data = ''
+        if is_result and self.is_output(value):
+            omit_output_data = ', omit_output_data'
+
         if self.is_struct(value.base_type):
-            rtn = self.get_encode_struct(value, is_generating_struct)
+            rtn = self.get_encode_struct(
+                value, is_generating_struct, is_result
+            )
 
         elif self.is_class(value):
             if value.array_length and type(value.array_length) == str:
                 if is_generating_struct:
                     pass
                 else:
-                    rtn = 'encoder->EncodeObjectArray({}, {});'.format(
-                        value.name, value.array_length
+                    rtn = 'encoder->EncodeObjectArray({}, {}{});'.format(
+                        value.name, value.array_length, omit_output_data
                     )
             else:
                 if is_generating_struct:
                     if value.pointer_count == 2:
-                        rtn = 'encoder->EncodeObjectPtr(value.{});'.format(
-                            value.name
+                        rtn = 'encoder->EncodeObjectPtr(value.{}{});'.format(
+                            value.name, omit_output_data
                         )
                     else:
                         rtn = 'encoder->EncodeObjectValue(value.{});'.format(
@@ -165,8 +186,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                         )
                 else:
                     if value.pointer_count == 2:
-                        rtn = 'encoder->EncodeObjectPtr({});'.format(
-                            value.name
+                        rtn = 'encoder->EncodeObjectPtr({}{});'.format(
+                            value.name, omit_output_data
                         )
                     else:
                         rtn = 'encoder->EncodeObjectValue({});'.format(
@@ -193,7 +214,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
             if encode_type:
                 rtn = self.get_encode_value(
-                    value, encode_type, function_value, is_generating_struct
+                    value, encode_type, function_value, is_generating_struct,
+                    is_result
                 )
 
         if not rtn:
@@ -208,13 +230,13 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         for k, v in properties.items():
             for p in v:
-                encode = self.get_encode_parameter(p, True)
+                encode = self.get_encode_parameter(p, True, False)
                 body += '    {}\n'.format(encode)
 
         body += '}'
         return body
 
-    def get_encode_function_body(self, class_name, method_info):
+    def get_encode_function_body(self, class_name, method_info, is_result):
         """Methond override."""
         body = '\n'\
                '{\n'
@@ -232,8 +254,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         body += '    if(encoder)\n'\
                 '    {\n'
 
+        if is_result:
+            body += '        bool omit_output_data = false;\n'\
+                    '        if (result != S_OK)\n'\
+                    '        {\n'\
+                    '            omit_output_data = true;\n'\
+                    '        }\n'
+
         for p in method_info['parameters']:
-            encode = self.get_encode_parameter(p, False)
+            encode = self.get_encode_parameter(p, False, is_result)
             body += '        {}\n'.format(encode)
 
         rtn_type = method_info['rtnType']
@@ -242,7 +271,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             rtn_parameter['name'] = 'result'
             rtn_parameter['type'] = rtn_type
 
-            encode = self.get_encode_parameter(rtn_parameter, False)
+            encode = self.get_encode_parameter(rtn_parameter, False, is_result)
             body += '        {}\n'.format(encode)
 
         if class_name:

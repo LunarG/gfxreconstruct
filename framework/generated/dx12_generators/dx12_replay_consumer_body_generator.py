@@ -435,11 +435,6 @@ class Dx12ReplayConsumerBodyGenerator(
             code += '    {}'.format(e)
         return code
 
-    def is_output(self, value):
-        if value.full_type.find('_Out') != -1:
-            return True
-        return False
-
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())
         self.REPLAY_OVERRIDES = overrides

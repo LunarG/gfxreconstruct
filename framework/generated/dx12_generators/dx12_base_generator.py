@@ -494,3 +494,8 @@ class Dx12BaseGenerator(BaseGenerator):
                         structs_with_objects[class_name] = values
 
         return structs_with_objects
+
+    def is_output(self, value):
+        if value.full_type.find('_Out') != -1:
+            return True
+        return False

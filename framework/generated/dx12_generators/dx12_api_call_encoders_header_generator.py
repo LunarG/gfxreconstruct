@@ -116,7 +116,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         write(code, file=self.outFile)
         self.newline()
 
-    def get_encode_function_body(self, class_name, method_info):
+    def get_encode_function_body(self, class_name, method_info, is_result):
         return ';'
 
     def is_block(self, class_name, method_name):
@@ -131,6 +131,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         if class_name:
             parameters = '    format::HandleId wrapper_id'
 
+        is_result = False
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_types1 = self.clean_type_define(rtn_type)
@@ -138,6 +139,8 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
             if class_name:
                 parameters += ',\n'
             parameters += '    ' + rtn_types1 + ' result'
+            if rtn_types1 == 'HRESULT':
+                is_result = True
 
         space_index = 0
         for p in method_info['parameters']:
@@ -190,7 +193,9 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         code = 'void Encode{}_{}(\n'\
             '{})'.format(_class_name, method_info['name'], parameters)
 
-        code += self.get_encode_function_body(class_name, method_info)
+        code += self.get_encode_function_body(
+            class_name, method_info, is_result
+        )
         write(code, file=self.outFile)
         self.newline()
 
