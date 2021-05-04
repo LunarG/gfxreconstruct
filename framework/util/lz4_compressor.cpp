@@ -34,7 +34,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
                                const uint8_t*        uncompressed_data,
-                               std::vector<uint8_t>* compressed_data)
+                               std::vector<uint8_t>* compressed_data,
+                               size_t                compressed_data_offset)
 {
     size_t data_size = 0;
 
@@ -45,16 +46,17 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
 
     size_t lz4_compressed_size = LZ4_COMPRESSBOUND(uncompressed_size);
 
-    if (lz4_compressed_size > compressed_data->size())
+    if ((compressed_data_offset + lz4_compressed_size) > compressed_data->size())
     {
-        compressed_data->resize(lz4_compressed_size);
+        compressed_data->resize(compressed_data_offset + lz4_compressed_size);
     }
 
-    int compressed_size_generated = LZ4_compress_fast(reinterpret_cast<const char*>(uncompressed_data),
-                                                      reinterpret_cast<char*>(compressed_data->data()),
-                                                      static_cast<const int32_t>(uncompressed_size),
-                                                      static_cast<int32_t>(lz4_compressed_size),
-                                                      1);
+    int compressed_size_generated =
+        LZ4_compress_fast(reinterpret_cast<const char*>(uncompressed_data),
+                          reinterpret_cast<char*>(compressed_data->data() + compressed_data_offset),
+                          static_cast<const int32_t>(uncompressed_size),
+                          static_cast<int32_t>(lz4_compressed_size),
+                          1);
 
     if (compressed_size_generated > 0)
     {

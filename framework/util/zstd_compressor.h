@@ -37,7 +37,8 @@ class ZstdCompressor : public Compressor
 
     virtual size_t Compress(const size_t          uncompressed_size,
                             const uint8_t*        uncompressed_data,
-                            std::vector<uint8_t>* compressed_data) override;
+                            std::vector<uint8_t>* compressed_data,
+                            size_t                compressed_data_offset) override;
 
     virtual size_t Decompress(const size_t                compressed_size,
                               const std::vector<uint8_t>& compressed_data,
