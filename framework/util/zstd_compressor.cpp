@@ -35,7 +35,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
-                                std::vector<uint8_t>* compressed_data)
+                                std::vector<uint8_t>* compressed_data,
+                                size_t                compressed_data_offset)
 {
     size_t data_size = 0;
 
@@ -46,16 +47,17 @@ size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
 
     size_t zstd_compressed_size = ZSTD_compressBound(uncompressed_size);
 
-    if (zstd_compressed_size > compressed_data->size())
+    if ((compressed_data_offset + zstd_compressed_size) > compressed_data->size())
     {
-        compressed_data->resize(zstd_compressed_size);
+        compressed_data->resize(compressed_data_offset + zstd_compressed_size);
     }
 
-    size_t compressed_size_generated = ZSTD_compress(reinterpret_cast<char*>(compressed_data->data()),
-                                                     zstd_compressed_size,
-                                                     reinterpret_cast<const char*>(uncompressed_data),
-                                                     uncompressed_size,
-                                                     1);
+    size_t compressed_size_generated =
+        ZSTD_compress(reinterpret_cast<char*>(compressed_data->data() + compressed_data_offset),
+                      zstd_compressed_size,
+                      reinterpret_cast<const char*>(uncompressed_data),
+                      uncompressed_size,
+                      1);
 
     if (!ZSTD_isError(compressed_size_generated))
     {

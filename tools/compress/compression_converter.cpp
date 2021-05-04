@@ -180,7 +180,7 @@ bool CompressionConverter::WriteFunctionCall(format::ApiCallId call_id, format::
         // Compress the buffer with the new compression format and write to the new file.
         auto&  compressed_buffer = GetCompressedParameterBuffer();
         size_t packet_size       = 0;
-        size_t compressed_size   = target_compressor_->Compress(buffer_size, buffer.data(), &compressed_buffer);
+        size_t compressed_size   = target_compressor_->Compress(buffer_size, buffer.data(), &compressed_buffer, 0);
 
         if (0 < compressed_size && compressed_size < buffer_size)
         {
@@ -299,7 +299,7 @@ bool CompressionConverter::WriteFillMemoryMetaData(const format::BlockHeader& bl
             assert(target_compressor_ != nullptr);
 
             auto&  compressed_buffer = GetCompressedParameterBuffer();
-            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer);
+            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
 
             if ((compressed_size > 0) && (compressed_size < data_size))
             {
@@ -388,7 +388,7 @@ bool CompressionConverter::WriteInitBufferMetaData(const format::BlockHeader& bl
             assert(target_compressor_ != nullptr);
 
             auto&  compressed_buffer = GetCompressedParameterBuffer();
-            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer);
+            size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
 
             if ((compressed_size > 0) && (compressed_size < data_size))
             {
@@ -495,7 +495,7 @@ bool CompressionConverter::WriteInitImageMetaData(const format::BlockHeader& blo
                 assert(target_compressor_ != nullptr);
 
                 auto&  compressed_buffer = GetCompressedParameterBuffer();
-                size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer);
+                size_t compressed_size   = target_compressor_->Compress(data_size, data_address, &compressed_buffer, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {

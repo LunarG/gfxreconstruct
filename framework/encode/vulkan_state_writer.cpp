@@ -1140,7 +1140,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
 
             if (compressor_ != nullptr)
             {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_);
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {
@@ -1422,7 +1422,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
 
             if (compressor_ != nullptr)
             {
-                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_);
+                size_t compressed_size = compressor_->Compress(data_size, bytes, &compressed_parameter_buffer_, 0);
 
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {
@@ -2486,7 +2486,7 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
     {
         size_t packet_size = 0;
         size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_);
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
 
         if ((0 < compressed_size) && (compressed_size < uncompressed_size))
         {
@@ -2554,7 +2554,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
 
     if (compressor_ != nullptr)
     {
-        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_);
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_, 0);
 
         if ((compressed_size > 0) && (compressed_size < write_size))
         {

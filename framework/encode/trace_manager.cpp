@@ -376,59 +376,47 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         assert((parameter_buffer != nullptr) && (thread_data->parameter_encoder_ != nullptr) &&
                (thread_data->parameter_encoder_.get() == encoder));
 
-        bool                                 not_compressed      = true;
-        format::CompressedFunctionCallHeader compressed_header   = {};
-        format::FunctionCallHeader           uncompressed_header = {};
-        size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
-        size_t                               header_size         = 0;
-        const void*                          header_pointer      = nullptr;
-        size_t                               data_size           = 0;
-        const void*                          data_pointer        = nullptr;
+        bool   not_compressed    = true;
+        size_t uncompressed_size = parameter_buffer->GetDataSize();
 
         if (nullptr != compressor_)
         {
-            size_t packet_size = 0;
-            size_t compressed_size =
-                compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
+            size_t                               header_size       = sizeof(format::CompressedFunctionCallHeader);
+            size_t                               compressed_size   = compressor_->Compress(
+                uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_, header_size);
 
             if ((0 < compressed_size) && (compressed_size < uncompressed_size))
             {
-                data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
-                data_size      = compressed_size;
-                header_pointer = reinterpret_cast<const void*>(&compressed_header);
-                header_size    = sizeof(format::CompressedFunctionCallHeader);
+                auto compressed_header =
+                    reinterpret_cast<format::CompressedFunctionCallHeader*>(thread_data->compressed_buffer_.data());
+                compressed_header->block_header.type = format::BlockType::kCompressedFunctionCallBlock;
+                compressed_header->api_call_id       = thread_data->call_id_;
+                compressed_header->thread_id         = thread_data->thread_id_;
+                compressed_header->uncompressed_size = uncompressed_size;
+                compressed_header->block_header.size = sizeof(compressed_header->api_call_id) +
+                                                       sizeof(compressed_header->thread_id) +
+                                                       sizeof(compressed_header->uncompressed_size) + compressed_size;
 
-                compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
-                compressed_header.api_call_id       = thread_data->call_id_;
-                compressed_header.thread_id         = thread_data->thread_id_;
-                compressed_header.uncompressed_size = uncompressed_size;
+                WriteToFile(thread_data->compressed_buffer_.data(), header_size + compressed_size);
 
-                packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
-                               sizeof(compressed_header.thread_id) + compressed_size;
-
-                compressed_header.block_header.size = packet_size;
-                not_compressed                      = false;
+                not_compressed = false;
             }
         }
 
         if (not_compressed)
         {
-            size_t packet_size = 0;
-            data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
-            data_size          = uncompressed_size;
-            header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-            header_size        = sizeof(format::FunctionCallHeader);
+            format::FunctionCallHeader uncompressed_header = {};
 
             uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
             uncompressed_header.api_call_id       = thread_data->call_id_;
             uncompressed_header.thread_id         = thread_data->thread_id_;
 
-            packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
+            uncompressed_header.block_header.size =
+                sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + uncompressed_size;
 
-            uncompressed_header.block_header.size = packet_size;
+            CombineAndWriteToFile({ { &uncompressed_header, sizeof(format::FunctionCallHeader) },
+                                    { parameter_buffer->GetData(), uncompressed_size } });
         }
-
-        CombineAndWriteToFile({ { header_pointer, header_size }, { data_pointer, data_size } });
 
         encoder->Reset();
     }
@@ -727,8 +715,9 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
         format::FillMemoryCommandHeader fill_cmd;
-        const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
-        size_t                          write_size    = static_cast<size_t>(size);
+        size_t                          header_size       = sizeof(format::FillMemoryCommandHeader);
+        const uint8_t*                  uncompressed_data = (static_cast<const uint8_t*>(data) + offset);
+        size_t                          uncompressed_size = static_cast<size_t>(size);
 
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
@@ -740,25 +729,38 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         fill_cmd.memory_offset                 = offset;
         fill_cmd.memory_size                   = size;
 
+        bool not_compressed = true;
+
         if (compressor_ != nullptr)
         {
-            size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
+            size_t compressed_size = compressor_->Compress(
+                uncompressed_size, uncompressed_data, &thread_data->compressed_buffer_, header_size);
 
-            if ((compressed_size > 0) && (compressed_size < write_size))
+            if ((compressed_size > 0) && (compressed_size < uncompressed_size))
             {
+                not_compressed = false;
+
                 // We don't have a special header for compressed fill commands because the header always includes
                 // the uncompressed size, so we just change the type to indicate the data is compressed.
                 fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 
-                write_address = thread_data->compressed_buffer_.data();
-                write_size    = compressed_size;
+                // Calculate size of packet with uncompressed data size.
+                fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + compressed_size;
+
+                // Copy header to beginning of compressed_buffer_
+                util::platform::MemoryCopy(thread_data->compressed_buffer_.data(), header_size, &fill_cmd, header_size);
+
+                WriteToFile(thread_data->compressed_buffer_.data(), header_size + compressed_size);
             }
         }
 
-        // Calculate size of packet with compressed or uncompressed data size.
-        fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + write_size;
+        if (not_compressed)
+        {
+            // Calculate size of packet with compressed data size.
+            fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + uncompressed_size;
 
-        CombineAndWriteToFile({ { &fill_cmd, sizeof(fill_cmd) }, { write_address, write_size } });
+            CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
+        }
     }
 }
 
