@@ -284,26 +284,26 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                    PointerDecoder<UINT>*            node_mask,
                                    HandlePointerDecoder<IUnknown*>* present_queue);
 
-    HRESULT OverrideLoadGraphicsPipeline(DxObjectInfo*                             replay_object_info,
-                                         HRESULT                                   original_result,
-                                         WStringDecoder*                           name,
-                                         const D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
-                                         Decoded_GUID                              riid,
-                                         HandlePointerDecoder<void*>*              state);
+    HRESULT OverrideLoadGraphicsPipeline(DxObjectInfo*   replay_object_info,
+                                         HRESULT         original_result,
+                                         WStringDecoder* name,
+                                         StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* desc,
+                                         Decoded_GUID                                                      riid,
+                                         HandlePointerDecoder<void*>*                                      state);
 
-    HRESULT OverrideLoadComputePipeline(DxObjectInfo*                            replay_object_info,
-                                        HRESULT                                  original_result,
-                                        WStringDecoder*                          name,
-                                        const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
-                                        Decoded_GUID                             riid,
-                                        HandlePointerDecoder<void*>*             state);
+    HRESULT OverrideLoadComputePipeline(DxObjectInfo*   replay_object_info,
+                                        HRESULT         original_result,
+                                        WStringDecoder* name,
+                                        StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* desc,
+                                        Decoded_GUID                                                     riid,
+                                        HandlePointerDecoder<void*>*                                     state);
 
-    HRESULT OverrideLoadPipeline(DxObjectInfo*                           replay_object_info,
-                                 HRESULT                                 original_result,
-                                 WStringDecoder*                         name,
-                                 const D3D12_PIPELINE_STATE_STREAM_DESC* desc,
-                                 Decoded_GUID                            riid,
-                                 HandlePointerDecoder<void*>*            state);
+    HRESULT OverrideLoadPipeline(DxObjectInfo*                                                   replay_object_info,
+                                 HRESULT                                                         original_result,
+                                 WStringDecoder*                                                 name,
+                                 StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* desc,
+                                 Decoded_GUID                                                    riid,
+                                 HandlePointerDecoder<void*>*                                    state);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

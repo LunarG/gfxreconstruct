@@ -1144,12 +1144,13 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
     return replay_result;
 }
 
-HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(DxObjectInfo*   replay_object_info,
-                                                             HRESULT         original_result,
-                                                             WStringDecoder* name,
-                                                             const D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
-                                                             Decoded_GUID                              riid,
-                                                             HandlePointerDecoder<void*>*              state)
+HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
+    DxObjectInfo*                                                     replay_object_info,
+    HRESULT                                                           original_result,
+    WStringDecoder*                                                   name,
+    StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* desc,
+    Decoded_GUID                                                      riid,
+    HandlePointerDecoder<void*>*                                      state)
 {
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
@@ -1161,20 +1162,21 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(DxObjectInfo*   rep
     else
     {
         assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (name != nullptr) &&
-               (desc != nullptr) && (state != nullptr));
+               (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto replay_object = static_cast<ID3D12PipelineLibrary*>(replay_object_info->object);
         return replay_object->LoadGraphicsPipeline(
-            name->GetPointer(), desc, *riid.decoded_value, state->GetHandlePointer());
+            name->GetPointer(), desc->GetPointer(), *riid.decoded_value, state->GetHandlePointer());
     }
 }
 
-HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(DxObjectInfo*                            replay_object_info,
-                                                            HRESULT                                  original_result,
-                                                            WStringDecoder*                          name,
-                                                            const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
-                                                            Decoded_GUID                             riid,
-                                                            HandlePointerDecoder<void*>*             state)
+HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(
+    DxObjectInfo*                                                    replay_object_info,
+    HRESULT                                                          original_result,
+    WStringDecoder*                                                  name,
+    StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* desc,
+    Decoded_GUID                                                     riid,
+    HandlePointerDecoder<void*>*                                     state)
 {
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
@@ -1186,21 +1188,21 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(DxObjectInfo*       
     else
     {
         assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (name != nullptr) &&
-               (desc != nullptr) && (state != nullptr));
+               (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto replay_object = static_cast<ID3D12PipelineLibrary*>(replay_object_info->object);
         return replay_object->LoadComputePipeline(
-            name->GetPointer(), desc, *riid.decoded_value, state->GetHandlePointer());
+            name->GetPointer(), desc->GetPointer(), *riid.decoded_value, state->GetHandlePointer());
     }
 }
 
 HRESULT
-Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*                           replay_object_info,
-                                             HRESULT                                 original_result,
-                                             WStringDecoder*                         name,
-                                             const D3D12_PIPELINE_STATE_STREAM_DESC* desc,
-                                             Decoded_GUID                            riid,
-                                             HandlePointerDecoder<void*>*            state)
+Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*   replay_object_info,
+                                             HRESULT         original_result,
+                                             WStringDecoder* name,
+                                             StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* desc,
+                                             Decoded_GUID                                                    riid,
+                                             HandlePointerDecoder<void*>*                                    state)
 {
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
@@ -1212,10 +1214,11 @@ Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*                      
     else
     {
         assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (name != nullptr) &&
-               (desc != nullptr) && (state != nullptr));
+               (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto replay_object = static_cast<ID3D12PipelineLibrary1*>(replay_object_info->object);
-        return replay_object->LoadPipeline(name->GetPointer(), desc, *riid.decoded_value, state->GetHandlePointer());
+        return replay_object->LoadPipeline(
+            name->GetPointer(), desc->GetPointer(), *riid.decoded_value, state->GetHandlePointer());
     }
 }
 

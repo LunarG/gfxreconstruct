@@ -5000,7 +5000,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         auto replay_result = OverrideLoadGraphicsPipeline(replay_object,
                                                           returnValue,
                                                           pName,
-                                                          pDesc->GetPointer(),
+                                                          pDesc,
                                                           riid,
                                                           ppPipelineState);
         if (SUCCEEDED(replay_result))
@@ -5029,7 +5029,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         auto replay_result = OverrideLoadComputePipeline(replay_object,
                                                          returnValue,
                                                          pName,
-                                                         pDesc->GetPointer(),
+                                                         pDesc,
                                                          riid,
                                                          ppPipelineState);
         if (SUCCEEDED(replay_result))
@@ -5084,7 +5084,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         auto replay_result = OverrideLoadPipeline(replay_object,
                                                   returnValue,
                                                   pName,
-                                                  pDesc->GetPointer(),
+                                                  pDesc,
                                                   riid,
                                                   ppPipelineState);
         if (SUCCEEDED(replay_result))

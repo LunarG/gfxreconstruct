@@ -316,7 +316,10 @@ class Dx12ReplayConsumerBodyGenerator(
                         code += '    MapStructObjects({}->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());\n'.format(
                             value.name
                         )
-                    arg_list.append(value.name + '->GetPointer()')
+                    if is_override:
+                        arg_list.append(value.name)
+                    else:
+                        arg_list.append(value.name + '->GetPointer()')
                 else:
                     code += '    MapStructObjects(&{}, GetObjectInfoTable(), GetGpuVaTable());\n'.format(
                         value.name
