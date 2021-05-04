@@ -47,8 +47,6 @@ class ParameterEncoder
 
     ~ParameterEncoder() {}
 
-    void Reset() { output_stream_->Reset(); }
-
     // clang-format off
 
     // Values

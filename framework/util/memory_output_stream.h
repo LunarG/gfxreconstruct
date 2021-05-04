@@ -53,9 +53,12 @@ class MemoryOutputStream : public OutputStream
 
     virtual size_t Write(const void* data, size_t len) override;
 
-    const uint8_t* GetData() const { return buffer_.data(); }
+    virtual const uint8_t* GetData() const { return buffer_.data(); }
 
-    size_t GetDataSize() const { return buffer_.size(); }
+    virtual size_t GetDataSize() const { return buffer_.size(); }
+
+  protected:
+    std::vector<uint8_t>* GetBuffer() { return &buffer_; }
 
   private:
     std::vector<uint8_t> buffer_;
