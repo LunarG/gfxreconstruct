@@ -31,10 +31,16 @@ def setupJobVars() {
     // Defaults for GFXReconstruct package
     gfxrBranch = "amd-main"
     devMatchPattern = /[Dd][Ee][Vv]-.*/
-    // extraBuildArgs = "--skip-check-code-style --skip-apply-code-style --skip-tests --test-archive"
-    // Use these arguments for now.
-    extraBuildArgs = "--skip-check-code-style --skip-tests"
 
+    extraBuildArgs = "--skip-check-code-style --skip-tests"
+	echo "listing env props:"
+    def fields = env.getEnvironment()
+	fields.each 
+	{
+		key, value -> println("${key} = ${value}");
+	}
+	println(env.PATH)
+	
     email_recip_fail = ""
     email_recip_success = ""
 
@@ -46,14 +52,22 @@ def setupJobVars() {
     if (env.NOTIFY_SUCCESS) {
         email_recip_success = env.NOTIFY_SUCCESS
     }
-    // also, a no-op, since this does not get manually set.
-    /*    if (gfxrBranch.matches(devMatchPattern)) {
-            extraBuildArgs = "--skip-check-code-style --skip-tests"
-            runTests = false
-        }
-    */
     // While testing, turn on running the tests.
     runTests = true
+}
+
+// Define the cloning to be done.
+def cloneReposWin() {
+    dir("gfx") {
+        try {
+            withCredentials([usernameColonPassword(credentialsId: '85ec0d85-308b-4bbc-a073-125bf010aaef', variable: 'credentialsId')]) {
+                bat "git clone https://github.com/LunarG/GFXReconstruct-DX12/"
+            }
+        } catch (Exception err) {
+            echo "Unable to clone the gfxreconstruct github repo"
+            throw err
+        }
+    }
 }
 
 // Define the cloning to be done.
@@ -171,8 +185,9 @@ def Build(label) {
             dir ("gfxreconstruct") {
                 deleteDir()
             }
-            cloneRepos()
+            
             if (isUnix()) {
+			    cloneRepos()
                 extraBuildArgs = "--skip-tests"
                 // build 64 bit
                 try {
@@ -211,8 +226,6 @@ def Build(label) {
                     }
                 } catch (Exception etar) {
                     echo "Unable to create the tar file, 64bit"
-                    // probably should uncomment this eventually
-                    // throw etar
                 }
                 // build 32 bit. Run build.py --clean first.
                 sh "python3 ./gfxreconstruct/scripts/build.py --clean"
@@ -252,16 +265,40 @@ def Build(label) {
                     }
                 } catch (Exception etar) {
                     echo "Unable to create the tar file, 32 bit"
-                    // probably should uncomment this eventually
-                    // throw etar
                 }
             } else {
+			    dir("gfx"){
+				    deleteDir()
+				}
+			    cloneReposWin()
                 withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}"]) {
+					echo "${env.BRANCH_NAME}" 
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
+					
+					if(env.CHANGE_BRANCH == null && env.BRANCH_NAME != null) //here we have branch that not yet PR. CHANGE_BRANCH is null 
+					{
+					    echo "PR not submitted yet"
+						echo "checking out BRANCH_NAME"
+				        sh """
+							git -C gfx/GFXReconstruct-DX12 checkout ${env.BRANCH_NAME}
+					    """
+						extraWinBuildArgs = "--check-code-style-base ${env.BRANCH_NAME}" 
+					}
+					else if(env.CHANGE_BRANCH != null) //once we creating a PR - BRANCH_NAME becomes pr+number and we are checking CHANGE_BRANCH to get the branch name 
+					{
+					    echo "env.CHANGE_BRANCH is not NULL"
+				        sh """
+							git -C gfx/GFXReconstruct-DX12 checkout ${env.CHANGE_BRANCH}
+					    """
+						extraWinBuildArgs = "--check-code-style-base ${env.CHANGE_BRANCH}" 
+
+					}
+					
                     try {
                         bat """
                             echo on
                             set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
-                            C:\\Python36\\python.exe .\\gfxreconstruct\\scripts\\build.py ${extraBuildArgs} ${build64}
+                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py ${extraWinBuildArgs} ${build64}
                         """
                     } catch (Exception err) {
                         echo "GFXReconstruct Windows 64 bit build failed: " + err
@@ -269,16 +306,13 @@ def Build(label) {
                         throw err
                     }
                     try {
-                        dir ("gfxreconstruct") {
+                        dir ("gfx") {
                             bat """
-                                copy LICENSE.txt build\\windows\\x64\\output\\bin\\
-                                copy LICENSE_ThirdParty.txt build\\windows\\x64\\output\\bin\\
-                                copy USAGE_desktop.md build\\windows\\x64\\output\\bin\\
-                                copy layer\\vk_layer_settings.txt build\\windows\\x64\\output\\bin\\
-                                copy scripts\\*test.py build\\windows\\x64\\output\\bin\\
-                                copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py build\\windows\\x64\\output\\bin\\
+                                copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+                                copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+                                copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 rmdir /S /Q ..\\gfxreconstruct-dev
-                                move build\\windows\\x64\\output\\bin ..\\gfxreconstruct-dev
+                                move GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin ..\\gfxreconstruct-dev
                             """
                         }
                     } catch (Exception epost) {
@@ -293,15 +327,14 @@ def Build(label) {
                         }
                     } catch (Exception ezip) {
                         echo "Unable to create the zip file"
-                        // probably should uncomment this eventually
-                        // throw ezip
                     }
                     // build the 32-bit version
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
                     try {
                         bat """
                             echo on
                             set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
-                            C:\\Python36\\python.exe .\\gfxreconstruct\\scripts\\build.py ${extraBuildArgs} ${build32}
+                            C:\\Python36\\python.exe .\\gfx\\GFXReconstruct-DX12\\scripts\\build.py ${extraWinBuildArgs} ${build32}
                         """
                     } catch (Exception err) {
                         echo "GFXReconstruct Windows 32 bit build, failed: " + err
@@ -309,16 +342,13 @@ def Build(label) {
                         throw err
                     }
                     try {
-                        dir ("gfxreconstruct") {
+                        dir ("gfx") {
                             bat """
-                                copy LICENSE.txt build\\windows\\x86\\output\\bin\\
-                                copy LICENSE_ThirdParty.txt build\\windows\\x86\\output\\bin\\
-                                copy USAGE_desktop.md build\\windows\\x86\\output\\bin\\
-                                copy layer\\vk_layer_settings.txt build\\windows\\x86\\output\\bin\\
-                                copy scripts\\*test.py build\\windows\\x86\\output\\bin\\
-                                copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py build\\windows\\x86\\output\\bin\\
+                                copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+                                copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+                                copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 rmdir /S /Q ..\\gfxreconstruct-dev
-                                move build\\windows\\x86\\output\\bin ..\\gfxreconstruct-dev
+                                move GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin ..\\gfxreconstruct-dev
                             """
                         }
                     } catch (Exception epost) {
@@ -333,8 +363,6 @@ def Build(label) {
                         }
                     } catch (Exception ezip) {
                         echo "Unable to create the 32 bit zip file"
-                        // probably should uncomment this eventually
-                        // throw ezip
                     }
                 }
             }
