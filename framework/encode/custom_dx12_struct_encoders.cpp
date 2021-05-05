@@ -363,7 +363,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
                     EncodeStructArray(encoder, value.pGeometryDescs, value.NumDescs);
                     break;
                 case D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS:
-                    EncodeStructArrayPtr(encoder, value.ppGeometryDescs, value.NumDescs);
+                    EncodeStructArray2D(encoder, value.ppGeometryDescs, value.NumDescs, 1);
                     break;
                 default:
                     break;

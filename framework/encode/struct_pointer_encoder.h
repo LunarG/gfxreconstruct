@@ -60,21 +60,6 @@ void EncodeStructArray(
 }
 
 template <typename T>
-void EncodeStructArrayPtr(
-    ParameterEncoder* encoder, const T* const* value, size_t len, bool omit_data = false, bool omit_addr = false)
-{
-    encoder->EncodeStructArrayPreamble(value, len, omit_data, omit_addr);
-
-    if ((value != nullptr) && (len > 0) && !omit_data)
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            EncodeStructPtr(encoder, value[i]);
-        }
-    }
-}
-
-template <typename T>
 void EncodeStructArray2D(ParameterEncoder* encoder,
                          const T* const*   value,
                          size_t            m,
