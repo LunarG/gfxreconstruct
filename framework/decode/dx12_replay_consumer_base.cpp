@@ -1426,7 +1426,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             if (resource_info->capture_address_ != 0)
             {
-                ID3D12Resource* resource = static_cast<ID3D12Resource*>(info->object);
+                auto resource = static_cast<ID3D12Resource*>(info->object);
 
                 auto desc = resource->GetDesc();
 

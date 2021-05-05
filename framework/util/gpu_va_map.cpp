@@ -130,7 +130,7 @@ bool GpuVaMap::Remove(const ID3D12Resource* resource, GpuVaRange& buffer_range)
             }
             else
             {
-                GFXRECON_LOG_DEBUG("Object or resource not found in map or list");
+                GFXRECON_LOG_WARNING("Object or resource not found in map or list");
                 ret_status = false;
             }
         }
