@@ -85,7 +85,7 @@ bool GpuVaMap::Add(ID3D12Resource*           resource,
         if (gpu_va_page.buffers.end() != buffer_iter)
         {
             ret_status = false;
-            GFXRECON_LOG_DEBUG("Duplicate object in an object map");
+            GFXRECON_LOG_WARNING("GpuVaMap: Duplicate object in an object map. Object not added.");
         }
         else
         {
@@ -100,7 +100,7 @@ bool GpuVaMap::Remove(ID3D12Resource* resource)
 {
     if (page_table.pages.empty())
     {
-        GFXRECON_LOG_DEBUG("Object or resource not found in map or list");
+        GFXRECON_LOG_WARNING("GpuVaMap: Object or resource not found in map or list. Object not removed.");
         return false;
     }
     GpuVaRange buffer_range{};
@@ -130,7 +130,7 @@ bool GpuVaMap::Remove(const ID3D12Resource* resource, GpuVaRange& buffer_range)
             }
             else
             {
-                GFXRECON_LOG_WARNING("Object or resource not found in map or list");
+                GFXRECON_LOG_WARNING("GpuVaMap: Object or resource not found in map or list. Object not removed.");
                 ret_status = false;
             }
         }
