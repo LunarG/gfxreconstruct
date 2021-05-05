@@ -37,7 +37,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename CharT, format::PointerAttributes DecodeAttrib>
+template <typename CharT, typename EncodeT, format::PointerAttributes DecodeAttrib>
 class BasicStringArrayDecoder : public PointerDecoderBase
 {
   public:
@@ -91,7 +91,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
 
                     if (((attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData))
                     {
-                        bytes_read += ValueDecoder::DecodeVoidArray(
+                        bytes_read += ValueDecoder::DecodeArrayFrom<EncodeT>(
                             (buffer + bytes_read), (buffer_size - bytes_read), value, slen);
                         value[slen] = '\0';
                     }
@@ -124,8 +124,9 @@ class BasicStringArrayDecoder : public PointerDecoderBase
     size_t*   string_lengths_{ nullptr };
 };
 
-typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString>     StringArrayDecoder;
-typedef BasicStringArrayDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringArrayDecoder;
+typedef BasicStringArrayDecoder<char, format::CharEncodeType, format::PointerAttributes::kIsString> StringArrayDecoder;
+typedef BasicStringArrayDecoder<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>
+    WStringArrayDecoder;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
