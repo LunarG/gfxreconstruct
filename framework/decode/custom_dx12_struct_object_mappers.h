@@ -50,6 +50,14 @@ void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
                       const util::GpuVaMap&                gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper,
+                      const Dx12ObjectInfoTable&              object_info_table,
+                      const util::GpuVaMap&                   gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper,
+                      const Dx12ObjectInfoTable&                                    object_info_table,
+                      const util::GpuVaMap&                                         gpu_va_map);
+
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
                       const util::GpuVaMap&                    gpu_va_map);

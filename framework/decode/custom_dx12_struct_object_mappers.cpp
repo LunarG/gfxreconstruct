@@ -111,13 +111,79 @@ void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper,
     }
 }
 
+void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper,
+                      const Dx12ObjectInfoTable&              object_info_table,
+                      const util::GpuVaMap&                   gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES:
+                MapStructObjects(wrapper->Triangles, object_info_table, gpu_va_map);
+                break;
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
+                MapStructObjects(wrapper->AABBs, object_info_table, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper,
+                      const Dx12ObjectInfoTable&                                    object_info_table,
+                      const util::GpuVaMap&                                         gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL:
+                object_mapping::MapGpuVirtualAddress(value->InstanceDescs, gpu_va_map);
+                break;
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL:
+                switch (value->DescsLayout)
+                {
+                    case D3D12_ELEMENTS_LAYOUT_ARRAY:
+                        MapStructArrayObjects(wrapper->pGeometryDescs->GetMetaStructPointer(),
+                                              wrapper->pGeometryDescs->GetLength(),
+                                              object_info_table,
+                                              gpu_va_map);
+                        break;
+                    case D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS:
+                    {
+                        auto descs     = wrapper->ppGeometryDescs->GetMetaStructPointer();
+                        auto num_descs = wrapper->ppGeometryDescs->GetLength();
+
+                        for (size_t i = 0; i < num_descs; ++i)
+                        {
+                            MapStructObjects(descs[i], object_info_table, gpu_va_map);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
                       const util::GpuVaMap&                    gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
-        D3D12_RENDER_PASS_ENDING_ACCESS* value = wrapper->decoded_value;
+        auto value = wrapper->decoded_value;
 
         switch (value->Type)
         {
