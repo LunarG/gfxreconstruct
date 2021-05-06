@@ -279,6 +279,8 @@ void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC
 
         object_mapping::MapGpuVirtualAddress(value->DestAccelerationStructureData, gpu_va_map);
 
+        MapStructObjects(wrapper->Inputs, object_info_table, gpu_va_map);
+
         object_mapping::MapGpuVirtualAddress(value->SourceAccelerationStructureData, gpu_va_map);
 
         object_mapping::MapGpuVirtualAddress(value->ScratchAccelerationStructureData, gpu_va_map);

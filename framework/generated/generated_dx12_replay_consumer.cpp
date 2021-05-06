@@ -5751,6 +5751,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructur
     auto replay_object = MapObject<ID3D12Device5>(object_id);
     if (replay_object != nullptr)
     {
+        MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         replay_object->GetRaytracingAccelerationStructurePrebuildInfo(pDesc->GetPointer(),
                                                                       pInfo->GetPointer());
     }
