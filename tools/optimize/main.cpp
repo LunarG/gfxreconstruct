@@ -226,7 +226,7 @@ int main(int argc, const char** argv)
                                    input_filename.c_str());
         }
     }
-    catch (std::runtime_error error)
+    catch (const std::runtime_error& error)
     {
         GFXRECON_WRITE_CONSOLE("File processing has encountered a fatal error and cannot continue: %s", error.what());
         return -1;

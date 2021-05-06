@@ -151,7 +151,7 @@ int main(int argc, const char** argv)
                     interceptor_path.c_str());
             }
         }
-        catch (std::runtime_error error)
+        catch (const std::runtime_error& error)
         {
             GFXRECON_WRITE_CONSOLE("Launcher has encountered a fatal error and cannot continue: %s", error.what());
             return_code = -1;
