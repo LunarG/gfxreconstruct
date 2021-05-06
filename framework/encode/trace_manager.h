@@ -41,6 +41,7 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/keyboard.h"
+#include "util/shared_mutex.h"
 
 #include "vulkan/vulkan.h"
 
@@ -49,6 +50,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -87,6 +89,16 @@ class TraceManager
     void InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
     void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
+
+    std::shared_lock<util::SharedMutex> AcquireSharedStateLock()
+    {
+        return std::shared_lock<util::SharedMutex>(state_mutex_);
+    }
+
+    std::unique_lock<util::SharedMutex> AcquireUniqueStateLock()
+    {
+        return std::move(std::unique_lock<util::SharedMutex>(state_mutex_));
+    }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -262,9 +274,7 @@ class TraceManager
     }
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
-    void EndCommandApiCallTrace(VkCommandBuffer   command_buffer,
-                                GetHandlesFunc    func,
-                                GetHandlesArgs... args)
+    void EndCommandApiCallTrace(VkCommandBuffer command_buffer, GetHandlesFunc func, GetHandlesArgs... args)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -1065,10 +1075,10 @@ class TraceManager
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
     static std::atomic<format::HandleId>            unique_id_counter_;
+    static util::SharedMutex                        state_mutex_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     base_filename_;
-    std::mutex                                      file_lock_;
     bool                                            timestamp_filename_;
     bool                                            force_file_flush_;
     std::unique_ptr<util::Compressor>               compressor_;

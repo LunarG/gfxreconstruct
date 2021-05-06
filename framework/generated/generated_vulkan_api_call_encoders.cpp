@@ -50,6 +50,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
     const VkAllocationCallbacks*                pAllocator,
     VkInstance*                                 pInstance)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateInstance>::Dispatch(TraceManager::Get(), pCreateInfo, pAllocator, pInstance);
@@ -79,6 +81,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
     VkInstance                                  instance,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(TraceManager::Get(), instance, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyInstance);
@@ -103,6 +107,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
     uint32_t*                                   pPhysicalDeviceCount,
     VkPhysicalDevice*                           pPhysicalDevices)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceCount, pPhysicalDevices);
@@ -139,6 +145,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures*                   pFeatures)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -161,6 +169,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
     VkFormat                                    format,
     VkFormatProperties*                         pFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -188,6 +198,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
     VkImageCreateFlags                          flags,
     VkImageFormatProperties*                    pImageFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
@@ -223,6 +235,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties*                 pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -245,6 +259,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties*                    pQueueFamilyProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -267,6 +283,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties*           pMemoryProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -290,6 +308,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
     const VkAllocationCallbacks*                pAllocator,
     VkDevice*                                   pDevice)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDevice>::Dispatch(TraceManager::Get(), physicalDevice, pCreateInfo, pAllocator, pDevice);
@@ -320,6 +340,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     VkDevice                                    device,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(TraceManager::Get(), device, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDevice);
@@ -345,6 +367,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     uint32_t                                    queueIndex,
     VkQueue*                                    pQueue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(TraceManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -372,6 +396,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     const VkSubmitInfo*                         pSubmits,
     VkFence                                     fence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(TraceManager::Get(), queue, submitCount, pSubmits, fence);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -400,6 +426,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
 VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
     VkQueue                                     queue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(TraceManager::Get(), queue);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
@@ -422,6 +450,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
 VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
     VkDevice                                    device)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(TraceManager::Get(), device);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -447,6 +477,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
     const VkAllocationCallbacks*                pAllocator,
     VkDeviceMemory*                             pMemory)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(TraceManager::Get(), device, pAllocateInfo, pAllocator, pMemory);
@@ -478,6 +510,8 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     VkDeviceMemory                              memory,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(TraceManager::Get(), device, memory, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeMemory);
@@ -507,6 +541,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     VkMemoryMapFlags                            flags,
     void**                                      ppData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(TraceManager::Get(), device, memory, offset, size, flags, ppData);
@@ -542,6 +578,8 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     VkDevice                                    device,
     VkDeviceMemory                              memory)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(TraceManager::Get(), device, memory);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUnmapMemory);
@@ -565,6 +603,8 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>::Dispatch(TraceManager::Get(), device, memoryRangeCount, pMemoryRanges);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -593,6 +633,8 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     uint32_t                                    memoryRangeCount,
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges>::Dispatch(TraceManager::Get(), device, memoryRangeCount, pMemoryRanges);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -621,6 +663,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     VkDeviceMemory                              memory,
     VkDeviceSize*                               pCommittedMemoryInBytes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(TraceManager::Get(), device, memory, pCommittedMemoryInBytes);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -646,6 +690,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     VkDeviceMemory                              memory,
     VkDeviceSize                                memoryOffset)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(TraceManager::Get(), device, buffer, memory, memoryOffset);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -676,6 +722,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     VkDeviceMemory                              memory,
     VkDeviceSize                                memoryOffset)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(TraceManager::Get(), device, image, memory, memoryOffset);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -705,6 +753,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     VkBuffer                                    buffer,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(TraceManager::Get(), device, buffer, pMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -729,6 +779,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     VkImage                                     image,
     VkMemoryRequirements*                       pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(TraceManager::Get(), device, image, pMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -754,6 +806,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements*            pSparseMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(TraceManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -784,6 +838,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties*              pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -813,6 +869,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     const VkBindSparseInfo*                     pBindInfo,
     VkFence                                     fence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>::Dispatch(TraceManager::Get(), queue, bindInfoCount, pBindInfo, fence);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -844,6 +902,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
     const VkAllocationCallbacks*                pAllocator,
     VkFence*                                    pFence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pFence);
@@ -882,6 +942,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     VkFence                                     fence,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(TraceManager::Get(), device, fence, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFence);
@@ -908,6 +970,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
     uint32_t                                    fenceCount,
     const VkFence*                              pFences)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(TraceManager::Get(), device, fenceCount, pFences);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -935,6 +999,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     VkDevice                                    device,
     VkFence                                     fence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(TraceManager::Get(), device, fence);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -963,6 +1029,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(TraceManager::Get(), device, fenceCount, pFences, waitAll, timeout);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -994,6 +1062,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
     const VkAllocationCallbacks*                pAllocator,
     VkSemaphore*                                pSemaphore)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pSemaphore);
@@ -1032,6 +1102,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     VkSemaphore                                 semaphore,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(TraceManager::Get(), device, semaphore, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySemaphore);
@@ -1059,6 +1131,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
     const VkAllocationCallbacks*                pAllocator,
     VkEvent*                                    pEvent)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pEvent);
@@ -1097,6 +1171,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     VkEvent                                     event,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(TraceManager::Get(), device, event, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyEvent);
@@ -1122,6 +1198,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     VkDevice                                    device,
     VkEvent                                     event)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(TraceManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1147,6 +1225,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     VkDevice                                    device,
     VkEvent                                     event)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(TraceManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1172,6 +1252,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     VkDevice                                    device,
     VkEvent                                     event)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(TraceManager::Get(), device, event);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1199,6 +1281,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
     const VkAllocationCallbacks*                pAllocator,
     VkQueryPool*                                pQueryPool)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pQueryPool);
@@ -1237,6 +1321,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     VkQueryPool                                 queryPool,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyQueryPool);
@@ -1268,6 +1354,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
@@ -1307,6 +1395,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
     const VkAllocationCallbacks*                pAllocator,
     VkBuffer*                                   pBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pBuffer);
@@ -1338,6 +1428,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     VkBuffer                                    buffer,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(TraceManager::Get(), device, buffer, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBuffer);
@@ -1365,6 +1457,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
     const VkAllocationCallbacks*                pAllocator,
     VkBufferView*                               pView)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBufferView>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pView);
@@ -1405,6 +1499,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     VkBufferView                                bufferView,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(TraceManager::Get(), device, bufferView, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyBufferView);
@@ -1432,6 +1528,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
     const VkAllocationCallbacks*                pAllocator,
     VkImage*                                    pImage)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pImage);
@@ -1472,6 +1570,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     VkImage                                     image,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(TraceManager::Get(), device, image, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImage);
@@ -1499,6 +1599,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     const VkImageSubresource*                   pSubresource,
     VkSubresourceLayout*                        pLayout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(TraceManager::Get(), device, image, pSubresource, pLayout);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -1525,6 +1627,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
     const VkAllocationCallbacks*                pAllocator,
     VkImageView*                                pView)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pView);
@@ -1565,6 +1669,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     VkImageView                                 imageView,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(TraceManager::Get(), device, imageView, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyImageView);
@@ -1592,6 +1698,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
     const VkAllocationCallbacks*                pAllocator,
     VkShaderModule*                             pShaderModule)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateShaderModule>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pShaderModule);
@@ -1632,6 +1740,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     VkShaderModule                              shaderModule,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(TraceManager::Get(), device, shaderModule, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyShaderModule);
@@ -1659,6 +1769,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
     const VkAllocationCallbacks*                pAllocator,
     VkPipelineCache*                            pPipelineCache)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pPipelineCache);
@@ -1697,6 +1809,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     VkPipelineCache                             pipelineCache,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(TraceManager::Get(), device, pipelineCache, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineCache);
@@ -1724,6 +1838,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
     size_t*                                     pDataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(TraceManager::Get(), device, pipelineCache, pDataSize, pData);
@@ -1759,6 +1875,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     uint32_t                                    srcCacheCount,
     const VkPipelineCache*                      pSrcCaches)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergePipelineCaches>::Dispatch(TraceManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -1792,6 +1910,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(TraceManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -1838,6 +1958,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(TraceManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -1881,6 +2003,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     VkPipeline                                  pipeline,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(TraceManager::Get(), device, pipeline, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipeline);
@@ -1908,6 +2032,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
     const VkAllocationCallbacks*                pAllocator,
     VkPipelineLayout*                           pPipelineLayout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineLayout>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pPipelineLayout);
@@ -1948,6 +2074,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     VkPipelineLayout                            pipelineLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(TraceManager::Get(), device, pipelineLayout, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPipelineLayout);
@@ -1975,6 +2103,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
     const VkAllocationCallbacks*                pAllocator,
     VkSampler*                                  pSampler)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pSampler);
@@ -2015,6 +2145,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     VkSampler                                   sampler,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(TraceManager::Get(), device, sampler, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySampler);
@@ -2042,6 +2174,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
     const VkAllocationCallbacks*                pAllocator,
     VkDescriptorSetLayout*                      pSetLayout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pSetLayout);
@@ -2082,6 +2216,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     VkDescriptorSetLayout                       descriptorSetLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(TraceManager::Get(), device, descriptorSetLayout, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout);
@@ -2109,6 +2245,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
     const VkAllocationCallbacks*                pAllocator,
     VkDescriptorPool*                           pDescriptorPool)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pDescriptorPool);
@@ -2147,6 +2285,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     VkDescriptorPool                            descriptorPool,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(TraceManager::Get(), device, descriptorPool, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorPool);
@@ -2173,6 +2313,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     VkDescriptorPool                            descriptorPool,
     VkDescriptorPoolResetFlags                  flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(TraceManager::Get(), device, descriptorPool, flags);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2200,6 +2342,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     const VkDescriptorSetAllocateInfo*          pAllocateInfo,
     VkDescriptorSet*                            pDescriptorSets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateDescriptorSets>::Dispatch(TraceManager::Get(), device, pAllocateInfo, pDescriptorSets);
@@ -2240,6 +2384,8 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     uint32_t                                    descriptorSetCount,
     const VkDescriptorSet*                      pDescriptorSets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(TraceManager::Get(), device, descriptorPool, descriptorSetCount, pDescriptorSets);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -2274,6 +2420,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     uint32_t                                    descriptorCopyCount,
     const VkCopyDescriptorSet*                  pDescriptorCopies)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>::Dispatch(TraceManager::Get(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSets);
@@ -2303,6 +2451,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
     const VkAllocationCallbacks*                pAllocator,
     VkFramebuffer*                              pFramebuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFramebuffer>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pFramebuffer);
@@ -2343,6 +2493,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     VkFramebuffer                               framebuffer,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(TraceManager::Get(), device, framebuffer, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyFramebuffer);
@@ -2370,6 +2522,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
     const VkAllocationCallbacks*                pAllocator,
     VkRenderPass*                               pRenderPass)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
@@ -2408,6 +2562,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     VkRenderPass                                renderPass,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(TraceManager::Get(), device, renderPass, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyRenderPass);
@@ -2434,6 +2590,8 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     VkRenderPass                                renderPass,
     VkExtent2D*                                 pGranularity)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(TraceManager::Get(), device, renderPass, pGranularity);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2459,6 +2617,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
     const VkAllocationCallbacks*                pAllocator,
     VkCommandPool*                              pCommandPool)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pCommandPool);
@@ -2497,6 +2657,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     VkCommandPool                               commandPool,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyCommandPool);
@@ -2523,6 +2685,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     VkCommandPool                               commandPool,
     VkCommandPoolResetFlags                     flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, flags);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -2550,6 +2714,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
     const VkCommandBufferAllocateInfo*          pAllocateInfo,
     VkCommandBuffer*                            pCommandBuffers)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(TraceManager::Get(), device, pAllocateInfo, pCommandBuffers);
@@ -2590,6 +2756,8 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(TraceManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkFreeCommandBuffers);
@@ -2618,6 +2786,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     VkCommandBuffer                             commandBuffer,
     const VkCommandBufferBeginInfo*             pBeginInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(TraceManager::Get(), commandBuffer, pBeginInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -2643,6 +2813,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
 VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
     VkCommandBuffer                             commandBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(TraceManager::Get(), commandBuffer);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -2666,6 +2838,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
     VkCommandBuffer                             commandBuffer,
     VkCommandBufferResetFlags                   flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(TraceManager::Get(), commandBuffer, flags);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -2691,6 +2865,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     VkPipelineBindPoint                         pipelineBindPoint,
     VkPipeline                                  pipeline)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipeline);
@@ -2716,6 +2892,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewport);
@@ -2741,6 +2919,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(TraceManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissor);
@@ -2764,6 +2944,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
     VkCommandBuffer                             commandBuffer,
     float                                       lineWidth)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(TraceManager::Get(), commandBuffer, lineWidth);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineWidth);
@@ -2787,6 +2969,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
     float                                       depthBiasClamp,
     float                                       depthBiasSlopeFactor)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(TraceManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBias);
@@ -2810,6 +2994,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
     VkCommandBuffer                             commandBuffer,
     const float                                 blendConstants[4])
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(TraceManager::Get(), commandBuffer, blendConstants);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetBlendConstants);
@@ -2832,6 +3018,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
     float                                       minDepthBounds,
     float                                       maxDepthBounds)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(TraceManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBounds);
@@ -2855,6 +3043,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    compareMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, compareMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask);
@@ -2878,6 +3068,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    writeMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, writeMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask);
@@ -2901,6 +3093,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    reference)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, reference);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilReference);
@@ -2929,6 +3123,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     uint32_t                                    dynamicOffsetCount,
     const uint32_t*                             pDynamicOffsets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindDescriptorSets);
@@ -2961,6 +3157,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     VkDeviceSize                                offset,
     VkIndexType                                 indexType)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, indexType);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindIndexBuffer);
@@ -2988,6 +3186,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     const VkBuffer*                             pBuffers,
     const VkDeviceSize*                         pOffsets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(TraceManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers);
@@ -3017,6 +3217,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
     uint32_t                                    firstVertex,
     uint32_t                                    firstInstance)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(TraceManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDraw);
@@ -3045,6 +3247,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
     int32_t                                     vertexOffset,
     uint32_t                                    firstInstance)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(TraceManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexed);
@@ -3073,6 +3277,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirect);
@@ -3101,6 +3307,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect);
@@ -3128,6 +3336,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatch(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(TraceManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatch);
@@ -3152,6 +3362,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     VkBuffer                                    buffer,
     VkDeviceSize                                offset)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchIndirect);
@@ -3178,6 +3390,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     uint32_t                                    regionCount,
     const VkBufferCopy*                         pRegions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer>::Dispatch(TraceManager::Get(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer);
@@ -3209,6 +3423,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     uint32_t                                    regionCount,
     const VkImageCopy*                          pRegions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage>::Dispatch(TraceManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage);
@@ -3243,6 +3459,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     const VkImageBlit*                          pRegions,
     VkFilter                                    filter)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage>::Dispatch(TraceManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage);
@@ -3276,6 +3494,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     uint32_t                                    regionCount,
     const VkBufferImageCopy*                    pRegions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage>::Dispatch(TraceManager::Get(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage);
@@ -3307,6 +3527,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     uint32_t                                    regionCount,
     const VkBufferImageCopy*                    pRegions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer>::Dispatch(TraceManager::Get(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer);
@@ -3337,6 +3559,8 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     VkDeviceSize                                dataSize,
     const void*                                 pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(TraceManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdUpdateBuffer);
@@ -3365,6 +3589,8 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     VkDeviceSize                                size,
     uint32_t                                    data)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(TraceManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdFillBuffer);
@@ -3394,6 +3620,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     uint32_t                                    rangeCount,
     const VkImageSubresourceRange*              pRanges)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(TraceManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearColorImage);
@@ -3424,6 +3652,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     uint32_t                                    rangeCount,
     const VkImageSubresourceRange*              pRanges)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(TraceManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage);
@@ -3453,6 +3683,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
     uint32_t                                    rectCount,
     const VkClearRect*                          pRects)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(TraceManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdClearAttachments);
@@ -3482,6 +3714,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     uint32_t                                    regionCount,
     const VkImageResolve*                       pRegions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage>::Dispatch(TraceManager::Get(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage);
@@ -3511,6 +3745,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(TraceManager::Get(), commandBuffer, event, stageMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetEvent);
@@ -3535,6 +3771,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(TraceManager::Get(), commandBuffer, event, stageMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetEvent);
@@ -3567,6 +3805,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     uint32_t                                    imageMemoryBarrierCount,
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWaitEvents>::Dispatch(TraceManager::Get(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWaitEvents);
@@ -3609,6 +3849,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     uint32_t                                    imageMemoryBarrierCount,
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>::Dispatch(TraceManager::Get(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPipelineBarrier);
@@ -3643,6 +3885,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     uint32_t                                    query,
     VkQueryControlFlags                         flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, flags);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQuery);
@@ -3668,6 +3912,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     VkQueryPool                                 queryPool,
     uint32_t                                    query)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQuery);
@@ -3693,6 +3939,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetQueryPool);
@@ -3719,6 +3967,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     VkQueryPool                                 queryPool,
     uint32_t                                    query)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(TraceManager::Get(), commandBuffer, pipelineStage, queryPool, query);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteTimestamp);
@@ -3749,6 +3999,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults);
@@ -3782,6 +4034,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     uint32_t                                    size,
     const void*                                 pValues)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(TraceManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushConstants);
@@ -3809,6 +4063,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     VkSubpassContents                           contents)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, contents);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass);
@@ -3833,6 +4089,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
     VkCommandBuffer                             commandBuffer,
     VkSubpassContents                           contents)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(TraceManager::Get(), commandBuffer, contents);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass);
@@ -3853,6 +4111,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
     VkCommandBuffer                             commandBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(TraceManager::Get(), commandBuffer);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass);
@@ -3874,6 +4134,8 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     uint32_t                                    commandBufferCount,
     const VkCommandBuffer*                      pCommandBuffers)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(TraceManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteCommands);
@@ -3899,6 +4161,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
     uint32_t                                    bindInfoCount,
     const VkBindBufferMemoryInfo*               pBindInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -3927,6 +4191,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(
     uint32_t                                    bindInfoCount,
     const VkBindImageMemoryInfo*                pBindInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -3957,6 +4223,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
     uint32_t                                    remoteDeviceIndex,
     VkPeerMemoryFeatureFlags*                   pPeerMemoryFeatures)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(TraceManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -3981,6 +4249,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(TraceManager::Get(), commandBuffer, deviceMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMask);
@@ -4007,6 +4277,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(TraceManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBase);
@@ -4034,6 +4306,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
     uint32_t*                                   pPhysicalDeviceGroupCount,
     VkPhysicalDeviceGroupProperties*            pPhysicalDeviceGroupProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
@@ -4071,6 +4345,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(
     const VkImageMemoryRequirementsInfo2*       pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4096,6 +4372,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
     const VkBufferMemoryRequirementsInfo2*      pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4122,6 +4400,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2>::Dispatch(TraceManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4147,6 +4427,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures2*                  pFeatures)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4168,6 +4450,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties2*                pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4190,6 +4474,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
     VkFormat                                    format,
     VkFormatProperties2*                        pFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4213,6 +4499,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
     const VkPhysicalDeviceImageFormatInfo2*     pImageFormatInfo,
     VkImageFormatProperties2*                   pImageFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
@@ -4245,6 +4533,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2*                   pQueueFamilyProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4267,6 +4557,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties2*          pMemoryProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4290,6 +4582,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties2*             pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4314,6 +4608,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
     VkCommandPool                               commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, flags);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPool);
@@ -4338,6 +4634,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
     const VkDeviceQueueInfo2*                   pQueueInfo,
     VkQueue*                                    pQueue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(TraceManager::Get(), device, pQueueInfo, pQueue);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -4364,6 +4662,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
     const VkAllocationCallbacks*                pAllocator,
     VkSamplerYcbcrConversion*                   pYcbcrConversion)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
@@ -4402,6 +4702,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     VkSamplerYcbcrConversion                    ycbcrConversion,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion);
@@ -4429,6 +4731,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
     const VkAllocationCallbacks*                pAllocator,
     VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
@@ -4469,6 +4773,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate);
@@ -4495,6 +4801,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
     const VkPhysicalDeviceExternalBufferInfo*   pExternalBufferInfo,
     VkExternalBufferProperties*                 pExternalBufferProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4518,6 +4826,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
     const VkPhysicalDeviceExternalFenceInfo*    pExternalFenceInfo,
     VkExternalFenceProperties*                  pExternalFenceProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4541,6 +4851,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
     const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo,
     VkExternalSemaphoreProperties*              pExternalSemaphoreProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -4564,6 +4876,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     const VkDescriptorSetLayoutCreateInfo*      pCreateInfo,
     VkDescriptorSetLayoutSupport*               pSupport)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(TraceManager::Get(), device, pCreateInfo, pSupport);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4593,6 +4907,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCount);
@@ -4626,6 +4942,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount);
@@ -4656,6 +4974,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
     const VkAllocationCallbacks*                pAllocator,
     VkRenderPass*                               pRenderPass)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
@@ -4694,6 +5014,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     const VkSubpassBeginInfo*                   pSubpassBeginInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2);
@@ -4719,6 +5041,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(
     const VkSubpassBeginInfo*                   pSubpassBeginInfo,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2);
@@ -4741,6 +5065,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(
     VkCommandBuffer                             commandBuffer,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2);
@@ -4764,6 +5090,8 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPool);
@@ -4789,6 +5117,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
     VkSemaphore                                 semaphore,
     uint64_t*                                   pValue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(TraceManager::Get(), device, semaphore, pValue);
@@ -4822,6 +5152,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(
     const VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(TraceManager::Get(), device, pWaitInfo, timeout);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4849,6 +5181,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(
     VkDevice                                    device,
     const VkSemaphoreSignalInfo*                pSignalInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(TraceManager::Get(), device, pSignalInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4875,6 +5209,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4901,6 +5237,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4927,6 +5265,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(
     VkDevice                                    device,
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -4954,6 +5294,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     VkSurfaceKHR                                surface,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(TraceManager::Get(), instance, surface, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySurfaceKHR);
@@ -4981,6 +5323,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
     VkSurfaceKHR                                surface,
     VkBool32*                                   pSupported)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, surface, pSupported);
@@ -5015,6 +5359,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
     VkSurfaceKHR                                surface,
     VkSurfaceCapabilitiesKHR*                   pSurfaceCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
@@ -5049,6 +5395,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
     uint32_t*                                   pSurfaceFormatCount,
     VkSurfaceFormatKHR*                         pSurfaceFormats)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
@@ -5084,6 +5432,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
     uint32_t*                                   pPresentModeCount,
     VkPresentModeKHR*                           pPresentModes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pPresentModeCount, pPresentModes);
@@ -5119,6 +5469,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSwapchainKHR*                             pSwapchain)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pSwapchain);
@@ -5159,6 +5511,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     VkSwapchainKHR                              swapchain,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(TraceManager::Get(), device, swapchain, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySwapchainKHR);
@@ -5186,6 +5540,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
     uint32_t*                                   pSwapchainImageCount,
     VkImage*                                    pSwapchainImages)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(TraceManager::Get(), device, swapchain, pSwapchainImageCount, pSwapchainImages);
@@ -5228,6 +5584,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
     VkFence                                     fence,
     uint32_t*                                   pImageIndex)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(TraceManager::Get(), device, swapchain, timeout, semaphore, fence, pImageIndex);
@@ -5265,6 +5623,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     VkQueue                                     queue,
     const VkPresentInfoKHR*                     pPresentInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(TraceManager::Get(), queue, pPresentInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -5291,6 +5651,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
     VkDevice                                    device,
     VkDeviceGroupPresentCapabilitiesKHR*        pDeviceGroupPresentCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(TraceManager::Get(), device, pDeviceGroupPresentCapabilities);
@@ -5322,6 +5684,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
     VkSurfaceKHR                                surface,
     VkDeviceGroupPresentModeFlagsKHR*           pModes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(TraceManager::Get(), device, surface, pModes);
@@ -5356,6 +5720,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
     uint32_t*                                   pRectCount,
     VkRect2D*                                   pRects)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pRectCount, pRects);
@@ -5390,6 +5756,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
     const VkAcquireNextImageInfoKHR*            pAcquireInfo,
     uint32_t*                                   pImageIndex)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>::Dispatch(TraceManager::Get(), device, pAcquireInfo, pImageIndex);
@@ -5424,6 +5792,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayPropertiesKHR*                     pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
@@ -5461,6 +5831,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayPlanePropertiesKHR*                pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
@@ -5499,6 +5871,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
     uint32_t*                                   pDisplayCount,
     VkDisplayKHR*                               pDisplays)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(TraceManager::Get(), physicalDevice, planeIndex, pDisplayCount, pDisplays);
@@ -5538,6 +5912,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayModePropertiesKHR*                 pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
@@ -5579,6 +5955,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkDisplayModeKHR*                           pMode)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pCreateInfo, pAllocator, pMode);
@@ -5620,6 +5998,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
     uint32_t                                    planeIndex,
     VkDisplayPlaneCapabilitiesKHR*              pCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, mode, planeIndex, pCapabilities);
@@ -5655,6 +6035,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -5697,6 +6079,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSwapchainKHR*                             pSwapchains)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(TraceManager::Get(), device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
@@ -5739,6 +6123,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -5778,6 +6164,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     Display*                                    dpy,
     VisualID                                    visualID)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, dpy, visualID);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -5806,6 +6194,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -5845,6 +6235,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
     xcb_connection_t*                           connection,
     xcb_visualid_t                              visual_id)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, connection, visual_id);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -5873,6 +6265,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -5911,6 +6305,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
     uint32_t                                    queueFamilyIndex,
     struct wl_display*                          display)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -5938,6 +6334,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -5977,6 +6375,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -6014,6 +6414,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t                                    queueFamilyIndex)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6038,6 +6440,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceFeatures2*                  pFeatures)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6059,6 +6463,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceProperties2*                pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6081,6 +6487,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
     VkFormat                                    format,
     VkFormatProperties2*                        pFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6104,6 +6512,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
     const VkPhysicalDeviceImageFormatInfo2*     pImageFormatInfo,
     VkImageFormatProperties2*                   pImageFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
@@ -6136,6 +6546,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(
     uint32_t*                                   pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2*                   pQueueFamilyProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6158,6 +6570,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(
     VkPhysicalDevice                            physicalDevice,
     VkPhysicalDeviceMemoryProperties2*          pMemoryProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6181,6 +6595,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
     uint32_t*                                   pPropertyCount,
     VkSparseImageFormatProperties2*             pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6207,6 +6623,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
     uint32_t                                    remoteDeviceIndex,
     VkPeerMemoryFeatureFlags*                   pPeerMemoryFeatures)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(TraceManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -6231,6 +6649,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    deviceMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(TraceManager::Get(), commandBuffer, deviceMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR);
@@ -6257,6 +6677,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(TraceManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR);
@@ -6284,6 +6706,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
     VkCommandPool                               commandPool,
     VkCommandPoolTrimFlags                      flags)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(TraceManager::Get(), device, commandPool, flags);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkTrimCommandPoolKHR);
@@ -6308,6 +6732,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
     uint32_t*                                   pPhysicalDeviceGroupCount,
     VkPhysicalDeviceGroupProperties*            pPhysicalDeviceGroupProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
@@ -6345,6 +6771,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
     const VkPhysicalDeviceExternalBufferInfo*   pExternalBufferInfo,
     VkExternalBufferProperties*                 pExternalBufferProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6368,6 +6796,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     const VkMemoryGetWin32HandleInfoKHR*        pGetWin32HandleInfo,
     HANDLE*                                     pHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR>::Dispatch(TraceManager::Get(), device, pGetWin32HandleInfo, pHandle);
@@ -6403,6 +6833,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
     HANDLE                                      handle,
     VkMemoryWin32HandlePropertiesKHR*           pMemoryWin32HandleProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(TraceManager::Get(), device, handleType, handle, pMemoryWin32HandleProperties);
@@ -6436,6 +6868,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
     const VkMemoryGetFdInfoKHR*                 pGetFdInfo,
     int*                                        pFd)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdKHR>::Dispatch(TraceManager::Get(), device, pGetFdInfo, pFd);
@@ -6471,6 +6905,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
     int                                         fd,
     VkMemoryFdPropertiesKHR*                    pMemoryFdProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(TraceManager::Get(), device, handleType, fd, pMemoryFdProperties);
@@ -6504,6 +6940,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
     const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo,
     VkExternalSemaphoreProperties*              pExternalSemaphoreProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6526,6 +6964,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     const VkImportSemaphoreWin32HandleInfoKHR*  pImportSemaphoreWin32HandleInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR>::Dispatch(TraceManager::Get(), device, pImportSemaphoreWin32HandleInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -6553,6 +6993,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     const VkSemaphoreGetWin32HandleInfoKHR*     pGetWin32HandleInfo,
     HANDLE*                                     pHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR>::Dispatch(TraceManager::Get(), device, pGetWin32HandleInfo, pHandle);
@@ -6586,6 +7028,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     VkDevice                                    device,
     const VkImportSemaphoreFdInfoKHR*           pImportSemaphoreFdInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR>::Dispatch(TraceManager::Get(), device, pImportSemaphoreFdInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -6613,6 +7057,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
     const VkSemaphoreGetFdInfoKHR*              pGetFdInfo,
     int*                                        pFd)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR>::Dispatch(TraceManager::Get(), device, pGetFdInfo, pFd);
@@ -6650,6 +7096,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
     uint32_t                                    descriptorWriteCount,
     const VkWriteDescriptorSet*                 pDescriptorWrites)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR);
@@ -6680,6 +7128,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
@@ -6720,6 +7170,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR);
@@ -6747,6 +7199,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
     const VkAllocationCallbacks*                pAllocator,
     VkRenderPass*                               pRenderPass)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
@@ -6785,6 +7239,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     const VkRenderPassBeginInfo*                pRenderPassBegin,
     const VkSubpassBeginInfo*                   pSubpassBeginInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR);
@@ -6810,6 +7266,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
     const VkSubpassBeginInfo*                   pSubpassBeginInfo,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR);
@@ -6832,6 +7290,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR);
@@ -6853,6 +7313,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(TraceManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -6879,6 +7341,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
     const VkPhysicalDeviceExternalFenceInfo*    pExternalFenceInfo,
     VkExternalFenceProperties*                  pExternalFenceProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -6901,6 +7365,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     VkDevice                                    device,
     const VkImportFenceWin32HandleInfoKHR*      pImportFenceWin32HandleInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>::Dispatch(TraceManager::Get(), device, pImportFenceWin32HandleInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -6928,6 +7394,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     const VkFenceGetWin32HandleInfoKHR*         pGetWin32HandleInfo,
     HANDLE*                                     pHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR>::Dispatch(TraceManager::Get(), device, pGetWin32HandleInfo, pHandle);
@@ -6961,6 +7429,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     VkDevice                                    device,
     const VkImportFenceFdInfoKHR*               pImportFenceFdInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>::Dispatch(TraceManager::Get(), device, pImportFenceFdInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -6988,6 +7458,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
     const VkFenceGetFdInfoKHR*                  pGetFdInfo,
     int*                                        pFd)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(TraceManager::Get(), device, pGetFdInfo, pFd);
@@ -7024,6 +7496,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQuer
     VkPerformanceCounterKHR*                    pCounters,
     VkPerformanceCounterDescriptionKHR*         pCounterDescriptions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
@@ -7058,6 +7532,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
     const VkQueryPoolPerformanceCreateInfoKHR*  pPerformanceQueryCreateInfo,
     uint32_t*                                   pNumPasses)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -7080,6 +7556,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
     VkDevice                                    device,
     const VkAcquireProfilingLockInfoKHR*        pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(TraceManager::Get(), device, pInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7103,6 +7581,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
 VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(
     VkDevice                                    device)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(TraceManager::Get(), device);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR);
@@ -7124,6 +7604,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
     const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
     VkSurfaceCapabilities2KHR*                  pSurfaceCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
@@ -7159,6 +7641,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
     uint32_t*                                   pSurfaceFormatCount,
     VkSurfaceFormat2KHR*                        pSurfaceFormats)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
@@ -7194,6 +7678,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayProperties2KHR*                    pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
@@ -7231,6 +7717,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayPlaneProperties2KHR*               pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
@@ -7269,6 +7757,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
     uint32_t*                                   pPropertyCount,
     VkDisplayModeProperties2KHR*                pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
@@ -7308,6 +7798,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
     const VkDisplayPlaneInfo2KHR*               pDisplayPlaneInfo,
     VkDisplayPlaneCapabilities2KHR*             pCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pDisplayPlaneInfo, pCapabilities);
@@ -7342,6 +7834,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
     const VkImageMemoryRequirementsInfo2*       pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7367,6 +7861,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
     const VkBufferMemoryRequirementsInfo2*      pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7393,6 +7889,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
     uint32_t*                                   pSparseMemoryRequirementCount,
     VkSparseImageMemoryRequirements2*           pSparseMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR>::Dispatch(TraceManager::Get(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7420,6 +7918,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSamplerYcbcrConversion*                   pYcbcrConversion)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
@@ -7458,6 +7958,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     VkSamplerYcbcrConversion                    ycbcrConversion,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR);
@@ -7484,6 +7986,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
     uint32_t                                    bindInfoCount,
     const VkBindBufferMemoryInfo*               pBindInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7512,6 +8016,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
     uint32_t                                    bindInfoCount,
     const VkBindImageMemoryInfo*                pBindInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7540,6 +8046,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(
     const VkDescriptorSetLayoutCreateInfo*      pCreateInfo,
     VkDescriptorSetLayoutSupport*               pSupport)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pSupport);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7569,6 +8077,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR);
@@ -7602,6 +8112,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR);
@@ -7631,6 +8143,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
     VkSemaphore                                 semaphore,
     uint64_t*                                   pValue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR>::Dispatch(TraceManager::Get(), device, semaphore, pValue);
@@ -7664,6 +8178,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(
     const VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(TraceManager::Get(), device, pWaitInfo, timeout);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7691,6 +8207,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(
     VkDevice                                    device,
     const VkSemaphoreSignalInfo*                pSignalInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(TraceManager::Get(), device, pSignalInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7718,6 +8236,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(
     uint32_t*                                   pFragmentShadingRateCount,
     VkPhysicalDeviceFragmentShadingRateKHR*     pFragmentShadingRates)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFragmentShadingRatesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
@@ -7750,6 +8270,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(
     const VkExtent2D*                           pFragmentSize,
     const VkFragmentShadingRateCombinerOpKHR    combinerOps[2])
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(TraceManager::Get(), commandBuffer, pFragmentSize, combinerOps);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR);
@@ -7772,6 +8294,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7798,6 +8322,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7824,6 +8350,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(
     VkDevice                                    device,
     const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -7851,6 +8379,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkDeferredOperationKHR*                     pDeferredOperation)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(TraceManager::Get(), device, pAllocator, pDeferredOperation);
@@ -7888,6 +8418,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
     VkDeferredOperationKHR                      operation,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(TraceManager::Get(), device, operation, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR);
@@ -7913,6 +8445,8 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(TraceManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7938,6 +8472,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(TraceManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7963,6 +8499,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(TraceManager::Get(), device, operation);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -7990,6 +8528,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
     uint32_t*                                   pExecutableCount,
     VkPipelineExecutablePropertiesKHR*          pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR>::Dispatch(TraceManager::Get(), device, pPipelineInfo, pExecutableCount, pProperties);
@@ -8026,6 +8566,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
     uint32_t*                                   pStatisticCount,
     VkPipelineExecutableStatisticKHR*           pStatistics)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableStatisticsKHR>::Dispatch(TraceManager::Get(), device, pExecutableInfo, pStatisticCount, pStatistics);
@@ -8062,6 +8604,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
     uint32_t*                                   pInternalRepresentationCount,
     VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR>::Dispatch(TraceManager::Get(), device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
@@ -8097,6 +8641,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(
     VkEvent                                     event,
     const VkDependencyInfoKHR*                  pDependencyInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetEvent2KHR>::Dispatch(TraceManager::Get(), commandBuffer, event, pDependencyInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetEvent2KHR);
@@ -8123,6 +8669,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR(
     VkEvent                                     event,
     VkPipelineStageFlags2KHR                    stageMask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResetEvent2KHR>::Dispatch(TraceManager::Get(), commandBuffer, event, stageMask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResetEvent2KHR);
@@ -8148,6 +8696,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents2KHR(
     const VkEvent*                              pEvents,
     const VkDependencyInfoKHR*                  pDependencyInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWaitEvents2KHR>::Dispatch(TraceManager::Get(), commandBuffer, eventCount, pEvents, pDependencyInfos);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWaitEvents2KHR);
@@ -8174,6 +8724,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkDependencyInfoKHR*                  pDependencyInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pDependencyInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPipelineBarrier2KHR);
@@ -8199,6 +8751,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp2KHR(
     VkQueryPool                                 queryPool,
     uint32_t                                    query)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR>::Dispatch(TraceManager::Get(), commandBuffer, stage, queryPool, query);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteTimestamp2KHR);
@@ -8225,6 +8779,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(
     const VkSubmitInfo2KHR*                     pSubmits,
     VkFence                                     fence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(TraceManager::Get(), queue, submitCount, pSubmits, fence);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -8257,6 +8813,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarker2AMD(
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarker2AMD>::Dispatch(TraceManager::Get(), commandBuffer, stage, dstBuffer, dstOffset, marker);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteBufferMarker2AMD);
@@ -8283,6 +8841,8 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointData2NV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointData2NV*                        pCheckpointData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV>::Dispatch(TraceManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
@@ -8305,6 +8865,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyBufferInfo2KHR*                 pCopyBufferInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR);
@@ -8328,6 +8890,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyImageInfo2KHR*                  pCopyImageInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage2KHR);
@@ -8351,6 +8915,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyBufferToImageInfo2KHR*          pCopyBufferToImageInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferToImageInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR);
@@ -8374,6 +8940,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyImageToBufferInfo2KHR*          pCopyImageToBufferInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageToBufferInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR);
@@ -8397,6 +8965,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkBlitImageInfo2KHR*                  pBlitImageInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pBlitImageInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage2KHR);
@@ -8420,6 +8990,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkResolveImageInfo2KHR*               pResolveImageInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pResolveImageInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage2KHR);
@@ -8445,6 +9017,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkDebugReportCallbackEXT*                   pCallback)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pCallback);
@@ -8483,6 +9057,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     VkDebugReportCallbackEXT                    callback,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(TraceManager::Get(), instance, callback, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT);
@@ -8514,6 +9090,8 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     const char*                                 pLayerPrefix,
     const char*                                 pMessage)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(TraceManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
@@ -8542,6 +9120,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
     VkDevice                                    device,
     const VkDebugMarkerObjectTagInfoEXT*        pTagInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -8568,6 +9148,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
     VkDevice                                    device,
     const VkDebugMarkerObjectNameInfoEXT*       pNameInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -8594,6 +9176,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT);
@@ -8614,6 +9198,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
 VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(
     VkCommandBuffer                             commandBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT);
@@ -8634,6 +9220,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugMarkerMarkerInfoEXT*           pMarkerInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT);
@@ -8659,6 +9247,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
     const VkDeviceSize*                         pOffsets,
     const VkDeviceSize*                         pSizes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT);
@@ -8689,6 +9279,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
     const VkBuffer*                             pCounterBuffers,
     const VkDeviceSize*                         pCounterBufferOffsets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT);
@@ -8718,6 +9310,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
     const VkBuffer*                             pCounterBuffers,
     const VkDeviceSize*                         pCounterBufferOffsets)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
@@ -8747,6 +9341,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
     VkQueryControlFlags                         flags,
     uint32_t                                    index)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, flags, index);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT);
@@ -8774,6 +9370,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
     uint32_t                                    query,
     uint32_t                                    index)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, index);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT);
@@ -8803,6 +9401,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
     uint32_t                                    counterOffset,
     uint32_t                                    vertexStride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(TraceManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT);
@@ -8830,6 +9430,8 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(
     VkDevice                                    device,
     const VkImageViewHandleInfoNVX*             pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -8857,6 +9459,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(
     VkImageView                                 imageView,
     VkImageViewAddressPropertiesNVX*            pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(TraceManager::Get(), device, imageView, pProperties);
@@ -8894,6 +9498,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD);
@@ -8927,6 +9533,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD);
@@ -8959,6 +9567,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     size_t*                                     pInfoSize,
     void*                                       pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(TraceManager::Get(), device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
@@ -8996,6 +9606,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -9039,6 +9651,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkExternalMemoryHandleTypeFlagsNV           externalHandleType,
     VkExternalImageFormatPropertiesNV*          pExternalImageFormatProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(TraceManager::Get(), physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
@@ -9077,6 +9691,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     VkExternalMemoryHandleTypeFlagsNV           handleType,
     HANDLE*                                     pHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(TraceManager::Get(), device, memory, handleType, pHandle);
@@ -9112,6 +9728,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -9149,6 +9767,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     VkCommandBuffer                             commandBuffer,
     const VkConditionalRenderingBeginInfoEXT*   pConditionalRenderingBegin)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(TraceManager::Get(), commandBuffer, pConditionalRenderingBegin);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT);
@@ -9171,6 +9791,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
 VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
     VkCommandBuffer                             commandBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT);
@@ -9193,6 +9815,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
     uint32_t                                    viewportCount,
     const VkViewportWScalingNV*                 pViewportWScalings)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV);
@@ -9216,6 +9840,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     VkPhysicalDevice                            physicalDevice,
     VkDisplayKHR                                display)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -9242,6 +9868,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     Display*                                    dpy,
     VkDisplayKHR                                display)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, dpy, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -9270,6 +9898,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     RROutput                                    rrOutput,
     VkDisplayKHR*                               pDisplay)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, dpy, rrOutput, pDisplay);
@@ -9308,6 +9938,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
     VkSurfaceKHR                                surface,
     VkSurfaceCapabilities2EXT*                  pSurfaceCapabilities)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
@@ -9341,6 +9973,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
     VkDisplayKHR                                display,
     const VkDisplayPowerInfoEXT*                pDisplayPowerInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(TraceManager::Get(), device, display, pDisplayPowerInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -9369,6 +10003,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkFence*                                    pFence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(TraceManager::Get(), device, pDeviceEventInfo, pAllocator, pFence);
@@ -9409,6 +10045,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkFence*                                    pFence)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(TraceManager::Get(), device, display, pDisplayEventInfo, pAllocator, pFence);
@@ -9450,6 +10088,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
     VkSurfaceCounterFlagBitsEXT                 counter,
     uint64_t*                                   pCounterValue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(TraceManager::Get(), device, swapchain, counter, pCounterValue);
@@ -9484,6 +10124,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
     VkSwapchainKHR                              swapchain,
     VkRefreshCycleDurationGOOGLE*               pDisplayTimingProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(TraceManager::Get(), device, swapchain, pDisplayTimingProperties);
@@ -9518,6 +10160,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
     uint32_t*                                   pPresentationTimingCount,
     VkPastPresentationTimingGOOGLE*             pPresentationTimings)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(TraceManager::Get(), device, swapchain, pPresentationTimingCount, pPresentationTimings);
@@ -9553,6 +10197,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
     uint32_t                                    discardRectangleCount,
     const VkRect2D*                             pDiscardRectangles)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT);
@@ -9578,6 +10224,8 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
     const VkSwapchainKHR*                       pSwapchains,
     const VkHdrMetadataEXT*                     pMetadata)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(TraceManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetHdrMetadataEXT);
@@ -9605,6 +10253,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -9644,6 +10294,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -9681,6 +10333,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     VkDevice                                    device,
     const VkDebugUtilsObjectNameInfoEXT*        pNameInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -9707,6 +10361,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     VkDevice                                    device,
     const VkDebugUtilsObjectTagInfoEXT*         pTagInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -9733,6 +10389,8 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
     VkQueue                                     queue,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue, pLabelInfo);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT);
@@ -9753,6 +10411,8 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
 VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(
     VkQueue                                     queue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT);
@@ -9773,6 +10433,8 @@ VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(
     VkQueue                                     queue,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue, pLabelInfo);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT);
@@ -9794,6 +10456,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer, pLabelInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT);
@@ -9814,6 +10478,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
 VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT);
@@ -9834,6 +10500,8 @@ VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer, pLabelInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT);
@@ -9857,6 +10525,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkDebugUtilsMessengerEXT*                   pMessenger)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pMessenger);
@@ -9895,6 +10565,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT                    messenger,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(TraceManager::Get(), instance, messenger, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT);
@@ -9922,6 +10594,8 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
     VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(TraceManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT);
@@ -9946,6 +10620,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
     const struct AHardwareBuffer*               buffer,
     VkAndroidHardwareBufferPropertiesANDROID*   pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(TraceManager::Get(), device, buffer, pProperties);
@@ -9978,6 +10654,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo,
     struct AHardwareBuffer**                    pBuffer)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(TraceManager::Get(), device, pInfo, pBuffer);
@@ -10011,6 +10689,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
     VkCommandBuffer                             commandBuffer,
     const VkSampleLocationsInfoEXT*             pSampleLocationsInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(TraceManager::Get(), commandBuffer, pSampleLocationsInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT);
@@ -10033,6 +10713,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
     VkSampleCountFlagBits                       samples,
     VkMultisamplePropertiesEXT*                 pMultisampleProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(TraceManager::Get(), physicalDevice, samples, pMultisampleProperties);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -10056,6 +10738,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
     VkImage                                     image,
     VkImageDrmFormatModifierPropertiesEXT*      pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(TraceManager::Get(), device, image, pProperties);
@@ -10090,6 +10774,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkValidationCacheEXT*                       pValidationCache)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pValidationCache);
@@ -10128,6 +10814,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     VkValidationCacheEXT                        validationCache,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(TraceManager::Get(), device, validationCache, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT);
@@ -10155,6 +10843,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
     uint32_t                                    srcCacheCount,
     const VkValidationCacheEXT*                 pSrcCaches)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMergeValidationCachesEXT>::Dispatch(TraceManager::Get(), device, dstCache, srcCacheCount, pSrcCaches);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -10186,6 +10876,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
     size_t*                                     pDataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(TraceManager::Get(), device, validationCache, pDataSize, pData);
@@ -10220,6 +10912,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(
     VkImageView                                 imageView,
     VkImageLayout                               imageLayout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(TraceManager::Get(), commandBuffer, imageView, imageLayout);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV);
@@ -10245,6 +10939,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(
     uint32_t                                    viewportCount,
     const VkShadingRatePaletteNV*               pShadingRatePalettes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV);
@@ -10270,6 +10966,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(
     uint32_t                                    customSampleOrderCount,
     const VkCoarseSampleOrderCustomNV*          pCustomSampleOrders)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(TraceManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV);
@@ -10295,6 +10993,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
     const VkAllocationCallbacks*                pAllocator,
     VkAccelerationStructureNV*                  pAccelerationStructure)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
@@ -10335,6 +11035,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     VkAccelerationStructureNV                   accelerationStructure,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV);
@@ -10361,6 +11063,8 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
     const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo,
     VkMemoryRequirements2KHR*                   pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -10386,6 +11090,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
     uint32_t                                    bindInfoCount,
     const VkBindAccelerationStructureMemoryInfoNV* pBindInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -10420,6 +11126,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     VkBuffer                                    scratch,
     VkDeviceSize                                scratchOffset)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV>::Dispatch(TraceManager::Get(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNV);
@@ -10456,6 +11164,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     VkAccelerationStructureNV                   src,
     VkCopyAccelerationStructureModeKHR          mode)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(TraceManager::Get(), commandBuffer, dst, src, mode);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV);
@@ -10494,6 +11204,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     uint32_t                                    height,
     uint32_t                                    depth)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysNV>::Dispatch(TraceManager::Get(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysNV);
@@ -10536,6 +11248,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(TraceManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -10582,6 +11296,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
     size_t                                      dataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
@@ -10621,6 +11337,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
     size_t                                      dataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
@@ -10658,6 +11376,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     size_t                                      dataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, dataSize, pData);
@@ -10695,6 +11415,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV>::Dispatch(TraceManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV);
@@ -10724,6 +11446,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(
     VkPipeline                                  pipeline,
     uint32_t                                    shader)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(TraceManager::Get(), device, pipeline, shader);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -10752,6 +11476,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
     const void*                                 pHostPointer,
     VkMemoryHostPointerPropertiesEXT*           pMemoryHostPointerProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(TraceManager::Get(), device, handleType, pHostPointer, pMemoryHostPointerProperties);
@@ -10787,6 +11513,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
     VkDeviceSize                                dstOffset,
     uint32_t                                    marker)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(TraceManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD);
@@ -10813,6 +11541,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
     uint32_t*                                   pTimeDomainCount,
     VkTimeDomainEXT*                            pTimeDomains)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(TraceManager::Get(), physicalDevice, pTimeDomainCount, pTimeDomains);
@@ -10847,6 +11577,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
     uint64_t*                                   pTimestamps,
     uint64_t*                                   pMaxDeviation)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(TraceManager::Get(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
@@ -10881,6 +11613,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(
     uint32_t                                    taskCount,
     uint32_t                                    firstTask)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(TraceManager::Get(), commandBuffer, taskCount, firstTask);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV);
@@ -10906,6 +11640,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
     uint32_t                                    drawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV);
@@ -10936,6 +11672,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV);
@@ -10966,6 +11704,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(
     uint32_t                                    exclusiveScissorCount,
     const VkRect2D*                             pExclusiveScissors)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(TraceManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV);
@@ -10989,6 +11729,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(
     VkCommandBuffer                             commandBuffer,
     const void*                                 pCheckpointMarker)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(TraceManager::Get(), commandBuffer, pCheckpointMarker);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCheckpointNV);
@@ -11011,6 +11753,8 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointDataNV*                         pCheckpointData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(TraceManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
@@ -11033,6 +11777,8 @@ VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
     VkDevice                                    device,
     const VkInitializePerformanceApiInfoINTEL*  pInitializeInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL>::Dispatch(TraceManager::Get(), device, pInitializeInfo);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11056,6 +11802,8 @@ VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
 VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(
     VkDevice                                    device)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL>::Dispatch(TraceManager::Get(), device);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUninitializePerformanceApiINTEL);
@@ -11076,6 +11824,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceMarkerInfoINTEL*         pMarkerInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceMarkerINTEL>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -11100,6 +11850,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceStreamMarkerInfoINTEL*   pMarkerInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceStreamMarkerINTEL>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -11124,6 +11876,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(
     VkCommandBuffer                             commandBuffer,
     const VkPerformanceOverrideInfoINTEL*       pOverrideInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPerformanceOverrideINTEL>::Dispatch(TraceManager::Get(), commandBuffer, pOverrideInfo);
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
@@ -11149,6 +11903,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(
     const VkPerformanceConfigurationAcquireInfoINTEL* pAcquireInfo,
     VkPerformanceConfigurationINTEL*            pConfiguration)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquirePerformanceConfigurationINTEL>::Dispatch(TraceManager::Get(), device, pAcquireInfo, pConfiguration);
@@ -11185,6 +11941,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
     VkDevice                                    device,
     VkPerformanceConfigurationINTEL             configuration)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(TraceManager::Get(), device, configuration);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11212,6 +11970,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(
     VkQueue                                     queue,
     VkPerformanceConfigurationINTEL             configuration)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSetPerformanceConfigurationINTEL>::Dispatch(TraceManager::Get(), queue, configuration);
 
     VkQueue queue_unwrapped = GetWrappedHandle<VkQueue>(queue);
@@ -11238,6 +11998,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(
     VkPerformanceParameterTypeINTEL             parameter,
     VkPerformanceValueINTEL*                    pValue)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPerformanceParameterINTEL>::Dispatch(TraceManager::Get(), device, parameter, pValue);
@@ -11270,6 +12032,8 @@ VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
     VkSwapchainKHR                              swapChain,
     VkBool32                                    localDimmingEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(TraceManager::Get(), device, swapChain, localDimmingEnable);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD);
@@ -11295,6 +12059,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -11334,6 +12100,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -11371,6 +12139,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -11398,6 +12168,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(
     uint32_t*                                   pToolCount,
     VkPhysicalDeviceToolPropertiesEXT*          pToolProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(TraceManager::Get(), physicalDevice, pToolCount, pToolProperties);
@@ -11428,6 +12200,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
     uint32_t*                                   pPropertyCount,
     VkCooperativeMatrixPropertiesNV*            pProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
@@ -11460,6 +12234,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamples
     uint32_t*                                   pCombinationCount,
     VkFramebufferMixedSamplesCombinationNV*     pCombinations)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(TraceManager::Get(), physicalDevice, pCombinationCount, pCombinations);
@@ -11493,6 +12269,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
     uint32_t*                                   pPresentModeCount,
     VkPresentModeKHR*                           pPresentModes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
@@ -11527,6 +12305,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11552,6 +12332,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
     VkDevice                                    device,
     VkSwapchainKHR                              swapchain)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -11578,6 +12360,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
     const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
     VkDeviceGroupPresentModeFlagsKHR*           pModes)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), device, pSurfaceInfo, pModes);
@@ -11613,6 +12397,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -11651,6 +12437,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(
     uint32_t                                    lineStippleFactor,
     uint16_t                                    lineStipplePattern)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT>::Dispatch(TraceManager::Get(), commandBuffer, lineStippleFactor, lineStipplePattern);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLineStippleEXT);
@@ -11675,6 +12463,8 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPoolEXT);
@@ -11699,6 +12489,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(
     VkCommandBuffer                             commandBuffer,
     VkCullModeFlags                             cullMode)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetCullModeEXT>::Dispatch(TraceManager::Get(), commandBuffer, cullMode);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetCullModeEXT);
@@ -11720,6 +12512,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(
     VkCommandBuffer                             commandBuffer,
     VkFrontFace                                 frontFace)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT>::Dispatch(TraceManager::Get(), commandBuffer, frontFace);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFrontFaceEXT);
@@ -11741,6 +12535,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(
     VkCommandBuffer                             commandBuffer,
     VkPrimitiveTopology                         primitiveTopology)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT>::Dispatch(TraceManager::Get(), commandBuffer, primitiveTopology);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPrimitiveTopologyEXT);
@@ -11763,6 +12559,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(
     uint32_t                                    viewportCount,
     const VkViewport*                           pViewports)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT>::Dispatch(TraceManager::Get(), commandBuffer, viewportCount, pViewports);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetViewportWithCountEXT);
@@ -11786,6 +12584,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(
     uint32_t                                    scissorCount,
     const VkRect2D*                             pScissors)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT>::Dispatch(TraceManager::Get(), commandBuffer, scissorCount, pScissors);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetScissorWithCountEXT);
@@ -11813,6 +12613,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(
     const VkDeviceSize*                         pSizes,
     const VkDeviceSize*                         pStrides)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT>::Dispatch(TraceManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindVertexBuffers2EXT);
@@ -11841,6 +12643,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthTestEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, depthTestEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthTestEnableEXT);
@@ -11862,6 +12666,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthWriteEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, depthWriteEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthWriteEnableEXT);
@@ -11883,6 +12689,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(
     VkCommandBuffer                             commandBuffer,
     VkCompareOp                                 depthCompareOp)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT>::Dispatch(TraceManager::Get(), commandBuffer, depthCompareOp);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthCompareOpEXT);
@@ -11904,6 +12712,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBoundsTestEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, depthBoundsTestEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBoundsTestEnableEXT);
@@ -11925,6 +12735,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    stencilTestEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, stencilTestEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilTestEnableEXT);
@@ -11950,6 +12762,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(
     VkStencilOp                                 depthFailOp,
     VkCompareOp                                 compareOp)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetStencilOpEXT);
@@ -11976,6 +12790,8 @@ VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(
     const VkGeneratedCommandsMemoryRequirementsInfoNV* pInfo,
     VkMemoryRequirements2*                      pMemoryRequirements)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -12000,6 +12816,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(
     VkCommandBuffer                             commandBuffer,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, pGeneratedCommandsInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV);
@@ -12024,6 +12842,8 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV);
@@ -12050,6 +12870,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
     VkPipeline                                  pipeline,
     uint32_t                                    groupIndex)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV);
@@ -12076,6 +12898,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
     const VkAllocationCallbacks*                pAllocator,
     VkIndirectCommandsLayoutNV*                 pIndirectCommandsLayout)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
@@ -12116,6 +12940,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     VkIndirectCommandsLayoutNV                  indirectCommandsLayout,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV);
@@ -12143,6 +12969,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkPrivateDataSlotEXT*                       pPrivateDataSlot)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
@@ -12181,6 +13009,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(TraceManager::Get(), device, privateDataSlot, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT);
@@ -12209,6 +13039,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     uint64_t                                    data)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -12241,6 +13073,8 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
     VkPrivateDataSlotEXT                        privateDataSlot,
     uint64_t*                                   pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -12268,6 +13102,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(
     VkFragmentShadingRateNV                     shadingRate,
     const VkFragmentShadingRateCombinerOpKHR    combinerOps[2])
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV>::Dispatch(TraceManager::Get(), commandBuffer, shadingRate, combinerOps);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV);
@@ -12290,6 +13126,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireWinrtDisplayNV(
     VkPhysicalDevice                            physicalDevice,
     VkDisplayKHR                                display)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireWinrtDisplayNV>::Dispatch(TraceManager::Get(), physicalDevice, display);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -12316,6 +13154,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetWinrtDisplayNV(
     uint32_t                                    deviceRelativeId,
     VkDisplayKHR*                               pDisplay)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetWinrtDisplayNV>::Dispatch(TraceManager::Get(), physicalDevice, deviceRelativeId, pDisplay);
@@ -12354,6 +13194,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDirectFBSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -12392,6 +13234,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(
     uint32_t                                    queueFamilyIndex,
     IDirectFB*                                  dfb)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, dfb);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -12420,6 +13264,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetVertexInputEXT(
     uint32_t                                    vertexAttributeDescriptionCount,
     const VkVertexInputAttributeDescription2EXT* pVertexAttributeDescriptions)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetVertexInputEXT>::Dispatch(TraceManager::Get(), commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetVertexInputEXT);
@@ -12445,6 +13291,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandleFUCHSIA(
     const VkMemoryGetZirconHandleInfoFUCHSIA*   pGetZirconHandleInfo,
     zx_handle_t*                                pZirconHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryZirconHandleFUCHSIA>::Dispatch(TraceManager::Get(), device, pGetZirconHandleInfo, pZirconHandle);
@@ -12480,6 +13328,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandlePropertiesFUCHSIA(
     zx_handle_t                                 zirconHandle,
     VkMemoryZirconHandlePropertiesFUCHSIA*      pMemoryZirconHandleProperties)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryZirconHandlePropertiesFUCHSIA>::Dispatch(TraceManager::Get(), device, handleType, zirconHandle, pMemoryZirconHandleProperties);
@@ -12512,6 +13362,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreZirconHandleFUCHSIA(
     VkDevice                                    device,
     const VkImportSemaphoreZirconHandleInfoFUCHSIA* pImportSemaphoreZirconHandleInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkImportSemaphoreZirconHandleFUCHSIA>::Dispatch(TraceManager::Get(), device, pImportSemaphoreZirconHandleInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -12539,6 +13391,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(
     const VkSemaphoreGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo,
     zx_handle_t*                                pZirconHandle)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreZirconHandleFUCHSIA>::Dispatch(TraceManager::Get(), device, pGetZirconHandleInfo, pZirconHandle);
@@ -12572,6 +13426,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPatchControlPointsEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    patchControlPoints)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPatchControlPointsEXT>::Dispatch(TraceManager::Get(), commandBuffer, patchControlPoints);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPatchControlPointsEXT);
@@ -12593,6 +13449,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRasterizerDiscardEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    rasterizerDiscardEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, rasterizerDiscardEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetRasterizerDiscardEnableEXT);
@@ -12614,6 +13472,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBiasEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    depthBiasEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, depthBiasEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetDepthBiasEnableEXT);
@@ -12635,6 +13495,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLogicOpEXT(
     VkCommandBuffer                             commandBuffer,
     VkLogicOp                                   logicOp)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetLogicOpEXT>::Dispatch(TraceManager::Get(), commandBuffer, logicOp);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetLogicOpEXT);
@@ -12656,6 +13518,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveRestartEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, primitiveRestartEnable);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetPrimitiveRestartEnableEXT);
@@ -12679,6 +13543,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateScreenSurfaceQNX(
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateScreenSurfaceQNX>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
@@ -12717,6 +13583,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceScreenPresentationSupportQNX(
     uint32_t                                    queueFamilyIndex,
     struct _screen_window*                      window)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceScreenPresentationSupportQNX>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, window);
 
     VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
@@ -12743,6 +13611,8 @@ VKAPI_ATTR void                                    VKAPI_CALL CmdSetColorWriteEn
     uint32_t                                    attachmentCount,
     const VkBool32*                             pColorWriteEnables)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, attachmentCount, pColorWriteEnables);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT);
@@ -12767,6 +13637,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkAccelerationStructureKHR*                 pAccelerationStructure)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
@@ -12798,6 +13670,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
     VkAccelerationStructureKHR                  accelerationStructure,
     const VkAllocationCallbacks*                pAllocator)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR);
@@ -12825,6 +13699,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(
     const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
     const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR>::Dispatch(TraceManager::Get(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresKHR);
@@ -12854,6 +13730,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
     const uint32_t*                             pIndirectStrides,
     const uint32_t* const*                      ppMaxPrimitiveCounts)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructuresIndirectKHR);
@@ -12882,6 +13760,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
     VkDeferredOperationKHR                      deferredOperation,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -12911,6 +13791,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(
     VkDeferredOperationKHR                      deferredOperation,
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -12944,6 +13826,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
     void*                                       pData,
     size_t                                      stride)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
@@ -12981,6 +13865,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureInfoKHR*   pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR);
@@ -13004,6 +13890,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR);
@@ -13027,6 +13915,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR);
@@ -13050,6 +13940,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(
     VkDevice                                    device,
     const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -13080,6 +13972,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR);
@@ -13109,6 +14003,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(
     const VkAccelerationStructureVersionInfoKHR* pVersionInfo,
     VkAccelerationStructureCompatibilityKHR*    pCompatibility)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(TraceManager::Get(), device, pVersionInfo, pCompatibility);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -13134,6 +14030,8 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(
     const uint32_t*                             pMaxPrimitiveCounts,
     VkAccelerationStructureBuildSizesInfoKHR*   pSizeInfo)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureBuildSizesKHR>::Dispatch(TraceManager::Get(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
@@ -13166,6 +14064,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
     uint32_t                                    height,
     uint32_t                                    depth)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
@@ -13198,6 +14098,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(TraceManager::Get(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -13235,6 +14137,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
     size_t                                      dataSize,
     void*                                       pData)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     bool omit_output_data = false;
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
@@ -13274,6 +14178,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(
     const VkStridedDeviceAddressRegionKHR*      pCallableShaderBindingTable,
     VkDeviceAddress                             indirectDeviceAddress)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR);
@@ -13301,6 +14207,8 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(
     uint32_t                                    group,
     VkShaderGroupShaderKHR                      groupShader)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupStackSizeKHR>::Dispatch(TraceManager::Get(), device, pipeline, group, groupShader);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
@@ -13328,6 +14236,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    pipelineStackSize)
 {
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR>::Dispatch(TraceManager::Get(), commandBuffer, pipelineStackSize);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdSetRayTracingPipelineStackSizeKHR);

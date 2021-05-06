@@ -176,6 +176,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body = ''
 
+        body += indent + 'auto state_lock = TraceManager::Get()->AcquireSharedStateLock();\n'
+        body += '\n'
+
         if hasOutputs or (returnType and returnType != 'void'):
             encodeAfter = True
 

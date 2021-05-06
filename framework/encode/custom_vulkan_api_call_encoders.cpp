@@ -199,6 +199,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     TraceManager* manager = TraceManager::Get();
     assert(manager != nullptr);
 
+    auto state_lock = manager->AcquireSharedStateLock();
+
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
     {
@@ -241,6 +243,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 {
     TraceManager* manager = TraceManager::Get();
     assert(manager != nullptr);
+
+    auto state_lock = manager->AcquireSharedStateLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
@@ -285,6 +289,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 {
     TraceManager* manager = TraceManager::Get();
     assert(manager != nullptr);
+
+    auto state_lock = manager->AcquireSharedStateLock();
 
     const UpdateTemplateInfo* info = nullptr;
     if (!manager->GetDescriptorUpdateTemplateInfo(descriptorUpdateTemplate, &info))
