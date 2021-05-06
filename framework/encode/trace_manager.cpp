@@ -66,6 +66,7 @@ uint32_t                                               TraceManager::instance_co
 std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
+util::SharedMutex                                      TraceManager::state_mutex_;
 
 std::atomic<format::HandleId> TraceManager::unique_id_counter_{ format::kNullHandleId };
 
@@ -591,7 +592,7 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
-    std::lock_guard<std::mutex> lock(file_lock_);
+    auto state_lock = AcquireUniqueStateLock();
 
     capture_mode_ |= kModeWrite;
 
@@ -2501,7 +2502,6 @@ void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*    
 
 void TraceManager::WriteToFile(const void* data, size_t size)
 {
-    std::unique_lock<std::mutex> lock(file_lock_);
     file_stream_->Write(data, size);
     if (force_file_flush_)
     {
