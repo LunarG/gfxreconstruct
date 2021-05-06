@@ -283,6 +283,16 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Execut
     }
 };
 
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_D3D12CreateDevice(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

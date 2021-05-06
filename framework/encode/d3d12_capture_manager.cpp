@@ -34,7 +34,8 @@ D3D12CaptureManager*  D3D12CaptureManager::instance_   = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
 D3D12CaptureManager::D3D12CaptureManager() :
-    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{}
+    CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
+    debug_layer_enabled_(false)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
@@ -1172,11 +1173,9 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     return E_INVALIDARG;
 }
 
-HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
+void D3D12CaptureManager::EnableDebugLayer()
 {
-    HRESULT result = E_FAIL;
-
-    if (GetDebugLayer())
+    if (debug_layer_enabled_ == false)
     {
         PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
 
@@ -1199,20 +1198,51 @@ HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid,
         if (get_debug_interface != nullptr)
         {
             ID3D12Debug* debugController = nullptr;
-            result                       = get_debug_interface(IID_PPV_ARGS(&debugController));
+            HRESULT      result          = get_debug_interface(IID_PPV_ARGS(&debugController));
 
             if (result == S_OK)
             {
                 debugController->EnableDebugLayer();
+
+                debug_layer_enabled_ = true;
             }
         }
+    }
+}
 
+HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory)
+{
+    HRESULT result = E_FAIL;
+
+    if (GetDebugLayerSetting() == true)
+    {
+        EnableDebugLayer();
+    }
+
+    if (debug_layer_enabled_)
+    {
         Flags |= DXGI_CREATE_FACTORY_DEBUG;
     }
 
     result = dxgi_dispatch_table_.CreateDXGIFactory2(Flags, riid, ppFactory);
 
     return result;
+}
+
+void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
+                                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
+                                                       REFIID            riid,
+                                                       void**            ppDevice)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pAdapter);
+    GFXRECON_UNREFERENCED_PARAMETER(MinimumFeatureLevel);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(ppDevice);
+
+    if (GetDebugLayerSetting() == true)
+    {
+        EnableDebugLayer();
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

@@ -279,6 +279,11 @@ class D3D12CaptureManager : public CaptureManager
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);
 
+    void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
+                                      D3D_FEATURE_LEVEL MinimumFeatureLevel,
+                                      REFIID            riid,
+                                      void**            ppDevice);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -374,6 +379,7 @@ class D3D12CaptureManager : public CaptureManager
     void CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    void EnableDebugLayer();
 
   private:
     static D3D12CaptureManager*       instance_;
@@ -382,6 +388,7 @@ class D3D12CaptureManager : public CaptureManager
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
+    bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -181,7 +181,7 @@ class CaptureManager
     const std::string&                  GetTrimKey() const { return trim_key_; }
     uint32_t                            GetCurrentFrame() const { return current_frame_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
-    bool                                GetDebugLayer() const { return debug_layer_; }
+    bool                                GetDebugLayerSetting() const { return debug_layer_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
