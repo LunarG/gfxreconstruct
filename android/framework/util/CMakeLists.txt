@@ -34,6 +34,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/shared_mutex.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/shared_mutex.cpp
               )
 
 target_compile_definitions(gfxrecon_util
