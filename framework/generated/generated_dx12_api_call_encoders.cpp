@@ -7723,13 +7723,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_DES
     EncodeStructArray(encoder, value.pExports, value.NumExports);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value)
-{
-    EncodeStructPtr(encoder, value.pSubobjectToAssociate);
-    encoder->EncodeUInt32Value(value.NumExports);
-    encoder->EncodeWStringArray(value.pExports, value.NumExports);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value)
 {
     encoder->EncodeWString(value.SubobjectToAssociate);
@@ -7761,13 +7754,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_PIPELINE_CON
 {
     encoder->EncodeUInt32Value(value.MaxTraceRecursionDepth);
     encoder->EncodeEnumValue(value.Flags);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& value)
-{
-    encoder->EncodeEnumValue(value.Type);
-    encoder->EncodeUInt32Value(value.NumSubobjects);
-    EncodeStructArray(encoder, value.pSubobjects, value.NumSubobjects);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value)

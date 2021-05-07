@@ -52,13 +52,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
 
 // Platform types.
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
 
 // Types requiring special processing.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature);
 
 GFXRECON_END_NAMESPACE(encode)

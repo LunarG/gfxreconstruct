@@ -2411,8 +2411,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DXIL_LIBRARY_DESC& valu
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_DESC& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_HIT_GROUP_DESC& value);
@@ -2422,8 +2420,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SHADER_CONFI
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_PIPELINE_CONFIG& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_PIPELINE_CONFIG1& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value);
 

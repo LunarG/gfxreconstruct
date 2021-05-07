@@ -208,9 +208,28 @@ void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
     }
 }
 
-void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT* wrapper,
-                      const Dx12ObjectInfoTable&     object_info_table,
-                      const util::GpuVaMap&          gpu_va_map)
+void MapStructObjects(Decoded_D3D12_STATE_OBJECT_DESC* wrapper,
+                      const Dx12ObjectInfoTable&       object_info_table,
+                      const util::GpuVaMap&            gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        auto length   = wrapper->subobjects->GetLength();
+        auto wrappers = wrapper->subobjects->GetMetaStructPointer();
+
+        for (size_t i = 0; i < length; ++i)
+        {
+            MapStructObjects(
+                &wrappers[i], wrapper->subobjects, wrapper->subobject_stride, object_info_table, gpu_va_map);
+        }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapper,
+                      StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
+                      size_t                                               subobject_stride,
+                      const Dx12ObjectInfoTable&                           object_info_table,
+                      const util::GpuVaMap&                                gpu_va_map)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -229,12 +248,51 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT* wrapper,
                     wrapper->existing_collection_desc->GetMetaStructPointer(), object_info_table, gpu_va_map);
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
-                MapStructObjects(
-                    wrapper->subobject_to_exports_association->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                MapStructObjects(wrapper->subobject_to_exports_association->GetMetaStructPointer(),
+                                 subobjects,
+                                 subobject_stride,
+                                 object_info_table,
+                                 gpu_va_map);
                 break;
             default:
                 break;
         }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapper,
+                      StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
+                      size_t                                               subobject_stride,
+                      const Dx12ObjectInfoTable&                           object_info_table,
+                      const util::GpuVaMap&                                gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        assert(wrapper->pSubobjectToAssociate->HasAddress() && (subobjects != nullptr) && subobjects->HasAddress());
+
+        // This may be a pointer to an existing subobject structure.
+        auto subobject_address = wrapper->pSubobjectToAssociate->GetAddress();
+        auto subobject_array   = subobjects->GetPointer();
+        auto base_address      = subobjects->GetAddress();
+        auto num_subobjects    = subobjects->GetLength();
+
+        for (UINT i = 0; i < num_subobjects; ++i)
+        {
+            if (subobject_address == (base_address + (subobject_stride * i)))
+            {
+                // Point to the existing struct value.
+                auto value                   = wrapper->decoded_value;
+                value->pSubobjectToAssociate = &subobject_array[i];
+                return;
+            }
+        }
+
+        // The subobject was not found in the list of existing subobjects, so fall back on standard object mapping.
+        MapStructObjects(wrapper->pSubobjectToAssociate->GetMetaStructPointer(),
+                         subobjects,
+                         subobject_stride,
+                         object_info_table,
+                         gpu_va_map);
     }
 }
 

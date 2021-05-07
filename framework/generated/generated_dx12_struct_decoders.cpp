@@ -2802,23 +2802,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_EXI
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value = wrapper->decoded_value;
-
-    wrapper->pSubobjectToAssociate = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
-    bytes_read += wrapper->pSubobjectToAssociate->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSubobjectToAssociate = wrapper->pSubobjectToAssociate->GetPointer();
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExports));
-    bytes_read += wrapper->pExports.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pExports = const_cast<LPCWSTR*>(wrapper->pExports.GetPointer());
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2889,22 +2872,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxTraceRecursionDepth));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_OBJECT_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3D12_STATE_OBJECT_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumSubobjects));
-    wrapper->pSubobjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
-    bytes_read += wrapper->pSubobjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSubobjects = wrapper->pSubobjects->GetPointer();
 
     return bytes_read;
 }

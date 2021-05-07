@@ -61,10 +61,6 @@ void MapStructObjects(Decoded_D3D12_LOCAL_ROOT_SIGNATURE* wrapper, const Dx12Obj
 
 void MapStructObjects(Decoded_D3D12_EXISTING_COLLECTION_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
 
-void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
-
-void MapStructObjects(Decoded_D3D12_STATE_OBJECT_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
-
 void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* wrapper, const Dx12ObjectInfoTable& object_info_table, const util::GpuVaMap& gpu_va_map);

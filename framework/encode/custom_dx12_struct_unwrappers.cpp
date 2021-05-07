@@ -210,7 +210,26 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
     }
 }
 
-void UnwrapStructObjects(D3D12_STATE_SUBOBJECT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructObjects(D3D12_STATE_OBJECT_DESC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        auto unwrapped_structs = MakeUnwrapStructs(value->pSubobjects, value->NumSubobjects, unwrap_memory);
+
+        for (UINT i = 0; i < value->NumSubobjects; ++i)
+        {
+            UnwrapStructObjects(&unwrapped_structs[i], unwrap_memory, value->pSubobjects, unwrapped_structs, i);
+        }
+
+        value->pSubobjects = unwrapped_structs;
+    }
+}
+
+void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
+                         HandleUnwrapMemory*          unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT* wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT* unwrapped_subobjects,
+                         UINT                         num_subobjects)
 {
     if ((value != nullptr) && (value->pDesc != nullptr))
     {
@@ -229,12 +248,41 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT* value, HandleUnwrapMemory* unwra
                     reinterpret_cast<const D3D12_EXISTING_COLLECTION_DESC*>(value->pDesc), unwrap_memory);
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
-                value->pDesc = UnwrapStructPtrObjects(
-                    reinterpret_cast<const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(value->pDesc), unwrap_memory);
+            {
+                auto unwrapped_struct = MakeUnwrapStructs(
+                    reinterpret_cast<const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*>(value->pDesc), 1, unwrap_memory);
+                UnwrapStructObjects(
+                    unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
+                value->pDesc = unwrapped_struct;
                 break;
+            }
             default:
                 break;
         }
+    }
+}
+
+void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
+                         HandleUnwrapMemory*                     unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT*            wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT*            unwrapped_subobjects,
+                         UINT                                    num_subobjects)
+{
+    if (value != nullptr)
+    {
+        // This may be a pointer to an existing subobject structure.
+        for (UINT i = 0; i < num_subobjects; ++i)
+        {
+            if (value->pSubobjectToAssociate == &wrapped_subobjects[i])
+            {
+                value->pSubobjectToAssociate = &unwrapped_subobjects[i];
+                return;
+            }
+        }
+
+        // The subobject was not found in the list of existing subobjects, so fall back on standard unwrapping.
+        auto unwrapped_struct = MakeUnwrapStructs(value->pSubobjectToAssociate, 1, unwrap_memory);
+        UnwrapStructObjects(unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
     }
 }
 

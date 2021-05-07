@@ -986,6 +986,28 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_OBJECT_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                   bytes_read = 0;
+    D3D12_STATE_OBJECT_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumSubobjects));
+
+    // Decode the D3D12_STATE_SUBOBJECT array stride value, which is added by the capture encoder.
+    bytes_read +=
+        ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subobject_stride));
+
+    wrapper->subobjects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
+    bytes_read += wrapper->subobjects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSubobjects = wrapper->subobjects->GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_SUBOBJECT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -1074,6 +1096,24 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
         default:
             break;
     }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                  bytes_read = 0;
+    D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value      = wrapper->decoded_value;
+
+    wrapper->pSubobjectToAssociate = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>>();
+    bytes_read += wrapper->pSubobjectToAssociate->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSubobjectToAssociate = wrapper->pSubobjectToAssociate->GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExports));
+    bytes_read += wrapper->pExports.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExports = const_cast<LPCWSTR*>(wrapper->pExports.GetPointer());
 
     return bytes_read;
 }

@@ -43,9 +43,22 @@ void UnwrapStructObjects(D3D12_TEXTURE_COPY_LOCATION* value, HandleUnwrapMemory*
 
 void UnwrapStructObjects(D3D12_RENDER_PASS_ENDING_ACCESS* value, HandleUnwrapMemory* unwrap_memory);
 
+// Structs that require special handling.
 void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructObjects(D3D12_STATE_SUBOBJECT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructObjects(D3D12_STATE_OBJECT_DESC* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
+                         HandleUnwrapMemory*          unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT* wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT* unwrapped_subobjects,
+                         UINT                         num_subojects);
+
+void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
+                         HandleUnwrapMemory*                     unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT*            wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT*            unwrapped_subobjects,
+                         UINT                                    num_subojects);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

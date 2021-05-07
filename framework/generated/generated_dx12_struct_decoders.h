@@ -1443,16 +1443,6 @@ struct Decoded_D3D12_EXISTING_COLLECTION_DESC
     StructPointerDecoder<Decoded_D3D12_EXPORT_DESC>* pExports{ nullptr };
 };
 
-struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
-{
-    using struct_type = D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
-
-    D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* pSubobjectToAssociate{ nullptr };
-    WStringArrayDecoder pExports;
-};
-
 struct Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION
 {
     using struct_type = D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
@@ -1494,15 +1484,6 @@ struct Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1
     using struct_type = D3D12_RAYTRACING_PIPELINE_CONFIG1;
 
     D3D12_RAYTRACING_PIPELINE_CONFIG1* decoded_value{ nullptr };
-};
-
-struct Decoded_D3D12_STATE_OBJECT_DESC
-{
-    using struct_type = D3D12_STATE_OBJECT_DESC;
-
-    D3D12_STATE_OBJECT_DESC* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* pSubobjects{ nullptr };
 };
 
 struct Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE

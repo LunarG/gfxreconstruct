@@ -240,6 +240,16 @@ struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
     Decoded_D3D12_VIEW_INSTANCING_DESC  view_instancing;
 };
 
+struct Decoded_D3D12_STATE_OBJECT_DESC
+{
+    using struct_type = D3D12_STATE_OBJECT_DESC;
+
+    D3D12_STATE_OBJECT_DESC* decoded_value{ nullptr };
+
+    size_t                                               subobject_stride{ 0 };
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects{ nullptr };
+};
+
 struct Decoded_D3D12_STATE_SUBOBJECT
 {
     using struct_type = D3D12_STATE_SUBOBJECT;
@@ -260,6 +270,16 @@ struct Decoded_D3D12_STATE_SUBOBJECT
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG>*  raytracing_pipeline_config{ nullptr };
     StructPointerDecoder<Decoded_D3D12_HIT_GROUP_DESC>*              hit_group_desc{ nullptr };
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1>* raytracing_pipeline_config1{ nullptr };
+};
+
+struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
+{
+    using struct_type = D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
+
+    D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* pSubobjectToAssociate{ nullptr };
+    WStringArrayDecoder                                  pExports;
 };
 
 GFXRECON_END_NAMESPACE(decode)

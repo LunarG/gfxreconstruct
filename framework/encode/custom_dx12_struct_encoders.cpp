@@ -686,6 +686,18 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& value)
+{
+    encoder->EncodeEnumValue(value.Type);
+    encoder->EncodeUInt32Value(value.NumSubobjects);
+
+    // Encode the size of the D3D12_STATE_SUBOBJECT struct to use when computing the start address for each element in
+    // the array when searching for a match to D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION::pSubobjectToAssociate.
+    encoder->EncodeSizeTValue(sizeof(value.pSubobjects[0]));
+
+    EncodeStructArray(encoder, value.pSubobjects, value.NumSubobjects);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
 {
     encoder->EncodeEnumValue(value.Type);
@@ -736,6 +748,13 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
                 break;
         }
     }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value)
+{
+    EncodeStructPtr(encoder, value.pSubobjectToAssociate);
+    encoder->EncodeUInt32Value(value.NumExports);
+    encoder->EncodeWStringArray(value.pExports, value.NumExports);
 }
 
 GFXRECON_END_NAMESPACE(encode)
