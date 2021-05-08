@@ -207,6 +207,18 @@ bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE         type,
     return false;
 }
 
+void D3D12CaptureManager::EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties)
+{
+    // Set the allow write watch flag to enable use of GetWriteWatch with the mapped heap/resource memory.
+    flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
+    // Change the heap properties for a custom heap type whose memory will not have the PAGE_WRITECOMBINE property, to
+    // allow efficent reads when copying modified mapped memory pages to the capture file.
+    properties.Type                 = D3D12_HEAP_TYPE_CUSTOM;
+    properties.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+    properties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+}
+
 bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
 {
     if ((type == D3D12_HEAP_TYPE_UPLOAD) ||
@@ -991,16 +1003,26 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource(ID3D12Device_W
                                                                   REFIID                       riid_resource,
                                                                   void**                       ppv_resource)
 {
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
+
     if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
     else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
-        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        auto properties_copy = *heap_properties;
+        EnableWriteWatch(heap_flags, properties_copy);
+
+        return device->CreateCommittedResource(&properties_copy,
+                                               heap_flags,
+                                               desc,
+                                               initial_resource_state,
+                                               optimized_clear_value,
+                                               riid_resource,
+                                               ppv_resource);
     }
 
-    auto device = wrapper->GetWrappedObjectAs<ID3D12Device>();
     return device->CreateCommittedResource(
         heap_properties, heap_flags, desc, initial_resource_state, optimized_clear_value, riid_resource, ppv_resource);
 }
@@ -1016,16 +1038,27 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource1(ID3D12Device4
                                                                    REFIID                          riid_resource,
                                                                    void**                          ppv_resource)
 {
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device4>();
+
     if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
     else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
-        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        auto properties_copy = *heap_properties;
+        EnableWriteWatch(heap_flags, properties_copy);
+
+        return device->CreateCommittedResource1(&properties_copy,
+                                                heap_flags,
+                                                desc,
+                                                initial_resource_state,
+                                                optimized_clear_value,
+                                                protected_session,
+                                                riid_resource,
+                                                ppv_resource);
     }
 
-    auto device = wrapper->GetWrappedObjectAs<ID3D12Device4>();
     return device->CreateCommittedResource1(heap_properties,
                                             heap_flags,
                                             desc,
@@ -1047,16 +1080,27 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                                                    REFIID                          riid_resource,
                                                                    void**                          ppv_resource)
 {
+    auto device = wrapper->GetWrappedObjectAs<ID3D12Device8>();
+
     if ((desc == nullptr) || (heap_properties == nullptr))
     {
         return E_INVALIDARG;
     }
     else if (UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty))
     {
-        heap_flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        auto properties_copy = *heap_properties;
+        EnableWriteWatch(heap_flags, properties_copy);
+
+        return device->CreateCommittedResource2(&properties_copy,
+                                                heap_flags,
+                                                desc,
+                                                initial_resource_state,
+                                                optimized_clear_value,
+                                                protected_session,
+                                                riid_resource,
+                                                ppv_resource);
     }
 
-    auto device = wrapper->GetWrappedObjectAs<ID3D12Device8>();
     return device->CreateCommittedResource2(heap_properties,
                                             heap_flags,
                                             desc,
@@ -1082,6 +1126,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     {
         D3D12_HEAP_DESC desc_copy = *desc;
         desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
         return device->CreateHeap(&desc_copy, riid, heap);
     }
     else
@@ -1106,6 +1151,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
     {
         D3D12_HEAP_DESC desc_copy = *desc;
         desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
         return device->CreateHeap1(&desc_copy, protected_session, riid, heap);
     }
     else

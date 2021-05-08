@@ -378,6 +378,7 @@ class D3D12CaptureManager : public CaptureManager
   private:
     void CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
+    void EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
     bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
     void EnableDebugLayer();
 
