@@ -118,6 +118,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                                                        UINT64                   width,
                                                        D3D12_HEAP_TYPE          heap_type,
                                                        D3D12_CPU_PAGE_PROPERTY  page_property,
+                                                       D3D12_MEMORY_POOL        memory_pool,
                                                        bool                     has_write_watch)
 {
     assert(resource_wrapper != nullptr);
@@ -127,6 +128,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
 
     info->heap_type       = heap_type;
     info->page_property   = page_property;
+    info->memory_pool     = memory_pool;
     info->has_write_watch = has_write_watch;
 
     if (dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
@@ -456,6 +458,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
 
         info->heap_type       = desc->Properties.Type;
         info->page_property   = desc->Properties.CPUPageProperty;
+        info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
@@ -490,6 +493,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
             desc->Width,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
+            heap_properties->MemoryPoolPreference,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -525,6 +529,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
                                      desc->Width,
                                      heap_info->heap_type,
                                      heap_info->page_property,
+                                     heap_info->memory_pool,
                                      heap_info->has_write_watch);
     }
 }
@@ -571,6 +576,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wr
 
         info->heap_type       = desc->Properties.Type;
         info->page_property   = desc->Properties.CPUPageProperty;
+        info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
@@ -607,6 +613,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
             desc->Width,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
+            heap_properties->MemoryPoolPreference,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -643,6 +650,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
             desc->Width,
             heap_properties->Type,
             heap_properties->CPUPageProperty,
+            heap_properties->MemoryPoolPreference,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -679,6 +687,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
                                      desc->Width,
                                      heap_info->heap_type,
                                      heap_info->page_property,
+                                     heap_info->memory_pool,
                                      heap_info->has_write_watch);
     }
 }
@@ -850,10 +859,21 @@ void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Res
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
         if (info->has_write_watch)
         {
-            (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+            if (heap_flags != nullptr)
+            {
+                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
+                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+            }
+
+            if (heap_properties != nullptr)
+            {
+                // Replace the custom heap properties that were set at resource creation.
+                heap_properties->Type                 = info->heap_type;
+                heap_properties->CPUPageProperty      = info->page_property;
+                heap_properties->MemoryPoolPreference = info->memory_pool;
+            }
         }
     }
 }
@@ -920,10 +940,15 @@ void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wra
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
         if (info->has_write_watch)
         {
+            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
             desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
+            // Replace the custom heap properties that were set at heapcreation.
+            desc.Properties.Type                 = info->heap_type;
+            desc.Properties.CPUPageProperty      = info->page_property;
+            desc.Properties.MemoryPoolPreference = info->memory_pool;
         }
     }
 }

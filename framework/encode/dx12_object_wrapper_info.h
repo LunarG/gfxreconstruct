@@ -166,6 +166,7 @@ struct ID3D12ResourceInfo
     bool                                 has_write_watch{ false };
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
+    D3D12_MEMORY_POOL                    memory_pool{};
 };
 
 struct ID3D12HeapInfo
@@ -173,6 +174,7 @@ struct ID3D12HeapInfo
     bool                    has_write_watch{ false };
     D3D12_HEAP_TYPE         heap_type{};
     D3D12_CPU_PAGE_PROPERTY page_property{};
+    D3D12_MEMORY_POOL       memory_pool{};
 };
 
 struct ID3D12MetaCommandInfo

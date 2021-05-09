@@ -373,6 +373,7 @@ class D3D12CaptureManager : public CaptureManager
                                       UINT64                   width,
                                       D3D12_HEAP_TYPE          heap_type,
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
+                                      D3D12_MEMORY_POOL        memory_pool,
                                       bool                     has_write_watch);
 
   private:
