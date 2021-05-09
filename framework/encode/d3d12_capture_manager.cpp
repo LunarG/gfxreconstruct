@@ -1125,7 +1125,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap(ID3D12Device_Wrappe
     else if (UseWriteWatch(desc->Properties.Type, desc->Flags, desc->Properties.CPUPageProperty))
     {
         D3D12_HEAP_DESC desc_copy = *desc;
-        desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        EnableWriteWatch(desc_copy.Flags, desc_copy.Properties);
 
         return device->CreateHeap(&desc_copy, riid, heap);
     }
@@ -1150,7 +1150,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
     else if (UseWriteWatch(desc->Properties.Type, desc->Flags, desc->Properties.CPUPageProperty))
     {
         D3D12_HEAP_DESC desc_copy = *desc;
-        desc_copy.Flags |= D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+        EnableWriteWatch(desc_copy.Flags, desc_copy.Properties);
 
         return device->CreateHeap1(&desc_copy, protected_session, riid, heap);
     }
