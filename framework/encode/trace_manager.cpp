@@ -2329,14 +2329,21 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     {
         auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
-        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
-            (wrapper->mapped_data != nullptr))
+        if (wrapper->mapped_data != nullptr)
         {
-            util::PageGuardManager* manager = util::PageGuardManager::Get();
-            assert(manager != nullptr);
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            {
+                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                assert(manager != nullptr);
 
-            // Remove memory tracking.
-            manager->RemoveTrackedMemory(wrapper->handle_id);
+                // Remove memory tracking.
+                manager->RemoveTrackedMemory(wrapper->handle_id);
+            }
+            else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            {
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.erase(wrapper);
+            }
         }
     }
 }
