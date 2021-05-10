@@ -79,14 +79,31 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
             for (uint32_t i = 0; i < image_count; ++i)
             {
                 ID3D12Resource* resource = nullptr;
-                swap_chain->GetBuffer(i, IID_PPV_ARGS(&resource));
-                WrapID3D12Resource(IID_PPV_ARGS(&resource), nullptr);
+                auto            result   = swap_chain->GetBuffer(i, IID_PPV_ARGS(&resource));
+                if (SUCCEEDED(result))
+                {
+                    WrapID3D12Resource(IID_PPV_ARGS(&resource), nullptr);
 
-                // Convert the application reference to an internal-only reference to avoid altering the application
-                // reference count by only holding an internal reference to the wrapped resource.
-                ID3D12Resource_Wrapper* resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
-                resource_wrapper->MakeRefInternal();
-                info->images[i] = resource_wrapper;
+                    // Convert the application reference to an internal-only reference to avoid altering the application
+                    // reference count by only holding an internal reference to the wrapped resource.
+                    ID3D12Resource_Wrapper* resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
+                    resource_wrapper->MakeRefInternal();
+                    info->images[i] = resource_wrapper;
+                }
+                else
+                {
+                    if (result == E_NOINTERFACE)
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "IDXGISwapChain::GetBuffer() returned E_NOINTERFACE when called with IID_ID3D12Resource, "
+                            "ensure that the captured application is using the D3D12 API");
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "IDXGISwapChain::GetBuffer() failed when attempting to pre-acquire swapchain images");
+                    }
+                }
             }
         }
     }
