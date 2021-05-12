@@ -4147,12 +4147,14 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     format::HandleId                            pFence,
     UINT64                                      Value)
 {
-    auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pFence = MapObject<ID3D12Fence>(pFence);
-        auto replay_result = replay_object->Wait(in_pFence,
-                                                 Value);
+        auto in_pFence = GetObjectInfo(pFence);
+        auto replay_result = OverrideCommandQueueWait(replay_object,
+                                                      returnValue,
+                                                      in_pFence,
+                                                      Value);
         CheckReplayResult("ID3D12CommandQueue_Wait", returnValue, replay_result);
     }
 }

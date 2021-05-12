@@ -34,7 +34,8 @@
     },
     "ID3D12CommandQueue": {
       "ExecuteCommandLists": "OverrideExecuteCommandLists",
-      "Signal": "OverrideCommandQueueSignal"
+      "Signal": "OverrideCommandQueueSignal",
+      "Wait": "OverrideCommandQueueWait"
     },
     "ID3D12Fence": {
       "GetCompletedValue": "OverrideGetCompletedValue",

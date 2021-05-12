@@ -251,6 +251,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                        DxObjectInfo* fence_info,
                                        UINT64        value);
 
+    HRESULT OverrideCommandQueueWait(DxObjectInfo* replay_object_info,
+                                     HRESULT       original_result,
+                                     DxObjectInfo* fence_info,
+                                     UINT64        value);
+
     UINT64 OverrideGetCompletedValue(DxObjectInfo* replay_object_info, UINT64 original_result);
 
     HRESULT OverrideSetEventOnCompletion(DxObjectInfo* replay_object_info,
@@ -355,7 +360,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void DestroyHeapAllocations();
 
+    void ProcessQueueSignal(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value);
+
+    void ProcessQueueWait(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value);
+
     void ProcessFenceSignal(DxObjectInfo* info, uint64_t value);
+
+    void SignalWaitingQueue(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value);
 
     HANDLE GetEventObject(uint64_t event_id, bool reset);
 

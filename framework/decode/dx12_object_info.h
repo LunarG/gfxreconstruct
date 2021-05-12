@@ -31,6 +31,7 @@
 
 #include <array>
 #include <comdef.h>
+#include <deque>
 #include <memory>
 #include <Unknwn.h>
 #include <map>
@@ -43,8 +44,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 constexpr size_t   kNullCpuAddress = 0;
 constexpr uint64_t kNullGpuAddress = 0;
 
-typedef std::map<UINT64, HANDLE>                               FenceEvents;
-typedef std::set<UINT64>                                       PendingFenceValues;
 typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
 
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>> ID3D12DevicePtr;
@@ -66,10 +65,26 @@ enum class DxObjectInfoType : uint32_t
 // Structures for storing DirectX object info.
 //
 
+struct DxObjectInfo;
+
 struct MappedMemoryInfo
 {
     uint32_t count{ 0 };     ///< Number of times that the memory has been mapped.
     uint64_t memory_id{ 0 }; ///< Capture ID for the mapped memory.
+};
+
+struct QueueSyncEventInfo
+{
+    bool          is_wait{ false };
+    bool          is_signaled{ false };
+    DxObjectInfo* fence_info;
+    uint64_t      value;
+};
+
+struct FenceValueSyncInfo
+{
+    std::vector<HANDLE>        wait_events;
+    std::vector<DxObjectInfo*> wait_queues;
 };
 
 struct DxObjectExtraInfo
@@ -105,6 +120,8 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
 {
     D3D12CommandQueueInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12CommandQueueInfo) {}
 
+    std::deque<QueueSyncEventInfo> pending_events;
+
     ID3D12FencePtr sync_fence;
     uint64_t       sync_value{ 0 };
 };
@@ -130,9 +147,9 @@ struct D3D12FenceInfo : DxObjectExtraInfo
 {
     D3D12FenceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12FenceInfo) {}
 
-    HANDLE             completion_event{ nullptr };
-    FenceEvents        event_objects;
-    PendingFenceValues signaled_values;
+    uint64_t                               last_signaled_value{ 0 };
+    std::set<uint64_t>                     signaled_values;
+    std::map<uint64_t, FenceValueSyncInfo> waiting_objects;
 };
 
 struct D3D12HeapInfo : DxObjectExtraInfo
