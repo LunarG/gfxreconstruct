@@ -420,7 +420,16 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
             auto fence_result =
                 replay_object->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&command_queue_info->sync_fence));
 
-            if (FAILED(fence_result))
+            if (SUCCEEDED(fence_result))
+            {
+                command_queue_info->sync_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+
+                // Initialize the fence info object that will be added to D3D12CommandQueueInfo::pending_events when the
+                // queue has outstanding wait operations.
+                command_queue_info->sync_fence_info.object     = command_queue_info->sync_fence;
+                command_queue_info->sync_fence_info.extra_info = std::make_unique<D3D12FenceInfo>();
+            }
+            else
             {
                 GFXRECON_LOG_ERROR("Failed to create ID3D12Fence object for the replay --sync option");
             }
@@ -864,14 +873,35 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
             auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(replay_object_info->extra_info.get());
             assert(command_queue_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
 
-            auto sync_event = GetEventObject(kInternalEventId, true);
+            auto sync_event = command_queue_info->sync_event;
             if (sync_event != nullptr)
             {
                 auto& sync_fence = command_queue_info->sync_fence;
 
                 replay_object->Signal(sync_fence, ++command_queue_info->sync_value);
+
+                ResetEvent(sync_event);
                 sync_fence->SetEventOnCompletion(command_queue_info->sync_value, sync_event);
-                WaitForSingleObject(sync_event, INFINITE);
+
+                if (command_queue_info->pending_events.empty())
+                {
+                    // There are no outstanding waits on the queue, so the event can be waited on immediately.
+                    WaitForSingleObject(sync_event, INFINITE);
+                }
+                else
+                {
+                    // There are outstanding waits on the queue.  The sync signal won't be processed until the
+                    // outstanding waits are signaled, so the sync signal will be added to the pending operation queue.
+                    auto fence_info =
+                        reinterpret_cast<D3D12FenceInfo*>(command_queue_info->sync_fence_info.extra_info.get());
+                    assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
+
+                    auto& waiting_objects = fence_info->waiting_objects[command_queue_info->sync_value];
+                    waiting_objects.wait_events.push_back(sync_event);
+
+                    command_queue_info->pending_events.emplace_back(QueueSyncEventInfo{
+                        false, false, &command_queue_info->sync_fence_info, command_queue_info->sync_value });
+                }
             }
             else
             {
@@ -1479,6 +1509,14 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             {
                 auto& mapped_info = entry.second;
                 mapped_memory_.erase(mapped_info.memory_id);
+            }
+        }
+        else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
+        {
+            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(extra_info);
+            if (command_queue_info->sync_event != nullptr)
+            {
+                CloseHandle(command_queue_info->sync_event);
             }
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)

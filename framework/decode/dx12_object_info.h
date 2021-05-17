@@ -124,6 +124,8 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
 
     ID3D12FencePtr sync_fence;
     uint64_t       sync_value{ 0 };
+    DxObjectInfo   sync_fence_info;
+    HANDLE         sync_event{ nullptr };
 };
 
 struct D3D12DeviceInfo : DxObjectExtraInfo
