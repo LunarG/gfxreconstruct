@@ -150,7 +150,6 @@ struct D3D12FenceInfo : DxObjectExtraInfo
     D3D12FenceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12FenceInfo) {}
 
     uint64_t                               last_signaled_value{ 0 };
-    std::set<uint64_t>                     signaled_values;
     std::map<uint64_t, FenceValueSyncInfo> waiting_objects;
 };
 

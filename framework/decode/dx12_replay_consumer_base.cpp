@@ -1018,8 +1018,6 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
                 }
             }
         }
-
-        fence_info->signaled_values.erase(original_result);
     }
     else
     {
@@ -1058,8 +1056,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
             auto fence_info = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info.get());
             assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
 
-            auto signaled_entry = fence_info->signaled_values.find(value);
-            if (signaled_entry != fence_info->signaled_values.end())
+            if (value <= fence_info->last_signaled_value)
             {
                 // The value has already been signaled, so wait operations can be processed immediately.
                 auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
@@ -1076,8 +1073,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
                                          wait_result,
                                          replay_object_info->capture_id);
                 }
-
-                fence_info->signaled_values.erase(signaled_entry);
             }
             else
             {
@@ -1638,9 +1633,8 @@ void Dx12ReplayConsumerBase::ProcessQueueWait(DxObjectInfo* queue_info, DxObject
             auto fence_extra_info = static_cast<D3D12FenceInfo*>(fence_info->extra_info.get());
             assert(fence_extra_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
 
-            // If the value has already been signaled, we don't need to schedule a wait operation.
-            auto signaled_entry = fence_extra_info->signaled_values.find(value);
-            if (signaled_entry ==  fence_extra_info->signaled_values.end())
+            // If the value has not already been signaled, a pending wait operation needs to be added to the queue.
+            if (value > fence_extra_info->last_signaled_value)
             {
                 auto queue_extra_info = static_cast<D3D12CommandQueueInfo*>(queue_info->extra_info.get());
                 assert(queue_extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
@@ -1722,10 +1716,6 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
                 }
 
                 fence_info->waiting_objects.erase(range_begin, range_end);
-            }
-            else
-            {
-                fence_info->signaled_values.insert(value);
             }
 
             fence_info->last_signaled_value = value;
