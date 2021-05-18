@@ -30,8 +30,9 @@
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
-#include "util/gpu_va_map.h"
+#include "graphics/dx12_gpu_va_map.h"
 
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -325,9 +326,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return nullptr;
     }
 
-    const util::GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
+    const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
 
-    util::GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
+    graphics::Dx12GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
 
   private:
     void RaiseFatalError(const char* message) const;
@@ -382,7 +383,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>  heap_allocations_;
     std::unordered_map<uint64_t, HANDLE> event_objects_;
     std::function<void(const char*)>     fatal_error_handler_;
-    util::GpuVaMap                       gpu_va_map_;
+    graphics::Dx12GpuVaMap               gpu_va_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

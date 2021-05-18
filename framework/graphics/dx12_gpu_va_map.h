@@ -1,3 +1,4 @@
+
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 **
@@ -20,30 +21,44 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/dx12_object_mapping_util.h"
+#ifndef GFXRECON_GRAPHICS_GPU_VA_MAP_H
+#define GFXRECON_GRAPHICS_GPU_VA_MAP_H
 
-#include "decode/dx12_object_info.h"
-#include "decode/custom_dx12_struct_decoders.h"
+#include "format/format.h"
+#include "util/defines.h"
+
+#include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
-GFXRECON_BEGIN_NAMESPACE(object_mapping)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 
-void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const graphics::Dx12GpuVaMap& gpu_va_map)
+class Dx12GpuVaMap
 {
-    address = gpu_va_map.Map(address);
-}
+  public:
+    void Add(format::HandleId resource_id, uint64_t old_start_address, uint64_t old_size, uint64_t new_start_address);
 
-void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
-                            size_t                        addresses_len,
-                            const graphics::Dx12GpuVaMap& gpu_va_map)
-{
-    for (size_t i = 0; i < addresses_len; ++i)
+    void Remove(format::HandleId resource_id, uint64_t old_start_address);
+
+    uint64_t Map(uint64_t old_address) const;
+
+  private:
+    struct GpuVaInfo
     {
-        MapGpuVirtualAddress(addresses[i], gpu_va_map);
-    }
-}
+        uint64_t old_end_address{ 0 };
+        uint64_t new_start_address{ 0 };
+    };
 
-GFXRECON_END_NAMESPACE(object_mapping)
-GFXRECON_END_NAMESPACE(decode)
+    typedef std::map<format::HandleId, GpuVaInfo>                             AliasedResourceVaInfo;
+    typedef std::map<uint64_t, AliasedResourceVaInfo, std::greater<uint64_t>> GpuVaMap;
+
+  private:
+    bool FindMatch(const AliasedResourceVaInfo& resource_info, uint64_t old_start_address, uint64_t& address) const;
+
+  private:
+    GpuVaMap gpu_va_map_;
+};
+
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_GRAPHICS_GPU_VA_MAP_H

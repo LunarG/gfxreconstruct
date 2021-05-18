@@ -634,7 +634,8 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
             resource_info->replay_address_  = replay_result;
 
             auto desc = replay_object->GetDesc();
-            gpu_va_map_.Add(replay_object, original_result, replay_result, &desc);
+
+            gpu_va_map_.Add(replay_object_info->capture_id, original_result, desc.Width, replay_result);
         }
     }
 
@@ -1473,14 +1474,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             if (resource_info->capture_address_ != 0)
             {
-                auto resource = static_cast<ID3D12Resource*>(info->object);
-
-                auto desc = resource->GetDesc();
-
-                gfxrecon::util::GpuVaRange capture_range{ resource_info->capture_address_,
-                                                          (resource_info->capture_address_ + desc.Width) };
-
-                gpu_va_map_.Remove(resource, capture_range);
+                gpu_va_map_.Remove(info->capture_id, resource_info->capture_address_);
             }
 
             for (const auto& entry : resource_info->mapped_memory_info)

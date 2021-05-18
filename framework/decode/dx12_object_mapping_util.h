@@ -23,12 +23,12 @@
 #ifndef GFXRECON_DECODE_DX12_OBJECT_MAPPING_UTIL_H
 #define GFXRECON_DECODE_DX12_OBJECT_MAPPING_UTIL_H
 
-#include "format/format.h"
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_descriptor_map.h"
 #include "decode/handle_pointer_decoder.h"
-#include "util/gpu_va_map.h"
+#include "format/format.h"
+#include "graphics/dx12_gpu_va_map.h"
 
 #include <map>
 #include <unordered_map>
@@ -40,11 +40,11 @@ typedef std::unordered_map<format::HandleId, DxObjectInfo> Dx12ObjectInfoTable;
 
 GFXRECON_BEGIN_NAMESPACE(object_mapping)
 
-void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const util::GpuVaMap& gpu_va_map);
+void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const graphics::Dx12GpuVaMap& gpu_va_map);
 
-void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses,
-                            size_t                     addresses_len,
-                            const util::GpuVaMap&      gpu_va_map);
+void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
+                            size_t                        addresses_len,
+                            const graphics::Dx12GpuVaMap& gpu_va_map);
 
 template <typename T>
 static T* MapObject(format::HandleId id, const Dx12ObjectInfoTable& object_info_table)

@@ -26,6 +26,7 @@
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/struct_pointer_decoder.h"
+#include "graphics/dx12_gpu_va_map.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
@@ -36,52 +37,52 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Structs with descriptor handles.
 void MapStructObjects(Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
-                      const util::GpuVaMap&                gpu_va_map);
+                      const graphics::Dx12GpuVaMap&        gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
-                      const util::GpuVaMap&                gpu_va_map);
+                      const graphics::Dx12GpuVaMap&        gpu_va_map);
 
 // Structs with anonymous union members.
 void MapStructObjects(Decoded_D3D12_RESOURCE_BARRIER* wrapper,
                       const Dx12ObjectInfoTable&      object_info_table,
-                      const util::GpuVaMap&           gpu_va_map);
+                      const graphics::Dx12GpuVaMap&   gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_TEXTURE_COPY_LOCATION* wrapper,
                       const Dx12ObjectInfoTable&           object_info_table,
-                      const util::GpuVaMap&                gpu_va_map);
+                      const graphics::Dx12GpuVaMap&        gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper,
                       const Dx12ObjectInfoTable&              object_info_table,
-                      const util::GpuVaMap&                   gpu_va_map);
+                      const graphics::Dx12GpuVaMap&           gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper,
                       const Dx12ObjectInfoTable&                                    object_info_table,
-                      const util::GpuVaMap&                                         gpu_va_map);
+                      const graphics::Dx12GpuVaMap&                                 gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
-                      const util::GpuVaMap&                    gpu_va_map);
+                      const graphics::Dx12GpuVaMap&            gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper,
                       const Dx12ObjectInfoTable&                object_info_table,
-                      const util::GpuVaMap&                     gpu_va_map);
+                      const graphics::Dx12GpuVaMap&             gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_STATE_OBJECT_DESC* wrapper,
                       const Dx12ObjectInfoTable&       object_info_table,
-                      const util::GpuVaMap&            gpu_va_map);
+                      const graphics::Dx12GpuVaMap&    gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapper,
                       StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
                       size_t                                               subobject_stride,
                       const Dx12ObjectInfoTable&                           object_info_table,
-                      const util::GpuVaMap&                                gpu_va_map);
+                      const graphics::Dx12GpuVaMap&                        gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapper,
                       StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
                       size_t                                               subobject_stride,
                       const Dx12ObjectInfoTable&                           object_info_table,
-                      const util::GpuVaMap&                                gpu_va_map);
+                      const graphics::Dx12GpuVaMap&                        gpu_va_map);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

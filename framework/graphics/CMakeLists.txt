@@ -29,6 +29,8 @@ add_library(gfxrecon_graphics STATIC "")
 
 target_sources(gfxrecon_graphics
                PRIVATE
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
