@@ -390,19 +390,19 @@ class Dx12BaseGenerator(BaseGenerator):
         """Methond override."""
         if self.check_blacklist:
             return [
-                key for key in self.source_dict['struct_list']
+                key for key in self.source_dict['struct_dict']
                 if not self.is_struct_black_listed(key)
             ]
         else:
-            return self.source_dict['struct_list']
+            return self.source_dict['struct_dict'].keys()
 
     def is_struct(self, type):
         """Methond override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
         if type == 'LARGE_INTEGER':
             return True
-        struct_list = self.source_dict['struct_list']
-        if type in struct_list:
+        struct_dict = self.source_dict['struct_dict']
+        if type in struct_dict:
             return True
         return False
 
@@ -411,8 +411,8 @@ class Dx12BaseGenerator(BaseGenerator):
         if value.base_type == 'void' and value.pointer_count == 2 and value.is_com_outptr:
             return True
 
-        class_list = self.source_dict['class_list']
-        if value.base_type in class_list:
+        class_dict = self.source_dict['class_dict']
+        if value.base_type in class_dict:
             return True
         return False
 
@@ -424,8 +424,8 @@ class Dx12BaseGenerator(BaseGenerator):
 
     def is_enum(self, type):
         """Methond override."""
-        enum_set = self.source_dict['enum_set']
-        if type in enum_set:
+        enum_dict = self.source_dict['enum_dict']
+        if type in enum_dict:
             return True
         return False
 

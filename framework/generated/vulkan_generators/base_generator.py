@@ -822,7 +822,7 @@ class BaseGenerator(OutputGenerator):
                     ) and (union_info[1] in structs_with_handles):
                         handles.append(value)
                         has_handle_pointer = True
-                    elif union_info[1] in self.source_dict['class_list']:
+                    elif union_info[1] in self.source_dict['class_dict']:
                         handles.append(value)
                         has_handle_pointer = True
                     elif union_info[1] in self.MAP_STRUCT_TYPE:

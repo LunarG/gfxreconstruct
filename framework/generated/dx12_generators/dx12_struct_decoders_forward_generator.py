@@ -57,8 +57,8 @@ class Dx12StructDecodersForwardGenerator(
     def generate_feature(self):
         """Methond override."""
         code = ''
-        struct_list = self.source_dict['struct_list']
-        for name in struct_list:
+        struct_dict = self.source_dict['struct_dict']
+        for name in struct_dict:
             code += 'struct Decoded_{};\n'.format(name)
         code += 'struct Decoded_LARGE_INTEGER;\n'
         write(code, file=self.outFile)

@@ -124,8 +124,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         # Find structs with COM object members, which will need to be
         # unwrapped.
-        struct_list = self.source_dict['struct_list']
-        for s in struct_list:
+        struct_dict = self.source_dict['struct_dict']
+        for s in struct_dict:
             self.check_struct_member_handles(
                 s, self.structs_with_objects, None, True
             )
@@ -214,7 +214,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     for umember in umembers:
                         if self.is_struct_object_member(umember):
                             return True
-                elif union_info[1] in self.source_dict['class_list']:
+                elif union_info[1] in self.source_dict['class_dict']:
                     return True
         return False
 

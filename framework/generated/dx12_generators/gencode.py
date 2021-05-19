@@ -48,6 +48,7 @@ from dx12_struct_object_mappers_header_generator import Dx12StructObjectMappersH
 from dx12_struct_object_mappers_body_generator import Dx12StructObjectMappersBodyGenerator
 from dx12_struct_wrapper_header_generator import Dx12StructWrapperHeaderGenerator
 from dx12_struct_wrapper_body_generator import Dx12StructWrapperBodyGenerator
+from dx12_convert_to_texts_header_generator import Dx12ConvertToTextsHeaderGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -448,6 +449,21 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_convert_to_texts_header_generator.py'
+    )
+    gen_opts['generated_dx12_convert_to_texts.h'] = [
+        Dx12ConvertToTextsHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_convert_to_texts.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
             protect_feature=False
         )
     ]

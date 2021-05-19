@@ -45,7 +45,8 @@ GENERATE_TARGETS = [
     'generated_dx12_struct_unwrappers.cpp',
     'generated_dx12_struct_object_mappers.h',
     'generated_dx12_struct_object_mappers.cpp',
-    'generated_dx12_struct_wrappers.h', 'generated_dx12_struct_wrappers.cpp'
+    'generated_dx12_struct_wrappers.h', 'generated_dx12_struct_wrappers.cpp',
+    'generated_dx12_convert_to_texts.h'
 ]
 
 DX12_SOURCE_LIST = [
@@ -141,9 +142,9 @@ if __name__ == '__main__':
         header_dict[source[0][source[0].find('\\') + 1:]] = header1
 
     union_dict = dict()
-    enum_set = set()
-    class_list = list()
-    struct_list = list()
+    enum_dict = dict()
+    class_dict = dict()
+    struct_dict = dict()
 
     for k, v in header_dict.items():
         for class_name in list(v.classes):
@@ -153,27 +154,27 @@ if __name__ == '__main__':
                 and class_name[-4:] != 'Vtbl'
                 and class_name.find("::<anon-union-") == -1
             ):
-                if class_name in struct_list:
+                if class_name in struct_dict:
                     # print('WARNING:', class_name, 'is duplicated.')
                     del v.classes[class_name]
                 else:
-                    struct_list.append(class_name)
+                    struct_dict[class_name] = class_value
 
             elif class_value['declaration_method'] == 'union':
                 union_dict[class_value['name']] = class_value
 
             elif class_value['declaration_method'] == 'class':
-                class_list.append(class_name)
+                class_dict[class_name] = class_value
 
         for enum in v.enums:
-            enum_set.add(enum['name'])
+            enum_dict[enum['name']] = enum
 
     source_dict = dict()
     source_dict['header_dict'] = header_dict
     source_dict['union_dict'] = union_dict
-    source_dict['enum_set'] = enum_set
-    source_dict['class_list'] = class_list
-    source_dict['struct_list'] = struct_list
+    source_dict['enum_dict'] = enum_dict
+    source_dict['class_dict'] = class_dict
+    source_dict['struct_dict'] = struct_dict
 
     for target in GENERATE_TARGETS:
         print('Generating', target)
