@@ -32,29 +32,15 @@ Dx12AsciiConsumerBase::~Dx12AsciiConsumerBase()
     Destroy();
 }
 
-bool Dx12AsciiConsumerBase::Initialize(const std::string& filename)
+void Dx12AsciiConsumerBase::Initialize(const std::string& filename, FILE* file)
 {
-    bool success = false;
-
-    if (m_file == nullptr)
-    {
-        int32_t result = util::platform::FileOpen(&m_file, filename.c_str(), "w");
-        if (result == 0)
-        {
-            success    = true;
-            m_filename = filename;
-        }
-    }
-
-    return success;
+    m_filename = filename;
+    m_file     = file;
 }
 
 void Dx12AsciiConsumerBase::Destroy()
 {
-    if (m_file != nullptr)
-    {
-        util::platform::FileClose(m_file);
-    }
+    m_file = nullptr;
 }
 
 void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

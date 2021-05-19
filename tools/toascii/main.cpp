@@ -21,25 +21,22 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include "../tool_settings.h"
 
-#include "decode/file_processor.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
-#include "generated/generated_vulkan_decoder.h"
-#include "util/argument_parser.h"
-#include "util/logging.h"
 
-#include "vulkan/vulkan_core.h"
-
-#include <cstdlib>
-
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
+#if defined(WIN32)
+#include "generated/generated_dx12_ascii_consumer.h"
+#endif
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+
+const char kArguments[] = ""
+#if defined(WIN32)
+                          "--api"
+#endif
+    ;
 
 static void PrintUsage(const char* exe_name)
 {
@@ -51,60 +48,39 @@ static void PrintUsage(const char* exe_name)
     }
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to text.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version]", app_name.c_str());
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
+#elif defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] <file>\n");
+#else
+    GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
+#endif
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
     GFXRECON_WRITE_CONSOLE("        \t\tto text.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay (Windows only).");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
+#if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-}
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
+#endif
 }
 
 int main(int argc, const char** argv)
 {
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
@@ -141,14 +117,46 @@ int main(int argc, const char** argv)
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::VulkanDecoder       decoder;
-        gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
+        FILE*   file;
+        int32_t result = gfxrecon::util::platform::FileOpen(&file, output_filename.c_str(), "w");
+        if (result == 0)
+        {
+            // Initialize Vulkan API decoder and consumer(s).
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
+                GetVulkanReplayOptions(arg_parser, input_filename, &tracked_object_info_table);
+            gfxrecon::decode::VulkanDecoder       decoder;
+            gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
 
-        ascii_consumer.Initialize(output_filename);
-        decoder.AddConsumer(&ascii_consumer);
+            if (vulkan_replay_options.enable_vulkan)
+            {
+                ascii_consumer.Initialize(output_filename, file);
+                decoder.AddConsumer(&ascii_consumer);
 
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
+                file_processor.AddDecoder(&decoder);
+            }
+
+#if defined(WIN32)
+            // Initialize D3D12 API decoder and consumer(s).
+            gfxrecon::decode::DxReplayOptions   dx_replay_options = GetDxReplayOptions(arg_parser);
+            gfxrecon::decode::Dx12Decoder       dx12_decoder;
+            gfxrecon::decode::Dx12AsciiConsumer dx12_ascii_consumer;
+
+            if (dx_replay_options.enable_d3d12)
+            {
+                dx12_ascii_consumer.Initialize(output_filename, file);
+                dx12_decoder.AddConsumer(&dx12_ascii_consumer);
+
+                file_processor.AddDecoder(&dx12_decoder);
+            }
+#endif
+            file_processor.ProcessAllFrames();
+            gfxrecon::util::platform::FileClose(file);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to open output file: %s, error code: %d", output_filename.c_str(), result);
+        }
     }
 
     gfxrecon::util::Log::Release();

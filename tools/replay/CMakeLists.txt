@@ -30,6 +30,7 @@ add_executable(gfxrecon-replay "")
 
 target_sources(gfxrecon-replay
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
 )

@@ -34,7 +34,7 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
     Dx12AsciiConsumerBase();
     virtual ~Dx12AsciiConsumerBase();
 
-    bool Initialize(const std::string& filename);
+    void Initialize(const std::string& filename, FILE* file);
 
     void Destroy();
 
