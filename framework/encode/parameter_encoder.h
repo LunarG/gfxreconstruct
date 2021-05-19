@@ -92,6 +92,8 @@ class ParameterEncoder
 #if defined(WIN32)
     // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
     void EncodeUInt32Ptr(const unsigned long* ptr, bool omit_data = false, bool omit_addr = false)                    { EncodePointer(ptr, omit_data, omit_addr); }
+    // Oveload for WIN32 SIZE_T type.  Pointers from the SIZE_T typedef of unsigned long are not compatible with size_t pointers.
+    void EncodeSizeTPtr(const unsigned long* ptr, bool omit_data = false, bool omit_addr = false)                     { EncodePointer(ptr, omit_data, omit_addr); }
 #endif
 
     void EncodeInt64Ptr(const int64_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }

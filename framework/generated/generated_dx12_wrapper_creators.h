@@ -44,6 +44,7 @@
 #include <dxgitype.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -141,6 +142,26 @@ void WrapID3D10Blob(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3DDestructionNotifier(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12Debug1(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12Debug2(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12Debug(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DebugDevice1(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DebugDevice(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DebugCommandQueue(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DebugCommandList1(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12DebugCommandList(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12SharingContract(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12InfoQueue(REFIID riid, void** object, DxWrapperResources* resources);
+
 const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResources*)>,IidHash> kFunctionTable
 {
     { IID_IDXGIKeyedMutex, WrapIDXGIKeyedMutex },
@@ -233,6 +254,23 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12GraphicsCommandList6, WrapID3D12GraphicsCommandList },
     { IID_ID3D10Blob, WrapID3D10Blob },
     { IID_ID3DDestructionNotifier, WrapID3DDestructionNotifier },
+    { IID_ID3D12Debug1, WrapID3D12Debug1 },
+    { IID_ID3D12Debug2, WrapID3D12Debug2 },
+    { IID_ID3D12Debug, WrapID3D12Debug },
+    { IID_ID3D12Debug1, WrapID3D12Debug },
+    { IID_ID3D12Debug2, WrapID3D12Debug },
+    { IID_ID3D12Debug3, WrapID3D12Debug },
+    { IID_ID3D12DebugDevice1, WrapID3D12DebugDevice1 },
+    { IID_ID3D12DebugDevice, WrapID3D12DebugDevice },
+    { IID_ID3D12DebugDevice1, WrapID3D12DebugDevice },
+    { IID_ID3D12DebugDevice2, WrapID3D12DebugDevice },
+    { IID_ID3D12DebugCommandQueue, WrapID3D12DebugCommandQueue },
+    { IID_ID3D12DebugCommandList1, WrapID3D12DebugCommandList1 },
+    { IID_ID3D12DebugCommandList, WrapID3D12DebugCommandList },
+    { IID_ID3D12DebugCommandList1, WrapID3D12DebugCommandList },
+    { IID_ID3D12DebugCommandList2, WrapID3D12DebugCommandList },
+    { IID_ID3D12SharingContract, WrapID3D12SharingContract },
+    { IID_ID3D12InfoQueue, WrapID3D12InfoQueue },
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -42,6 +42,7 @@
 #include <dxgitype.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>

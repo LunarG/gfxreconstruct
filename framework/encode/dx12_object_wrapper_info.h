@@ -192,6 +192,36 @@ struct ID3D10BlobInfo
 struct ID3DDestructionNotifierInfo
 {};
 
+struct ID3D12DebugInfo
+{};
+
+struct ID3D12Debug1Info
+{};
+
+struct ID3D12Debug2Info
+{};
+
+struct ID3D12DebugDeviceInfo
+{};
+
+struct ID3D12DebugDevice1Info
+{};
+
+struct ID3D12DebugCommandQueueInfo
+{};
+
+struct ID3D12DebugCommandListInfo
+{};
+
+struct ID3D12DebugCommandList1Info
+{};
+
+struct ID3D12SharingContractInfo
+{};
+
+struct ID3D12InfoQueueInfo
+{};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

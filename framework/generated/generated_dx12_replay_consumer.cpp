@@ -6435,6 +6435,841 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCa
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12Debug_EnableDebugLayer(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12Debug>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->EnableDebugLayer();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug1_EnableDebugLayer(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12Debug1>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->EnableDebugLayer();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
+    format::HandleId                            object_id,
+    BOOL                                        Enable)
+{
+    auto replay_object = MapObject<ID3D12Debug1>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetEnableGPUBasedValidation(Enable);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(
+    format::HandleId                            object_id,
+    BOOL                                        Enable)
+{
+    auto replay_object = MapObject<ID3D12Debug1>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetEnableSynchronizedCommandQueueValidation(Enable);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
+    format::HandleId                            object_id,
+    D3D12_GPU_BASED_VALIDATION_FLAGS            Flags)
+{
+    auto replay_object = MapObject<ID3D12Debug2>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetGPUBasedValidationFlags(Flags);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
+    format::HandleId                            object_id,
+    BOOL                                        Enable)
+{
+    auto replay_object = MapObject<ID3D12Debug3>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetEnableGPUBasedValidation(Enable);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
+    format::HandleId                            object_id,
+    BOOL                                        Enable)
+{
+    auto replay_object = MapObject<ID3D12Debug3>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetEnableSynchronizedCommandQueueValidation(Enable);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
+    format::HandleId                            object_id,
+    D3D12_GPU_BASED_VALIDATION_FLAGS            Flags)
+{
+    auto replay_object = MapObject<ID3D12Debug3>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetGPUBasedValidationFlags(Flags);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugDevice1_SetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugDevice1_GetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_RLDO_FLAGS                            Flags)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->ReportLiveDeviceObjects(Flags);
+        CheckReplayResult("ID3D12DebugDevice1_ReportLiveDeviceObjects", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_FEATURE                         Mask)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetFeatureMask(Mask);
+        CheckReplayResult("ID3D12DebugDevice_SetFeatureMask", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
+    format::HandleId                            object_id,
+    D3D12_DEBUG_FEATURE                         returnValue)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetFeatureMask();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_RLDO_FLAGS                            Flags)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->ReportLiveDeviceObjects(Flags);
+        CheckReplayResult("ID3D12DebugDevice_ReportLiveDeviceObjects", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice2>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugDevice2_SetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugDevice2>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugDevice2_GetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    format::HandleId                            pResource,
+    UINT                                        Subresource,
+    UINT                                        State)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        auto replay_result = replay_object->AssertResourceState(in_pResource,
+                                                                Subresource,
+                                                                State);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    format::HandleId                            pResource,
+    UINT                                        Subresource,
+    UINT                                        State)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        auto replay_result = replay_object->AssertResourceState(in_pResource,
+                                                                Subresource,
+                                                                State);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugCommandList1_SetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList1>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugCommandList1_GetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    format::HandleId                            pResource,
+    UINT                                        Subresource,
+    UINT                                        State)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        auto replay_result = replay_object->AssertResourceState(in_pResource,
+                                                                Subresource,
+                                                                State);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_FEATURE                         Mask)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetFeatureMask(Mask);
+        CheckReplayResult("ID3D12DebugCommandList_SetFeatureMask", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
+    format::HandleId                            object_id,
+    D3D12_DEBUG_FEATURE                         returnValue)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetFeatureMask();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList2>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugCommandList2_SetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
+    PointerDecoder<uint8_t>*                    pData,
+    UINT                                        DataSize)
+{
+    auto replay_object = MapObject<ID3D12DebugCommandList2>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetDebugParameter(Type,
+                                                              pData->GetPointer(),
+                                                              DataSize);
+        CheckReplayResult("ID3D12DebugCommandList2_GetDebugParameter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12SharingContract_Present(
+    format::HandleId                            object_id,
+    format::HandleId                            pResource,
+    UINT                                        Subresource,
+    uint64_t                                    window)
+{
+    auto replay_object = MapObject<ID3D12SharingContract>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pResource = MapObject<ID3D12Resource>(pResource);
+        auto in_window = static_cast<HWND>(PreProcessExternalObject(window, format::ApiCallId::ApiCall_ID3D12SharingContract_Present, "ID3D12SharingContract_Present"));
+        replay_object->Present(in_pResource,
+                               Subresource,
+                               in_window);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
+    format::HandleId                            object_id,
+    format::HandleId                            pFence,
+    UINT64                                      FenceValue)
+{
+    auto replay_object = MapObject<ID3D12SharingContract>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pFence = MapObject<ID3D12Fence>(pFence);
+        replay_object->SharedFenceSignal(in_pFence,
+                                         FenceValue);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
+    format::HandleId                            object_id,
+    Decoded_GUID                                guid)
+{
+    auto replay_object = MapObject<ID3D12SharingContract>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->BeginCapturableWork(*guid.decoded_value);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12SharingContract_EndCapturableWork(
+    format::HandleId                            object_id,
+    Decoded_GUID                                guid)
+{
+    auto replay_object = MapObject<ID3D12SharingContract>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->EndCapturableWork(*guid.decoded_value);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    UINT64                                      MessageCountLimit)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetMessageCountLimit(MessageCountLimit);
+        CheckReplayResult("ID3D12InfoQueue_SetMessageCountLimit", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->ClearStoredMessages();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessage(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    UINT64                                      MessageIndex,
+    StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
+    PointerDecoder<SIZE_T>*                     pMessageByteLength)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetMessage(MessageIndex,
+                                                       pMessage->GetPointer(),
+                                                       pMessageByteLength->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_GetMessage", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetNumMessagesAllowedByStorageFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetNumMessagesDeniedByStorageFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetNumStoredMessages();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetNumStoredMessagesAllowedByRetrievalFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetNumMessagesDiscardedByMessageCountLimit();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
+    format::HandleId                            object_id,
+    UINT64                                      returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetMessageCountLimit();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->AddStorageFilterEntries(pFilter->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_AddStorageFilterEntries", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+    PointerDecoder<SIZE_T>*                     pFilterByteLength)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetStorageFilter(pFilter->GetPointer(),
+                                                             pFilterByteLength->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_GetStorageFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->ClearStorageFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushEmptyStorageFilter();
+        CheckReplayResult("ID3D12InfoQueue_PushEmptyStorageFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushCopyOfStorageFilter();
+        CheckReplayResult("ID3D12InfoQueue_PushCopyOfStorageFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushStorageFilter(pFilter->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_PushStorageFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->PopStorageFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
+    format::HandleId                            object_id,
+    UINT                                        returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetStorageFilterStackSize();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->AddRetrievalFilterEntries(pFilter->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_AddRetrievalFilterEntries", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+    PointerDecoder<SIZE_T>*                     pFilterByteLength)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetRetrievalFilter(pFilter->GetPointer(),
+                                                               pFilterByteLength->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_GetRetrievalFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->ClearRetrievalFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushEmptyRetrievalFilter();
+        CheckReplayResult("ID3D12InfoQueue_PushEmptyRetrievalFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushCopyOfRetrievalFilter();
+        CheckReplayResult("ID3D12InfoQueue_PushCopyOfRetrievalFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->PushRetrievalFilter(pFilter->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_PushRetrievalFilter", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
+    format::HandleId                            object_id)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->PopRetrievalFilter();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
+    format::HandleId                            object_id,
+    UINT                                        returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetRetrievalFilterStackSize();
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddMessage(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_MESSAGE_CATEGORY                      Category,
+    D3D12_MESSAGE_SEVERITY                      Severity,
+    D3D12_MESSAGE_ID                            ID,
+    StringDecoder*                              pDescription)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->AddMessage(Category,
+                                                       Severity,
+                                                       ID,
+                                                       pDescription->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_AddMessage", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_MESSAGE_SEVERITY                      Severity,
+    StringDecoder*                              pDescription)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->AddApplicationMessage(Severity,
+                                                                  pDescription->GetPointer());
+        CheckReplayResult("ID3D12InfoQueue_AddApplicationMessage", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_MESSAGE_CATEGORY                      Category,
+    BOOL                                        bEnable)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetBreakOnCategory(Category,
+                                                               bEnable);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnCategory", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_MESSAGE_SEVERITY                      Severity,
+    BOOL                                        bEnable)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetBreakOnSeverity(Severity,
+                                                               bEnable);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnSeverity", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
+    format::HandleId                            object_id,
+    HRESULT                                     returnValue,
+    D3D12_MESSAGE_ID                            ID,
+    BOOL                                        bEnable)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->SetBreakOnID(ID,
+                                                         bEnable);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnID", returnValue, replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    D3D12_MESSAGE_CATEGORY                      Category)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetBreakOnCategory(Category);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    D3D12_MESSAGE_SEVERITY                      Severity)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetBreakOnSeverity(Severity);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue,
+    D3D12_MESSAGE_ID                            ID)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetBreakOnID(ID);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
+    format::HandleId                            object_id,
+    BOOL                                        bMute)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        replay_object->SetMuteDebugOutput(bMute);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
+    format::HandleId                            object_id,
+    BOOL                                        returnValue)
+{
+    auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto replay_result = replay_object->GetMuteDebugOutput();
+    }
+}
+
 void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,

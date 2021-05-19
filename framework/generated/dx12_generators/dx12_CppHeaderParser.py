@@ -33,7 +33,8 @@ SAL_TOKENS = [
     '_Inout_opt_', '_Inout_updates_bytes_', '_Out_', '_Out_opt_',
     '_Out_writes_', '_Out_writes_all_', '_Out_writes_all_opt_',
     '_Out_writes_bytes_', '_Out_writes_bytes_opt_', '_Out_writes_bytes_to_',
-    '_Out_writes_opt_', '_Out_writes_to_opt_', '_Outptr_opt_result_bytebuffer_'
+    '_Out_writes_opt_', '_Out_writes_to_opt_',
+    '_Outptr_opt_result_bytebuffer_', '_Field_size_'
 ]
 
 original_warning_print = CppHeaderParser.warning_print
@@ -111,6 +112,8 @@ class Dx12CppHeader(CppHeader):
         enum_scope = False
 
         for line in lines:
+            if 'DEFINE_ENUM_FLAG_OPERATORS(' in line:
+                continue
             if interface_scope == 0:
                 source += line
                 enum_scope = line.startswith('typedef enum ')

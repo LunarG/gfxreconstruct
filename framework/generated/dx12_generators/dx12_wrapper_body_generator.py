@@ -165,7 +165,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         # Get the number from the end of the class name.  Start from the
         # back of the string and advance forward until a non-digit character
         # is encountered.
-        if final_class_name[-1].isdigit():
+        if (not final_class_name
+            in self.NOT_FAMILY_CLASSES) and (final_class_name[-1].isdigit()):
             for i in range(len(final_class_name) - 1, -1, -1):
                 if not final_class_name[i].isdigit():
                     base_name = final_class_name[:i + 1]
@@ -650,11 +651,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         indent
                     ) + 'this,\n' + unwrapped_args
                 else:
-                    unwrapped_args = self.increment_indent(
-                        indent
-                    ) + 'this\n'
+                    unwrapped_args = self.increment_indent(indent) + 'this\n'
             else:
-                expr += 'GetWrappedObjectAs<{}>()->{}('.format(class_name, method_name)
+                expr += 'GetWrappedObjectAs<{}>()->{}('.format(
+                    class_name, method_name
+                )
 
             if unwrapped_args:
                 expr += '\n'
@@ -692,7 +693,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent
             if return_type != 'void':
                 expr += 'result = '
-            expr += 'GetWrappedObjectAs<{}>()->{}('.format(class_name, method_name)
+            expr += 'GetWrappedObjectAs<{}>()->{}('.format(
+                class_name, method_name
+            )
             if wrapped_args:
                 expr += '\n'
                 expr += wrapped_args
@@ -793,7 +796,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                             else:
                                 name = 'UnwrapStructPtrObjects({}'.format(name)
                         else:
-                                name = '*UnwrapStructPtrObjects(&{}'.format(name)
+                            name = '*UnwrapStructPtrObjects(&{}'.format(name)
 
                         name += ', unwrap_memory)'
 

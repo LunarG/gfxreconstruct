@@ -60,6 +60,7 @@ DX12_SOURCE_LIST = [
     'shared\\dxgitype.h',
     'um\\d3d12.h',
     'um\\d3dcommon.h',
+    'um\\d3d12sdklayers.h',
 ]
 
 # The second value is required data. It only generates required data.

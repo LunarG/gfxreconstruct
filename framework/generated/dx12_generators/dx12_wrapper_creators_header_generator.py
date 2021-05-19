@@ -136,7 +136,8 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
         # Get the number from the end of the class name.  Start from the
         # back of the string and advance forward until a non-digit character
         # is encountered.
-        if final_class_name[-1].isdigit():
+        if (not final_class_name
+            in self.NOT_FAMILY_CLASSES) and (final_class_name[-1].isdigit()):
             for i in range(len(final_class_name) - 1, -1, -1):
                 if not final_class_name[i].isdigit():
                     base_name = final_class_name[:i + 1]

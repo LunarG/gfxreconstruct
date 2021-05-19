@@ -3785,6 +3785,582 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
 
 
 /*
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+**
+*/
+void Dx12AsciiConsumer::Process_ID3D12Debug_EnableDebugLayer(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug::EnableDebugLayer");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug1_EnableDebugLayer(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug1::EnableDebugLayer");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
+        format::HandleId object_id,
+        BOOL Enable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug1::SetEnableGPUBasedValidation");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(
+        format::HandleId object_id,
+        BOOL Enable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug1::SetEnableSynchronizedCommandQueueValidation");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
+        format::HandleId object_id,
+        D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug2::SetGPUBasedValidationFlags");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
+        format::HandleId object_id,
+        BOOL Enable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug3::SetEnableGPUBasedValidation");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
+        format::HandleId object_id,
+        BOOL Enable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug3::SetEnableSynchronizedCommandQueueValidation");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
+        format::HandleId object_id,
+        D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12Debug3::SetGPUBasedValidationFlags");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice1::SetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice1::GetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_RLDO_FLAGS Flags)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice1::ReportLiveDeviceObjects");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_FEATURE Mask)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice::SetFeatureMask");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
+        format::HandleId object_id,
+        D3D12_DEBUG_FEATURE returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice::GetFeatureMask");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_RLDO_FLAGS Flags)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice::ReportLiveDeviceObjects");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice2::SetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugDevice2::GetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
+        format::HandleId object_id,
+        BOOL returnValue,
+        format::HandleId pResource,
+        UINT Subresource,
+        UINT State)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandQueue::AssertResourceState");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
+        format::HandleId object_id,
+        BOOL returnValue,
+        format::HandleId pResource,
+        UINT Subresource,
+        UINT State)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList1::AssertResourceState");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList1::SetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList1::GetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
+        format::HandleId object_id,
+        BOOL returnValue,
+        format::HandleId pResource,
+        UINT Subresource,
+        UINT State)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList::AssertResourceState");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_FEATURE Mask)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList::SetFeatureMask");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
+        format::HandleId object_id,
+        D3D12_DEBUG_FEATURE returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList::GetFeatureMask");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList2::SetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12DebugCommandList2::GetDebugParameter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource,
+        uint64_t window)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12SharingContract::Present");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
+        format::HandleId object_id,
+        format::HandleId pFence,
+        UINT64 FenceValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12SharingContract::SharedFenceSignal");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
+        format::HandleId object_id,
+        Decoded_GUID guid)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12SharingContract::BeginCapturableWork");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
+        format::HandleId object_id,
+        Decoded_GUID guid)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12SharingContract::EndCapturableWork");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        UINT64 MessageCountLimit)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::SetMessageCountLimit");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::ClearStoredMessages");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        UINT64 MessageIndex,
+        StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
+        PointerDecoder<SIZE_T>* pMessageByteLength)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetMessage");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetNumMessagesAllowedByStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetNumMessagesDeniedByStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetNumStoredMessages");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetNumStoredMessagesAllowedByRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetNumMessagesDiscardedByMessageCountLimit");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
+        format::HandleId object_id,
+        UINT64 returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetMessageCountLimit");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::AddStorageFilterEntries");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+        PointerDecoder<SIZE_T>* pFilterByteLength)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::ClearStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
+        format::HandleId object_id,
+        HRESULT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushEmptyStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
+        format::HandleId object_id,
+        HRESULT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushCopyOfStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PopStorageFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
+        format::HandleId object_id,
+        UINT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetStorageFilterStackSize");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::AddRetrievalFilterEntries");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
+        PointerDecoder<SIZE_T>* pFilterByteLength)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::ClearRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
+        format::HandleId object_id,
+        HRESULT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushEmptyRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
+        format::HandleId object_id,
+        HRESULT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushCopyOfRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PushRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
+        format::HandleId object_id)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::PopRetrievalFilter");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
+        format::HandleId object_id,
+        UINT returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetRetrievalFilterStackSize");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_MESSAGE_CATEGORY Category,
+        D3D12_MESSAGE_SEVERITY Severity,
+        D3D12_MESSAGE_ID ID,
+        StringDecoder* pDescription)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::AddMessage");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_MESSAGE_SEVERITY Severity,
+        StringDecoder* pDescription)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::AddApplicationMessage");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_MESSAGE_CATEGORY Category,
+        BOOL bEnable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::SetBreakOnCategory");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_MESSAGE_SEVERITY Severity,
+        BOOL bEnable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::SetBreakOnSeverity");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
+        format::HandleId object_id,
+        HRESULT returnValue,
+        D3D12_MESSAGE_ID ID,
+        BOOL bEnable)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::SetBreakOnID");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
+        format::HandleId object_id,
+        BOOL returnValue,
+        D3D12_MESSAGE_CATEGORY Category)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetBreakOnCategory");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
+        format::HandleId object_id,
+        BOOL returnValue,
+        D3D12_MESSAGE_SEVERITY Severity)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetBreakOnSeverity");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
+        format::HandleId object_id,
+        BOOL returnValue,
+        D3D12_MESSAGE_ID ID)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetBreakOnID");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
+        format::HandleId object_id,
+        BOOL bMute)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::SetMuteDebugOutput");
+}
+
+
+void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
+        format::HandleId object_id,
+        BOOL returnValue)
+{
+    fprintf(GetFile(), "%s\n", "ID3D12InfoQueue::GetMuteDebugOutput");
+}
+
+
+/*
 ** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
 **
 */

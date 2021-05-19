@@ -43,6 +43,7 @@
 #include <dxgitype.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -3015,6 +3016,459 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     ID3DDestructionNotifierInfo info_;
+};
+
+
+/*
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+**
+*/
+
+class ID3D12Debug_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12Debug_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug_Wrapper*>(u); });
+
+    ~ID3D12Debug_Wrapper();
+
+    static ID3D12Debug_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugInfo* GetObjectInfo() { return &info_; }
+
+    virtual void STDMETHODCALLTYPE EnableDebugLayer();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12Debug_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugInfo info_;
+};
+
+class ID3D12Debug1_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12Debug1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug1_Wrapper*>(u); });
+
+    ~ID3D12Debug1_Wrapper();
+
+    static ID3D12Debug1_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12Debug1Info* GetObjectInfo() const { return &info_; }
+
+    ID3D12Debug1Info* GetObjectInfo() { return &info_; }
+
+    virtual void STDMETHODCALLTYPE EnableDebugLayer();
+
+    virtual void STDMETHODCALLTYPE SetEnableGPUBasedValidation(
+        BOOL Enable);
+
+    virtual void STDMETHODCALLTYPE SetEnableSynchronizedCommandQueueValidation(
+        BOOL Enable);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12Debug1_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12Debug1Info info_;
+};
+
+class ID3D12Debug2_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12Debug2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug2_Wrapper*>(u); });
+
+    ~ID3D12Debug2_Wrapper();
+
+    static ID3D12Debug2_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12Debug2Info* GetObjectInfo() const { return &info_; }
+
+    ID3D12Debug2Info* GetObjectInfo() { return &info_; }
+
+    virtual void STDMETHODCALLTYPE SetGPUBasedValidationFlags(
+        D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12Debug2_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12Debug2Info info_;
+};
+
+class ID3D12Debug3_Wrapper : public ID3D12Debug_Wrapper
+{
+  public:
+    ID3D12Debug3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Debug3_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE SetEnableGPUBasedValidation(
+        BOOL Enable);
+
+    virtual void STDMETHODCALLTYPE SetEnableSynchronizedCommandQueueValidation(
+        BOOL Enable);
+
+    virtual void STDMETHODCALLTYPE SetGPUBasedValidationFlags(
+        D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+};
+
+class ID3D12DebugDevice1_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DebugDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugDevice1_Wrapper*>(u); });
+
+    ~ID3D12DebugDevice1_Wrapper();
+
+    static ID3D12DebugDevice1_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugDevice1Info* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugDevice1Info* GetObjectInfo() { return &info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE SetDebugParameter(
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        const void* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDebugParameter(
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        void* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE ReportLiveDeviceObjects(
+        D3D12_RLDO_FLAGS Flags);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DebugDevice1_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugDevice1Info info_;
+};
+
+class ID3D12DebugDevice_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DebugDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugDevice_Wrapper*>(u); });
+
+    ~ID3D12DebugDevice_Wrapper();
+
+    static ID3D12DebugDevice_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugDeviceInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugDeviceInfo* GetObjectInfo() { return &info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE SetFeatureMask(
+        D3D12_DEBUG_FEATURE Mask);
+
+    virtual D3D12_DEBUG_FEATURE STDMETHODCALLTYPE GetFeatureMask();
+
+    virtual HRESULT STDMETHODCALLTYPE ReportLiveDeviceObjects(
+        D3D12_RLDO_FLAGS Flags);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DebugDevice_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugDeviceInfo info_;
+};
+
+class ID3D12DebugDevice2_Wrapper : public ID3D12DebugDevice_Wrapper
+{
+  public:
+    ID3D12DebugDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugDevice2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetDebugParameter(
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        const void* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDebugParameter(
+        D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+        void* pData,
+        UINT DataSize);
+
+};
+
+class ID3D12DebugCommandQueue_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DebugCommandQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandQueue_Wrapper*>(u); });
+
+    ~ID3D12DebugCommandQueue_Wrapper();
+
+    static ID3D12DebugCommandQueue_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugCommandQueueInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugCommandQueueInfo* GetObjectInfo() { return &info_; }
+
+    virtual BOOL STDMETHODCALLTYPE AssertResourceState(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        UINT State);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DebugCommandQueue_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugCommandQueueInfo info_;
+};
+
+class ID3D12DebugCommandList1_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DebugCommandList1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandList1_Wrapper*>(u); });
+
+    ~ID3D12DebugCommandList1_Wrapper();
+
+    static ID3D12DebugCommandList1_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugCommandList1Info* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugCommandList1Info* GetObjectInfo() { return &info_; }
+
+    virtual BOOL STDMETHODCALLTYPE AssertResourceState(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        UINT State);
+
+    virtual HRESULT STDMETHODCALLTYPE SetDebugParameter(
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        const void* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDebugParameter(
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        void* pData,
+        UINT DataSize);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DebugCommandList1_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugCommandList1Info info_;
+};
+
+class ID3D12DebugCommandList_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12DebugCommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandList_Wrapper*>(u); });
+
+    ~ID3D12DebugCommandList_Wrapper();
+
+    static ID3D12DebugCommandList_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12DebugCommandListInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12DebugCommandListInfo* GetObjectInfo() { return &info_; }
+
+    virtual BOOL STDMETHODCALLTYPE AssertResourceState(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        UINT State);
+
+    virtual HRESULT STDMETHODCALLTYPE SetFeatureMask(
+        D3D12_DEBUG_FEATURE Mask);
+
+    virtual D3D12_DEBUG_FEATURE STDMETHODCALLTYPE GetFeatureMask();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12DebugCommandList_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12DebugCommandListInfo info_;
+};
+
+class ID3D12DebugCommandList2_Wrapper : public ID3D12DebugCommandList_Wrapper
+{
+  public:
+    ID3D12DebugCommandList2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DebugCommandList2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetDebugParameter(
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        const void* pData,
+        UINT DataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE GetDebugParameter(
+        D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+        void* pData,
+        UINT DataSize);
+
+};
+
+class ID3D12SharingContract_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12SharingContract_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12SharingContract_Wrapper*>(u); });
+
+    ~ID3D12SharingContract_Wrapper();
+
+    static ID3D12SharingContract_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12SharingContractInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12SharingContractInfo* GetObjectInfo() { return &info_; }
+
+    virtual void STDMETHODCALLTYPE Present(
+        ID3D12Resource* pResource,
+        UINT Subresource,
+        HWND window);
+
+    virtual void STDMETHODCALLTYPE SharedFenceSignal(
+        ID3D12Fence* pFence,
+        UINT64 FenceValue);
+
+    virtual void STDMETHODCALLTYPE BeginCapturableWork(
+        REFGUID guid);
+
+    virtual void STDMETHODCALLTYPE EndCapturableWork(
+        REFGUID guid);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12SharingContract_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12SharingContractInfo info_;
+};
+
+class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12InfoQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12InfoQueue_Wrapper*>(u); });
+
+    ~ID3D12InfoQueue_Wrapper();
+
+    static ID3D12InfoQueue_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    const ID3D12InfoQueueInfo* GetObjectInfo() const { return &info_; }
+
+    ID3D12InfoQueueInfo* GetObjectInfo() { return &info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE SetMessageCountLimit(
+        UINT64 MessageCountLimit);
+
+    virtual void STDMETHODCALLTYPE ClearStoredMessages();
+
+    virtual HRESULT STDMETHODCALLTYPE GetMessage(
+        UINT64 MessageIndex,
+        D3D12_MESSAGE* pMessage,
+        SIZE_T* pMessageByteLength);
+
+    virtual UINT64 STDMETHODCALLTYPE GetNumMessagesAllowedByStorageFilter();
+
+    virtual UINT64 STDMETHODCALLTYPE GetNumMessagesDeniedByStorageFilter();
+
+    virtual UINT64 STDMETHODCALLTYPE GetNumStoredMessages();
+
+    virtual UINT64 STDMETHODCALLTYPE GetNumStoredMessagesAllowedByRetrievalFilter();
+
+    virtual UINT64 STDMETHODCALLTYPE GetNumMessagesDiscardedByMessageCountLimit();
+
+    virtual UINT64 STDMETHODCALLTYPE GetMessageCountLimit();
+
+    virtual HRESULT STDMETHODCALLTYPE AddStorageFilterEntries(
+        D3D12_INFO_QUEUE_FILTER* pFilter);
+
+    virtual HRESULT STDMETHODCALLTYPE GetStorageFilter(
+        D3D12_INFO_QUEUE_FILTER* pFilter,
+        SIZE_T* pFilterByteLength);
+
+    virtual void STDMETHODCALLTYPE ClearStorageFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushEmptyStorageFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushCopyOfStorageFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushStorageFilter(
+        D3D12_INFO_QUEUE_FILTER* pFilter);
+
+    virtual void STDMETHODCALLTYPE PopStorageFilter();
+
+    virtual UINT STDMETHODCALLTYPE GetStorageFilterStackSize();
+
+    virtual HRESULT STDMETHODCALLTYPE AddRetrievalFilterEntries(
+        D3D12_INFO_QUEUE_FILTER* pFilter);
+
+    virtual HRESULT STDMETHODCALLTYPE GetRetrievalFilter(
+        D3D12_INFO_QUEUE_FILTER* pFilter,
+        SIZE_T* pFilterByteLength);
+
+    virtual void STDMETHODCALLTYPE ClearRetrievalFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushEmptyRetrievalFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushCopyOfRetrievalFilter();
+
+    virtual HRESULT STDMETHODCALLTYPE PushRetrievalFilter(
+        D3D12_INFO_QUEUE_FILTER* pFilter);
+
+    virtual void STDMETHODCALLTYPE PopRetrievalFilter();
+
+    virtual UINT STDMETHODCALLTYPE GetRetrievalFilterStackSize();
+
+    virtual HRESULT STDMETHODCALLTYPE AddMessage(
+        D3D12_MESSAGE_CATEGORY Category,
+        D3D12_MESSAGE_SEVERITY Severity,
+        D3D12_MESSAGE_ID ID,
+        LPCSTR pDescription);
+
+    virtual HRESULT STDMETHODCALLTYPE AddApplicationMessage(
+        D3D12_MESSAGE_SEVERITY Severity,
+        LPCSTR pDescription);
+
+    virtual HRESULT STDMETHODCALLTYPE SetBreakOnCategory(
+        D3D12_MESSAGE_CATEGORY Category,
+        BOOL bEnable);
+
+    virtual HRESULT STDMETHODCALLTYPE SetBreakOnSeverity(
+        D3D12_MESSAGE_SEVERITY Severity,
+        BOOL bEnable);
+
+    virtual HRESULT STDMETHODCALLTYPE SetBreakOnID(
+        D3D12_MESSAGE_ID ID,
+        BOOL bEnable);
+
+    virtual BOOL STDMETHODCALLTYPE GetBreakOnCategory(
+        D3D12_MESSAGE_CATEGORY Category);
+
+    virtual BOOL STDMETHODCALLTYPE GetBreakOnSeverity(
+        D3D12_MESSAGE_SEVERITY Severity);
+
+    virtual BOOL STDMETHODCALLTYPE GetBreakOnID(
+        D3D12_MESSAGE_ID ID);
+
+    virtual void STDMETHODCALLTYPE SetMuteDebugOutput(
+        BOOL bMute);
+
+    virtual BOOL STDMETHODCALLTYPE GetMuteDebugOutput();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12InfoQueue_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    ID3D12InfoQueueInfo info_;
 };
 
 

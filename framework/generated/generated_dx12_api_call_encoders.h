@@ -39,6 +39,7 @@
 #include <dxgitype.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -2791,6 +2792,340 @@ void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
     format::HandleId wrapper_id,
     HRESULT result,
     UINT callbackID);
+
+
+/*
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+**
+*/
+
+void Encode_ID3D12Debug_EnableDebugLayer(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12Debug1_EnableDebugLayer(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12Debug1_SetEnableGPUBasedValidation(
+    format::HandleId wrapper_id,
+    BOOL Enable);
+
+void Encode_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(
+    format::HandleId wrapper_id,
+    BOOL Enable);
+
+void Encode_ID3D12Debug2_SetGPUBasedValidationFlags(
+    format::HandleId wrapper_id,
+    D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+void Encode_ID3D12Debug3_SetEnableGPUBasedValidation(
+    format::HandleId wrapper_id,
+    BOOL Enable);
+
+void Encode_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
+    format::HandleId wrapper_id,
+    BOOL Enable);
+
+void Encode_ID3D12Debug3_SetGPUBasedValidationFlags(
+    format::HandleId wrapper_id,
+    D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR& value);
+
+void Encode_ID3D12DebugDevice1_SetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+    const void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugDevice1_GetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+    void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugDevice1_ReportLiveDeviceObjects(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_RLDO_FLAGS Flags);
+
+void Encode_ID3D12DebugDevice_SetFeatureMask(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_FEATURE Mask);
+
+void Encode_ID3D12DebugDevice_GetFeatureMask(
+    format::HandleId wrapper_id,
+    D3D12_DEBUG_FEATURE result);
+
+void Encode_ID3D12DebugDevice_ReportLiveDeviceObjects(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_RLDO_FLAGS Flags);
+
+void Encode_ID3D12DebugDevice2_SetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+    const void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugDevice2_GetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
+    void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugCommandQueue_AssertResourceState(
+    format::HandleId wrapper_id,
+    BOOL result,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    UINT State);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS& value);
+
+void Encode_ID3D12DebugCommandList1_AssertResourceState(
+    format::HandleId wrapper_id,
+    BOOL result,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    UINT State);
+
+void Encode_ID3D12DebugCommandList1_SetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+    const void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugCommandList1_GetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+    void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugCommandList_AssertResourceState(
+    format::HandleId wrapper_id,
+    BOOL result,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    UINT State);
+
+void Encode_ID3D12DebugCommandList_SetFeatureMask(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_FEATURE Mask);
+
+void Encode_ID3D12DebugCommandList_GetFeatureMask(
+    format::HandleId wrapper_id,
+    D3D12_DEBUG_FEATURE result);
+
+void Encode_ID3D12DebugCommandList2_SetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+    const void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12DebugCommandList2_GetDebugParameter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
+    void* pData,
+    UINT DataSize);
+
+void Encode_ID3D12SharingContract_Present(
+    format::HandleId wrapper_id,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    HWND window);
+
+void Encode_ID3D12SharingContract_SharedFenceSignal(
+    format::HandleId wrapper_id,
+    ID3D12Fence* pFence,
+    UINT64 FenceValue);
+
+void Encode_ID3D12SharingContract_BeginCapturableWork(
+    format::HandleId wrapper_id,
+    REFGUID guid);
+
+void Encode_ID3D12SharingContract_EndCapturableWork(
+    format::HandleId wrapper_id,
+    REFGUID guid);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_MESSAGE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_INFO_QUEUE_FILTER_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_INFO_QUEUE_FILTER& value);
+
+void Encode_ID3D12InfoQueue_SetMessageCountLimit(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    UINT64 MessageCountLimit);
+
+void Encode_ID3D12InfoQueue_ClearStoredMessages(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12InfoQueue_GetMessage(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    UINT64 MessageIndex,
+    D3D12_MESSAGE* pMessage,
+    SIZE_T* pMessageByteLength);
+
+void Encode_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_GetNumStoredMessages(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_GetMessageCountLimit(
+    format::HandleId wrapper_id,
+    UINT64 result);
+
+void Encode_ID3D12InfoQueue_AddStorageFilterEntries(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter);
+
+void Encode_ID3D12InfoQueue_GetStorageFilter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter,
+    SIZE_T* pFilterByteLength);
+
+void Encode_ID3D12InfoQueue_ClearStorageFilter(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12InfoQueue_PushEmptyStorageFilter(
+    format::HandleId wrapper_id,
+    HRESULT result);
+
+void Encode_ID3D12InfoQueue_PushCopyOfStorageFilter(
+    format::HandleId wrapper_id,
+    HRESULT result);
+
+void Encode_ID3D12InfoQueue_PushStorageFilter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter);
+
+void Encode_ID3D12InfoQueue_PopStorageFilter(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12InfoQueue_GetStorageFilterStackSize(
+    format::HandleId wrapper_id,
+    UINT result);
+
+void Encode_ID3D12InfoQueue_AddRetrievalFilterEntries(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter);
+
+void Encode_ID3D12InfoQueue_GetRetrievalFilter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter,
+    SIZE_T* pFilterByteLength);
+
+void Encode_ID3D12InfoQueue_ClearRetrievalFilter(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12InfoQueue_PushEmptyRetrievalFilter(
+    format::HandleId wrapper_id,
+    HRESULT result);
+
+void Encode_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
+    format::HandleId wrapper_id,
+    HRESULT result);
+
+void Encode_ID3D12InfoQueue_PushRetrievalFilter(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_INFO_QUEUE_FILTER* pFilter);
+
+void Encode_ID3D12InfoQueue_PopRetrievalFilter(
+    format::HandleId wrapper_id);
+
+void Encode_ID3D12InfoQueue_GetRetrievalFilterStackSize(
+    format::HandleId wrapper_id,
+    UINT result);
+
+void Encode_ID3D12InfoQueue_AddMessage(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_MESSAGE_CATEGORY Category,
+    D3D12_MESSAGE_SEVERITY Severity,
+    D3D12_MESSAGE_ID ID,
+    LPCSTR pDescription);
+
+void Encode_ID3D12InfoQueue_AddApplicationMessage(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_MESSAGE_SEVERITY Severity,
+    LPCSTR pDescription);
+
+void Encode_ID3D12InfoQueue_SetBreakOnCategory(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_MESSAGE_CATEGORY Category,
+    BOOL bEnable);
+
+void Encode_ID3D12InfoQueue_SetBreakOnSeverity(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_MESSAGE_SEVERITY Severity,
+    BOOL bEnable);
+
+void Encode_ID3D12InfoQueue_SetBreakOnID(
+    format::HandleId wrapper_id,
+    HRESULT result,
+    D3D12_MESSAGE_ID ID,
+    BOOL bEnable);
+
+void Encode_ID3D12InfoQueue_GetBreakOnCategory(
+    format::HandleId wrapper_id,
+    BOOL result,
+    D3D12_MESSAGE_CATEGORY Category);
+
+void Encode_ID3D12InfoQueue_GetBreakOnSeverity(
+    format::HandleId wrapper_id,
+    BOOL result,
+    D3D12_MESSAGE_SEVERITY Severity);
+
+void Encode_ID3D12InfoQueue_GetBreakOnID(
+    format::HandleId wrapper_id,
+    BOOL result,
+    D3D12_MESSAGE_ID ID);
+
+void Encode_ID3D12InfoQueue_SetMuteDebugOutput(
+    format::HandleId wrapper_id,
+    BOOL bMute);
+
+void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
+    format::HandleId wrapper_id,
+    BOOL result);
 
 
 /*

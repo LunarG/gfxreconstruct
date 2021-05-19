@@ -63,6 +63,8 @@ class Dx12BaseGenerator(BaseGenerator):
         ],
     ]
 
+    NOT_ARRAY_DICT = {'D3D12_MESSAGE': ['pDescription']}
+
     # convert base type into the encode function name
     CONVERT_FUNCTION_LIST = [
         [['BYTE', 'byte', 'UINT8', 'unsigned char'], 'UInt8'],
@@ -114,6 +116,12 @@ class Dx12BaseGenerator(BaseGenerator):
         'D3D12CreateVersionedRootSignatureDeserializer':
         ['ppRootSignatureDeserializer']
     }
+
+    # Those classes inherit from IUnknow
+    NOT_FAMILY_CLASSES = [
+        'ID3D12Debug1', 'ID3D12Debug2', 'ID3D12DebugDevice1',
+        'ID3D12DebugCommandList1'
+    ]
 
     def __init__(
         self,
@@ -300,6 +308,13 @@ class Dx12BaseGenerator(BaseGenerator):
                             array_length += ('/sizeof ' + base_type)
                         elif array_length[-1] == ' ':
                             array_length = array_length[:-1]
+
+        if struct_name in self.NOT_ARRAY_DICT:
+            not_array_list = self.NOT_ARRAY_DICT[struct_name]
+            if name in not_array_list:
+                array_length = None
+                array_capacity = 0
+                array_dimension = 0
 
         return ValueInfo(
             name=name,

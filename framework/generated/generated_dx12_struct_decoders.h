@@ -39,6 +39,7 @@
 #include <dxgitype.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -1875,6 +1876,57 @@ struct Decoded_D3D_SHADER_MACRO
 
     StringDecoder Name;
     StringDecoder Definition;
+};
+
+struct Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS
+{
+    using struct_type = D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS;
+
+    D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR
+{
+    using struct_type = D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR;
+
+    D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS
+{
+    using struct_type = D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS;
+
+    D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_MESSAGE
+{
+    using struct_type = D3D12_MESSAGE;
+
+    D3D12_MESSAGE* decoded_value{ nullptr };
+
+    StringDecoder pDescription;
+};
+
+struct Decoded_D3D12_INFO_QUEUE_FILTER_DESC
+{
+    using struct_type = D3D12_INFO_QUEUE_FILTER_DESC;
+
+    D3D12_INFO_QUEUE_FILTER_DESC* decoded_value{ nullptr };
+
+    PointerDecoder<D3D12_MESSAGE_CATEGORY> pCategoryList;
+    PointerDecoder<D3D12_MESSAGE_SEVERITY> pSeverityList;
+    PointerDecoder<D3D12_MESSAGE_ID> pIDList;
+};
+
+struct Decoded_D3D12_INFO_QUEUE_FILTER
+{
+    using struct_type = D3D12_INFO_QUEUE_FILTER;
+
+    D3D12_INFO_QUEUE_FILTER* decoded_value{ nullptr };
+
+    Decoded_D3D12_INFO_QUEUE_FILTER_DESC* AllowList{ nullptr };
+    Decoded_D3D12_INFO_QUEUE_FILTER_DESC* DenyList{ nullptr };
 };
 
 struct Decoded_GUID

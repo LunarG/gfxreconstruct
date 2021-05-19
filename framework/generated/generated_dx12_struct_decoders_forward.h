@@ -275,6 +275,12 @@ struct Decoded_D3D12_SUBRESOURCE_DATA;
 struct Decoded_D3D12_MEMCPY_DEST;
 struct Decoded_D3D12_DISPATCH_MESH_ARGUMENTS;
 struct Decoded_D3D_SHADER_MACRO;
+struct Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS;
+struct Decoded_D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR;
+struct Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS;
+struct Decoded_D3D12_MESSAGE;
+struct Decoded_D3D12_INFO_QUEUE_FILTER_DESC;
+struct Decoded_D3D12_INFO_QUEUE_FILTER;
 struct Decoded_GUID;
 struct Decoded_tagRECT;
 struct Decoded_tagPOINT;
@@ -756,6 +762,22 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DIS
 **
 */
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D_SHADER_MACRO* wrapper);
+
+/*
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+**
+*/
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MESSAGE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INFO_QUEUE_FILTER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INFO_QUEUE_FILTER* wrapper);
 
 /*
 ** This part is generated from guiddef.h in Windows SDK: 10.0.19041.0

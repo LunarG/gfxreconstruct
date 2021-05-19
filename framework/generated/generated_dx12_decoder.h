@@ -465,6 +465,75 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3DDestructionNotifier_UnregisterDestructionCallback(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.19041.0
+**
+*/
+    size_t Decode_ID3D12Debug_EnableDebugLayer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug1_EnableDebugLayer(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug1_SetEnableGPUBasedValidation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug2_SetGPUBasedValidationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug3_SetEnableGPUBasedValidation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Debug3_SetGPUBasedValidationFlags(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice1_SetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice1_GetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice1_ReportLiveDeviceObjects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice_SetFeatureMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice_GetFeatureMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice_ReportLiveDeviceObjects(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice2_SetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugDevice2_GetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandQueue_AssertResourceState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList1_AssertResourceState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList1_SetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList1_GetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList_AssertResourceState(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList_SetFeatureMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList_GetFeatureMask(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList2_SetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DebugCommandList2_GetDebugParameter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12SharingContract_Present(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12SharingContract_SharedFenceSignal(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12SharingContract_BeginCapturableWork(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12SharingContract_EndCapturableWork(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_SetMessageCountLimit(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_ClearStoredMessages(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetMessage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetNumStoredMessages(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetMessageCountLimit(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_AddStorageFilterEntries(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_ClearStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushEmptyStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushCopyOfStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PopStorageFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetStorageFilterStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_AddRetrievalFilterEntries(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_ClearRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushEmptyRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushCopyOfRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PushRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_PopRetrievalFilter(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetRetrievalFilterStackSize(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_AddMessage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_AddApplicationMessage(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_SetBreakOnCategory(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_SetBreakOnSeverity(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_SetBreakOnID(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetBreakOnCategory(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetBreakOnSeverity(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetBreakOnID(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_SetMuteDebugOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12InfoQueue_GetMuteDebugOutput(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
+
+/*
 ** This part is generated from Unknwnbase.h in Windows SDK: 10.0.19041.0
 **
 */
