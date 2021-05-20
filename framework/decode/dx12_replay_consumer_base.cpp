@@ -37,6 +37,28 @@ constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
 
+template <typename T>
+T* GetExtraInfo(DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
+
+template <typename T, typename U>
+void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_info)
+{
+    auto object_info = static_cast<DxObjectInfo*>(decoder->GetConsumerData(0));
+    assert(object_info != nullptr);
+
+    object_info->extra_info = std::move(extra_info);
+}
+
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options)
 {
@@ -78,7 +100,7 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
         auto copy_size      = static_cast<size_t>(size);
-        auto mapped_pointer = reinterpret_cast<uint8_t*>(entry->second) + offset;
+        auto mapped_pointer = static_cast<uint8_t*>(entry->second) + offset;
 
         util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
     }
@@ -290,7 +312,7 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
 
             if (SUCCEEDED(result))
             {
-                auto     object_info = reinterpret_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+                auto     object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
                 auto     meta_info   = desc->GetMetaStructPointer();
                 uint64_t hwnd_id     = 0;
 
@@ -386,10 +408,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
-        auto object_info = reinterpret_cast<DxObjectInfo*>(device->GetConsumerData(0));
-        assert(object_info != nullptr);
-
-        object_info->extra_info = std::make_unique<D3D12DeviceInfo>();
+        SetExtraInfo(device, std::make_unique<D3D12DeviceInfo>());
     }
 
     return replay_result;
@@ -435,10 +454,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
             }
         }
 
-        auto object_info = reinterpret_cast<DxObjectInfo*>(command_queue->GetConsumerData(0));
-        assert(object_info != nullptr);
-
-        object_info->extra_info = std::move(command_queue_info);
+        SetExtraInfo(command_queue, std::move(command_queue_info));
     }
 
     return replay_result;
@@ -467,22 +483,13 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
         auto heap_info             = std::make_unique<D3D12DescriptorHeapInfo>();
         heap_info->descriptor_type = desc_pointer->Type;
 
-        if (replay_object_info->extra_info != nullptr)
+        auto device_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+        if (device_info != nullptr)
         {
-            auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info.get());
-            assert(device_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo);
-
             heap_info->replay_increments = device_info->replay_increments;
         }
-        else
-        {
-            GFXRECON_LOG_FATAL("ID3D12Device object does not have an associated info structure");
-        }
 
-        auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
-        assert(object_info != nullptr);
-
-        object_info->extra_info = std::move(heap_info);
+        SetExtraInfo(heap, std::move(heap_info));
     }
 
     return replay_result;
@@ -509,10 +516,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateFence(DxObjectInfo*               
         auto fence_info                 = std::make_unique<D3D12FenceInfo>();
         fence_info->last_signaled_value = initial_value;
 
-        auto object_info = reinterpret_cast<DxObjectInfo*>(fence->GetConsumerData(0));
-        assert(object_info != nullptr);
-
-        object_info->extra_info = std::move(fence_info);
+        SetExtraInfo(fence, std::move(fence_info));
     }
 
     return replay_result;
@@ -529,16 +533,10 @@ UINT Dx12ReplayConsumerBase::OverrideGetDescriptorHandleIncrementSize(DxObjectIn
     auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
     auto replay_result = replay_object->GetDescriptorHandleIncrementSize(descriptor_heap_type);
 
-    if (replay_object_info->extra_info != nullptr)
+    auto device_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    if (device_info != nullptr)
     {
-        auto device_info = reinterpret_cast<D3D12DeviceInfo*>(replay_object_info->extra_info.get());
-        assert(device_info->extra_info_type == DxObjectInfoType::kID3D12DeviceInfo);
-
         (*device_info->replay_increments)[descriptor_heap_type] = replay_result;
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("ID3D12Device object does not have an associated info structure");
     }
 
     return replay_result;
@@ -556,20 +554,14 @@ Dx12ReplayConsumerBase::OverrideGetCPUDescriptorHandleForHeapStart(
 
     auto replay_result = replay_object->GetCPUDescriptorHandleForHeapStart();
 
-    if (replay_object_info->extra_info != nullptr)
+    auto heap_info = GetExtraInfo<D3D12DescriptorHeapInfo>(replay_object_info);
+    if (heap_info != nullptr)
     {
-        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info.get());
-        assert(heap_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo);
-
         // Only initialize on the first call.
         if (heap_info->replay_cpu_addr_begin == kNullCpuAddress)
         {
             heap_info->replay_cpu_addr_begin = replay_result.ptr;
         }
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("ID3D12DescriptorHeap object does not have an associated info structure");
     }
 
     return replay_result;
@@ -587,20 +579,14 @@ Dx12ReplayConsumerBase::OverrideGetGPUDescriptorHandleForHeapStart(
 
     auto replay_result = replay_object->GetGPUDescriptorHandleForHeapStart();
 
-    if (replay_object_info->extra_info != nullptr)
+    auto heap_info = GetExtraInfo<D3D12DescriptorHeapInfo>(replay_object_info);
+    if (heap_info != nullptr)
     {
-        auto heap_info = reinterpret_cast<D3D12DescriptorHeapInfo*>(replay_object_info->extra_info.get());
-        assert(heap_info->extra_info_type == DxObjectInfoType::kID3D12DescriptorHeapInfo);
-
         // Only initialize on the first call.
         if (heap_info->replay_gpu_addr_begin == kNullGpuAddress)
         {
             heap_info->replay_gpu_addr_begin = replay_result.ptr;
         }
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("ID3D12DescriptorHeap object does not have an associated info structure");
     }
 
     return replay_result;
@@ -624,8 +610,7 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
             replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
         }
 
-        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
-        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
+        auto resource_info = GetExtraInfo<D3D12ResourceInfo>(replay_object_info);
 
         // Only initialize on the first call.
         if (resource_info->capture_address_ == 0)
@@ -724,10 +709,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddr
             auto heap_info                 = std::make_unique<D3D12HeapInfo>();
             heap_info->external_allocation = entry->second;
 
-            auto object_info = reinterpret_cast<DxObjectInfo*>(heap->GetConsumerData(0));
-            assert(object_info != nullptr);
-
-            object_info->extra_info = std::move(heap_info);
+            SetExtraInfo(heap, std::move(heap_info));
         }
         else
         {
@@ -770,9 +752,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
             replay_object_info->extra_info = std::make_unique<D3D12ResourceInfo>();
         }
 
-        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
-        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
-
+        auto  resource_info   = GetExtraInfo<D3D12ResourceInfo>(replay_object_info);
         auto& memory_info     = resource_info->mapped_memory_info[subresource];
         memory_info.memory_id = *id_pointer;
         ++(memory_info.count);
@@ -791,11 +771,9 @@ void Dx12ReplayConsumerBase::OverrideResourceUnmap(DxObjectInfo*                
 
     auto replay_object = static_cast<ID3D12Resource*>(replay_object_info->object);
 
-    if (replay_object_info->extra_info != nullptr)
+    auto resource_info = GetExtraInfo<D3D12ResourceInfo>(replay_object_info);
+    if (resource_info != nullptr)
     {
-        auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(replay_object_info->extra_info.get());
-        assert(resource_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo);
-
         auto entry = resource_info->mapped_memory_info.find(subresource);
         if (entry != resource_info->mapped_memory_info.end())
         {
@@ -869,11 +847,9 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
 
     if (options_.sync_queue_submissions && !command_lists->IsNull())
     {
-        if (replay_object_info->extra_info != nullptr)
+        auto command_queue_info = GetExtraInfo<D3D12CommandQueueInfo>(replay_object_info);
+        if (command_queue_info != nullptr)
         {
-            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(replay_object_info->extra_info.get());
-            assert(command_queue_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
-
             auto sync_event = command_queue_info->sync_event;
             if (sync_event != nullptr)
             {
@@ -893,12 +869,12 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
                 {
                     // There are outstanding waits on the queue.  The sync signal won't be processed until the
                     // outstanding waits are signaled, so the sync signal will be added to the pending operation queue.
-                    auto fence_info =
-                        reinterpret_cast<D3D12FenceInfo*>(command_queue_info->sync_fence_info.extra_info.get());
-                    assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
-
-                    auto& waiting_objects = fence_info->waiting_objects[command_queue_info->sync_value];
-                    waiting_objects.wait_events.push_back(sync_event);
+                    auto fence_info = GetExtraInfo<D3D12FenceInfo>(&command_queue_info->sync_fence_info);
+                    if (fence_info != nullptr)
+                    {
+                        auto& waiting_objects = fence_info->waiting_objects[command_queue_info->sync_value];
+                        waiting_objects.wait_events.push_back(sync_event);
+                    }
 
                     command_queue_info->pending_events.emplace_back(QueueSyncEventInfo{
                         false, false, &command_queue_info->sync_fence_info, command_queue_info->sync_value });
@@ -908,11 +884,6 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
             {
                 GFXRECON_LOG_ERROR("Failed to create synchronization event object for the replay --sync option");
             }
-        }
-        else
-        {
-            GFXRECON_LOG_FATAL("ID3D12CommandList object %" PRId64 " does not have an associated info structure",
-                               replay_object_info->capture_id);
         }
     }
 }
@@ -990,11 +961,9 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
     auto replay_object = static_cast<ID3D12Fence*>(replay_object_info->object);
     auto replay_result = replay_object->GetCompletedValue();
 
-    if (replay_object_info->extra_info != nullptr)
+    auto fence_info = GetExtraInfo<D3D12FenceInfo>(replay_object_info);
+    if (fence_info != nullptr)
     {
-        auto fence_info = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info.get());
-        assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
-
         if (original_result > replay_result)
         {
             auto event_handle = GetEventObject(kInternalEventId, true);
@@ -1014,11 +983,6 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
                 }
             }
         }
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
-                           replay_object_info->capture_id);
     }
 
     return original_result;
@@ -1047,11 +1011,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
 
     if (SUCCEEDED(replay_result) && (event_object != nullptr))
     {
-        if (replay_object_info->extra_info != nullptr)
+        auto fence_info = GetExtraInfo<D3D12FenceInfo>(replay_object_info);
+        if (fence_info != nullptr)
         {
-            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(replay_object_info->extra_info.get());
-            assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
-
             if (value <= fence_info->last_signaled_value)
             {
                 // The value has already been signaled, so wait operations can be processed immediately.
@@ -1063,11 +1025,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
                 auto& waiting_objects = fence_info->waiting_objects[value];
                 waiting_objects.wait_events.push_back(event_object);
             }
-        }
-        else
-        {
-            GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
-                               replay_object_info->capture_id);
         }
     }
 
@@ -1113,25 +1070,18 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
 
     if (SUCCEEDED(replay_result) && !surface->IsNull())
     {
-        if (replay_object_info->extra_info != nullptr)
+        auto swapchain_info = GetExtraInfo<DxgiSwapchainInfo>(replay_object_info);
+        if (swapchain_info != nullptr)
         {
-            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(replay_object_info->extra_info.get());
-            assert(swapchain_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo);
-
             if (swapchain_info->images[buffer] == nullptr)
             {
-                auto object_info = reinterpret_cast<DxObjectInfo*>(surface->GetConsumerData(0));
+                auto object_info = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
                 ++object_info->extra_ref;
                 swapchain_info->images[buffer] = object_info;
             }
-        }
-        else
-        {
-            GFXRECON_LOG_FATAL("IDXGISwapChain object %" PRId64 " does not have an associated info structure",
-                               replay_object_info->capture_id);
         }
     }
 
@@ -1318,7 +1268,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
 
             if (SUCCEEDED(result))
             {
-                auto object_info = reinterpret_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+                auto object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
                 SetSwapchainInfo(object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount);
             }
             else
@@ -1375,11 +1325,9 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
                                                   uint32_t      width,
                                                   uint32_t      height)
 {
-    if ((info != nullptr) && (info->extra_info != nullptr))
+    auto swapchain_info = GetExtraInfo<DxgiSwapchainInfo>(info);
+    if (swapchain_info != nullptr)
     {
-        auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(info->extra_info.get());
-        assert(swapchain_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo);
-
         // Clear the old info entries from the object info table and reset the swapchain info's image count.
         ReleaseSwapchainImages(swapchain_info);
 
@@ -1388,11 +1336,6 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
 
         // Resize the swapchain's window.
         swapchain_info->window->SetSize(width, height);
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("IDXGISwapChain object %" PRId64 " does not have an associated info structure",
-                           info->capture_id);
     }
 }
 
@@ -1427,8 +1370,8 @@ void Dx12ReplayConsumerBase::WaitIdle()
             auto extra_info = info.extra_info.get();
             if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
             {
-                auto queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(extra_info);
-                auto queue      = reinterpret_cast<ID3D12CommandQueue*>(info.object);
+                auto queue_info = static_cast<D3D12CommandQueueInfo*>(extra_info);
+                auto queue      = static_cast<ID3D12CommandQueue*>(info.object);
                 auto sync_event = GetEventObject(kInternalEventId, true);
 
                 if (sync_event != nullptr)
@@ -1470,7 +1413,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         auto extra_info = info->extra_info.get();
         if (extra_info->extra_info_type == DxObjectInfoType::kID3D12ResourceInfo)
         {
-            auto resource_info = reinterpret_cast<D3D12ResourceInfo*>(extra_info);
+            auto resource_info = static_cast<D3D12ResourceInfo*>(extra_info);
 
             if (resource_info->capture_address_ != 0)
             {
@@ -1485,7 +1428,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
         {
-            auto command_queue_info = reinterpret_cast<D3D12CommandQueueInfo*>(extra_info);
+            auto command_queue_info = static_cast<D3D12CommandQueueInfo*>(extra_info);
             if (command_queue_info->sync_event != nullptr)
             {
                 CloseHandle(command_queue_info->sync_event);
@@ -1493,7 +1436,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12HeapInfo)
         {
-            auto heap_info = reinterpret_cast<D3D12HeapInfo*>(extra_info);
+            auto heap_info = static_cast<D3D12HeapInfo*>(extra_info);
 
             if (heap_info->external_allocation != nullptr)
             {
@@ -1502,7 +1445,7 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kIDxgiSwapchainInfo)
         {
-            auto swapchain_info = reinterpret_cast<DxgiSwapchainInfo*>(extra_info);
+            auto swapchain_info = static_cast<DxgiSwapchainInfo*>(extra_info);
 
             if (release_extra_refs)
             {
@@ -1573,174 +1516,126 @@ void Dx12ReplayConsumerBase::DestroyHeapAllocations()
 
 void Dx12ReplayConsumerBase::ProcessQueueSignal(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value)
 {
-    if ((queue_info != nullptr) && (fence_info != nullptr))
+    auto queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(queue_info);
+    if (queue_extra_info != nullptr)
     {
-        if (queue_info->extra_info != nullptr)
+        // If the queue is empty, there are no pending wait operations and the fence signal operation can be
+        // processed immediately.
+        if (queue_extra_info->pending_events.empty())
         {
-            auto queue_extra_info = static_cast<D3D12CommandQueueInfo*>(queue_info->extra_info.get());
-            assert(queue_extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
-
-            // If the queue is empty, there are no pending wait operations and the fence signal operation can be
-            // processed immediately.
-            if (queue_extra_info->pending_events.empty())
-            {
-                ProcessFenceSignal(fence_info, value);
-            }
-            else
-            {
-                // Add an entry for the signal operation to the queue, to be processed after any pending wait operations
-                // complete.
-                queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ false, false, fence_info, value });
-            }
+            ProcessFenceSignal(fence_info, value);
         }
         else
         {
-            GFXRECON_LOG_FATAL("ID3D12CommandQueue object %" PRId64 " does not have an associated info structure",
-                               queue_info->capture_id);
+            // Add an entry for the signal operation to the queue, to be processed after any pending wait operations
+            // complete.
+            queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ false, false, fence_info, value });
         }
     }
 }
 
 void Dx12ReplayConsumerBase::ProcessQueueWait(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value)
 {
-    if ((queue_info != nullptr) && (fence_info != nullptr))
+    auto queue_extra_info = GetExtraInfo<D3D12CommandQueueInfo>(queue_info);
+    auto fence_extra_info = GetExtraInfo<D3D12FenceInfo>(fence_info);
+    if ((queue_extra_info != nullptr) && (fence_extra_info != nullptr))
     {
-        if ((queue_info->extra_info != nullptr) && (fence_info->extra_info != nullptr))
+        // If the value has not already been signaled, a pending wait operation needs to be added to the queue.
+        if (value > fence_extra_info->last_signaled_value)
         {
-            auto fence_extra_info = static_cast<D3D12FenceInfo*>(fence_info->extra_info.get());
-            assert(fence_extra_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
+            // Add the an entry to the operation queue for the wait.  Signal operations that are added to the queue
+            // after the wait entry will not be processed until after the wait is processed.
+            queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ true, false, fence_info, value });
 
-            // If the value has not already been signaled, a pending wait operation needs to be added to the queue.
-            if (value > fence_extra_info->last_signaled_value)
-            {
-                auto queue_extra_info = static_cast<D3D12CommandQueueInfo*>(queue_info->extra_info.get());
-                assert(queue_extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
-
-                // Add the an entry to the operation queue for the wait.  Signal operations that are added to the queue
-                // after the wait entry will not be processed until after the wait is processed.
-                queue_extra_info->pending_events.emplace_back(QueueSyncEventInfo{ true, false, fence_info, value });
-
-                // Add the pointer to the queue info structure to the fence's pending signal list so that the queue can
-                // be notified when the fence receives a signal operation for the current value.
-                auto& waiting_objects = fence_extra_info->waiting_objects[value];
-                waiting_objects.wait_queues.push_back(queue_info);
-            }
-        }
-        else
-        {
-            if (queue_info->extra_info == nullptr)
-            {
-                GFXRECON_LOG_FATAL("ID3D12CommandQueue object %" PRId64 " does not have an associated info structure",
-                                   queue_info->capture_id);
-            }
-
-            if (fence_info->extra_info == nullptr)
-            {
-                GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
-                                   fence_info->capture_id);
-            }
+            // Add the pointer to the queue info structure to the fence's pending signal list so that the queue can
+            // be notified when the fence receives a signal operation for the current value.
+            auto& waiting_objects = fence_extra_info->waiting_objects[value];
+            waiting_objects.wait_queues.push_back(queue_info);
         }
     }
 }
 
 void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t value)
 {
-    if (info != nullptr)
+    auto fence_info = GetExtraInfo<D3D12FenceInfo>(info);
+    if (fence_info != nullptr)
     {
-        if (info->extra_info != nullptr)
+        auto entry = fence_info->waiting_objects.find(value);
+        if (entry != fence_info->waiting_objects.end())
         {
-            auto fence_info = reinterpret_cast<D3D12FenceInfo*>(info->extra_info.get());
-            assert(fence_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
+            auto range_begin = entry;
+            auto range_end   = std::next(entry);
 
-            auto entry = fence_info->waiting_objects.find(value);
-            if (entry != fence_info->waiting_objects.end())
+            if (value > fence_info->last_signaled_value)
             {
-                auto range_begin = entry;
-                auto range_end   = std::next(entry);
-
-                if (value > fence_info->last_signaled_value)
-                {
-                    range_begin = fence_info->waiting_objects.upper_bound(fence_info->last_signaled_value);
-                }
-
-                for (auto iter = range_begin; iter != range_end; ++iter)
-                {
-                    auto& waiting_objects = iter->second;
-
-                    for (auto event_object : waiting_objects.wait_events)
-                    {
-                        WaitForFenceEvent(info->capture_id, event_object);
-                    }
-
-                    for (auto queue_info : waiting_objects.wait_queues)
-                    {
-                        SignalWaitingQueue(queue_info, info, value);
-                    }
-                }
-
-                fence_info->waiting_objects.erase(range_begin, range_end);
+                range_begin = fence_info->waiting_objects.upper_bound(fence_info->last_signaled_value);
             }
 
-            fence_info->last_signaled_value = value;
+            for (auto iter = range_begin; iter != range_end; ++iter)
+            {
+                auto& waiting_objects = iter->second;
+
+                for (auto event_object : waiting_objects.wait_events)
+                {
+                    WaitForFenceEvent(info->capture_id, event_object);
+                }
+
+                for (auto queue_info : waiting_objects.wait_queues)
+                {
+                    SignalWaitingQueue(queue_info, info, value);
+                }
+            }
+
+            fence_info->waiting_objects.erase(range_begin, range_end);
         }
-        else
-        {
-            GFXRECON_LOG_FATAL("ID3D12Fence object %" PRId64 " does not have an associated info structure",
-                               info->capture_id);
-        }
+
+        fence_info->last_signaled_value = value;
     }
 }
 
 void Dx12ReplayConsumerBase::SignalWaitingQueue(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value)
 {
-    if ((queue_info != nullptr) && (fence_info != nullptr))
+    auto fence_extra_info = static_cast<D3D12FenceInfo*>(fence_info->extra_info.get());
+    auto queue_extra_info = static_cast<D3D12CommandQueueInfo*>(queue_info->extra_info.get());
+    if ((queue_extra_info != nullptr) && (fence_extra_info != nullptr))
     {
-        if ((queue_info->extra_info != nullptr) && (fence_info->extra_info != nullptr))
+        // Process any pending entries in the wait queue until reaching a wait event with a value that is greater
+        // than the specified value.
+        auto& event_queue = queue_extra_info->pending_events;
+
+        // Do a first pass of the queue entries, setting the outstanding wait entries for the current fence and
+        // value to signaled.
+        for (auto& entry : event_queue)
         {
-            auto fence_extra_info = static_cast<D3D12FenceInfo*>(fence_info->extra_info.get());
-            assert(fence_extra_info->extra_info_type == DxObjectInfoType::kID3D12FenceInfo);
-
-            auto queue_extra_info = static_cast<D3D12CommandQueueInfo*>(queue_info->extra_info.get());
-            assert(queue_extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo);
-
-            // Process any pending entries in the wait queue until reaching a wait event with a value that is greater
-            // than the specified value.
-            auto& event_queue = queue_extra_info->pending_events;
-
-            // Do a first pass of the queue entries, setting the outstanding wait entries for the current fence and
-            // value to signaled.
-            for (auto& entry : event_queue)
+            if (entry.is_wait && (entry.fence_info == fence_info) && (entry.value == value))
             {
-                if (entry.is_wait && (entry.fence_info == fence_info) && (entry.value == value))
-                {
-                    entry.is_signaled = true;
-                }
+                entry.is_signaled = true;
             }
+        }
 
-            // Process entries in the queue until we encounter a wait operation that is not yet signaled.
-            while (!event_queue.empty())
+        // Process entries in the queue until we encounter a wait operation that is not yet signaled.
+        while (!event_queue.empty())
+        {
+            auto& front = event_queue.front();
+
+            if (front.is_wait)
             {
-                auto& front = event_queue.front();
-
-                if (front.is_wait)
+                if (!front.is_signaled)
                 {
-                    if (!front.is_signaled)
-                    {
-                        break;
-                    }
-
-                    event_queue.pop_front();
+                    break;
                 }
-                else
-                {
-                    // If this is a signal operation, we can schedule the signal with the fence.
-                    auto signal_fence_info = front.fence_info;
-                    auto signal_value      = front.value;
 
-                    event_queue.pop_front();
+                event_queue.pop_front();
+            }
+            else
+            {
+                // If this is a signal operation, we can schedule the signal with the fence.
+                auto signal_fence_info = front.fence_info;
+                auto signal_value      = front.value;
 
-                    ProcessFenceSignal(front.fence_info, front.value);
-                }
+                event_queue.pop_front();
+
+                ProcessFenceSignal(front.fence_info, front.value);
             }
         }
     }

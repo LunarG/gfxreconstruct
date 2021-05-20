@@ -107,7 +107,9 @@ struct DxObjectInfo
 
 struct DxgiSwapchainInfo : DxObjectExtraInfo
 {
-    DxgiSwapchainInfo() : DxObjectExtraInfo(DxObjectInfoType::kIDxgiSwapchainInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kIDxgiSwapchainInfo;
+    static constexpr char             kObjectType[] = "IDXGISwapChain";
+    DxgiSwapchainInfo() : DxObjectExtraInfo(kType) {}
 
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
@@ -118,7 +120,9 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
 struct D3D12CommandQueueInfo : DxObjectExtraInfo
 {
-    D3D12CommandQueueInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12CommandQueueInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12CommandQueueInfo;
+    static constexpr char             kObjectType[] = "ID3D12CommandQueue";
+    D3D12CommandQueueInfo() : DxObjectExtraInfo(kType) {}
 
     std::deque<QueueSyncEventInfo> pending_events;
 
@@ -130,14 +134,18 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
 
 struct D3D12DeviceInfo : DxObjectExtraInfo
 {
-    D3D12DeviceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12DeviceInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DeviceInfo;
+    static constexpr char             kObjectType[] = "ID3D12Device";
+    D3D12DeviceInfo() : DxObjectExtraInfo(kType) {}
 
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
 };
 
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 {
-    D3D12DescriptorHeapInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12DescriptorHeapInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DescriptorHeapInfo;
+    static constexpr char             kObjectType[] = "ID3D12DescriptorHeap";
+    D3D12DescriptorHeapInfo() : DxObjectExtraInfo(kType) {}
 
     std::shared_ptr<DescriptorIncrements> replay_increments;
     D3D12_DESCRIPTOR_HEAP_TYPE            descriptor_type{};
@@ -147,7 +155,9 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 
 struct D3D12FenceInfo : DxObjectExtraInfo
 {
-    D3D12FenceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12FenceInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12FenceInfo;
+    static constexpr char             kObjectType[] = "ID3D12FenceInfo";
+    D3D12FenceInfo() : DxObjectExtraInfo(kType) {}
 
     uint64_t                               last_signaled_value{ 0 };
     std::map<uint64_t, FenceValueSyncInfo> waiting_objects;
@@ -155,14 +165,18 @@ struct D3D12FenceInfo : DxObjectExtraInfo
 
 struct D3D12HeapInfo : DxObjectExtraInfo
 {
-    D3D12HeapInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12HeapInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12HeapInfo;
+    static constexpr char             kObjectType[] = "ID3D12HeapInfo";
+    D3D12HeapInfo() : DxObjectExtraInfo(kType) {}
 
     void* external_allocation{ nullptr };
 };
 
 struct D3D12ResourceInfo : DxObjectExtraInfo
 {
-    D3D12ResourceInfo() : DxObjectExtraInfo(DxObjectInfoType::kID3D12ResourceInfo) {}
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12ResourceInfo;
+    static constexpr char             kObjectType[] = "ID3D12Resource";
+    D3D12ResourceInfo() : DxObjectExtraInfo(kType) {}
 
     std::unordered_map<uint32_t, MappedMemoryInfo> mapped_memory_info; ///< Map subresource index to mapped memory info.
     uint64_t                                       capture_address_{ 0 }; ///< Capture GPU VA.
