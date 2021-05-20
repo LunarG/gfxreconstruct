@@ -1002,20 +1002,7 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
             if (event_handle != nullptr)
             {
                 replay_object->SetEventOnCompletion(original_result, event_handle);
-                auto wait_result = WaitForSingleObject(event_handle, kDefaultWaitTimeout);
-
-                if (wait_result == WAIT_TIMEOUT)
-                {
-                    GFXRECON_LOG_WARNING("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization",
-                                         replay_object_info->capture_id);
-                }
-                else if (FAILED(wait_result))
-                {
-                    GFXRECON_LOG_WARNING("Wait operation failed with error 0x%x for ID3D12Fence object %" PRId64
-                                         " synchronization",
-                                         wait_result,
-                                         replay_object_info->capture_id);
-                }
+                WaitForFenceEvent(replay_object_info->capture_id, event_handle);
             }
         }
     }
@@ -1059,20 +1046,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
             if (value <= fence_info->last_signaled_value)
             {
                 // The value has already been signaled, so wait operations can be processed immediately.
-                auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
-
-                if (wait_result == WAIT_TIMEOUT)
-                {
-                    GFXRECON_LOG_WARNING("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization",
-                                         replay_object_info->capture_id);
-                }
-                else if (FAILED(wait_result))
-                {
-                    GFXRECON_LOG_WARNING("Wait operation failed with error 0x%x for ID3D12Fence object %" PRId64
-                                         " synchronization",
-                                         wait_result,
-                                         replay_object_info->capture_id);
-                }
+                WaitForFenceEvent(replay_object_info->capture_id, event_object);
             }
             else
             {
@@ -1692,21 +1666,7 @@ void Dx12ReplayConsumerBase::ProcessFenceSignal(DxObjectInfo* info, uint64_t val
 
                     for (auto event_object : waiting_objects.wait_events)
                     {
-                        auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
-
-                        if (wait_result == WAIT_TIMEOUT)
-                        {
-                            GFXRECON_LOG_WARNING("Wait operation timed out for ID3D12Fence object %" PRId64
-                                                 " synchronization",
-                                                 info->capture_id);
-                        }
-                        else if (FAILED(wait_result))
-                        {
-                            GFXRECON_LOG_WARNING("Wait operation failed with error 0x%x for ID3D12Fence object %" PRId64
-                                                 " synchronization",
-                                                 wait_result,
-                                                 info->capture_id);
-                        }
+                        WaitForFenceEvent(info->capture_id, event_object);
                     }
 
                     for (auto queue_info : waiting_objects.wait_queues)
@@ -1810,6 +1770,22 @@ HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
     }
 
     return event_object;
+}
+
+void Dx12ReplayConsumerBase::WaitForFenceEvent(format::HandleId fence_id, HANDLE event_object)
+{
+    auto wait_result = WaitForSingleObject(event_object, kDefaultWaitTimeout);
+
+    if (wait_result == WAIT_TIMEOUT)
+    {
+        GFXRECON_LOG_WARNING("Wait operation timed out for ID3D12Fence object %" PRId64 " synchronization", fence_id);
+    }
+    else if (FAILED(wait_result))
+    {
+        GFXRECON_LOG_WARNING("Wait operation failed with error 0x%x for ID3D12Fence object %" PRId64 " synchronization",
+                             wait_result,
+                             fence_id);
+    }
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

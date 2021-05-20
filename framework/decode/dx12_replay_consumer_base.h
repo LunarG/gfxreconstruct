@@ -370,6 +370,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     HANDLE GetEventObject(uint64_t event_id, bool reset);
 
+    void WaitForFenceEvent(format::HandleId fence_id, HANDLE event);
+
   private:
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;
