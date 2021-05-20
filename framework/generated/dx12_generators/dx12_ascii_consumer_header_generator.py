@@ -31,11 +31,23 @@ class Dx12AsciiConsumerHeaderGenerator(Dx12ConsumerHeaderGenerator):
     def generate_feature(self):
         """Methond override."""
         Dx12BaseGenerator.generate_feature(self)
+        self.write_struct_functions()
         self.write_dx12_consumer_class('Ascii')
 
     def write_include(self):
         code = ("\n" "#include \"decode/dx12_ascii_consumer_base.h\"\n" "\n")
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info):
+    def get_consumer_function_body(self, class_name, method_info, return_type):
         return ';'
+
+    def write_struct_functions(self):
+        struct_dict = self.source_dict['struct_dict']
+
+        for k, v in struct_dict.items():
+            if self.is_struct_black_listed(k):
+                continue
+            code = 'void WriteStructString(std::ostringstream& oss, const Decoded_{}* value, const char* indent, const bool prefix = false, const bool output = false);\n'.format(
+                k
+            )
+            write(code, file=self.outFile)

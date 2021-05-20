@@ -90,7 +90,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         )
         write(code, file=self.outFile)
 
-    def get_consumer_function_body(self, class_name, method_info):
+    def get_consumer_function_body(self, class_name, method_info, return_type):
         return '{}'
 
     def change_param_type(self, param):
@@ -174,7 +174,7 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
                 _class_name,
                 method_info['name'],
                 parameters,
-                self.get_consumer_function_body(class_name, method_info))
+                self.get_consumer_function_body(class_name, method_info, rtn_type))
         return code
 
     def write_constructor_class(self, consumer_type):

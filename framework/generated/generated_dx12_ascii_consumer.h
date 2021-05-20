@@ -35,6 +35,462 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_FRAME_STATISTICS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MAPPED_RECT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_LUID* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTPUT_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SHARED_RESOURCE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SURFACE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DISPLAY_COLOR_SPACE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_MOVE_RECT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_POINTER_POSITION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTDUPL_FRAME_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MODE_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_PRESENT_PARAMETERS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC2* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MATRIX_3X2_F* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_FRAME_STATISTICS_MEDIA* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_HDR_METADATA_HDR10* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_HDR_METADATA_HDR10PLUS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_ADAPTER_DESC3* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_OUTPUT_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_RATIONAL* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_SAMPLE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_RGB* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3DCOLORVALUE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_GAMMA_CONTROL* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MODE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_JPEG_QUANTIZATION_TABLE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMMAND_QUEUE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INPUT_ELEMENT_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SO_DECLARATION_ENTRY* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEWPORT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BOX* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCILOP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_TARGET_BLEND_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BLEND_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RASTERIZER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SHADER_BYTECODE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STREAM_OUTPUT_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INPUT_LAYOUT_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_CACHED_PIPELINE_STATE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RT_FORMAT_ARRAY* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SHADER_MODEL* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_FORMAT_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SHADER_CACHE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_SERIALIZATION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_CROSS_NODE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HEAP_PROPERTIES* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HEAP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MIP_REGION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEPTH_STENCIL_VALUE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RANGE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RANGE_UINT64* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_RANGE_UINT64* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILED_RESOURCE_COORDINATE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILE_REGION_SIZE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_TILING* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TILE_SHAPE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PACKED_MIP_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_TRANSITION_BARRIER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALIASING_BARRIER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_UAV_BARRIER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_FOOTPRINT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PLACED_SUBRESOURCE_FOOTPRINT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SAMPLE_POSITION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEW_INSTANCE_LOCATION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VIEW_INSTANCING_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEXCUBE_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEXCUBE_ARRAY_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_SRV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SAMPLER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_UAV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUFFER_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX3D_RTV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX1D_ARRAY_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2D_ARRAY_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_TEX2DMS_ARRAY_DSV* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_HEAP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_RANGE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_CONSTANTS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STATIC_SAMPLER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_SIGNATURE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DESCRIPTOR_RANGE1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR_TABLE1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIPTOR1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_SIGNATURE_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISCARD_REGION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_HEAP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_DATA_PIPELINE_STATISTICS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_DATA_SO_STATISTICS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRAW_ARGUMENTS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRAW_INDEXED_ARGUMENTS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_ARGUMENTS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_VERTEX_BUFFER_VIEW* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INDEX_BUFFER_VIEW* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMMAND_SIGNATURE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_META_COMMAND_PARAMETER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_META_COMMAND_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_STATE_OBJECT_CONFIG* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GLOBAL_ROOT_SIGNATURE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_LOCAL_ROOT_SIGNATURE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_NODE_MASK* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXPORT_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_LIBRARY_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXISTING_COLLECTION_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_HIT_GROUP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_SHADER_CONFIG* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_AABB* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCRUMB_NODE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_BREADCRUMB_CONTEXT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCRUMB_NODE1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_ALLOCATION_NODE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_ALLOCATION_NODE1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_RAYS_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_SUBRESOURCE_DATA* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MEMCPY_DEST* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISPATCH_MESH_ARGUMENTS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D_SHADER_MACRO* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_MESSAGE* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_FILTER_DESC* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_INFO_QUEUE_FILTER* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_GUID* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_tagRECT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded_tagPOINT* value, const char* indent, const bool prefix = false, const bool output = false);
+
+void WriteStructString(std::ostringstream& oss, const Decoded__SECURITY_ATTRIBUTES* value, const char* indent, const bool prefix = false, const bool output = false);
+
 class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
 {
   public:
