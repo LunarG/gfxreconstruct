@@ -136,17 +136,24 @@ find_package(LZ4)
 find_package(ZSTD)
 if(UNIX)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
 
     if(BUILD_WSI_XCB_SUPPORT)
         find_package(XCB)
     endif()
-    find_package(WAYLAND)
+
+    if(BUILD_WSI_WAYLAND_SUPPORT)
+        find_package(WAYLAND)
+    endif()
 endif(UNIX)
 
 # CMake provided find modules
 find_package(ZLIB)
 if(UNIX)
-    find_package(X11)
+    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
+    if(BUILD_WSI_XLIB_SUPPORT)
+        find_package(X11)
+    endif()
 endif(UNIX)
 
 add_library(windows_specific INTERFACE)
