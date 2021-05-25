@@ -41,6 +41,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             diag_file
         )
         self.check_blacklist = True
+        self.structs_with_wrap_objects = []
+
+    def generate_feature(self):
+        Dx12ApiCallEncodersHeaderGenerator.generate_feature(self)
+
+        header_dict = self.source_dict['header_dict']
+        self.structs_with_wrap_objects = self.collect_struct_with_objects(
+            header_dict
+        )
 
     def write_include(self):
         """Methond override."""
@@ -244,15 +253,40 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         body += '    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();\n'
         body += '\n'
 
+        method_name = method_info['name']
+        parameters = method_info['parameters']
+        is_create_call = False
+        create_object_tuple = None
+
+        # check if last parameter is a created object
+        create_object_info, _ = self.get_object_creation_params(parameters)
+
+        # TODO (GH #83): are there creation calls that need to be processed when len(create_object_info) > 1 ?
+        if len(create_object_info) == 1 and create_object_info[0]:
+            # TODO (GH #83): also process creation for these object types
+            if (
+                (not 'Pipeline' in method_name)
+                and (not 'CommandList' in method_name)
+                and (not 'View' in method_name)
+                and (not 'Sampler' in method_name)
+                and (not 'Placed' in method_name)
+                and (not 'OpenExisting' in method_name)
+            ):
+                is_create_call = True
+                value = self.get_value_info(parameters[-1])
+                create_object_tuple = create_object_info[0]
+
         if class_name:
+            begin_capture_function = "BeginTrackedMethodCallCapture" if is_create_call else "BeginMethodCallCapture"
             body += (
-                '    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_{}_{}, wrapper_id);\n'
-                .format(class_name, method_info['name'])
+                '    auto encoder = D3D12CaptureManager::Get()->{}(format::ApiCallId::ApiCall_{}_{}, wrapper_id);\n'
+                .format(begin_capture_function, class_name, method_name)
             )
         else:
+            begin_capture_function = "BeginTrackedApiCallCapture" if is_create_call else "BeginApiCallCapture"
             body += (
-                '    auto encoder = D3D12CaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_{});\n'
-                .format(method_info['name'])
+                '    auto encoder = D3D12CaptureManager::Get()->{}(format::ApiCallId::ApiCall_{});\n'
+                .format(begin_capture_function, method_name)
             )
 
         body += '    if(encoder)\n'\
@@ -265,7 +299,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     '            omit_output_data = true;\n'\
                     '        }\n'
 
-        for p in method_info['parameters']:
+        for p in parameters:
             encode = self.get_encode_parameter(p, False, is_result)
             body += '        {}\n'.format(encode)
 
@@ -279,9 +313,72 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             body += '        {}\n'.format(encode)
 
         if class_name:
-            body += '        D3D12CaptureManager::Get()->EndMethodCallCapture();\n'
+            if is_create_call:
+                body += (
+                    '        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, {}, {}, wrapper_id);\n'
+                    .format(create_object_tuple[0], create_object_tuple[1])
+                )
+            else:
+                body += (
+                    '        D3D12CaptureManager::Get()->EndMethodCallCapture();\n'
+                )
         else:
-            body += '        D3D12CaptureManager::Get()->EndApiCallCapture();\n'
+            if is_create_call:
+                body += (
+                    '        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, {}, {});\n'
+                    .format(create_object_tuple[0], create_object_tuple[1])
+                )
+            else:
+                body += (
+                    '        D3D12CaptureManager::Get()->EndApiCallCapture();\n'
+                )
 
         body += '    }\n}'
         return body
+
+    # Check the parameter list for a pointer to an object that is being
+    # created or retrieved, which needs to be wrapped.
+    def get_object_creation_params(self, param_info):
+        refiid_value = None
+        create_values = []
+        create_wrap_struct = []
+
+        # Check for pairs of parameters with REFIID and void** types or a
+        # parameter with a non-const double pointer class type.
+        for param in param_info:
+            value = self.get_value_info(param)
+
+            if (value.base_type != 'LARGE_INTEGER') and self.is_struct(
+                value.base_type
+            ) and (value.full_type.find('_Out_') != -1):
+                if value.base_type in self.structs_with_wrap_objects:
+                    create_wrap_struct.append(value)
+
+            data = []
+            if not refiid_value:
+                if value.base_type == 'GUID':
+                    refiid_value = value
+                elif (
+                    self.is_class(value)
+                    and ((value.pointer_count == 2) and (not value.is_const))
+                ):
+                    cast_expr = 'reinterpret_cast<void**>({})'.format(
+                        value.name
+                    )
+                    create_values.append(
+                        [
+                            'IID_' + value.base_type, cast_expr,
+                            value.array_length
+                        ]
+                    )
+            else:
+                if (
+                    (value.base_type == 'void') and (value.pointer_count == 2)
+                    and (not value.is_const)
+                ):
+                    create_values.append(
+                        [refiid_value.name, value.name, value.array_length]
+                    )
+                refiid_value = None
+
+        return create_values, create_wrap_struct

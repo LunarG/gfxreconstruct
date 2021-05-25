@@ -26,8 +26,10 @@
 #include "encode/dx12_state_table.h"
 #include "encode/dx12_state_tracker_initializers.h"
 #include "encode/dx12_state_writer.h"
+#include "generated/generated_dx12_wrapper_creators.h"
 #include "util/defines.h"
 
+#include <guiddef.h>
 #include <mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -40,16 +42,72 @@ class Dx12StateTracker
 
     ~Dx12StateTracker();
 
-    void WriteState(Dx12StateWriter* writer, uint64_t frame_number)
+    void WriteState(Dx12StateWriter* writer, uint64_t frame_number);
+
+    void AddEntry(REFIID                          riid,
+                  typename void**                 new_handle,
+                  format::ApiCallId               create_call_id,
+                  format::HandleId                object_id,
+                  const util::MemoryOutputStream* create_parameter_buffer);
+
+    template <typename Wrapper>
+    void AddEntry(typename void**                 new_handle,
+                  format::ApiCallId               create_call_id,
+                  format::HandleId                object_id,
+                  const util::MemoryOutputStream* create_parameter_buffer)
     {
-        if (writer != nullptr)
+        assert(new_handle != nullptr);
+        assert(create_parameter_buffer != nullptr);
+
+        if (*new_handle != nullptr)
         {
+            auto wrapper = reinterpret_cast<Wrapper*>(*new_handle);
+
+            // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
             std::unique_lock<std::mutex> lock(state_table_mutex_);
-            writer->WriteState(state_table_, frame_number);
+            if (state_table_.InsertWrapper(wrapper->GetCaptureId(), wrapper))
+            {
+                dx12_state_tracker::InitializeState<Wrapper>(
+                    wrapper,
+                    create_call_id,
+                    object_id,
+                    std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
+                                                               create_parameter_buffer->GetDataSize()));
+            }
         }
     }
 
-    // TODO (GH #83): Add D3D12 trimming support, add functions for tracking state.
+    template <typename Wrapper>
+    void RemoveEntry(typename Wrapper* wrapper)
+    {
+        if (wrapper != nullptr)
+        {
+            // Scope the state table mutex lock because DestroyState also modifies the state table and will attempt to
+            // lock the mutex.
+            {
+                std::unique_lock<std::mutex> lock(state_table_mutex_);
+                if (!state_table_.RemoveWrapper(wrapper))
+                {
+                    // TODO (GH #83): Once tracking is complete and all wrappers are tracked, enable this warning.
+                    // Disable it for now in order to prevent redundant log messages.
+                    // GFXRECON_LOG_WARNING(
+                    //    "Attempting to remove entry from state tracker for object that is not being tracked");
+                }
+            }
+
+            DestroyState(wrapper);
+        }
+    }
+
+  private:
+    template <typename Wrapper>
+    void DestroyState(Wrapper* wrapper)
+    {
+        assert(wrapper != nullptr);
+        wrapper->GetObjectInfo()->create_parameters = nullptr;
+    }
+
+    // TODO (GH #83): Add D3D12 trimming support, add customized functions for tracking state.
 
   private:
     std::mutex     state_table_mutex_;

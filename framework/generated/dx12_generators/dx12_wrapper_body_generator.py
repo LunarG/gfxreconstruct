@@ -555,6 +555,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + 'CustomWrapperDestroyCall(this);\n'
             expr += indent + 'RemoveWrapperMapEntry(GetWrappedObjectAs<{}>(),'\
                 ' object_map_, object_map_lock_);\n'.format(class_name)
+            expr += indent + 'D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);\n'
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
 

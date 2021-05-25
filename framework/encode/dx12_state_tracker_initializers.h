@@ -33,7 +33,23 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(dx12_state_tracker)
 
-// TODO (GH #83): Add D3D12 trimming support, initialize state tracking objects.
+// TODO (GH #83): Add D3D12 trimming support, initialize custom state tracking objects.
+
+template <typename Wrapper>
+void InitializeState(Wrapper*                                  wrapper,
+                     format::ApiCallId                         create_call_id,
+                     format::HandleId                          object_id,
+                     std::shared_ptr<util::MemoryOutputStream> create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    wrapper_info->create_call_id    = create_call_id;
+    wrapper_info->object_id         = object_id;
+    wrapper_info->create_parameters = std::move(create_parameters);
+}
 
 GFXRECON_END_NAMESPACE(dx12_state_tracker)
 GFXRECON_END_NAMESPACE(encode)

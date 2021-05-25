@@ -29,5 +29,115 @@ Dx12StateTracker::Dx12StateTracker() {}
 
 Dx12StateTracker::~Dx12StateTracker() {}
 
+void Dx12StateTracker::WriteState(Dx12StateWriter* writer, uint64_t frame_number)
+{
+    if (writer != nullptr)
+    {
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        writer->WriteState(state_table_, frame_number);
+    }
+}
+
+// TODO (GH #83): replace this with a generated lookup table and functions
+void Dx12StateTracker::AddEntry(REFIID                          riid,
+                                typename void**                 new_handle,
+                                format::ApiCallId               create_call_id,
+                                format::HandleId                object_id,
+                                const util::MemoryOutputStream* create_parameter_buffer)
+{
+    // clang-format off
+         if(riid == IID_IDXGIKeyedMutex)                          AddEntry<IDXGIKeyedMutex_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDisplayControl)                      AddEntry<IDXGIDisplayControl_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutputDuplication)                   AddEntry<IDXGIOutputDuplication_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISurface)                             AddEntry<IDXGISurface_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISurface1)                            AddEntry<IDXGISurface_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISurface2)                            AddEntry<IDXGISurface_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIResource)                            AddEntry<IDXGIResource_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIResource1)                           AddEntry<IDXGIResource_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDecodeSwapChain)                     AddEntry<IDXGIDecodeSwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactoryMedia)                        AddEntry<IDXGIFactoryMedia_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChainMedia)                      AddEntry<IDXGISwapChainMedia_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChain)                           AddEntry<IDXGISwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChain1)                          AddEntry<IDXGISwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChain2)                          AddEntry<IDXGISwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChain3)                          AddEntry<IDXGISwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGISwapChain4)                          AddEntry<IDXGISwapChain_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDevice)                              AddEntry<IDXGIDevice_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDevice1)                             AddEntry<IDXGIDevice_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDevice2)                             AddEntry<IDXGIDevice_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDevice3)                             AddEntry<IDXGIDevice_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIDevice4)                             AddEntry<IDXGIDevice_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIAdapter)                             AddEntry<IDXGIAdapter_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIAdapter1)                            AddEntry<IDXGIAdapter_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIAdapter2)                            AddEntry<IDXGIAdapter_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIAdapter3)                            AddEntry<IDXGIAdapter_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIAdapter4)                            AddEntry<IDXGIAdapter_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput)                              AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput1)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput2)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput3)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput4)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput5)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIOutput6)                             AddEntry<IDXGIOutput_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory)                             AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory1)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory2)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory3)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory4)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory5)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory6)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_IDXGIFactory7)                            AddEntry<IDXGIFactory_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12RootSignature)                      AddEntry<ID3D12RootSignature_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12RootSignatureDeserializer)          AddEntry<ID3D12RootSignatureDeserializer_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12VersionedRootSignatureDeserializer) AddEntry<ID3D12VersionedRootSignatureDeserializer_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12CommandAllocator)                   AddEntry<ID3D12CommandAllocator_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Fence)                              AddEntry<ID3D12Fence_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Fence1)                             AddEntry<ID3D12Fence_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12PipelineState)                      AddEntry<ID3D12PipelineState_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12DescriptorHeap)                     AddEntry<ID3D12DescriptorHeap_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12QueryHeap)                          AddEntry<ID3D12QueryHeap_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12CommandSignature)                   AddEntry<ID3D12CommandSignature_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12CommandQueue)                       AddEntry<ID3D12CommandQueue_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12PipelineLibrary)                    AddEntry<ID3D12PipelineLibrary_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12PipelineLibrary1)                   AddEntry<ID3D12PipelineLibrary_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12LifetimeOwner)                      AddEntry<ID3D12LifetimeOwner_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12SwapChainAssistant)                 AddEntry<ID3D12SwapChainAssistant_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12LifetimeTracker)                    AddEntry<ID3D12LifetimeTracker_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12StateObject)                        AddEntry<ID3D12StateObject_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12StateObjectProperties)              AddEntry<ID3D12StateObjectProperties_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12DeviceRemovedExtendedDataSettings)  AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12DeviceRemovedExtendedDataSettings1) AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12DeviceRemovedExtendedData)          AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12DeviceRemovedExtendedData1)         AddEntry<ID3D12DeviceRemovedExtendedData_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12ProtectedResourceSession)           AddEntry<ID3D12ProtectedResourceSession_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12ProtectedResourceSession1)          AddEntry<ID3D12ProtectedResourceSession_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device)                             AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device1)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device2)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device3)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device4)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device5)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device6)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device7)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Device8)                            AddEntry<ID3D12Device_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Resource)                           AddEntry<ID3D12Resource_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Resource1)                          AddEntry<ID3D12Resource_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Resource2)                          AddEntry<ID3D12Resource_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Heap)                               AddEntry<ID3D12Heap_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Heap1)                              AddEntry<ID3D12Heap_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12MetaCommand)                        AddEntry<ID3D12MetaCommand_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12Tools)                              AddEntry<ID3D12Tools_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList)                AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList1)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList2)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList3)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList4)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList5)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D12GraphicsCommandList6)               AddEntry<ID3D12GraphicsCommandList_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3D10Blob)                               AddEntry<ID3D10Blob_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    else if(riid == IID_ID3DDestructionNotifier)                  AddEntry<ID3DDestructionNotifier_Wrapper>(new_handle, create_call_id, object_id, create_parameter_buffer);
+    // clang-format on
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

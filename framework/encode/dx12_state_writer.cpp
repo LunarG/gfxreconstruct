@@ -46,10 +46,185 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
 
-    // TODO (GH #83): Add D3D12 trimming support, write tracked state to file.
+    StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
+    StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIFactoryMedia_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIDecodeSwapChain_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIAdapter_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIDevice_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIDisplayControl_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIKeyedMutex_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIOutput_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
+    StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
+
+    StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12CommandQueue_Wrapper>(state_table);
+    StandardCreateWrite<IDXGISwapChain_Wrapper>(state_table);
+    StandardCreateWrite<IDXGISwapChainMedia_Wrapper>(state_table);
+
+    StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DescriptorHeap_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Fence_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Heap_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Resource_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Tools_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
+    StandardCreateWrite<ID3DDestructionNotifier_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12GraphicsCommandList_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12PipelineLibrary_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
+
+    // TODO (GH #83): Add D3D12 trimming support, write customized tracked state to file.
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
+}
+
+void Dx12StateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer)
+{
+    assert(parameter_buffer != nullptr);
+
+    bool                                 not_compressed      = true;
+    format::CompressedFunctionCallHeader compressed_header   = {};
+    format::FunctionCallHeader           uncompressed_header = {};
+    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
+    size_t                               header_size         = 0;
+    const void*                          header_pointer      = nullptr;
+    size_t                               data_size           = 0;
+    const void*                          data_pointer        = nullptr;
+
+    if (compressor_ != nullptr)
+    {
+        size_t packet_size = 0;
+        size_t compressed_size =
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
+
+        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+        {
+            data_pointer   = reinterpret_cast<const void*>(compressed_parameter_buffer_.data());
+            data_size      = compressed_size;
+            header_pointer = reinterpret_cast<const void*>(&compressed_header);
+            header_size    = sizeof(format::CompressedFunctionCallHeader);
+
+            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
+            compressed_header.api_call_id       = call_id;
+            compressed_header.thread_id         = thread_id_;
+            compressed_header.uncompressed_size = uncompressed_size;
+
+            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
+                           sizeof(compressed_header.thread_id) + compressed_size;
+
+            compressed_header.block_header.size = packet_size;
+            not_compressed                      = false;
+        }
+    }
+
+    if (not_compressed)
+    {
+        size_t packet_size = 0;
+        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
+        data_size          = uncompressed_size;
+        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
+        header_size        = sizeof(format::FunctionCallHeader);
+
+        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
+        uncompressed_header.api_call_id       = call_id;
+        uncompressed_header.thread_id         = thread_id_;
+
+        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
+
+        uncompressed_header.block_header.size = packet_size;
+    }
+
+    // Write appropriate function call block header.
+    output_stream_->Write(header_pointer, header_size);
+
+    // Write parameter data.
+    output_stream_->Write(data_pointer, data_size);
+}
+
+void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
+                                      format::HandleId          object_id,
+                                      util::MemoryOutputStream* parameter_buffer)
+{
+    assert(parameter_buffer != nullptr);
+
+    bool                               not_compressed      = true;
+    format::CompressedMethodCallHeader compressed_header   = {};
+    format::MethodCallHeader           uncompressed_header = {};
+    size_t                             uncompressed_size   = parameter_buffer->GetDataSize();
+    size_t                             header_size         = 0;
+    const void*                        header_pointer      = nullptr;
+    size_t                             data_size           = 0;
+    const void*                        data_pointer        = nullptr;
+
+    if (compressor_ != nullptr)
+    {
+        size_t packet_size = 0;
+        size_t compressed_size =
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_parameter_buffer_, 0);
+
+        if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+        {
+            data_pointer   = reinterpret_cast<const void*>(compressed_parameter_buffer_.data());
+            data_size      = compressed_size;
+            header_pointer = reinterpret_cast<const void*>(&compressed_header);
+            header_size    = sizeof(format::CompressedMethodCallHeader);
+
+            compressed_header.block_header.type = format::BlockType::kCompressedMethodCallBlock;
+            compressed_header.api_call_id       = call_id;
+            compressed_header.object_id         = object_id;
+            compressed_header.thread_id         = thread_id_;
+            compressed_header.uncompressed_size = uncompressed_size;
+
+            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.object_id) +
+                           sizeof(compressed_header.uncompressed_size) + sizeof(compressed_header.thread_id) +
+                           compressed_size;
+
+            compressed_header.block_header.size = packet_size;
+            not_compressed                      = false;
+        }
+    }
+
+    if (not_compressed)
+    {
+        size_t packet_size = 0;
+        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
+        data_size          = uncompressed_size;
+        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
+        header_size        = sizeof(format::MethodCallHeader);
+
+        uncompressed_header.block_header.type = format::BlockType::kMethodCallBlock;
+        uncompressed_header.api_call_id       = call_id;
+        uncompressed_header.object_id         = object_id;
+        uncompressed_header.thread_id         = thread_id_;
+
+        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(compressed_header.object_id) +
+                       sizeof(uncompressed_header.thread_id) + data_size;
+
+        uncompressed_header.block_header.size = packet_size;
+    }
+
+    // Write appropriate function call block header.
+    output_stream_->Write(header_pointer, header_size);
+
+    // Write parameter data.
+    output_stream_->Write(data_pointer, data_size);
 }
 
 GFXRECON_END_NAMESPACE(encode)

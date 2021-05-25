@@ -92,6 +92,26 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_CreateSwap
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_Present>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain_Present(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_Present1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain1_Present1(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers>
 {
     template <typename... Args>

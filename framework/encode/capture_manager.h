@@ -92,6 +92,16 @@ class CaptureManager
         return nullptr;
     }
 
+    ParameterEncoder* BeginTrackedMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
+    {
+        if (capture_mode_ != kModeDisabled)
+        {
+            return InitMethodCallCapture(call_id, object_id);
+        }
+
+        return nullptr;
+    }
+
     ParameterEncoder* BeginMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)

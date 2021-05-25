@@ -25,6 +25,7 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
 
 #include <d3d12.h>
@@ -37,14 +38,21 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 class ID3D12Resource_Wrapper;
 
-struct MappedSubresource
+struct DxWrapperInfo
+{
+    format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    format::HandleId                          object_id{ format::kNullHandleId };
+    std::shared_ptr<util::MemoryOutputStream> create_parameters{ nullptr };
+};
+
+struct MappedSubresource : public DxWrapperInfo
 {
     void*     data{ nullptr };
     uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
 };
 
-struct DxDescriptorInfo
+struct DxDescriptorInfo : public DxWrapperInfo
 {
     size_t           cpu_address{ 0 };
     uint64_t         gpu_address{ 0 };
@@ -52,113 +60,113 @@ struct DxDescriptorInfo
     uint32_t         index{ 0 };
 };
 
-struct IDXGIKeyedMutexInfo
+struct IDXGIKeyedMutexInfo : public DxWrapperInfo
 {};
 
-struct IDXGIDisplayControlInfo
+struct IDXGIDisplayControlInfo : public DxWrapperInfo
 {};
 
-struct IDXGIOutputDuplicationInfo
+struct IDXGIOutputDuplicationInfo : public DxWrapperInfo
 {};
 
-struct IDXGISurfaceInfo
+struct IDXGISurfaceInfo : public DxWrapperInfo
 {};
 
-struct IDXGIResourceInfo
+struct IDXGIResourceInfo : public DxWrapperInfo
 {};
 
-struct IDXGIDecodeSwapChainInfo
+struct IDXGIDecodeSwapChainInfo : public DxWrapperInfo
 {};
 
-struct IDXGIFactoryMediaInfo
+struct IDXGIFactoryMediaInfo : public DxWrapperInfo
 {};
 
-struct IDXGISwapChainMediaInfo
+struct IDXGISwapChainMediaInfo : public DxWrapperInfo
 {};
 
-struct IDXGISwapChainInfo
+struct IDXGISwapChainInfo : public DxWrapperInfo
 {
     DXGI_SWAP_EFFECT                           swap_effect{};
     uint32_t                                   image_count{ 0 };
     std::unique_ptr<ID3D12Resource_Wrapper*[]> images;
 };
 
-struct IDXGIDeviceInfo
+struct IDXGIDeviceInfo : public DxWrapperInfo
 {};
 
-struct IDXGIAdapterInfo
+struct IDXGIAdapterInfo : public DxWrapperInfo
 {};
 
-struct IDXGIOutputInfo
+struct IDXGIOutputInfo : public DxWrapperInfo
 {};
 
-struct IDXGIFactoryInfo
+struct IDXGIFactoryInfo : public DxWrapperInfo
 {};
 
-struct ID3D12RootSignatureInfo
+struct ID3D12RootSignatureInfo : public DxWrapperInfo
 {};
 
-struct ID3D12RootSignatureDeserializerInfo
+struct ID3D12RootSignatureDeserializerInfo : public DxWrapperInfo
 {};
 
-struct ID3D12VersionedRootSignatureDeserializerInfo
+struct ID3D12VersionedRootSignatureDeserializerInfo : public DxWrapperInfo
 {};
 
-struct ID3D12CommandAllocatorInfo
+struct ID3D12CommandAllocatorInfo : public DxWrapperInfo
 {};
 
-struct ID3D12FenceInfo
+struct ID3D12FenceInfo : public DxWrapperInfo
 {};
 
-struct ID3D12PipelineStateInfo
+struct ID3D12PipelineStateInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DescriptorHeapInfo
+struct ID3D12DescriptorHeapInfo : public DxWrapperInfo
 {
     std::unique_ptr<uint8_t[]>          descriptor_memory;
     std::unique_ptr<DxDescriptorInfo[]> descriptor_info;
 };
 
-struct ID3D12QueryHeapInfo
+struct ID3D12QueryHeapInfo : public DxWrapperInfo
 {};
 
-struct ID3D12CommandSignatureInfo
+struct ID3D12CommandSignatureInfo : public DxWrapperInfo
 {};
 
-struct ID3D12CommandQueueInfo
+struct ID3D12CommandQueueInfo : public DxWrapperInfo
 {};
 
-struct ID3D12PipelineLibraryInfo
+struct ID3D12PipelineLibraryInfo : public DxWrapperInfo
 {};
 
-struct ID3D12LifetimeOwnerInfo
+struct ID3D12LifetimeOwnerInfo : public DxWrapperInfo
 {};
 
-struct ID3D12SwapChainAssistantInfo
+struct ID3D12SwapChainAssistantInfo : public DxWrapperInfo
 {};
 
-struct ID3D12LifetimeTrackerInfo
+struct ID3D12LifetimeTrackerInfo : public DxWrapperInfo
 {};
 
-struct ID3D12StateObjectInfo
+struct ID3D12StateObjectInfo : public DxWrapperInfo
 {};
 
-struct ID3D12StateObjectPropertiesInfo
+struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DeviceRemovedExtendedDataSettingsInfo
+struct ID3D12DeviceRemovedExtendedDataSettingsInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DeviceRemovedExtendedDataInfo
+struct ID3D12DeviceRemovedExtendedDataInfo : public DxWrapperInfo
 {};
 
-struct ID3D12ProtectedResourceSessionInfo
+struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DeviceInfo
+struct ID3D12DeviceInfo : public DxWrapperInfo
 {};
 
-struct ID3D12ResourceInfo
+struct ID3D12ResourceInfo : public DxWrapperInfo
 {
     size_t                               num_subresources{ 0 };
     std::unique_ptr<uint64_t[]>          subresource_sizes;
@@ -169,7 +177,7 @@ struct ID3D12ResourceInfo
     D3D12_MEMORY_POOL                    memory_pool{};
 };
 
-struct ID3D12HeapInfo
+struct ID3D12HeapInfo : public DxWrapperInfo
 {
     bool                    has_write_watch{ false };
     D3D12_HEAP_TYPE         heap_type{};
@@ -177,49 +185,49 @@ struct ID3D12HeapInfo
     D3D12_MEMORY_POOL       memory_pool{};
 };
 
-struct ID3D12MetaCommandInfo
+struct ID3D12MetaCommandInfo : public DxWrapperInfo
 {};
 
-struct ID3D12ToolsInfo
+struct ID3D12ToolsInfo : public DxWrapperInfo
 {};
 
-struct ID3D12GraphicsCommandListInfo
+struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {};
 
-struct ID3D10BlobInfo
+struct ID3D10BlobInfo : public DxWrapperInfo
 {};
 
-struct ID3DDestructionNotifierInfo
+struct ID3DDestructionNotifierInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DebugInfo
+struct ID3D12DebugInfo : public DxWrapperInfo
 {};
 
-struct ID3D12Debug1Info
+struct ID3D12Debug1Info : public DxWrapperInfo
 {};
 
-struct ID3D12Debug2Info
+struct ID3D12Debug2Info : public DxWrapperInfo
 {};
 
-struct ID3D12DebugDeviceInfo
+struct ID3D12DebugDeviceInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DebugDevice1Info
+struct ID3D12DebugDevice1Info : public DxWrapperInfo
 {};
 
-struct ID3D12DebugCommandQueueInfo
+struct ID3D12DebugCommandQueueInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DebugCommandListInfo
+struct ID3D12DebugCommandListInfo : public DxWrapperInfo
 {};
 
-struct ID3D12DebugCommandList1Info
+struct ID3D12DebugCommandList1Info : public DxWrapperInfo
 {};
 
-struct ID3D12SharingContractInfo
+struct ID3D12SharingContractInfo : public DxWrapperInfo
 {};
 
-struct ID3D12InfoQueueInfo
+struct ID3D12InfoQueueInfo : public DxWrapperInfo
 {};
 
 GFXRECON_END_NAMESPACE(encode)

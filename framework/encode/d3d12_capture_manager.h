@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 #include "encode/d3d12_dispatch_table.h"
+#include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "generated/generated_dx12_wrappers.h"
 
@@ -120,6 +121,19 @@ class D3D12CaptureManager : public CaptureManager
     //----------------------------------------------------------------------------
     uint32_t DecrementCallScope() { return --call_scope_; }
 
+    void EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle);
+
+    void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, format::HandleId object_id);
+
+    template <typename Wrapper>
+    void ProcessWrapperDestroy(Wrapper* wrapper)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            state_tracker_->RemoveEntry(wrapper);
+        }
+    }
+
     void PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,
                                                   HRESULT               result,
                                                   IUnknown*             device,
@@ -149,6 +163,15 @@ class D3D12CaptureManager : public CaptureManager
                                                                  const DXGI_SWAP_CHAIN_DESC1* desc,
                                                                  IDXGIOutput*                 restrict_to_output,
                                                                  IDXGISwapChain1**            swap_chain);
+
+    void
+    PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
+
+    void PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
+                                              HRESULT                        result,
+                                              UINT                           sync_interval,
+                                              UINT                           flags,
+                                              const DXGI_PRESENT_PARAMETERS* present_parameters);
 
     void PreProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
                                                  UINT                    buffer_count,
@@ -358,10 +381,11 @@ class D3D12CaptureManager : public CaptureManager
 
     virtual ~D3D12CaptureManager() override {}
 
-    // TODO (GH #83): Add D3D12 trimming support
-    virtual void CreateStateTracker() override {}
-    virtual void DestroyStateTracker() override {}
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override {}
+    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<Dx12StateTracker>(); }
+
+    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, uint32_t image_count, DXGI_SWAP_EFFECT swap_effect);
 
@@ -391,6 +415,8 @@ class D3D12CaptureManager : public CaptureManager
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
+
+    std::unique_ptr<Dx12StateTracker> state_tracker_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

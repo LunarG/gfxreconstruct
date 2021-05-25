@@ -25,6 +25,7 @@
 #include "encode/d3d12_capture_manager.h"
 
 #include "encode/dx12_object_wrapper_info.h"
+#include "encode/dx12_state_writer.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -55,6 +56,53 @@ void D3D12CaptureManager::DestroyInstance()
                                         delete instance_;
                                         instance_ = nullptr;
                                     });
+}
+
+void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)
+{
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == S_OK))
+    {
+        if ((handle != nullptr) && (*handle != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddEntry(
+                riid, handle, thread_data->call_id_, format::kNullHandleId, thread_data->parameter_buffer_.get());
+        }
+    }
+
+    EndApiCallCapture();
+}
+
+void D3D12CaptureManager::EndCreateMethodCallCapture(HRESULT          result,
+                                                     REFIID           riid,
+                                                     void**           handle,
+                                                     format::HandleId object_id)
+{
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == S_OK))
+    {
+        if ((handle != nullptr) && (*handle != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddEntry(
+                riid, handle, thread_data->call_id_, object_id, thread_data->parameter_buffer_.get());
+        }
+    }
+
+    EndMethodCallCapture();
+}
+
+void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
+{
+    Dx12StateWriter state_writer(file_stream, compressor_.get(), thread_id);
+    state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }
 
 void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
@@ -339,6 +387,34 @@ void D3D12CaptureManager::PreProcess_IDXGISwapchain_ResizeBuffers(
     GFXRECON_UNREFERENCED_PARAMETER(flags);
 
     ReleaseSwapChainImages(wrapper);
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
+                                                             HRESULT                 result,
+                                                             UINT                    sync_interval,
+                                                             UINT                    flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(result);
+    GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+
+    EndFrame();
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
+                                                               HRESULT                        result,
+                                                               UINT                           sync_interval,
+                                                               UINT                           flags,
+                                                               const DXGI_PRESENT_PARAMETERS* present_parameters)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(result);
+    GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
+
+    EndFrame();
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
