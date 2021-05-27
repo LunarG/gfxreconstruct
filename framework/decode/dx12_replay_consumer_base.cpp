@@ -996,13 +996,21 @@ UINT64 Dx12ReplayConsumerBase::OverrideGetCompletedValue(DxObjectInfo* replay_ob
 
         if (original_result > replay_result)
         {
-            // Replay is ahead of capture, so wait on the fence value to avoid performing any new work that may
-            // invalidate work in progress.
             auto event_handle = GetEventObject(kInternalEventId, true);
             if (event_handle != nullptr)
             {
                 replay_object->SetEventOnCompletion(original_result, event_handle);
-                WaitForFenceEvent(replay_object_info->capture_id, event_handle);
+                if (original_result <= fence_info->last_signaled_value)
+                {
+                    // The value has already been signaled, so wait operations can be processed immediately.
+                    WaitForFenceEvent(replay_object_info->capture_id, event_handle);
+                }
+                else
+                {
+                    // The value has not been signaled, so process the wait operation when the value is signaled.
+                    auto& waiting_objects = fence_info->waiting_objects[original_result];
+                    waiting_objects.wait_events.push_back(event_handle);
+                }
             }
         }
     }
@@ -1050,6 +1058,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideSetEventOnCompletion(DxObjectInfo* repla
             }
             else
             {
+                // The value has not been signaled, so process the wait operation when the value is signaled.
                 auto& waiting_objects = fence_info->waiting_objects[value];
                 waiting_objects.wait_events.push_back(event_object);
             }
