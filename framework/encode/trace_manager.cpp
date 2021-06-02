@@ -442,8 +442,7 @@ void TraceManager::CheckContinueCaptureForWriteMode()
         if (trim_ranges_[trim_current_range_].total == 0)
         {
             // Stop recording and close file.
-            capture_mode_ &= ~kModeWrite;
-            file_stream_ = nullptr;
+            DeactivateTrimming();
             GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // Advance to next range
@@ -478,8 +477,7 @@ void TraceManager::CheckContinueCaptureForWriteMode()
     else if (IsTrimHotkeyPressed())
     {
         // Stop recording and close file.
-        capture_mode_ &= ~kModeWrite;
-        file_stream_ = nullptr;
+        DeactivateTrimming();
         GFXRECON_LOG_INFO("Finished recording graphics API capture");
     }
 }
@@ -566,6 +564,8 @@ std::string TraceManager::CreateTrimFilename(const std::string&                b
 
 bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 {
+    auto state_lock = AcquireUniqueStateLock();
+
     bool        success          = true;
     std::string capture_filename = base_filename;
 
@@ -601,6 +601,14 @@ void TraceManager::ActivateTrimming()
 
     VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
     state_tracker_->WriteState(&state_writer, current_frame_);
+}
+
+void TraceManager::DeactivateTrimming()
+{
+    auto state_lock = AcquireUniqueStateLock();
+
+    capture_mode_ &= ~kModeWrite;
+    file_stream_ = nullptr;
 }
 
 void TraceManager::WriteFileHeader()
