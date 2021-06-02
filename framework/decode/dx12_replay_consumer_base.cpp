@@ -26,6 +26,8 @@
 #include "util/gpu_va_range.h"
 #include "util/platform.h"
 
+#include <dxgidebug.h>
+
 #include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -60,7 +62,7 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 }
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
-    window_factory_(window_factory), options_(options)
+    window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -69,6 +71,10 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
         {
             dx12_debug->EnableDebugLayer();
             dx12_debug->Release();
+            if (FAILED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue_))))
+            {
+                GFXRECON_LOG_WARNING("Failed to retrieve IDXGIInfoQueue for replay option '--validate'.");
+            }
         }
         else
         {
@@ -86,6 +92,10 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     DestroyActiveWindows();
     DestroyActiveEvents();
     DestroyHeapAllocations();
+    if (info_queue_ != nullptr)
+    {
+        info_queue_->Release();
+    }
 }
 
 void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -247,6 +257,30 @@ ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, 
     }
 
     return object->Release();
+}
+
+HRESULT Dx12ReplayConsumerBase::OverridePresent(DxObjectInfo* replay_object_info,
+                                                HRESULT       original_result,
+                                                UINT          sync_interval,
+                                                UINT          flags)
+{
+    auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
+    auto result        = replay_object->Present(sync_interval, flags);
+    ReadDebugMessages();
+    return result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverridePresent1(DxObjectInfo*                                          replay_object_info,
+                                         HRESULT                                                original_result,
+                                         UINT                                                   sync_interval,
+                                         UINT                                                   flags,
+                                         StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters)
+{
+    auto replay_object = static_cast<IDXGISwapChain1*>(replay_object_info->object);
+    auto result        = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
+    ReadDebugMessages();
+    return result;
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateSwapChainForHwnd(
@@ -1684,6 +1718,52 @@ void Dx12ReplayConsumerBase::WaitForFenceEvent(format::HandleId fence_id, HANDLE
                              wait_result,
                              fence_id);
     }
+}
+
+void Dx12ReplayConsumerBase::ReadDebugMessages()
+{
+    if (info_queue_ == nullptr)
+    {
+        return;
+    }
+
+    auto   message_number = info_queue_->GetNumStoredMessages(DXGI_DEBUG_ALL);
+    SIZE_T message_length = 0;
+
+    for (auto i = 0; i < message_number; ++i)
+    {
+        info_queue_->GetMessage(DXGI_DEBUG_ALL, i, NULL, &message_length);
+        if (message_length > current_message_length_)
+        {
+            debug_message_.reset();
+            debug_message_          = std::make_unique<uint8_t[]>(message_length);
+            current_message_length_ = message_length;
+        }
+        auto message = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE*>(debug_message_.get());
+        auto hr      = info_queue_->GetMessage(DXGI_DEBUG_ALL, i, message, &message_length);
+
+        switch (message->Severity)
+        {
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
+                GFXRECON_LOG_ERROR("D3D12 CORRUPTION: %s\n", message->pDescription);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
+                GFXRECON_LOG_ERROR("D3D12 ERROR: %s\n", message->pDescription);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
+                GFXRECON_LOG_WARNING("D3D12 WARNING: %s\n", message->pDescription);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
+                GFXRECON_LOG_INFO("D3D12 INFO: %s\n", message->pDescription);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
+                GFXRECON_LOG_INFO("D3D12 MESSAGE: %s\n", message->pDescription);
+                break;
+            default:
+                break;
+        }
+    }
+    info_queue_->ClearStoredMessages(DXGI_DEBUG_ALL);
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

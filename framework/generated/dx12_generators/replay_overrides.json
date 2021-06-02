@@ -60,7 +60,11 @@
     },
     "IDXGISwapChain": {
       "GetBuffer": "OverrideGetBuffer",
-      "ResizeBuffers": "OverrideResizeBuffers"
+      "ResizeBuffers": "OverrideResizeBuffers",
+      "Present": "OverridePresent"
+    },
+    "IDXGISwapChain1": {
+      "Present1": "OverridePresent1"
     },
     "IDXGISwapChain3": {
       "ResizeBuffers1": "OverrideResizeBuffers1"

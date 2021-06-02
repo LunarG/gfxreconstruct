@@ -729,11 +729,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
     UINT                                        SyncInterval,
     UINT                                        Flags)
 {
-    auto replay_object = MapObject<IDXGISwapChain>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->Present(SyncInterval,
-                                                    Flags);
+        auto replay_result = OverridePresent(replay_object,
+                                             returnValue,
+                                             SyncInterval,
+                                             Flags);
         CheckReplayResult("IDXGISwapChain_Present", returnValue, replay_result);
     }
 }
@@ -1504,12 +1506,14 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
     UINT                                        PresentFlags,
     StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
 {
-    auto replay_object = MapObject<IDXGISwapChain1>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->Present1(SyncInterval,
-                                                     PresentFlags,
-                                                     pPresentParameters->GetPointer());
+        auto replay_result = OverridePresent1(replay_object,
+                                              returnValue,
+                                              SyncInterval,
+                                              PresentFlags,
+                                              pPresentParameters);
         CheckReplayResult("IDXGISwapChain1_Present1", returnValue, replay_result);
     }
 }

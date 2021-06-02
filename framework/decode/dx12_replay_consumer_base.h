@@ -35,6 +35,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <dxgidebug.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -114,6 +115,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     ULONG OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result);
 
     ULONG OverrideRelease(DxObjectInfo* replay_object_info, ULONG original_result);
+
+    HRESULT OverridePresent(DxObjectInfo* replay_object_info, HRESULT original_result, UINT sync_interval, UINT flags);
+
+    HRESULT OverridePresent1(DxObjectInfo*                                          replay_object_info,
+                             HRESULT                                                original_result,
+                             UINT                                                   sync_interval,
+                             UINT                                                   flags,
+                             StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters);
 
     HRESULT OverrideCreateSwapChain(DxObjectInfo*                                       replay_object_info,
                                     HRESULT                                             original_result,
@@ -371,6 +380,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     HANDLE GetEventObject(uint64_t event_id, bool reset);
 
+    void ReadDebugMessages();
+
     void WaitForFenceEvent(format::HandleId fence_id, HANDLE event);
 
   private:
@@ -384,6 +395,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, HANDLE> event_objects_;
     std::function<void(const char*)>     fatal_error_handler_;
     graphics::Dx12GpuVaMap               gpu_va_map_;
+    std::unique_ptr<uint8_t[]>           debug_message_;
+    SIZE_T                               current_message_length_;
+    IDXGIInfoQueue*                      info_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
