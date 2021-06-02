@@ -4,8 +4,8 @@ import static groovy.io.FileVisitResult.*
 
 // Default branch of gfxreconstruct to use.
 gfxrBranch = "amd-main"
-ArchiveName64 = "gfxr_dx12_archive_${env.BRANCH_NAME}"
-ArchiveName86 = "gfxr_dx12_archive_x86_${env.BRANCH_NAME}"
+ArchiveName64 = "gfxr_dx12_bld${env.BUILD_ID}_${env.BRANCH_NAME}"
+ArchiveName86 = "gfxr_dx12_bld${env.BUILD_ID}_x86_${env.BRANCH_NAME}"
 kPackageNameRoot = ArchiveName64
 commonScriptsBranch = "master"
 // Default test run timeout 10 minutes + a buffer
@@ -319,9 +319,10 @@ def Build(label) {
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
                                 copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\
+								mkdir GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x64\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin\\d3d12_capture
                                 rmdir /S /Q ..\\${ArchiveName64}
                                 move GFXReconstruct-DX12\\build\\windows\\x64\\output\\bin ..\\${ArchiveName64}
 
@@ -359,9 +360,10 @@ def Build(label) {
                                 copy GFXReconstruct-DX12\\layer\\vk_layer_settings.txt GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 copy GFXReconstruct-DX12\\scripts\\*test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
                                 copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
-								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\
+								mkdir GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy GFXReconstruct-DX12\\build\\windows\\x86\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin\\d3d12_capture
                                 rmdir /S /Q ..\\${ArchiveName86}
                                 move GFXReconstruct-DX12\\build\\windows\\x86\\output\\bin ..\\${ArchiveName86}
                             """
