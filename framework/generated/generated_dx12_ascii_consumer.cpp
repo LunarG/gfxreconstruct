@@ -86,7 +86,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_DXGI_MAPPED_RECT* 
 
     if (WriteCheckPointerDecoderNull(oss, &value->pBits, indent2.c_str()))
     {
-        oss << indent2 << *value->pBits.GetPointer() << " /* address = " << value->pBits.GetPointer() << " */";
+        oss << indent2 << *value->pBits.GetPointer();
     }
     oss << "}";
 
@@ -5825,7 +5825,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCR
 
     if (WriteCheckPointerDecoderNull(oss, &value->pLastBreadcrumbValue, indent2.c_str()))
     {
-        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer() << " /* address = " << value->pLastBreadcrumbValue.GetPointer() << " */";
+        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer();
     }
     oss << ",\n";
 
@@ -5919,7 +5919,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCR
 
     if (WriteCheckPointerDecoderNull(oss, &value->pLastBreadcrumbValue, indent2.c_str()))
     {
-        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer() << " /* address = " << value->pLastBreadcrumbValue.GetPointer() << " */";
+        oss << indent2 << *value->pLastBreadcrumbValue.GetPointer();
     }
     oss << ",\n";
 
@@ -7004,7 +7004,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
 
     if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
     {
-        oss << "    " << "" << *pDataSize->GetPointer() << " /* address = " << pDataSize->GetPointer() << " */";
+        oss << "    " << "" << *pDataSize->GetPointer();
     }
     oss << ",\n";
 
@@ -7118,7 +7118,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
 
     if (WriteCheckPointerDecoderNull(oss, pUsage, "    ", false))
     {
-        oss << "    " << "" << *pUsage->GetPointer() << " /* address = " << pUsage->GetPointer() << " */";
+        oss << "    " << "" << *pUsage->GetPointer();
     }
     oss << ");\n\n";
 
@@ -7165,7 +7165,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
 
     if (WriteCheckPointerDecoderNull(oss, pEvictionPriority, "    ", true))
     {
-        oss << "    " << "&" << *pEvictionPriority->GetPointer() << " /* address = " << pEvictionPriority->GetPointer() << " */";
+        oss << "    " << "&" << *pEvictionPriority->GetPointer();
     }
     oss << ");\n\n";
 
@@ -7481,7 +7481,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
 
     if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
     {
-        oss << "    " << "" << *pNumModes->GetPointer() << " /* address = " << pNumModes->GetPointer() << " */";
+        oss << "    " << "" << *pNumModes->GetPointer();
     }
     oss << ",\n";
 
@@ -7835,7 +7835,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
 
     if (WriteCheckPointerDecoderNull(oss, pFullscreen, "    ", true))
     {
-        oss << "    " << "&" << *pFullscreen->GetPointer() << " /* address = " << pFullscreen->GetPointer() << " */";
+        oss << "    " << "&" << *pFullscreen->GetPointer();
     }
     oss << ",\n";
 
@@ -8004,7 +8004,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
 
     if (WriteCheckPointerDecoderNull(oss, pLastPresentCount, "    ", true))
     {
-        oss << "    " << "&" << *pLastPresentCount->GetPointer() << " /* address = " << pLastPresentCount->GetPointer() << " */";
+        oss << "    " << "&" << *pLastPresentCount->GetPointer();
     }
     oss << ");\n\n";
 
@@ -8304,7 +8304,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
 
     if (WriteCheckPointerDecoderNull(oss, pPriority, "    ", true))
     {
-        oss << "    " << "&" << *pPriority->GetPointer() << " /* address = " << pPriority->GetPointer() << " */";
+        oss << "    " << "&" << *pPriority->GetPointer();
     }
     oss << ");\n\n";
 
@@ -8423,7 +8423,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
 
     if (WriteCheckPointerDecoderNull(oss, pMaxLatency, "    ", true))
     {
-        oss << "    " << "&" << *pMaxLatency->GetPointer() << " /* address = " << pMaxLatency->GetPointer() << " */";
+        oss << "    " << "&" << *pMaxLatency->GetPointer();
     }
     oss << ");\n\n";
 
@@ -8554,7 +8554,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
 
     if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBufferSizeRequired, "    ", true))
     {
-        oss << "    " << "&" << *pDirtyRectsBufferSizeRequired->GetPointer() << " /* address = " << pDirtyRectsBufferSizeRequired->GetPointer() << " */";
+        oss << "    " << "&" << *pDirtyRectsBufferSizeRequired->GetPointer();
     }
     oss << ");\n\n";
 
@@ -8590,7 +8590,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
 
     if (WriteCheckPointerDecoderNull(oss, pMoveRectsBufferSizeRequired, "    ", true))
     {
-        oss << "    " << "&" << *pMoveRectsBufferSizeRequired->GetPointer() << " /* address = " << pMoveRectsBufferSizeRequired->GetPointer() << " */";
+        oss << "    " << "&" << *pMoveRectsBufferSizeRequired->GetPointer();
     }
     oss << ");\n\n";
 
@@ -8627,7 +8627,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
 
     if (WriteCheckPointerDecoderNull(oss, pPointerShapeBufferSizeRequired, "    ", true))
     {
-        oss << "    " << "&" << *pPointerShapeBufferSizeRequired->GetPointer() << " /* address = " << pPointerShapeBufferSizeRequired->GetPointer() << " */";
+        oss << "    " << "&" << *pPointerShapeBufferSizeRequired->GetPointer();
     }
     oss << ",\n";
 
@@ -8730,7 +8730,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
 
     if (WriteCheckPointerDecoderNull(oss, pSubresourceIndex, "    ", true))
     {
-        oss << "    " << "&" << *pSubresourceIndex->GetPointer() << " /* address = " << pSubresourceIndex->GetPointer() << " */";
+        oss << "    " << "&" << *pSubresourceIndex->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9345,7 +9345,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9374,7 +9374,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9424,7 +9424,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9453,7 +9453,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9569,7 +9569,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
 
     if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
     {
-        oss << "    " << "" << *pNumModes->GetPointer() << " /* address = " << pNumModes->GetPointer() << " */";
+        oss << "    " << "" << *pNumModes->GetPointer();
     }
     oss << ",\n";
 
@@ -9793,13 +9793,13 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
 
     if (WriteCheckPointerDecoderNull(oss, pWidth, "    ", true))
     {
-        oss << "    " << "&" << *pWidth->GetPointer() << " /* address = " << pWidth->GetPointer() << " */";
+        oss << "    " << "&" << *pWidth->GetPointer();
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pHeight, "    ", true))
     {
-        oss << "    " << "&" << *pHeight->GetPointer() << " /* address = " << pHeight->GetPointer() << " */";
+        oss << "    " << "&" << *pHeight->GetPointer();
     }
     oss << ");\n\n";
 
@@ -9846,7 +9846,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
 
     if (WriteCheckPointerDecoderNull(oss, pMaxLatency, "    ", true))
     {
-        oss << "    " << "&" << *pMaxLatency->GetPointer() << " /* address = " << pMaxLatency->GetPointer() << " */";
+        oss << "    " << "&" << *pMaxLatency->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10132,13 +10132,13 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
 
     if (WriteCheckPointerDecoderNull(oss, pWidth, "    ", true))
     {
-        oss << "    " << "&" << *pWidth->GetPointer() << " /* address = " << pWidth->GetPointer() << " */";
+        oss << "    " << "&" << *pWidth->GetPointer();
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pHeight, "    ", true))
     {
-        oss << "    " << "&" << *pHeight->GetPointer() << " /* address = " << pHeight->GetPointer() << " */";
+        oss << "    " << "&" << *pHeight->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10347,13 +10347,13 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
 
     if (WriteCheckPointerDecoderNull(oss, pClosestSmallerPresentDuration, "    ", true))
     {
-        oss << "    " << "&" << *pClosestSmallerPresentDuration->GetPointer() << " /* address = " << pClosestSmallerPresentDuration->GetPointer() << " */";
+        oss << "    " << "&" << *pClosestSmallerPresentDuration->GetPointer();
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pClosestLargerPresentDuration, "    ", true))
     {
-        oss << "    " << "&" << *pClosestLargerPresentDuration->GetPointer() << " /* address = " << pClosestLargerPresentDuration->GetPointer() << " */";
+        oss << "    " << "&" << *pClosestLargerPresentDuration->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10386,7 +10386,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
     {
-        oss << "    " << "&" << *pFlags->GetPointer() << " /* address = " << pFlags->GetPointer() << " */";
+        oss << "    " << "&" << *pFlags->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10437,7 +10437,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
 
     if (WriteCheckPointerDecoderNull(oss, pColorSpaceSupport, "    ", true))
     {
-        oss << "    " << "&" << *pColorSpaceSupport->GetPointer() << " /* address = " << pColorSpaceSupport->GetPointer() << " */";
+        oss << "    " << "&" << *pColorSpaceSupport->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10548,7 +10548,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
     {
-        oss << "    " << "&" << *pFlags->GetPointer() << " /* address = " << pFlags->GetPointer() << " */";
+        oss << "    " << "&" << *pFlags->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10639,7 +10639,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -10748,7 +10748,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -11014,7 +11014,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
     {
-        oss << "    " << "&" << *pFlags->GetPointer() << " /* address = " << pFlags->GetPointer() << " */";
+        oss << "    " << "&" << *pFlags->GetPointer();
     }
     oss << ");\n\n";
 
@@ -11080,7 +11080,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
     {
-        oss << "    " << "&" << *pdwCookie->GetPointer() << " /* address = " << pdwCookie->GetPointer() << " */";
+        oss << "    " << "&" << *pdwCookie->GetPointer();
     }
     oss << ");\n\n";
 
@@ -11393,7 +11393,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
 
     if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
     {
-        oss << "    " << "" << *pDataSize->GetPointer() << " /* address = " << pDataSize->GetPointer() << " */";
+        oss << "    " << "" << *pDataSize->GetPointer();
     }
     oss << ",\n";
 
@@ -13875,7 +13875,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
 
     if (WriteCheckPointerDecoderNull(oss, pFrequency, "    ", true))
     {
-        oss << "    " << "&" << *pFrequency->GetPointer() << " /* address = " << pFrequency->GetPointer() << " */";
+        oss << "    " << "&" << *pFrequency->GetPointer();
     }
     oss << ");\n\n";
 
@@ -13901,13 +13901,13 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
 
     if (WriteCheckPointerDecoderNull(oss, pGpuTimestamp, "    ", true))
     {
-        oss << "    " << "&" << *pGpuTimestamp->GetPointer() << " /* address = " << pGpuTimestamp->GetPointer() << " */";
+        oss << "    " << "&" << *pGpuTimestamp->GetPointer();
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pCpuTimestamp, "    ", true))
     {
-        oss << "    " << "&" << *pCpuTimestamp->GetPointer() << " /* address = " << pCpuTimestamp->GetPointer() << " */";
+        oss << "    " << "&" << *pCpuTimestamp->GetPointer();
     }
     oss << ");\n\n";
 
@@ -15021,7 +15021,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
 
     if (WriteCheckPointerDecoderNull(oss, pTotalBytes, "    ", true))
     {
-        oss << "    " << "&" << *pTotalBytes->GetPointer() << " /* address = " << pTotalBytes->GetPointer() << " */";
+        oss << "    " << "&" << *pTotalBytes->GetPointer();
     }
     oss << ");\n\n";
 
@@ -15148,7 +15148,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
     if (WriteCheckPointerDecoderNull(oss, pNumTilesForEntireResource, "    ", true))
     {
-        oss << "    " << "&" << *pNumTilesForEntireResource->GetPointer() << " /* address = " << pNumTilesForEntireResource->GetPointer() << " */";
+        oss << "    " << "&" << *pNumTilesForEntireResource->GetPointer();
     }
     oss << ",\n";
 
@@ -15166,7 +15166,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
     if (WriteCheckPointerDecoderNull(oss, pNumSubresourceTilings, "    ", false))
     {
-        oss << "    " << "" << *pNumSubresourceTilings->GetPointer() << " /* address = " << pNumSubresourceTilings->GetPointer() << " */";
+        oss << "    " << "" << *pNumSubresourceTilings->GetPointer();
     }
     oss << ",\n";
 
@@ -16297,7 +16297,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
 
     if (WriteCheckPointerDecoderNull(oss, pNumMetaCommands, "    ", false))
     {
-        oss << "    " << "" << *pNumMetaCommands->GetPointer() << " /* address = " << pNumMetaCommands->GetPointer() << " */";
+        oss << "    " << "" << *pNumMetaCommands->GetPointer();
     }
     oss << ",\n";
 
@@ -16338,13 +16338,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
 
     if (WriteCheckPointerDecoderNull(oss, pTotalStructureSizeInBytes, "    ", true))
     {
-        oss << "    " << "&" << *pTotalStructureSizeInBytes->GetPointer() << " /* address = " << pTotalStructureSizeInBytes->GetPointer() << " */";
+        oss << "    " << "&" << *pTotalStructureSizeInBytes->GetPointer();
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pParameterCount, "    ", false))
     {
-        oss << "    " << "" << *pParameterCount->GetPointer() << " /* address = " << pParameterCount->GetPointer() << " */";
+        oss << "    " << "" << *pParameterCount->GetPointer();
     }
     oss << ",\n";
 
@@ -16695,7 +16695,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
 
     if (WriteCheckPointerDecoderNull(oss, pbFurtherMeasurementsDesired, "    ", true))
     {
-        oss << "    " << "&" << *pbFurtherMeasurementsDesired->GetPointer() << " /* address = " << pbFurtherMeasurementsDesired->GetPointer() << " */";
+        oss << "    " << "&" << *pbFurtherMeasurementsDesired->GetPointer();
     }
     oss << ");\n\n";
 
@@ -17031,7 +17031,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
 
     if (WriteCheckPointerDecoderNull(oss, pTotalBytes, "    ", true))
     {
-        oss << "    " << "&" << *pTotalBytes->GetPointer() << " /* address = " << pTotalBytes->GetPointer() << " */";
+        oss << "    " << "&" << *pTotalBytes->GetPointer();
     }
     oss << ");\n\n";
 
@@ -17552,7 +17552,7 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
 
     if (WriteCheckPointerDecoderNull(oss, pCallbackID, "    ", true))
     {
-        oss << "    " << "&" << *pCallbackID->GetPointer() << " /* address = " << pCallbackID->GetPointer() << " */";
+        oss << "    " << "&" << *pCallbackID->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18335,7 +18335,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
 
     if (WriteCheckPointerDecoderNull(oss, pMessageByteLength, "    ", false))
     {
-        oss << "    " << "" << *pMessageByteLength->GetPointer() << " /* address = " << pMessageByteLength->GetPointer() << " */";
+        oss << "    " << "" << *pMessageByteLength->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18500,7 +18500,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
 
     if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
     {
-        oss << "    " << "" << *pFilterByteLength->GetPointer() << " /* address = " << pFilterByteLength->GetPointer() << " */";
+        oss << "    " << "" << *pFilterByteLength->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18662,7 +18662,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
 
     if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
     {
-        oss << "    " << "" << *pFilterByteLength->GetPointer() << " /* address = " << pFilterByteLength->GetPointer() << " */";
+        oss << "    " << "" << *pFilterByteLength->GetPointer();
     }
     oss << ");\n\n";
 

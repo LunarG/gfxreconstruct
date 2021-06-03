@@ -225,7 +225,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 elif count > 1:
                     pass
                 else:
-                    code += prefix21 + "*" + value.name + '->GetPointer() << " /* address = " << ' + value.name + '->GetPointer() << " */";\n'
+                    code += prefix21 + "*" + value.name + '->GetPointer();\n'
             code += indent_code + '}\n'
             return code
 
@@ -450,7 +450,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 elif count > 1:
                     pass
                 else:
-                    code += prefix22 + '*value->' + value.name + '.GetPointer() << " /* address = " << ' + "value->" + value.name + '.GetPointer() << " */";\n'
+                    code += prefix22 + '*value->' + value.name + '.GetPointer();\n'
             code += indent_code + '}\n'
             return code
 
