@@ -52,5 +52,25 @@ void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
     }
 }
 
+void Encode_IDXGIFactory5_CheckFeatureSupport(format::HandleId wrapper_id,
+                                              HRESULT          result,
+                                              DXGI_FEATURE     Feature,
+                                              void*            pFeatureSupportData,
+                                              UINT             FeatureSupportDataSize)
+{
+    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();
+
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport, wrapper_id);
+    if (encoder)
+    {
+        encoder->EncodeEnumValue(Feature);
+        EncodeDXGIFeatureStruct(encoder, pFeatureSupportData, Feature);
+        encoder->EncodeUInt32Value(FeatureSupportDataSize);
+        encoder->EncodeInt32Value(result);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1355,13 +1355,6 @@ class Dx12AsciiConsumer : public Dx12AsciiConsumerBase
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults);
 
-    virtual void Process_IDXGIFactory5_CheckFeatureSupport(
-        format::HandleId object_id,
-        HRESULT returnValue,
-        DXGI_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize);
-
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
 **

@@ -1784,6 +1784,24 @@ void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Ha
     }
 }
 
+void Dx12ReplayConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                                       HRESULT          original_result,
+                                                                       DXGI_FEATURE     feature,
+                                                                       const void*      capture_feature_data,
+                                                                       void*            replay_feature_data,
+                                                                       UINT             feature_data_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+
+    auto replay_object = MapObject<IDXGIFactory5>(object_id);
+
+    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    {
+        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        CheckReplayResult("IDXGIFactory5::CheckFeatureSupport", original_result, replay_result);
+    }
+}
+
 void Dx12ReplayConsumerBase::RaiseFatalError(const char* message) const
 {
     // TODO: Should there be a default action if no error handler has been provided?

@@ -3,6 +3,9 @@
   "classmethods": {
     "ID3D12Device": [
       "CheckFeatureSupport"
+    ],
+    "IDXGIFactory5": [
+      "CheckFeatureSupport"
     ]
   },
   "structures": [

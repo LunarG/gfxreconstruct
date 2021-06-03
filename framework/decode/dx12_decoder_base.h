@@ -172,10 +172,10 @@ class Dx12DecoderBase : public ApiDecoder
 
   private:
     template <typename T>
-    size_t DecodeCheckFeatureSupport(format::HandleId object_id,
-                                     D3D12_FEATURE    feature,
-                                     const uint8_t*   parameter_buffer,
-                                     size_t           buffer_size)
+    size_t DecodeCheckD3D12FeatureSupport(format::HandleId object_id,
+                                          D3D12_FEATURE    feature,
+                                          const uint8_t*   parameter_buffer,
+                                          size_t           buffer_size)
     {
         size_t bytes_read = 0;
 
@@ -207,6 +207,10 @@ class Dx12DecoderBase : public ApiDecoder
     size_t Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                    const uint8_t*   parameter_buffer,
                                                    size_t           buffer_size);
+
+    size_t Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                    const uint8_t*   parameter_buffer,
+                                                    size_t           buffer_size);
 
   private:
     std::vector<Dx12Consumer*> consumers_;

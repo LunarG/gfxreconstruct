@@ -28,6 +28,7 @@
 #include "util/defines.h"
 
 #include <d3d12.h>
+#include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -37,6 +38,12 @@ void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
                                              D3D12_FEATURE    Feature,
                                              void*            pFeatureSupportData,
                                              UINT             FeatureSupportDataSize);
+
+void Encode_IDXGIFactory5_CheckFeatureSupport(format::HandleId wrapper_id,
+                                              HRESULT          result,
+                                              DXGI_FEATURE     Feature,
+                                              void*            pFeatureSupportData,
+                                              UINT             FeatureSupportDataSize);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

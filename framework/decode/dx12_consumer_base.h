@@ -26,6 +26,7 @@
 #include "decode/handle_pointer_decoder.h"
 
 #include <d3d12.h>
+#include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -124,6 +125,14 @@ class Dx12ConsumerBase
                                                           const void*      capture_feature_data,
                                                           void*            replay_feature_data,
                                                           UINT             feature_data_size)
+    {}
+
+    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                           HRESULT          original_result,
+                                                           DXGI_FEATURE     feature,
+                                                           const void*      capture_feature_data,
+                                                           void*            replay_feature_data,
+                                                           UINT             feature_data_size)
     {}
 };
 

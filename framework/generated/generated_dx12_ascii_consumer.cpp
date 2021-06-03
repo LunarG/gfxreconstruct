@@ -10927,39 +10927,6 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
 }
 
 
-void Dx12AsciiConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
-        format::HandleId object_id,
-        HRESULT returnValue,
-        DXGI_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize)
-{
-    std::ostringstream oss;
-    oss << "IDXGIFactory5_id" << object_id << "->";
-    oss << "CheckFeatureSupport(\n    /* ";
-
-    oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << "" << ConverttoText(Feature);
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pFeatureSupportData, "    ", false))
-    {
-        oss << "    " << "" << "pFeatureSupportData" << " /* value = " << static_cast<uint16_t>(*pFeatureSupportData->GetPointer()) << " */";
-    }
-    oss << ",\n";
-
-    oss << "    " << "" << FeatureSupportDataSize;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
-}
-
-
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0
 **

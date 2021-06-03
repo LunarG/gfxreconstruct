@@ -517,9 +517,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1:
         Decode_IDXGIDevice4_ReclaimResources1(object_id, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
-        Decode_IDXGIFactory5_CheckFeatureSupport(object_id, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
         Decode_IDXGIAdapter4_GetDesc3(object_id, parameter_buffer, buffer_size);
         break;
@@ -4438,28 +4435,6 @@ size_t Dx12Decoder::Decode_IDXGIDevice4_ReclaimResources1(format::HandleId objec
     for (auto consumer : GetConsumers())
     {
         consumer->Process_IDXGIDevice4_ReclaimResources1(object_id, return_value, NumResources, &ppResources, &pResults);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    DXGI_FEATURE Feature;
-    PointerDecoder<uint8_t> pFeatureSupportData;
-    UINT FeatureSupportDataSize;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Feature);
-    bytes_read += pFeatureSupportData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &FeatureSupportDataSize);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_IDXGIFactory5_CheckFeatureSupport(object_id, return_value, Feature, &pFeatureSupportData, FeatureSupportDataSize);
     }
 
     return bytes_read;

@@ -2581,23 +2581,6 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
     }
 }
 
-void Dx12ReplayConsumer::Process_IDXGIFactory5_CheckFeatureSupport(
-    format::HandleId                            object_id,
-    HRESULT                                     returnValue,
-    DXGI_FEATURE                                Feature,
-    PointerDecoder<uint8_t>*                    pFeatureSupportData,
-    UINT                                        FeatureSupportDataSize)
-{
-    auto replay_object = MapObject<IDXGIFactory5>(object_id);
-    if (replay_object != nullptr)
-    {
-        auto replay_result = replay_object->CheckFeatureSupport(Feature,
-                                                                pFeatureSupportData->GetPointer(),
-                                                                FeatureSupportDataSize);
-        CheckReplayResult("IDXGIFactory5_CheckFeatureSupport", returnValue, replay_result);
-    }
-}
-
 void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
     format::HandleId                            object_id,
     HRESULT                                     returnValue,

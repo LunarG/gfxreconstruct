@@ -21,6 +21,10 @@
 */
 
 #include "decode/dx12_ascii_consumer_base.h"
+#include "generated/generated_dx12_convert_to_texts.h"
+#include "decode/custom_dx12_struct_ascii_consumers.h"
+#include "decode/dx12_enum_util.h"
+#include "util/interception/injection.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -58,6 +62,47 @@ void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Han
     GFXRECON_UNREFERENCED_PARAMETER(feature_data_size);
 
     fprintf(GetFile(), "%s\n", "ID3D12Device::CheckFeatureSupport");
+}
+
+void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                                      HRESULT          original_result,
+                                                                      DXGI_FEATURE     feature,
+                                                                      const void*      capture_feature_data,
+                                                                      void*            replay_feature_data,
+                                                                      UINT             feature_data_size)
+{
+    const char* indent = "    ";
+    std::ostringstream oss;
+    oss << "IDXGIFactory5_id" << object_id << "->";
+    oss << "CheckFeatureSupport(\n" << indent << "/* ";
+
+    oss << "return = " << enumutil::GetResultValueString(original_result);
+    oss << ",\n       ";
+
+    oss << "thread_id = WIP */\n";
+
+    oss << indent << ConverttoText(feature);
+    oss << ",\n";
+
+    if (WriteCheckNull(oss, replay_feature_data, indent, false))
+    {
+        switch (feature)
+        {
+            case DXGI_FEATURE_PRESENT_ALLOW_TEARING:
+            {
+                WriteBOOLString(oss, *reinterpret_cast<BOOL*>(replay_feature_data), indent);
+            }
+            break;
+            default:
+                break;
+        }
+    }
+    oss << ",\n";
+
+    oss << indent << feature_data_size;
+    oss << ");\n\n";
+
+    fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
 
 GFXRECON_END_NAMESPACE(decode)

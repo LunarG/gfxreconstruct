@@ -3496,31 +3496,6 @@ void Encode_IDXGIDevice4_ReclaimResources1(
     }
 }
 
-void Encode_IDXGIFactory5_CheckFeatureSupport(
-    format::HandleId wrapper_id,
-    HRESULT result,
-    DXGI_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize)
-{
-    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();
-
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport, wrapper_id);
-    if(encoder)
-    {
-        bool omit_output_data = false;
-        if (result != S_OK)
-        {
-            omit_output_data = true;
-        }
-        encoder->EncodeEnumValue(Feature);
-        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize);
-        encoder->EncodeUInt32Value(FeatureSupportDataSize);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
-    }
-}
-
 
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0

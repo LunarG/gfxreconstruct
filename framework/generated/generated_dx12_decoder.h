@@ -222,7 +222,6 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGISwapChain4_SetHDRMetaData(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIDevice4_OfferResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
-    size_t Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0

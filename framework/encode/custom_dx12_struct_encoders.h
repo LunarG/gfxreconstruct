@@ -27,6 +27,7 @@
 #include "util/defines.h"
 
 #include <d3d12.h>
+#include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -62,6 +63,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& valu
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature);
+void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI_FEATURE feature);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

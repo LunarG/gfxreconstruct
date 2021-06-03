@@ -682,6 +682,24 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
                             reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES*>(feature_data));
             break;
         default:
+            GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
+                                 "unrecognized D3D12_FEATURE type %d",
+                                 feature);
+            break;
+    }
+}
+
+void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI_FEATURE feature)
+{
+    switch (feature)
+    {
+        case DXGI_FEATURE_PRESENT_ALLOW_TEARING:
+            encoder->EncodeInt32Value(*reinterpret_cast<int32_t*>(feature_data));
+            break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to encode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
+                               "unrecognized DXGI_FEATURE type %d",
+                               feature);
             break;
     }
 }

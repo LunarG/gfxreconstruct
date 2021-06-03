@@ -973,13 +973,6 @@ void Encode_IDXGIDevice4_ReclaimResources1(
     IDXGIResource* const* ppResources,
     DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
 
-void Encode_IDXGIFactory5_CheckFeatureSupport(
-    format::HandleId wrapper_id,
-    HRESULT result,
-    DXGI_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize);
-
 
 /*
 ** This part is generated from dxgi1_6.h in Windows SDK: 10.0.19041.0

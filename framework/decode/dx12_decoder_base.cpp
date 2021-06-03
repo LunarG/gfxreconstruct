@@ -279,116 +279,160 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
     switch (feature)
     {
         case D3D12_FEATURE_D3D12_OPTIONS:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_ARCHITECTURE:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_ARCHITECTURE>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_ARCHITECTURE>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_FEATURE_LEVELS:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_FORMAT_SUPPORT:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_FORMAT_INFO:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_FORMAT_INFO>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_FORMAT_INFO>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_SHADER_MODEL:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_SHADER_MODEL>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_SHADER_MODEL>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS1:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_SUPPORT:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_ROOT_SIGNATURE:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_ARCHITECTURE1:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS2:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_SHADER_CACHE:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_SHADER_CACHE>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_SHADER_CACHE>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_COMMAND_QUEUE_PRIORITY:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS3:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_EXISTING_HEAPS:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS4:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_SERIALIZATION:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_SERIALIZATION>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_SERIALIZATION>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_CROSS_NODE:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_CROSS_NODE>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_CROSS_NODE>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS5:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS6:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_QUERY_META_COMMAND:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_D3D12_OPTIONS7:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT>(
-                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            bytes_read +=
+                DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT>(
+                    object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
-            bytes_read += DecodeCheckFeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES>(
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
         default:
             GFXRECON_LOG_FATAL("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
-                               "unrecognized DXGI_FEATURE type %d",
+                               "unrecognized D3D12_FEATURE type %d",
                                feature);
             break;
     }
 
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                                 const uint8_t*   parameter_buffer,
+                                                                 size_t           buffer_size)
+{
+    size_t       bytes_read = 0;
+    DXGI_FEATURE feature{};
+    UINT         feature_data_size = 0;
+    HRESULT      return_value      = E_FAIL;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &feature);
+
+    switch (feature)
+    {
+        case DXGI_FEATURE_PRESENT_ALLOW_TEARING:
+        {
+            BOOL allow_tearing = FALSE;
+            bytes_read += ValueDecoder::DecodeInt32Value(
+                (parameter_buffer + bytes_read), (buffer_size - bytes_read), &allow_tearing);
+            bytes_read += ValueDecoder::DecodeUInt32Value(
+                (parameter_buffer + bytes_read), (buffer_size - bytes_read), &feature_data_size);
+            bytes_read += ValueDecoder::DecodeInt32Value(
+                (parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+            for (auto consumer : GetConsumers())
+            {
+                consumer->Process_IDXGIFactory5_CheckFeatureSupport(object_id,
+                                                                    return_value,
+                                                                    feature,
+                                                                    static_cast<void*>(&allow_tearing),
+                                                                    static_cast<void*>(&allow_tearing),
+                                                                    feature_data_size);
+            }
+        }
+        break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to decode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
+                               "unrecognized DXGI_FEATURE type %d",
+                               feature);
+            break;
+    }
     return bytes_read;
 }
 
@@ -404,6 +448,9 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
     {
         case format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport:
             Decode_ID3D12Device_CheckFeatureSupport(object_id, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport:
+            Decode_IDXGIFactory5_CheckFeatureSupport(object_id, parameter_buffer, buffer_size);
             break;
         default:
             break;

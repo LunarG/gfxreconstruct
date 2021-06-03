@@ -422,6 +422,22 @@ WriteCheckPointerDecoderNull(std::ostringstream& oss, const T* value, const char
     return true;
 }
 
+template <typename T>
+static bool WriteCheckNull(std::ostringstream& oss, const T* value, const char* indent, const bool output = false)
+{
+    if (value == nullptr)
+    {
+        std::string output_string = "";
+        if (output)
+        {
+            output_string = "&";
+        }
+        oss << indent << output_string << "nullptr";
+        return false;
+    }
+    return true;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -49,6 +49,13 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                                                   void*            replay_feature_data,
                                                   UINT             feature_data_size) override;
 
+    void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
+                                                   HRESULT          original_result,
+                                                   DXGI_FEATURE     feature,
+                                                   const void*      capture_feature_data,
+                                                   void*            replay_feature_data,
+                                                   UINT             feature_data_size) override;
+
   protected:
     FILE* GetFile() const { return m_file; }
 
