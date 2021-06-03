@@ -54,14 +54,220 @@ void Dx12AsciiConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Han
                                                                      void*            replay_feature_data,
                                                                      UINT             feature_data_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(object_id);
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(feature);
-    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
-    GFXRECON_UNREFERENCED_PARAMETER(replay_feature_data);
-    GFXRECON_UNREFERENCED_PARAMETER(feature_data_size);
+    const char*        indent = "    ";
+    std::ostringstream oss;
+    oss << "ID3D12Device_id" << object_id << "->";
+    oss << "CheckFeatureSupport(\n" << indent << "/* ";
 
-    fprintf(GetFile(), "%s\n", "ID3D12Device::CheckFeatureSupport");
+    oss << "return = " << enumutil::GetResultValueString(original_result);
+    oss << ",\n       ";
+
+    oss << "thread_id = WIP */\n";
+
+    oss << indent << ConverttoText(feature);
+    oss << ",\n";
+
+    if (WriteCheckNull(oss, replay_feature_data, indent, false))
+    {
+        switch (feature)
+        {
+            case D3D12_FEATURE_D3D12_OPTIONS:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_ARCHITECTURE:
+            {
+                Decoded_D3D12_FEATURE_DATA_ARCHITECTURE value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_ARCHITECTURE*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_FEATURE_LEVELS:
+            {
+                Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_FEATURE_LEVELS*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_FORMAT_SUPPORT:
+            {
+                Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_FORMAT_SUPPORT*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS:
+            {
+                Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS value;
+                value.decoded_value =
+                    reinterpret_cast<D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_FORMAT_INFO:
+            {
+                Decoded_D3D12_FEATURE_DATA_FORMAT_INFO value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_FORMAT_INFO*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+            {
+                Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT value;
+                value.decoded_value =
+                    reinterpret_cast<D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_SHADER_MODEL:
+            {
+                Decoded_D3D12_FEATURE_DATA_SHADER_MODEL value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_SHADER_MODEL*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS1:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS1*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_SUPPORT:
+            {
+                Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT value;
+                value.decoded_value =
+                    reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_ROOT_SIGNATURE:
+            {
+                Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_ROOT_SIGNATURE*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_ARCHITECTURE1:
+            {
+                Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_ARCHITECTURE1*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS2:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS2*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_SHADER_CACHE:
+            {
+                Decoded_D3D12_FEATURE_DATA_SHADER_CACHE value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_SHADER_CACHE*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_COMMAND_QUEUE_PRIORITY:
+            {
+                Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS3:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS3*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_EXISTING_HEAPS:
+            {
+                Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_EXISTING_HEAPS*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS4:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS4*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_SERIALIZATION:
+            {
+                Decoded_D3D12_FEATURE_DATA_SERIALIZATION value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_SERIALIZATION*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_CROSS_NODE:
+            {
+                Decoded_D3D12_FEATURE_DATA_CROSS_NODE value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_CROSS_NODE*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS5:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS5*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS6:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS6*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_QUERY_META_COMMAND:
+            {
+                Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_QUERY_META_COMMAND*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_D3D12_OPTIONS7:
+            {
+                Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7 value;
+                value.decoded_value = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS7*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
+            {
+                Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT value;
+                value.decoded_value =
+                    reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
+            {
+                Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES value;
+                value.decoded_value =
+                    reinterpret_cast<D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES*>(replay_feature_data);
+                WriteStructString(oss, &value, indent);
+            }
+            break;
+            default:
+                break;
+        }
+    }
+    oss << ",\n";
+
+    oss << indent << feature_data_size;
+    oss << ");\n\n";
+
+    fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
 
 void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
