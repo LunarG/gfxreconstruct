@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -925,14 +925,11 @@ class TraceManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
-  protected:
-    TraceManager();
-
-    ~TraceManager();
-
-    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
-
-  private:
+    void             WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                                 format::HandleId pipeline_id,
+                                                                 size_t           data_size,
+                                                                 const void*      data);
+    typedef uint32_t CaptureMode;
     enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
@@ -941,6 +938,17 @@ class TraceManager
         kModeWriteAndTrack = (kModeWrite | kModeTrack)
     };
 
+    CaptureMode                          GetCaptureMode() { return capture_mode_; }
+    std::unique_ptr<VulkanStateTracker>& GetStateTracker() { return state_tracker_; }
+
+  protected:
+    TraceManager();
+
+    ~TraceManager();
+
+    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
+
+  private:
     enum PageGuardMemoryMode : uint32_t
     {
         kMemoryModeDisabled,
@@ -948,8 +956,6 @@ class TraceManager
         kMemoryModeShadowPersistent, // Externally managed shadow memory allocations.
         kMemoryModeExternal          // Imported host memory without shadow allocations.
     };
-
-    typedef uint32_t CaptureMode;
 
     class ThreadData
     {
@@ -1025,11 +1031,6 @@ class TraceManager
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
-
-    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
-                                                     format::HandleId pipeline_id,
-                                                     size_t           data_size,
-                                                     const void*      data);
 
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);

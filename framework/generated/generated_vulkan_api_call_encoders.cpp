@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -39,6 +40,7 @@
 #include "generated/generated_vulkan_command_buffer_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
+#include "encode/deferred_operation.h"
 
 #include "vulkan/vulkan.h"
 
@@ -8512,6 +8514,12 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
 
     VkResult result = GetDeviceTable(device)->GetDeferredOperationResultKHR(device_unwrapped, operation_unwrapped);
 
+    if (result == VK_SUCCESS)
+    {
+        // The deferred operation done and return VK_SUCCESS
+        DeferredOperationManager::Get()->PostProcess(operation);
+    }
+
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
     if (encoder)
     {
@@ -8538,6 +8546,12 @@ VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
     VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
 
     VkResult result = GetDeviceTable(device)->DeferredOperationJoinKHR(device_unwrapped, operation_unwrapped);
+
+    if (result == VK_SUCCESS)
+    {
+        // The deferred operation done and return VK_SUCCESS
+        DeferredOperationManager::Get()->PostProcess(operation);
+    }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
     if (encoder)
@@ -14337,18 +14351,21 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
         omit_output_data = true;
     }
 
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
-    if (encoder)
+    if (deferredOperation == VK_NULL_HANDLE)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(deferredOperation);
-        encoder->EncodeHandleValue(pipelineCache);
-        encoder->EncodeUInt32Value(createInfoCount);
-        EncodeStructArray(encoder, pCreateInfos, createInfoCount);
-        EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+        if (encoder)
+        {
+            encoder->EncodeHandleValue(device);
+            encoder->EncodeHandleValue(deferredOperation);
+            encoder->EncodeHandleValue(pipelineCache);
+            encoder->EncodeUInt32Value(createInfoCount);
+            EncodeStructArray(encoder, pCreateInfos, createInfoCount);
+            EncodeStructPtr(encoder, pAllocator);
+            encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
+            encoder->EncodeEnumValue(result);
+            TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkDeferredOperationKHR, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(result, device, deferredOperation, createInfoCount, pPipelines, pCreateInfos);
+        }
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(TraceManager::Get(), result, device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
