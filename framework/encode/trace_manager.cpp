@@ -49,6 +49,7 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
 #endif
+#include <encode/deferred_operation.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1662,19 +1663,25 @@ VkResult TraceManager::OverrideCreateRayTracingPipelinesKHR(VkDevice            
                                                             const VkAllocationCallbacks*             pAllocator,
                                                             VkPipeline*                              pPipelines)
 {
+    std::unique_ptr<DeferredOperationCreateRayTracingPipelines>&& deferred_operation_instance =
+        std::make_unique<DeferredOperationCreateRayTracingPipelines>(
+            device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     auto                   device_wrapper              = reinterpret_cast<DeviceWrapper*>(device);
     VkDevice               device_unwrapped            = device_wrapper->handle;
     const DeviceTable*     device_table                = GetDeviceTable(device);
-    auto                   handle_unwrap_memory        = TraceManager::Get()->GetHandleUnwrapMemory();
+    HandleUnwrapMemory&    handle_unwrap_memory        = deferred_operation_instance->GetHandleUnwrapMemory();
     VkDeferredOperationKHR deferredOperation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(deferredOperation);
     VkPipelineCache        pipelineCache_unwrapped     = GetWrappedHandle<VkPipelineCache>(pipelineCache);
-    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+    const VkRayTracingPipelineCreateInfoKHR*& pCreateInfos_unwrapped =deferred_operation_instance->GetCreateInfosUnwrapped();
+
+    pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, &handle_unwrap_memory);
+
 
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
-        auto modified_create_infos = std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount);
+        std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]>& modified_create_infos =
+            deferred_operation_instance->GetModifiedCreateInfos();
         for (uint32_t i = 0; i < createInfoCount; ++i)
         {
             modified_create_infos[i] = pCreateInfos_unwrapped[i];
@@ -1727,7 +1734,10 @@ VkResult TraceManager::OverrideCreateRayTracingPipelinesKHR(VkDevice            
             }
         }
     }
-
+    if (deferredOperation != VK_NULL_HANDLE)
+    {
+        DeferredOperationManager::Get()->add(deferredOperation, std::move(deferred_operation_instance));
+    }
     return result;
 }
 

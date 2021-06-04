@@ -16,6 +16,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_buffer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrappers.h

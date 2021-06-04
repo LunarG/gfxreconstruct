@@ -925,6 +925,21 @@ class TraceManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
+    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
+                                                     format::HandleId pipeline_id,
+                                                     size_t           data_size,
+                                                     const void*      data);
+    typedef uint32_t CaptureMode;
+    enum CaptureModeFlags : uint32_t
+    {
+        kModeDisabled      = 0x0,
+        kModeWrite         = 0x01,
+        kModeTrack         = 0x02,
+        kModeWriteAndTrack = (kModeWrite | kModeTrack)
+    };
+
+    CaptureMode GetCaptureMode() { return capture_mode_; }
+    std::unique_ptr<VulkanStateTracker>& GetStateTracker() { return state_tracker_; }
   protected:
     TraceManager();
 
@@ -933,13 +948,6 @@ class TraceManager
     bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
-    enum CaptureModeFlags : uint32_t
-    {
-        kModeDisabled      = 0x0,
-        kModeWrite         = 0x01,
-        kModeTrack         = 0x02,
-        kModeWriteAndTrack = (kModeWrite | kModeTrack)
-    };
 
     enum PageGuardMemoryMode : uint32_t
     {
@@ -949,7 +957,6 @@ class TraceManager
         kMemoryModeExternal          // Imported host memory without shadow allocations.
     };
 
-    typedef uint32_t CaptureMode;
 
     class ThreadData
     {
@@ -1025,11 +1032,6 @@ class TraceManager
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
-
-    void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
-                                                     format::HandleId pipeline_id,
-                                                     size_t           data_size,
-                                                     const void*      data);
 
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);
