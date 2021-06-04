@@ -72,6 +72,8 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
 
     if (call_scope == 1)
     {
+        auto state_lock = manager->AcquireSharedStateLock();
+
         result = object_->QueryInterface(riid, object);
 
         if (SUCCEEDED(result))
@@ -101,6 +103,8 @@ ULONG IUnknown_Wrapper::AddRef()
 
     if (call_scope == 1)
     {
+        auto state_lock = manager->AcquireSharedStateLock();
+
         Encode_IUnknown_AddRef(capture_id_, local_count);
     }
 
@@ -119,6 +123,8 @@ ULONG IUnknown_Wrapper::Release()
 
     if (call_scope == 1)
     {
+        auto state_lock = manager->AcquireSharedStateLock();
+
         Encode_IUnknown_Release(capture_id_, local_count);
     }
 

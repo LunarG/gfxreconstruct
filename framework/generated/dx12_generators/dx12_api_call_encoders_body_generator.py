@@ -250,9 +250,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         body = '\n'\
                '{\n'
 
-        body += '    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();\n'
-        body += '\n'
-
         method_name = method_info['name']
         parameters = method_info['parameters']
         is_create_call = False

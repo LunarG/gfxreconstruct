@@ -430,6 +430,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         indent = self.increment_indent(indent)
 
+        expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+        expr += '\n'
+
         wrapped_args = ''
         unwrapped_args = ''
         need_unwrap_memory = False
@@ -612,6 +615,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + 'if (call_scope == 1)\n'
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
+
+            expr += indent + 'auto state_lock = manager->AcquireSharedStateLock();\n'
+            expr += '\n'
 
             wrapped_args = ''
             unwrapped_args = ''

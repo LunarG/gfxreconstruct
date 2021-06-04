@@ -38,8 +38,6 @@ void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
                                              void*            pFeatureSupportData,
                                              UINT             FeatureSupportDataSize)
 {
-    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();
-
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
         format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport, wrapper_id);
     if (encoder)
@@ -58,8 +56,6 @@ void Encode_IDXGIFactory5_CheckFeatureSupport(format::HandleId wrapper_id,
                                               void*            pFeatureSupportData,
                                               UINT             FeatureSupportDataSize)
 {
-    auto state_lock = D3D12CaptureManager::Get()->AcquireSharedStateLock();
-
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
         format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport, wrapper_id);
     if (encoder)
