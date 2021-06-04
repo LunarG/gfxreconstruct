@@ -45,6 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 const size_t kMaxEventStatusRetries = 16;
+const size_t kMaxQueryPoolResultsRetries = 16;
 
 const int32_t  kDefaultWindowPositionX = 0;
 const int32_t  kDefaultWindowPositionY = 0;
@@ -2972,6 +2973,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus f
     VkDevice device = device_info->handle;
     VkFence  fence  = fence_info->handle;
 
+    // If you find this loop to be infinite consider adding a limit in the same way
+    // it is done for GetEventStatus and GetQueryPoolResults.
     do
     {
         result = func(device, fence);
@@ -3019,11 +3022,14 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
+    size_t      retries    = 0;
 
     do
     {
         result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+    } while ((((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) ||
+              ((original_result == VK_NOT_READY) && (result == VK_SUCCESS))) &&
+             (++retries <= kMaxQueryPoolResultsRetries));
 
     return result;
 }
