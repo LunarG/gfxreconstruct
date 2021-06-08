@@ -51,8 +51,13 @@ class SharedMutex
     SharedMutex(const SharedMutex&) = delete;
     SharedMutex& operator=(const SharedMutex&) = delete;
 
+    // Returns the previous value of read_lock_depth_
+    size_t IncrementReadCount();
+
+    void DecrementReadCount();
+
   private:
-    static thread_local std::atomic_bool has_read_lock_;
+    static thread_local std::atomic_size_t read_lock_depth_;
 
   private:
     std::mutex         writer_mutex;

@@ -26,41 +26,45 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-thread_local std::atomic_bool SharedMutex::has_read_lock_{ false };
+thread_local std::atomic_size_t SharedMutex::read_lock_depth_{ 0 };
 
 void SharedMutex::lock()
 {
+    // Acquire writer mutex and indicate to readers the writer is waiting.
+    // If wait_for_writer_ is true, the writer thread must own the lock on the writer_mutex, so lock the mutex before
+    // setting wait_for_writer_.
+    assert(wait_for_writer_.load() == false);
     writer_mutex.lock();
-
-    // Indicate to readers the writer is waiting.
     wait_for_writer_.store(true);
 
-    // Wait for readers.
-    while (reader_count_.load() > (has_read_lock_.load() ? 1u : 0u))
+    // Wait for reader locks to be released. reader_count_ is the sum of all read_lock_depth_ values of all threads. To
+    // allow this thread to be promoted to a writer lock, wait until reader_count_ equals this thread's
+    // read_lock_depth_.
+    while (reader_count_.load() != read_lock_depth_.load())
     {
     }
 }
 
 void SharedMutex::unlock()
 {
+    // If wait_for_writer_ is true, the writer thread must own the lock on the writer_mutex, so unlock the mutex first.
+    assert(wait_for_writer_.load() == true);
     writer_mutex.unlock();
     wait_for_writer_.store(false);
 }
 
 void SharedMutex::lock_shared()
 {
-    reader_count_.fetch_add(1);
-    has_read_lock_.store(true);
+    size_t previous_read_lock_depth = IncrementReadCount();
 
-    if (wait_for_writer_.load())
+    // If the read lock is being acquired for the first time in this thread's call stack, check if a writer is waiting.
+    if ((previous_read_lock_depth == 0) && wait_for_writer_.load())
     {
-        has_read_lock_.store(false);
-        reader_count_.fetch_sub(1);
+        DecrementReadCount();
 
         writer_mutex.lock();
 
-        reader_count_.fetch_add(1);
-        has_read_lock_.store(true);
+        IncrementReadCount();
 
         writer_mutex.unlock();
     }
@@ -68,7 +72,24 @@ void SharedMutex::lock_shared()
 
 void SharedMutex::unlock_shared()
 {
-    reader_count_.fetch_sub(1);
+    DecrementReadCount();
+}
+
+size_t SharedMutex::IncrementReadCount()
+{
+    // Ensure reader_count_ is always >= read_lock_depth_, so increment reader_count_ before read_lock_depth_.
+    size_t rc  = reader_count_.fetch_add(1);
+    size_t rld = read_lock_depth_.fetch_add(1);
+    assert(rc >= rld);
+    return rld;
+}
+
+void SharedMutex::DecrementReadCount()
+{
+    // Ensure reader_count_ is always >= read_lock_depth_, so decrement read_lock_depth_ before reader_count_.
+    size_t rld = read_lock_depth_.fetch_sub(1);
+    size_t rc  = reader_count_.fetch_sub(1);
+    assert(rc >= rld);
 }
 
 GFXRECON_END_NAMESPACE(util)
