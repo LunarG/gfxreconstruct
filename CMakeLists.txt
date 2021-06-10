@@ -45,6 +45,8 @@ set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 8)
 set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
+option(BUILD_STATIC "Build static binaries for HPC clusters (will not build the tracer library)" OFF)
+
 if (NOT DEFINED HEADLESS)
     set(HEADLESS TRUE)
 endif()
@@ -148,7 +150,11 @@ if(UNIX)
 endif(UNIX)
 
 # CMake provided find modules
-find_package(ZLIB)
+if(BUILD_STATIC)
+    find_library(ZLIB NAMES libz.a REQUIRED PATH_SUFFIXES lib lib/x86_64-linux-gnu lib64)
+else()
+    find_package(ZLIB)
+endif()
 if(UNIX)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     if(BUILD_WSI_XLIB_SUPPORT)
@@ -194,7 +200,9 @@ if (${RUN_TESTS})
 endif()
 
 add_subdirectory(framework)
-add_subdirectory(layer)
+if(NOT BUILD_STATIC)
+    add_subdirectory(layer)
+endif()
 add_subdirectory(tools)
 
 if (${RUN_TESTS})

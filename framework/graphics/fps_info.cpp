@@ -26,7 +26,7 @@
 #include "util/date_time.h"
 #include "util/logging.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
