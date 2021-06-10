@@ -139,5 +139,15 @@ void Dx12StateTracker::AddEntry(REFIID                          riid,
     // clang-format on
 };
 
+void Dx12StateTracker::TrackOpenExistingHeapFromAddress(void** heap, const void* address)
+{
+    assert((heap != nullptr) && ((*heap) != nullptr) && (address != nullptr));
+
+    auto heap_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+    auto info         = heap_wrapper->GetObjectInfo();
+    assert(info != nullptr);
+    info->open_existing_address = address;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -70,7 +70,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Fence_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12Heap_Wrapper>(state_table);
+    WriteHeapState(state_table);
     StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
     StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
@@ -225,6 +225,58 @@ void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+}
+
+void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D12Heap_Wrapper* wrapper) {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        // TODO (GH #83): Add AddRef/Release commands as needed to set object ref count for replay.
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        if (wrapper_info->open_existing_address != nullptr)
+        {
+            if (!WriteCreateHeapAllocationCmd(wrapper_info->open_existing_address))
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
+                                   "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
+                                   GetLastError());
+            }
+        }
+
+        // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
+
+        WriteMethodCall(wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+    });
+}
+
+bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
+{
+    MEMORY_BASIC_INFORMATION info{};
+
+    auto result = VirtualQuery(address, &info, sizeof(info));
+    if (result > 0)
+    {
+        format::CreateHeapAllocationCommand allocation_cmd;
+
+        allocation_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        allocation_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(allocation_cmd);
+        allocation_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+            format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kCreateHeapAllocationCommand);
+        allocation_cmd.thread_id       = thread_id_;
+        allocation_cmd.allocation_id   = reinterpret_cast<uint64_t>(address);
+        allocation_cmd.allocation_size = info.RegionSize;
+
+        output_stream_->Write(&allocation_cmd, sizeof(allocation_cmd));
+
+        return true;
+    }
+
+    return false;
 }
 
 GFXRECON_END_NAMESPACE(encode)

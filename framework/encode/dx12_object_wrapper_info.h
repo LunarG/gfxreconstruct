@@ -183,6 +183,8 @@ struct ID3D12HeapInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE         heap_type{};
     D3D12_CPU_PAGE_PROPERTY page_property{};
     D3D12_MEMORY_POOL       memory_pool{};
+
+    const void* open_existing_address{ nullptr }; ///< Address used to create heap with OpenExistingHeapFromAddress.
 };
 
 struct ID3D12MetaCommandInfo : public DxWrapperInfo

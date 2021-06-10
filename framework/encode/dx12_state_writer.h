@@ -83,6 +83,11 @@ class Dx12StateWriter
     void
     WriteMethodCall(format::ApiCallId call_id, format::HandleId object_id, util::MemoryOutputStream* parameter_buffer);
 
+    void WriteHeapState(const Dx12StateTable& state_table);
+
+    // Returns true if memory information was successfully retrieved and written and false otherwise.
+    bool WriteCreateHeapAllocationCmd(const void* address);
+
     // TODO (GH #83): Add D3D12 trimming support, add custom functions for writing tracked state.
 
   private:

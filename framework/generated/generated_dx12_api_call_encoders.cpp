@@ -6637,7 +6637,7 @@ void Encode_ID3D12Device_CreatePlacedResource(
     REFIID riid,
     void** ppvResource)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource, wrapper_id);
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_CreatePlacedResource, wrapper_id);
     if(encoder)
     {
         bool omit_output_data = false;
@@ -6653,7 +6653,7 @@ void Encode_ID3D12Device_CreatePlacedResource(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
         encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper_id);
     }
 }
 
@@ -7204,7 +7204,7 @@ void Encode_ID3D12Device3_OpenExistingHeapFromAddress(
     REFIID riid,
     void** ppvHeap)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress, wrapper_id);
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress, wrapper_id);
     if(encoder)
     {
         bool omit_output_data = false;
@@ -7216,7 +7216,7 @@ void Encode_ID3D12Device3_OpenExistingHeapFromAddress(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
         encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper_id);
     }
 }
 
@@ -7227,7 +7227,7 @@ void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
     REFIID riid,
     void** ppvHeap)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping, wrapper_id);
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping, wrapper_id);
     if(encoder)
     {
         bool omit_output_data = false;
@@ -7239,7 +7239,7 @@ void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
         encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper_id);
     }
 }
 
@@ -8404,7 +8404,7 @@ void Encode_ID3D12Device8_CreatePlacedResource1(
     REFIID riid,
     void** ppvResource)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1, wrapper_id);
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device8_CreatePlacedResource1, wrapper_id);
     if(encoder)
     {
         bool omit_output_data = false;
@@ -8420,7 +8420,7 @@ void Encode_ID3D12Device8_CreatePlacedResource1(
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
         encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper_id);
     }
 }
 

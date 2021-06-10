@@ -636,18 +636,36 @@ void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(I
     GFXRECON_UNREFERENCED_PARAMETER(riid);
     GFXRECON_UNREFERENCED_PARAMETER(heap);
 
-    MEMORY_BASIC_INFORMATION info{};
+    if ((GetCaptureMode() & kModeWrite) == kModeWrite)
+    {
+        MEMORY_BASIC_INFORMATION info{};
 
-    auto result = VirtualQuery(address, &info, sizeof(info));
-    if (result > 0)
-    {
-        WriteCreateHeapAllocationCmd(reinterpret_cast<uint64_t>(address), info.RegionSize);
+        auto result = VirtualQuery(address, &info, sizeof(info));
+        if (result > 0)
+        {
+            WriteCreateHeapAllocationCmd(reinterpret_cast<uint64_t>(address), info.RegionSize);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
+                               "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
+                               GetLastError());
+        }
     }
-    else
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device3_OpenExistingHeapFromAddress(
+    ID3D12Device3_Wrapper* wrapper, HRESULT result, const void* address, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
-                           "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
-                           GetLastError());
+        if (SUCCEEDED(result) && (heap != nullptr) && ((*heap) != nullptr))
+        {
+            state_tracker_->TrackOpenExistingHeapFromAddress(heap, address);
+        }
     }
 }
 

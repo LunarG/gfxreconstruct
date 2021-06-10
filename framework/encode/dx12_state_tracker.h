@@ -99,6 +99,8 @@ class Dx12StateTracker
         }
     }
 
+    void TrackOpenExistingHeapFromAddress(void** heap, const void* address);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

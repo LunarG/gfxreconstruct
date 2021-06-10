@@ -248,6 +248,16 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistin
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromAddress>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device3_OpenExistingHeapFromAddress(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>
 {
     template <typename... Args>

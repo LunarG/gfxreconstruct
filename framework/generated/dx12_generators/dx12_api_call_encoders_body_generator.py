@@ -266,8 +266,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 and (not 'CommandList' in method_name)
                 and (not 'View' in method_name)
                 and (not 'Sampler' in method_name)
-                and (not 'Placed' in method_name)
-                and (not 'OpenExisting' in method_name)
             ):
                 is_create_call = True
                 value = self.get_value_info(parameters[-1])
