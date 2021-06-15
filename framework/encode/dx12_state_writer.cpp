@@ -88,6 +88,16 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12GraphicsCommandList_Wrapper>(state_table);
     StandardCreateWrite<ID3D12PipelineLibrary_Wrapper>(state_table);
     StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Debug1_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Debug2_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Debug_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DebugDevice1_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DebugDevice_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DebugCommandQueue_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DebugCommandList1_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DebugCommandList_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12SharingContract_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12InfoQueue_Wrapper>(state_table);
 
     // TODO (GH #83): Add D3D12 trimming support, write customized tracked state to file.
 

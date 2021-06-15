@@ -164,7 +164,9 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 {};
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
-{};
+{
+    // TODO (GH #83): Track debug layer state here?
+};
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {
