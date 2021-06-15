@@ -60,7 +60,7 @@ void D3D12CaptureManager::DestroyInstance()
 
 void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == S_OK))
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
     {
         if ((handle != nullptr) && (*handle != nullptr))
         {
@@ -82,7 +82,7 @@ void D3D12CaptureManager::EndCreateMethodCallCapture(HRESULT          result,
                                                      void**           handle,
                                                      format::HandleId object_id)
 {
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (result == S_OK))
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
     {
         if ((handle != nullptr) && (*handle != nullptr))
         {

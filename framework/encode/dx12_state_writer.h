@@ -51,8 +51,6 @@ class Dx12StateWriter
     {
         std::set<util::MemoryOutputStream*> processed;
         state_table.VisitWrappers([&](const Wrapper* wrapper) {
-            // TODO (GH #83): Add AddRef/Release commands as needed to set object ref count for replay.
-
             assert(wrapper != nullptr);
             assert(wrapper->GetObjectInfo() != nullptr);
             assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
@@ -71,6 +69,7 @@ class Dx12StateWriter
                     WriteMethodCall(
                         wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
                 }
+                WriteAddRefAndReleaseCommands(wrapper);
                 processed.insert(wrapper_info->create_parameters.get());
             }
         });
@@ -87,6 +86,12 @@ class Dx12StateWriter
 
     // Returns true if memory information was successfully retrieved and written and false otherwise.
     bool WriteCreateHeapAllocationCmd(const void* address);
+
+    void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);
+
+    void WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count);
+
+    void WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count);
 
     // TODO (GH #83): Add D3D12 trimming support, add custom functions for writing tracked state.
 

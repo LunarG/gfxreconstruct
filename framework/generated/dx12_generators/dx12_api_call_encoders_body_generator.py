@@ -260,16 +260,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
         # TODO (GH #83): are there creation calls that need to be processed when len(create_object_info) > 1 ?
         if len(create_object_info) == 1 and create_object_info[0]:
-            # TODO (GH #83): also process creation for these object types
-            if (
-                (not 'Pipeline' in method_name)
-                and (not 'CommandList' in method_name)
-                and (not 'View' in method_name)
-                and (not 'Sampler' in method_name)
-            ):
-                is_create_call = True
-                value = self.get_value_info(parameters[-1])
-                create_object_tuple = create_object_info[0]
+            is_create_call = True
+            create_object_tuple = create_object_info[0]
 
         if class_name:
             begin_capture_function = "BeginTrackedMethodCallCapture" if is_create_call else "BeginMethodCallCapture"

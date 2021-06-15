@@ -187,6 +187,11 @@ IUnknown_Wrapper : public IUnknown
         return reinterpret_cast<const T*>(object_.GetInterfacePtr());
     }
 
+    unsigned long GetRefCount() const
+    {
+        return ref_count_;
+    }
+
   protected:
     ~IUnknown_Wrapper()
     {

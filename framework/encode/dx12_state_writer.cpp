@@ -235,8 +235,6 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         assert(wrapper->GetObjectInfo() != nullptr);
         assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
 
-        // TODO (GH #83): Add AddRef/Release commands as needed to set object ref count for replay.
-
         auto wrapper_info = wrapper->GetObjectInfo();
         if (wrapper_info->open_existing_address != nullptr)
         {
@@ -251,6 +249,8 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
 
         WriteMethodCall(wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+
+        WriteAddRefAndReleaseCommands(wrapper);
     });
 }
 
@@ -277,6 +277,35 @@ bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
     }
 
     return false;
+}
+
+void Dx12StateWriter::WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper)
+{
+    // TODO (GH #83): how does shared/internal ref count factor in here?
+
+    // Add AddRef/Release commands as needed to set object ref count for replay.
+    for (unsigned long i = 1; i < wrapper->GetRefCount(); ++i)
+    {
+        WriteAddRefCommand(wrapper->GetCaptureId(), i + 1);
+    }
+    for (unsigned long i = 1; i > wrapper->GetRefCount(); --i)
+    {
+        WriteReleaseCommand(wrapper->GetCaptureId(), i - 1);
+    }
+}
+
+void Dx12StateWriter::WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count)
+{
+    encoder_.EncodeUInt32Value(result_ref_count);
+    WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_AddRef, handle_id, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count)
+{
+    encoder_.EncodeUInt32Value(result_ref_count);
+    WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, handle_id, &parameter_stream_);
+    parameter_stream_.Reset();
 }
 
 GFXRECON_END_NAMESPACE(encode)
