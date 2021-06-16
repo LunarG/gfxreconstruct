@@ -6975,7 +6975,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     oss << "    " << "" << ConverttoText(*Name.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << pUnknown;
+    oss << "    " << "" << "IUnknown_id" << pUnknown;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7524,7 +7524,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pConcernedDevice;
+    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7565,7 +7565,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     WriteBOOLString(oss, Exclusive, "    ", false);
@@ -7678,7 +7678,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pScanoutSurface;
+    oss << "    " << "" << "IDXGISurface_id" << pScanoutSurface;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7700,7 +7700,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDestination;
+    oss << "    " << "" << "IDXGISurface_id" << pDestination;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7810,7 +7810,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
     WriteBOOLString(oss, Fullscreen, "    ", false);
     oss << ",\n";
 
-    oss << "    " << "" << pTarget;
+    oss << "    " << "" << "IDXGIOutput_id" << pTarget;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8109,7 +8109,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9216,7 +9216,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     oss << "    " << "" << hWnd;
@@ -9234,7 +9234,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pRestrictToOutput;
+    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9266,10 +9266,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << pWindow;
+    oss << "    " << "" << "IUnknown_id" << pWindow;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9278,7 +9278,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pRestrictToOutput;
+    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9496,7 +9496,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9505,7 +9505,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pRestrictToOutput;
+    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9612,7 +9612,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pConcernedDevice;
+    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9634,7 +9634,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDestination;
+    oss << "    " << "" << "IDXGIResource_id" << pDestination;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9657,7 +9657,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
@@ -10205,7 +10205,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     oss << "    " << "" << hSurface;
@@ -10217,7 +10217,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
     }
     oss << ",\n";
 
-    oss << "    " << "" << pRestrictToOutput;
+    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -10250,7 +10250,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     oss << "    " << "" << hSurface;
@@ -10262,10 +10262,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
     }
     oss << ",\n";
 
-    oss << "    " << "" << pYuvDecodeBuffers;
+    oss << "    " << "" << "IDXGIResource_id" << pYuvDecodeBuffers;
     oss << ",\n";
 
-    oss << "    " << "" << pRestrictToOutput;
+    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -10381,7 +10381,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     oss << "    " << "" << ConverttoText(EnumFormat);
     oss << ",\n";
 
-    oss << "    " << "" << pConcernedDevice;
+    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10543,7 +10543,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     oss << "    " << "" << ConverttoText(ColorSpace);
     oss << ",\n";
 
-    oss << "    " << "" << pConcernedDevice;
+    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10796,7 +10796,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDevice;
+    oss << "    " << "" << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     oss << "    " << "" << Flags;
@@ -11284,7 +11284,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pAdapter;
+    oss << "    " << "" << "IUnknown_id" << pAdapter;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(MinimumFeatureLevel);
@@ -11459,7 +11459,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     oss << "    " << "" << ConverttoText(*guid.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << pData;
+    oss << "    " << "" << "IUnknown_id" << pData;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12052,10 +12052,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pAllocator;
+    oss << "    " << "" << "ID3D12CommandAllocator_id" << pAllocator;
     oss << ",\n";
 
-    oss << "    " << "" << pInitialState;
+    oss << "    " << "" << "ID3D12PipelineState_id" << pInitialState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12072,7 +12072,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pPipelineState;
+    oss << "    " << "" << "ID3D12PipelineState_id" << pPipelineState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12180,13 +12180,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
     oss << "    " << "" << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
     oss << "    " << "" << SrcOffset;
@@ -12256,10 +12256,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12281,7 +12281,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pTiledResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pTiledResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pTileRegionStartCoordinate, "    ", false))
@@ -12296,7 +12296,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pBuffer;
     oss << ",\n";
 
     oss << "    " << "" << BufferStartOffsetInBytes;
@@ -12323,13 +12323,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
     oss << "    " << "" << DstSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
     oss << "    " << "" << SrcSubresource;
@@ -12454,7 +12454,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pPipelineState;
+    oss << "    " << "" << "ID3D12PipelineState_id" << pPipelineState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12495,7 +12495,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pCommandList;
+    oss << "    " << "" << "ID3D12GraphicsCommandList_id" << pCommandList;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12536,7 +12536,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pRootSignature;
+    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12553,7 +12553,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatu
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pRootSignature;
+    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13049,7 +13049,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13092,7 +13092,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13125,7 +13125,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRegion, "    ", false))
@@ -13150,7 +13150,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pQueryHeap;
+    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(Type);
@@ -13175,7 +13175,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pQueryHeap;
+    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(Type);
@@ -13203,7 +13203,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pQueryHeap;
+    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(Type);
@@ -13215,7 +13215,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     oss << "    " << "" << NumQueries;
     oss << ",\n";
 
-    oss << "    " << "" << pDestinationBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pDestinationBuffer;
     oss << ",\n";
 
     oss << "    " << "" << AlignedDestinationBufferOffset;
@@ -13237,7 +13237,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pBuffer;
     oss << ",\n";
 
     oss << "    " << "" << AlignedBufferOffset;
@@ -13334,19 +13334,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pCommandSignature;
+    oss << "    " << "" << "ID3D12CommandSignature_id" << pCommandSignature;
     oss << ",\n";
 
     oss << "    " << "" << MaxCommandCount;
     oss << ",\n";
 
-    oss << "    " << "" << pArgumentBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pArgumentBuffer;
     oss << ",\n";
 
     oss << "    " << "" << ArgumentBufferOffset;
     oss << ",\n";
 
-    oss << "    " << "" << pCountBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pCountBuffer;
     oss << ",\n";
 
     oss << "    " << "" << CountBufferOffset;
@@ -13372,13 +13372,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
     oss << "    " << "" << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
     oss << "    " << "" << SrcOffset;
@@ -13419,13 +13419,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
     oss << "    " << "" << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcBuffer;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
     oss << "    " << "" << SrcOffset;
@@ -13517,7 +13517,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
     oss << "    " << "" << DstSubresource;
@@ -13529,7 +13529,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
     oss << "    " << "" << DstY;
     oss << ",\n";
 
-    oss << "    " << "" << pSrcResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
     oss << "    " << "" << SrcSubresource;
@@ -13618,7 +13618,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     oss << "    " << "" << NumResourceRegions;
@@ -13636,7 +13636,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pHeap;
+    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
     oss << "    " << "" << NumRanges;
@@ -13682,7 +13682,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pDstResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDstRegionStartCoordinate, "    ", false))
@@ -13691,7 +13691,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pSrcResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcRegionStartCoordinate, "    ", false))
@@ -13822,7 +13822,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pFence;
+    oss << "    " << "" << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
     oss << "    " << "" << Value;
@@ -13848,7 +13848,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pFence;
+    oss << "    " << "" << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
     oss << "    " << "" << Value;
@@ -14118,10 +14118,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
     oss << "    " << "" << ConverttoText(type);
     oss << ",\n";
 
-    oss << "    " << "" << pCommandAllocator;
+    oss << "    " << "" << "ID3D12CommandAllocator_id" << pCommandAllocator;
     oss << ",\n";
 
-    oss << "    " << "" << pInitialState;
+    oss << "    " << "" << "ID3D12PipelineState_id" << pInitialState;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -14275,7 +14275,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14304,10 +14304,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << pCounterResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pCounterResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14335,7 +14335,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14363,7 +14363,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14659,7 +14659,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pHeap;
+    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
     oss << "    " << "" << HeapOffset;
@@ -14759,7 +14759,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pObject;
+    oss << "    " << "" << "ID3D12DeviceChild_id" << pObject;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pAttributes, "    ", false))
@@ -15111,7 +15111,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pRootSignature;
+    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -15143,7 +15143,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pTiledResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pTiledResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumTilesForEntireResource, "    ", true))
@@ -15223,7 +15223,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pPipeline;
+    oss << "    " << "" << "ID3D12PipelineState_id" << pPipeline;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15659,7 +15659,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pFenceToSignal;
+    oss << "    " << "" << "ID3D12Fence_id" << pFenceToSignal;
     oss << ",\n";
 
     oss << "    " << "" << FenceValueToSignal;
@@ -15857,7 +15857,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pProtectedSession;
+    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
@@ -15897,7 +15897,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pProtectedSession;
+    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -15948,7 +15948,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pProtectedSession;
+    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -16141,7 +16141,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pObject;
+    oss << "    " << "" << "ID3D12DeviceChild_id" << pObject;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16250,7 +16250,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pOwner;
+    oss << "    " << "" << "ID3D12LifetimeOwner_id" << pOwner;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -16745,7 +16745,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pStateObjectToGrowFrom;
+    oss << "    " << "" << "ID3D12StateObject_id" << pStateObjectToGrowFrom;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riid.decoded_value);
@@ -16883,7 +16883,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pProtectedSession;
+    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
     oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
@@ -16920,7 +16920,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pHeap;
+    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
     oss << "    " << "" << HeapOffset;
@@ -16966,10 +16966,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pTargetedResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pTargetedResource;
     oss << ",\n";
 
-    oss << "    " << "" << pFeedbackResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pFeedbackResource;
     oss << ",\n";
 
     WriteStructString(oss, &DestDescriptor, "    ", false, false);
@@ -17125,7 +17125,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pProtectedResourceSession;
+    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedResourceSession;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17218,7 +17218,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pMetaCommand;
+    oss << "    " << "" << "ID3D12MetaCommand_id" << pMetaCommand;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pInitializationParametersData, "    ", false))
@@ -17246,7 +17246,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pMetaCommand;
+    oss << "    " << "" << "ID3D12MetaCommand_id" << pMetaCommand;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pExecutionParametersData, "    ", false))
@@ -17359,7 +17359,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pStateObject;
+    oss << "    " << "" << "ID3D12StateObject_id" << pStateObject;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17455,7 +17455,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << shadingRateImage;
+    oss << "    " << "" << "ID3D12Resource_id" << shadingRateImage;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17947,7 +17947,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     oss << "    " << "" << Subresource;
@@ -17977,7 +17977,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     oss << "    " << "" << Subresource;
@@ -18073,7 +18073,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     oss << "    " << "" << Subresource;
@@ -18204,7 +18204,7 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pResource;
+    oss << "    " << "" << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     oss << "    " << "" << Subresource;
@@ -18228,7 +18228,7 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pFence;
+    oss << "    " << "" << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
     oss << "    " << "" << FenceValue;

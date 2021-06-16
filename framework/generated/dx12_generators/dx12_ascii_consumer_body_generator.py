@@ -132,7 +132,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 elif count > 1:
                     pass
                 else:
-                    return prefix11 + value.name + ';\n'
+                    return prefix11 + '"{}_id" << '.format(value.base_type) + value.name + ';\n'
 
             elif type_name == 'void':
                 if value.is_array:
