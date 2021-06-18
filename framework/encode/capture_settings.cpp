@@ -195,7 +195,11 @@ const format::CompressionType kDefaultCompressionType = format::CompressionType:
 #endif
 // clang-format on
 
-CaptureSettings::CaptureSettings() {}
+CaptureSettings::CaptureSettings(const TraceSettings& trace_settings)
+{
+    trace_settings_ = trace_settings;
+    log_settings_   = {};
+}
 
 CaptureSettings::~CaptureSettings() {}
 

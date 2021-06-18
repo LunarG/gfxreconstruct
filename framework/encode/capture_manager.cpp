@@ -110,14 +110,22 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
     {
         assert(GetInstanceFunc() == nullptr);
 
+        // Create new instance of capture manager.
+        instance_count_ = 1;
+        NewInstanceFunc();
+
+        assert(GetInstanceFunc() != nullptr);
+
         // Initialize logging to report only errors (to stderr).
         util::Log::Settings stderr_only_log_settings;
         stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
         stderr_only_log_settings.output_errors_to_stderr = true;
         util::Log::Init(stderr_only_log_settings);
 
+        // Get capture settings which can be different per capture manager.
+        CaptureSettings settings(GetInstanceFunc()->GetDefaultTraceSettings());
+
         // Load log settings.
-        CaptureSettings settings = {};
         CaptureSettings::LoadLogSettings(&settings);
 
         // Reinitialize logging with values retrieved from settings.
@@ -133,9 +141,7 @@ bool CaptureManager::CreateInstance(std::function<CaptureManager*()> GetInstance
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
 
-        instance_count_ = 1;
-        NewInstanceFunc();
-        assert(GetInstanceFunc() != nullptr);
+        // Initialize capture manager with default settings.
         success = GetInstanceFunc()->Initialize(base_filename, trace_settings);
         if (!success)
         {
@@ -777,6 +783,12 @@ void CaptureManager::WriteToFile(const void* data, size_t size)
     {
         file_stream_->Flush();
     }
+}
+
+CaptureSettings::TraceSettings CaptureManager::GetDefaultTraceSettings()
+{
+    // Return default trace settings.
+    return CaptureSettings::TraceSettings();
 }
 
 GFXRECON_END_NAMESPACE(encode)

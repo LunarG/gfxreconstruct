@@ -85,7 +85,7 @@ class CaptureSettings
     };
 
   public:
-    CaptureSettings();
+    CaptureSettings(const TraceSettings& trace_settings);
 
     ~CaptureSettings();
 

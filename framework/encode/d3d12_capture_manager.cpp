@@ -1427,5 +1427,15 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
     }
 }
 
+CaptureSettings::TraceSettings D3D12CaptureManager::GetDefaultTraceSettings()
+{
+    CaptureSettings::TraceSettings d3d12_trace_settings = {};
+
+    // Return different trace setting defaults for D3D12.
+    d3d12_trace_settings.page_guard_external_memory = true;
+
+    return d3d12_trace_settings;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

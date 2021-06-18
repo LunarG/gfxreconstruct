@@ -379,6 +379,8 @@ class D3D12CaptureManager : public CaptureManager
 
     HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
 
+    virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
+
   protected:
     D3D12CaptureManager();
 

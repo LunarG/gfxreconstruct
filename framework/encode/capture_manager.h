@@ -126,6 +126,8 @@ class CaptureManager
 
     void WriteDisplayMessageCmd(const char* message);
 
+    virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
+
   protected:
     enum CaptureModeFlags : uint32_t
     {
