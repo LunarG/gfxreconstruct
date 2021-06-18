@@ -75,6 +75,8 @@ const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kSyncOption[]                       = "--sync";
 const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
 const char kValidateOption[]                   = "--validate";
+const char kDeniedMessages[]                   = "--denied-messages";
+const char kAllowedMessages[]                  = "--allowed-messages";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kScreenshotAllOption[]              = "--screenshot-all";
 const char kScreenshotRangeArgument[]          = "--screenshots";
@@ -578,6 +580,35 @@ static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parse
 }
 #endif
 
+static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
+                                            const char*                           filter_messages)
+{
+    const auto&          value = arg_parser.GetArgumentValue(filter_messages);
+    std::vector<int32_t> msgs;
+    if (!value.empty())
+    {
+        std::vector<std::string> values;
+        std::istringstream       value_input;
+        value_input.str(value);
+
+        for (std::string val; std::getline(value_input, val, ',');)
+        {
+            size_t count = std::count_if(val.begin(), val.end(), ::isdigit);
+            if (count == val.length())
+            {
+                msgs.push_back(std::stoi(val));
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid filter messages\"%s\", which contains non-numeric values",
+                                     val.c_str());
+                break;
+            }
+        }
+    }
+    return msgs;
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kValidateOption))
@@ -652,8 +683,9 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
 
-    replay_options.enable_d3d12 = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
-
+    replay_options.enable_d3d12         = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
+    replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
+    replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
     return replay_options;
 }
 #endif

@@ -75,6 +75,10 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
             {
                 GFXRECON_LOG_WARNING("Failed to retrieve IDXGIInfoQueue for replay option '--validate'.");
             }
+            else
+            {
+                SetDebugMsgFilter(options_.DeniedDebugMessages, options_.AllowedDebugMessages);
+            }
         }
         else
         {
@@ -1720,6 +1724,31 @@ void Dx12ReplayConsumerBase::WaitForFenceEvent(format::HandleId fence_id, HANDLE
     }
 }
 
+void Dx12ReplayConsumerBase::SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
+                                               std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs)
+{
+    HRESULT                ok;
+    UINT                   denied_filter_size  = static_cast<UINT>(denied_msgs.size());
+    UINT                   allowed_filter_size = static_cast<UINT>(allowed_msgs.size());
+    DXGI_INFO_QUEUE_FILTER filter              = {};
+    if (denied_filter_size > 0)
+    {
+        filter.DenyList.NumIDs  = denied_filter_size;
+        filter.DenyList.pIDList = &denied_msgs[0];
+    }
+
+    if (allowed_filter_size > 0)
+    {
+        filter.AllowList.NumIDs  = allowed_filter_size;
+        filter.AllowList.pIDList = &allowed_msgs[0];
+    }
+    ok = info_queue_->AddRetrievalFilterEntries(DXGI_DEBUG_ALL, &filter);
+    if (ok != S_OK)
+    {
+        GFXRECON_LOG_WARNING("Adding denied storage filter was not successful");
+    }
+}
+
 void Dx12ReplayConsumerBase::ReadDebugMessages()
 {
     if (info_queue_ == nullptr)
@@ -1727,7 +1756,7 @@ void Dx12ReplayConsumerBase::ReadDebugMessages()
         return;
     }
 
-    auto   message_number = info_queue_->GetNumStoredMessages(DXGI_DEBUG_ALL);
+    auto   message_number = info_queue_->GetNumStoredMessagesAllowedByRetrievalFilters(DXGI_DEBUG_ALL);
     SIZE_T message_length = 0;
 
     for (auto i = 0; i < message_number; ++i)
@@ -1745,19 +1774,19 @@ void Dx12ReplayConsumerBase::ReadDebugMessages()
         switch (message->Severity)
         {
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
-                GFXRECON_LOG_ERROR("D3D12 CORRUPTION: %s\n", message->pDescription);
+                GFXRECON_LOG_ERROR("D3D12 CORRUPTION: [ID %d] %s\n", message->ID, message->pDescription);
                 break;
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
-                GFXRECON_LOG_ERROR("D3D12 ERROR: %s\n", message->pDescription);
+                GFXRECON_LOG_ERROR("D3D12 ERROR: [ID %d] %s\n", message->ID, message->pDescription);
                 break;
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
-                GFXRECON_LOG_WARNING("D3D12 WARNING: %s\n", message->pDescription);
+                GFXRECON_LOG_WARNING("D3D12 WARNING: [ID %d] %s\n", message->ID, message->pDescription);
                 break;
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
-                GFXRECON_LOG_INFO("D3D12 INFO: %s\n", message->pDescription);
+                GFXRECON_LOG_INFO("D3D12 INFO: [ID %d] %s\n", message->ID, message->pDescription);
                 break;
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
-                GFXRECON_LOG_INFO("D3D12 MESSAGE: %s\n", message->pDescription);
+                GFXRECON_LOG_INFO("D3D12 MESSAGE: [ID %d] %s\n", message->ID, message->pDescription);
                 break;
             default:
                 break;

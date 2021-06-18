@@ -28,12 +28,16 @@
 
 #include "util/defines.h"
 
+#include <vector>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct DxReplayOptions : public ReplayOptions
 {
     bool enable_d3d12{ true };
+    std::vector<int32_t> AllowedDebugMessages;
+    std::vector<int32_t> DeniedDebugMessages;
 };
 
 GFXRECON_END_NAMESPACE(decode)

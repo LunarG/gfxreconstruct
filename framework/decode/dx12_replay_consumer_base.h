@@ -391,6 +391,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void WaitForFenceEvent(format::HandleId fence_id, HANDLE event);
 
+    void SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
+                           std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs);
+
   private:
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;
