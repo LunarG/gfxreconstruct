@@ -47,13 +47,13 @@ class Dx12StateTracker
     void AddEntry(REFIID                          riid,
                   typename void**                 new_handle,
                   format::ApiCallId               create_call_id,
-                  format::HandleId                object_id,
+                  format::HandleId                create_call_object_id,
                   const util::MemoryOutputStream* create_parameter_buffer);
 
     template <typename Wrapper>
     void AddEntry(typename void**                 new_handle,
                   format::ApiCallId               create_call_id,
-                  format::HandleId                object_id,
+                  format::HandleId                create_call_object_id,
                   const util::MemoryOutputStream* create_parameter_buffer)
     {
         assert(new_handle != nullptr);
@@ -70,7 +70,7 @@ class Dx12StateTracker
                 dx12_state_tracker::InitializeState<Wrapper>(
                     wrapper,
                     create_call_id,
-                    object_id,
+                    create_call_object_id,
                     std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
                                                                create_parameter_buffer->GetDataSize()));
             }

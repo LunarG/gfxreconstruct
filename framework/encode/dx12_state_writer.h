@@ -44,8 +44,13 @@ class Dx12StateWriter
     void WriteState(const Dx12StateTable& state_table, uint64_t frame_number);
 
   private:
-    // TODO: This is the same function as VulkanStateWriter. Move to a utility class or common base class to reduce code
-    // duplication.
+    struct ResourceSnapshotInfo
+    {
+        ID3D12Resource_Wrapper* resource_wrapper{ nullptr };
+    };
+
+  private:
+    // TODO: This is similar to the method in VulkanStateWriter. Possibly refactor to share common code.
     template <typename Wrapper>
     void StandardCreateWrite(const Dx12StateTable& state_table)
     {
@@ -60,14 +65,15 @@ class Dx12StateWriter
             auto wrapper_info = wrapper->GetObjectInfo();
             if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
             {
-                if (wrapper_info->object_id == format::kNullHandleId)
+                if (wrapper_info->create_call_object_id == format::kNullHandleId)
                 {
                     WriteFunctionCall(wrapper_info->create_call_id, wrapper_info->create_parameters.get());
                 }
                 else
                 {
-                    WriteMethodCall(
-                        wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+                    WriteMethodCall(wrapper_info->create_call_id,
+                                    wrapper_info->create_call_object_id,
+                                    wrapper_info->create_parameters.get());
                 }
                 WriteAddRefAndReleaseCommands(wrapper);
                 processed.insert(wrapper_info->create_parameters.get());
@@ -95,7 +101,12 @@ class Dx12StateWriter
 
     void WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count);
 
-    // TODO (GH #83): Add D3D12 trimming support, add custom functions for writing tracked state.
+    void WriteResourceState(const Dx12StateTable& state_table);
+
+    HRESULT
+    WriteResourceSnapshots(const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots);
+
+    HRESULT WriteResourceSnapshot(const ResourceSnapshotInfo& snapshot);
 
   private:
     util::FileOutputStream*  output_stream_;

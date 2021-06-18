@@ -111,7 +111,8 @@ enum class MetaDataType : uint16_t
     kResizeWindowCommand2                   = 13,
     kSetOpaqueAddressCommand                = 14,
     kSetRayTracingShaderGroupHandlesCommand = 15,
-    kCreateHeapAllocationCommand            = 16
+    kCreateHeapAllocationCommand            = 16,
+    kInitSubresourceCommand                 = 17
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -390,6 +391,16 @@ struct InitImageCommandHeader
     uint32_t         aspect;
     uint32_t         layout;
     uint32_t         level_count;
+};
+
+struct InitSubresourceCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId resource_id;
+    uint32_t         subresource;
+    uint64_t         data_size;
 };
 
 struct SetDeviceMemoryPropertiesCommand

@@ -81,7 +81,7 @@ void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, v
 void D3D12CaptureManager::EndCreateMethodCallCapture(HRESULT          result,
                                                      REFIID           riid,
                                                      void**           handle,
-                                                     format::HandleId object_id)
+                                                     format::HandleId create_call_object_id)
 {
     if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
     {
@@ -93,7 +93,7 @@ void D3D12CaptureManager::EndCreateMethodCallCapture(HRESULT          result,
             assert(thread_data != nullptr);
 
             state_tracker_->AddEntry(
-                riid, handle, thread_data->call_id_, object_id, thread_data->parameter_buffer_.get());
+                riid, handle, thread_data->call_id_, create_call_object_id, thread_data->parameter_buffer_.get());
         }
     }
 
@@ -109,10 +109,10 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
         assert(thread_data != nullptr);
 
         // Store creation data with descriptor info struct.
-        DxDescriptorInfo* descriptor_info  = GetDescriptorInfo(dest_descriptor.ptr);
-        descriptor_info->create_call_id    = thread_data->call_id_;
-        descriptor_info->object_id         = create_call_object_id;
-        descriptor_info->create_parameters = std::make_shared<util::MemoryOutputStream>(
+        DxDescriptorInfo* descriptor_info      = GetDescriptorInfo(dest_descriptor.ptr);
+        descriptor_info->create_call_id        = thread_data->call_id_;
+        descriptor_info->create_call_object_id = create_call_object_id;
+        descriptor_info->create_parameters     = std::make_shared<util::MemoryOutputStream>(
             thread_data->parameter_buffer_->GetData(), thread_data->parameter_buffer_->GetDataSize());
     }
 
@@ -209,8 +209,9 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     assert(resource_wrapper != nullptr);
 
     auto info = resource_wrapper->GetObjectInfo();
-    assert(info != nullptr);
+    assert((info != nullptr) && (device_wrapper != nullptr));
 
+    info->device_id       = device_wrapper->GetCaptureId();
     info->heap_type       = heap_type;
     info->page_property   = page_property;
     info->memory_pool     = memory_pool;
@@ -225,7 +226,6 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
     else
     {
-        assert(device_wrapper != nullptr);
         assert((dimension == D3D12_RESOURCE_DIMENSION_TEXTURE1D) || (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D) ||
                (dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D));
 

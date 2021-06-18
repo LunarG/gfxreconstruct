@@ -20,39 +20,24 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_DX12_STATE_TRACKER_INITIALIZERS_H
-#define GFXRECON_ENCODE_DX12_STATE_TRACKER_INITIALIZERS_H
+#ifndef GFXRECON_GRAPHICS_DX12_UTIL_H
+#define GFXRECON_GRAPHICS_DX12_UTIL_H
 
-#include "format/format.h"
 #include "util/defines.h"
-#include "util/memory_output_stream.h"
+#include "util/platform.h"
 
-#include <memory>
+#include <d3d12.h>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
-GFXRECON_BEGIN_NAMESPACE(dx12_state_tracker)
+GFXRECON_BEGIN_NAMESPACE(graphics)
+GFXRECON_BEGIN_NAMESPACE(dx12)
 
-// TODO (GH #83): Add D3D12 trimming support, initialize custom state tracking objects.
+// Maps a given sub resource and returns a pointer to the mapped region in data_ptr.
+HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, SIZE_T subresource_size, uint8_t*& data_ptr);
 
-template <typename Wrapper>
-void InitializeState(Wrapper*                                  wrapper,
-                     format::ApiCallId                         create_call_id,
-                     format::HandleId                          create_call_object_id,
-                     std::shared_ptr<util::MemoryOutputStream> create_parameters)
-{
-    assert(wrapper != nullptr);
-    assert(create_parameters != nullptr);
-
-    auto wrapper_info = wrapper->GetObjectInfo();
-
-    wrapper_info->create_call_id        = create_call_id;
-    wrapper_info->create_call_object_id = create_call_object_id;
-    wrapper_info->create_parameters     = std::move(create_parameters);
-}
-
-GFXRECON_END_NAMESPACE(dx12_state_tracker)
-GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(dx12)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_DX12_STATE_TRACKER_INITIALIZERS_H
+#endif // GFXRECON_GRAPHICS_DX12_UTIL_H

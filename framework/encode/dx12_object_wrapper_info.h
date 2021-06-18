@@ -41,7 +41,7 @@ class ID3D12Resource_Wrapper;
 struct DxWrapperInfo
 {
     format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    format::HandleId                          object_id{ format::kNullHandleId };
+    format::HandleId                          create_call_object_id{ format::kNullHandleId };
     std::shared_ptr<util::MemoryOutputStream> create_parameters{ nullptr };
 };
 
@@ -174,6 +174,7 @@ struct ID3D12DeviceInfo : public DxWrapperInfo
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {
+    format::HandleId                     device_id{ format::kNullHandleId };
     size_t                               num_subresources{ 0 };
     std::unique_ptr<uint64_t[]>          subresource_sizes;
     std::unique_ptr<MappedSubresource[]> mapped_subresources;

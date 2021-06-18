@@ -1258,6 +1258,69 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             }
         }
     }
+    else if (meta_data_type == format::MetaDataType::kInitSubresourceCommand)
+    {
+        format::InitSubresourceCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.resource_id, sizeof(header.resource_id));
+        success = success && ReadBytes(&header.subresource, sizeof(header.subresource));
+        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+
+        if (success)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+
+            if (format::IsBlockCompressed(block_header.type))
+            {
+                size_t uncompressed_size = 0;
+                size_t compressed_size =
+                    static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
+
+                success = ReadCompressedParameterBuffer(
+                    compressed_size, static_cast<size_t>(header.data_size), &uncompressed_size);
+            }
+            else
+            {
+                success = ReadParameterBuffer(static_cast<size_t>(header.data_size));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchInitSubresourceCommand(header.thread_id,
+                                                                header.device_id,
+                                                                header.resource_id,
+                                                                header.subresource,
+                                                                header.data_size,
+                                                                parameter_buffer_.data());
+                    }
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read init subresource data meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData,
+                                         "Failed to read init subresource data meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read init subresource data meta-data block header");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

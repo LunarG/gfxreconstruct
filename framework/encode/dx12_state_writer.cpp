@@ -23,6 +23,7 @@
 #include "encode/dx12_state_writer.h"
 
 #include "encode/custom_dx12_struct_encoders.h"
+#include "graphics/dx12_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -78,7 +79,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
     StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
     StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12Resource_Wrapper>(state_table);
+    WriteResourceState(state_table);
     WriteDescriptorState(state_table);
     StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
     StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
@@ -170,7 +171,7 @@ void Dx12StateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryO
 }
 
 void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
-                                      format::HandleId          object_id,
+                                      format::HandleId          call_object_id,
                                       util::MemoryOutputStream* parameter_buffer)
 {
     assert(parameter_buffer != nullptr);
@@ -199,7 +200,7 @@ void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
 
             compressed_header.block_header.type = format::BlockType::kCompressedMethodCallBlock;
             compressed_header.api_call_id       = call_id;
-            compressed_header.object_id         = object_id;
+            compressed_header.object_id         = call_object_id;
             compressed_header.thread_id         = thread_id_;
             compressed_header.uncompressed_size = uncompressed_size;
 
@@ -222,7 +223,7 @@ void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
 
         uncompressed_header.block_header.type = format::BlockType::kMethodCallBlock;
         uncompressed_header.api_call_id       = call_id;
-        uncompressed_header.object_id         = object_id;
+        uncompressed_header.object_id         = call_object_id;
         uncompressed_header.thread_id         = thread_id_;
 
         packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(compressed_header.object_id) +
@@ -259,7 +260,8 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
 
         // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
 
-        WriteMethodCall(wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+        WriteMethodCall(
+            wrapper_info->create_call_id, wrapper_info->create_call_object_id, wrapper_info->create_parameters.get());
 
         WriteAddRefAndReleaseCommands(wrapper);
     });
@@ -301,7 +303,8 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         auto wrapper_info = wrapper->GetObjectInfo();
 
         // Write heap creation call.
-        WriteMethodCall(wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+        WriteMethodCall(
+            wrapper_info->create_call_id, wrapper_info->create_call_object_id, wrapper_info->create_parameters.get());
 
         WriteAddRefAndReleaseCommands(wrapper);
 
@@ -335,8 +338,9 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             const DxDescriptorInfo& descriptor_info = wrapper_info->descriptor_info[i];
             if (descriptor_info.create_parameters != nullptr)
             {
-                WriteMethodCall(
-                    descriptor_info.create_call_id, descriptor_info.object_id, descriptor_info.create_parameters.get());
+                WriteMethodCall(descriptor_info.create_call_id,
+                                descriptor_info.create_call_object_id,
+                                descriptor_info.create_parameters.get());
             }
         }
     });
@@ -369,6 +373,153 @@ void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned l
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, handle_id, &parameter_stream_);
     parameter_stream_.Reset();
+}
+
+void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
+{
+    HRESULT result = E_FAIL;
+
+    std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>> resource_snapshots;
+
+    state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
+        assert((resource_wrapper != nullptr) && (resource_wrapper->GetObjectInfo() != nullptr) &&
+               (resource_wrapper->GetObjectInfo()->create_parameters != nullptr));
+
+        auto resource_info = resource_wrapper->GetObjectInfo();
+        assert(resource_info->create_call_object_id != format::kNullHandleId);
+
+        // Write the resource creation call to capture file.
+        WriteMethodCall(resource_info->create_call_id,
+                        resource_info->create_call_object_id,
+                        resource_info->create_parameters.get());
+        WriteAddRefAndReleaseCommands(resource_wrapper);
+
+        // Collect list of subresources that need to be written to the capture file.
+        for (UINT i = 0; i < resource_info->num_subresources; ++i)
+        {
+            ResourceSnapshotInfo snapshot_info;
+            snapshot_info.resource_wrapper = resource_wrapper;
+            resource_snapshots[resource_info->device_id].push_back(snapshot_info);
+        }
+    });
+
+    // Write resource snapshots to the capture file.
+    WriteResourceSnapshots(resource_snapshots);
+}
+
+HRESULT
+Dx12StateWriter::WriteResourceSnapshots(
+    const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots)
+{
+    HRESULT result = S_OK;
+
+    for (auto kvp : snapshots)
+    {
+        auto device_id = kvp.first;
+        auto snapshots = kvp.second;
+
+        // Write the block indicating resource processing start.
+        format::BeginResourceInitCommand begin_cmd;
+        begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
+        begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+        begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
+                                                                    format::MetaDataType::kBeginResourceInitCommand);
+        begin_cmd.thread_id                     = thread_id_;
+        begin_cmd.device_id                     = device_id;
+        begin_cmd.max_resource_size             = 0; // TODO: use these?
+        begin_cmd.max_copy_size                 = 0;
+
+        output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
+
+        // Write each resource snapshot to the capture file.
+        for (auto snapshot : kvp.second)
+        {
+            WriteResourceSnapshot(snapshot);
+        }
+
+        // Write the block indicating resource processing end.
+        format::EndResourceInitCommand end_cmd;
+        end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
+        end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+        end_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kEndResourceInitCommand);
+        end_cmd.thread_id = thread_id_;
+        end_cmd.device_id = device_id;
+
+        output_stream_->Write(&end_cmd, sizeof(end_cmd));
+    }
+
+    return result;
+}
+
+HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snapshot)
+{
+    HRESULT result = S_OK;
+
+    ID3D12Resource_Wrapper* resource_wrapper = snapshot.resource_wrapper;
+    ID3D12ResourceInfo*     resource_info    = resource_wrapper->GetObjectInfo();
+    ID3D12Resource*         resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+
+    // TODO (GH #83): Create a mappable copy of resources that are not CPU-visible.
+    ID3D12Resource* mappable_resource = resource;
+
+    for (uint32_t i = 0; i < resource_info->num_subresources; ++i)
+    {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, resource_info->subresource_sizes[i]);
+
+        uint8_t* mapped_data      = nullptr;
+        size_t   subresource_size = static_cast<size_t>(resource_info->subresource_sizes[i]);
+
+        // Map the subresource.
+        result = graphics::dx12::MapSubresource(mappable_resource, i, subresource_size, mapped_data);
+        if (!SUCCEEDED(result) || (mapped_data == nullptr))
+        {
+            GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64
+                               "). Resource's data may be invalid in capture file.",
+                               i,
+                               resource_wrapper->GetCaptureId());
+            continue;
+        }
+
+        // Create subresource upload data block.
+        format::InitSubresourceCommandHeader upload_cmd;
+        upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+        upload_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitSubresourceCommand);
+        upload_cmd.thread_id   = thread_id_;
+        upload_cmd.device_id   = resource_info->device_id;
+        upload_cmd.resource_id = resource_wrapper->GetCaptureId();
+        upload_cmd.subresource = i;
+        upload_cmd.data_size   = subresource_size;
+
+        // Compress block data.
+        if (compressor_ != nullptr)
+        {
+            size_t compressed_size =
+                compressor_->Compress(subresource_size, mapped_data, &compressed_parameter_buffer_, 0);
+
+            if ((compressed_size > 0) && (compressed_size < subresource_size))
+            {
+                upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                mapped_data      = compressed_parameter_buffer_.data();
+                subresource_size = compressed_size;
+            }
+        }
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + subresource_size;
+
+        // Write upload block to file.
+        output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+        output_stream_->Write(mapped_data, subresource_size);
+
+        // Unmap the subresource.
+        D3D12_RANGE empty_range = { 0, 0 };
+        mappable_resource->Unmap(i, &empty_range);
+    }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(encode)

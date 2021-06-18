@@ -23,6 +23,7 @@
 #include "decode/dx12_replay_consumer_base.h"
 
 #include "decode/dx12_enum_util.h"
+#include "graphics/dx12_util.h"
 #include "util/gpu_va_range.h"
 #include "util/platform.h"
 
@@ -144,6 +145,53 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
                            allocation_id,
                            allocation_size);
     }
+}
+
+void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
+                                                             uint64_t         max_resource_size,
+                                                             uint64_t         max_copy_size)
+{}
+
+void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id) {}
+
+void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(format::HandleId device_id,
+                                                           format::HandleId resource_id,
+                                                           uint32_t         subresource,
+                                                           uint64_t         data_size,
+                                                           const uint8_t*   data)
+{
+    HRESULT result = E_FAIL;
+
+    auto device        = MapObject<ID3D12Device>(device_id);
+    auto resource_info = GetObjectInfo(resource_id);
+    auto resource      = static_cast<ID3D12Resource*>(resource_info->object);
+
+    assert(MapObject<ID3D12Resource>(resource_id) == resource);
+
+    // TODO (GH #83): Create a mappable copy of resources that are not CPU-visible.
+    ID3D12Resource* mappable_resource = resource;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+
+    uint8_t* mapped_data = nullptr;
+
+    // Map the subresource.
+    result =
+        graphics::dx12::MapSubresource(mappable_resource, subresource, static_cast<size_t>(data_size), mapped_data);
+    if (!SUCCEEDED(result))
+    {
+        GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64
+                           "). Resource's data may be invalid for replay.",
+                           subresource,
+                           resource_id);
+        return;
+    }
+
+    // Copy the data to the subresource.
+    util::platform::MemoryCopy(mapped_data, static_cast<size_t>(data_size), data, static_cast<size_t>(data_size));
+
+    // Unmap the subresource, write the full range.
+    mappable_resource->Unmap(subresource, nullptr);
 }
 
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)

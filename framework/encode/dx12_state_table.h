@@ -143,56 +143,56 @@ class Dx12StateTable
     bool RemoveWrapper(const IDXGISwapChain_Wrapper* wrapper)                           { return RemoveEntry(wrapper, idxgi_swap_chain_map_); }
     bool RemoveWrapper(const IDXGISwapChainMedia_Wrapper* wrapper)                      { return RemoveEntry(wrapper, idxgi_swap_chain_media_map_); }
 
-    void VisitWrappers(std::function<void(const ID3D10Blob_Wrapper*)> visitor) const                               { for (auto entry : id3d10_blob_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12CommandAllocator_Wrapper*)> visitor) const                   { for (auto entry : id3d12_command_allocator_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12CommandQueue_Wrapper*)> visitor) const                       { for (auto entry : id3d12_command_queue_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12CommandSignature_Wrapper*)> visitor) const                   { for (auto entry : id3d12_command_signature_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Debug_Wrapper*)> visitor) const                              { for (auto entry : id3d12_debug_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Debug1_Wrapper*)> visitor) const                             { for (auto entry : id3d12_debug1_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Debug2_Wrapper*)> visitor) const                             { for (auto entry : id3d12_debug2_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DebugCommandList_Wrapper*)> visitor) const                   { for (auto entry : id3d12_debug_command_list_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DebugCommandList1_Wrapper*)> visitor) const                  { for (auto entry : id3d12_debug_command_list1_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DebugCommandQueue_Wrapper*)> visitor) const                  { for (auto entry : id3d12_debug_command_queue_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DebugDevice_Wrapper*)> visitor) const                        { for (auto entry : id3d12_debug_device_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DebugDevice1_Wrapper*)> visitor) const                       { for (auto entry : id3d12_debug_device1_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DescriptorHeap_Wrapper*)> visitor) const                     { for (auto entry : id3d12_descriptor_heap_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Device_Wrapper*)> visitor) const                             { for (auto entry : id3d12_device_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DeviceRemovedExtendedData_Wrapper*)> visitor) const          { for (auto entry : id3d12_device_removed_extended_data_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12DeviceRemovedExtendedDataSettings_Wrapper*)> visitor) const  { for (auto entry : id3d12_device_removed_extended_data_settings_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Fence_Wrapper*)> visitor) const                              { for (auto entry : id3d12_fence_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12GraphicsCommandList_Wrapper*)> visitor) const                { for (auto entry : id3d12_graphics_command_list_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Heap_Wrapper*)> visitor) const                               { for (auto entry : id3d12_heap_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12InfoQueue_Wrapper*)> visitor) const                          { for (auto entry : id3d12_info_queue_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12LifetimeOwner_Wrapper*)> visitor) const                      { for (auto entry : id3d12_lifetime_owner_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12LifetimeTracker_Wrapper*)> visitor) const                    { for (auto entry : id3d12_lifetime_tracker_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12MetaCommand_Wrapper*)> visitor) const                        { for (auto entry : id3d12_meta_command_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12PipelineLibrary_Wrapper*)> visitor) const                    { for (auto entry : id3d12_pipeline_library_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12PipelineState_Wrapper*)> visitor) const                      { for (auto entry : id3d12_pipeline_state_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12ProtectedResourceSession_Wrapper*)> visitor) const           { for (auto entry : id3d12_protected_resource_session_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12QueryHeap_Wrapper*)> visitor) const                          { for (auto entry : id3d12_query_heap_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Resource_Wrapper*)> visitor) const                           { for (auto entry : id3d12_resource_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12RootSignature_Wrapper*)> visitor) const                      { for (auto entry : id3d12_root_signature_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12RootSignatureDeserializer_Wrapper*)> visitor) const          { for (auto entry : id3d12_root_signature_deserializer_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12SharingContract_Wrapper*)> visitor) const                    { for (auto entry : id3d12_sharing_contract_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12StateObject_Wrapper*)> visitor) const                        { for (auto entry : id3d12_state_object_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12StateObjectProperties_Wrapper*)> visitor) const              { for (auto entry : id3d12_state_object_properties_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12SwapChainAssistant_Wrapper*)> visitor) const                 { for (auto entry : id3d12_swap_chain_assistant_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12Tools_Wrapper*)> visitor) const                              { for (auto entry : id3d12_tools_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3D12VersionedRootSignatureDeserializer_Wrapper*)> visitor) const { for (auto entry : id3d12_versioned_root_signature_deserializer_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ID3DDestructionNotifier_Wrapper*)> visitor) const                  { for (auto entry : id3d_destruction_notifier_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIAdapter_Wrapper*)> visitor) const                             { for (auto entry : idxgi_adapter_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIDecodeSwapChain_Wrapper*)> visitor) const                     { for (auto entry : idxgi_decode_swap_chain_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIDevice_Wrapper*)> visitor) const                              { for (auto entry : idxgi_device_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIDisplayControl_Wrapper*)> visitor) const                      { for (auto entry : idxgi_display_control_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIFactory_Wrapper*)> visitor) const                             { for (auto entry : idxgi_factory_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIFactoryMedia_Wrapper*)> visitor) const                        { for (auto entry : idxgi_factory_media_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIKeyedMutex_Wrapper*)> visitor) const                          { for (auto entry : idxgi_keyed_mutex_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIOutput_Wrapper*)> visitor) const                              { for (auto entry : idxgi_output_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIOutputDuplication_Wrapper*)> visitor) const                   { for (auto entry : idxgi_output_duplication_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGIResource_Wrapper*)> visitor) const                            { for (auto entry : idxgi_resource_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGISurface_Wrapper*)> visitor) const                             { for (auto entry : idxgi_surface_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGISwapChain_Wrapper*)> visitor) const                           { for (auto entry : idxgi_swap_chain_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IDXGISwapChainMedia_Wrapper*)> visitor) const                      { for (auto entry : idxgi_swap_chain_media_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D10Blob_Wrapper*)> visitor) const                               { for (auto entry : id3d10_blob_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12CommandAllocator_Wrapper*)> visitor) const                   { for (auto entry : id3d12_command_allocator_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12CommandQueue_Wrapper*)> visitor) const                       { for (auto entry : id3d12_command_queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12CommandSignature_Wrapper*)> visitor) const                   { for (auto entry : id3d12_command_signature_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Debug_Wrapper*)> visitor) const                              { for (auto entry : id3d12_debug_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Debug1_Wrapper*)> visitor) const                             { for (auto entry : id3d12_debug1_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Debug2_Wrapper*)> visitor) const                             { for (auto entry : id3d12_debug2_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DebugCommandList_Wrapper*)> visitor) const                   { for (auto entry : id3d12_debug_command_list_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DebugCommandList1_Wrapper*)> visitor) const                  { for (auto entry : id3d12_debug_command_list1_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DebugCommandQueue_Wrapper*)> visitor) const                  { for (auto entry : id3d12_debug_command_queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DebugDevice_Wrapper*)> visitor) const                        { for (auto entry : id3d12_debug_device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DebugDevice1_Wrapper*)> visitor) const                       { for (auto entry : id3d12_debug_device1_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DescriptorHeap_Wrapper*)> visitor) const                     { for (auto entry : id3d12_descriptor_heap_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Device_Wrapper*)> visitor) const                             { for (auto entry : id3d12_device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DeviceRemovedExtendedData_Wrapper*)> visitor) const          { for (auto entry : id3d12_device_removed_extended_data_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12DeviceRemovedExtendedDataSettings_Wrapper*)> visitor) const  { for (auto entry : id3d12_device_removed_extended_data_settings_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Fence_Wrapper*)> visitor) const                              { for (auto entry : id3d12_fence_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12GraphicsCommandList_Wrapper*)> visitor) const                { for (auto entry : id3d12_graphics_command_list_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Heap_Wrapper*)> visitor) const                               { for (auto entry : id3d12_heap_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12InfoQueue_Wrapper*)> visitor) const                          { for (auto entry : id3d12_info_queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12LifetimeOwner_Wrapper*)> visitor) const                      { for (auto entry : id3d12_lifetime_owner_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12LifetimeTracker_Wrapper*)> visitor) const                    { for (auto entry : id3d12_lifetime_tracker_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12MetaCommand_Wrapper*)> visitor) const                        { for (auto entry : id3d12_meta_command_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12PipelineLibrary_Wrapper*)> visitor) const                    { for (auto entry : id3d12_pipeline_library_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12PipelineState_Wrapper*)> visitor) const                      { for (auto entry : id3d12_pipeline_state_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12ProtectedResourceSession_Wrapper*)> visitor) const           { for (auto entry : id3d12_protected_resource_session_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12QueryHeap_Wrapper*)> visitor) const                          { for (auto entry : id3d12_query_heap_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Resource_Wrapper*)> visitor) const                           { for (auto entry : id3d12_resource_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12RootSignature_Wrapper*)> visitor) const                      { for (auto entry : id3d12_root_signature_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12RootSignatureDeserializer_Wrapper*)> visitor) const          { for (auto entry : id3d12_root_signature_deserializer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12SharingContract_Wrapper*)> visitor) const                    { for (auto entry : id3d12_sharing_contract_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12StateObject_Wrapper*)> visitor) const                        { for (auto entry : id3d12_state_object_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12StateObjectProperties_Wrapper*)> visitor) const              { for (auto entry : id3d12_state_object_properties_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12SwapChainAssistant_Wrapper*)> visitor) const                 { for (auto entry : id3d12_swap_chain_assistant_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12Tools_Wrapper*)> visitor) const                              { for (auto entry : id3d12_tools_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12VersionedRootSignatureDeserializer_Wrapper*)> visitor) const { for (auto entry : id3d12_versioned_root_signature_deserializer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3DDestructionNotifier_Wrapper*)> visitor) const                  { for (auto entry : id3d_destruction_notifier_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIAdapter_Wrapper*)> visitor) const                             { for (auto entry : idxgi_adapter_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIDecodeSwapChain_Wrapper*)> visitor) const                     { for (auto entry : idxgi_decode_swap_chain_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIDevice_Wrapper*)> visitor) const                              { for (auto entry : idxgi_device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIDisplayControl_Wrapper*)> visitor) const                      { for (auto entry : idxgi_display_control_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIFactory_Wrapper*)> visitor) const                             { for (auto entry : idxgi_factory_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIFactoryMedia_Wrapper*)> visitor) const                        { for (auto entry : idxgi_factory_media_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIKeyedMutex_Wrapper*)> visitor) const                          { for (auto entry : idxgi_keyed_mutex_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIOutput_Wrapper*)> visitor) const                              { for (auto entry : idxgi_output_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIOutputDuplication_Wrapper*)> visitor) const                   { for (auto entry : idxgi_output_duplication_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGIResource_Wrapper*)> visitor) const                            { for (auto entry : idxgi_resource_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGISurface_Wrapper*)> visitor) const                             { for (auto entry : idxgi_surface_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGISwapChain_Wrapper*)> visitor) const                           { for (auto entry : idxgi_swap_chain_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IDXGISwapChainMedia_Wrapper*)> visitor) const                      { for (auto entry : idxgi_swap_chain_media_map_) { visitor(entry.second); } }
     // clang-format on
 
     //
