@@ -253,9 +253,10 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         method_name = method_info['name']
         parameters = method_info['parameters']
         is_create_call = False
+        is_descriptor_create_call = False
         create_object_tuple = None
 
-        # check if last parameter is a created object
+        # Check if last parameter is a created object.
         create_object_info, _ = self.get_object_creation_params(parameters)
 
         # TODO (GH #83): are there creation calls that need to be processed when len(create_object_info) > 1 ?
@@ -263,18 +264,57 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             is_create_call = True
             create_object_tuple = create_object_info[0]
 
+        # Check if last parameter is a descriptor.
+        descriptor_creation_param_name = self.get_descriptor_creation_param(
+            parameters
+        )
+        if descriptor_creation_param_name:
+            is_descriptor_create_call = True
+
+        # Build begin and end calls.
+        api_or_method = ''
+        begin_call_type = ''
+        begin_call_args = ''
+        end_call_type = ''
+        end_call_args = ''
+
         if class_name:
-            begin_capture_function = "BeginTrackedMethodCallCapture" if is_create_call else "BeginMethodCallCapture"
-            body += (
-                '    auto encoder = D3D12CaptureManager::Get()->{}(format::ApiCallId::ApiCall_{}_{}, wrapper_id);\n'
-                .format(begin_capture_function, class_name, method_name)
+            api_or_method = 'Method'
+            begin_call_args = 'format::ApiCallId::ApiCall_{}_{}, wrapper_id'.format(
+                class_name, method_name
             )
         else:
-            begin_capture_function = "BeginTrackedApiCallCapture" if is_create_call else "BeginApiCallCapture"
-            body += (
-                '    auto encoder = D3D12CaptureManager::Get()->{}(format::ApiCallId::ApiCall_{});\n'
-                .format(begin_capture_function, method_name)
+            api_or_method = 'Api'
+            begin_call_args = 'format::ApiCallId::ApiCall_{}'.format(
+                method_name
             )
+
+        if is_create_call:
+            begin_call_type = 'Tracked'
+            end_call_type = 'Create'
+            end_call_args = 'result, {}, {}'.format(
+                create_object_tuple[0], create_object_tuple[1]
+            )
+            if class_name:
+                end_call_args += ', wrapper_id'
+        elif is_descriptor_create_call:
+            begin_call_type = 'Tracked'
+            end_call_type = 'CreateDescriptor'
+            end_call_args = '{}'.format(descriptor_creation_param_name)
+            if class_name:
+                end_call_args += ', wrapper_id'
+
+        begin_call = 'Begin{}{}CallCapture({})'.format(
+            begin_call_type, api_or_method, begin_call_args
+        )
+        end_call = 'End{}{}CallCapture({})'.format(
+            end_call_type, api_or_method, end_call_args
+        )
+
+        body += (
+            '    auto encoder = D3D12CaptureManager::Get()->{};\n'.
+            format(begin_call)
+        )
 
         body += '    if(encoder)\n'\
                 '    {\n'
@@ -299,26 +339,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             encode = self.get_encode_parameter(rtn_parameter, False, is_result)
             body += '        {}\n'.format(encode)
 
-        if class_name:
-            if is_create_call:
-                body += (
-                    '        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, {}, {}, wrapper_id);\n'
-                    .format(create_object_tuple[0], create_object_tuple[1])
-                )
-            else:
-                body += (
-                    '        D3D12CaptureManager::Get()->EndMethodCallCapture();\n'
-                )
-        else:
-            if is_create_call:
-                body += (
-                    '        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, {}, {});\n'
-                    .format(create_object_tuple[0], create_object_tuple[1])
-                )
-            else:
-                body += (
-                    '        D3D12CaptureManager::Get()->EndApiCallCapture();\n'
-                )
+        body += ('        D3D12CaptureManager::Get()->{};\n'.format(end_call))
 
         body += '    }\n}'
         return body
@@ -369,3 +390,12 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 refiid_value = None
 
         return create_values, create_wrap_struct
+
+    def get_descriptor_creation_param(self, param_info):
+        if len(param_info) > 0:
+            descriptor_creation_types = ['D3D12_CPU_DESCRIPTOR_HANDLE']
+            value = self.get_value_info(param_info[-1])
+            if (value.base_type
+                in descriptor_creation_types) and (value.pointer_count == 0):
+                return value.name
+        return None

@@ -32,7 +32,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-static DxDescriptorInfo* GetDescriptorInfo(size_t descriptor_ptr)
+DxDescriptorInfo* GetDescriptorInfo(size_t descriptor_ptr)
 {
     DxDescriptorInfo* descriptor_info = nullptr;
 

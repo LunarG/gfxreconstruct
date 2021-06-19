@@ -24,12 +24,15 @@
 #define GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_UNWRAPPERS_H
 
 #include "encode/handle_unwrap_memory.h"
+#include "encode/dx12_object_wrapper_info.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+DxDescriptorInfo* GetDescriptorInfo(size_t descriptor_ptr);
 
 // Structs with descriptor handles.
 void UnwrapStructObjects(D3D12_CPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory);

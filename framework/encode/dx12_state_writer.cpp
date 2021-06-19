@@ -22,6 +22,8 @@
 
 #include "encode/dx12_state_writer.h"
 
+#include "encode/custom_dx12_struct_encoders.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -66,7 +68,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12DescriptorHeap_Wrapper>(state_table);
+
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Fence_Wrapper>(state_table);
@@ -77,6 +79,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
     StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Resource_Wrapper>(state_table);
+    WriteDescriptorState(state_table);
     StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
     StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
     StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
@@ -98,8 +101,6 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DebugCommandList_Wrapper>(state_table);
     StandardCreateWrite<ID3D12SharingContract_Wrapper>(state_table);
     StandardCreateWrite<ID3D12InfoQueue_Wrapper>(state_table);
-
-    // TODO (GH #83): Add D3D12 trimming support, write customized tracked state to file.
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
@@ -287,6 +288,58 @@ bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
     }
 
     return false;
+}
+
+void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D12DescriptorHeap_Wrapper* wrapper) {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+
+        // Write heap creation call.
+        WriteMethodCall(wrapper_info->create_call_id, wrapper_info->object_id, wrapper_info->create_parameters.get());
+
+        WriteAddRefAndReleaseCommands(wrapper);
+
+        // Write GetCPUDescriptorHandleForHeapStart call.
+        if (wrapper_info->cpu_start != 0)
+        {
+            D3D12_CPU_DESCRIPTOR_HANDLE cpu_start;
+            cpu_start.ptr = wrapper_info->cpu_start;
+            EncodeStruct(&encoder_, cpu_start);
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart,
+                            wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+
+        // Write GetGPUDescriptorHandleForHeapStart call.
+        if (wrapper_info->gpu_start != 0)
+        {
+            D3D12_GPU_DESCRIPTOR_HANDLE gpu_start;
+            gpu_start.ptr = wrapper_info->gpu_start;
+            EncodeStruct(&encoder_, gpu_start);
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart,
+                            wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+
+        // Write descriptor creation calls.
+        for (uint32_t i = 0; i < wrapper_info->num_descriptors; ++i)
+        {
+            const DxDescriptorInfo& descriptor_info = wrapper_info->descriptor_info[i];
+            if (descriptor_info.create_parameters != nullptr)
+            {
+                WriteMethodCall(
+                    descriptor_info.create_call_id, descriptor_info.object_id, descriptor_info.create_parameters.get());
+            }
+        }
+    });
 }
 
 void Dx12StateWriter::WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper)
