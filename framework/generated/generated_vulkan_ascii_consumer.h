@@ -2533,6 +2533,19 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            indirectCommandsLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    virtual void Process_vkAcquireDrmDisplayEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        int32_t                                     drmFd,
+        format::HandleId                            display) override;
+
+    virtual void Process_vkGetDrmDisplayEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        int32_t                                     drmFd,
+        uint32_t                                    connectorId,
+        HandlePointerDecoder<VkDisplayKHR>*         display) override;
+
     virtual void Process_vkCreatePrivateDataSlotEXT(
         VkResult                                    returnValue,
         format::HandleId                            device,
@@ -2657,6 +2670,23 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            commandBuffer,
         uint32_t                                    attachmentCount,
         PointerDecoder<VkBool32>*                   pColorWriteEnables) override;
+
+    virtual void Process_vkCmdDrawMultiEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    drawCount,
+        StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstInstance,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdDrawMultiIndexedEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    drawCount,
+        StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstInstance,
+        uint32_t                                    stride,
+        PointerDecoder<int32_t>*                    pVertexOffset) override;
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,

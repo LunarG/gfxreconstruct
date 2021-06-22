@@ -3163,6 +3163,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value)
     encoder->EncodeVoidPtr(value.pCheckpointMarker);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderSubgroupUniformControlFlow);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4850,6 +4857,29 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcrImageArr
     encoder->EncodeVkBool32Value(value.ycbcrImageArrays);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProvokingVertexFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.provokingVertexLast);
+    encoder->EncodeVkBool32Value(value.transformFeedbackPreservesProvokingVertex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProvokingVertexPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.provokingVertexModePerPipeline);
+    encoder->EncodeVkBool32Value(value.transformFeedbackPreservesTriangleFanProvokingVertex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.provokingVertexMode);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceFullScreenExclusiveInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5262,6 +5292,71 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineFragmentShadingRate
     encoder->EncodeEnumArray(value.combinerOps, 2);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryMotionTrianglesDataNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.vertexData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxInstances);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMatrixMotionInstanceNV& value)
+{
+    EncodeStruct(encoder, value.transformT0);
+    EncodeStruct(encoder, value.transformT1);
+    encoder->EncodeUInt32Value(value.instanceCustomIndex);
+    encoder->EncodeUInt32Value(value.mask);
+    encoder->EncodeUInt32Value(value.instanceShaderBindingTableRecordOffset);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.accelerationStructureReference);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSRTDataNV& value)
+{
+    encoder->EncodeFloatValue(value.sx);
+    encoder->EncodeFloatValue(value.a);
+    encoder->EncodeFloatValue(value.b);
+    encoder->EncodeFloatValue(value.pvx);
+    encoder->EncodeFloatValue(value.sy);
+    encoder->EncodeFloatValue(value.c);
+    encoder->EncodeFloatValue(value.pvy);
+    encoder->EncodeFloatValue(value.sz);
+    encoder->EncodeFloatValue(value.pvz);
+    encoder->EncodeFloatValue(value.qx);
+    encoder->EncodeFloatValue(value.qy);
+    encoder->EncodeFloatValue(value.qz);
+    encoder->EncodeFloatValue(value.qw);
+    encoder->EncodeFloatValue(value.tx);
+    encoder->EncodeFloatValue(value.ty);
+    encoder->EncodeFloatValue(value.tz);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureSRTMotionInstanceNV& value)
+{
+    EncodeStruct(encoder, value.transformT0);
+    EncodeStruct(encoder, value.transformT1);
+    encoder->EncodeUInt32Value(value.instanceCustomIndex);
+    encoder->EncodeUInt32Value(value.mask);
+    encoder->EncodeUInt32Value(value.instanceShaderBindingTableRecordOffset);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.accelerationStructureReference);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.rayTracingMotionBlur);
+    encoder->EncodeVkBool32Value(value.rayTracingMotionBlurPipelineTraceRaysIndirect);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5365,6 +5460,18 @@ void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputAttributeDescrip
     encoder->EncodeUInt32Value(value.offset);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDrmPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.hasPrimary);
+    encoder->EncodeVkBool32Value(value.hasRender);
+    encoder->EncodeInt64Value(value.primaryMajor);
+    encoder->EncodeInt64Value(value.primaryMinor);
+    encoder->EncodeInt64Value(value.renderMajor);
+    encoder->EncodeInt64Value(value.renderMinor);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryZirconHandleInfoFUCHSIA& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5437,6 +5544,48 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInf
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.attachmentCount);
     encoder->EncodeVkBool32Array(value.pColorWriteEnables, value.attachmentCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.globalPriorityQuery);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyGlobalPriorityPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.priorityCount);
+    encoder->EncodeEnumArray(value.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE_EXT);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.multiDraw);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxMultiDrawCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawInfoEXT& value)
+{
+    encoder->EncodeUInt32Value(value.firstVertex);
+    encoder->EncodeUInt32Value(value.vertexCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMultiDrawIndexedInfoEXT& value)
+{
+    encoder->EncodeUInt32Value(value.firstIndex);
+    encoder->EncodeUInt32Value(value.indexCount);
+    encoder->EncodeInt32Value(value.vertexOffset);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)
