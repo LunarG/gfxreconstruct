@@ -37,6 +37,7 @@ struct Decoded_VkPipelineExecutableStatisticValueKHR;
 struct Decoded_VkDeviceOrHostAddressKHR;
 struct Decoded_VkDeviceOrHostAddressConstKHR;
 struct Decoded_VkAccelerationStructureGeometryDataKHR;
+struct Decoded_VkAccelerationStructureMotionInstanceNV;
 struct Decoded_VkPerformanceValueDataINTEL;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
@@ -45,6 +46,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressConstKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper);
+size_t
+DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureMotionInstanceNV* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo;

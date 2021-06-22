@@ -113,6 +113,17 @@ struct Decoded_VkPerformanceValueDataINTEL
     StringDecoder valueString;
 };
 
+struct Decoded_VkAccelerationStructureMotionInstanceNV
+{
+    using struct_type = VkAccelerationStructureMotionInstanceNV;
+
+    VkAccelerationStructureMotionInstanceNV* decoded_value{ nullptr };
+
+    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
+    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
+};
+
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo
 {

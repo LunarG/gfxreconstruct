@@ -12963,6 +12963,76 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     DestroyWrappedHandle<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL AcquireDrmDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    int32_t                                     drmFd,
+    VkDisplayKHR                                display)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, drmFd, display);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+    VkDisplayKHR display_unwrapped = GetWrappedHandle<VkDisplayKHR>(display);
+
+    VkResult result = GetInstanceTable(physicalDevice)->AcquireDrmDisplayEXT(physicalDevice_unwrapped, drmFd, display_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeInt32Value(drmFd);
+        encoder->EncodeHandleValue(display);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireDrmDisplayEXT>::Dispatch(TraceManager::Get(), result, physicalDevice, drmFd, display);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDrmDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    int32_t                                     drmFd,
+    uint32_t                                    connectorId,
+    VkDisplayKHR*                               display)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDrmDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, drmFd, connectorId, display);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+
+    VkResult result = GetInstanceTable(physicalDevice)->GetDrmDisplayEXT(physicalDevice_unwrapped, drmFd, connectorId, display);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, display, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDrmDisplayEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeInt32Value(drmFd);
+        encoder->EncodeUInt32Value(connectorId);
+        encoder->EncodeHandlePtr(display, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, void>(result, physicalDevice, display, nullptr);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDrmDisplayEXT>::Dispatch(TraceManager::Get(), result, physicalDevice, drmFd, connectorId, display);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
     VkDevice                                    device,
     const VkPrivateDataSlotCreateInfoEXT*       pCreateInfo,
@@ -13629,6 +13699,70 @@ VKAPI_ATTR void                                    VKAPI_CALL CmdSetColorWriteEn
     GetDeviceTable(commandBuffer)->CmdSetColorWriteEnableEXT(commandBuffer_unwrapped, attachmentCount, pColorWriteEnables);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetColorWriteEnableEXT>::Dispatch(TraceManager::Get(), commandBuffer, attachmentCount, pColorWriteEnables);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDrawMultiEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    drawCount,
+    const VkMultiDrawInfoEXT*                   pVertexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMultiEXT>::Dispatch(TraceManager::Get(), commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMultiEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeUInt32Value(drawCount);
+        EncodeStructArray(encoder, pVertexInfo, drawCount);
+        encoder->EncodeUInt32Value(instanceCount);
+        encoder->EncodeUInt32Value(firstInstance);
+        encoder->EncodeUInt32Value(stride);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawMultiEXT(commandBuffer_unwrapped, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiEXT>::Dispatch(TraceManager::Get(), commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDrawMultiIndexedEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    drawCount,
+    const VkMultiDrawIndexedInfoEXT*            pIndexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride,
+    const int32_t*                              pVertexOffset)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeUInt32Value(drawCount);
+        EncodeStructArray(encoder, pIndexInfo, drawCount);
+        encoder->EncodeUInt32Value(instanceCount);
+        encoder->EncodeUInt32Value(firstInstance);
+        encoder->EncodeUInt32Value(stride);
+        encoder->EncodeInt32Ptr(pVertexOffset);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawMultiIndexedEXT(commandBuffer_unwrapped, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(

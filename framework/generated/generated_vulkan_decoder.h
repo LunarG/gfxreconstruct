@@ -876,6 +876,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkDestroyIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkAcquireDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDrmDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreatePrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyPrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -919,6 +923,10 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetPhysicalDeviceScreenPresentationSupportQNX(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetColorWriteEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMultiEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMultiIndexedEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 

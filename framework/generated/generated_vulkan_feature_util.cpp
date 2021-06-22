@@ -959,6 +959,19 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(next);
+                VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderSubgroupUniformControlFlow == VK_TRUE) && (query.shaderSubgroupUniformControlFlow == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderSubgroupUniformControlFlow, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(currentNext)->shaderSubgroupUniformControlFlow = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES_KHR:
             {
                 const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR*>(next);
@@ -1457,6 +1470,24 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 }
                 break;
              }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceProvokingVertexFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceProvokingVertexFeaturesEXT*>(next);
+                VkPhysicalDeviceProvokingVertexFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->provokingVertexLast == VK_TRUE) && (query.provokingVertexLast == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature provokingVertexLast, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceProvokingVertexFeaturesEXT*>(currentNext)->provokingVertexLast = VK_FALSE;
+                }
+                if ((currentNext->transformFeedbackPreservesProvokingVertex == VK_TRUE) && (query.transformFeedbackPreservesProvokingVertex == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature transformFeedbackPreservesProvokingVertex, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceProvokingVertexFeaturesEXT*>(currentNext)->transformFeedbackPreservesProvokingVertex = VK_FALSE;
+                }
+                break;
+             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT:
             {
                 const VkPhysicalDeviceLineRasterizationFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeaturesEXT*>(next);
@@ -1873,6 +1904,32 @@ void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysica
                 {
                     GFXRECON_LOG_WARNING("Feature colorWriteEnable, which is not supported by the replay device, will not be enabled");
                     const_cast<VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(currentNext)->colorWriteEnable = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT*>(next);
+                VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->globalPriorityQuery == VK_TRUE) && (query.globalPriorityQuery == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature globalPriorityQuery, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT*>(currentNext)->globalPriorityQuery = VK_FALSE;
+                }
+                break;
+             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceMultiDrawFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceMultiDrawFeaturesEXT*>(next);
+                VkPhysicalDeviceMultiDrawFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->multiDraw == VK_TRUE) && (query.multiDraw == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature multiDraw, which is not supported by the replay device, will not be enabled");
+                    const_cast<VkPhysicalDeviceMultiDrawFeaturesEXT*>(currentNext)->multiDraw = VK_FALSE;
                 }
                 break;
              }

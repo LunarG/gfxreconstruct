@@ -5910,6 +5910,36 @@ void VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     RemoveHandle(indirectCommandsLayout, &VulkanObjectInfoTable::RemoveIndirectCommandsLayoutNVInfo);
 }
 
+void VulkanReplayConsumer::Process_vkAcquireDrmDisplayEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    int32_t                                     drmFd,
+    format::HandleId                            display)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    VkDisplayKHR in_display = MapHandle<DisplayKHRInfo>(display, &VulkanObjectInfoTable::GetDisplayKHRInfo);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->AcquireDrmDisplayEXT(in_physicalDevice, drmFd, in_display);
+    CheckResult("vkAcquireDrmDisplayEXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetDrmDisplayEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    int32_t                                     drmFd,
+    uint32_t                                    connectorId,
+    HandlePointerDecoder<VkDisplayKHR>*         display)
+{
+    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+    if (!display->IsNull()) { display->SetHandleLength(1); }
+    VkDisplayKHR* out_display = display->GetHandlePointer();
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetDrmDisplayEXT(in_physicalDevice, drmFd, connectorId, out_display);
+    CheckResult("vkGetDrmDisplayEXT", returnValue, replay_result);
+
+    AddHandle<DisplayKHRInfo>(physicalDevice, display->GetPointer(), out_display, &VulkanObjectInfoTable::AddDisplayKHRInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
@@ -6199,6 +6229,36 @@ void VulkanReplayConsumer::Process_vkCmdSetColorWriteEnableEXT(
     const VkBool32* in_pColorWriteEnables = pColorWriteEnables->GetPointer();
 
     GetDeviceTable(in_commandBuffer)->CmdSetColorWriteEnableEXT(in_commandBuffer, attachmentCount, in_pColorWriteEnables);
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMultiEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    drawCount,
+    StructPointerDecoder<Decoded_VkMultiDrawInfoEXT>* pVertexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkMultiDrawInfoEXT* in_pVertexInfo = pVertexInfo->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMultiEXT(in_commandBuffer, drawCount, in_pVertexInfo, instanceCount, firstInstance, stride);
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMultiIndexedEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    drawCount,
+    StructPointerDecoder<Decoded_VkMultiDrawIndexedInfoEXT>* pIndexInfo,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    uint32_t                                    stride,
+    PointerDecoder<int32_t>*                    pVertexOffset)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkMultiDrawIndexedInfoEXT* in_pIndexInfo = pIndexInfo->GetPointer();
+    const int32_t* in_pVertexOffset = pVertexOffset->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMultiIndexedEXT(in_commandBuffer, drawCount, in_pIndexInfo, instanceCount, firstInstance, stride, in_pVertexOffset);
 }
 
 void VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(

@@ -39,6 +39,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticValueKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
 void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDescriptorImageInfo& value);
