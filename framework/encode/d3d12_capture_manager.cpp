@@ -1475,6 +1475,45 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Fence_SetEventOnCompletion(ID3D12Fence_Wrapper* wrapper,
+                                                                       HRESULT              result,
+                                                                       UINT64               value,
+                                                                       HANDLE               event)
+{
+    assert(wrapper != nullptr);
+
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    {
+        state_tracker_->TrackFenceSetEventOnCompletion(wrapper, value, event);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Fence_Signal(ID3D12Fence_Wrapper* wrapper, HRESULT result, UINT64 value)
+{
+    assert(wrapper != nullptr);
+
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    {
+        state_tracker_->TrackFenceSignal(wrapper, value);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQueue_Wrapper* wrapper,
+                                                                HRESULT                     result,
+                                                                ID3D12Fence*                fence,
+                                                                UINT64                      value)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    assert(fence != nullptr);
+
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+    {
+        auto fence_wrapper = reinterpret_cast<ID3D12Fence_Wrapper*>(fence);
+        state_tracker_->TrackFenceSignal(fence_wrapper, value);
+    }
+}
+
 CaptureSettings::TraceSettings D3D12CaptureManager::GetDefaultTraceSettings()
 {
     CaptureSettings::TraceSettings d3d12_trace_settings = {};

@@ -31,6 +31,7 @@
 #include <d3d12.h>
 #include <dxgi.h>
 
+#include <map>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -117,7 +118,10 @@ struct ID3D12CommandAllocatorInfo : public DxWrapperInfo
 {};
 
 struct ID3D12FenceInfo : public DxWrapperInfo
-{};
+{
+    std::mutex                            pending_events_mutex;
+    std::map<UINT64, std::vector<HANDLE>> pending_events;
+};
 
 struct ID3D12PipelineStateInfo : public DxWrapperInfo
 {};

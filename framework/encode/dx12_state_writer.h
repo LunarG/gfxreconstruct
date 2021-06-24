@@ -111,6 +111,8 @@ class Dx12StateWriter
     // Sync to ensure all pending command queues are completed before processing state writing.
     void WaitForCommandQueues(const Dx12StateTable& state_table);
 
+    void WriteFenceState(const Dx12StateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

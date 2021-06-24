@@ -101,6 +101,10 @@ class Dx12StateTracker
 
     void TrackOpenExistingHeapFromAddress(void** heap, const void* address);
 
+    void TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence, UINT64 value, HANDLE event);
+
+    void TrackFenceSignal(ID3D12Fence_Wrapper* fence, UINT64 value);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

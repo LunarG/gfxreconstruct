@@ -166,5 +166,42 @@ void Dx12StateTracker::TrackOpenExistingHeapFromAddress(void** heap, const void*
     info->open_existing_address = address;
 }
 
+void Dx12StateTracker::TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence_wrapper, UINT64 value, HANDLE event)
+{
+    assert(fence_wrapper != nullptr);
+    assert(fence_wrapper->GetWrappedObject() != nullptr);
+    assert(fence_wrapper->GetObjectInfo() != nullptr);
+
+    auto fence      = fence_wrapper->GetWrappedObjectAs<ID3D12Fence>();
+    auto fence_info = fence_wrapper->GetObjectInfo();
+
+    auto lock = std::unique_lock<std::mutex>(fence_info->pending_events_mutex);
+    fence_info->pending_events[value].push_back(event);
+}
+
+void Dx12StateTracker::TrackFenceSignal(ID3D12Fence_Wrapper* fence_wrapper, UINT64 value)
+{
+    assert(fence_wrapper != nullptr);
+    assert(fence_wrapper->GetWrappedObject() != nullptr);
+    assert(fence_wrapper->GetObjectInfo() != nullptr);
+
+    auto fence      = fence_wrapper->GetWrappedObjectAs<ID3D12Fence>();
+    auto fence_info = fence_wrapper->GetObjectInfo();
+
+    // Remove any events that were waiting for a signal value <= the signaled value.
+    auto lock = std::unique_lock<std::mutex>(fence_info->pending_events_mutex);
+    for (auto iter = fence_info->pending_events.cbegin(); iter != fence_info->pending_events.cend();)
+    {
+        if (iter->first <= value)
+        {
+            fence_info->pending_events.erase(iter++);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

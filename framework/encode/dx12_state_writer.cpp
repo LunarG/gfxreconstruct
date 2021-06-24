@@ -74,15 +74,19 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12Fence_Wrapper>(state_table);
+
+    WriteFenceState(state_table);
     WriteHeapState(state_table);
+
     StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
     StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
     StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
     StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
+
     WriteResourceState(state_table);
     WriteDescriptorState(state_table);
+
     StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
     StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
     StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
@@ -575,6 +579,61 @@ void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
     {
         fence->Release();
     }
+}
+
+void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](ID3D12Fence_Wrapper* fence_wrapper) {
+        assert(fence_wrapper != nullptr);
+        assert(fence_wrapper->GetWrappedObject() != nullptr);
+        assert(fence_wrapper->GetObjectInfo() != nullptr);
+
+        auto fence      = fence_wrapper->GetWrappedObjectAs<ID3D12Fence>();
+        auto fence_info = fence_wrapper->GetObjectInfo();
+
+        assert(fence_info->create_parameters != nullptr);
+        assert(fence_info->create_call_object_id != format::kNullHandleId);
+
+        // Write call to create the fence.
+        WriteMethodCall(
+            fence_info->create_call_id, fence_info->create_call_object_id, fence_info->create_parameters.get());
+        WriteAddRefAndReleaseCommands(fence_wrapper);
+
+        UINT64 completed_fence_value = fence->GetCompletedValue();
+
+        // Write SetEventOnCompletion commands for remaining pending events.
+        // The pending_events_mutex doesn't need to be locked here because all other threads are blocked while state is
+        // being written.
+        auto& pending_events = fence_info->pending_events;
+        for (auto events : pending_events)
+        {
+            UINT64 value = events.first;
+
+            // Ignore any events that have already been signaled.
+            if (value <= completed_fence_value)
+            {
+                continue;
+            }
+
+            for (auto event : events.second)
+            {
+                encoder_.EncodeUInt64Value(value);
+                encoder_.EncodeVoidPtr(event);
+                encoder_.EncodeInt32Value(S_OK);
+                WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion,
+                                fence_wrapper->GetCaptureId(),
+                                &parameter_stream_);
+                parameter_stream_.Reset();
+            }
+        }
+
+        // Write call to signal the fence to its most recent value.
+        encoder_.EncodeUInt64Value(completed_fence_value);
+        encoder_.EncodeInt32Value(S_OK);
+        WriteMethodCall(
+            format::ApiCallId::ApiCall_ID3D12Fence_Signal, fence_wrapper->GetCaptureId(), &parameter_stream_);
+        parameter_stream_.Reset();
+    });
 }
 
 GFXRECON_END_NAMESPACE(encode)

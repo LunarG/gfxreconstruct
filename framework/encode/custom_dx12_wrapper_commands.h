@@ -333,6 +333,36 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Fence_SetEventOnCompletion(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Fence_Signal>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Fence_Signal(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signal>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12CommandQueue_Signal(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

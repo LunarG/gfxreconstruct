@@ -319,6 +319,18 @@ class D3D12CaptureManager : public CaptureManager
                                       REFIID            riid,
                                       void**            ppDevice);
 
+    void PostProcess_ID3D12Fence_SetEventOnCompletion(ID3D12Fence_Wrapper* wrapper,
+                                                      HRESULT              result,
+                                                      UINT64               value,
+                                                      HANDLE               event);
+
+    void PostProcess_ID3D12Fence_Signal(ID3D12Fence_Wrapper* wrapper, HRESULT result, UINT64 value);
+
+    void PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQueue_Wrapper* wrapper,
+                                               HRESULT                     result,
+                                               ID3D12Fence*                fence,
+                                               UINT64                      value);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
