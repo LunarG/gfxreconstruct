@@ -105,6 +105,10 @@ class Dx12StateTracker
 
     void TrackFenceSignal(ID3D12Fence_Wrapper* fence, UINT64 value);
 
+    void TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                      format::ApiCallId                  call_id,
+                      const util::MemoryOutputStream*    parameter_buffer);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

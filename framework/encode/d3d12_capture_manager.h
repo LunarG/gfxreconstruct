@@ -128,6 +128,8 @@ class D3D12CaptureManager : public CaptureManager
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                               format::HandleId            create_call_object_id);
 
+    void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
+
     template <typename Wrapper>
     void ProcessWrapperDestroy(Wrapper* wrapper)
     {

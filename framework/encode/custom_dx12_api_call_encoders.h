@@ -23,8 +23,9 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_DX12_API_CALL_ENCODERS_H
 #define GFXRECON_ENCODE_CUSTOM_DX12_API_CALL_ENCODERS_H
 
-#include "format/format.h"
 #include "encode/parameter_encoder.h"
+#include "format/format.h"
+#include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
@@ -33,17 +34,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
-                                             HRESULT          result,
-                                             D3D12_FEATURE    Feature,
-                                             void*            pFeatureSupportData,
-                                             UINT             FeatureSupportDataSize);
+void Encode_ID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* wrapper,
+                                             HRESULT               result,
+                                             D3D12_FEATURE         Feature,
+                                             void*                 pFeatureSupportData,
+                                             UINT                  FeatureSupportDataSize);
 
-void Encode_IDXGIFactory5_CheckFeatureSupport(format::HandleId wrapper_id,
-                                              HRESULT          result,
-                                              DXGI_FEATURE     Feature,
-                                              void*            pFeatureSupportData,
-                                              UINT             FeatureSupportDataSize);
+void Encode_IDXGIFactory5_CheckFeatureSupport(IDXGIFactory5_Wrapper* wrapper,
+                                              HRESULT                result,
+                                              DXGI_FEATURE           Feature,
+                                              void*                  pFeatureSupportData,
+                                              UINT                   FeatureSupportDataSize);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

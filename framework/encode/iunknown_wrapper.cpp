@@ -81,7 +81,7 @@ HRESULT IUnknown_Wrapper::QueryInterface(REFIID riid, void** object)
             WrapObject(riid, object, resources_);
         }
 
-        Encode_IUnknown_QueryInterface(capture_id_, result, riid, object);
+        Encode_IUnknown_QueryInterface(this, result, riid, object);
     }
     else
     {
@@ -105,7 +105,7 @@ ULONG IUnknown_Wrapper::AddRef()
     {
         auto state_lock = manager->AcquireSharedStateLock();
 
-        Encode_IUnknown_AddRef(capture_id_, local_count);
+        Encode_IUnknown_AddRef(this, local_count);
     }
 
     manager->DecrementCallScope();
@@ -125,7 +125,7 @@ ULONG IUnknown_Wrapper::Release()
     {
         auto state_lock = manager->AcquireSharedStateLock();
 
-        Encode_IUnknown_Release(capture_id_, local_count);
+        Encode_IUnknown_Release(this, local_count);
     }
 
     if (shared_count == 0)

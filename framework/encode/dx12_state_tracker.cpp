@@ -203,5 +203,32 @@ void Dx12StateTracker::TrackFenceSignal(ID3D12Fence_Wrapper* fence_wrapper, UINT
     }
 }
 
+void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                    format::ApiCallId                  call_id,
+                                    const util::MemoryOutputStream*    parameter_buffer)
+{
+    if (list_wrapper == nullptr)
+    {
+        return;
+    }
+
+    assert(list_wrapper->GetWrappedObject() != nullptr);
+    assert(list_wrapper->GetObjectInfo() != nullptr);
+
+    auto list_info = list_wrapper->GetObjectInfo();
+
+    if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
+    {
+        // Clear command data on command buffer reset.
+        list_info->command_data.Reset();
+    }
+
+    // Append the command data.
+    size_t size = parameter_buffer->GetDataSize();
+    list_info->command_data.Write(&size, sizeof(size));
+    list_info->command_data.Write(&call_id, sizeof(call_id));
+    list_info->command_data.Write(parameter_buffer->GetData(), size);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -46,6 +46,7 @@
 #include <minwinbase.h>
 
 #include "encode/parameter_encoder.h"
+#include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
 
 
@@ -85,118 +86,118 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SURFACE_DESC& value);
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC& value);
 
 void Encode_IDXGIObject_SetPrivateData(
-    format::HandleId wrapper_id,
+    IDXGIObject_Wrapper* wrapper,
     HRESULT result,
     REFGUID Name,
     UINT DataSize,
     const void* pData);
 
 void Encode_IDXGIObject_SetPrivateDataInterface(
-    format::HandleId wrapper_id,
+    IDXGIObject_Wrapper* wrapper,
     HRESULT result,
     REFGUID Name,
     const IUnknown* pUnknown);
 
 void Encode_IDXGIObject_GetPrivateData(
-    format::HandleId wrapper_id,
+    IDXGIObject_Wrapper* wrapper,
     HRESULT result,
     REFGUID Name,
     UINT* pDataSize,
     void* pData);
 
 void Encode_IDXGIObject_GetParent(
-    format::HandleId wrapper_id,
+    IDXGIObject_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppParent);
 
 void Encode_IDXGIDeviceSubObject_GetDevice(
-    format::HandleId wrapper_id,
+    IDXGIDeviceSubObject_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppDevice);
 
 void Encode_IDXGIResource_GetSharedHandle(
-    format::HandleId wrapper_id,
+    IDXGIResource_Wrapper* wrapper,
     HRESULT result,
     HANDLE* pSharedHandle);
 
 void Encode_IDXGIResource_GetUsage(
-    format::HandleId wrapper_id,
+    IDXGIResource_Wrapper* wrapper,
     HRESULT result,
     DXGI_USAGE* pUsage);
 
 void Encode_IDXGIResource_SetEvictionPriority(
-    format::HandleId wrapper_id,
+    IDXGIResource_Wrapper* wrapper,
     HRESULT result,
     UINT EvictionPriority);
 
 void Encode_IDXGIResource_GetEvictionPriority(
-    format::HandleId wrapper_id,
+    IDXGIResource_Wrapper* wrapper,
     HRESULT result,
     UINT* pEvictionPriority);
 
 void Encode_IDXGIKeyedMutex_AcquireSync(
-    format::HandleId wrapper_id,
+    IDXGIKeyedMutex_Wrapper* wrapper,
     HRESULT result,
     UINT64 Key,
     DWORD dwMilliseconds);
 
 void Encode_IDXGIKeyedMutex_ReleaseSync(
-    format::HandleId wrapper_id,
+    IDXGIKeyedMutex_Wrapper* wrapper,
     HRESULT result,
     UINT64 Key);
 
 void Encode_IDXGISurface_GetDesc(
-    format::HandleId wrapper_id,
+    IDXGISurface_Wrapper* wrapper,
     HRESULT result,
     DXGI_SURFACE_DESC* pDesc);
 
 void Encode_IDXGISurface_Map(
-    format::HandleId wrapper_id,
+    IDXGISurface_Wrapper* wrapper,
     HRESULT result,
     DXGI_MAPPED_RECT* pLockedRect,
     UINT MapFlags);
 
 void Encode_IDXGISurface_Unmap(
-    format::HandleId wrapper_id,
+    IDXGISurface_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_IDXGISurface1_GetDC(
-    format::HandleId wrapper_id,
+    IDXGISurface1_Wrapper* wrapper,
     HRESULT result,
     BOOL Discard,
     HDC* phdc);
 
 void Encode_IDXGISurface1_ReleaseDC(
-    format::HandleId wrapper_id,
+    IDXGISurface1_Wrapper* wrapper,
     HRESULT result,
     RECT* pDirtyRect);
 
 void Encode_IDXGIAdapter_EnumOutputs(
-    format::HandleId wrapper_id,
+    IDXGIAdapter_Wrapper* wrapper,
     HRESULT result,
     UINT Output,
     IDXGIOutput** ppOutput);
 
 void Encode_IDXGIAdapter_GetDesc(
-    format::HandleId wrapper_id,
+    IDXGIAdapter_Wrapper* wrapper,
     HRESULT result,
     DXGI_ADAPTER_DESC* pDesc);
 
 void Encode_IDXGIAdapter_CheckInterfaceSupport(
-    format::HandleId wrapper_id,
+    IDXGIAdapter_Wrapper* wrapper,
     HRESULT result,
     REFGUID InterfaceName,
     LARGE_INTEGER* pUMDVersion);
 
 void Encode_IDXGIOutput_GetDesc(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     DXGI_OUTPUT_DESC* pDesc);
 
 void Encode_IDXGIOutput_GetDisplayModeList(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     DXGI_FORMAT EnumFormat,
     UINT Flags,
@@ -204,87 +205,87 @@ void Encode_IDXGIOutput_GetDisplayModeList(
     DXGI_MODE_DESC* pDesc);
 
 void Encode_IDXGIOutput_FindClosestMatchingMode(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     const DXGI_MODE_DESC* pModeToMatch,
     DXGI_MODE_DESC* pClosestMatch,
     IUnknown* pConcernedDevice);
 
 void Encode_IDXGIOutput_WaitForVBlank(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_IDXGIOutput_TakeOwnership(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     BOOL Exclusive);
 
 void Encode_IDXGIOutput_ReleaseOwnership(
-    format::HandleId wrapper_id);
+    IDXGIOutput_Wrapper* wrapper);
 
 void Encode_IDXGIOutput_GetGammaControlCapabilities(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps);
 
 void Encode_IDXGIOutput_SetGammaControl(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     const DXGI_GAMMA_CONTROL* pArray);
 
 void Encode_IDXGIOutput_GetGammaControl(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     DXGI_GAMMA_CONTROL* pArray);
 
 void Encode_IDXGIOutput_SetDisplaySurface(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     IDXGISurface* pScanoutSurface);
 
 void Encode_IDXGIOutput_GetDisplaySurfaceData(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     IDXGISurface* pDestination);
 
 void Encode_IDXGIOutput_GetFrameStatistics(
-    format::HandleId wrapper_id,
+    IDXGIOutput_Wrapper* wrapper,
     HRESULT result,
     DXGI_FRAME_STATISTICS* pStats);
 
 void Encode_IDXGISwapChain_Present(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT SyncInterval,
     UINT Flags);
 
 void Encode_IDXGISwapChain_GetBuffer(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT Buffer,
     REFIID riid,
     void** ppSurface);
 
 void Encode_IDXGISwapChain_SetFullscreenState(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     BOOL Fullscreen,
     IDXGIOutput* pTarget);
 
 void Encode_IDXGISwapChain_GetFullscreenState(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     BOOL* pFullscreen,
     IDXGIOutput** ppTarget);
 
 void Encode_IDXGISwapChain_GetDesc(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     DXGI_SWAP_CHAIN_DESC* pDesc);
 
 void Encode_IDXGISwapChain_ResizeBuffers(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT BufferCount,
     UINT Width,
@@ -293,62 +294,62 @@ void Encode_IDXGISwapChain_ResizeBuffers(
     UINT SwapChainFlags);
 
 void Encode_IDXGISwapChain_ResizeTarget(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     const DXGI_MODE_DESC* pNewTargetParameters);
 
 void Encode_IDXGISwapChain_GetContainingOutput(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     IDXGIOutput** ppOutput);
 
 void Encode_IDXGISwapChain_GetFrameStatistics(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     DXGI_FRAME_STATISTICS* pStats);
 
 void Encode_IDXGISwapChain_GetLastPresentCount(
-    format::HandleId wrapper_id,
+    IDXGISwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT* pLastPresentCount);
 
 void Encode_IDXGIFactory_EnumAdapters(
-    format::HandleId wrapper_id,
+    IDXGIFactory_Wrapper* wrapper,
     HRESULT result,
     UINT Adapter,
     IDXGIAdapter** ppAdapter);
 
 void Encode_IDXGIFactory_MakeWindowAssociation(
-    format::HandleId wrapper_id,
+    IDXGIFactory_Wrapper* wrapper,
     HRESULT result,
     HWND WindowHandle,
     UINT Flags);
 
 void Encode_IDXGIFactory_GetWindowAssociation(
-    format::HandleId wrapper_id,
+    IDXGIFactory_Wrapper* wrapper,
     HRESULT result,
     HWND* pWindowHandle);
 
 void Encode_IDXGIFactory_CreateSwapChain(
-    format::HandleId wrapper_id,
+    IDXGIFactory_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     DXGI_SWAP_CHAIN_DESC* pDesc,
     IDXGISwapChain** ppSwapChain);
 
 void Encode_IDXGIFactory_CreateSoftwareAdapter(
-    format::HandleId wrapper_id,
+    IDXGIFactory_Wrapper* wrapper,
     HRESULT result,
     HMODULE Module,
     IDXGIAdapter** ppAdapter);
 
 void Encode_IDXGIDevice_GetAdapter(
-    format::HandleId wrapper_id,
+    IDXGIDevice_Wrapper* wrapper,
     HRESULT result,
     IDXGIAdapter** pAdapter);
 
 void Encode_IDXGIDevice_CreateSurface(
-    format::HandleId wrapper_id,
+    IDXGIDevice_Wrapper* wrapper,
     HRESULT result,
     const DXGI_SURFACE_DESC* pDesc,
     UINT NumSurfaces,
@@ -357,19 +358,19 @@ void Encode_IDXGIDevice_CreateSurface(
     IDXGISurface** ppSurface);
 
 void Encode_IDXGIDevice_QueryResourceResidency(
-    format::HandleId wrapper_id,
+    IDXGIDevice_Wrapper* wrapper,
     HRESULT result,
     IUnknown* const* ppResources,
     DXGI_RESIDENCY* pResidencyStatus,
     UINT NumResources);
 
 void Encode_IDXGIDevice_SetGPUThreadPriority(
-    format::HandleId wrapper_id,
+    IDXGIDevice_Wrapper* wrapper,
     HRESULT result,
     INT Priority);
 
 void Encode_IDXGIDevice_GetGPUThreadPriority(
-    format::HandleId wrapper_id,
+    IDXGIDevice_Wrapper* wrapper,
     HRESULT result,
     INT* pPriority);
 
@@ -378,27 +379,27 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC1& value);
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_DISPLAY_COLOR_SPACE& value);
 
 void Encode_IDXGIFactory1_EnumAdapters1(
-    format::HandleId wrapper_id,
+    IDXGIFactory1_Wrapper* wrapper,
     HRESULT result,
     UINT Adapter,
     IDXGIAdapter1** ppAdapter);
 
 void Encode_IDXGIFactory1_IsCurrent(
-    format::HandleId wrapper_id,
+    IDXGIFactory1_Wrapper* wrapper,
     BOOL result);
 
 void Encode_IDXGIAdapter1_GetDesc1(
-    format::HandleId wrapper_id,
+    IDXGIAdapter1_Wrapper* wrapper,
     HRESULT result,
     DXGI_ADAPTER_DESC1* pDesc);
 
 void Encode_IDXGIDevice1_SetMaximumFrameLatency(
-    format::HandleId wrapper_id,
+    IDXGIDevice1_Wrapper* wrapper,
     HRESULT result,
     UINT MaxLatency);
 
 void Encode_IDXGIDevice1_GetMaximumFrameLatency(
-    format::HandleId wrapper_id,
+    IDXGIDevice1_Wrapper* wrapper,
     HRESULT result,
     UINT* pMaxLatency);
 
@@ -409,11 +410,11 @@ void Encode_IDXGIDevice1_GetMaximumFrameLatency(
 */
 
 void Encode_IDXGIDisplayControl_IsStereoEnabled(
-    format::HandleId wrapper_id,
+    IDXGIDisplayControl_Wrapper* wrapper,
     BOOL result);
 
 void Encode_IDXGIDisplayControl_SetStereoEnabled(
-    format::HandleId wrapper_id,
+    IDXGIDisplayControl_Wrapper* wrapper,
     BOOL enabled);
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_MOVE_RECT& value);
@@ -427,32 +428,32 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_SHAPE_IN
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_FRAME_INFO& value);
 
 void Encode_IDXGIOutputDuplication_GetDesc(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     DXGI_OUTDUPL_DESC* pDesc);
 
 void Encode_IDXGIOutputDuplication_AcquireNextFrame(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result,
     UINT TimeoutInMilliseconds,
     DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
     IDXGIResource** ppDesktopResource);
 
 void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result,
     UINT DirtyRectsBufferSize,
     RECT* pDirtyRectsBuffer,
     UINT* pDirtyRectsBufferSizeRequired);
 
 void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result,
     UINT MoveRectsBufferSize,
     DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
     UINT* pMoveRectsBufferSizeRequired);
 
 void Encode_IDXGIOutputDuplication_GetFramePointerShape(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result,
     UINT PointerShapeBufferSize,
     void* pPointerShapeBuffer,
@@ -460,33 +461,33 @@ void Encode_IDXGIOutputDuplication_GetFramePointerShape(
     DXGI_OUTDUPL_POINTER_SHAPE_INFO* pPointerShapeInfo);
 
 void Encode_IDXGIOutputDuplication_MapDesktopSurface(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result,
     DXGI_MAPPED_RECT* pLockedRect);
 
 void Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_IDXGIOutputDuplication_ReleaseFrame(
-    format::HandleId wrapper_id,
+    IDXGIOutputDuplication_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_IDXGISurface2_GetResource(
-    format::HandleId wrapper_id,
+    IDXGISurface2_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppParentResource,
     UINT* pSubresourceIndex);
 
 void Encode_IDXGIResource1_CreateSubresourceSurface(
-    format::HandleId wrapper_id,
+    IDXGIResource1_Wrapper* wrapper,
     HRESULT result,
     UINT index,
     IDXGISurface2** ppSurface);
 
 void Encode_IDXGIResource1_CreateSharedHandle(
-    format::HandleId wrapper_id,
+    IDXGIResource1_Wrapper* wrapper,
     HRESULT result,
     const SECURITY_ATTRIBUTES* pAttributes,
     DWORD dwAccess,
@@ -494,21 +495,21 @@ void Encode_IDXGIResource1_CreateSharedHandle(
     HANDLE* pHandle);
 
 void Encode_IDXGIDevice2_OfferResources(
-    format::HandleId wrapper_id,
+    IDXGIDevice2_Wrapper* wrapper,
     HRESULT result,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     DXGI_OFFER_RESOURCE_PRIORITY Priority);
 
 void Encode_IDXGIDevice2_ReclaimResources(
-    format::HandleId wrapper_id,
+    IDXGIDevice2_Wrapper* wrapper,
     HRESULT result,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     BOOL* pDiscarded);
 
 void Encode_IDXGIDevice2_EnqueueSetEvent(
-    format::HandleId wrapper_id,
+    IDXGIDevice2_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent);
 
@@ -521,68 +522,68 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_FULLSCREEN_DE
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_PRESENT_PARAMETERS& value);
 
 void Encode_IDXGISwapChain1_GetDesc1(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     DXGI_SWAP_CHAIN_DESC1* pDesc);
 
 void Encode_IDXGISwapChain1_GetFullscreenDesc(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc);
 
 void Encode_IDXGISwapChain1_GetHwnd(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     HWND* pHwnd);
 
 void Encode_IDXGISwapChain1_GetCoreWindow(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     REFIID refiid,
     void** ppUnk);
 
 void Encode_IDXGISwapChain1_Present1(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     UINT SyncInterval,
     UINT PresentFlags,
     const DXGI_PRESENT_PARAMETERS* pPresentParameters);
 
 void Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     BOOL result);
 
 void Encode_IDXGISwapChain1_GetRestrictToOutput(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     IDXGIOutput** ppRestrictToOutput);
 
 void Encode_IDXGISwapChain1_SetBackgroundColor(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     const DXGI_RGBA* pColor);
 
 void Encode_IDXGISwapChain1_GetBackgroundColor(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     DXGI_RGBA* pColor);
 
 void Encode_IDXGISwapChain1_SetRotation(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     DXGI_MODE_ROTATION Rotation);
 
 void Encode_IDXGISwapChain1_GetRotation(
-    format::HandleId wrapper_id,
+    IDXGISwapChain1_Wrapper* wrapper,
     HRESULT result,
     DXGI_MODE_ROTATION* pRotation);
 
 void Encode_IDXGIFactory2_IsWindowedStereoEnabled(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     BOOL result);
 
 void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     HWND hWnd,
@@ -592,7 +593,7 @@ void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
     IDXGISwapChain1** ppSwapChain);
 
 void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     IUnknown* pWindow,
@@ -601,47 +602,47 @@ void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
     IDXGISwapChain1** ppSwapChain);
 
 void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     HANDLE hResource,
     LUID* pLuid);
 
 void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     HWND WindowHandle,
     UINT wMsg,
     DWORD* pdwCookie);
 
 void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent,
     DWORD* pdwCookie);
 
 void Encode_IDXGIFactory2_UnregisterStereoStatus(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     DWORD dwCookie);
 
 void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     HWND WindowHandle,
     UINT wMsg,
     DWORD* pdwCookie);
 
 void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent,
     DWORD* pdwCookie);
 
 void Encode_IDXGIFactory2_UnregisterOcclusionStatus(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     DWORD dwCookie);
 
 void Encode_IDXGIFactory2_CreateSwapChainForComposition(
-    format::HandleId wrapper_id,
+    IDXGIFactory2_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     const DXGI_SWAP_CHAIN_DESC1* pDesc,
@@ -651,12 +652,12 @@ void Encode_IDXGIFactory2_CreateSwapChainForComposition(
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC2& value);
 
 void Encode_IDXGIAdapter2_GetDesc2(
-    format::HandleId wrapper_id,
+    IDXGIAdapter2_Wrapper* wrapper,
     HRESULT result,
     DXGI_ADAPTER_DESC2* pDesc);
 
 void Encode_IDXGIOutput1_GetDisplayModeList1(
-    format::HandleId wrapper_id,
+    IDXGIOutput1_Wrapper* wrapper,
     HRESULT result,
     DXGI_FORMAT EnumFormat,
     UINT Flags,
@@ -664,19 +665,19 @@ void Encode_IDXGIOutput1_GetDisplayModeList1(
     DXGI_MODE_DESC1* pDesc);
 
 void Encode_IDXGIOutput1_FindClosestMatchingMode1(
-    format::HandleId wrapper_id,
+    IDXGIOutput1_Wrapper* wrapper,
     HRESULT result,
     const DXGI_MODE_DESC1* pModeToMatch,
     DXGI_MODE_DESC1* pClosestMatch,
     IUnknown* pConcernedDevice);
 
 void Encode_IDXGIOutput1_GetDisplaySurfaceData1(
-    format::HandleId wrapper_id,
+    IDXGIOutput1_Wrapper* wrapper,
     HRESULT result,
     IDXGIResource* pDestination);
 
 void Encode_IDXGIOutput1_DuplicateOutput(
-    format::HandleId wrapper_id,
+    IDXGIOutput1_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     IDXGIOutputDuplication** ppOutputDuplication);
@@ -700,106 +701,106 @@ void Encode_DXGIGetDebugInterface1(
     void** pDebug);
 
 void Encode_IDXGIDevice3_Trim(
-    format::HandleId wrapper_id);
+    IDXGIDevice3_Wrapper* wrapper);
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_MATRIX_3X2_F& value);
 
 void Encode_IDXGISwapChain2_SetSourceSize(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     UINT Width,
     UINT Height);
 
 void Encode_IDXGISwapChain2_GetSourceSize(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     UINT* pWidth,
     UINT* pHeight);
 
 void Encode_IDXGISwapChain2_SetMaximumFrameLatency(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     UINT MaxLatency);
 
 void Encode_IDXGISwapChain2_GetMaximumFrameLatency(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     UINT* pMaxLatency);
 
 void Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HANDLE result);
 
 void Encode_IDXGISwapChain2_SetMatrixTransform(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     const DXGI_MATRIX_3X2_F* pMatrix);
 
 void Encode_IDXGISwapChain2_GetMatrixTransform(
-    format::HandleId wrapper_id,
+    IDXGISwapChain2_Wrapper* wrapper,
     HRESULT result,
     DXGI_MATRIX_3X2_F* pMatrix);
 
 void Encode_IDXGIOutput2_SupportsOverlays(
-    format::HandleId wrapper_id,
+    IDXGIOutput2_Wrapper* wrapper,
     BOOL result);
 
 void Encode_IDXGIFactory3_GetCreationFlags(
-    format::HandleId wrapper_id,
+    IDXGIFactory3_Wrapper* wrapper,
     UINT result);
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_DECODE_SWAP_CHAIN_DESC& value);
 
 void Encode_IDXGIDecodeSwapChain_PresentBuffer(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT BufferToPresent,
     UINT SyncInterval,
     UINT Flags);
 
 void Encode_IDXGIDecodeSwapChain_SetSourceRect(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     const RECT* pRect);
 
 void Encode_IDXGIDecodeSwapChain_SetTargetRect(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     const RECT* pRect);
 
 void Encode_IDXGIDecodeSwapChain_SetDestSize(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT Width,
     UINT Height);
 
 void Encode_IDXGIDecodeSwapChain_GetSourceRect(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     RECT* pRect);
 
 void Encode_IDXGIDecodeSwapChain_GetTargetRect(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     RECT* pRect);
 
 void Encode_IDXGIDecodeSwapChain_GetDestSize(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     UINT* pWidth,
     UINT* pHeight);
 
 void Encode_IDXGIDecodeSwapChain_SetColorSpace(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     HRESULT result,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace);
 
 void Encode_IDXGIDecodeSwapChain_GetColorSpace(
-    format::HandleId wrapper_id,
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS result);
 
 void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
-    format::HandleId wrapper_id,
+    IDXGIFactoryMedia_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     HANDLE hSurface,
@@ -808,7 +809,7 @@ void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     IDXGISwapChain1** ppSwapChain);
 
 void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
-    format::HandleId wrapper_id,
+    IDXGIFactoryMedia_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     HANDLE hSurface,
@@ -820,24 +821,24 @@ void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS_MEDIA& value);
 
 void Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
-    format::HandleId wrapper_id,
+    IDXGISwapChainMedia_Wrapper* wrapper,
     HRESULT result,
     DXGI_FRAME_STATISTICS_MEDIA* pStats);
 
 void Encode_IDXGISwapChainMedia_SetPresentDuration(
-    format::HandleId wrapper_id,
+    IDXGISwapChainMedia_Wrapper* wrapper,
     HRESULT result,
     UINT Duration);
 
 void Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
-    format::HandleId wrapper_id,
+    IDXGISwapChainMedia_Wrapper* wrapper,
     HRESULT result,
     UINT DesiredPresentDuration,
     UINT* pClosestSmallerPresentDuration,
     UINT* pClosestLargerPresentDuration);
 
 void Encode_IDXGIOutput3_CheckOverlaySupport(
-    format::HandleId wrapper_id,
+    IDXGIOutput3_Wrapper* wrapper,
     HRESULT result,
     DXGI_FORMAT EnumFormat,
     IUnknown* pConcernedDevice,
@@ -850,22 +851,22 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
 */
 
 void Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
-    format::HandleId wrapper_id,
+    IDXGISwapChain3_Wrapper* wrapper,
     UINT result);
 
 void Encode_IDXGISwapChain3_CheckColorSpaceSupport(
-    format::HandleId wrapper_id,
+    IDXGISwapChain3_Wrapper* wrapper,
     HRESULT result,
     DXGI_COLOR_SPACE_TYPE ColorSpace,
     UINT* pColorSpaceSupport);
 
 void Encode_IDXGISwapChain3_SetColorSpace1(
-    format::HandleId wrapper_id,
+    IDXGISwapChain3_Wrapper* wrapper,
     HRESULT result,
     DXGI_COLOR_SPACE_TYPE ColorSpace);
 
 void Encode_IDXGISwapChain3_ResizeBuffers1(
-    format::HandleId wrapper_id,
+    IDXGISwapChain3_Wrapper* wrapper,
     HRESULT result,
     UINT BufferCount,
     UINT Width,
@@ -876,7 +877,7 @@ void Encode_IDXGISwapChain3_ResizeBuffers1(
     IUnknown* const* ppPresentQueue);
 
 void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
-    format::HandleId wrapper_id,
+    IDXGIOutput4_Wrapper* wrapper,
     HRESULT result,
     DXGI_FORMAT Format,
     DXGI_COLOR_SPACE_TYPE ColorSpace,
@@ -884,14 +885,14 @@ void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     UINT* pFlags);
 
 void Encode_IDXGIFactory4_EnumAdapterByLuid(
-    format::HandleId wrapper_id,
+    IDXGIFactory4_Wrapper* wrapper,
     HRESULT result,
     LUID AdapterLuid,
     REFIID riid,
     void** ppvAdapter);
 
 void Encode_IDXGIFactory4_EnumWarpAdapter(
-    format::HandleId wrapper_id,
+    IDXGIFactory4_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppvAdapter);
@@ -899,37 +900,37 @@ void Encode_IDXGIFactory4_EnumWarpAdapter(
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_QUERY_VIDEO_MEMORY_INFO& value);
 
 void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent,
     DWORD* pdwCookie);
 
 void Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     DWORD dwCookie);
 
 void Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     HRESULT result,
     UINT NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
     DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo);
 
 void Encode_IDXGIAdapter3_SetVideoMemoryReservation(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     HRESULT result,
     UINT NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
     UINT64 Reservation);
 
 void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent,
     DWORD* pdwCookie);
 
 void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
-    format::HandleId wrapper_id,
+    IDXGIAdapter3_Wrapper* wrapper,
     DWORD dwCookie);
 
 
@@ -939,7 +940,7 @@ void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
 */
 
 void Encode_IDXGIOutput5_DuplicateOutput1(
-    format::HandleId wrapper_id,
+    IDXGIOutput5_Wrapper* wrapper,
     HRESULT result,
     IUnknown* pDevice,
     UINT Flags,
@@ -952,14 +953,14 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10& valu
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10PLUS& value);
 
 void Encode_IDXGISwapChain4_SetHDRMetaData(
-    format::HandleId wrapper_id,
+    IDXGISwapChain4_Wrapper* wrapper,
     HRESULT result,
     DXGI_HDR_METADATA_TYPE Type,
     UINT Size,
     void* pMetaData);
 
 void Encode_IDXGIDevice4_OfferResources1(
-    format::HandleId wrapper_id,
+    IDXGIDevice4_Wrapper* wrapper,
     HRESULT result,
     UINT NumResources,
     IDXGIResource* const* ppResources,
@@ -967,7 +968,7 @@ void Encode_IDXGIDevice4_OfferResources1(
     UINT Flags);
 
 void Encode_IDXGIDevice4_ReclaimResources1(
-    format::HandleId wrapper_id,
+    IDXGIDevice4_Wrapper* wrapper,
     HRESULT result,
     UINT NumResources,
     IDXGIResource* const* ppResources,
@@ -985,24 +986,24 @@ void Encode_DXGIDeclareAdapterRemovalSupport(
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value);
 
 void Encode_IDXGIAdapter4_GetDesc3(
-    format::HandleId wrapper_id,
+    IDXGIAdapter4_Wrapper* wrapper,
     HRESULT result,
     DXGI_ADAPTER_DESC3* pDesc);
 
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC1& value);
 
 void Encode_IDXGIOutput6_GetDesc1(
-    format::HandleId wrapper_id,
+    IDXGIOutput6_Wrapper* wrapper,
     HRESULT result,
     DXGI_OUTPUT_DESC1* pDesc);
 
 void Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
-    format::HandleId wrapper_id,
+    IDXGIOutput6_Wrapper* wrapper,
     HRESULT result,
     UINT* pFlags);
 
 void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
-    format::HandleId wrapper_id,
+    IDXGIFactory6_Wrapper* wrapper,
     HRESULT result,
     UINT Adapter,
     DXGI_GPU_PREFERENCE GpuPreference,
@@ -1010,13 +1011,13 @@ void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
     void** ppvAdapter);
 
 void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
-    format::HandleId wrapper_id,
+    IDXGIFactory7_Wrapper* wrapper,
     HRESULT result,
     HANDLE hEvent,
     DWORD* pdwCookie);
 
 void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
-    format::HandleId wrapper_id,
+    IDXGIFactory7_Wrapper* wrapper,
     HRESULT result,
     DWORD dwCookie);
 
@@ -1133,32 +1134,32 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BLEND_DESC& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RASTERIZER_DESC& value);
 
 void Encode_ID3D12Object_GetPrivateData(
-    format::HandleId wrapper_id,
+    ID3D12Object_Wrapper* wrapper,
     HRESULT result,
     REFGUID guid,
     UINT* pDataSize,
     void* pData);
 
 void Encode_ID3D12Object_SetPrivateData(
-    format::HandleId wrapper_id,
+    ID3D12Object_Wrapper* wrapper,
     HRESULT result,
     REFGUID guid,
     UINT DataSize,
     const void* pData);
 
 void Encode_ID3D12Object_SetPrivateDataInterface(
-    format::HandleId wrapper_id,
+    ID3D12Object_Wrapper* wrapper,
     HRESULT result,
     REFGUID guid,
     const IUnknown* pData);
 
 void Encode_ID3D12Object_SetName(
-    format::HandleId wrapper_id,
+    ID3D12Object_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR Name);
 
 void Encode_ID3D12DeviceChild_GetDevice(
-    format::HandleId wrapper_id,
+    ID3D12DeviceChild_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppvDevice);
@@ -1362,17 +1363,17 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_DESCRIPTOR1& value
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& value);
 
 void Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
-    format::HandleId wrapper_id,
+    ID3D12RootSignatureDeserializer_Wrapper* wrapper,
     const D3D12_ROOT_SIGNATURE_DESC * result);
 
 void Encode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
-    format::HandleId wrapper_id,
+    ID3D12VersionedRootSignatureDeserializer_Wrapper* wrapper,
     HRESULT result,
     D3D_ROOT_SIGNATURE_VERSION convertToVersion,
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC** ppDesc);
 
 void Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
-    format::HandleId wrapper_id,
+    ID3D12VersionedRootSignatureDeserializer_Wrapper* wrapper,
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC * result);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISCARD_REGION& value);
@@ -1398,31 +1399,31 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_INDEX_BUFFER_VIEW& valu
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_SIGNATURE_DESC& value);
 
 void Encode_ID3D12Heap_GetDesc(
-    format::HandleId wrapper_id,
+    ID3D12Heap_Wrapper* wrapper,
     D3D12_HEAP_DESC result);
 
 void Encode_ID3D12Resource_Map(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     HRESULT result,
     UINT Subresource,
     const D3D12_RANGE* pReadRange,
     void** ppData);
 
 void Encode_ID3D12Resource_Unmap(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     UINT Subresource,
     const D3D12_RANGE* pWrittenRange);
 
 void Encode_ID3D12Resource_GetDesc(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     D3D12_RESOURCE_DESC result);
 
 void Encode_ID3D12Resource_GetGPUVirtualAddress(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     D3D12_GPU_VIRTUAL_ADDRESS result);
 
 void Encode_ID3D12Resource_WriteToSubresource(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     HRESULT result,
     UINT DstSubresource,
     const D3D12_BOX* pDstBox,
@@ -1431,7 +1432,7 @@ void Encode_ID3D12Resource_WriteToSubresource(
     UINT SrcDepthPitch);
 
 void Encode_ID3D12Resource_ReadFromSubresource(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     HRESULT result,
     void* pDstData,
     UINT DstRowPitch,
@@ -1440,78 +1441,78 @@ void Encode_ID3D12Resource_ReadFromSubresource(
     const D3D12_BOX* pSrcBox);
 
 void Encode_ID3D12Resource_GetHeapProperties(
-    format::HandleId wrapper_id,
+    ID3D12Resource_Wrapper* wrapper,
     HRESULT result,
     D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS* pHeapFlags);
 
 void Encode_ID3D12CommandAllocator_Reset(
-    format::HandleId wrapper_id,
+    ID3D12CommandAllocator_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12Fence_GetCompletedValue(
-    format::HandleId wrapper_id,
+    ID3D12Fence_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12Fence_SetEventOnCompletion(
-    format::HandleId wrapper_id,
+    ID3D12Fence_Wrapper* wrapper,
     HRESULT result,
     UINT64 Value,
     HANDLE hEvent);
 
 void Encode_ID3D12Fence_Signal(
-    format::HandleId wrapper_id,
+    ID3D12Fence_Wrapper* wrapper,
     HRESULT result,
     UINT64 Value);
 
 void Encode_ID3D12Fence1_GetCreationFlags(
-    format::HandleId wrapper_id,
+    ID3D12Fence1_Wrapper* wrapper,
     D3D12_FENCE_FLAGS result);
 
 void Encode_ID3D12PipelineState_GetCachedBlob(
-    format::HandleId wrapper_id,
+    ID3D12PipelineState_Wrapper* wrapper,
     HRESULT result,
     ID3DBlob** ppBlob);
 
 void Encode_ID3D12DescriptorHeap_GetDesc(
-    format::HandleId wrapper_id,
+    ID3D12DescriptorHeap_Wrapper* wrapper,
     D3D12_DESCRIPTOR_HEAP_DESC result);
 
 void Encode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
-    format::HandleId wrapper_id,
+    ID3D12DescriptorHeap_Wrapper* wrapper,
     D3D12_CPU_DESCRIPTOR_HANDLE result);
 
 void Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
-    format::HandleId wrapper_id,
+    ID3D12DescriptorHeap_Wrapper* wrapper,
     D3D12_GPU_DESCRIPTOR_HANDLE result);
 
 void Encode_ID3D12CommandList_GetType(
-    format::HandleId wrapper_id,
+    ID3D12CommandList_Wrapper* wrapper,
     D3D12_COMMAND_LIST_TYPE result);
 
 void Encode_ID3D12GraphicsCommandList_Close(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12GraphicsCommandList_Reset(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     HRESULT result,
     ID3D12CommandAllocator* pAllocator,
     ID3D12PipelineState* pInitialState);
 
 void Encode_ID3D12GraphicsCommandList_ClearState(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12PipelineState* pPipelineState);
 
 void Encode_ID3D12GraphicsCommandList_DrawInstanced(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT VertexCountPerInstance,
     UINT InstanceCount,
     UINT StartVertexLocation,
     UINT StartInstanceLocation);
 
 void Encode_ID3D12GraphicsCommandList_DrawIndexedInstanced(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT IndexCountPerInstance,
     UINT InstanceCount,
     UINT StartIndexLocation,
@@ -1519,13 +1520,13 @@ void Encode_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     UINT StartInstanceLocation);
 
 void Encode_ID3D12GraphicsCommandList_Dispatch(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT ThreadGroupCountX,
     UINT ThreadGroupCountY,
     UINT ThreadGroupCountZ);
 
 void Encode_ID3D12GraphicsCommandList_CopyBufferRegion(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pDstBuffer,
     UINT64 DstOffset,
     ID3D12Resource* pSrcBuffer,
@@ -1533,7 +1534,7 @@ void Encode_ID3D12GraphicsCommandList_CopyBufferRegion(
     UINT64 NumBytes);
 
 void Encode_ID3D12GraphicsCommandList_CopyTextureRegion(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     const D3D12_TEXTURE_COPY_LOCATION* pDst,
     UINT DstX,
     UINT DstY,
@@ -1542,12 +1543,12 @@ void Encode_ID3D12GraphicsCommandList_CopyTextureRegion(
     const D3D12_BOX* pSrcBox);
 
 void Encode_ID3D12GraphicsCommandList_CopyResource(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pDstResource,
     ID3D12Resource* pSrcResource);
 
 void Encode_ID3D12GraphicsCommandList_CopyTiles(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pTiledResource,
     const D3D12_TILED_RESOURCE_COORDINATE* pTileRegionStartCoordinate,
     const D3D12_TILE_REGION_SIZE* pTileRegionSize,
@@ -1556,7 +1557,7 @@ void Encode_ID3D12GraphicsCommandList_CopyTiles(
     D3D12_TILE_COPY_FLAGS Flags);
 
 void Encode_ID3D12GraphicsCommandList_ResolveSubresource(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pDstResource,
     UINT DstSubresource,
     ID3D12Resource* pSrcResource,
@@ -1564,144 +1565,144 @@ void Encode_ID3D12GraphicsCommandList_ResolveSubresource(
     DXGI_FORMAT Format);
 
 void Encode_ID3D12GraphicsCommandList_IASetPrimitiveTopology(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveTopology);
 
 void Encode_ID3D12GraphicsCommandList_RSSetViewports(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT NumViewports,
     const D3D12_VIEWPORT* pViewports);
 
 void Encode_ID3D12GraphicsCommandList_RSSetScissorRects(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT NumRects,
     const D3D12_RECT* pRects);
 
 void Encode_ID3D12GraphicsCommandList_OMSetBlendFactor(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     const FLOAT BlendFactor [4]);
 
 void Encode_ID3D12GraphicsCommandList_OMSetStencilRef(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT StencilRef);
 
 void Encode_ID3D12GraphicsCommandList_SetPipelineState(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12PipelineState* pPipelineState);
 
 void Encode_ID3D12GraphicsCommandList_ResourceBarrier(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT NumBarriers,
     const D3D12_RESOURCE_BARRIER* pBarriers);
 
 void Encode_ID3D12GraphicsCommandList_ExecuteBundle(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12GraphicsCommandList* pCommandList);
 
 void Encode_ID3D12GraphicsCommandList_SetDescriptorHeaps(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT NumDescriptorHeaps,
     ID3D12DescriptorHeap* const* ppDescriptorHeaps);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRootSignature(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12RootSignature* pRootSignature);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12RootSignature* pRootSignature);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     UINT SrcData,
     UINT DestOffsetIn32BitValues);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     UINT SrcData,
     UINT DestOffsetIn32BitValues);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     UINT Num32BitValuesToSet,
     const void* pSrcData,
     UINT DestOffsetIn32BitValues);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     UINT Num32BitValuesToSet,
     const void* pSrcData,
     UINT DestOffsetIn32BitValues);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT RootParameterIndex,
     D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 void Encode_ID3D12GraphicsCommandList_IASetIndexBuffer(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     const D3D12_INDEX_BUFFER_VIEW* pView);
 
 void Encode_ID3D12GraphicsCommandList_IASetVertexBuffers(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT StartSlot,
     UINT NumViews,
     const D3D12_VERTEX_BUFFER_VIEW* pViews);
 
 void Encode_ID3D12GraphicsCommandList_SOSetTargets(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT StartSlot,
     UINT NumViews,
     const D3D12_STREAM_OUTPUT_BUFFER_VIEW* pViews);
 
 void Encode_ID3D12GraphicsCommandList_OMSetRenderTargets(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT NumRenderTargetDescriptors,
     const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
     BOOL RTsSingleHandleToDescriptorRange,
     const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
 
 void Encode_ID3D12GraphicsCommandList_ClearDepthStencilView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView,
     D3D12_CLEAR_FLAGS ClearFlags,
     FLOAT Depth,
@@ -1710,14 +1711,14 @@ void Encode_ID3D12GraphicsCommandList_ClearDepthStencilView(
     const D3D12_RECT* pRects);
 
 void Encode_ID3D12GraphicsCommandList_ClearRenderTargetView(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetView,
     const FLOAT ColorRGBA [4],
     UINT NumRects,
     const D3D12_RECT* pRects);
 
 void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,
     D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle,
     ID3D12Resource* pResource,
@@ -1726,7 +1727,7 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
     const D3D12_RECT* pRects);
 
 void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,
     D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle,
     ID3D12Resource* pResource,
@@ -1735,24 +1736,24 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
     const D3D12_RECT* pRects);
 
 void Encode_ID3D12GraphicsCommandList_DiscardResource(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pResource,
     const D3D12_DISCARD_REGION* pRegion);
 
 void Encode_ID3D12GraphicsCommandList_BeginQuery(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12QueryHeap* pQueryHeap,
     D3D12_QUERY_TYPE Type,
     UINT Index);
 
 void Encode_ID3D12GraphicsCommandList_EndQuery(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12QueryHeap* pQueryHeap,
     D3D12_QUERY_TYPE Type,
     UINT Index);
 
 void Encode_ID3D12GraphicsCommandList_ResolveQueryData(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12QueryHeap* pQueryHeap,
     D3D12_QUERY_TYPE Type,
     UINT StartIndex,
@@ -1761,28 +1762,28 @@ void Encode_ID3D12GraphicsCommandList_ResolveQueryData(
     UINT64 AlignedDestinationBufferOffset);
 
 void Encode_ID3D12GraphicsCommandList_SetPredication(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12Resource* pBuffer,
     UINT64 AlignedBufferOffset,
     D3D12_PREDICATION_OP Operation);
 
 void Encode_ID3D12GraphicsCommandList_SetMarker(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT Metadata,
     const void* pData,
     UINT Size);
 
 void Encode_ID3D12GraphicsCommandList_BeginEvent(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     UINT Metadata,
     const void* pData,
     UINT Size);
 
 void Encode_ID3D12GraphicsCommandList_EndEvent(
-    format::HandleId wrapper_id);
+    ID3D12GraphicsCommandList_Wrapper* wrapper);
 
 void Encode_ID3D12GraphicsCommandList_ExecuteIndirect(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList_Wrapper* wrapper,
     ID3D12CommandSignature* pCommandSignature,
     UINT MaxCommandCount,
     ID3D12Resource* pArgumentBuffer,
@@ -1791,7 +1792,7 @@ void Encode_ID3D12GraphicsCommandList_ExecuteIndirect(
     UINT64 CountBufferOffset);
 
 void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     ID3D12Resource* pDstBuffer,
     UINT64 DstOffset,
     ID3D12Resource* pSrcBuffer,
@@ -1801,7 +1802,7 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges);
 
 void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     ID3D12Resource* pDstBuffer,
     UINT64 DstOffset,
     ID3D12Resource* pSrcBuffer,
@@ -1811,18 +1812,18 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
     const D3D12_SUBRESOURCE_RANGE_UINT64* pDependentSubresourceRanges);
 
 void Encode_ID3D12GraphicsCommandList1_OMSetDepthBounds(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     FLOAT Min,
     FLOAT Max);
 
 void Encode_ID3D12GraphicsCommandList1_SetSamplePositions(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     UINT NumSamplesPerPixel,
     UINT NumPixels,
     D3D12_SAMPLE_POSITION* pSamplePositions);
 
 void Encode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     ID3D12Resource* pDstResource,
     UINT DstSubresource,
     UINT DstX,
@@ -1834,19 +1835,19 @@ void Encode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
     D3D12_RESOLVE_MODE ResolveMode);
 
 void Encode_ID3D12GraphicsCommandList1_SetViewInstanceMask(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList1_Wrapper* wrapper,
     UINT Mask);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER& value);
 
 void Encode_ID3D12GraphicsCommandList2_WriteBufferImmediate(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList2_Wrapper* wrapper,
     UINT Count,
     const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* pParams,
     const D3D12_WRITEBUFFERIMMEDIATE_MODE* pModes);
 
 void Encode_ID3D12CommandQueue_UpdateTileMappings(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     ID3D12Resource* pResource,
     UINT NumResourceRegions,
     const D3D12_TILED_RESOURCE_COORDINATE* pResourceRegionStartCoordinates,
@@ -1859,7 +1860,7 @@ void Encode_ID3D12CommandQueue_UpdateTileMappings(
     D3D12_TILE_MAPPING_FLAGS Flags);
 
 void Encode_ID3D12CommandQueue_CopyTileMappings(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     ID3D12Resource* pDstResource,
     const D3D12_TILED_RESOURCE_COORDINATE* pDstRegionStartCoordinate,
     ID3D12Resource* pSrcResource,
@@ -1868,86 +1869,86 @@ void Encode_ID3D12CommandQueue_CopyTileMappings(
     D3D12_TILE_MAPPING_FLAGS Flags);
 
 void Encode_ID3D12CommandQueue_ExecuteCommandLists(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     UINT NumCommandLists,
     ID3D12CommandList* const* ppCommandLists);
 
 void Encode_ID3D12CommandQueue_SetMarker(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     UINT Metadata,
     const void* pData,
     UINT Size);
 
 void Encode_ID3D12CommandQueue_BeginEvent(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     UINT Metadata,
     const void* pData,
     UINT Size);
 
 void Encode_ID3D12CommandQueue_EndEvent(
-    format::HandleId wrapper_id);
+    ID3D12CommandQueue_Wrapper* wrapper);
 
 void Encode_ID3D12CommandQueue_Signal(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     HRESULT result,
     ID3D12Fence* pFence,
     UINT64 Value);
 
 void Encode_ID3D12CommandQueue_Wait(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     HRESULT result,
     ID3D12Fence* pFence,
     UINT64 Value);
 
 void Encode_ID3D12CommandQueue_GetTimestampFrequency(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     HRESULT result,
     UINT64* pFrequency);
 
 void Encode_ID3D12CommandQueue_GetClockCalibration(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     HRESULT result,
     UINT64* pGpuTimestamp,
     UINT64* pCpuTimestamp);
 
 void Encode_ID3D12CommandQueue_GetDesc(
-    format::HandleId wrapper_id,
+    ID3D12CommandQueue_Wrapper* wrapper,
     D3D12_COMMAND_QUEUE_DESC result);
 
 void Encode_ID3D12Device_GetNodeCount(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     UINT result);
 
 void Encode_ID3D12Device_CreateCommandQueue(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_COMMAND_QUEUE_DESC* pDesc,
     REFIID riid,
     void** ppCommandQueue);
 
 void Encode_ID3D12Device_CreateCommandAllocator(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     D3D12_COMMAND_LIST_TYPE type,
     REFIID riid,
     void** ppCommandAllocator);
 
 void Encode_ID3D12Device_CreateGraphicsPipelineState(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState);
 
 void Encode_ID3D12Device_CreateComputePipelineState(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_COMPUTE_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState);
 
 void Encode_ID3D12Device_CreateCommandList(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     UINT nodeMask,
     D3D12_COMMAND_LIST_TYPE type,
@@ -1957,19 +1958,19 @@ void Encode_ID3D12Device_CreateCommandList(
     void** ppCommandList);
 
 void Encode_ID3D12Device_CreateDescriptorHeap(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_DESCRIPTOR_HEAP_DESC* pDescriptorHeapDesc,
     REFIID riid,
     void** ppvHeap);
 
 void Encode_ID3D12Device_GetDescriptorHandleIncrementSize(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     UINT result,
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType);
 
 void Encode_ID3D12Device_CreateRootSignature(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     UINT nodeMask,
     const void* pBlobWithRootSignature,
@@ -1978,42 +1979,42 @@ void Encode_ID3D12Device_CreateRootSignature(
     void** ppvRootSignature);
 
 void Encode_ID3D12Device_CreateConstantBufferView(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     const D3D12_CONSTANT_BUFFER_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CreateShaderResourceView(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     ID3D12Resource* pResource,
     const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CreateUnorderedAccessView(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     ID3D12Resource* pResource,
     ID3D12Resource* pCounterResource,
     const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CreateRenderTargetView(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     ID3D12Resource* pResource,
     const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CreateDepthStencilView(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     ID3D12Resource* pResource,
     const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CreateSampler(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     const D3D12_SAMPLER_DESC* pDesc,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device_CopyDescriptors(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     UINT NumDestDescriptorRanges,
     const D3D12_CPU_DESCRIPTOR_HANDLE* pDestDescriptorRangeStarts,
     const UINT* pDestDescriptorRangeSizes,
@@ -2023,27 +2024,27 @@ void Encode_ID3D12Device_CopyDescriptors(
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType);
 
 void Encode_ID3D12Device_CopyDescriptorsSimple(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     UINT NumDescriptors,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
     D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType);
 
 void Encode_ID3D12Device_GetResourceAllocationInfo(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     D3D12_RESOURCE_ALLOCATION_INFO result,
     UINT visibleMask,
     UINT numResourceDescs,
     const D3D12_RESOURCE_DESC* pResourceDescs);
 
 void Encode_ID3D12Device_GetCustomHeapProperties(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     D3D12_HEAP_PROPERTIES result,
     UINT nodeMask,
     D3D12_HEAP_TYPE heapType);
 
 void Encode_ID3D12Device_CreateCommittedResource(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
@@ -2054,14 +2055,14 @@ void Encode_ID3D12Device_CreateCommittedResource(
     void** ppvResource);
 
 void Encode_ID3D12Device_CreateHeap(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_HEAP_DESC* pDesc,
     REFIID riid,
     void** ppvHeap);
 
 void Encode_ID3D12Device_CreatePlacedResource(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     ID3D12Heap* pHeap,
     UINT64 HeapOffset,
@@ -2072,7 +2073,7 @@ void Encode_ID3D12Device_CreatePlacedResource(
     void** ppvResource);
 
 void Encode_ID3D12Device_CreateReservedResource(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialState,
@@ -2081,7 +2082,7 @@ void Encode_ID3D12Device_CreateReservedResource(
     void** ppvResource);
 
 void Encode_ID3D12Device_CreateSharedHandle(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     ID3D12DeviceChild* pObject,
     const SECURITY_ATTRIBUTES* pAttributes,
@@ -2090,33 +2091,33 @@ void Encode_ID3D12Device_CreateSharedHandle(
     HANDLE* pHandle);
 
 void Encode_ID3D12Device_OpenSharedHandle(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     HANDLE NTHandle,
     REFIID riid,
     void** ppvObj);
 
 void Encode_ID3D12Device_OpenSharedHandleByName(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR Name,
     DWORD Access,
     HANDLE* pNTHandle);
 
 void Encode_ID3D12Device_MakeResident(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects);
 
 void Encode_ID3D12Device_Evict(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects);
 
 void Encode_ID3D12Device_CreateFence(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     UINT64 InitialValue,
     D3D12_FENCE_FLAGS Flags,
@@ -2124,11 +2125,11 @@ void Encode_ID3D12Device_CreateFence(
     void** ppFence);
 
 void Encode_ID3D12Device_GetDeviceRemovedReason(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12Device_GetCopyableFootprints(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     const D3D12_RESOURCE_DESC* pResourceDesc,
     UINT FirstSubresource,
     UINT NumSubresources,
@@ -2139,19 +2140,19 @@ void Encode_ID3D12Device_GetCopyableFootprints(
     UINT64* pTotalBytes);
 
 void Encode_ID3D12Device_CreateQueryHeap(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_QUERY_HEAP_DESC* pDesc,
     REFIID riid,
     void** ppvHeap);
 
 void Encode_ID3D12Device_SetStablePowerState(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     BOOL Enable);
 
 void Encode_ID3D12Device_CreateCommandSignature(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     HRESULT result,
     const D3D12_COMMAND_SIGNATURE_DESC* pDesc,
     ID3D12RootSignature* pRootSignature,
@@ -2159,7 +2160,7 @@ void Encode_ID3D12Device_CreateCommandSignature(
     void** ppvCommandSignature);
 
 void Encode_ID3D12Device_GetResourceTiling(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     ID3D12Resource* pTiledResource,
     UINT* pNumTilesForEntireResource,
     D3D12_PACKED_MIP_INFO* pPackedMipDesc,
@@ -2169,17 +2170,17 @@ void Encode_ID3D12Device_GetResourceTiling(
     D3D12_SUBRESOURCE_TILING* pSubresourceTilingsForNonPackedMips);
 
 void Encode_ID3D12Device_GetAdapterLuid(
-    format::HandleId wrapper_id,
+    ID3D12Device_Wrapper* wrapper,
     LUID result);
 
 void Encode_ID3D12PipelineLibrary_StorePipeline(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR pName,
     ID3D12PipelineState* pPipeline);
 
 void Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR pName,
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC* pDesc,
@@ -2187,7 +2188,7 @@ void Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     void** ppPipelineState);
 
 void Encode_ID3D12PipelineLibrary_LoadComputePipeline(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR pName,
     const D3D12_COMPUTE_PIPELINE_STATE_DESC* pDesc,
@@ -2195,17 +2196,17 @@ void Encode_ID3D12PipelineLibrary_LoadComputePipeline(
     void** ppPipelineState);
 
 void Encode_ID3D12PipelineLibrary_GetSerializedSize(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary_Wrapper* wrapper,
     SIZE_T result);
 
 void Encode_ID3D12PipelineLibrary_Serialize(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary_Wrapper* wrapper,
     HRESULT result,
     void* pData,
     SIZE_T DataSizeInBytes);
 
 void Encode_ID3D12PipelineLibrary1_LoadPipeline(
-    format::HandleId wrapper_id,
+    ID3D12PipelineLibrary1_Wrapper* wrapper,
     HRESULT result,
     LPCWSTR pName,
     const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc,
@@ -2213,7 +2214,7 @@ void Encode_ID3D12PipelineLibrary1_LoadPipeline(
     void** ppPipelineState);
 
 void Encode_ID3D12Device1_CreatePipelineLibrary(
-    format::HandleId wrapper_id,
+    ID3D12Device1_Wrapper* wrapper,
     HRESULT result,
     const void* pLibraryBlob,
     SIZE_T BlobLength,
@@ -2221,7 +2222,7 @@ void Encode_ID3D12Device1_CreatePipelineLibrary(
     void** ppPipelineLibrary);
 
 void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
-    format::HandleId wrapper_id,
+    ID3D12Device1_Wrapper* wrapper,
     HRESULT result,
     ID3D12Fence* const* ppFences,
     const UINT64* pFenceValues,
@@ -2230,35 +2231,35 @@ void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     HANDLE hEvent);
 
 void Encode_ID3D12Device1_SetResidencyPriority(
-    format::HandleId wrapper_id,
+    ID3D12Device1_Wrapper* wrapper,
     HRESULT result,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects,
     const D3D12_RESIDENCY_PRIORITY* pPriorities);
 
 void Encode_ID3D12Device2_CreatePipelineState(
-    format::HandleId wrapper_id,
+    ID3D12Device2_Wrapper* wrapper,
     HRESULT result,
     const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState);
 
 void Encode_ID3D12Device3_OpenExistingHeapFromAddress(
-    format::HandleId wrapper_id,
+    ID3D12Device3_Wrapper* wrapper,
     HRESULT result,
     const void* pAddress,
     REFIID riid,
     void** ppvHeap);
 
 void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
-    format::HandleId wrapper_id,
+    ID3D12Device3_Wrapper* wrapper,
     HRESULT result,
     HANDLE hFileMapping,
     REFIID riid,
     void** ppvHeap);
 
 void Encode_ID3D12Device3_EnqueueMakeResident(
-    format::HandleId wrapper_id,
+    ID3D12Device3_Wrapper* wrapper,
     HRESULT result,
     D3D12_RESIDENCY_FLAGS Flags,
     UINT NumObjects,
@@ -2267,13 +2268,13 @@ void Encode_ID3D12Device3_EnqueueMakeResident(
     UINT64 FenceValueToSignal);
 
 void Encode_ID3D12ProtectedSession_GetStatusFence(
-    format::HandleId wrapper_id,
+    ID3D12ProtectedSession_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppFence);
 
 void Encode_ID3D12ProtectedSession_GetSessionStatus(
-    format::HandleId wrapper_id,
+    ID3D12ProtectedSession_Wrapper* wrapper,
     D3D12_PROTECTED_SESSION_STATUS result);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT& value);
@@ -2281,11 +2282,11 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PROTECTED_
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PROTECTED_RESOURCE_SESSION_DESC& value);
 
 void Encode_ID3D12ProtectedResourceSession_GetDesc(
-    format::HandleId wrapper_id,
+    ID3D12ProtectedResourceSession_Wrapper* wrapper,
     D3D12_PROTECTED_RESOURCE_SESSION_DESC result);
 
 void Encode_ID3D12Device4_CreateCommandList1(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     HRESULT result,
     UINT nodeMask,
     D3D12_COMMAND_LIST_TYPE type,
@@ -2294,14 +2295,14 @@ void Encode_ID3D12Device4_CreateCommandList1(
     void** ppCommandList);
 
 void Encode_ID3D12Device4_CreateProtectedResourceSession(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     HRESULT result,
     const D3D12_PROTECTED_RESOURCE_SESSION_DESC* pDesc,
     REFIID riid,
     void** ppSession);
 
 void Encode_ID3D12Device4_CreateCommittedResource1(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     HRESULT result,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
@@ -2313,7 +2314,7 @@ void Encode_ID3D12Device4_CreateCommittedResource1(
     void** ppvResource);
 
 void Encode_ID3D12Device4_CreateHeap1(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     HRESULT result,
     const D3D12_HEAP_DESC* pDesc,
     ID3D12ProtectedResourceSession* pProtectedSession,
@@ -2321,7 +2322,7 @@ void Encode_ID3D12Device4_CreateHeap1(
     void** ppvHeap);
 
 void Encode_ID3D12Device4_CreateReservedResource1(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     HRESULT result,
     const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialState,
@@ -2331,7 +2332,7 @@ void Encode_ID3D12Device4_CreateReservedResource1(
     void** ppvResource);
 
 void Encode_ID3D12Device4_GetResourceAllocationInfo1(
-    format::HandleId wrapper_id,
+    ID3D12Device4_Wrapper* wrapper,
     D3D12_RESOURCE_ALLOCATION_INFO result,
     UINT visibleMask,
     UINT numResourceDescs,
@@ -2339,21 +2340,21 @@ void Encode_ID3D12Device4_GetResourceAllocationInfo1(
     D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
 
 void Encode_ID3D12LifetimeOwner_LifetimeStateUpdated(
-    format::HandleId wrapper_id,
+    ID3D12LifetimeOwner_Wrapper* wrapper,
     D3D12_LIFETIME_STATE NewState);
 
 void Encode_ID3D12SwapChainAssistant_GetLUID(
-    format::HandleId wrapper_id,
+    ID3D12SwapChainAssistant_Wrapper* wrapper,
     LUID result);
 
 void Encode_ID3D12SwapChainAssistant_GetSwapChainObject(
-    format::HandleId wrapper_id,
+    ID3D12SwapChainAssistant_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppv);
 
 void Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
-    format::HandleId wrapper_id,
+    ID3D12SwapChainAssistant_Wrapper* wrapper,
     HRESULT result,
     REFIID riidResource,
     void** ppvResource,
@@ -2361,11 +2362,11 @@ void Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
     void** ppvQueue);
 
 void Encode_ID3D12SwapChainAssistant_InsertImplicitSync(
-    format::HandleId wrapper_id,
+    ID3D12SwapChainAssistant_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12LifetimeTracker_DestroyOwnedObject(
-    format::HandleId wrapper_id,
+    ID3D12LifetimeTracker_Wrapper* wrapper,
     HRESULT result,
     ID3D12DeviceChild* pObject);
 
@@ -2374,21 +2375,21 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_META_COMMAND_PARAMETER_
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_META_COMMAND_DESC& value);
 
 void Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
-    format::HandleId wrapper_id,
+    ID3D12StateObjectProperties_Wrapper* wrapper,
     void* result,
     LPCWSTR pExportName);
 
 void Encode_ID3D12StateObjectProperties_GetShaderStackSize(
-    format::HandleId wrapper_id,
+    ID3D12StateObjectProperties_Wrapper* wrapper,
     UINT64 result,
     LPCWSTR pExportName);
 
 void Encode_ID3D12StateObjectProperties_GetPipelineStackSize(
-    format::HandleId wrapper_id,
+    ID3D12StateObjectProperties_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
-    format::HandleId wrapper_id,
+    ID3D12StateObjectProperties_Wrapper* wrapper,
     UINT64 PipelineStackSizeInBytes);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_CONFIG& value);
@@ -2450,23 +2451,23 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO& value);
 
 void Encode_ID3D12Device5_CreateLifetimeTracker(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     HRESULT result,
     ID3D12LifetimeOwner* pOwner,
     REFIID riid,
     void** ppvTracker);
 
 void Encode_ID3D12Device5_RemoveDevice(
-    format::HandleId wrapper_id);
+    ID3D12Device5_Wrapper* wrapper);
 
 void Encode_ID3D12Device5_EnumerateMetaCommands(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     HRESULT result,
     UINT* pNumMetaCommands,
     D3D12_META_COMMAND_DESC* pDescs);
 
 void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     HRESULT result,
     REFGUID CommandId,
     D3D12_META_COMMAND_PARAMETER_STAGE Stage,
@@ -2475,7 +2476,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
     D3D12_META_COMMAND_PARAMETER_DESC* pParameterDescs);
 
 void Encode_ID3D12Device5_CreateMetaCommand(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     HRESULT result,
     REFGUID CommandId,
     UINT NodeMask,
@@ -2485,19 +2486,19 @@ void Encode_ID3D12Device5_CreateMetaCommand(
     void** ppMetaCommand);
 
 void Encode_ID3D12Device5_CreateStateObject(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     HRESULT result,
     const D3D12_STATE_OBJECT_DESC* pDesc,
     REFIID riid,
     void** ppStateObject);
 
 void Encode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* pInfo);
 
 void Encode_ID3D12Device5_CheckDriverMatchingIdentifier(
-    format::HandleId wrapper_id,
+    ID3D12Device5_Wrapper* wrapper,
     D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS result,
     D3D12_SERIALIZED_DATA_TYPE SerializedDataType,
     const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* pIdentifierToCheck);
@@ -2527,43 +2528,43 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEVICE_REMOVED_EXTENDED_DATA2& value);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* wrapper,
     D3D12_DRED_ENABLEMENT Enablement);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* wrapper,
     D3D12_DRED_ENABLEMENT Enablement);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings_SetWatsonDumpEnablement(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* wrapper,
     D3D12_DRED_ENABLEMENT Enablement);
 
 void Encode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper* wrapper,
     D3D12_DRED_ENABLEMENT Enablement);
 
 void Encode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedData_Wrapper* wrapper,
     HRESULT result,
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* pOutput);
 
 void Encode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedData_Wrapper* wrapper,
     HRESULT result,
     D3D12_DRED_PAGE_FAULT_OUTPUT* pOutput);
 
 void Encode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedData1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* pOutput);
 
 void Encode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
-    format::HandleId wrapper_id,
+    ID3D12DeviceRemovedExtendedData1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DRED_PAGE_FAULT_OUTPUT1* pOutput);
 
 void Encode_ID3D12Device6_SetBackgroundProcessingMode(
-    format::HandleId wrapper_id,
+    ID3D12Device6_Wrapper* wrapper,
     HRESULT result,
     D3D12_BACKGROUND_PROCESSING_MODE Mode,
     D3D12_MEASUREMENTS_ACTION MeasurementsAction,
@@ -2577,11 +2578,11 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PROTECTED_
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PROTECTED_RESOURCE_SESSION_DESC1& value);
 
 void Encode_ID3D12ProtectedResourceSession1_GetDesc1(
-    format::HandleId wrapper_id,
+    ID3D12ProtectedResourceSession1_Wrapper* wrapper,
     D3D12_PROTECTED_RESOURCE_SESSION_DESC1 result);
 
 void Encode_ID3D12Device7_AddToStateObject(
-    format::HandleId wrapper_id,
+    ID3D12Device7_Wrapper* wrapper,
     HRESULT result,
     const D3D12_STATE_OBJECT_DESC* pAddition,
     ID3D12StateObject* pStateObjectToGrowFrom,
@@ -2589,14 +2590,14 @@ void Encode_ID3D12Device7_AddToStateObject(
     void** ppNewStateObject);
 
 void Encode_ID3D12Device7_CreateProtectedResourceSession1(
-    format::HandleId wrapper_id,
+    ID3D12Device7_Wrapper* wrapper,
     HRESULT result,
     const D3D12_PROTECTED_RESOURCE_SESSION_DESC1* pDesc,
     REFIID riid,
     void** ppSession);
 
 void Encode_ID3D12Device8_GetResourceAllocationInfo2(
-    format::HandleId wrapper_id,
+    ID3D12Device8_Wrapper* wrapper,
     D3D12_RESOURCE_ALLOCATION_INFO result,
     UINT visibleMask,
     UINT numResourceDescs,
@@ -2604,7 +2605,7 @@ void Encode_ID3D12Device8_GetResourceAllocationInfo2(
     D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
 
 void Encode_ID3D12Device8_CreateCommittedResource2(
-    format::HandleId wrapper_id,
+    ID3D12Device8_Wrapper* wrapper,
     HRESULT result,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
@@ -2616,7 +2617,7 @@ void Encode_ID3D12Device8_CreateCommittedResource2(
     void** ppvResource);
 
 void Encode_ID3D12Device8_CreatePlacedResource1(
-    format::HandleId wrapper_id,
+    ID3D12Device8_Wrapper* wrapper,
     HRESULT result,
     ID3D12Heap* pHeap,
     UINT64 HeapOffset,
@@ -2627,13 +2628,13 @@ void Encode_ID3D12Device8_CreatePlacedResource1(
     void** ppvResource);
 
 void Encode_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
-    format::HandleId wrapper_id,
+    ID3D12Device8_Wrapper* wrapper,
     ID3D12Resource* pTargetedResource,
     ID3D12Resource* pFeedbackResource,
     D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
 void Encode_ID3D12Device8_GetCopyableFootprints1(
-    format::HandleId wrapper_id,
+    ID3D12Device8_Wrapper* wrapper,
     const D3D12_RESOURCE_DESC1* pResourceDesc,
     UINT FirstSubresource,
     UINT NumSubresources,
@@ -2644,23 +2645,23 @@ void Encode_ID3D12Device8_GetCopyableFootprints1(
     UINT64* pTotalBytes);
 
 void Encode_ID3D12Resource1_GetProtectedResourceSession(
-    format::HandleId wrapper_id,
+    ID3D12Resource1_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppProtectedSession);
 
 void Encode_ID3D12Resource2_GetDesc1(
-    format::HandleId wrapper_id,
+    ID3D12Resource2_Wrapper* wrapper,
     D3D12_RESOURCE_DESC1 result);
 
 void Encode_ID3D12Heap1_GetProtectedResourceSession(
-    format::HandleId wrapper_id,
+    ID3D12Heap1_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppProtectedSession);
 
 void Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList3_Wrapper* wrapper,
     ID3D12ProtectedResourceSession* pProtectedResourceSession);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& value);
@@ -2674,7 +2675,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_RENDER_TARG
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC& value);
 
 void Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
-    format::HandleId wrapper_id,
+    ID3D12MetaCommand_Wrapper* wrapper,
     UINT64 result,
     D3D12_META_COMMAND_PARAMETER_STAGE Stage,
     UINT ParameterIndex);
@@ -2682,59 +2683,59 @@ void Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_RAYS_DESC& value);
 
 void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     UINT NumRenderTargets,
     const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
     const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
     D3D12_RENDER_PASS_FLAGS Flags);
 
 void Encode_ID3D12GraphicsCommandList4_EndRenderPass(
-    format::HandleId wrapper_id);
+    ID3D12GraphicsCommandList4_Wrapper* wrapper);
 
 void Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     ID3D12MetaCommand* pMetaCommand,
     const void* pInitializationParametersData,
     SIZE_T InitializationParametersDataSizeInBytes);
 
 void Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     ID3D12MetaCommand* pMetaCommand,
     const void* pExecutionParametersData,
     SIZE_T ExecutionParametersDataSizeInBytes);
 
 void Encode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* pDesc,
     UINT NumPostbuildInfoDescs,
     const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs);
 
 void Encode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pDesc,
     UINT NumSourceAccelerationStructures,
     const D3D12_GPU_VIRTUAL_ADDRESS* pSourceAccelerationStructureData);
 
 void Encode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     D3D12_GPU_VIRTUAL_ADDRESS DestAccelerationStructureData,
     D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData,
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode);
 
 void Encode_ID3D12GraphicsCommandList4_SetPipelineState1(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     ID3D12StateObject* pStateObject);
 
 void Encode_ID3D12GraphicsCommandList4_DispatchRays(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList4_Wrapper* wrapper,
     const D3D12_DISPATCH_RAYS_DESC* pDesc);
 
 void Encode_ID3D12Tools_EnableShaderInstrumentation(
-    format::HandleId wrapper_id,
+    ID3D12Tools_Wrapper* wrapper,
     BOOL bEnable);
 
 void Encode_ID3D12Tools_ShaderInstrumentationEnabled(
-    format::HandleId wrapper_id,
+    ID3D12Tools_Wrapper* wrapper,
     BOOL result);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_DATA& value);
@@ -2742,18 +2743,18 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_DATA& value
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MEMCPY_DEST& value);
 
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList5_Wrapper* wrapper,
     D3D12_SHADING_RATE baseShadingRate,
     const D3D12_SHADING_RATE_COMBINER* combiners);
 
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList5_Wrapper* wrapper,
     ID3D12Resource* shadingRateImage);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_MESH_ARGUMENTS& value);
 
 void Encode_ID3D12GraphicsCommandList6_DispatchMesh(
-    format::HandleId wrapper_id,
+    ID3D12GraphicsCommandList6_Wrapper* wrapper,
     UINT ThreadGroupCountX,
     UINT ThreadGroupCountY,
     UINT ThreadGroupCountZ);
@@ -2767,22 +2768,22 @@ void Encode_ID3D12GraphicsCommandList6_DispatchMesh(
 void EncodeStruct(ParameterEncoder* encoder, const D3D_SHADER_MACRO& value);
 
 void Encode_ID3D10Blob_GetBufferPointer(
-    format::HandleId wrapper_id,
+    ID3D10Blob_Wrapper* wrapper,
     LPVOID result);
 
 void Encode_ID3D10Blob_GetBufferSize(
-    format::HandleId wrapper_id,
+    ID3D10Blob_Wrapper* wrapper,
     SIZE_T result);
 
 void Encode_ID3DDestructionNotifier_RegisterDestructionCallback(
-    format::HandleId wrapper_id,
+    ID3DDestructionNotifier_Wrapper* wrapper,
     HRESULT result,
     PFN_DESTRUCTION_CALLBACK callbackFn,
     void* pData,
     UINT* pCallbackID);
 
 void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
-    format::HandleId wrapper_id,
+    ID3DDestructionNotifier_Wrapper* wrapper,
     HRESULT result,
     UINT callbackID);
 
@@ -2793,33 +2794,33 @@ void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
 */
 
 void Encode_ID3D12Debug_EnableDebugLayer(
-    format::HandleId wrapper_id);
+    ID3D12Debug_Wrapper* wrapper);
 
 void Encode_ID3D12Debug1_EnableDebugLayer(
-    format::HandleId wrapper_id);
+    ID3D12Debug1_Wrapper* wrapper);
 
 void Encode_ID3D12Debug1_SetEnableGPUBasedValidation(
-    format::HandleId wrapper_id,
+    ID3D12Debug1_Wrapper* wrapper,
     BOOL Enable);
 
 void Encode_ID3D12Debug1_SetEnableSynchronizedCommandQueueValidation(
-    format::HandleId wrapper_id,
+    ID3D12Debug1_Wrapper* wrapper,
     BOOL Enable);
 
 void Encode_ID3D12Debug2_SetGPUBasedValidationFlags(
-    format::HandleId wrapper_id,
+    ID3D12Debug2_Wrapper* wrapper,
     D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
 
 void Encode_ID3D12Debug3_SetEnableGPUBasedValidation(
-    format::HandleId wrapper_id,
+    ID3D12Debug3_Wrapper* wrapper,
     BOOL Enable);
 
 void Encode_ID3D12Debug3_SetEnableSynchronizedCommandQueueValidation(
-    format::HandleId wrapper_id,
+    ID3D12Debug3_Wrapper* wrapper,
     BOOL Enable);
 
 void Encode_ID3D12Debug3_SetGPUBasedValidationFlags(
-    format::HandleId wrapper_id,
+    ID3D12Debug3_Wrapper* wrapper,
     D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS& value);
@@ -2827,54 +2828,54 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_BASED_
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_SLOWDOWN_PERFORMANCE_FACTOR& value);
 
 void Encode_ID3D12DebugDevice1_SetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugDevice1_GetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugDevice1_ReportLiveDeviceObjects(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice1_Wrapper* wrapper,
     HRESULT result,
     D3D12_RLDO_FLAGS Flags);
 
 void Encode_ID3D12DebugDevice_SetFeatureMask(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_FEATURE Mask);
 
 void Encode_ID3D12DebugDevice_GetFeatureMask(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice_Wrapper* wrapper,
     D3D12_DEBUG_FEATURE result);
 
 void Encode_ID3D12DebugDevice_ReportLiveDeviceObjects(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice_Wrapper* wrapper,
     HRESULT result,
     D3D12_RLDO_FLAGS Flags);
 
 void Encode_ID3D12DebugDevice2_SetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice2_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugDevice2_GetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugDevice2_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugCommandQueue_AssertResourceState(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandQueue_Wrapper* wrapper,
     BOOL result,
     ID3D12Resource* pResource,
     UINT Subresource,
@@ -2883,73 +2884,73 @@ void Encode_ID3D12DebugCommandQueue_AssertResourceState(
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS& value);
 
 void Encode_ID3D12DebugCommandList1_AssertResourceState(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList1_Wrapper* wrapper,
     BOOL result,
     ID3D12Resource* pResource,
     UINT Subresource,
     UINT State);
 
 void Encode_ID3D12DebugCommandList1_SetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugCommandList1_GetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList1_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugCommandList_AssertResourceState(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList_Wrapper* wrapper,
     BOOL result,
     ID3D12Resource* pResource,
     UINT Subresource,
     UINT State);
 
 void Encode_ID3D12DebugCommandList_SetFeatureMask(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_FEATURE Mask);
 
 void Encode_ID3D12DebugCommandList_GetFeatureMask(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList_Wrapper* wrapper,
     D3D12_DEBUG_FEATURE result);
 
 void Encode_ID3D12DebugCommandList2_SetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList2_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize);
 
 void Encode_ID3D12DebugCommandList2_GetDebugParameter(
-    format::HandleId wrapper_id,
+    ID3D12DebugCommandList2_Wrapper* wrapper,
     HRESULT result,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize);
 
 void Encode_ID3D12SharingContract_Present(
-    format::HandleId wrapper_id,
+    ID3D12SharingContract_Wrapper* wrapper,
     ID3D12Resource* pResource,
     UINT Subresource,
     HWND window);
 
 void Encode_ID3D12SharingContract_SharedFenceSignal(
-    format::HandleId wrapper_id,
+    ID3D12SharingContract_Wrapper* wrapper,
     ID3D12Fence* pFence,
     UINT64 FenceValue);
 
 void Encode_ID3D12SharingContract_BeginCapturableWork(
-    format::HandleId wrapper_id,
+    ID3D12SharingContract_Wrapper* wrapper,
     REFGUID guid);
 
 void Encode_ID3D12SharingContract_EndCapturableWork(
-    format::HandleId wrapper_id,
+    ID3D12SharingContract_Wrapper* wrapper,
     REFGUID guid);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MESSAGE& value);
@@ -2959,114 +2960,114 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_INFO_QUEUE_FILTER_DESC&
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_INFO_QUEUE_FILTER& value);
 
 void Encode_ID3D12InfoQueue_SetMessageCountLimit(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     UINT64 MessageCountLimit);
 
 void Encode_ID3D12InfoQueue_ClearStoredMessages(
-    format::HandleId wrapper_id);
+    ID3D12InfoQueue_Wrapper* wrapper);
 
 void Encode_ID3D12InfoQueue_GetMessage(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     UINT64 MessageIndex,
     D3D12_MESSAGE* pMessage,
     SIZE_T* pMessageByteLength);
 
 void Encode_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_GetNumStoredMessages(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_GetMessageCountLimit(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT64 result);
 
 void Encode_ID3D12InfoQueue_AddStorageFilterEntries(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter);
 
 void Encode_ID3D12InfoQueue_GetStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter,
     SIZE_T* pFilterByteLength);
 
 void Encode_ID3D12InfoQueue_ClearStorageFilter(
-    format::HandleId wrapper_id);
+    ID3D12InfoQueue_Wrapper* wrapper);
 
 void Encode_ID3D12InfoQueue_PushEmptyStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12InfoQueue_PushCopyOfStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12InfoQueue_PushStorageFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter);
 
 void Encode_ID3D12InfoQueue_PopStorageFilter(
-    format::HandleId wrapper_id);
+    ID3D12InfoQueue_Wrapper* wrapper);
 
 void Encode_ID3D12InfoQueue_GetStorageFilterStackSize(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT result);
 
 void Encode_ID3D12InfoQueue_AddRetrievalFilterEntries(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter);
 
 void Encode_ID3D12InfoQueue_GetRetrievalFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter,
     SIZE_T* pFilterByteLength);
 
 void Encode_ID3D12InfoQueue_ClearRetrievalFilter(
-    format::HandleId wrapper_id);
+    ID3D12InfoQueue_Wrapper* wrapper);
 
 void Encode_ID3D12InfoQueue_PushEmptyRetrievalFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result);
 
 void Encode_ID3D12InfoQueue_PushRetrievalFilter(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_INFO_QUEUE_FILTER* pFilter);
 
 void Encode_ID3D12InfoQueue_PopRetrievalFilter(
-    format::HandleId wrapper_id);
+    ID3D12InfoQueue_Wrapper* wrapper);
 
 void Encode_ID3D12InfoQueue_GetRetrievalFilterStackSize(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     UINT result);
 
 void Encode_ID3D12InfoQueue_AddMessage(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_MESSAGE_CATEGORY Category,
     D3D12_MESSAGE_SEVERITY Severity,
@@ -3074,50 +3075,50 @@ void Encode_ID3D12InfoQueue_AddMessage(
     LPCSTR pDescription);
 
 void Encode_ID3D12InfoQueue_AddApplicationMessage(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_MESSAGE_SEVERITY Severity,
     LPCSTR pDescription);
 
 void Encode_ID3D12InfoQueue_SetBreakOnCategory(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_MESSAGE_CATEGORY Category,
     BOOL bEnable);
 
 void Encode_ID3D12InfoQueue_SetBreakOnSeverity(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_MESSAGE_SEVERITY Severity,
     BOOL bEnable);
 
 void Encode_ID3D12InfoQueue_SetBreakOnID(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     HRESULT result,
     D3D12_MESSAGE_ID ID,
     BOOL bEnable);
 
 void Encode_ID3D12InfoQueue_GetBreakOnCategory(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     BOOL result,
     D3D12_MESSAGE_CATEGORY Category);
 
 void Encode_ID3D12InfoQueue_GetBreakOnSeverity(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     BOOL result,
     D3D12_MESSAGE_SEVERITY Severity);
 
 void Encode_ID3D12InfoQueue_GetBreakOnID(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     BOOL result,
     D3D12_MESSAGE_ID ID);
 
 void Encode_ID3D12InfoQueue_SetMuteDebugOutput(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     BOOL bMute);
 
 void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
-    format::HandleId wrapper_id,
+    ID3D12InfoQueue_Wrapper* wrapper,
     BOOL result);
 
 
@@ -3127,17 +3128,17 @@ void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
 */
 
 void Encode_IUnknown_QueryInterface(
-    format::HandleId wrapper_id,
+    IUnknown_Wrapper* wrapper,
     HRESULT result,
     REFIID riid,
     void** ppvObject);
 
 void Encode_IUnknown_AddRef(
-    format::HandleId wrapper_id,
+    IUnknown_Wrapper* wrapper,
     ULONG result);
 
 void Encode_IUnknown_Release(
-    format::HandleId wrapper_id,
+    IUnknown_Wrapper* wrapper,
     ULONG result);
 
 

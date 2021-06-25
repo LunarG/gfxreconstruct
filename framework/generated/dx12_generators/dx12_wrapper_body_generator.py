@@ -673,7 +673,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             expr += '\n'
             expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
-            encode_args = self.increment_indent(indent) + 'GetCaptureId()'
+            encode_args = self.increment_indent(indent) + 'this'
             if wrapped_args or (return_type != 'void'):
                 if return_type != 'void':
                     encode_args += ',\n'

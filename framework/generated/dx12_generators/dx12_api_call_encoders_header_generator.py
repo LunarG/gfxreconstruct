@@ -94,6 +94,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         code += (
             "\n"
             "#include \"encode/parameter_encoder.h\"\n"
+            "#include \"generated/generated_dx12_wrappers.h\"\n"
             "#include \"util/defines.h\"\n"
             "\n"
         )
@@ -129,7 +130,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
     def write_encode_function(self, class_name, method_info):
         parameters = ''
         if class_name:
-            parameters = '    format::HandleId wrapper_id'
+            parameters = '    {}_Wrapper* wrapper'.format(class_name)
 
         is_result = False
         rtn_type = method_info['rtnType']

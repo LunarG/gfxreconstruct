@@ -119,6 +119,21 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
     EndMethodCallCapture();
 }
 
+void D3D12CaptureManager::EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        assert(state_tracker_ != nullptr);
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        state_tracker_->TrackCommand(list_wrapper, thread_data->call_id_, thread_data->parameter_buffer_.get());
+    }
+
+    EndMethodCallCapture();
+}
+
 void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
 {
     Dx12StateWriter state_writer(file_stream, compressor_.get(), thread_id);

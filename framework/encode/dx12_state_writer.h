@@ -113,6 +113,11 @@ class Dx12StateWriter
 
     void WriteFenceState(const Dx12StateTable& state_table);
 
+    void WriteGraphicsCommandListState(const Dx12StateTable& state_table);
+
+    void WriteGraphicsCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                          const Dx12StateTable&                    state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

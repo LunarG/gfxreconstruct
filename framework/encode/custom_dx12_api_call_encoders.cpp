@@ -32,14 +32,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
-                                             HRESULT          result,
-                                             D3D12_FEATURE    Feature,
-                                             void*            pFeatureSupportData,
-                                             UINT             FeatureSupportDataSize)
+void Encode_ID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* wrapper,
+                                             HRESULT               result,
+                                             D3D12_FEATURE         Feature,
+                                             void*                 pFeatureSupportData,
+                                             UINT                  FeatureSupportDataSize)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
-        format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport, wrapper_id);
+        format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport, wrapper->GetCaptureId());
     if (encoder)
     {
         encoder->EncodeEnumValue(Feature);
@@ -50,14 +50,14 @@ void Encode_ID3D12Device_CheckFeatureSupport(format::HandleId wrapper_id,
     }
 }
 
-void Encode_IDXGIFactory5_CheckFeatureSupport(format::HandleId wrapper_id,
-                                              HRESULT          result,
-                                              DXGI_FEATURE     Feature,
-                                              void*            pFeatureSupportData,
-                                              UINT             FeatureSupportDataSize)
+void Encode_IDXGIFactory5_CheckFeatureSupport(IDXGIFactory5_Wrapper* wrapper,
+                                              HRESULT                result,
+                                              DXGI_FEATURE           Feature,
+                                              void*                  pFeatureSupportData,
+                                              UINT                   FeatureSupportDataSize)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
-        format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport, wrapper_id);
+        format::ApiCallId::ApiCall_IDXGIFactory5_CheckFeatureSupport, wrapper->GetCaptureId());
     if (encoder)
     {
         encoder->EncodeEnumValue(Feature);

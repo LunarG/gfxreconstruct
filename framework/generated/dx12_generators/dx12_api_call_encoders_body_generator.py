@@ -254,6 +254,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         parameters = method_info['parameters']
         is_create_call = False
         is_descriptor_create_call = False
+        is_command_list_call = False
         create_object_tuple = None
 
         # Check if last parameter is a created object.
@@ -271,6 +272,10 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if descriptor_creation_param_name:
             is_descriptor_create_call = True
 
+        # Check if call is a CommandList command.
+        if 'GraphicsCommandList' in class_name:
+            is_command_list_call = True
+
         # Build begin and end calls.
         api_or_method = ''
         begin_call_type = ''
@@ -280,7 +285,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
         if class_name:
             api_or_method = 'Method'
-            begin_call_args = 'format::ApiCallId::ApiCall_{}_{}, wrapper_id'.format(
+            begin_call_args = 'format::ApiCallId::ApiCall_{}_{}, wrapper->GetCaptureId()'.format(
                 class_name, method_name
             )
         else:
@@ -296,13 +301,17 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 create_object_tuple[0], create_object_tuple[1]
             )
             if class_name:
-                end_call_args += ', wrapper_id'
+                end_call_args += ', wrapper->GetCaptureId()'
         elif is_descriptor_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'CreateDescriptor'
             end_call_args = '{}'.format(descriptor_creation_param_name)
             if class_name:
-                end_call_args += ', wrapper_id'
+                end_call_args += ', wrapper->GetCaptureId()'
+        elif is_command_list_call:
+            begin_call_type = 'Tracked'
+            end_call_type = 'CommandList'
+            end_call_args = '{}'.format('wrapper')
 
         begin_call = 'Begin{}{}CallCapture({})'.format(
             begin_call_type, api_or_method, begin_call_args
