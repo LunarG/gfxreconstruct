@@ -49,8 +49,10 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
 
+    // Wait for command queues to complete all pending work.
     WaitForCommandQueues(state_table);
 
+    // DXGI objects
     StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
     StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
     StandardCreateWrite<IDXGIFactoryMedia_Wrapper>(state_table);
@@ -63,44 +65,51 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<IDXGIOutputDuplication_Wrapper>(state_table);
     StandardCreateWrite<IDXGIResource_Wrapper>(state_table);
 
+    // Device & Queue
     StandardCreateWrite<ID3D12Device_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandQueue_Wrapper>(state_table);
+
+    // Swap chain
     StandardCreateWrite<IDXGISwapChain_Wrapper>(state_table);
     StandardCreateWrite<IDXGISwapChainMedia_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
 
-    StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
-
-    StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
-
+    // Fences
     WriteFenceState(state_table);
+
+    // Heaps
+    StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
     WriteHeapState(state_table);
 
+    // State objects
+    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
+
+    // Root signatures
+    StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
+
+    // Resources and descriptors
+    WriteResourceState(state_table);
+    WriteDescriptorState(state_table);
+
+    // Other
+    StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
     StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
     StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
     StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
-
-    WriteResourceState(state_table);
-    WriteDescriptorState(state_table);
-
-    StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Tools_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
     StandardCreateWrite<ID3DDestructionNotifier_Wrapper>(state_table);
 
+    // Pipelines
     StandardCreateWrite<ID3D12PipelineLibrary_Wrapper>(state_table);
     StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
 
-    WriteGraphicsCommandListState(state_table);
-
+    // Debug objects
     StandardCreateWrite<ID3D12Debug1_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Debug2_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Debug_Wrapper>(state_table);
@@ -111,6 +120,11 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DebugCommandList_Wrapper>(state_table);
     StandardCreateWrite<ID3D12SharingContract_Wrapper>(state_table);
     StandardCreateWrite<ID3D12InfoQueue_Wrapper>(state_table);
+
+    // Command lists
+    StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
+    WriteGraphicsCommandListState(state_table);
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
@@ -304,47 +318,58 @@ bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
 void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
-    state_table.VisitWrappers([&](const ID3D12DescriptorHeap_Wrapper* wrapper) {
-        assert(wrapper != nullptr);
-        assert(wrapper->GetObjectInfo() != nullptr);
-        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+    state_table.VisitWrappers([&](ID3D12DescriptorHeap_Wrapper* heap_wrapper) {
+        assert(heap_wrapper != nullptr);
+        assert(heap_wrapper->GetWrappedObject() != nullptr);
+        assert(heap_wrapper->GetObjectInfo() != nullptr);
+        assert(heap_wrapper->GetObjectInfo()->create_parameters != nullptr);
 
-        auto wrapper_info = wrapper->GetObjectInfo();
+        auto        heap      = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
+        auto        heap_info = heap_wrapper->GetObjectInfo();
+        const auto& heap_desc = heap->GetDesc();
 
         // Write heap creation call.
         WriteMethodCall(
-            wrapper_info->create_call_id, wrapper_info->create_call_object_id, wrapper_info->create_parameters.get());
+            heap_info->create_call_id, heap_info->create_call_object_id, heap_info->create_parameters.get());
 
-        WriteAddRefAndReleaseCommands(wrapper);
+        WriteAddRefAndReleaseCommands(heap_wrapper);
 
         // Write GetCPUDescriptorHandleForHeapStart call.
-        if (wrapper_info->cpu_start != 0)
+        if (heap_info->cpu_start != 0)
         {
             D3D12_CPU_DESCRIPTOR_HANDLE cpu_start;
-            cpu_start.ptr = wrapper_info->cpu_start;
+            cpu_start.ptr = heap_info->cpu_start;
             EncodeStruct(&encoder_, cpu_start);
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart,
-                            wrapper->GetCaptureId(),
+                            heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
             parameter_stream_.Reset();
         }
 
         // Write GetGPUDescriptorHandleForHeapStart call.
-        if (wrapper_info->gpu_start != 0)
+        if (heap_info->gpu_start != 0)
         {
             D3D12_GPU_DESCRIPTOR_HANDLE gpu_start;
-            gpu_start.ptr = wrapper_info->gpu_start;
+            gpu_start.ptr = heap_info->gpu_start;
             EncodeStruct(&encoder_, gpu_start);
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart,
-                            wrapper->GetCaptureId(),
+                            heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
             parameter_stream_.Reset();
         }
 
+        // Write call to query the device for heap increment size.
+        encoder_.EncodeEnumValue(heap_desc.Type);
+        encoder_.EncodeUInt32Value(S_OK);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
+                        heap_info->create_call_object_id,
+                        &parameter_stream_);
+        parameter_stream_.Reset();
+
         // Write descriptor creation calls.
-        for (uint32_t i = 0; i < wrapper_info->num_descriptors; ++i)
+        for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
         {
-            const DxDescriptorInfo& descriptor_info = wrapper_info->descriptor_info[i];
+            const DxDescriptorInfo& descriptor_info = heap_info->descriptor_info[i];
             if (descriptor_info.create_parameters != nullptr)
             {
                 WriteMethodCall(descriptor_info.create_call_id,
@@ -391,10 +416,15 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
     std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>> resource_snapshots;
 
     state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
-        assert((resource_wrapper != nullptr) && (resource_wrapper->GetObjectInfo() != nullptr) &&
-               (resource_wrapper->GetObjectInfo()->create_parameters != nullptr));
+        assert(resource_wrapper != nullptr);
+        assert(resource_wrapper->GetWrappedObject() != nullptr);
+        assert(resource_wrapper->GetObjectInfo() != nullptr);
+        assert(resource_wrapper->GetObjectInfo()->create_parameters != nullptr);
 
-        auto resource_info = resource_wrapper->GetObjectInfo();
+        auto        resource      = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+        auto        resource_info = resource_wrapper->GetObjectInfo();
+        const auto& resource_desc = resource->GetDesc();
+
         assert(resource_info->create_call_object_id != format::kNullHandleId);
 
         // Write the resource creation call to capture file.
@@ -402,6 +432,17 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
                         resource_info->create_call_object_id,
                         resource_info->create_parameters.get());
         WriteAddRefAndReleaseCommands(resource_wrapper);
+
+        // Write call to get GPU address for buffers.
+        if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+        {
+            D3D12_GPU_VIRTUAL_ADDRESS gpu_address = resource->GetGPUVirtualAddress();
+            encoder_.EncodeUInt64Value(gpu_address);
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress,
+                            resource_wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Reset();
+        }
 
         // Collect list of subresources that need to be written to the capture file.
         for (UINT i = 0; i < resource_info->num_subresources; ++i)

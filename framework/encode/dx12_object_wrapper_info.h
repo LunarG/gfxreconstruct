@@ -128,7 +128,6 @@ struct ID3D12PipelineStateInfo : public DxWrapperInfo
 
 struct ID3D12DescriptorHeapInfo : public DxWrapperInfo
 {
-    uint32_t                            num_descriptors;
     std::unique_ptr<uint8_t[]>          descriptor_memory;
     std::unique_ptr<DxDescriptorInfo[]> descriptor_info;
 

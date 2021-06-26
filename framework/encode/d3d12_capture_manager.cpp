@@ -548,7 +548,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         auto descriptor_heap = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
         auto num_descriptors = desc->NumDescriptors;
 
-        info->num_descriptors   = num_descriptors;
         info->descriptor_memory = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
         info->descriptor_info   = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
 
