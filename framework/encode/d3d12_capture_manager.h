@@ -304,6 +304,12 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
 
+    void PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           device_wrapper,
+                                                     HRESULT                         result,
+                                                     const D3D12_COMMAND_QUEUE_DESC* desc,
+                                                     REFIID                          riid,
+                                                     void**                          command_queue);
+
     void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);

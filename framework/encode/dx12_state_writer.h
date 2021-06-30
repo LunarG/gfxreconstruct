@@ -108,6 +108,9 @@ class Dx12StateWriter
 
     HRESULT WriteResourceSnapshot(const ResourceSnapshotInfo& snapshot);
 
+    // Sync to ensure all pending command queues are completed before processing state writing.
+    void WaitForCommandQueues(const Dx12StateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

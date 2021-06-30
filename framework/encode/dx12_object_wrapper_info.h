@@ -36,6 +36,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+class ID3D12Device_Wrapper;
 class ID3D12Resource_Wrapper;
 
 struct DxWrapperInfo
@@ -138,7 +139,9 @@ struct ID3D12CommandSignatureInfo : public DxWrapperInfo
 {};
 
 struct ID3D12CommandQueueInfo : public DxWrapperInfo
-{};
+{
+    ID3D12Device_Wrapper* device_wrapper{ nullptr };
+};
 
 struct ID3D12PipelineLibraryInfo : public DxWrapperInfo
 {};

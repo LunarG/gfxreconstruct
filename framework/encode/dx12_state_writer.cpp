@@ -49,6 +49,8 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
 
+    WaitForCommandQueues(state_table);
+
     StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
     StandardCreateWrite<IDXGISurface_Wrapper>(state_table);
     StandardCreateWrite<IDXGIFactoryMedia_Wrapper>(state_table);
@@ -520,6 +522,59 @@ HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snaps
     }
 
     return result;
+}
+
+void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
+{
+    std::vector<HANDLE>       idle_events;
+    std::vector<ID3D12Fence*> fences;
+
+    const UINT64 kSignalValue = 1;
+
+    state_table.VisitWrappers([&](ID3D12CommandQueue_Wrapper* queue_wrapper) {
+        assert((queue_wrapper != nullptr) && (queue_wrapper->GetWrappedObject() != nullptr) &&
+               (queue_wrapper->GetObjectInfo() != nullptr));
+
+        auto queue_info = queue_wrapper->GetObjectInfo();
+        auto queue      = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
+
+        assert((queue_info->device_wrapper) && (queue_info->device_wrapper->GetWrappedObject() != nullptr));
+
+        auto device_wrapper = queue_info->device_wrapper;
+        auto device         = queue_info->device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+        // Create a fence and event, then signal it on the queue.
+        ID3D12Fence* fence        = nullptr;
+        auto         fence_result = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+        if (SUCCEEDED(fence_result) && (fence != nullptr))
+        {
+            HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+            fence->SetEventOnCompletion(kSignalValue, idle_event);
+
+            queue->Signal(fence, kSignalValue);
+
+            idle_events.push_back(idle_event);
+            fences.push_back(fence);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Failed to create ID3D12Fence object to sync ID3D12CommandQueue for trim state writing.");
+        }
+    });
+
+    // Wait for the queues to signal the fence.
+    for (auto idle_event : idle_events)
+    {
+        WaitForSingleObject(idle_event, INFINITE);
+        CloseHandle(idle_event);
+    }
+
+    // Release fences.
+    for (auto fence : fences)
+    {
+        fence->Release();
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
