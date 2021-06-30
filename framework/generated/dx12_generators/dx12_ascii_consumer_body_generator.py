@@ -115,12 +115,12 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
         if prefix:
             prefix_string = 'true'
-            prefix11 = indent_code + 'oss << "' + output + '" << '
-            prefix21 = indent_code2 + 'oss << "' + output + '" << '
+            prefix11 = self.trim_generate_write_empty(indent_code + 'oss << "' + output + '" << ')
+            prefix21 = self.trim_generate_write_empty(indent_code2 + 'oss << "' + output + '" << ')
         else:
             prefix_string = 'false'
-            prefix11 = indent_code + 'oss << "' + indent_file + '" << "' + output + '" << '
-            prefix21 = indent_code2 + 'oss << "' + indent_file + '" << "' + output + '" << '
+            prefix11 = self.trim_generate_write_empty(indent_code + 'oss << "' + indent_file + '" << "' + output + '" << ')
+            prefix21 = self.trim_generate_write_empty(indent_code2 + 'oss << "' + indent_file + '" << "' + output + '" << ')
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -350,8 +350,8 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         indent_base = '    '
         indent_code = indent_base
         indent_code2 = indent_code + indent_base
-        prefix12 = indent_code + 'oss << indent2 << '
-        prefix22 = indent_code2 + 'oss << indent2 << '
+        prefix12 = self.trim_generate_write_empty(indent_code + 'oss << indent2 << ')
+        prefix22 = self.trim_generate_write_empty(indent_code2 + 'oss << indent2 << ')
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -536,3 +536,6 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 value.name
             )
         return code
+
+    def trim_generate_write_empty(self, value):
+        return value.replace('"" << ', '')

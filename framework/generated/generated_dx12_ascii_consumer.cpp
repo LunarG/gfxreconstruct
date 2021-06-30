@@ -6878,12 +6878,12 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
     oss << "CreateDXGIFactory(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
@@ -6905,12 +6905,12 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
     oss << "CreateDXGIFactory1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
@@ -6935,20 +6935,20 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*Name.decoded_value);
+    oss << "    " << ConverttoText(*Name.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ");\n\n";
 
@@ -6967,15 +6967,15 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*Name.decoded_value);
+    oss << "    " << ConverttoText(*Name.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pUnknown;
+    oss << "    " << "IUnknown_id" << pUnknown;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -6994,17 +6994,17 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*Name.decoded_value);
+    oss << "    " << ConverttoText(*Name.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
     {
-        oss << "    " << "" << *pDataSize->GetPointer();
+        oss << "    " << *pDataSize->GetPointer();
     }
     oss << ",\n";
 
@@ -7029,12 +7029,12 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
     oss << "GetParent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppParent, "    ", true))
@@ -7058,12 +7058,12 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
@@ -7086,7 +7086,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
     oss << "GetSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7111,14 +7111,14 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
     oss << "GetUsage(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pUsage, "    ", false))
     {
-        oss << "    " << "" << *pUsage->GetPointer();
+        oss << "    " << *pUsage->GetPointer();
     }
     oss << ");\n\n";
 
@@ -7136,12 +7136,12 @@ void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
     oss << "SetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << EvictionPriority;
+    oss << "    " << EvictionPriority;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7158,7 +7158,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
     oss << "GetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7184,15 +7184,15 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     oss << "AcquireSync(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Key;
+    oss << "    " << Key;
     oss << ",\n";
 
-    oss << "    " << "" << dwMilliseconds;
+    oss << "    " << dwMilliseconds;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7209,12 +7209,12 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     oss << "ReleaseSync(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Key;
+    oss << "    " << Key;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7231,7 +7231,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7257,7 +7257,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7268,7 +7268,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
     }
     oss << ",\n";
 
-    oss << "    " << "" << MapFlags;
+    oss << "    " << MapFlags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7284,7 +7284,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
     oss << "Unmap(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -7304,7 +7304,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
     oss << "GetDC(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7332,7 +7332,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
     oss << "ReleaseDC(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7358,12 +7358,12 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
     oss << "EnumOutputs(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Output;
+    oss << "    " << Output;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppOutput, "    ", true))
@@ -7386,7 +7386,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7412,12 +7412,12 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     oss << "CheckInterfaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*InterfaceName.decoded_value);
+    oss << "    " << ConverttoText(*InterfaceName.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pUMDVersion, "    ", true))
@@ -7440,7 +7440,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7468,20 +7468,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
     oss << "GetDisplayModeList(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(EnumFormat);
+    oss << "    " << ConverttoText(EnumFormat);
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
     {
-        oss << "    " << "" << *pNumModes->GetPointer();
+        oss << "    " << *pNumModes->GetPointer();
     }
     oss << ",\n";
 
@@ -7507,7 +7507,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     oss << "FindClosestMatchingMode(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7524,7 +7524,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
+    oss << "    " << "IUnknown_id" << pConcernedDevice;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7540,7 +7540,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
     oss << "WaitForVBlank(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -7560,12 +7560,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
     oss << "TakeOwnership(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     WriteBOOLString(oss, Exclusive, "    ", false);
@@ -7598,7 +7598,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     oss << "GetGammaControlCapabilities(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7623,7 +7623,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
     oss << "SetGammaControl(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7648,7 +7648,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
     oss << "GetGammaControl(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7673,12 +7673,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
     oss << "SetDisplaySurface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IDXGISurface_id" << pScanoutSurface;
+    oss << "    " << "IDXGISurface_id" << pScanoutSurface;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7695,12 +7695,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     oss << "GetDisplaySurfaceData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IDXGISurface_id" << pDestination;
+    oss << "    " << "IDXGISurface_id" << pDestination;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7717,7 +7717,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7743,15 +7743,15 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
     oss << "Present(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << SyncInterval;
+    oss << "    " << SyncInterval;
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7770,15 +7770,15 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
     oss << "GetBuffer(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Buffer;
+    oss << "    " << Buffer;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
@@ -7802,7 +7802,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
     oss << "SetFullscreenState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7810,7 +7810,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
     WriteBOOLString(oss, Fullscreen, "    ", false);
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pTarget;
+    oss << "    " << "IDXGIOutput_id" << pTarget;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7828,7 +7828,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
     oss << "GetFullscreenState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7859,7 +7859,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7888,24 +7888,24 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
     oss << "ResizeBuffers(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << BufferCount;
+    oss << "    " << BufferCount;
     oss << ",\n";
 
-    oss << "    " << "" << Width;
+    oss << "    " << Width;
     oss << ",\n";
 
-    oss << "    " << "" << Height;
+    oss << "    " << Height;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(NewFormat);
+    oss << "    " << ConverttoText(NewFormat);
     oss << ",\n";
 
-    oss << "    " << "" << SwapChainFlags;
+    oss << "    " << SwapChainFlags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7922,7 +7922,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
     oss << "ResizeTarget(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7947,7 +7947,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
     oss << "GetContainingOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7972,7 +7972,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7997,7 +7997,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     oss << "GetLastPresentCount(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8023,12 +8023,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
     oss << "EnumAdapters(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Adapter;
+    oss << "    " << Adapter;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
@@ -8052,15 +8052,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     oss << "MakeWindowAssociation(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << WindowHandle;
+    oss << "    " << WindowHandle;
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8077,7 +8077,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
     oss << "GetWindowAssociation(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8104,12 +8104,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
     oss << "CreateSwapChain(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -8139,12 +8139,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     oss << "CreateSoftwareAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Module;
+    oss << "    " << Module;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
@@ -8167,7 +8167,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
     oss << "GetAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8196,7 +8196,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
     oss << "CreateSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8207,10 +8207,10 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumSurfaces;
+    oss << "    " << NumSurfaces;
     oss << ",\n";
 
-    oss << "    " << "" << Usage;
+    oss << "    " << Usage;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSharedResource, "    ", false))
@@ -8241,7 +8241,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
     oss << "QueryResourceResidency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8258,7 +8258,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumResources;
+    oss << "    " << NumResources;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8275,12 +8275,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     oss << "SetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Priority;
+    oss << "    " << Priority;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8297,7 +8297,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     oss << "GetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8323,12 +8323,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
     oss << "EnumAdapters1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Adapter;
+    oss << "    " << Adapter;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
@@ -8369,7 +8369,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8394,12 +8394,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << MaxLatency;
+    oss << "    " << MaxLatency;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8416,7 +8416,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8502,12 +8502,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     oss << "AcquireNextFrame(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << TimeoutInMilliseconds;
+    oss << "    " << TimeoutInMilliseconds;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFrameInfo, "    ", true))
@@ -8538,12 +8538,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     oss << "GetFrameDirtyRects(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << DirtyRectsBufferSize;
+    oss << "    " << DirtyRectsBufferSize;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBuffer, "    ", true))
@@ -8574,12 +8574,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     oss << "GetFrameMoveRects(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << MoveRectsBufferSize;
+    oss << "    " << MoveRectsBufferSize;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pMoveRectBuffer, "    ", true))
@@ -8611,12 +8611,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     oss << "GetFramePointerShape(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << PointerShapeBufferSize;
+    oss << "    " << PointerShapeBufferSize;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pPointerShapeBuffer, "    ", true))
@@ -8651,7 +8651,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     oss << "MapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8675,7 +8675,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
     oss << "UnMapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8693,7 +8693,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
     oss << "ReleaseFrame(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8714,12 +8714,12 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
     oss << "GetResource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppParentResource, "    ", true))
@@ -8749,12 +8749,12 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     oss << "CreateSubresourceSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << index;
+    oss << "    " << index;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
@@ -8780,7 +8780,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8791,12 +8791,12 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
     }
     oss << ",\n";
 
-    oss << "    " << "" << dwAccess;
+    oss << "    " << dwAccess;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, lpName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(lpName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(lpName->GetPointer()) << "\"";
     }
     oss << ",\n";
 
@@ -8822,12 +8822,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
     oss << "OfferResources(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumResources;
+    oss << "    " << NumResources;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
@@ -8836,7 +8836,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Priority);
+    oss << "    " << ConverttoText(Priority);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8855,12 +8855,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
     oss << "ReclaimResources(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumResources;
+    oss << "    " << NumResources;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
@@ -8889,12 +8889,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     oss << "EnqueueSetEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -8911,7 +8911,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8936,7 +8936,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     oss << "GetFullscreenDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8961,7 +8961,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
     oss << "GetHwnd(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8987,12 +8987,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     oss << "GetCoreWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*refiid.decoded_value);
+    oss << "    " << ConverttoText(*refiid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppUnk, "    ", true))
@@ -9017,15 +9017,15 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
     oss << "Present1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << SyncInterval;
+    oss << "    " << SyncInterval;
     oss << ",\n";
 
-    oss << "    " << "" << PresentFlags;
+    oss << "    " << PresentFlags;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pPresentParameters, "    ", false))
@@ -9066,7 +9066,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     oss << "GetRestrictToOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9091,7 +9091,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     oss << "SetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9116,7 +9116,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     oss << "GetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9141,12 +9141,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
     oss << "SetRotation(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Rotation);
+    oss << "    " << ConverttoText(Rotation);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9163,7 +9163,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
     oss << "GetRotation(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9211,15 +9211,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     oss << "CreateSwapChainForHwnd(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << hWnd;
+    oss << "    " << hWnd;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9234,7 +9234,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
+    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9261,15 +9261,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     oss << "CreateSwapChainForCoreWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pWindow;
+    oss << "    " << "IUnknown_id" << pWindow;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9278,7 +9278,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
+    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9302,12 +9302,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     oss << "GetSharedResourceAdapterLuid(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hResource;
+    oss << "    " << hResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pLuid, "    ", true))
@@ -9332,15 +9332,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     oss << "RegisterStereoStatusWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << WindowHandle;
+    oss << "    " << WindowHandle;
     oss << ",\n";
 
-    oss << "    " << "" << wMsg;
+    oss << "    " << wMsg;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -9364,12 +9364,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     oss << "RegisterStereoStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -9392,7 +9392,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << dwCookie;
+    oss << "    " << dwCookie;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9411,15 +9411,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     oss << "RegisterOcclusionStatusWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << WindowHandle;
+    oss << "    " << WindowHandle;
     oss << ",\n";
 
-    oss << "    " << "" << wMsg;
+    oss << "    " << wMsg;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -9443,12 +9443,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     oss << "RegisterOcclusionStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -9471,7 +9471,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << dwCookie;
+    oss << "    " << dwCookie;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9491,12 +9491,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     oss << "CreateSwapChainForComposition(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9505,7 +9505,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
+    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -9528,7 +9528,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
     oss << "GetDesc2(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9556,20 +9556,20 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     oss << "GetDisplayModeList1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(EnumFormat);
+    oss << "    " << ConverttoText(EnumFormat);
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumModes, "    ", false))
     {
-        oss << "    " << "" << *pNumModes->GetPointer();
+        oss << "    " << *pNumModes->GetPointer();
     }
     oss << ",\n";
 
@@ -9595,7 +9595,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     oss << "FindClosestMatchingMode1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9612,7 +9612,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
+    oss << "    " << "IUnknown_id" << pConcernedDevice;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9629,12 +9629,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     oss << "GetDisplaySurfaceData1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IDXGIResource_id" << pDestination;
+    oss << "    " << "IDXGIResource_id" << pDestination;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9652,12 +9652,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
     oss << "DuplicateOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
@@ -9684,15 +9684,15 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
     oss << "CreateDXGIFactory2(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
@@ -9715,15 +9715,15 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
     oss << "DXGIGetDebugInterface1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDebug, "    ", true))
@@ -9760,15 +9760,15 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
     oss << "SetSourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Width;
+    oss << "    " << Width;
     oss << ",\n";
 
-    oss << "    " << "" << Height;
+    oss << "    " << Height;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9786,7 +9786,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
     oss << "GetSourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9817,12 +9817,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << MaxLatency;
+    oss << "    " << MaxLatency;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9839,7 +9839,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9863,7 +9863,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     oss << "GetFrameLatencyWaitableObject(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9882,7 +9882,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     oss << "SetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9907,7 +9907,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     oss << "GetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9949,7 +9949,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9970,18 +9970,18 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     oss << "PresentBuffer(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << BufferToPresent;
+    oss << "    " << BufferToPresent;
     oss << ",\n";
 
-    oss << "    " << "" << SyncInterval;
+    oss << "    " << SyncInterval;
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9998,7 +9998,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     oss << "SetSourceRect(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10023,7 +10023,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     oss << "SetTargetRect(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10049,15 +10049,15 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     oss << "SetDestSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Width;
+    oss << "    " << Width;
     oss << ",\n";
 
-    oss << "    " << "" << Height;
+    oss << "    " << Height;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10074,7 +10074,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     oss << "GetSourceRect(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10099,7 +10099,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     oss << "GetTargetRect(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10125,7 +10125,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     oss << "GetDestSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10156,12 +10156,12 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     oss << "SetColorSpace(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(ColorSpace);
+    oss << "    " << ConverttoText(ColorSpace);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10177,7 +10177,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
     oss << "GetColorSpace(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10200,15 +10200,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
     oss << "CreateSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << hSurface;
+    oss << "    " << hSurface;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -10217,7 +10217,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
+    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -10245,15 +10245,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
     oss << "CreateDecodeSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << hSurface;
+    oss << "    " << hSurface;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -10262,10 +10262,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
     }
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIResource_id" << pYuvDecodeBuffers;
+    oss << "    " << "IDXGIResource_id" << pYuvDecodeBuffers;
     oss << ",\n";
 
-    oss << "    " << "" << "IDXGIOutput_id" << pRestrictToOutput;
+    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
@@ -10288,7 +10288,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     oss << "GetFrameStatisticsMedia(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10313,12 +10313,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     oss << "SetPresentDuration(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Duration;
+    oss << "    " << Duration;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10337,12 +10337,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
     oss << "CheckPresentDurationSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << DesiredPresentDuration;
+    oss << "    " << DesiredPresentDuration;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pClosestSmallerPresentDuration, "    ", true))
@@ -10373,15 +10373,15 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     oss << "CheckOverlaySupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(EnumFormat);
+    oss << "    " << ConverttoText(EnumFormat);
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
+    oss << "    " << "IUnknown_id" << pConcernedDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10407,7 +10407,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
     oss << "GetCurrentBackBufferIndex(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10427,12 +10427,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     oss << "CheckColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(ColorSpace);
+    oss << "    " << ConverttoText(ColorSpace);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pColorSpaceSupport, "    ", true))
@@ -10455,12 +10455,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     oss << "SetColorSpace1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(ColorSpace);
+    oss << "    " << ConverttoText(ColorSpace);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10483,24 +10483,24 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     oss << "ResizeBuffers1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << BufferCount;
+    oss << "    " << BufferCount;
     oss << ",\n";
 
-    oss << "    " << "" << Width;
+    oss << "    " << Width;
     oss << ",\n";
 
-    oss << "    " << "" << Height;
+    oss << "    " << Height;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Format);
+    oss << "    " << ConverttoText(Format);
     oss << ",\n";
 
-    oss << "    " << "" << SwapChainFlags;
+    oss << "    " << SwapChainFlags;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pCreationNodeMask, "    ", false))
@@ -10532,18 +10532,18 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     oss << "CheckOverlayColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Format);
+    oss << "    " << ConverttoText(Format);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(ColorSpace);
+    oss << "    " << ConverttoText(ColorSpace);
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pConcernedDevice;
+    oss << "    " << "IUnknown_id" << pConcernedDevice;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10568,7 +10568,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     oss << "EnumAdapterByLuid(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10576,7 +10576,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     WriteStructString(oss, &AdapterLuid, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
@@ -10600,12 +10600,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     oss << "EnumWarpAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
@@ -10629,12 +10629,12 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
     oss << "RegisterHardwareContentProtectionTeardownStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -10657,7 +10657,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectio
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << dwCookie;
+    oss << "    " << dwCookie;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10676,15 +10676,15 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     oss << "QueryVideoMemoryInfo(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NodeIndex;
+    oss << "    " << NodeIndex;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(MemorySegmentGroup);
+    oss << "    " << ConverttoText(MemorySegmentGroup);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pVideoMemoryInfo, "    ", true))
@@ -10709,18 +10709,18 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     oss << "SetVideoMemoryReservation(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NodeIndex;
+    oss << "    " << NodeIndex;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(MemorySegmentGroup);
+    oss << "    " << ConverttoText(MemorySegmentGroup);
     oss << ",\n";
 
-    oss << "    " << "" << Reservation;
+    oss << "    " << Reservation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10738,12 +10738,12 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
     oss << "RegisterVideoMemoryBudgetChangeNotificationEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -10766,7 +10766,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << dwCookie;
+    oss << "    " << dwCookie;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10791,18 +10791,18 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     oss << "DuplicateOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pDevice;
+    oss << "    " << "IUnknown_id" << pDevice;
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ",\n";
 
-    oss << "    " << "" << SupportedFormatsCount;
+    oss << "    " << SupportedFormatsCount;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSupportedFormats, "    ", false))
@@ -10833,20 +10833,20 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     oss << "SetHDRMetaData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
-    oss << "    " << "" << Size;
+    oss << "    " << Size;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pMetaData, "    ", false))
     {
-        oss << "    " << "" << "pMetaData" << " /* value = " << static_cast<uint16_t>(*pMetaData->GetPointer()) << " */";
+        oss << "    " << "pMetaData" << " /* value = " << static_cast<uint16_t>(*pMetaData->GetPointer()) << " */";
     }
     oss << ");\n\n";
 
@@ -10867,12 +10867,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
     oss << "OfferResources1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumResources;
+    oss << "    " << NumResources;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
@@ -10881,10 +10881,10 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Priority);
+    oss << "    " << ConverttoText(Priority);
     oss << ",\n";
 
-    oss << "    " << "" << Flags;
+    oss << "    " << Flags;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -10903,12 +10903,12 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
     oss << "ReclaimResources1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumResources;
+    oss << "    " << NumResources;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppResources, "    ", false))
@@ -10938,7 +10938,7 @@ void Dx12AsciiConsumer::Process_DXGIDeclareAdapterRemovalSupport(
     oss << "DXGIDeclareAdapterRemovalSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10957,7 +10957,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
     oss << "GetDesc3(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10982,7 +10982,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11007,7 +11007,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     oss << "CheckHardwareCompositionSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11035,18 +11035,18 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     oss << "EnumAdapterByGpuPreference(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Adapter;
+    oss << "    " << Adapter;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(GpuPreference);
+    oss << "    " << ConverttoText(GpuPreference);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
@@ -11070,12 +11070,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     oss << "RegisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pdwCookie, "    ", true))
@@ -11098,12 +11098,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     oss << "UnregisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << dwCookie;
+    oss << "    " << dwCookie;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11125,7 +11125,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
     oss << "D3D12SerializeRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11136,7 +11136,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Version);
+    oss << "    " << ConverttoText(Version);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
@@ -11166,21 +11166,21 @@ void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
     oss << "D3D12CreateRootSignatureDeserializer(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
     {
-        oss << "    " << "" << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
+        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << SrcDataSizeInBytes;
+    oss << "    " << SrcDataSizeInBytes;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
+    oss << "    " << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
@@ -11203,7 +11203,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
     oss << "D3D12SerializeVersionedRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11241,21 +11241,21 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     oss << "D3D12CreateVersionedRootSignatureDeserializer(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
     {
-        oss << "    " << "" << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
+        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << SrcDataSizeInBytes;
+    oss << "    " << SrcDataSizeInBytes;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
+    oss << "    " << ConverttoText(*pRootSignatureDeserializerInterface.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
@@ -11279,18 +11279,18 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
     oss << "D3D12CreateDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "IUnknown_id" << pAdapter;
+    oss << "    " << "IUnknown_id" << pAdapter;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(MinimumFeatureLevel);
+    oss << "    " << ConverttoText(MinimumFeatureLevel);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
@@ -11312,12 +11312,12 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
     oss << "D3D12GetDebugInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvDebug, "    ", true))
@@ -11341,12 +11341,12 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
     oss << "D3D12EnableExperimentalFeatures(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumFeatures;
+    oss << "    " << NumFeatures;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pIIDs, "    ", false))
@@ -11357,7 +11357,7 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
 
     if (WriteCheckPointerDecoderNull(oss, pConfigurationStructs, "    ", false))
     {
-        oss << "    " << "" << "pConfigurationStructs" << " /* value = " << static_cast<uint16_t>(*pConfigurationStructs->GetPointer()) << " */";
+        oss << "    " << "pConfigurationStructs" << " /* value = " << static_cast<uint16_t>(*pConfigurationStructs->GetPointer()) << " */";
     }
     oss << ",\n";
 
@@ -11383,17 +11383,17 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*guid.decoded_value);
+    oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDataSize, "    ", false))
     {
-        oss << "    " << "" << *pDataSize->GetPointer();
+        oss << "    " << *pDataSize->GetPointer();
     }
     oss << ",\n";
 
@@ -11419,20 +11419,20 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*guid.decoded_value);
+    oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ");\n\n";
 
@@ -11451,15 +11451,15 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*guid.decoded_value);
+    oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << "IUnknown_id" << pData;
+    oss << "    " << "IUnknown_id" << pData;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11476,14 +11476,14 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
     oss << "SetName(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
     }
     oss << ");\n\n";
 
@@ -11502,12 +11502,12 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvDevice, "    ", true))
@@ -11552,12 +11552,12 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
     oss << "GetRootSignatureDescAtVersion(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(convertToVersion);
+    oss << "    " << ConverttoText(convertToVersion);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDesc, "    ", true))
@@ -11621,12 +11621,12 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pReadRange, "    ", false))
@@ -11656,7 +11656,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pWrittenRange, "    ", false))
@@ -11696,7 +11696,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     oss << "GetGPUVirtualAddress(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11719,12 +11719,12 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
     oss << "WriteToSubresource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << DstSubresource;
+    oss << "    " << DstSubresource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDstBox, "    ", false))
@@ -11733,13 +11733,13 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << pSrcData;
+    oss << "    " << pSrcData;
     oss << ",\n";
 
-    oss << "    " << "" << SrcRowPitch;
+    oss << "    " << SrcRowPitch;
     oss << ",\n";
 
-    oss << "    " << "" << SrcDepthPitch;
+    oss << "    " << SrcDepthPitch;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11760,7 +11760,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
     oss << "ReadFromSubresource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11768,13 +11768,13 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
     oss << "    " << "&" << pDstData;
     oss << ",\n";
 
-    oss << "    " << "" << DstRowPitch;
+    oss << "    " << DstRowPitch;
     oss << ",\n";
 
-    oss << "    " << "" << DstDepthPitch;
+    oss << "    " << DstDepthPitch;
     oss << ",\n";
 
-    oss << "    " << "" << SrcSubresource;
+    oss << "    " << SrcSubresource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcBox, "    ", false))
@@ -11798,7 +11798,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
     oss << "GetHeapProperties(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11828,7 +11828,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11846,7 +11846,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
     oss << "GetCompletedValue(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11866,15 +11866,15 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     oss << "SetEventOnCompletion(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Value;
+    oss << "    " << Value;
     oss << ",\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11891,12 +11891,12 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Value;
+    oss << "    " << Value;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11912,7 +11912,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11931,7 +11931,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     oss << "GetCachedBlob(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -12009,7 +12009,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
     oss << "GetType(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -12027,7 +12027,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
     oss << "Close(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -12047,15 +12047,15 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12CommandAllocator_id" << pAllocator;
+    oss << "    " << "ID3D12CommandAllocator_id" << pAllocator;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12PipelineState_id" << pInitialState;
+    oss << "    " << "ID3D12PipelineState_id" << pInitialState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12072,7 +12072,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12PipelineState_id" << pPipelineState;
+    oss << "    " << "ID3D12PipelineState_id" << pPipelineState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12092,16 +12092,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << VertexCountPerInstance;
+    oss << "    " << VertexCountPerInstance;
     oss << ",\n";
 
-    oss << "    " << "" << InstanceCount;
+    oss << "    " << InstanceCount;
     oss << ",\n";
 
-    oss << "    " << "" << StartVertexLocation;
+    oss << "    " << StartVertexLocation;
     oss << ",\n";
 
-    oss << "    " << "" << StartInstanceLocation;
+    oss << "    " << StartInstanceLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12122,19 +12122,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << IndexCountPerInstance;
+    oss << "    " << IndexCountPerInstance;
     oss << ",\n";
 
-    oss << "    " << "" << InstanceCount;
+    oss << "    " << InstanceCount;
     oss << ",\n";
 
-    oss << "    " << "" << StartIndexLocation;
+    oss << "    " << StartIndexLocation;
     oss << ",\n";
 
-    oss << "    " << "" << BaseVertexLocation;
+    oss << "    " << BaseVertexLocation;
     oss << ",\n";
 
-    oss << "    " << "" << StartInstanceLocation;
+    oss << "    " << StartInstanceLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12153,13 +12153,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ThreadGroupCountX;
+    oss << "    " << ThreadGroupCountX;
     oss << ",\n";
 
-    oss << "    " << "" << ThreadGroupCountY;
+    oss << "    " << ThreadGroupCountY;
     oss << ",\n";
 
-    oss << "    " << "" << ThreadGroupCountZ;
+    oss << "    " << ThreadGroupCountZ;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12180,19 +12180,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
+    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << DstOffset;
+    oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
+    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << SrcOffset;
+    oss << "    " << SrcOffset;
     oss << ",\n";
 
-    oss << "    " << "" << NumBytes;
+    oss << "    " << NumBytes;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12220,13 +12220,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DstX;
+    oss << "    " << DstX;
     oss << ",\n";
 
-    oss << "    " << "" << DstY;
+    oss << "    " << DstY;
     oss << ",\n";
 
-    oss << "    " << "" << DstZ;
+    oss << "    " << DstZ;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrc, "    ", false))
@@ -12256,10 +12256,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
+    oss << "    " << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
+    oss << "    " << "ID3D12Resource_id" << pSrcResource;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12281,7 +12281,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pTiledResource;
+    oss << "    " << "ID3D12Resource_id" << pTiledResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pTileRegionStartCoordinate, "    ", false))
@@ -12296,13 +12296,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pBuffer;
+    oss << "    " << "ID3D12Resource_id" << pBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << BufferStartOffsetInBytes;
+    oss << "    " << BufferStartOffsetInBytes;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12323,19 +12323,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
+    oss << "    " << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
-    oss << "    " << "" << DstSubresource;
+    oss << "    " << DstSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
+    oss << "    " << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
-    oss << "    " << "" << SrcSubresource;
+    oss << "    " << SrcSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Format);
+    oss << "    " << ConverttoText(Format);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12352,7 +12352,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(PrimitiveTopology);
+    oss << "    " << ConverttoText(PrimitiveTopology);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12370,7 +12370,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumViewports;
+    oss << "    " << NumViewports;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pViewports, "    ", false))
@@ -12394,7 +12394,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumRects;
+    oss << "    " << NumRects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
@@ -12437,7 +12437,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << StencilRef;
+    oss << "    " << StencilRef;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12454,7 +12454,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12PipelineState_id" << pPipelineState;
+    oss << "    " << "ID3D12PipelineState_id" << pPipelineState;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12472,7 +12472,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumBarriers;
+    oss << "    " << NumBarriers;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pBarriers, "    ", false))
@@ -12495,7 +12495,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12GraphicsCommandList_id" << pCommandList;
+    oss << "    " << "ID3D12GraphicsCommandList_id" << pCommandList;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12513,7 +12513,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumDescriptorHeaps;
+    oss << "    " << NumDescriptorHeaps;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDescriptorHeaps, "    ", false))
@@ -12536,7 +12536,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
+    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12553,7 +12553,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatu
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
+    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12571,7 +12571,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescript
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
     WriteStructString(oss, &BaseDescriptor, "    ", false, false);
@@ -12592,7 +12592,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescrip
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
     WriteStructString(oss, &BaseDescriptor, "    ", false, false);
@@ -12614,13 +12614,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << SrcData;
+    oss << "    " << SrcData;
     oss << ",\n";
 
-    oss << "    " << "" << DestOffsetIn32BitValues;
+    oss << "    " << DestOffsetIn32BitValues;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12639,13 +12639,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << SrcData;
+    oss << "    " << SrcData;
     oss << ",\n";
 
-    oss << "    " << "" << DestOffsetIn32BitValues;
+    oss << "    " << DestOffsetIn32BitValues;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12665,19 +12665,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << Num32BitValuesToSet;
+    oss << "    " << Num32BitValuesToSet;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
     {
-        oss << "    " << "" << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
+        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DestOffsetIn32BitValues;
+    oss << "    " << DestOffsetIn32BitValues;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12697,19 +12697,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << Num32BitValuesToSet;
+    oss << "    " << Num32BitValuesToSet;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcData, "    ", false))
     {
-        oss << "    " << "" << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
+        oss << "    " << "pSrcData" << " /* value = " << static_cast<uint16_t>(*pSrcData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DestOffsetIn32BitValues;
+    oss << "    " << DestOffsetIn32BitValues;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12727,10 +12727,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstant
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12748,10 +12748,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstan
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12769,10 +12769,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderRe
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12790,10 +12790,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderR
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12811,10 +12811,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnordere
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12832,10 +12832,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorder
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << RootParameterIndex;
+    oss << "    " << RootParameterIndex;
     oss << ",\n";
 
-    oss << "    " << "" << BufferLocation;
+    oss << "    " << BufferLocation;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12874,10 +12874,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << StartSlot;
+    oss << "    " << StartSlot;
     oss << ",\n";
 
-    oss << "    " << "" << NumViews;
+    oss << "    " << NumViews;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pViews, "    ", false))
@@ -12902,10 +12902,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << StartSlot;
+    oss << "    " << StartSlot;
     oss << ",\n";
 
-    oss << "    " << "" << NumViews;
+    oss << "    " << NumViews;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pViews, "    ", false))
@@ -12931,7 +12931,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumRenderTargetDescriptors;
+    oss << "    " << NumRenderTargetDescriptors;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRenderTargetDescriptors, "    ", false))
@@ -12971,16 +12971,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
     WriteStructString(oss, &DepthStencilView, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(ClearFlags);
+    oss << "    " << ConverttoText(ClearFlags);
     oss << ",\n";
 
-    oss << "    " << "" << Depth;
+    oss << "    " << Depth;
     oss << ",\n";
 
-    oss << "    " << "" << static_cast<uint16_t>(Stencil);
+    oss << "    " << static_cast<uint16_t>(Stencil);
     oss << ",\n";
 
-    oss << "    " << "" << NumRects;
+    oss << "    " << NumRects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
@@ -13015,7 +13015,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumRects;
+    oss << "    " << NumRects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
@@ -13049,7 +13049,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13058,7 +13058,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumRects;
+    oss << "    " << NumRects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
@@ -13092,7 +13092,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13101,7 +13101,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumRects;
+    oss << "    " << NumRects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRects, "    ", false))
@@ -13125,7 +13125,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRegion, "    ", false))
@@ -13150,13 +13150,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
+    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
-    oss << "    " << "" << Index;
+    oss << "    " << Index;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13175,13 +13175,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
+    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
-    oss << "    " << "" << Index;
+    oss << "    " << Index;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13203,22 +13203,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12QueryHeap_id" << pQueryHeap;
+    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
-    oss << "    " << "" << StartIndex;
+    oss << "    " << StartIndex;
     oss << ",\n";
 
-    oss << "    " << "" << NumQueries;
+    oss << "    " << NumQueries;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDestinationBuffer;
+    oss << "    " << "ID3D12Resource_id" << pDestinationBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << AlignedDestinationBufferOffset;
+    oss << "    " << AlignedDestinationBufferOffset;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13237,13 +13237,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pBuffer;
+    oss << "    " << "ID3D12Resource_id" << pBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << AlignedBufferOffset;
+    oss << "    " << AlignedBufferOffset;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Operation);
+    oss << "    " << ConverttoText(Operation);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13262,16 +13262,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Metadata;
+    oss << "    " << Metadata;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << Size;
+    oss << "    " << Size;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13290,16 +13290,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Metadata;
+    oss << "    " << Metadata;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << Size;
+    oss << "    " << Size;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13334,22 +13334,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12CommandSignature_id" << pCommandSignature;
+    oss << "    " << "ID3D12CommandSignature_id" << pCommandSignature;
     oss << ",\n";
 
-    oss << "    " << "" << MaxCommandCount;
+    oss << "    " << MaxCommandCount;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pArgumentBuffer;
+    oss << "    " << "ID3D12Resource_id" << pArgumentBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << ArgumentBufferOffset;
+    oss << "    " << ArgumentBufferOffset;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pCountBuffer;
+    oss << "    " << "ID3D12Resource_id" << pCountBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << CountBufferOffset;
+    oss << "    " << CountBufferOffset;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13372,19 +13372,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
+    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << DstOffset;
+    oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
+    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << SrcOffset;
+    oss << "    " << SrcOffset;
     oss << ",\n";
 
-    oss << "    " << "" << Dependencies;
+    oss << "    " << Dependencies;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDependentResources, "    ", false))
@@ -13419,19 +13419,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstBuffer;
+    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << DstOffset;
+    oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcBuffer;
+    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
     oss << ",\n";
 
-    oss << "    " << "" << SrcOffset;
+    oss << "    " << SrcOffset;
     oss << ",\n";
 
-    oss << "    " << "" << Dependencies;
+    oss << "    " << Dependencies;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppDependentResources, "    ", false))
@@ -13461,10 +13461,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Min;
+    oss << "    " << Min;
     oss << ",\n";
 
-    oss << "    " << "" << Max;
+    oss << "    " << Max;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13483,10 +13483,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumSamplesPerPixel;
+    oss << "    " << NumSamplesPerPixel;
     oss << ",\n";
 
-    oss << "    " << "" << NumPixels;
+    oss << "    " << NumPixels;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSamplePositions, "    ", false))
@@ -13517,22 +13517,22 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
+    oss << "    " << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
-    oss << "    " << "" << DstSubresource;
+    oss << "    " << DstSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << DstX;
+    oss << "    " << DstX;
     oss << ",\n";
 
-    oss << "    " << "" << DstY;
+    oss << "    " << DstY;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
+    oss << "    " << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
-    oss << "    " << "" << SrcSubresource;
+    oss << "    " << SrcSubresource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcRect, "    ", false))
@@ -13541,10 +13541,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Format);
+    oss << "    " << ConverttoText(Format);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(ResolveMode);
+    oss << "    " << ConverttoText(ResolveMode);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13561,7 +13561,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Mask;
+    oss << "    " << Mask;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13580,7 +13580,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Count;
+    oss << "    " << Count;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pParams, "    ", false))
@@ -13618,10 +13618,10 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << NumResourceRegions;
+    oss << "    " << NumResourceRegions;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pResourceRegionStartCoordinates, "    ", false))
@@ -13636,10 +13636,10 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
+    oss << "    " << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
-    oss << "    " << "" << NumRanges;
+    oss << "    " << NumRanges;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRangeFlags, "    ", false))
@@ -13660,7 +13660,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13682,7 +13682,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pDstResource;
+    oss << "    " << "ID3D12Resource_id" << pDstResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDstRegionStartCoordinate, "    ", false))
@@ -13691,7 +13691,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pSrcResource;
+    oss << "    " << "ID3D12Resource_id" << pSrcResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcRegionStartCoordinate, "    ", false))
@@ -13706,7 +13706,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13724,7 +13724,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumCommandLists;
+    oss << "    " << NumCommandLists;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandLists, "    ", false))
@@ -13749,16 +13749,16 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Metadata;
+    oss << "    " << Metadata;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << Size;
+    oss << "    " << Size;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13777,16 +13777,16 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << Metadata;
+    oss << "    " << Metadata;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << Size;
+    oss << "    " << Size;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13817,15 +13817,15 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Fence_id" << pFence;
+    oss << "    " << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
-    oss << "    " << "" << Value;
+    oss << "    " << Value;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13843,15 +13843,15 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
     oss << "Wait(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Fence_id" << pFence;
+    oss << "    " << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
-    oss << "    " << "" << Value;
+    oss << "    " << Value;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -13868,7 +13868,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     oss << "GetTimestampFrequency(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13894,7 +13894,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     oss << "GetClockCalibration(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13942,7 +13942,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
     oss << "GetNodeCount(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -13963,7 +13963,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
     oss << "CreateCommandQueue(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13974,7 +13974,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandQueue, "    ", true))
@@ -13999,15 +13999,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
     oss << "CreateCommandAllocator(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(type);
+    oss << "    " << ConverttoText(type);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandAllocator, "    ", true))
@@ -14032,7 +14032,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     oss << "CreateGraphicsPipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14043,7 +14043,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -14068,7 +14068,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
     oss << "CreateComputePipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14079,7 +14079,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -14107,24 +14107,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
     oss << "CreateCommandList(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << nodeMask;
+    oss << "    " << nodeMask;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(type);
+    oss << "    " << ConverttoText(type);
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12CommandAllocator_id" << pCommandAllocator;
+    oss << "    " << "ID3D12CommandAllocator_id" << pCommandAllocator;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12PipelineState_id" << pInitialState;
+    oss << "    " << "ID3D12PipelineState_id" << pInitialState;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
@@ -14149,7 +14149,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     oss << "CreateDescriptorHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14160,7 +14160,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -14183,12 +14183,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     oss << "GetDescriptorHandleIncrementSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(DescriptorHeapType);
+    oss << "    " << ConverttoText(DescriptorHeapType);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -14209,24 +14209,24 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
     oss << "CreateRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << nodeMask;
+    oss << "    " << nodeMask;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pBlobWithRootSignature, "    ", false))
     {
-        oss << "    " << "" << "pBlobWithRootSignature" << " /* value = " << static_cast<uint16_t>(*pBlobWithRootSignature->GetPointer()) << " */";
+        oss << "    " << "pBlobWithRootSignature" << " /* value = " << static_cast<uint16_t>(*pBlobWithRootSignature->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << blobLengthInBytes;
+    oss << "    " << blobLengthInBytes;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvRootSignature, "    ", true))
@@ -14275,7 +14275,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14304,10 +14304,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pCounterResource;
+    oss << "    " << "ID3D12Resource_id" << pCounterResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14335,7 +14335,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14363,7 +14363,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14419,7 +14419,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumDestDescriptorRanges;
+    oss << "    " << NumDestDescriptorRanges;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDestDescriptorRangeStarts, "    ", false))
@@ -14434,7 +14434,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumSrcDescriptorRanges;
+    oss << "    " << NumSrcDescriptorRanges;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcDescriptorRangeStarts, "    ", false))
@@ -14449,7 +14449,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(DescriptorHeapsType);
+    oss << "    " << ConverttoText(DescriptorHeapsType);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -14469,7 +14469,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumDescriptors;
+    oss << "    " << NumDescriptors;
     oss << ",\n";
 
     WriteStructString(oss, &DestDescriptorRangeStart, "    ", false, false);
@@ -14478,7 +14478,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     WriteStructString(oss, &SrcDescriptorRangeStart, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(DescriptorHeapsType);
+    oss << "    " << ConverttoText(DescriptorHeapsType);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -14502,10 +14502,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << visibleMask;
+    oss << "    " << visibleMask;
     oss << ",\n";
 
-    oss << "    " << "" << numResourceDescs;
+    oss << "    " << numResourceDescs;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
@@ -14534,10 +14534,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << nodeMask;
+    oss << "    " << nodeMask;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(heapType);
+    oss << "    " << ConverttoText(heapType);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -14560,7 +14560,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
     oss << "CreateCommittedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14571,7 +14571,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(HeapFlags);
+    oss << "    " << ConverttoText(HeapFlags);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14580,7 +14580,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialResourceState);
+    oss << "    " << ConverttoText(InitialResourceState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -14589,7 +14589,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
+    oss << "    " << ConverttoText(*riidResource.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -14614,7 +14614,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
     oss << "CreateHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14625,7 +14625,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -14654,15 +14654,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
     oss << "CreatePlacedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
+    oss << "    " << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
-    oss << "    " << "" << HeapOffset;
+    oss << "    " << HeapOffset;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14671,7 +14671,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialState);
+    oss << "    " << ConverttoText(InitialState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -14680,7 +14680,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -14707,7 +14707,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
     oss << "CreateReservedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14718,7 +14718,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialState);
+    oss << "    " << ConverttoText(InitialState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -14727,7 +14727,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -14754,12 +14754,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12DeviceChild_id" << pObject;
+    oss << "    " << "ID3D12DeviceChild_id" << pObject;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pAttributes, "    ", false))
@@ -14768,12 +14768,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
     }
     oss << ",\n";
 
-    oss << "    " << "" << Access;
+    oss << "    " << Access;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
     }
     oss << ",\n";
 
@@ -14799,15 +14799,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
     oss << "OpenSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NTHandle;
+    oss << "    " << NTHandle;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvObj, "    ", true))
@@ -14832,18 +14832,18 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     oss << "OpenSharedHandleByName(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, Name, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(Name->GetPointer()) << "\"";
     }
     oss << ",\n";
 
-    oss << "    " << "" << Access;
+    oss << "    " << Access;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNTHandle, "    ", true))
@@ -14867,12 +14867,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
     oss << "MakeResident(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumObjects;
+    oss << "    " << NumObjects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
@@ -14896,12 +14896,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
     oss << "Evict(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumObjects;
+    oss << "    " << NumObjects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
@@ -14927,18 +14927,18 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
     oss << "CreateFence(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << InitialValue;
+    oss << "    " << InitialValue;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
@@ -14960,7 +14960,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
     oss << "GetDeviceRemovedReason(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -14992,13 +14992,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
     }
     oss << ",\n";
 
-    oss << "    " << "" << FirstSubresource;
+    oss << "    " << FirstSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << NumSubresources;
+    oss << "    " << NumSubresources;
     oss << ",\n";
 
-    oss << "    " << "" << BaseOffset;
+    oss << "    " << BaseOffset;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pLayouts, "    ", true))
@@ -15041,7 +15041,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
     oss << "CreateQueryHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15052,7 +15052,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -15075,7 +15075,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
     oss << "SetStablePowerState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15100,7 +15100,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
     oss << "CreateCommandSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15111,10 +15111,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12RootSignature_id" << pRootSignature;
+    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvCommandSignature, "    ", true))
@@ -15143,7 +15143,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pTiledResource;
+    oss << "    " << "ID3D12Resource_id" << pTiledResource;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumTilesForEntireResource, "    ", true))
@@ -15166,11 +15166,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
     if (WriteCheckPointerDecoderNull(oss, pNumSubresourceTilings, "    ", false))
     {
-        oss << "    " << "" << *pNumSubresourceTilings->GetPointer();
+        oss << "    " << *pNumSubresourceTilings->GetPointer();
     }
     oss << ",\n";
 
-    oss << "    " << "" << FirstSubresourceTilingToGet;
+    oss << "    " << FirstSubresourceTilingToGet;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSubresourceTilingsForNonPackedMips, "    ", true))
@@ -15212,18 +15212,18 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     oss << "StorePipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12PipelineState_id" << pPipeline;
+    oss << "    " << "ID3D12PipelineState_id" << pPipeline;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15243,14 +15243,14 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     oss << "LoadGraphicsPipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
     }
     oss << ",\n";
 
@@ -15260,7 +15260,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -15286,14 +15286,14 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     oss << "LoadComputePipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
     }
     oss << ",\n";
 
@@ -15303,7 +15303,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -15325,7 +15325,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
     oss << "GetSerializedSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15345,7 +15345,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
     oss << "Serialize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15356,7 +15356,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSizeInBytes;
+    oss << "    " << DataSizeInBytes;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15376,14 +15376,14 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     oss << "LoadPipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pName->GetPointer()) << "\"";
     }
     oss << ",\n";
 
@@ -15393,7 +15393,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -15419,21 +15419,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     oss << "CreatePipelineLibrary(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pLibraryBlob, "    ", false))
     {
-        oss << "    " << "" << "pLibraryBlob" << " /* value = " << static_cast<uint16_t>(*pLibraryBlob->GetPointer()) << " */";
+        oss << "    " << "pLibraryBlob" << " /* value = " << static_cast<uint16_t>(*pLibraryBlob->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << BlobLength;
+    oss << "    " << BlobLength;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineLibrary, "    ", true))
@@ -15460,7 +15460,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     oss << "SetEventOnMultipleFenceCompletion(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15477,13 +15477,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumFences;
+    oss << "    " << NumFences;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ",\n";
 
-    oss << "    " << "" << hEvent;
+    oss << "    " << hEvent;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15502,12 +15502,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
     oss << "SetResidencyPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumObjects;
+    oss << "    " << NumObjects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
@@ -15538,7 +15538,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
     oss << "CreatePipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15549,7 +15549,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
@@ -15574,15 +15574,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     oss << "OpenExistingHeapFromAddress(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << pAddress;
+    oss << "    " << pAddress;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -15607,15 +15607,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     oss << "OpenExistingHeapFromFileMapping(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << hFileMapping;
+    oss << "    " << hFileMapping;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -15642,15 +15642,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     oss << "EnqueueMakeResident(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ",\n";
 
-    oss << "    " << "" << NumObjects;
+    oss << "    " << NumObjects;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppObjects, "    ", false))
@@ -15659,10 +15659,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Fence_id" << pFenceToSignal;
+    oss << "    " << "ID3D12Fence_id" << pFenceToSignal;
     oss << ",\n";
 
-    oss << "    " << "" << FenceValueToSignal;
+    oss << "    " << FenceValueToSignal;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15680,12 +15680,12 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     oss << "GetStatusFence(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
@@ -15707,7 +15707,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
     oss << "GetSessionStatus(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15748,21 +15748,21 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
     oss << "CreateCommandList1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << nodeMask;
+    oss << "    " << nodeMask;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(type);
+    oss << "    " << ConverttoText(type);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(flags);
+    oss << "    " << ConverttoText(flags);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
@@ -15787,7 +15787,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     oss << "CreateProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15798,7 +15798,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
@@ -15828,7 +15828,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     oss << "CreateCommittedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15839,7 +15839,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(HeapFlags);
+    oss << "    " << ConverttoText(HeapFlags);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -15848,7 +15848,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialResourceState);
+    oss << "    " << ConverttoText(InitialResourceState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -15857,10 +15857,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
+    oss << "    " << ConverttoText(*riidResource.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -15886,7 +15886,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
     oss << "CreateHeap1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15897,10 +15897,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
@@ -15928,7 +15928,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     oss << "CreateReservedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15939,7 +15939,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialState);
+    oss << "    " << ConverttoText(InitialState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -15948,10 +15948,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -15982,10 +15982,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << visibleMask;
+    oss << "    " << visibleMask;
     oss << ",\n";
 
-    oss << "    " << "" << numResourceDescs;
+    oss << "    " << numResourceDescs;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
@@ -16014,7 +16014,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(NewState);
+    oss << "    " << ConverttoText(NewState);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16050,12 +16050,12 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     oss << "GetSwapChainObject(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppv, "    ", true))
@@ -16081,12 +16081,12 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
     oss << "GetCurrentResourceAndCommandQueue(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
+    oss << "    " << ConverttoText(*riidResource.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -16095,7 +16095,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riidQueue.decoded_value);
+    oss << "    " << ConverttoText(*riidQueue.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvQueue, "    ", true))
@@ -16117,7 +16117,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
     oss << "InsertImplicitSync(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16136,12 +16136,12 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     oss << "DestroyOwnedObject(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12DeviceChild_id" << pObject;
+    oss << "    " << "ID3D12DeviceChild_id" << pObject;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16158,14 +16158,14 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     oss << "GetShaderIdentifier(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pExportName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
     }
     oss << ");\n\n";
 
@@ -16183,14 +16183,14 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     oss << "GetShaderStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pExportName, "    ", false))
     {
-        oss << "    " << "" << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
+        oss << "    " << "\"" << util::interception::WideStringToString(pExportName->GetPointer()) << "\"";
     }
     oss << ");\n\n";
 
@@ -16207,7 +16207,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize
     oss << "GetPipelineStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16226,7 +16226,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << PipelineStackSizeInBytes;
+    oss << "    " << PipelineStackSizeInBytes;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16245,15 +16245,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     oss << "CreateLifetimeTracker(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12LifetimeOwner_id" << pOwner;
+    oss << "    " << "ID3D12LifetimeOwner_id" << pOwner;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvTracker, "    ", true))
@@ -16290,14 +16290,14 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     oss << "EnumerateMetaCommands(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumMetaCommands, "    ", false))
     {
-        oss << "    " << "" << *pNumMetaCommands->GetPointer();
+        oss << "    " << *pNumMetaCommands->GetPointer();
     }
     oss << ",\n";
 
@@ -16325,15 +16325,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     oss << "EnumerateMetaCommandParameters(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*CommandId.decoded_value);
+    oss << "    " << ConverttoText(*CommandId.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Stage);
+    oss << "    " << ConverttoText(Stage);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pTotalStructureSizeInBytes, "    ", true))
@@ -16344,7 +16344,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
 
     if (WriteCheckPointerDecoderNull(oss, pParameterCount, "    ", false))
     {
-        oss << "    " << "" << *pParameterCount->GetPointer();
+        oss << "    " << *pParameterCount->GetPointer();
     }
     oss << ",\n";
 
@@ -16373,27 +16373,27 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
     oss << "CreateMetaCommand(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*CommandId.decoded_value);
+    oss << "    " << ConverttoText(*CommandId.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "" << NodeMask;
+    oss << "    " << NodeMask;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pCreationParametersData, "    ", false))
     {
-        oss << "    " << "" << "pCreationParametersData" << " /* value = " << static_cast<uint16_t>(*pCreationParametersData->GetPointer()) << " */";
+        oss << "    " << "pCreationParametersData" << " /* value = " << static_cast<uint16_t>(*pCreationParametersData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << CreationParametersDataSizeInBytes;
+    oss << "    " << CreationParametersDataSizeInBytes;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppMetaCommand, "    ", true))
@@ -16418,7 +16418,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
     oss << "CreateStateObject(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16429,7 +16429,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppStateObject, "    ", true))
@@ -16480,12 +16480,12 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     oss << "CheckDriverMatchingIdentifier(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(SerializedDataType);
+    oss << "    " << ConverttoText(SerializedDataType);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pIdentifierToCheck, "    ", false))
@@ -16508,7 +16508,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoB
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Enablement);
+    oss << "    " << ConverttoText(Enablement);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16525,7 +16525,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageF
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Enablement);
+    oss << "    " << ConverttoText(Enablement);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16542,7 +16542,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatso
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Enablement);
+    oss << "    " << ConverttoText(Enablement);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16559,7 +16559,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBrea
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Enablement);
+    oss << "    " << ConverttoText(Enablement);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16576,7 +16576,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
     oss << "GetAutoBreadcrumbsOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16601,7 +16601,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
     oss << "GetPageFaultAllocationOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16626,7 +16626,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
     oss << "GetAutoBreadcrumbsOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16651,7 +16651,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
     oss << "GetPageFaultAllocationOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16679,18 +16679,18 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     oss << "SetBackgroundProcessingMode(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Mode);
+    oss << "    " << ConverttoText(Mode);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(MeasurementsAction);
+    oss << "    " << ConverttoText(MeasurementsAction);
     oss << ",\n";
 
-    oss << "    " << "" << hEventToSignalUponCompletion;
+    oss << "    " << hEventToSignalUponCompletion;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pbFurtherMeasurementsDesired, "    ", true))
@@ -16734,7 +16734,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
     oss << "AddToStateObject(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16745,10 +16745,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12StateObject_id" << pStateObjectToGrowFrom;
+    oss << "    " << "ID3D12StateObject_id" << pStateObjectToGrowFrom;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppNewStateObject, "    ", true))
@@ -16773,7 +16773,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     oss << "CreateProtectedResourceSession1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16784,7 +16784,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
@@ -16815,10 +16815,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << visibleMask;
+    oss << "    " << visibleMask;
     oss << ",\n";
 
-    oss << "    " << "" << numResourceDescs;
+    oss << "    " << numResourceDescs;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pResourceDescs, "    ", false))
@@ -16854,7 +16854,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     oss << "CreateCommittedResource2(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16865,7 +16865,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(HeapFlags);
+    oss << "    " << ConverttoText(HeapFlags);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -16874,7 +16874,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialResourceState);
+    oss << "    " << ConverttoText(InitialResourceState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -16883,10 +16883,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riidResource.decoded_value);
+    oss << "    " << ConverttoText(*riidResource.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -16915,15 +16915,15 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     oss << "CreatePlacedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Heap_id" << pHeap;
+    oss << "    " << "ID3D12Heap_id" << pHeap;
     oss << ",\n";
 
-    oss << "    " << "" << HeapOffset;
+    oss << "    " << HeapOffset;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -16932,7 +16932,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(InitialState);
+    oss << "    " << ConverttoText(InitialState);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pOptimizedClearValue, "    ", false))
@@ -16941,7 +16941,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
@@ -16966,10 +16966,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pTargetedResource;
+    oss << "    " << "ID3D12Resource_id" << pTargetedResource;
     oss << ",\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pFeedbackResource;
+    oss << "    " << "ID3D12Resource_id" << pFeedbackResource;
     oss << ",\n";
 
     WriteStructString(oss, &DestDescriptor, "    ", false, false);
@@ -17002,13 +17002,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
     }
     oss << ",\n";
 
-    oss << "    " << "" << FirstSubresource;
+    oss << "    " << FirstSubresource;
     oss << ",\n";
 
-    oss << "    " << "" << NumSubresources;
+    oss << "    " << NumSubresources;
     oss << ",\n";
 
-    oss << "    " << "" << BaseOffset;
+    oss << "    " << BaseOffset;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pLayouts, "    ", true))
@@ -17050,12 +17050,12 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
@@ -17097,12 +17097,12 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
@@ -17125,7 +17125,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12ProtectedResourceSession_id" << pProtectedResourceSession;
+    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedResourceSession;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17143,15 +17143,15 @@ void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSi
     oss << "GetRequiredParameterResourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Stage);
+    oss << "    " << ConverttoText(Stage);
     oss << ",\n";
 
-    oss << "    " << "" << ParameterIndex;
+    oss << "    " << ParameterIndex;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17171,7 +17171,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << NumRenderTargets;
+    oss << "    " << NumRenderTargets;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRenderTargets, "    ", false))
@@ -17186,7 +17186,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     }
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17218,16 +17218,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12MetaCommand_id" << pMetaCommand;
+    oss << "    " << "ID3D12MetaCommand_id" << pMetaCommand;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pInitializationParametersData, "    ", false))
     {
-        oss << "    " << "" << "pInitializationParametersData" << " /* value = " << static_cast<uint16_t>(*pInitializationParametersData->GetPointer()) << " */";
+        oss << "    " << "pInitializationParametersData" << " /* value = " << static_cast<uint16_t>(*pInitializationParametersData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << InitializationParametersDataSizeInBytes;
+    oss << "    " << InitializationParametersDataSizeInBytes;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17246,16 +17246,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12MetaCommand_id" << pMetaCommand;
+    oss << "    " << "ID3D12MetaCommand_id" << pMetaCommand;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pExecutionParametersData, "    ", false))
     {
-        oss << "    " << "" << "pExecutionParametersData" << " /* value = " << static_cast<uint16_t>(*pExecutionParametersData->GetPointer()) << " */";
+        oss << "    " << "pExecutionParametersData" << " /* value = " << static_cast<uint16_t>(*pExecutionParametersData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << ExecutionParametersDataSizeInBytes;
+    oss << "    " << ExecutionParametersDataSizeInBytes;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17280,7 +17280,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccele
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumPostbuildInfoDescs;
+    oss << "    " << NumPostbuildInfoDescs;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pPostbuildInfoDescs, "    ", false))
@@ -17311,7 +17311,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAcceler
     }
     oss << ",\n";
 
-    oss << "    " << "" << NumSourceAccelerationStructures;
+    oss << "    " << NumSourceAccelerationStructures;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSourceAccelerationStructureData, "    ", false))
@@ -17336,13 +17336,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << DestAccelerationStructureData;
+    oss << "    " << DestAccelerationStructureData;
     oss << ",\n";
 
-    oss << "    " << "" << SourceAccelerationStructureData;
+    oss << "    " << SourceAccelerationStructureData;
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Mode);
+    oss << "    " << ConverttoText(Mode);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17359,7 +17359,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12StateObject_id" << pStateObject;
+    oss << "    " << "ID3D12StateObject_id" << pStateObject;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17432,7 +17432,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(baseShadingRate);
+    oss << "    " << ConverttoText(baseShadingRate);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, combiners, "    ", false))
@@ -17455,7 +17455,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << shadingRateImage;
+    oss << "    " << "ID3D12Resource_id" << shadingRateImage;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17474,13 +17474,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ThreadGroupCountX;
+    oss << "    " << ThreadGroupCountX;
     oss << ",\n";
 
-    oss << "    " << "" << ThreadGroupCountY;
+    oss << "    " << ThreadGroupCountY;
     oss << ",\n";
 
-    oss << "    " << "" << ThreadGroupCountZ;
+    oss << "    " << ThreadGroupCountZ;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17500,7 +17500,7 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
     oss << "GetBufferPointer(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17518,7 +17518,7 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
     oss << "GetBufferSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17539,15 +17539,15 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
     oss << "RegisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "callbackFn /* address = " << callbackFn << " */";
+    oss << "    " << "callbackFn /* address = " << callbackFn << " */";
     oss << ",\n";
 
-    oss << "    " << "" << pData;
+    oss << "    " << pData;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pCallbackID, "    ", true))
@@ -17570,12 +17570,12 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
     oss << "UnregisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << callbackID;
+    oss << "    " << callbackID;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17656,7 +17656,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17707,7 +17707,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17726,21 +17726,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17759,12 +17759,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
@@ -17773,7 +17773,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17790,12 +17790,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17812,12 +17812,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Mask);
+    oss << "    " << ConverttoText(Mask);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17833,7 +17833,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17852,12 +17852,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Flags);
+    oss << "    " << ConverttoText(Flags);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17876,21 +17876,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17909,12 +17909,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
@@ -17923,7 +17923,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17947,13 +17947,13 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
-    oss << "    " << "" << State;
+    oss << "    " << State;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17977,13 +17977,13 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
-    oss << "    " << "" << State;
+    oss << "    " << State;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18002,21 +18002,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18035,12 +18035,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
@@ -18049,7 +18049,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18073,13 +18073,13 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
-    oss << "    " << "" << State;
+    oss << "    " << State;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18096,12 +18096,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Mask);
+    oss << "    " << ConverttoText(Mask);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18117,7 +18117,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << ConverttoText(returnValue);
+    oss << ConverttoText(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18138,21 +18138,21 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", false))
     {
-        oss << "    " << "" << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
+        oss << "    " << "pData" << " /* value = " << static_cast<uint16_t>(*pData->GetPointer()) << " */";
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18171,12 +18171,12 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Type);
+    oss << "    " << ConverttoText(Type);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pData, "    ", true))
@@ -18185,7 +18185,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
     }
     oss << ",\n";
 
-    oss << "    " << "" << DataSize;
+    oss << "    " << DataSize;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18204,13 +18204,13 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Resource_id" << pResource;
+    oss << "    " << "ID3D12Resource_id" << pResource;
     oss << ",\n";
 
-    oss << "    " << "" << Subresource;
+    oss << "    " << Subresource;
     oss << ",\n";
 
-    oss << "    " << "" << window;
+    oss << "    " << window;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18228,10 +18228,10 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << "ID3D12Fence_id" << pFence;
+    oss << "    " << "ID3D12Fence_id" << pFence;
     oss << ",\n";
 
-    oss << "    " << "" << FenceValue;
+    oss << "    " << FenceValue;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18248,7 +18248,7 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*guid.decoded_value);
+    oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18265,7 +18265,7 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*guid.decoded_value);
+    oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18282,12 +18282,12 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
     oss << "SetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << MessageCountLimit;
+    oss << "    " << MessageCountLimit;
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18319,12 +18319,12 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
     oss << "GetMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << MessageIndex;
+    oss << "    " << MessageIndex;
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pMessage, "    ", true))
@@ -18335,7 +18335,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
 
     if (WriteCheckPointerDecoderNull(oss, pMessageByteLength, "    ", false))
     {
-        oss << "    " << "" << *pMessageByteLength->GetPointer();
+        oss << "    " << *pMessageByteLength->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18352,7 +18352,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFi
     oss << "GetNumMessagesAllowedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18370,7 +18370,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFil
     oss << "GetNumMessagesDeniedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18388,7 +18388,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
     oss << "GetNumStoredMessages(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18406,7 +18406,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRet
     oss << "GetNumStoredMessagesAllowedByRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18424,7 +18424,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessage
     oss << "GetNumMessagesDiscardedByMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18442,7 +18442,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
     oss << "GetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18461,7 +18461,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
     oss << "AddStorageFilterEntries(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18487,7 +18487,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
     oss << "GetStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18500,7 +18500,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
 
     if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
     {
-        oss << "    " << "" << *pFilterByteLength->GetPointer();
+        oss << "    " << *pFilterByteLength->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18530,7 +18530,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
     oss << "PushEmptyStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18548,7 +18548,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
     oss << "PushCopyOfStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18567,7 +18567,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
     oss << "PushStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18604,7 +18604,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
     oss << "GetStorageFilterStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18623,7 +18623,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
     oss << "AddRetrievalFilterEntries(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18649,7 +18649,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
     oss << "GetRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18662,7 +18662,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
 
     if (WriteCheckPointerDecoderNull(oss, pFilterByteLength, "    ", false))
     {
-        oss << "    " << "" << *pFilterByteLength->GetPointer();
+        oss << "    " << *pFilterByteLength->GetPointer();
     }
     oss << ");\n\n";
 
@@ -18692,7 +18692,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
     oss << "PushEmptyRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18710,7 +18710,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
     oss << "PushCopyOfRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18729,7 +18729,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
     oss << "PushRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18766,7 +18766,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
     oss << "GetRetrievalFilterStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18788,23 +18788,23 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
     oss << "AddMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Category);
+    oss << "    " << ConverttoText(Category);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(Severity);
+    oss << "    " << ConverttoText(Severity);
     oss << ",\n";
 
-    oss << "    " << "" << ConverttoText(ID);
+    oss << "    " << ConverttoText(ID);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDescription, "    ", false))
     {
-        oss << "    " << "" << "\"" << pDescription->GetPointer() << "\"";
+        oss << "    " << "\"" << pDescription->GetPointer() << "\"";
     }
     oss << ");\n\n";
 
@@ -18823,17 +18823,17 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
     oss << "AddApplicationMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Severity);
+    oss << "    " << ConverttoText(Severity);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDescription, "    ", false))
     {
-        oss << "    " << "" << "\"" << pDescription->GetPointer() << "\"";
+        oss << "    " << "\"" << pDescription->GetPointer() << "\"";
     }
     oss << ");\n\n";
 
@@ -18852,12 +18852,12 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
     oss << "SetBreakOnCategory(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Category);
+    oss << "    " << ConverttoText(Category);
     oss << ",\n";
 
     WriteBOOLString(oss, bEnable, "    ", false);
@@ -18878,12 +18878,12 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
     oss << "SetBreakOnSeverity(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Severity);
+    oss << "    " << ConverttoText(Severity);
     oss << ",\n";
 
     WriteBOOLString(oss, bEnable, "    ", false);
@@ -18904,12 +18904,12 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
     oss << "SetBreakOnID(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(ID);
+    oss << "    " << ConverttoText(ID);
     oss << ",\n";
 
     WriteBOOLString(oss, bEnable, "    ", false);
@@ -18934,7 +18934,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Category);
+    oss << "    " << ConverttoText(Category);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18956,7 +18956,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(Severity);
+    oss << "    " << ConverttoText(Severity);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -18978,7 +18978,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(ID);
+    oss << "    " << ConverttoText(ID);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -19035,12 +19035,12 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
     oss << "QueryInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(returnValue);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "" << ConverttoText(*riid.decoded_value);
+    oss << "    " << ConverttoText(*riid.decoded_value);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppvObject, "    ", true))
@@ -19062,7 +19062,7 @@ void Dx12AsciiConsumer::Process_IUnknown_AddRef(
     oss << "AddRef(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -19080,7 +19080,7 @@ void Dx12AsciiConsumer::Process_IUnknown_Release(
     oss << "Release(\n    /* ";
 
     oss << "return = " ;
-    oss << "" << returnValue;
+    oss << returnValue;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
