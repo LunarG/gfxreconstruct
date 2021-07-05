@@ -38,7 +38,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 struct IUnknown_Wrapper;
-class ID3D12Device_Wrapper;
 class ID3D12Resource_Wrapper;
 
 struct DxWrapperInfo
@@ -84,6 +83,15 @@ struct DxDescriptorInfo
     uint64_t         gpu_address{ 0 };
     format::HandleId heap_id{ format::kNullHandleId };
     uint32_t         index{ 0 };
+};
+
+struct DxTransitionBarrier
+{
+    ID3D12Resource_Wrapper*      resource_wrapper{ nullptr };
+    UINT                         subresource{};
+    D3D12_RESOURCE_STATES        state_before{};
+    D3D12_RESOURCE_STATES        state_after{};
+    D3D12_RESOURCE_BARRIER_FLAGS barrier_flags{};
 };
 
 struct IDXGIKeyedMutexInfo : public DxWrapperInfo
@@ -210,6 +218,9 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
+
+    // Most recent transitions for each subresource.
+    std::vector<std::pair<D3D12_RESOURCE_STATES, D3D12_RESOURCE_BARRIER_FLAGS>> subresource_transitions{};
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo
@@ -231,6 +242,8 @@ struct ID3D12ToolsInfo : public DxWrapperInfo
 struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {
     util::MemoryOutputStream command_data;
+
+    std::vector<DxTransitionBarrier> transition_barriers;
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

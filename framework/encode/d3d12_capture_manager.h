@@ -328,6 +328,10 @@ class D3D12CaptureManager : public CaptureManager
                                                            UINT                        num_lists,
                                                            ID3D12CommandList* const*   lists);
 
+    void PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                            UINT                        num_lists,
+                                                            ID3D12CommandList* const*   lists);
+
     void PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                       D3D_FEATURE_LEVEL MinimumFeatureLevel,
                                       REFIID            riid,
@@ -344,6 +348,10 @@ class D3D12CaptureManager : public CaptureManager
                                                HRESULT                     result,
                                                ID3D12Fence*                fence,
                                                UINT64                      value);
+
+    void PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                                               UINT                               num_barriers,
+                                                               const D3D12_RESOURCE_BARRIER*      barriers);
 
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
@@ -438,6 +446,7 @@ class D3D12CaptureManager : public CaptureManager
                                       D3D12_HEAP_TYPE          heap_type,
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
                                       D3D12_MEMORY_POOL        memory_pool,
+                                      D3D12_RESOURCE_STATES    initial_state,
                                       bool                     has_write_watch);
 
   private:

@@ -121,6 +121,16 @@ class Dx12StateTracker
                       format::ApiCallId                  call_id,
                       const util::MemoryOutputStream*    parameter_buffer);
 
+    void TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                               UINT                               num_barriers,
+                               const D3D12_RESOURCE_BARRIER*      barriers);
+
+    void TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queue_wrapper,
+                                  UINT                        num_lists,
+                                  ID3D12CommandList* const*   lists);
+
+    void TrackResourceCreation(ID3D12Resource_Wrapper* resource_wrapper, D3D12_RESOURCE_STATES initial_state);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
@@ -132,6 +142,10 @@ class Dx12StateTracker
         // the wrapped object. The tracked state will be freed when all dependent object wrappers are destroyed, so
         // nothing needs to be destroyed here.
     }
+
+    void TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
+                                           const DxTransitionBarrier& transition,
+                                           UINT                       subresource);
 
   private:
     std::mutex     state_table_mutex_;

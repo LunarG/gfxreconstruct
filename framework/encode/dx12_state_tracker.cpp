@@ -103,6 +103,9 @@ void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrap
     {
         // Clear command data on command buffer reset.
         list_info->command_data.Reset();
+
+        // Clear pending resource transitions.
+        list_info->transition_barriers.clear();
     }
 
     // Append the command data.
@@ -110,6 +113,91 @@ void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrap
     list_info->command_data.Write(&size, sizeof(size));
     list_info->command_data.Write(&call_id, sizeof(call_id));
     list_info->command_data.Write(parameter_buffer->GetData(), size);
+}
+
+void Dx12StateTracker::TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                             UINT                               num_barriers,
+                                             const D3D12_RESOURCE_BARRIER*      barriers)
+{
+    for (UINT i = 0; i < num_barriers; ++i)
+    {
+        // Save the transition barrier information with the command list to be applied to the resource when the command
+        // list is executed.
+        const auto& barrier = barriers[i];
+        if (barrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
+        {
+            DxTransitionBarrier transition;
+            transition.resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(barrier.Transition.pResource);
+            transition.subresource      = barrier.Transition.Subresource;
+            transition.state_before     = barrier.Transition.StateBefore;
+            transition.state_after      = barrier.Transition.StateAfter;
+            transition.barrier_flags    = barrier.Flags;
+            list_wrapper->GetObjectInfo()->transition_barriers.push_back(transition);
+        }
+    }
+}
+
+void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queue_wrapper,
+                                                UINT                        num_lists,
+                                                ID3D12CommandList* const*   lists)
+{
+    for (UINT i = 0; i < num_lists; ++i)
+    {
+        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(lists[i]);
+        auto list_info    = list_wrapper->GetObjectInfo();
+
+        // Apply pending resource transitions to tracked resource states.
+        for (const auto& transition_barrier : list_info->transition_barriers)
+        {
+            auto resource_wrapper = transition_barrier.resource_wrapper;
+            auto resource_info    = resource_wrapper->GetObjectInfo();
+
+            // TODO (GH #83): Should it be valid for resources to have an empty transitions array?
+            if (resource_info->subresource_transitions.empty())
+            {
+                continue;
+            }
+
+            GFXRECON_ASSERT(resource_info->subresource_transitions.size() == resource_info->num_subresources);
+
+            if (transition_barrier.subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+            {
+                for (UINT i = 0; i < resource_info->num_subresources; ++i)
+                {
+                    TrackSubresourceTransitionBarrier(resource_info.get(), transition_barrier, i);
+                }
+            }
+            else
+            {
+                GFXRECON_ASSERT(transition_barrier.subresource < resource_info->subresource_transitions.size());
+
+                TrackSubresourceTransitionBarrier(
+                    resource_info.get(), transition_barrier, transition_barrier.subresource);
+            }
+        }
+    }
+}
+
+void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wrapper,
+                                             D3D12_RESOURCE_STATES   initial_state)
+{
+    auto resource_info = resource_wrapper->GetObjectInfo();
+
+    // Set all subresources to the initial state.
+    resource_info->subresource_transitions.reserve(resource_info->num_subresources);
+    for (UINT i = 0; i < resource_info->num_subresources; ++i)
+    {
+        resource_info->subresource_transitions.push_back(
+            std::make_pair(initial_state, D3D12_RESOURCE_BARRIER_FLAG_NONE));
+    }
+}
+
+void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
+                                                         const DxTransitionBarrier& transition,
+                                                         UINT                       subresource)
+{
+    resource_info->subresource_transitions[subresource] =
+        std::make_pair(transition.state_after, transition.barrier_flags);
 }
 
 GFXRECON_END_NAMESPACE(encode)

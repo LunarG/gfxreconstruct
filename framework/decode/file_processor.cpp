@@ -1267,6 +1267,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = success && ReadBytes(&header.resource_id, sizeof(header.resource_id));
         success = success && ReadBytes(&header.subresource, sizeof(header.subresource));
         success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+        success = success && ReadBytes(&header.resource_state, sizeof(header.resource_state));
+        success = success && ReadBytes(&header.barrier_flags, sizeof(header.barrier_flags));
 
         if (success)
         {

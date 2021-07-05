@@ -589,11 +589,13 @@ HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snaps
         upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
         upload_cmd.meta_header.meta_data_id =
             format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitSubresourceCommand);
-        upload_cmd.thread_id   = thread_id_;
-        upload_cmd.device_id   = resource_info->device_id;
-        upload_cmd.resource_id = resource_wrapper->GetCaptureId();
-        upload_cmd.subresource = i;
-        upload_cmd.data_size   = subresource_size;
+        upload_cmd.thread_id      = thread_id_;
+        upload_cmd.device_id      = resource_info->device_id;
+        upload_cmd.resource_id    = resource_wrapper->GetCaptureId();
+        upload_cmd.subresource    = i;
+        upload_cmd.data_size      = subresource_size;
+        upload_cmd.resource_state = resource_info->subresource_transitions[i].first;
+        upload_cmd.barrier_flags  = resource_info->subresource_transitions[i].second;
 
         // Compress block data.
         if (compressor_ != nullptr)

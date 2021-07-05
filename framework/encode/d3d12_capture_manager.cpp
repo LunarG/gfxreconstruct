@@ -150,6 +150,9 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
                     ID3D12Resource_Wrapper* resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
                     resource_wrapper->MakeRefInternal();
                     info->images[i] = resource_wrapper;
+
+                    // TODO (GH #261): Initialize members of ID3D12ResourceInfo for resource_wrapper in order to track
+                    // frame buffer state.
                 }
                 else
                 {
@@ -197,6 +200,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                                                        D3D12_HEAP_TYPE          heap_type,
                                                        D3D12_CPU_PAGE_PROPERTY  page_property,
                                                        D3D12_MEMORY_POOL        memory_pool,
+                                                       D3D12_RESOURCE_STATES    initial_state,
                                                        bool                     has_write_watch)
 {
     assert(resource_wrapper != nullptr);
@@ -258,6 +262,11 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                 (static_cast<uint64_t>(layouts[i].Footprint.RowPitch) * layouts[i].Footprint.Height) *
                 layouts[i].Footprint.Depth;
         }
+    }
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackResourceCreation(resource_wrapper, initial_state);
     }
 }
 
@@ -582,8 +591,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
     REFIID                       riid,
     void**                       resource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
-    GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
@@ -600,6 +607,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
+            initial_resource_state,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -617,7 +625,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
                                                                         void**                   resource)
 {
     GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
-    GFXRECON_UNREFERENCED_PARAMETER(initial_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
@@ -636,6 +643,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
+                                     initial_state,
                                      heap_info->has_write_watch);
     }
 }
@@ -719,8 +727,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
     REFIID                          riid,
     void**                          resource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
-    GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(protected_session);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
@@ -738,6 +744,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
+            initial_resource_state,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -756,8 +763,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
     REFIID                          riid,
     void**                          resource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(heap_flags);
-    GFXRECON_UNREFERENCED_PARAMETER(initial_resource_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(protected_session);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
@@ -775,6 +780,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
             heap_properties->Type,
             heap_properties->CPUPageProperty,
             heap_properties->MemoryPoolPreference,
+            initial_resource_state,
             UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty));
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
@@ -793,7 +799,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
     void**                      resource)
 {
     GFXRECON_UNREFERENCED_PARAMETER(heap_offset);
-    GFXRECON_UNREFERENCED_PARAMETER(initial_state);
     GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
 
@@ -812,6 +817,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
+                                     initial_state,
                                      heap_info->has_write_watch);
     }
 }
@@ -1111,6 +1117,16 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
                     reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
             }
         }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                                             UINT                        num_lists,
+                                                                             ID3D12CommandList* const*   lists)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackExecuteCommandLists(wrapper, num_lists, lists);
     }
 }
 
@@ -1486,6 +1502,15 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_Signal(ID3D12CommandQue
     {
         auto fence_wrapper = reinterpret_cast<ID3D12Fence_Wrapper*>(fence);
         state_tracker_->TrackFenceSignal(fence_wrapper, value);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
+    ID3D12GraphicsCommandList_Wrapper* list_wrapper, UINT num_barriers, const D3D12_RESOURCE_BARRIER* barriers)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackResourceBarriers(list_wrapper, num_barriers, barriers);
     }
 }
 

@@ -314,6 +314,16 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Execut
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12CommandQueue_ExecuteCommandLists(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_D3D12CreateDevice>
 {
     template <typename... Args>
@@ -350,6 +360,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Signa
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12CommandQueue_Signal(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(args...);
     }
 };
 

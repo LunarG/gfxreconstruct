@@ -31,7 +31,7 @@
 #include "util/memory_output_stream.h"
 #include "generated/generated_dx12_state_table.h"
 
-// TODO (GH #83): Remove this debug code when trimming is complete and stable.
+// TODO (GH #254): Remove this debug code when trimming is complete and stable.
 #define GFXRECON_DEBUG_WRITTEN_OBJECTS 1
 
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
