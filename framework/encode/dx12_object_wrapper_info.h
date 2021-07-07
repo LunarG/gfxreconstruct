@@ -24,6 +24,7 @@
 #define GFXRECON_ENCODE_DX12_OBJECT_WRAPPER_INFO_H
 
 #include "format/format.h"
+#include "graphics/dx12_util.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
@@ -239,7 +240,8 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_MEMORY_POOL                    memory_pool{};
 
     // Most recent transitions for each subresource.
-    std::vector<std::pair<D3D12_RESOURCE_STATES, D3D12_RESOURCE_BARRIER_FLAGS>> subresource_transitions{};
+    D3D12_RESOURCE_STATES                          initial_state;
+    std::vector<graphics::dx12::ResourceStateInfo> subresource_transitions{};
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo

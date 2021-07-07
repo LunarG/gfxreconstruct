@@ -267,18 +267,12 @@ void Dx12DecoderBase::DispatchInitImageCommand(format::ThreadId             thre
     }
 }
 
-void Dx12DecoderBase::DispatchInitSubresourceCommand(format::ThreadId thread_id,
-                                                     format::HandleId device_id,
-                                                     format::HandleId resource_id,
-                                                     uint32_t         subresource,
-                                                     uint64_t         data_size,
-                                                     const uint8_t*   data)
+void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                                     const uint8_t*                              data)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
-
     for (auto consumer : consumers_)
     {
-        consumer->ProcessInitSubresourceCommand(device_id, resource_id, subresource, data_size, data);
+        consumer->ProcessInitSubresourceCommand(command_header, data);
     }
 }
 

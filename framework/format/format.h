@@ -400,9 +400,10 @@ struct InitSubresourceCommandHeader
     format::HandleId device_id;
     format::HandleId resource_id;
     uint32_t         subresource;
-    uint64_t         data_size;
+    uint32_t         initial_state;
     uint32_t         resource_state;
     uint32_t         barrier_flags;
+    uint64_t         data_size;
 };
 
 struct SetDeviceMemoryPropertiesCommand

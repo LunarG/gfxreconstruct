@@ -1266,9 +1266,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
         success = success && ReadBytes(&header.resource_id, sizeof(header.resource_id));
         success = success && ReadBytes(&header.subresource, sizeof(header.subresource));
-        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+        success = success && ReadBytes(&header.initial_state, sizeof(header.initial_state));
         success = success && ReadBytes(&header.resource_state, sizeof(header.resource_state));
         success = success && ReadBytes(&header.barrier_flags, sizeof(header.barrier_flags));
+        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
 
         if (success)
         {
@@ -1294,12 +1295,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 {
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
-                        decoder->DispatchInitSubresourceCommand(header.thread_id,
-                                                                header.device_id,
-                                                                header.resource_id,
-                                                                header.subresource,
-                                                                header.data_size,
-                                                                parameter_buffer_.data());
+                        decoder->DispatchInitSubresourceCommand(header, parameter_buffer_.data());
                     }
                 }
             }

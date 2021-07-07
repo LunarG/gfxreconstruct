@@ -22,7 +22,10 @@
 
 #include "encode/dx12_state_writer.h"
 
+#include "generated/generated_dx12_api_call_encoders.h"
 #include "encode/custom_dx12_struct_encoders.h"
+#include "encode/struct_pointer_encoder.h"
+#include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -470,6 +473,16 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
 
     std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>> resource_snapshots;
 
+    struct MappedSubresourceInfo
+    {
+        ID3D12Resource_Wrapper* resource_wrapper;
+        UINT                    subresource;
+        int32_t                 map_count;
+    };
+
+    std::vector<MappedSubresourceInfo>             mapped_subresources;
+    std::unordered_map<format::HandleId, uint64_t> max_resource_sizes;
+
     state_table.VisitWrappers([&](ID3D12Resource_Wrapper* resource_wrapper) {
         assert(resource_wrapper != nullptr);
         assert(resource_wrapper->GetWrappedObject() != nullptr);
@@ -498,134 +511,211 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
             parameter_stream_.Reset();
         }
 
-        // Collect list of subresources that need to be written to the capture file.
+        // Get resource sizes and list of currently mapped subresources.
+        uint64_t resource_size = 0;
         for (UINT i = 0; i < resource_info->num_subresources; ++i)
         {
-            ResourceSnapshotInfo snapshot_info;
-            snapshot_info.resource_wrapper = resource_wrapper;
-            resource_snapshots[resource_info->device_id].push_back(snapshot_info);
+            resource_size += resource_info->subresource_sizes[i];
+            if (resource_info->mapped_subresources[i].map_count > 0)
+            {
+                mapped_subresources.push_back({ resource_wrapper, i, resource_info->mapped_subresources[i].map_count });
+            }
         }
+
+        // Store resource wrappers and max resource sizes.
+        ResourceSnapshotInfo snapshot_info;
+        snapshot_info.resource_wrapper = resource_wrapper;
+        resource_snapshots[resource_info->device_id].push_back(snapshot_info);
+        max_resource_sizes[resource_info->device_id] =
+            std::max(resource_size, max_resource_sizes[resource_info->device_id]);
     });
 
     // Write resource snapshots to the capture file.
-    WriteResourceSnapshots(resource_snapshots);
+    WriteResourceSnapshots(resource_snapshots, max_resource_sizes);
+
+    // Write calls to map the resource as many times as it is currently mapped by the application.
+    for (const auto& map_info : mapped_subresources)
+    {
+        auto     mappable_resource = map_info.resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+        uint8_t* result_ptr        = nullptr;
+        graphics::dx12::MapSubresource(
+            mappable_resource, map_info.subresource, &graphics::dx12::kZeroRange, result_ptr);
+
+        for (int32_t i = 0; i < map_info.map_count; ++i)
+        {
+            encoder_.EncodeUInt32Value(map_info.subresource);
+            EncodeStructPtr<D3D12_RANGE>(&encoder_, nullptr);
+            encoder_.EncodeVoidPtrPtr<void>(reinterpret_cast<void**>(&result_ptr));
+            encoder_.EncodeInt32Value(S_OK);
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_Map,
+                            map_info.resource_wrapper->GetCaptureId(),
+                            &parameter_stream_);
+        }
+
+        mappable_resource->Unmap(map_info.subresource, &graphics::dx12::kZeroRange);
+
+        parameter_stream_.Reset();
+    }
 }
 
-HRESULT
-Dx12StateWriter::WriteResourceSnapshots(
-    const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots)
+void Dx12StateWriter::WriteResourceSnapshots(
+    const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots,
+    const std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes)
 {
-    HRESULT result = S_OK;
-
     for (auto kvp : snapshots)
     {
         auto device_id = kvp.first;
         auto snapshots = kvp.second;
 
-        // Write the block indicating resource processing start.
-        format::BeginResourceInitCommand begin_cmd;
-        begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
-        begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
-                                                                    format::MetaDataType::kBeginResourceInitCommand);
-        begin_cmd.thread_id                     = thread_id_;
-        begin_cmd.device_id                     = device_id;
-        begin_cmd.max_resource_size             = 0; // TODO: use these?
-        begin_cmd.max_copy_size                 = 0;
-
-        output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
-
-        // Write each resource snapshot to the capture file.
-        for (auto snapshot : kvp.second)
+        // TODO (GH #83): If device id is format::kNullHandleId, this resource may not have been tracked at creation.
+        // This can happen for resources such as swapchain buffers which are not explicitly created. Ultimately the
+        // contents of those resources will need to be captured and replayed.
+        if (device_id == format::kNullHandleId)
         {
-            WriteResourceSnapshot(snapshot);
+            for (auto snapshot : kvp.second)
+            {
+                GFXRECON_LOG_ERROR("Resource (id = %" PRIu64
+                                   ") has a null device id. Its contents will not be captured or replayed.",
+                                   snapshot.resource_wrapper->GetCaptureId());
+            }
+            continue;
         }
 
-        // Write the block indicating resource processing end.
-        format::EndResourceInitCommand end_cmd;
-        end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
-        end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        end_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kEndResourceInitCommand);
-        end_cmd.thread_id = thread_id_;
-        end_cmd.device_id = device_id;
+        if (snapshots.size() > 0)
+        {
+            std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util;
 
-        output_stream_->Write(&end_cmd, sizeof(end_cmd));
+            auto max_resource_size = max_resource_sizes.at(device_id);
+
+            // Write the block indicating resource processing start.
+            format::BeginResourceInitCommand begin_cmd;
+            begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
+            begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+            begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
+            begin_cmd.thread_id         = thread_id_;
+            begin_cmd.device_id         = device_id;
+            begin_cmd.max_resource_size = max_resource_size;
+            begin_cmd.max_copy_size     = max_resource_size;
+
+            output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
+
+            // Write each resource snapshot to the capture file.
+            for (auto snapshot : kvp.second)
+            {
+                if (resource_data_util == nullptr)
+                {
+                    graphics::dx12::ID3D12DeviceComPtr device;
+                    auto                               resource_wrapper = snapshots[0].resource_wrapper;
+                    auto                               resource_info    = resource_wrapper->GetObjectInfo();
+                    auto    resource = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+                    HRESULT result   = resource->GetDevice(IID_PPV_ARGS(&device));
+                    if (SUCCEEDED(result))
+                    {
+                        resource_data_util = std::make_unique<graphics::Dx12ResourceDataUtil>(device.GetInterfacePtr(),
+                                                                                              max_resource_size);
+                    }
+                    else
+                    {
+                        // Log error and skip to next resource.
+                        GFXRECON_LOG_ERROR("Failed to initialize resource data util for writing resource (id = %" PRIu64
+                                           "). Could not query for device.",
+                                           resource_wrapper->GetCaptureId());
+                        continue;
+                    }
+                }
+
+                WriteResourceSnapshot(resource_data_util.get(), snapshot);
+            }
+
+            // Write the block indicating resource processing end.
+            format::EndResourceInitCommand end_cmd;
+            end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
+            end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+            end_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
+                                                                      format::MetaDataType::kEndResourceInitCommand);
+            end_cmd.thread_id                     = thread_id_;
+            end_cmd.device_id                     = device_id;
+
+            output_stream_->Write(&end_cmd, sizeof(end_cmd));
+        }
     }
-
-    return result;
 }
 
-HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snapshot)
+void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* resource_data_util,
+                                            const ResourceSnapshotInfo&     snapshot)
 {
-    HRESULT result = S_OK;
-
     auto resource_wrapper = snapshot.resource_wrapper;
     auto resource_info    = resource_wrapper->GetObjectInfo();
     auto resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
 
-    // TODO (GH #83): Create a mappable copy of resources that are not CPU-visible.
-    ID3D12Resource* mappable_resource = resource;
+    uint64_t subresource_count      = 0;
+    uint64_t total_subresource_size = 0;
+    temp_subresource_data_.clear();
+    temp_subresource_sizes_.clear();
+    temp_subresource_offsets_.clear();
 
-    for (uint32_t i = 0; i < resource_info->num_subresources; ++i)
+    // Read the data from the resource.
+    HRESULT result = resource_data_util->ReadFromResource(resource,
+                                                          resource_info->subresource_transitions,
+                                                          resource_info->subresource_transitions,
+                                                          temp_subresource_data_,
+                                                          temp_subresource_offsets_,
+                                                          temp_subresource_sizes_);
+
+    if (SUCCEEDED(result))
     {
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, resource_info->subresource_sizes[i]);
-
-        uint8_t* mapped_data      = nullptr;
-        size_t   subresource_size = static_cast<size_t>(resource_info->subresource_sizes[i]);
-
-        // Map the subresource.
-        result = graphics::dx12::MapSubresource(mappable_resource, i, nullptr, mapped_data);
-        if (!SUCCEEDED(result) || (mapped_data == nullptr))
+        // Write the subresource data to the output.
+        for (uint32_t i = 0; i < temp_subresource_sizes_.size(); ++i)
         {
-            GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64
-                               "). Resource's data may be invalid in capture file.",
-                               i,
-                               resource_wrapper->GetCaptureId());
-            continue;
-        }
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, temp_subresource_sizes_[i]);
 
-        // Create subresource upload data block.
-        format::InitSubresourceCommandHeader upload_cmd;
-        upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-        upload_cmd.meta_header.meta_data_id =
-            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitSubresourceCommand);
-        upload_cmd.thread_id      = thread_id_;
-        upload_cmd.device_id      = resource_info->device_id;
-        upload_cmd.resource_id    = resource_wrapper->GetCaptureId();
-        upload_cmd.subresource    = i;
-        upload_cmd.data_size      = subresource_size;
-        upload_cmd.resource_state = resource_info->subresource_transitions[i].first;
-        upload_cmd.barrier_flags  = resource_info->subresource_transitions[i].second;
+            uint8_t* subresource_data = temp_subresource_data_.data() + temp_subresource_offsets_[i];
+            size_t   subresource_size = static_cast<size_t>(temp_subresource_sizes_[i]);
 
-        // Compress block data.
-        if (compressor_ != nullptr)
-        {
-            size_t compressed_size =
-                compressor_->Compress(subresource_size, mapped_data, &compressed_parameter_buffer_, 0);
+            // Create subresource upload data block.
+            format::InitSubresourceCommandHeader upload_cmd;
+            upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+            upload_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
+                                                                         format::MetaDataType::kInitSubresourceCommand);
+            upload_cmd.thread_id                     = thread_id_;
+            upload_cmd.device_id                     = resource_info->device_id;
+            upload_cmd.resource_id                   = resource_wrapper->GetCaptureId();
+            upload_cmd.subresource                   = i;
+            upload_cmd.initial_state                 = resource_info->initial_state;
+            upload_cmd.resource_state                = resource_info->subresource_transitions[i].states;
+            upload_cmd.barrier_flags                 = resource_info->subresource_transitions[i].barrier_flags;
+            upload_cmd.data_size                     = subresource_size;
 
-            if ((compressed_size > 0) && (compressed_size < subresource_size))
+            // Compress block data.
+            if (compressor_ != nullptr)
             {
-                upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+                size_t compressed_size =
+                    compressor_->Compress(subresource_size, subresource_data, &compressed_parameter_buffer_, 0);
 
-                mapped_data      = compressed_parameter_buffer_.data();
-                subresource_size = compressed_size;
+                if ((compressed_size > 0) && (compressed_size < subresource_size))
+                {
+                    upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                    subresource_data = compressed_parameter_buffer_.data();
+                    subresource_size = compressed_size;
+                }
             }
+
+            // Calculate size of packet with compressed or uncompressed data size.
+            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + subresource_size;
+
+            // Write upload block to file.
+            output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+            output_stream_->Write(subresource_data, subresource_size);
         }
-
-        // Calculate size of packet with compressed or uncompressed data size.
-        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + subresource_size;
-
-        // Write upload block to file.
-        output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-        output_stream_->Write(mapped_data, subresource_size);
-
-        // Unmap the subresource.
-        D3D12_RANGE empty_range = { 0, 0 };
-        mappable_resource->Unmap(i, &empty_range);
     }
-
-    return result;
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to read data for resource (id = %" PRIu64
+                           "). Resource data will not be written to capture file.",
+                           resource_wrapper->GetCaptureId());
+    }
 }
 
 void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
@@ -636,40 +726,14 @@ void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
         assert(queue_wrapper != nullptr);
         assert(queue_wrapper->GetWrappedObject() != nullptr);
 
-        auto queue = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
-
-        // Create a fence and event, then signal it on the queue.
-        graphics::dx12::ID3D12DeviceComPtr device;
-        if (SUCCEEDED(queue->GetDevice(IID_PPV_ARGS(&device))))
+        auto queue  = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
+        auto result = graphics::dx12::WaitForQueue(queue);
+        if (!SUCCEEDED(result))
         {
-            graphics::dx12::ID3D12FenceComPtr fence;
-            if (SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
-            {
-                HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-                if (idle_event != nullptr)
-                {
-                    fence->SetEventOnCompletion(kSignalValue, idle_event);
-                    queue->Signal(fence, kSignalValue);
-                    WaitForSingleObject(idle_event, INFINITE);
-                    if (!CloseHandle(idle_event))
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Failed to close event used to sync ID3D12CommandQueue for trim state writing.");
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Failed to create event to sync ID3D12CommandQueue for trim state writing.");
-                }
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Failed to create ID3D12Fence to sync ID3D12CommandQueue for trim state writing.");
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to get ID3D12Device to sync ID3D12CommandQueue for trim state writing.");
+            GFXRECON_LOG_ERROR("Failed to wait for ID3D12CommandQueue (id = %" PRIu64
+                               ") to complete pending work for trim state writing. (error = %x)",
+                               queue_wrapper->GetCaptureId(),
+                               result);
         }
     });
 }

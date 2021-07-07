@@ -119,11 +119,8 @@ class Dx12ConsumerBase
                                          const uint8_t*               data)
     {}
 
-    virtual void ProcessInitSubresourceCommand(format::HandleId device_id,
-                                               format::HandleId resource_id,
-                                               uint32_t         subresource,
-                                               uint64_t         data_size,
-                                               const uint8_t*   data)
+    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                               const uint8_t*                              data)
     {}
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

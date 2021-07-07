@@ -31,6 +31,7 @@
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
 #include "graphics/dx12_gpu_va_map.h"
+#include "graphics/dx12_resource_data_util.h"
 
 #include <functional>
 #include <unordered_map>
@@ -60,17 +61,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
-    virtual void ProcessInitSubresourceCommand(format::HandleId device_id,
-                                               format::HandleId resource_id,
-                                               uint32_t         subresource,
-                                               uint64_t         data_size,
-                                               const uint8_t*   data) override;
-
     virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
                                          format::HandleId                                    swapchain_id,
                                          uint32_t                                            last_presented_image,
                                          const std::vector<format::SwapchainImageStateInfo>& image_state) override;
+
+    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                               const uint8_t*                              data) override;
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
@@ -426,6 +424,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                   DxObjectInfo*       swapchain_info,
                                                   uint32_t            last_presented_image);
 
+    void ApplyResourceInitInfo();
+
   private:
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;
@@ -441,6 +441,29 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<uint8_t[]>           debug_message_;
     SIZE_T                               current_message_length_;
     IDXGIInfoQueue*                      info_queue_;
+
+    struct ResourceInitInfo
+    {
+        ID3D12Resource*                                resource{ nullptr };
+        std::vector<uint8_t>                           data;
+        std::vector<uint64_t>                          subresource_offsets;
+        std::vector<uint64_t>                          subresource_sizes;
+        std::vector<graphics::dx12::ResourceStateInfo> before_states;
+        std::vector<graphics::dx12::ResourceStateInfo> after_states;
+
+        // Prefer Reset over creating new ResourceInitInfos in order to reuse the vectors' heap allocations.
+        void Reset()
+        {
+            resource = nullptr;
+            data.clear();
+            subresource_offsets.clear();
+            subresource_sizes.clear();
+            before_states.clear();
+            after_states.clear();
+        }
+    };
+    ResourceInitInfo                                resource_init_info_;
+    std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

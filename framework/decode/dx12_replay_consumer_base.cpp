@@ -63,7 +63,8 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 }
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
-    window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr)
+    window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
+    resource_data_util_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -159,50 +160,66 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
     }
 }
 
+void Dx12ReplayConsumerBase::ApplyResourceInitInfo()
+{
+    if (resource_init_info_.resource != nullptr)
+    {
+        resource_data_util_->WriteToResource(resource_init_info_.resource,
+                                             resource_init_info_.before_states,
+                                             resource_init_info_.after_states,
+                                             resource_init_info_.data,
+                                             resource_init_info_.subresource_offsets,
+                                             resource_init_info_.subresource_sizes);
+    }
+    resource_init_info_.Reset();
+}
+
 void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
                                                              uint64_t         max_resource_size,
                                                              uint64_t         max_copy_size)
-{}
+{
+    GFXRECON_UNREFERENCED_PARAMETER(max_copy_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
 
-void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id) {}
+    auto device = MapObject<ID3D12Device>(device_id);
 
-void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(format::HandleId device_id,
-                                                           format::HandleId resource_id,
-                                                           uint32_t         subresource,
-                                                           uint64_t         data_size,
-                                                           const uint8_t*   data)
+    resource_init_info_ = {};
+    resource_init_info_.data.reserve(static_cast<size_t>(max_resource_size));
+    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
+}
+
+void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
+{
+    ApplyResourceInitInfo();
+    resource_data_util_ = nullptr;
+}
+
+void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                                           const uint8_t*                              data)
 {
     HRESULT result = E_FAIL;
 
-    auto device        = MapObject<ID3D12Device>(device_id);
-    auto resource_info = GetObjectInfo(resource_id);
+    auto device        = MapObject<ID3D12Device>(command_header.device_id);
+    auto resource_info = GetObjectInfo(command_header.resource_id);
     auto resource      = static_cast<ID3D12Resource*>(resource_info->object);
 
-    assert(MapObject<ID3D12Resource>(resource_id) == resource);
+    GFXRECON_ASSERT(MapObject<ID3D12Resource>(command_header.resource_id) == resource);
 
-    // TODO (GH #83): Create a mappable copy of resources that are not CPU-visible.
-    ID3D12Resource* mappable_resource = resource;
-
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
-
-    uint8_t* mapped_data = nullptr;
-
-    // Map the subresource.
-    result = graphics::dx12::MapSubresource(mappable_resource, subresource, &graphics::dx12::kZeroRange, mapped_data);
-    if (!SUCCEEDED(result))
+    // If a new resource is encountered, write the current resource and track the new resource init info.
+    if (resource_init_info_.resource != resource)
     {
-        GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64
-                           "). Resource's data may be invalid for replay.",
-                           subresource,
-                           resource_id);
-        return;
+        ApplyResourceInitInfo();
+        resource_init_info_.resource = resource;
     }
 
-    // Copy the data to the subresource.
-    util::platform::MemoryCopy(mapped_data, static_cast<size_t>(data_size), data, static_cast<size_t>(data_size));
-
-    // Unmap the subresource, write the full range.
-    mappable_resource->Unmap(subresource, nullptr);
+    resource_init_info_.before_states.push_back(
+        { static_cast<D3D12_RESOURCE_STATES>(command_header.initial_state), D3D12_RESOURCE_BARRIER_FLAG_NONE });
+    resource_init_info_.after_states.push_back(
+        { static_cast<D3D12_RESOURCE_STATES>(command_header.resource_state),
+          static_cast<D3D12_RESOURCE_BARRIER_FLAGS>(command_header.barrier_flags) });
+    resource_init_info_.subresource_offsets.push_back(resource_init_info_.data.size());
+    resource_init_info_.subresource_sizes.push_back(command_header.data_size);
+    resource_init_info_.data.insert(resource_init_info_.data.end(), data, data + command_header.data_size);
 }
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,

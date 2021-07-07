@@ -191,11 +191,11 @@ void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wr
     auto resource_info = resource_wrapper->GetObjectInfo();
 
     // Set all subresources to the initial state.
+    resource_info->initial_state = initial_state;
     resource_info->subresource_transitions.reserve(resource_info->num_subresources);
     for (UINT i = 0; i < resource_info->num_subresources; ++i)
     {
-        resource_info->subresource_transitions.push_back(
-            std::make_pair(initial_state, D3D12_RESOURCE_BARRIER_FLAG_NONE));
+        resource_info->subresource_transitions.push_back({ initial_state, D3D12_RESOURCE_BARRIER_FLAG_NONE });
     }
 }
 
@@ -209,8 +209,7 @@ void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*    
                                                          const DxTransitionBarrier& transition,
                                                          UINT                       subresource)
 {
-    resource_info->subresource_transitions[subresource] =
-        std::make_pair(transition.state_after, transition.barrier_flags);
+    resource_info->subresource_transitions[subresource] = { transition.state_after, transition.barrier_flags };
 }
 
 void Dx12StateTracker::TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper)

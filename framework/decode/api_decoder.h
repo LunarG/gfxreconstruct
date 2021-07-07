@@ -155,12 +155,8 @@ class ApiDecoder
                                           const std::vector<uint64_t>& level_sizes,
                                           const uint8_t*               data) = 0;
 
-    virtual void DispatchInitSubresourceCommand(format::ThreadId thread_id,
-                                                format::HandleId device_id,
-                                                format::HandleId resource_id,
-                                                uint32_t         subresource,
-                                                uint64_t         data_size,
-                                                const uint8_t*   data) = 0;
+    virtual void DispatchInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                                const uint8_t*                              data) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

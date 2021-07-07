@@ -25,6 +25,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "format/format.h"
+#include "graphics/dx12_resource_data_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -103,10 +104,12 @@ class Dx12StateWriter
 
     void WriteResourceState(const Dx12StateTable& state_table);
 
-    HRESULT
-    WriteResourceSnapshots(const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots);
+    void
+    WriteResourceSnapshots(const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots,
+                           const std::unordered_map<format::HandleId, uint64_t>& max_resource_sizes);
 
-    HRESULT WriteResourceSnapshot(const ResourceSnapshotInfo& snapshot);
+    void WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* resource_data_util,
+                               const ResourceSnapshotInfo&     snapshot);
 
     // Sync to ensure all pending command queues are completed before processing state writing.
     void WaitForCommandQueues(const Dx12StateTable& state_table);
@@ -132,6 +135,11 @@ class Dx12StateWriter
     // Track the list of objects that have been written in WriteState.
     std::unordered_set<format::HandleId> written_objects_;
 #endif
+
+    // Temporary vectors used for resource writing.
+    std::vector<uint8_t>  temp_subresource_data_;
+    std::vector<uint64_t> temp_subresource_sizes_;
+    std::vector<uint64_t> temp_subresource_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
