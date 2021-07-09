@@ -113,9 +113,9 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
 
     static IDXGIResource_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIResourceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIResourceInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIResourceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIResourceInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetSharedHandle(
         HANDLE* pSharedHandle);
@@ -135,7 +135,7 @@ class IDXGIResource_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIResourceInfo info_;
+    std::shared_ptr<IDXGIResourceInfo> info_;
 };
 
 class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -147,9 +147,9 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
 
     static IDXGIKeyedMutex_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIKeyedMutexInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIKeyedMutexInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIKeyedMutexInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIKeyedMutexInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE AcquireSync(
         UINT64 Key,
@@ -164,7 +164,7 @@ class IDXGIKeyedMutex_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIKeyedMutexInfo info_;
+    std::shared_ptr<IDXGIKeyedMutexInfo> info_;
 };
 
 class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -176,9 +176,9 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
 
     static IDXGISurface_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGISurfaceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGISurfaceInfo> GetObjectInfo() const { return info_; }
 
-    IDXGISurfaceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGISurfaceInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
         DXGI_SURFACE_DESC* pDesc);
@@ -195,7 +195,7 @@ class IDXGISurface_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGISurfaceInfo info_;
+    std::shared_ptr<IDXGISurfaceInfo> info_;
 };
 
 class IDXGISurface1_Wrapper : public IDXGISurface_Wrapper
@@ -221,9 +221,9 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
 
     static IDXGIAdapter_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIAdapterInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIAdapterInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIAdapterInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIAdapterInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE EnumOutputs(
         UINT Output,
@@ -242,7 +242,7 @@ class IDXGIAdapter_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIAdapterInfo info_;
+    std::shared_ptr<IDXGIAdapterInfo> info_;
 };
 
 class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
@@ -254,9 +254,9 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
 
     static IDXGIOutput_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIOutputInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIOutputInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIOutputInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIOutputInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
         DXGI_OUTPUT_DESC* pDesc);
@@ -304,7 +304,7 @@ class IDXGIOutput_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIOutputInfo info_;
+    std::shared_ptr<IDXGIOutputInfo> info_;
 };
 
 class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
@@ -316,9 +316,9 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
 
     static IDXGISwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGISwapChainInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGISwapChainInfo> GetObjectInfo() const { return info_; }
 
-    IDXGISwapChainInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGISwapChainInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE Present(
         UINT SyncInterval,
@@ -365,7 +365,7 @@ class IDXGISwapChain_Wrapper : public IDXGIDeviceSubObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGISwapChainInfo info_;
+    std::shared_ptr<IDXGISwapChainInfo> info_;
 };
 
 class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
@@ -377,9 +377,9 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
 
     static IDXGIFactory_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIFactoryInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIFactoryInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIFactoryInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIFactoryInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE EnumAdapters(
         UINT Adapter,
@@ -407,7 +407,7 @@ class IDXGIFactory_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIFactoryInfo info_;
+    std::shared_ptr<IDXGIFactoryInfo> info_;
 };
 
 class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
@@ -419,9 +419,9 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
 
     static IDXGIDevice_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIDeviceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIDeviceInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIDeviceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIDeviceInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetAdapter(
         IDXGIAdapter** pAdapter);
@@ -450,7 +450,7 @@ class IDXGIDevice_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIDeviceInfo info_;
+    std::shared_ptr<IDXGIDeviceInfo> info_;
 };
 
 class IDXGIFactory1_Wrapper : public IDXGIFactory_Wrapper
@@ -504,9 +504,9 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
 
     static IDXGIDisplayControl_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIDisplayControlInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIDisplayControlInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIDisplayControlInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIDisplayControlInfo> GetObjectInfo() { return info_; }
 
     virtual BOOL STDMETHODCALLTYPE IsStereoEnabled();
 
@@ -519,7 +519,7 @@ class IDXGIDisplayControl_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIDisplayControlInfo info_;
+    std::shared_ptr<IDXGIDisplayControlInfo> info_;
 };
 
 class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
@@ -531,9 +531,9 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
 
     static IDXGIOutputDuplication_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIOutputDuplicationInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIOutputDuplicationInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIOutputDuplicationInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIOutputDuplicationInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE GetDesc(
         DXGI_OUTDUPL_DESC* pDesc);
@@ -572,7 +572,7 @@ class IDXGIOutputDuplication_Wrapper : public IDXGIObject_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIOutputDuplicationInfo info_;
+    std::shared_ptr<IDXGIOutputDuplicationInfo> info_;
 };
 
 class IDXGISurface2_Wrapper : public IDXGISurface1_Wrapper
@@ -840,9 +840,9 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
 
     static IDXGIDecodeSwapChain_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIDecodeSwapChainInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIDecodeSwapChainInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIDecodeSwapChainInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIDecodeSwapChainInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE PresentBuffer(
         UINT BufferToPresent,
@@ -880,7 +880,7 @@ class IDXGIDecodeSwapChain_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIDecodeSwapChainInfo info_;
+    std::shared_ptr<IDXGIDecodeSwapChainInfo> info_;
 };
 
 class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
@@ -892,9 +892,9 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
 
     static IDXGIFactoryMedia_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGIFactoryMediaInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGIFactoryMediaInfo> GetObjectInfo() const { return info_; }
 
-    IDXGIFactoryMediaInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGIFactoryMediaInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE CreateSwapChainForCompositionSurfaceHandle(
         IUnknown* pDevice,
@@ -917,7 +917,7 @@ class IDXGIFactoryMedia_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGIFactoryMediaInfo info_;
+    std::shared_ptr<IDXGIFactoryMediaInfo> info_;
 };
 
 class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
@@ -929,9 +929,9 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
 
     static IDXGISwapChainMedia_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const IDXGISwapChainMediaInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const IDXGISwapChainMediaInfo> GetObjectInfo() const { return info_; }
 
-    IDXGISwapChainMediaInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<IDXGISwapChainMediaInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetFrameStatisticsMedia(
         DXGI_FRAME_STATISTICS_MEDIA* pStats);
@@ -950,7 +950,7 @@ class IDXGISwapChainMedia_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    IDXGISwapChainMediaInfo info_;
+    std::shared_ptr<IDXGISwapChainMediaInfo> info_;
 };
 
 class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
@@ -1283,9 +1283,9 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
 
     static ID3D12RootSignature_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12RootSignatureInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12RootSignatureInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12RootSignatureInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12RootSignatureInfo> GetObjectInfo() { return info_; }
 
   private:
     // Map to prevent creation of more than one interface wrapper per object.
@@ -1293,7 +1293,7 @@ class ID3D12RootSignature_Wrapper : public ID3D12DeviceChild_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12RootSignatureInfo info_;
+    std::shared_ptr<ID3D12RootSignatureInfo> info_;
 };
 
 class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
@@ -1305,9 +1305,9 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 
     static ID3D12RootSignatureDeserializer_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12RootSignatureDeserializerInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12RootSignatureDeserializerInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12RootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12RootSignatureDeserializerInfo> GetObjectInfo() { return info_; }
 
     virtual const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE GetRootSignatureDesc();
 
@@ -1317,7 +1317,7 @@ class ID3D12RootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12RootSignatureDeserializerInfo info_;
+    std::shared_ptr<ID3D12RootSignatureDeserializerInfo> info_;
 };
 
 class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
@@ -1329,9 +1329,9 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
 
     static ID3D12VersionedRootSignatureDeserializer_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12VersionedRootSignatureDeserializerInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12VersionedRootSignatureDeserializerInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12VersionedRootSignatureDeserializerInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetRootSignatureDescAtVersion(
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
@@ -1345,7 +1345,7 @@ class ID3D12VersionedRootSignatureDeserializer_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12VersionedRootSignatureDeserializerInfo info_;
+    std::shared_ptr<ID3D12VersionedRootSignatureDeserializerInfo> info_;
 };
 
 class ID3D12Pageable_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -1364,9 +1364,9 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12Heap_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12HeapInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12HeapInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12HeapInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12HeapInfo> GetObjectInfo() { return info_; }
 
     virtual D3D12_HEAP_DESC STDMETHODCALLTYPE GetDesc();
 
@@ -1376,7 +1376,7 @@ class ID3D12Heap_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12HeapInfo info_;
+    std::shared_ptr<ID3D12HeapInfo> info_;
 };
 
 class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
@@ -1388,9 +1388,9 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12Resource_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12ResourceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12ResourceInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12ResourceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12ResourceInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE Map(
         UINT Subresource,
@@ -1429,7 +1429,7 @@ class ID3D12Resource_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12ResourceInfo info_;
+    std::shared_ptr<ID3D12ResourceInfo> info_;
 };
 
 class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
@@ -1441,9 +1441,9 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12CommandAllocator_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12CommandAllocatorInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12CommandAllocatorInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12CommandAllocatorInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12CommandAllocatorInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE Reset();
 
@@ -1453,7 +1453,7 @@ class ID3D12CommandAllocator_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12CommandAllocatorInfo info_;
+    std::shared_ptr<ID3D12CommandAllocatorInfo> info_;
 };
 
 class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
@@ -1465,9 +1465,9 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12Fence_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12FenceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12FenceInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12FenceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12FenceInfo> GetObjectInfo() { return info_; }
 
     virtual UINT64 STDMETHODCALLTYPE GetCompletedValue();
 
@@ -1484,7 +1484,7 @@ class ID3D12Fence_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12FenceInfo info_;
+    std::shared_ptr<ID3D12FenceInfo> info_;
 };
 
 class ID3D12Fence1_Wrapper : public ID3D12Fence_Wrapper
@@ -1505,9 +1505,9 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12PipelineState_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12PipelineStateInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12PipelineStateInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12PipelineStateInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12PipelineStateInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetCachedBlob(
         ID3DBlob** ppBlob);
@@ -1518,7 +1518,7 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12PipelineStateInfo info_;
+    std::shared_ptr<ID3D12PipelineStateInfo> info_;
 };
 
 class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
@@ -1530,9 +1530,9 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12DescriptorHeap_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DescriptorHeapInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DescriptorHeapInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DescriptorHeapInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DescriptorHeapInfo> GetObjectInfo() { return info_; }
 
     virtual D3D12_DESCRIPTOR_HEAP_DESC STDMETHODCALLTYPE GetDesc();
 
@@ -1546,7 +1546,7 @@ class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DescriptorHeapInfo info_;
+    std::shared_ptr<ID3D12DescriptorHeapInfo> info_;
 };
 
 class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
@@ -1558,9 +1558,9 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12QueryHeap_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12QueryHeapInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12QueryHeapInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12QueryHeapInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12QueryHeapInfo> GetObjectInfo() { return info_; }
 
   private:
     // Map to prevent creation of more than one interface wrapper per object.
@@ -1568,7 +1568,7 @@ class ID3D12QueryHeap_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12QueryHeapInfo info_;
+    std::shared_ptr<ID3D12QueryHeapInfo> info_;
 };
 
 class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
@@ -1580,9 +1580,9 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12CommandSignature_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12CommandSignatureInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12CommandSignatureInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12CommandSignatureInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12CommandSignatureInfo> GetObjectInfo() { return info_; }
 
   private:
     // Map to prevent creation of more than one interface wrapper per object.
@@ -1590,7 +1590,7 @@ class ID3D12CommandSignature_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12CommandSignatureInfo info_;
+    std::shared_ptr<ID3D12CommandSignatureInfo> info_;
 };
 
 class ID3D12CommandList_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -1611,9 +1611,9 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
 
     static ID3D12GraphicsCommandList_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12GraphicsCommandListInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12GraphicsCommandListInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12GraphicsCommandListInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12GraphicsCommandListInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE Close();
 
@@ -1869,7 +1869,7 @@ class ID3D12GraphicsCommandList_Wrapper : public ID3D12CommandList_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12GraphicsCommandListInfo info_;
+    std::shared_ptr<ID3D12GraphicsCommandListInfo> info_;
 };
 
 class ID3D12GraphicsCommandList1_Wrapper : public ID3D12GraphicsCommandList_Wrapper
@@ -1941,9 +1941,9 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12CommandQueue_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12CommandQueueInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12CommandQueueInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12CommandQueueInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12CommandQueueInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE UpdateTileMappings(
         ID3D12Resource* pResource,
@@ -2004,7 +2004,7 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12CommandQueueInfo info_;
+    std::shared_ptr<ID3D12CommandQueueInfo> info_;
 };
 
 class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
@@ -2016,9 +2016,9 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
 
     static ID3D12Device_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DeviceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DeviceInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DeviceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DeviceInfo> GetObjectInfo() { return info_; }
 
     virtual UINT STDMETHODCALLTYPE GetNodeCount();
 
@@ -2227,7 +2227,7 @@ class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DeviceInfo info_;
+    std::shared_ptr<ID3D12DeviceInfo> info_;
 };
 
 class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -2239,9 +2239,9 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
 
     static ID3D12PipelineLibrary_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12PipelineLibraryInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12PipelineLibraryInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12PipelineLibraryInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12PipelineLibraryInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE StorePipeline(
         LPCWSTR pName,
@@ -2271,7 +2271,7 @@ class ID3D12PipelineLibrary_Wrapper : public ID3D12DeviceChild_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12PipelineLibraryInfo info_;
+    std::shared_ptr<ID3D12PipelineLibraryInfo> info_;
 };
 
 class ID3D12PipelineLibrary1_Wrapper : public ID3D12PipelineLibrary_Wrapper
@@ -2370,9 +2370,9 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
 
     static ID3D12ProtectedResourceSession_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12ProtectedResourceSessionInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12ProtectedResourceSessionInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12ProtectedResourceSessionInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12ProtectedResourceSessionInfo> GetObjectInfo() { return info_; }
 
     virtual D3D12_PROTECTED_RESOURCE_SESSION_DESC STDMETHODCALLTYPE GetDesc();
 
@@ -2382,7 +2382,7 @@ class ID3D12ProtectedResourceSession_Wrapper : public ID3D12ProtectedSession_Wra
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12ProtectedResourceSessionInfo info_;
+    std::shared_ptr<ID3D12ProtectedResourceSessionInfo> info_;
 };
 
 class ID3D12Device4_Wrapper : public ID3D12Device3_Wrapper
@@ -2443,9 +2443,9 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
 
     static ID3D12LifetimeOwner_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12LifetimeOwnerInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12LifetimeOwnerInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12LifetimeOwnerInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12LifetimeOwnerInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE LifetimeStateUpdated(
         D3D12_LIFETIME_STATE NewState);
@@ -2456,7 +2456,7 @@ class ID3D12LifetimeOwner_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12LifetimeOwnerInfo info_;
+    std::shared_ptr<ID3D12LifetimeOwnerInfo> info_;
 };
 
 class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
@@ -2468,9 +2468,9 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
 
     static ID3D12SwapChainAssistant_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12SwapChainAssistantInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12SwapChainAssistantInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12SwapChainAssistantInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12SwapChainAssistantInfo> GetObjectInfo() { return info_; }
 
     virtual LUID STDMETHODCALLTYPE GetLUID();
 
@@ -2492,7 +2492,7 @@ class ID3D12SwapChainAssistant_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12SwapChainAssistantInfo info_;
+    std::shared_ptr<ID3D12SwapChainAssistantInfo> info_;
 };
 
 class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
@@ -2504,9 +2504,9 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
 
     static ID3D12LifetimeTracker_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12LifetimeTrackerInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12LifetimeTrackerInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12LifetimeTrackerInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12LifetimeTrackerInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE DestroyOwnedObject(
         ID3D12DeviceChild* pObject);
@@ -2517,7 +2517,7 @@ class ID3D12LifetimeTracker_Wrapper : public ID3D12DeviceChild_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12LifetimeTrackerInfo info_;
+    std::shared_ptr<ID3D12LifetimeTrackerInfo> info_;
 };
 
 class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
@@ -2529,9 +2529,9 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12StateObject_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12StateObjectInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12StateObjectInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12StateObjectInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12StateObjectInfo> GetObjectInfo() { return info_; }
 
   private:
     // Map to prevent creation of more than one interface wrapper per object.
@@ -2539,7 +2539,7 @@ class ID3D12StateObject_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12StateObjectInfo info_;
+    std::shared_ptr<ID3D12StateObjectInfo> info_;
 };
 
 class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
@@ -2551,9 +2551,9 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
 
     static ID3D12StateObjectProperties_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12StateObjectPropertiesInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12StateObjectPropertiesInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12StateObjectPropertiesInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12StateObjectPropertiesInfo> GetObjectInfo() { return info_; }
 
     virtual void* STDMETHODCALLTYPE GetShaderIdentifier(
         LPCWSTR pExportName);
@@ -2572,7 +2572,7 @@ class ID3D12StateObjectProperties_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12StateObjectPropertiesInfo info_;
+    std::shared_ptr<ID3D12StateObjectPropertiesInfo> info_;
 };
 
 class ID3D12Device5_Wrapper : public ID3D12Device4_Wrapper
@@ -2630,9 +2630,9 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DeviceRemovedExtendedDataSettings_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DeviceRemovedExtendedDataSettingsInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DeviceRemovedExtendedDataSettingsInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DeviceRemovedExtendedDataSettingsInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE SetAutoBreadcrumbsEnablement(
         D3D12_DRED_ENABLEMENT Enablement);
@@ -2649,7 +2649,7 @@ class ID3D12DeviceRemovedExtendedDataSettings_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DeviceRemovedExtendedDataSettingsInfo info_;
+    std::shared_ptr<ID3D12DeviceRemovedExtendedDataSettingsInfo> info_;
 };
 
 class ID3D12DeviceRemovedExtendedDataSettings1_Wrapper : public ID3D12DeviceRemovedExtendedDataSettings_Wrapper
@@ -2671,9 +2671,9 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DeviceRemovedExtendedData_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DeviceRemovedExtendedDataInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DeviceRemovedExtendedDataInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DeviceRemovedExtendedDataInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE GetAutoBreadcrumbsOutput(
         D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* pOutput);
@@ -2687,7 +2687,7 @@ class ID3D12DeviceRemovedExtendedData_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DeviceRemovedExtendedDataInfo info_;
+    std::shared_ptr<ID3D12DeviceRemovedExtendedDataInfo> info_;
 };
 
 class ID3D12DeviceRemovedExtendedData1_Wrapper : public ID3D12DeviceRemovedExtendedData_Wrapper
@@ -2840,9 +2840,9 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
 
     static ID3D12MetaCommand_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12MetaCommandInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12MetaCommandInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12MetaCommandInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12MetaCommandInfo> GetObjectInfo() { return info_; }
 
     virtual UINT64 STDMETHODCALLTYPE GetRequiredParameterResourceSize(
         D3D12_META_COMMAND_PARAMETER_STAGE Stage,
@@ -2854,7 +2854,7 @@ class ID3D12MetaCommand_Wrapper : public ID3D12Pageable_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12MetaCommandInfo info_;
+    std::shared_ptr<ID3D12MetaCommandInfo> info_;
 };
 
 class ID3D12GraphicsCommandList4_Wrapper : public ID3D12GraphicsCommandList3_Wrapper
@@ -2912,9 +2912,9 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
 
     static ID3D12Tools_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12ToolsInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12ToolsInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12ToolsInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12ToolsInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE EnableShaderInstrumentation(
         BOOL bEnable);
@@ -2927,7 +2927,7 @@ class ID3D12Tools_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12ToolsInfo info_;
+    std::shared_ptr<ID3D12ToolsInfo> info_;
 };
 
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper
@@ -2971,9 +2971,9 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
 
     static ID3D10Blob_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D10BlobInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D10BlobInfo> GetObjectInfo() const { return info_; }
 
-    ID3D10BlobInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D10BlobInfo> GetObjectInfo() { return info_; }
 
     virtual LPVOID STDMETHODCALLTYPE GetBufferPointer();
 
@@ -2985,7 +2985,7 @@ class ID3D10Blob_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D10BlobInfo info_;
+    std::shared_ptr<ID3D10BlobInfo> info_;
 };
 
 class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
@@ -2997,9 +2997,9 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
 
     static ID3DDestructionNotifier_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3DDestructionNotifierInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3DDestructionNotifierInfo> GetObjectInfo() const { return info_; }
 
-    ID3DDestructionNotifierInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3DDestructionNotifierInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE RegisterDestructionCallback(
         PFN_DESTRUCTION_CALLBACK callbackFn,
@@ -3015,7 +3015,7 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3DDestructionNotifierInfo info_;
+    std::shared_ptr<ID3DDestructionNotifierInfo> info_;
 };
 
 
@@ -3033,9 +3033,9 @@ class ID3D12Debug_Wrapper : public IUnknown_Wrapper
 
     static ID3D12Debug_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE EnableDebugLayer();
 
@@ -3045,7 +3045,7 @@ class ID3D12Debug_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugInfo info_;
+    std::shared_ptr<ID3D12DebugInfo> info_;
 };
 
 class ID3D12Debug1_Wrapper : public IUnknown_Wrapper
@@ -3057,9 +3057,9 @@ class ID3D12Debug1_Wrapper : public IUnknown_Wrapper
 
     static ID3D12Debug1_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12Debug1Info* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12Debug1Info> GetObjectInfo() const { return info_; }
 
-    ID3D12Debug1Info* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12Debug1Info> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE EnableDebugLayer();
 
@@ -3075,7 +3075,7 @@ class ID3D12Debug1_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12Debug1Info info_;
+    std::shared_ptr<ID3D12Debug1Info> info_;
 };
 
 class ID3D12Debug2_Wrapper : public IUnknown_Wrapper
@@ -3087,9 +3087,9 @@ class ID3D12Debug2_Wrapper : public IUnknown_Wrapper
 
     static ID3D12Debug2_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12Debug2Info* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12Debug2Info> GetObjectInfo() const { return info_; }
 
-    ID3D12Debug2Info* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12Debug2Info> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags);
@@ -3100,7 +3100,7 @@ class ID3D12Debug2_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12Debug2Info info_;
+    std::shared_ptr<ID3D12Debug2Info> info_;
 };
 
 class ID3D12Debug3_Wrapper : public ID3D12Debug_Wrapper
@@ -3128,9 +3128,9 @@ class ID3D12DebugDevice1_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DebugDevice1_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugDevice1Info* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugDevice1Info> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugDevice1Info* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugDevice1Info> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE SetDebugParameter(
         D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
@@ -3151,7 +3151,7 @@ class ID3D12DebugDevice1_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugDevice1Info info_;
+    std::shared_ptr<ID3D12DebugDevice1Info> info_;
 };
 
 class ID3D12DebugDevice_Wrapper : public IUnknown_Wrapper
@@ -3163,9 +3163,9 @@ class ID3D12DebugDevice_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DebugDevice_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugDeviceInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugDeviceInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugDeviceInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugDeviceInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE SetFeatureMask(
         D3D12_DEBUG_FEATURE Mask);
@@ -3181,7 +3181,7 @@ class ID3D12DebugDevice_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugDeviceInfo info_;
+    std::shared_ptr<ID3D12DebugDeviceInfo> info_;
 };
 
 class ID3D12DebugDevice2_Wrapper : public ID3D12DebugDevice_Wrapper
@@ -3210,9 +3210,9 @@ class ID3D12DebugCommandQueue_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DebugCommandQueue_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugCommandQueueInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugCommandQueueInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugCommandQueueInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugCommandQueueInfo> GetObjectInfo() { return info_; }
 
     virtual BOOL STDMETHODCALLTYPE AssertResourceState(
         ID3D12Resource* pResource,
@@ -3225,7 +3225,7 @@ class ID3D12DebugCommandQueue_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugCommandQueueInfo info_;
+    std::shared_ptr<ID3D12DebugCommandQueueInfo> info_;
 };
 
 class ID3D12DebugCommandList1_Wrapper : public IUnknown_Wrapper
@@ -3237,9 +3237,9 @@ class ID3D12DebugCommandList1_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DebugCommandList1_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugCommandList1Info* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugCommandList1Info> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugCommandList1Info* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugCommandList1Info> GetObjectInfo() { return info_; }
 
     virtual BOOL STDMETHODCALLTYPE AssertResourceState(
         ID3D12Resource* pResource,
@@ -3262,7 +3262,7 @@ class ID3D12DebugCommandList1_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugCommandList1Info info_;
+    std::shared_ptr<ID3D12DebugCommandList1Info> info_;
 };
 
 class ID3D12DebugCommandList_Wrapper : public IUnknown_Wrapper
@@ -3274,9 +3274,9 @@ class ID3D12DebugCommandList_Wrapper : public IUnknown_Wrapper
 
     static ID3D12DebugCommandList_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12DebugCommandListInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12DebugCommandListInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12DebugCommandListInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12DebugCommandListInfo> GetObjectInfo() { return info_; }
 
     virtual BOOL STDMETHODCALLTYPE AssertResourceState(
         ID3D12Resource* pResource,
@@ -3294,7 +3294,7 @@ class ID3D12DebugCommandList_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12DebugCommandListInfo info_;
+    std::shared_ptr<ID3D12DebugCommandListInfo> info_;
 };
 
 class ID3D12DebugCommandList2_Wrapper : public ID3D12DebugCommandList_Wrapper
@@ -3323,9 +3323,9 @@ class ID3D12SharingContract_Wrapper : public IUnknown_Wrapper
 
     static ID3D12SharingContract_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12SharingContractInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12SharingContractInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12SharingContractInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12SharingContractInfo> GetObjectInfo() { return info_; }
 
     virtual void STDMETHODCALLTYPE Present(
         ID3D12Resource* pResource,
@@ -3348,7 +3348,7 @@ class ID3D12SharingContract_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12SharingContractInfo info_;
+    std::shared_ptr<ID3D12SharingContractInfo> info_;
 };
 
 class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper
@@ -3360,9 +3360,9 @@ class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper
 
     static ID3D12InfoQueue_Wrapper* GetExistingWrapper(IUnknown* object);
 
-    const ID3D12InfoQueueInfo* GetObjectInfo() const { return &info_; }
+    std::shared_ptr<const ID3D12InfoQueueInfo> GetObjectInfo() const { return info_; }
 
-    ID3D12InfoQueueInfo* GetObjectInfo() { return &info_; }
+    std::shared_ptr<ID3D12InfoQueueInfo> GetObjectInfo() { return info_; }
 
     virtual HRESULT STDMETHODCALLTYPE SetMessageCountLimit(
         UINT64 MessageCountLimit);
@@ -3468,7 +3468,7 @@ class ID3D12InfoQueue_Wrapper : public IUnknown_Wrapper
     static ObjectMap  object_map_;
     static std::mutex object_map_lock_;
 
-    ID3D12InfoQueueInfo info_;
+    std::shared_ptr<ID3D12InfoQueueInfo> info_;
 };
 
 

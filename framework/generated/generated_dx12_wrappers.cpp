@@ -538,6 +538,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDeviceSubObject_Wrapper::GetDevice(
 
 IDXGIResource_Wrapper::IDXGIResource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIResourceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -546,6 +548,7 @@ IDXGIResource_Wrapper::~IDXGIResource_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIResource>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIResource_Wrapper* IDXGIResource_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -723,6 +726,8 @@ HRESULT STDMETHODCALLTYPE IDXGIResource_Wrapper::GetEvictionPriority(
 
 IDXGIKeyedMutex_Wrapper::IDXGIKeyedMutex_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIKeyedMutexInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -731,6 +736,7 @@ IDXGIKeyedMutex_Wrapper::~IDXGIKeyedMutex_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIKeyedMutex>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIKeyedMutex_Wrapper* IDXGIKeyedMutex_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -830,6 +836,8 @@ HRESULT STDMETHODCALLTYPE IDXGIKeyedMutex_Wrapper::ReleaseSync(
 
 IDXGISurface_Wrapper::IDXGISurface_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGISurfaceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -838,6 +846,7 @@ IDXGISurface_Wrapper::~IDXGISurface_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGISurface>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGISurface_Wrapper* IDXGISurface_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -1067,6 +1076,8 @@ HRESULT STDMETHODCALLTYPE IDXGISurface1_Wrapper::ReleaseDC(
 
 IDXGIAdapter_Wrapper::IDXGIAdapter_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIAdapterInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -1075,6 +1086,7 @@ IDXGIAdapter_Wrapper::~IDXGIAdapter_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIAdapter>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIAdapter_Wrapper* IDXGIAdapter_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -1227,6 +1239,8 @@ HRESULT STDMETHODCALLTYPE IDXGIAdapter_Wrapper::CheckInterfaceSupport(
 
 IDXGIOutput_Wrapper::IDXGIOutput_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIOutputInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -1235,6 +1249,7 @@ IDXGIOutput_Wrapper::~IDXGIOutput_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIOutput>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIOutput_Wrapper* IDXGIOutput_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -1766,6 +1781,8 @@ HRESULT STDMETHODCALLTYPE IDXGIOutput_Wrapper::GetFrameStatistics(
 
 IDXGISwapChain_Wrapper::IDXGISwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIDeviceSubObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGISwapChainInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -1774,6 +1791,7 @@ IDXGISwapChain_Wrapper::~IDXGISwapChain_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGISwapChain>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGISwapChain_Wrapper* IDXGISwapChain_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -2272,6 +2290,8 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain_Wrapper::GetLastPresentCount(
 
 IDXGIFactory_Wrapper::IDXGIFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIFactoryInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -2280,6 +2300,7 @@ IDXGIFactory_Wrapper::~IDXGIFactory_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIFactory>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIFactory_Wrapper* IDXGIFactory_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -2544,6 +2565,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory_Wrapper::CreateSoftwareAdapter(
 
 IDXGIDevice_Wrapper::IDXGIDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIDeviceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -2552,6 +2575,7 @@ IDXGIDevice_Wrapper::~IDXGIDevice_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIDevice>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIDevice_Wrapper* IDXGIDevice_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -3052,6 +3076,8 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice1_Wrapper::GetMaximumFrameLatency(
 
 IDXGIDisplayControl_Wrapper::IDXGIDisplayControl_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIDisplayControlInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -3060,6 +3086,7 @@ IDXGIDisplayControl_Wrapper::~IDXGIDisplayControl_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIDisplayControl>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIDisplayControl_Wrapper* IDXGIDisplayControl_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -3141,6 +3168,8 @@ void STDMETHODCALLTYPE IDXGIDisplayControl_Wrapper::SetStereoEnabled(
 
 IDXGIOutputDuplication_Wrapper::IDXGIOutputDuplication_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIObject_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIOutputDuplicationInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -3149,6 +3178,7 @@ IDXGIOutputDuplication_Wrapper::~IDXGIOutputDuplication_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIOutputDuplication>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIOutputDuplication_Wrapper* IDXGIOutputDuplication_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -5733,6 +5763,8 @@ UINT STDMETHODCALLTYPE IDXGIFactory3_Wrapper::GetCreationFlags()
 
 IDXGIDecodeSwapChain_Wrapper::IDXGIDecodeSwapChain_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIDecodeSwapChainInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -5741,6 +5773,7 @@ IDXGIDecodeSwapChain_Wrapper::~IDXGIDecodeSwapChain_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIDecodeSwapChain>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIDecodeSwapChain_Wrapper* IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -6146,6 +6179,8 @@ DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS STDMETHODCALLTYPE IDXGIDecodeSwapChain_Wrapp
 
 IDXGIFactoryMedia_Wrapper::IDXGIFactoryMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGIFactoryMediaInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -6154,6 +6189,7 @@ IDXGIFactoryMedia_Wrapper::~IDXGIFactoryMedia_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGIFactoryMedia>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGIFactoryMedia_Wrapper* IDXGIFactoryMedia_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -6311,6 +6347,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactoryMedia_Wrapper::CreateDecodeSwapChainForCom
 
 IDXGISwapChainMedia_Wrapper::IDXGISwapChainMedia_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<IDXGISwapChainMediaInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -6319,6 +6357,7 @@ IDXGISwapChainMedia_Wrapper::~IDXGISwapChainMedia_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<IDXGISwapChainMedia>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 IDXGISwapChainMedia_Wrapper* IDXGISwapChainMedia_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -8551,6 +8590,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceChild_Wrapper::GetDevice(
 
 ID3D12RootSignature_Wrapper::ID3D12RootSignature_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12RootSignatureInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -8559,6 +8600,7 @@ ID3D12RootSignature_Wrapper::~ID3D12RootSignature_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12RootSignature>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12RootSignature_Wrapper* ID3D12RootSignature_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -8568,6 +8610,8 @@ ID3D12RootSignature_Wrapper* ID3D12RootSignature_Wrapper::GetExistingWrapper(IUn
 
 ID3D12RootSignatureDeserializer_Wrapper::ID3D12RootSignatureDeserializer_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12RootSignatureDeserializerInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -8576,6 +8620,7 @@ ID3D12RootSignatureDeserializer_Wrapper::~ID3D12RootSignatureDeserializer_Wrappe
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12RootSignatureDeserializer>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12RootSignatureDeserializer_Wrapper* ID3D12RootSignatureDeserializer_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -8621,6 +8666,8 @@ const D3D12_ROOT_SIGNATURE_DESC* STDMETHODCALLTYPE ID3D12RootSignatureDeserializ
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper::ID3D12VersionedRootSignatureDeserializer_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12VersionedRootSignatureDeserializerInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -8629,6 +8676,7 @@ ID3D12VersionedRootSignatureDeserializer_Wrapper::~ID3D12VersionedRootSignatureD
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12VersionedRootSignatureDeserializer>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12VersionedRootSignatureDeserializer_Wrapper* ID3D12VersionedRootSignatureDeserializer_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -8726,6 +8774,8 @@ ID3D12Pageable_Wrapper::ID3D12Pageable_Wrapper(REFIID riid, IUnknown* object, Dx
 
 ID3D12Heap_Wrapper::ID3D12Heap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12HeapInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -8734,6 +8784,7 @@ ID3D12Heap_Wrapper::~ID3D12Heap_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Heap>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Heap_Wrapper* ID3D12Heap_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -8779,6 +8830,8 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
 
 ID3D12Resource_Wrapper::ID3D12Resource_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12ResourceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -8787,6 +8840,7 @@ ID3D12Resource_Wrapper::~ID3D12Resource_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Resource>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Resource_Wrapper* ID3D12Resource_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9144,6 +9198,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
 
 ID3D12CommandAllocator_Wrapper::ID3D12CommandAllocator_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12CommandAllocatorInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9152,6 +9208,7 @@ ID3D12CommandAllocator_Wrapper::~ID3D12CommandAllocator_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12CommandAllocator>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12CommandAllocator_Wrapper* ID3D12CommandAllocator_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9197,6 +9254,8 @@ HRESULT STDMETHODCALLTYPE ID3D12CommandAllocator_Wrapper::Reset()
 
 ID3D12Fence_Wrapper::ID3D12Fence_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12FenceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9205,6 +9264,7 @@ ID3D12Fence_Wrapper::~ID3D12Fence_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Fence>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Fence_Wrapper* ID3D12Fence_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9380,6 +9440,8 @@ D3D12_FENCE_FLAGS STDMETHODCALLTYPE ID3D12Fence1_Wrapper::GetCreationFlags()
 
 ID3D12PipelineState_Wrapper::ID3D12PipelineState_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12PipelineStateInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9388,6 +9450,7 @@ ID3D12PipelineState_Wrapper::~ID3D12PipelineState_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12PipelineState>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12PipelineState_Wrapper* ID3D12PipelineState_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9444,6 +9507,8 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
 
 ID3D12DescriptorHeap_Wrapper::ID3D12DescriptorHeap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DescriptorHeapInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9452,6 +9517,7 @@ ID3D12DescriptorHeap_Wrapper::~ID3D12DescriptorHeap_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DescriptorHeap>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DescriptorHeap_Wrapper* ID3D12DescriptorHeap_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9573,6 +9639,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
 
 ID3D12QueryHeap_Wrapper::ID3D12QueryHeap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12QueryHeapInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9581,6 +9649,7 @@ ID3D12QueryHeap_Wrapper::~ID3D12QueryHeap_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12QueryHeap>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12QueryHeap_Wrapper* ID3D12QueryHeap_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9590,6 +9659,8 @@ ID3D12QueryHeap_Wrapper* ID3D12QueryHeap_Wrapper::GetExistingWrapper(IUnknown* o
 
 ID3D12CommandSignature_Wrapper::ID3D12CommandSignature_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12CommandSignatureInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9598,6 +9669,7 @@ ID3D12CommandSignature_Wrapper::~ID3D12CommandSignature_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12CommandSignature>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12CommandSignature_Wrapper* ID3D12CommandSignature_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -9647,6 +9719,8 @@ D3D12_COMMAND_LIST_TYPE STDMETHODCALLTYPE ID3D12CommandList_Wrapper::GetType()
 
 ID3D12GraphicsCommandList_Wrapper::ID3D12GraphicsCommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12CommandList_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12GraphicsCommandListInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -9655,6 +9729,7 @@ ID3D12GraphicsCommandList_Wrapper::~ID3D12GraphicsCommandList_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12GraphicsCommandList>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12GraphicsCommandList_Wrapper* ID3D12GraphicsCommandList_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -12516,6 +12591,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
 ID3D12CommandQueue_Wrapper::ID3D12CommandQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12CommandQueueInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -12524,6 +12601,7 @@ ID3D12CommandQueue_Wrapper::~ID3D12CommandQueue_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12CommandQueue>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12CommandQueue_Wrapper* ID3D12CommandQueue_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -13081,6 +13159,8 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
 
 ID3D12Device_Wrapper::ID3D12Device_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Object_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DeviceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -13089,6 +13169,7 @@ ID3D12Device_Wrapper::~ID3D12Device_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Device>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Device_Wrapper* ID3D12Device_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -15233,6 +15314,8 @@ LUID STDMETHODCALLTYPE ID3D12Device_Wrapper::GetAdapterLuid()
 
 ID3D12PipelineLibrary_Wrapper::ID3D12PipelineLibrary_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12PipelineLibraryInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -15241,6 +15324,7 @@ ID3D12PipelineLibrary_Wrapper::~ID3D12PipelineLibrary_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12PipelineLibrary>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12PipelineLibrary_Wrapper* ID3D12PipelineLibrary_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16132,6 +16216,8 @@ D3D12_PROTECTED_SESSION_STATUS STDMETHODCALLTYPE ID3D12ProtectedSession_Wrapper:
 
 ID3D12ProtectedResourceSession_Wrapper::ID3D12ProtectedResourceSession_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12ProtectedSession_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12ProtectedResourceSessionInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16140,6 +16226,7 @@ ID3D12ProtectedResourceSession_Wrapper::~ID3D12ProtectedResourceSession_Wrapper(
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12ProtectedResourceSession>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12ProtectedResourceSession_Wrapper* ID3D12ProtectedResourceSession_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16612,6 +16699,8 @@ D3D12_RESOURCE_ALLOCATION_INFO STDMETHODCALLTYPE ID3D12Device4_Wrapper::GetResou
 
 ID3D12LifetimeOwner_Wrapper::ID3D12LifetimeOwner_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12LifetimeOwnerInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16620,6 +16709,7 @@ ID3D12LifetimeOwner_Wrapper::~ID3D12LifetimeOwner_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12LifetimeOwner>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12LifetimeOwner_Wrapper* ID3D12LifetimeOwner_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16665,6 +16755,8 @@ void STDMETHODCALLTYPE ID3D12LifetimeOwner_Wrapper::LifetimeStateUpdated(
 
 ID3D12SwapChainAssistant_Wrapper::ID3D12SwapChainAssistant_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12SwapChainAssistantInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16673,6 +16765,7 @@ ID3D12SwapChainAssistant_Wrapper::~ID3D12SwapChainAssistant_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12SwapChainAssistant>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12SwapChainAssistant_Wrapper* ID3D12SwapChainAssistant_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16873,6 +16966,8 @@ HRESULT STDMETHODCALLTYPE ID3D12SwapChainAssistant_Wrapper::InsertImplicitSync()
 
 ID3D12LifetimeTracker_Wrapper::ID3D12LifetimeTracker_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceChild_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12LifetimeTrackerInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16881,6 +16976,7 @@ ID3D12LifetimeTracker_Wrapper::~ID3D12LifetimeTracker_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12LifetimeTracker>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12LifetimeTracker_Wrapper* ID3D12LifetimeTracker_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16932,6 +17028,8 @@ HRESULT STDMETHODCALLTYPE ID3D12LifetimeTracker_Wrapper::DestroyOwnedObject(
 
 ID3D12StateObject_Wrapper::ID3D12StateObject_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12StateObjectInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16940,6 +17038,7 @@ ID3D12StateObject_Wrapper::~ID3D12StateObject_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12StateObject>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12StateObject_Wrapper* ID3D12StateObject_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -16949,6 +17048,8 @@ ID3D12StateObject_Wrapper* ID3D12StateObject_Wrapper::GetExistingWrapper(IUnknow
 
 ID3D12StateObjectProperties_Wrapper::ID3D12StateObjectProperties_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12StateObjectPropertiesInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -16957,6 +17058,7 @@ ID3D12StateObjectProperties_Wrapper::~ID3D12StateObjectProperties_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12StateObjectProperties>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12StateObjectProperties_Wrapper* ID3D12StateObjectProperties_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -17557,6 +17659,8 @@ D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS STDMETHODCALLTYPE ID3D12Device5_Wrapper:
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper::ID3D12DeviceRemovedExtendedDataSettings_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DeviceRemovedExtendedDataSettingsInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -17565,6 +17669,7 @@ ID3D12DeviceRemovedExtendedDataSettings_Wrapper::~ID3D12DeviceRemovedExtendedDat
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DeviceRemovedExtendedDataSettings>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DeviceRemovedExtendedDataSettings_Wrapper* ID3D12DeviceRemovedExtendedDataSettings_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -17722,6 +17827,8 @@ void STDMETHODCALLTYPE ID3D12DeviceRemovedExtendedDataSettings1_Wrapper::SetBrea
 
 ID3D12DeviceRemovedExtendedData_Wrapper::ID3D12DeviceRemovedExtendedData_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DeviceRemovedExtendedDataInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -17730,6 +17837,7 @@ ID3D12DeviceRemovedExtendedData_Wrapper::~ID3D12DeviceRemovedExtendedData_Wrappe
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DeviceRemovedExtendedData>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DeviceRemovedExtendedData_Wrapper* ID3D12DeviceRemovedExtendedData_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -18719,6 +18827,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
 ID3D12MetaCommand_Wrapper::ID3D12MetaCommand_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12MetaCommandInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -18727,6 +18837,7 @@ ID3D12MetaCommand_Wrapper::~ID3D12MetaCommand_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12MetaCommand>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12MetaCommand_Wrapper* ID3D12MetaCommand_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19186,6 +19297,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
 
 ID3D12Tools_Wrapper::ID3D12Tools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12ToolsInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19194,6 +19307,7 @@ ID3D12Tools_Wrapper::~ID3D12Tools_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Tools>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Tools_Wrapper* ID3D12Tools_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19415,6 +19529,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
 ID3D10Blob_Wrapper::ID3D10Blob_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D10BlobInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19423,6 +19539,7 @@ ID3D10Blob_Wrapper::~ID3D10Blob_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D10Blob>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D10Blob_Wrapper* ID3D10Blob_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19504,6 +19621,8 @@ SIZE_T STDMETHODCALLTYPE ID3D10Blob_Wrapper::GetBufferSize()
 
 ID3DDestructionNotifier_Wrapper::ID3DDestructionNotifier_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3DDestructionNotifierInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19512,6 +19631,7 @@ ID3DDestructionNotifier_Wrapper::~ID3DDestructionNotifier_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3DDestructionNotifier>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3DDestructionNotifier_Wrapper* ID3DDestructionNotifier_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19623,6 +19743,8 @@ HRESULT STDMETHODCALLTYPE ID3DDestructionNotifier_Wrapper::UnregisterDestruction
 
 ID3D12Debug_Wrapper::ID3D12Debug_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19631,6 +19753,7 @@ ID3D12Debug_Wrapper::~ID3D12Debug_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Debug>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Debug_Wrapper* ID3D12Debug_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19670,6 +19793,8 @@ void STDMETHODCALLTYPE ID3D12Debug_Wrapper::EnableDebugLayer()
 
 ID3D12Debug1_Wrapper::ID3D12Debug1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12Debug1Info>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19678,6 +19803,7 @@ ID3D12Debug1_Wrapper::~ID3D12Debug1_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Debug1>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Debug1_Wrapper* ID3D12Debug1_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19789,6 +19915,8 @@ void STDMETHODCALLTYPE ID3D12Debug1_Wrapper::SetEnableSynchronizedCommandQueueVa
 
 ID3D12Debug2_Wrapper::ID3D12Debug2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12Debug2Info>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19797,6 +19925,7 @@ ID3D12Debug2_Wrapper::~ID3D12Debug2_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12Debug2>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12Debug2_Wrapper* ID3D12Debug2_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -19954,6 +20083,8 @@ void STDMETHODCALLTYPE ID3D12Debug3_Wrapper::SetGPUBasedValidationFlags(
 
 ID3D12DebugDevice1_Wrapper::ID3D12DebugDevice1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugDevice1Info>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -19962,6 +20093,7 @@ ID3D12DebugDevice1_Wrapper::~ID3D12DebugDevice1_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DebugDevice1>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DebugDevice1_Wrapper* ID3D12DebugDevice1_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -20121,6 +20253,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice1_Wrapper::ReportLiveDeviceObjects(
 
 ID3D12DebugDevice_Wrapper::ID3D12DebugDevice_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugDeviceInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -20129,6 +20263,7 @@ ID3D12DebugDevice_Wrapper::~ID3D12DebugDevice_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DebugDevice>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DebugDevice_Wrapper* ID3D12DebugDevice_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -20370,6 +20505,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugDevice2_Wrapper::GetDebugParameter(
 
 ID3D12DebugCommandQueue_Wrapper::ID3D12DebugCommandQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugCommandQueueInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -20378,6 +20515,7 @@ ID3D12DebugCommandQueue_Wrapper::~ID3D12DebugCommandQueue_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DebugCommandQueue>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DebugCommandQueue_Wrapper* ID3D12DebugCommandQueue_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -20441,6 +20579,8 @@ BOOL STDMETHODCALLTYPE ID3D12DebugCommandQueue_Wrapper::AssertResourceState(
 
 ID3D12DebugCommandList1_Wrapper::ID3D12DebugCommandList1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugCommandList1Info>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -20449,6 +20589,7 @@ ID3D12DebugCommandList1_Wrapper::~ID3D12DebugCommandList1_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DebugCommandList1>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DebugCommandList1_Wrapper* ID3D12DebugCommandList1_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -20620,6 +20761,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList1_Wrapper::GetDebugParameter(
 
 ID3D12DebugCommandList_Wrapper::ID3D12DebugCommandList_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12DebugCommandListInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -20628,6 +20771,7 @@ ID3D12DebugCommandList_Wrapper::~ID3D12DebugCommandList_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12DebugCommandList>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12DebugCommandList_Wrapper* ID3D12DebugCommandList_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -20881,6 +21025,8 @@ HRESULT STDMETHODCALLTYPE ID3D12DebugCommandList2_Wrapper::GetDebugParameter(
 
 ID3D12SharingContract_Wrapper::ID3D12SharingContract_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12SharingContractInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -20889,6 +21035,7 @@ ID3D12SharingContract_Wrapper::~ID3D12SharingContract_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12SharingContract>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12SharingContract_Wrapper* ID3D12SharingContract_Wrapper::GetExistingWrapper(IUnknown* object)
@@ -21060,6 +21207,8 @@ void STDMETHODCALLTYPE ID3D12SharingContract_Wrapper::EndCapturableWork(
 
 ID3D12InfoQueue_Wrapper::ID3D12InfoQueue_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
+    info_ = std::make_shared<ID3D12InfoQueueInfo>();
+    info_->SetWrapper(this);
     AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
 }
 
@@ -21068,6 +21217,7 @@ ID3D12InfoQueue_Wrapper::~ID3D12InfoQueue_Wrapper()
     CustomWrapperDestroyCall(this);
     RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12InfoQueue>(), object_map_, object_map_lock_);
     D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
 }
 
 ID3D12InfoQueue_Wrapper* ID3D12InfoQueue_Wrapper::GetExistingWrapper(IUnknown* object)

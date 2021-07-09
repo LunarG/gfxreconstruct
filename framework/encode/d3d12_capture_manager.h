@@ -123,10 +123,28 @@ class D3D12CaptureManager : public CaptureManager
 
     void EndCreateApiCallCapture(HRESULT result, REFIID riid, void** handle);
 
-    void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, format::HandleId create_call_object_id);
+    template <typename ParentWrapper>
+    void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
+    {
+        if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
+        {
+            if ((handle != nullptr) && (*handle != nullptr))
+            {
+                assert(state_tracker_ != nullptr);
+
+                auto thread_data = GetThreadData();
+                assert(thread_data != nullptr);
+
+                state_tracker_->AddEntry(
+                    riid, handle, thread_data->call_id_, create_object_wrapper, thread_data->parameter_buffer_.get());
+            }
+        }
+
+        EndMethodCallCapture();
+    }
 
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
-                                              format::HandleId            create_call_object_id);
+                                              ID3D12Device_Wrapper*       create_object_wrapper);
 
     void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 

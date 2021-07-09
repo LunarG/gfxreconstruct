@@ -216,11 +216,11 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
 
             # Object info "getters"
             expr += '\n'
-            expr += indent + 'const {}Info* GetObjectInfo() const'.format(name)
-            expr += ' { return &info_; }\n'
+            expr += indent + 'std::shared_ptr<const {}Info> GetObjectInfo() const'.format(name)
+            expr += ' { return info_; }\n'
             expr += '\n'
-            expr += indent + '{}Info* GetObjectInfo()'.format(name)
-            expr += ' { return &info_; }\n'
+            expr += indent + 'std::shared_ptr<{}Info> GetObjectInfo()'.format(name)
+            expr += ' { return info_; }\n'
 
         # Public methods
         for method in methods:
@@ -248,7 +248,7 @@ class Dx12WrapperHeaderGenerator(Dx12BaseGenerator):
             expr += indent + 'static ObjectMap  object_map_;\n'
             expr += indent + 'static std::mutex object_map_lock_;\n'
             expr += '\n'
-            expr += indent + '{}Info info_;\n'.format(name)
+            expr += indent + 'std::shared_ptr<{}Info> info_;\n'.format(name)
 
         # End class declaration
         indent = self.decrement_indent(indent)

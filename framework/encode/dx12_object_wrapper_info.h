@@ -37,25 +37,49 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+struct IUnknown_Wrapper;
 class ID3D12Device_Wrapper;
 class ID3D12Resource_Wrapper;
 
 struct DxWrapperInfo
 {
+    void SetWrapper(const IUnknown_Wrapper* wrapper)
+    {
+        // Either the current wrapper or the incoming wrapper must be nullptr, but not both. I.e., wrapper_ is either
+        // being set or cleared.
+        assert((wrapper_ != wrapper) && ((wrapper == nullptr) || (wrapper_ == nullptr)));
+        wrapper_ = wrapper;
+    }
+
+    const IUnknown_Wrapper* GetWrapper() const { return wrapper_; }
+
     format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    format::HandleId                          create_call_object_id{ format::kNullHandleId };
-    std::shared_ptr<util::MemoryOutputStream> create_parameters{ nullptr };
+    std::unique_ptr<util::MemoryOutputStream> create_parameters;
+
+    // Info for the object that created this object (if any).
+    format::HandleId                     create_object_id{ format::kNullHandleId };
+    std::shared_ptr<const DxWrapperInfo> create_object_info;
+
+  private:
+    // A pointer to the wrapper that owns/created this info struct, or nullptr if the wrapper no longer exists.
+    const IUnknown_Wrapper* wrapper_ = nullptr;
 };
 
-struct MappedSubresource : public DxWrapperInfo
+// MappedSubresources are contained by ID3D12ResourceInfo.
+struct MappedSubresource
 {
     void*     data{ nullptr };
     uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
 };
 
-struct DxDescriptorInfo : public DxWrapperInfo
+// DxDescriptorInfos are contained by DxDescriptorHeapInfo.
+struct DxDescriptorInfo
 {
+    format::HandleId                          create_object_id{ format::kNullHandleId };
+    format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    std::unique_ptr<util::MemoryOutputStream> create_parameters;
+
     size_t           cpu_address{ 0 };
     uint64_t         gpu_address{ 0 };
     format::HandleId heap_id{ format::kNullHandleId };

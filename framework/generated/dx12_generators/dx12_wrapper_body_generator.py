@@ -542,6 +542,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         if is_map_class:
             indent = self.increment_indent(indent)
+            expr += indent + 'info_ = std::make_shared<{}Info>();\n'.format(class_name)
+            expr += indent + 'info_->SetWrapper(this);\n'
             expr += indent + 'AddWrapperMapEntry(object, this, object_map_,'\
                 ' object_map_lock_);\n'
             indent = self.decrement_indent(indent)
@@ -559,6 +561,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + 'RemoveWrapperMapEntry(GetWrappedObjectAs<{}>(),'\
                 ' object_map_, object_map_lock_);\n'.format(class_name)
             expr += indent + 'D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);\n'
+            expr += indent + 'info_->SetWrapper(nullptr);\n'
             indent = self.decrement_indent(indent)
             expr += indent + '}\n'
 

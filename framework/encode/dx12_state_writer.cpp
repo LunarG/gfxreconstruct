@@ -42,6 +42,10 @@ Dx12StateWriter::~Dx12StateWriter() {}
 
 void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t frame_number)
 {
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+    written_objects_.clear();
+#endif
+
     format::Marker marker;
     marker.header.size  = sizeof(marker.marker_type) + sizeof(marker.frame_number);
     marker.header.type  = format::kStateMarkerBlock;
@@ -128,6 +132,49 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
+}
+
+void Dx12StateWriter::StandardCreateWrite(format::HandleId object_id, const DxWrapperInfo& wrapper_info)
+{
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+    // Check that each object is created only once.
+    assert(written_objects_.find(object_id) == written_objects_.end());
+#endif
+
+    if (wrapper_info.create_object_id == format::kNullHandleId)
+    {
+        WriteFunctionCall(wrapper_info.create_call_id, wrapper_info.create_parameters.get());
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+        written_objects_.insert(object_id);
+#endif
+    }
+    else
+    {
+        bool create_temp_object_dependency = ((wrapper_info.create_object_info != nullptr) &&
+                                              (wrapper_info.create_object_info->GetWrapper() == nullptr));
+
+        // Write a create call for the parent object if its wrapper has been destroyed.
+        if (create_temp_object_dependency)
+        {
+            StandardCreateWrite(wrapper_info.create_object_id, *wrapper_info.create_object_info.get());
+        }
+
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+        // Check that the parent object has been created.
+        assert(written_objects_.find(wrapper_info.create_object_id) != written_objects_.end());
+#endif
+        WriteMethodCall(
+            wrapper_info.create_call_id, wrapper_info.create_object_id, wrapper_info.create_parameters.get());
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+        written_objects_.insert(object_id);
+#endif
+
+        // Release any temporarily created parent object.
+        if (create_temp_object_dependency)
+        {
+            WriteReleaseCommand(wrapper_info.create_object_id, 0);
+        }
+    }
 }
 
 void Dx12StateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer)
@@ -284,7 +331,7 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
 
         WriteMethodCall(
-            wrapper_info->create_call_id, wrapper_info->create_call_object_id, wrapper_info->create_parameters.get());
+            wrapper_info->create_call_id, wrapper_info->create_object_id, wrapper_info->create_parameters.get());
 
         WriteAddRefAndReleaseCommands(wrapper);
     });
@@ -329,8 +376,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         const auto& heap_desc = heap->GetDesc();
 
         // Write heap creation call.
-        WriteMethodCall(
-            heap_info->create_call_id, heap_info->create_call_object_id, heap_info->create_parameters.get());
+        WriteMethodCall(heap_info->create_call_id, heap_info->create_object_id, heap_info->create_parameters.get());
 
         WriteAddRefAndReleaseCommands(heap_wrapper);
 
@@ -362,7 +408,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         encoder_.EncodeEnumValue(heap_desc.Type);
         encoder_.EncodeUInt32Value(S_OK);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
-                        heap_info->create_call_object_id,
+                        heap_info->create_object_id,
                         &parameter_stream_);
         parameter_stream_.Reset();
 
@@ -373,7 +419,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             if (descriptor_info.create_parameters != nullptr)
             {
                 WriteMethodCall(descriptor_info.create_call_id,
-                                descriptor_info.create_call_object_id,
+                                descriptor_info.create_object_id,
                                 descriptor_info.create_parameters.get());
             }
         }
@@ -407,6 +453,14 @@ void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned l
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, handle_id, &parameter_stream_);
     parameter_stream_.Reset();
+
+#if GFXRECON_DEBUG_WRITTEN_OBJECTS
+    if (result_ref_count == 0)
+    {
+        // If this object is needed again, it will need to be re-created in the capture file.
+        written_objects_.erase(handle_id);
+    }
+#endif
 }
 
 void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
@@ -425,12 +479,11 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         auto        resource_info = resource_wrapper->GetObjectInfo();
         const auto& resource_desc = resource->GetDesc();
 
-        assert(resource_info->create_call_object_id != format::kNullHandleId);
+        assert(resource_info->create_object_id != format::kNullHandleId);
 
         // Write the resource creation call to capture file.
-        WriteMethodCall(resource_info->create_call_id,
-                        resource_info->create_call_object_id,
-                        resource_info->create_parameters.get());
+        WriteMethodCall(
+            resource_info->create_call_id, resource_info->create_object_id, resource_info->create_parameters.get());
         WriteAddRefAndReleaseCommands(resource_wrapper);
 
         // Write call to get GPU address for buffers.
@@ -506,9 +559,9 @@ HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snaps
 {
     HRESULT result = S_OK;
 
-    ID3D12Resource_Wrapper* resource_wrapper = snapshot.resource_wrapper;
-    ID3D12ResourceInfo*     resource_info    = resource_wrapper->GetObjectInfo();
-    ID3D12Resource*         resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
+    auto resource_wrapper = snapshot.resource_wrapper;
+    auto resource_info    = resource_wrapper->GetObjectInfo();
+    auto resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
 
     // TODO (GH #83): Create a mappable copy of resources that are not CPU-visible.
     ID3D12Resource* mappable_resource = resource;
@@ -636,11 +689,10 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         auto fence_info = fence_wrapper->GetObjectInfo();
 
         assert(fence_info->create_parameters != nullptr);
-        assert(fence_info->create_call_object_id != format::kNullHandleId);
+        assert(fence_info->create_object_id != format::kNullHandleId);
 
         // Write call to create the fence.
-        WriteMethodCall(
-            fence_info->create_call_id, fence_info->create_call_object_id, fence_info->create_parameters.get());
+        WriteMethodCall(fence_info->create_call_id, fence_info->create_object_id, fence_info->create_parameters.get());
         WriteAddRefAndReleaseCommands(fence_wrapper);
 
         UINT64 completed_fence_value = fence->GetCompletedValue();
@@ -691,13 +743,12 @@ void Dx12StateWriter::WriteGraphicsCommandListState(const Dx12StateTable& state_
         auto list_info = list_wrapper->GetObjectInfo();
 
         assert(list_info->create_parameters != nullptr);
-        assert(list_info->create_call_object_id != format::kNullHandleId);
+        assert(list_info->create_object_id != format::kNullHandleId);
 
         auto list = list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList>();
 
         // Write call to create the command list.
-        WriteMethodCall(
-            list_info->create_call_id, list_info->create_call_object_id, list_info->create_parameters.get());
+        WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
         WriteAddRefAndReleaseCommands(list_wrapper);
 
         // Write bundle command list commands and keep track of primary command lists.

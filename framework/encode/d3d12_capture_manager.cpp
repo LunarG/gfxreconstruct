@@ -71,37 +71,15 @@ void D3D12CaptureManager::EndCreateApiCallCapture(HRESULT result, REFIID riid, v
             assert(thread_data != nullptr);
 
             state_tracker_->AddEntry(
-                riid, handle, thread_data->call_id_, format::kNullHandleId, thread_data->parameter_buffer_.get());
+                riid, handle, thread_data->call_id_, static_cast<void*>(nullptr), thread_data->parameter_buffer_.get());
         }
     }
 
     EndApiCallCapture();
 }
 
-void D3D12CaptureManager::EndCreateMethodCallCapture(HRESULT          result,
-                                                     REFIID           riid,
-                                                     void**           handle,
-                                                     format::HandleId create_call_object_id)
-{
-    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && SUCCEEDED(result))
-    {
-        if ((handle != nullptr) && (*handle != nullptr))
-        {
-            assert(state_tracker_ != nullptr);
-
-            auto thread_data = GetThreadData();
-            assert(thread_data != nullptr);
-
-            state_tracker_->AddEntry(
-                riid, handle, thread_data->call_id_, create_call_object_id, thread_data->parameter_buffer_.get());
-        }
-    }
-
-    EndMethodCallCapture();
-}
-
 void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
-                                                               format::HandleId            create_call_object_id)
+                                                               ID3D12Device_Wrapper*       create_object_wrapper)
 {
     if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (dest_descriptor.ptr != 0))
     {
@@ -109,10 +87,10 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
         assert(thread_data != nullptr);
 
         // Store creation data with descriptor info struct.
-        DxDescriptorInfo* descriptor_info      = GetDescriptorInfo(dest_descriptor.ptr);
-        descriptor_info->create_call_id        = thread_data->call_id_;
-        descriptor_info->create_call_object_id = create_call_object_id;
-        descriptor_info->create_parameters     = std::make_shared<util::MemoryOutputStream>(
+        DxDescriptorInfo* descriptor_info  = GetDescriptorInfo(dest_descriptor.ptr);
+        descriptor_info->create_object_id  = create_object_wrapper->GetCaptureId();
+        descriptor_info->create_call_id    = thread_data->call_id_;
+        descriptor_info->create_parameters = std::make_unique<util::MemoryOutputStream>(
             thread_data->parameter_buffer_->GetData(), thread_data->parameter_buffer_->GetDataSize());
     }
 

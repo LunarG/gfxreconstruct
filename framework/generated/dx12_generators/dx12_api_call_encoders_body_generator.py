@@ -43,13 +43,31 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         self.check_blacklist = True
         self.structs_with_wrap_objects = []
 
-    def generate_feature(self):
-        Dx12ApiCallEncodersHeaderGenerator.generate_feature(self)
+        # Unique set of names of all defined classes.
+        self.class_names = []
+        # Unique set of names of all class names specified as base classes.
+        self.class_parent_names = []
 
+    def generate_feature(self):
         header_dict = self.source_dict['header_dict']
         self.structs_with_wrap_objects = self.collect_struct_with_objects(
             header_dict
         )
+        for k, v in header_dict.items():
+            for class_name, class_value in v.classes.items():
+                if self.is_required_class_data(class_value)\
+                   and (class_value['name'] != 'IUnknown'):
+                    # Track class names
+                    if class_name not in self.class_names:
+                        self.class_names.append(class_name)
+
+                    # Track names of classes inherited from
+                    for entry in class_value['inherits']:
+                        decl_name = entry['decl_name']
+                        if decl_name not in self.class_parent_names:
+                            self.class_parent_names.append(decl_name)
+
+        Dx12ApiCallEncodersHeaderGenerator.generate_feature(self)
 
     def write_include(self):
         """Methond override."""
@@ -301,13 +319,22 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 create_object_tuple[0], create_object_tuple[1]
             )
             if class_name:
-                end_call_args += ', wrapper->GetCaptureId()'
+                # Check that the calling class is a wrapper type that contains object info. Some wrapper types (e.g., IDXGIObject_Wrapper)
+                # do not contain object infos because they are base class interfaces for final types.
+                # TODO (GH #83): Is it possible these intermediate object types also need to have wrapper infos?
+                class_family_names = self.get_class_family_names(class_name)
+                first_class = class_family_names[0]
+                is_map_class = self.is_map_class(first_class)
+                if is_map_class:
+                    end_call_args += ', wrapper'
+                else:
+                    end_call_args += ', static_cast<void*>(nullptr)'
         elif is_descriptor_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'CreateDescriptor'
             end_call_args = '{}'.format(descriptor_creation_param_name)
             if class_name:
-                end_call_args += ', wrapper->GetCaptureId()'
+                end_call_args += ', wrapper'
         elif is_command_list_call:
             begin_call_type = 'Tracked'
             end_call_type = 'CommandList'
@@ -408,3 +435,48 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 in descriptor_creation_types) and (value.pointer_count == 0):
                 return value.name
         return None
+
+    # Get the names of the final classes in the DX class hierarchies.
+    def get_final_class_names(self):
+        final_class_names = []
+
+        for name in self.class_names:
+            if name not in self.class_parent_names:
+                final_class_names.append(name)
+
+        return final_class_names
+
+    def get_class_family_names(self, final_class_name):
+        base_name = final_class_name
+        final_number = ''
+
+        # Get the number from the end of the class name.  Start from the
+        # back of the string and advance forward until a non-digit character
+        # is encountered.
+        if (not final_class_name
+            in self.NOT_FAMILY_CLASSES) and (final_class_name[-1].isdigit()):
+            for i in range(len(final_class_name) - 1, -1, -1):
+                if not final_class_name[i].isdigit():
+                    base_name = final_class_name[:i + 1]
+                    final_number = final_class_name[i + 1:]
+                    break
+
+        class_family_names = [base_name]
+        if final_number:
+            # Generate with class numbers in ascending order, from 1 to n.
+            for i in range(1, int(final_number) + 1):
+                class_family_names.append(base_name + str(i))
+
+        return class_family_names
+
+    # Determine if the specified class should contain a map of object pointers to wrapper pointers.
+    def is_map_class(self, name):
+        map_classes = []
+        final_class_names = self.get_final_class_names()
+
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            first_class = class_family_names[0]
+            map_classes.append(first_class)
+
+        return name in map_classes

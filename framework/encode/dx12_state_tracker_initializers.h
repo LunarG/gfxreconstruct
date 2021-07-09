@@ -33,22 +33,49 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(dx12_state_tracker)
 
-// TODO (GH #83): Add D3D12 trimming support, initialize custom state tracking objects.
-
-template <typename Wrapper>
-void InitializeState(Wrapper*                                  wrapper,
-                     format::ApiCallId                         create_call_id,
-                     format::HandleId                          create_call_object_id,
-                     std::shared_ptr<util::MemoryOutputStream> create_parameters)
+// InitializeState for Method calls.
+template <typename Wrapper, typename ParentWrapper>
+void InitializeState(Wrapper*                        wrapper,
+                     format::ApiCallId               create_call_id,
+                     ParentWrapper*                  create_object_wrapper,
+                     const util::MemoryOutputStream* create_parameters)
 {
     assert(wrapper != nullptr);
+    assert(wrapper->GetObjectInfo() != nullptr);
     assert(create_parameters != nullptr);
+    assert(create_object_wrapper != nullptr);
+    assert(create_object_wrapper->GetCaptureId() != format::kNullHandleId);
+    assert(create_object_wrapper->GetObjectInfo() != nullptr);
 
     auto wrapper_info = wrapper->GetObjectInfo();
 
-    wrapper_info->create_call_id        = create_call_id;
-    wrapper_info->create_call_object_id = create_call_object_id;
-    wrapper_info->create_parameters     = std::move(create_parameters);
+    wrapper_info->create_call_id = create_call_id;
+    wrapper_info->create_parameters =
+        std::make_unique<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+
+    wrapper_info->create_object_id   = create_object_wrapper->GetCaptureId();
+    wrapper_info->create_object_info = create_object_wrapper->GetObjectInfo();
+}
+
+// InitializeState for API calls.
+template <typename Wrapper>
+void InitializeState(Wrapper*                        wrapper,
+                     format::ApiCallId               create_call_id,
+                     void*                           create_object_wrapper,
+                     const util::MemoryOutputStream* create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+    assert(create_object_wrapper == nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    wrapper_info->create_call_id = create_call_id;
+    wrapper_info->create_parameters =
+        std::make_unique<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+
+    wrapper_info->create_object_id   = format::kNullHandleId;
+    wrapper_info->create_object_info = nullptr;
 }
 
 GFXRECON_END_NAMESPACE(dx12_state_tracker)
