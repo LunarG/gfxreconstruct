@@ -47,6 +47,8 @@ class VulkanConsumerBase
 
     virtual ~VulkanConsumerBase() {}
 
+    virtual void WaitDevicesIdle() {}
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}

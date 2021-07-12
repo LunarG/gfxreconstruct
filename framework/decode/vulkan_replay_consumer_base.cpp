@@ -164,15 +164,16 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
                              create_surface_count_);
     }
 
-    // Idle all devices before destroying other resources, and cleanup screenshot resources before destroying device.
+    // Idle all devices before destroying other resources.
+    WaitDevicesIdle();
+
+    // Cleanup screenshot resources before destroying device.
     object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
 
         auto device_table = GetDeviceTable(device);
         assert(device_table != nullptr);
-
-        device_table->DeviceWaitIdle(device);
 
         if (screenshot_handler_ != nullptr)
         {
@@ -200,6 +201,19 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     {
         graphics::ReleaseLoader(loader_handle_);
     }
+}
+
+void VulkanReplayConsumerBase::WaitDevicesIdle()
+{
+    object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
+        assert(info != nullptr);
+        VkDevice device = info->handle;
+
+        auto device_table = GetDeviceTable(device);
+        assert(device_table != nullptr);
+
+        device_table->DeviceWaitIdle(device);
+    });
 }
 
 void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)

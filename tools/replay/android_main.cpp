@@ -44,6 +44,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -118,13 +119,26 @@ void android_main(struct android_app* app)
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);
+                std::pair<uint32_t, uint32_t> measurement_frame_range = GetMeasurementFrameRange(arg_parser);
+                gfxrecon::graphics::FpsInfo   fps_info(static_cast<uint64_t>(measurement_frame_range.first),
+                                                     static_cast<uint64_t>(measurement_frame_range.second),
+                                                     replay_options.quit_after_measurement_frame_range,
+                                                     replay_options.flush_measurement_frame_range);
+
 
                 // Start the application in the paused state, preventing replay from starting before the app
                 // gained focus event is received.
                 application->SetPaused(true);
 
                 app->userData = application.get();
+                application->SetFpsInfo(&fps_info);
                 application->Run();
+
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                {
+                    fps_info.WriteMeasurementRangeFpsToConsole();
+                }
             }
         }
         catch (std::runtime_error error)
