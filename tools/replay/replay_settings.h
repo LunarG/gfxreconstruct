@@ -42,6 +42,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 #ifndef GFXRECON_REPLAY_SETTINGS_H
 #define GFXRECON_REPLAY_SETTINGS_H
@@ -75,11 +76,16 @@ const char kScreenshotRangeArgument[]          = "--screenshots";
 const char kScreenshotFormatArgument[]         = "--screenshot-format";
 const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
+const char kMeasurementRangeArgument[]         = "--measurement-frame-range";
+const char kQuitAfterMeasurementRangeOption[]  = "--quit-after-measurement-range";
+const char kFlushMeasurementRangeOption[]      = "--flush-measurement-range";
 
 const char kOptions[] = "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-"
-                        "allocations,--opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all";
+                        "allocations,--opcd|--omit-pipeline-cache-data,--remove-unsupported,--screenshot-all,"
+                        "--qamr|--quit-after-measurement-range,--fmr|--flush-measurement-range";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
-                          "replace-shaders,--screenshots,--screenshot-format,--screenshot-dir,--screenshot-prefix";
+                          "replace-shaders,--screenshots,--screenshot-format,--screenshot-dir,--screenshot-prefix,"
+                          "--mfr|--measurement-frame-range";
 
 enum class WsiPlatform
 {
@@ -502,6 +508,89 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
+static std::pair<uint32_t, uint32_t> GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    std::pair<uint32_t, uint32_t> measurement_frame_range(1, std::numeric_limits<uint32_t>::max());
+
+    const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
+    if (!value.empty())
+    {
+        std::string range = value;
+
+        if (std::count(range.begin(), range.end(), '-') != 1)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                range.c_str());
+            return measurement_frame_range;
+        }
+
+        // Remove whitespace.
+        range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+
+        // Split string on '-' delimiter.
+        bool                     invalid = false;
+        std::vector<std::string> values;
+        std::istringstream       range_input;
+        range_input.str(range);
+
+        for (std::string token; std::getline(range_input, token, '-');)
+        {
+            if (token.empty())
+            {
+                break;
+            }
+
+            // Check that the range string only contains numbers.
+            size_t count = std::count_if(token.begin(), token.end(), ::isdigit);
+            if (count == token.length())
+            {
+                values.push_back(token);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
+                    range.c_str());
+                invalid = true;
+                break;
+            }
+        }
+
+        if (values.size() < 2)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", does not have two values.",
+                                 range.c_str());
+
+            invalid = true;
+        }
+
+        if (!invalid)
+        {
+            uint32_t start_frame = std::stoi(values[0]);
+            uint32_t end_frame   = std::stoi(values[1]);
+
+            if (start_frame >= end_frame)
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
+                                     "greater than or equal to the last frame",
+                                     range.c_str());
+
+                return measurement_frame_range;
+            }
+
+            measurement_frame_range.first  = start_frame;
+            measurement_frame_range.second = end_frame;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\".", range.c_str());
+        }
+    }
+
+    return measurement_frame_range;
+}
+
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
                                const std::string&                              filename,
@@ -555,6 +644,16 @@ GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
     if (arg_parser.IsOptionSet(kRemoveUnsupportedOption))
     {
         replay_options.remove_unsupported_features = true;
+    }
+
+    if (arg_parser.IsOptionSet(kQuitAfterMeasurementRangeOption))
+    {
+        replay_options.quit_after_measurement_frame_range = true;
+    }
+
+    if (arg_parser.IsOptionSet(kFlushMeasurementRangeOption))
+    {
+        replay_options.flush_measurement_frame_range = true;
     }
 
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
@@ -654,6 +753,21 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
+    GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
+    GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe measurement frame range defaults to all frames except the loading");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe but can be configured for any range. If the end frame is past the");
+    GFXRECON_WRITE_CONSOLE("          \t\tlast frame in the trace it will be clamped to the frame after the last");
+    GFXRECON_WRITE_CONSOLE("          \t\t(so in that case the results would include the last frame).");
+    GFXRECON_WRITE_CONSOLE("  --quit-after-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will abort");
+    GFXRECON_WRITE_CONSOLE("          \t\twhen it reaches the <end_frame> specified in");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe --measurement-frame-range argument.");
+    GFXRECON_WRITE_CONSOLE("  --flush-measurement-range");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf this is specified the replayer will flush")
+    GFXRECON_WRITE_CONSOLE("          \t\tand wait for all current GPU work to finish at the");
+    GFXRECON_WRITE_CONSOLE("          \t\tstart and end of the measurement range.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices.  Replay may fail");

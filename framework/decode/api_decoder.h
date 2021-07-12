@@ -45,6 +45,8 @@ class ApiDecoder
   public:
     virtual ~ApiDecoder() {}
 
+    virtual void WaitIdle() = 0;
+
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
     virtual void DecodeFunctionCall(format::ApiCallId  id,

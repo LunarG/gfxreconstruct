@@ -44,6 +44,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -116,9 +117,10 @@ void android_main(struct android_app* app)
                 else
                 {
                     gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                    gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                        window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                    gfxrecon::decode::VulkanDecoder decoder;
+                    gfxrecon::decode::ReplayOptions                replay_options =
+                        GetReplayOptions(arg_parser, filename, &tracked_object_info_table);
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(), replay_options);
+                    gfxrecon::decode::VulkanDecoder        decoder;
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
@@ -126,6 +128,12 @@ void android_main(struct android_app* app)
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
                     application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+                    std::pair<uint32_t, uint32_t> measurement_frame_range = GetMeasurementFrameRange(arg_parser);
+                    gfxrecon::graphics::FpsInfo   fps_info(static_cast<uint64_t>(measurement_frame_range.first),
+                                                         static_cast<uint64_t>(measurement_frame_range.second),
+                                                         replay_options.quit_after_measurement_frame_range,
+                                                         replay_options.flush_measurement_frame_range);
 
                     // Warn if the capture layer is active.
                     CheckActiveLayers(kLayerProperty);
@@ -135,7 +143,14 @@ void android_main(struct android_app* app)
                     application->SetPaused(true);
 
                     app->userData = application.get();
+                    application->SetFpsInfo(&fps_info);
                     application->Run();
+
+                    if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                        (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                    {
+                        fps_info.WriteMeasurementRangeFpsToConsole();
+                    }
                 }
             }
         }

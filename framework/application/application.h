@@ -27,9 +27,12 @@
 #include "decode/file_processor.h"
 #include "decode/window.h"
 #include "util/defines.h"
+#include "util/date_time.h"
+#include "graphics/fps_info.h"
 
 #include <string>
 #include <vector>
+#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -61,6 +64,8 @@ class Application
 
     bool UnregisterWindow(decode::Window* window);
 
+    void SetFpsInfo(graphics::FpsInfo* fps_info);
+
     virtual void ProcessEvents(bool wait_for_input) = 0;
 
   protected:
@@ -70,16 +75,17 @@ class Application
 
   private:
     // clang-format off
-    std::vector<decode::Window*> windows_;          ///< List of windows that have been registered with the application.
-    decode::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
-                                                    ///< capture file data.
-    bool                         running_;          ///< Indicates that the application is actively processing system
-                                                    ///< events for playback.
-    bool                         paused_;           ///< Indicates that the playback has been paused.  When paused the
-                                                    ///< application will stop rendering, but will continue processing
-                                                    ///< system events.
-    std::string                  name_;             ///< Application name to display in window title bar.
-    uint32_t                     pause_frame_;      ///< The number for a frame that replay should pause after.
+    std::vector<decode::Window*> windows_;                  ///< List of windows that have been registered with the application.
+    decode::FileProcessor*       file_processor_;           ///< The FileProcessor object responsible for decoding and processing
+    graphics::FpsInfo*           fps_info_;                 ///< A optional FPS info object that logs the FPS across a configured framerange.
+                                                            ///< capture file data.
+    bool                         running_;                  ///< Indicates that the application is actively processing system
+                                                            ///< events for playback.
+    bool                         paused_;                   ///< Indicates that the playback has been paused.  When paused the
+                                                            ///< application will stop rendering, but will continue processing
+                                                            ///< system events.
+    std::string                  name_;                     ///< Application name to display in window title bar.
+    uint32_t                     pause_frame_;              ///< The number for a frame that replay should pause after.
     // clang-format on
 };
 

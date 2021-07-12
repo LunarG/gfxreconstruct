@@ -44,7 +44,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries = 16;
+const size_t kMaxEventStatusRetries      = 16;
 const size_t kMaxQueryPoolResultsRetries = 16;
 
 const int32_t  kDefaultWindowPositionX = 0;
@@ -162,15 +162,16 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
                              create_surface_count_);
     }
 
-    // Idle all devices before destroying other resources, and cleanup screenshot resources before destroying device.
+    // Idle all devices before destroying other resources.
+    WaitDevicesIdle();
+
+    // Cleanup screenshot resources before destroying device.
     object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
         assert(info != nullptr);
         VkDevice device = info->handle;
 
         auto device_table = GetDeviceTable(device);
         assert(device_table != nullptr);
-
-        device_table->DeviceWaitIdle(device);
 
         if (screenshot_handler_ != nullptr)
         {
@@ -195,6 +196,19 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     {
         graphics::ReleaseLoader(loader_handle_);
     }
+}
+
+void VulkanReplayConsumerBase::WaitDevicesIdle()
+{
+    object_info_table_.VisitDeviceInfo([this](const DeviceInfo* info) {
+        assert(info != nullptr);
+        VkDevice device = info->handle;
+
+        auto device_table = GetDeviceTable(device);
+        assert(device_table != nullptr);
+
+        device_table->DeviceWaitIdle(device);
+    });
 }
 
 void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
@@ -2991,8 +3005,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     assert((device_info != nullptr) && (event_info != nullptr));
 
     VkResult result;
-    VkDevice device = device_info->handle;
-    VkEvent  event  = event_info->handle;
+    VkDevice device  = device_info->handle;
+    VkEvent  event   = event_info->handle;
     size_t   retries = 0;
 
     do
