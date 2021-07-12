@@ -110,6 +110,18 @@ WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool au
     return const_cast<WsiContext*>(wsi_context);
 }
 
+void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
+{
+    if (file_processor_ == nullptr)
+    {
+        GFXRECON_LOG_WARNING("Application file processor not set, cannot set FpsInfo object.");
+        return;
+    }
+
+    fps_info->SetFileProcessor(file_processor_);
+    fps_info_ = fps_info;
+}
+
 void Application::Run()
 {
     running_ = true;
@@ -121,6 +133,18 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
+
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->HandleMeasurementRange();
+
+                if (fps_info_->ShouldQuit())
+                {
+                    running_ = false;
+                    break;
+                }
+            }
+
             PlaySingleFrame();
         }
     }

@@ -25,6 +25,7 @@
 #define GFXRECON_GRAPHICS_FPS_INFO_H
 
 #include "util/defines.h"
+#include "decode/file_processor.h"
 
 #include <limits>
 
@@ -34,15 +35,31 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class FpsInfo
 {
   public:
-    void Begin(uint64_t start_frame = 1);
-    void EndAndLog(uint64_t current_frame);
+    FpsInfo(uint64_t measurement_start_frame = 1,
+            uint64_t measurement_end_frame   = std::numeric_limits<uint64_t>::max(),
+            bool     quit_after_range        = false,
+            bool     flush_measurement_range = false);
+
+    void SetFileProcessor(gfxrecon::decode::FileProcessor* file_processor);
+
+    void HandleMeasurementRange();
+    void WriteMeasurementRangeFpsToConsole();
 
     void ProcessStateEndMarker(uint64_t frame);
 
+    bool ShouldQuit();
+
   private:
-    int64_t  start_time_;
-    uint64_t replay_start_frame_;
-    int64_t  replay_start_time_;
+    gfxrecon::decode::FileProcessor* file_processor_;
+
+    uint64_t measurement_start_frame_;
+    uint64_t measurement_end_frame_;
+
+    int64_t measurement_start_time_;
+    int64_t measurement_end_time_;
+
+    bool quit_after_range_;
+    bool flush_measurement_range_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

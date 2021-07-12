@@ -47,6 +47,8 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                         skip_failed_allocations{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };
+    bool                         quit_after_measurement_frame_range{ false };
+    bool                         flush_measurement_frame_range{ false };
     int32_t                      override_gpu_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;

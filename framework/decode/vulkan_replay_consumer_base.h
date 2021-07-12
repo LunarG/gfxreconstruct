@@ -76,6 +76,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
+    virtual void WaitDevicesIdle() override;
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
