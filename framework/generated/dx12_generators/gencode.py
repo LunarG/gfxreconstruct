@@ -50,6 +50,7 @@ from dx12_struct_wrapper_header_generator import Dx12StructWrapperHeaderGenerato
 from dx12_struct_wrapper_body_generator import Dx12StructWrapperBodyGenerator
 from dx12_convert_to_texts_header_generator import Dx12ConvertToTextsHeaderGenerator
 from dx12_add_entries_header_generator import Dx12AddEntriesHeaderGenerator
+from dx12_state_table_header_generator import Dx12StateTableHeaderGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -483,6 +484,22 @@ def make_gen_opts(args):
             protect_feature=False
         )
     ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_state_table_header_generator.py'
+    )
+    gen_opts['generated_dx12_state_table.h'] = [
+        Dx12StateTableHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_state_table.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
 
 def gen_target(args, source_dict):
     """Generate a target based on the options in the matching gen_opts{} object.

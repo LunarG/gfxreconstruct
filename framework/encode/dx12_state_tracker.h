@@ -23,9 +23,9 @@
 #ifndef GFXRECON_ENCODE_DX12_STATE_TRACKER_H
 #define GFXRECON_ENCODE_DX12_STATE_TRACKER_H
 
-#include "encode/dx12_state_table.h"
 #include "encode/dx12_state_tracker_initializers.h"
 #include "encode/dx12_state_writer.h"
+#include "generated/generated_dx12_state_table.h"
 #include "generated/generated_dx12_wrapper_creators.h"
 #include "generated/generated_dx12_add_entries.h"
 #include "util/defines.h"

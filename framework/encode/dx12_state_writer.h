@@ -23,13 +23,13 @@
 #ifndef GFXRECON_ENCODE_DX12_STATE_WRITER_H
 #define GFXRECON_ENCODE_DX12_STATE_WRITER_H
 
-#include "encode/dx12_state_table.h"
 #include "encode/parameter_encoder.h"
 #include "format/format.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
+#include "generated/generated_dx12_state_table.h"
 
 // TODO (GH #83): Remove this debug code when trimming is complete and stable.
 #define GFXRECON_DEBUG_WRITTEN_OBJECTS 1
