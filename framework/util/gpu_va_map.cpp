@@ -72,7 +72,7 @@ bool GpuVaMap::Add(ID3D12Resource*           resource,
     const D3D12_GPU_VIRTUAL_ADDRESS capture_range_start{ capture_gpu_va & kZeroPageBitsMask };
     const GpuVaRange                capture_range{
         /* start */ capture_range_start,
-        /* end */ (capture_range_start + desc->Width) & kZeroPageBitsMask,
+        /* end */ (capture_range_start + desc->Width - 1) & kZeroPageBitsMask,
     };
     D3D12_GPU_VIRTUAL_ADDRESS replay_page = (replay_gpu_va & kZeroPageBitsMask);
     bool                      ret_status  = true;
