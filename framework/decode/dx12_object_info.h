@@ -25,6 +25,7 @@
 
 #include "decode/window.h"
 #include "format/format.h"
+#include "graphics/dx12_util.h"
 #include "util/defines.h"
 
 #include <d3d12.h>
@@ -45,9 +46,6 @@ constexpr size_t   kNullCpuAddress = 0;
 constexpr uint64_t kNullGpuAddress = 0;
 
 typedef std::array<UINT, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DescriptorIncrements;
-
-typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>> ID3D12DevicePtr;
-typedef _com_ptr_t<_com_IIID<ID3D12Fence, &__uuidof(ID3D12Fence)>>   ID3D12FencePtr;
 
 enum class DxObjectInfoType : uint32_t
 {
@@ -126,10 +124,10 @@ struct D3D12CommandQueueInfo : DxObjectExtraInfo
 
     std::deque<QueueSyncEventInfo> pending_events;
 
-    ID3D12FencePtr sync_fence;
-    uint64_t       sync_value{ 0 };
-    DxObjectInfo   sync_fence_info;
-    HANDLE         sync_event{ nullptr };
+    graphics::dx12::ID3D12FenceComPtr sync_fence;
+    uint64_t                          sync_value{ 0 };
+    DxObjectInfo                      sync_fence_info;
+    HANDLE                            sync_event{ nullptr };
 };
 
 struct D3D12DeviceInfo : DxObjectExtraInfo

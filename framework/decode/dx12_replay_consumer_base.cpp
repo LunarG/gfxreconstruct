@@ -1477,10 +1477,10 @@ void Dx12ReplayConsumerBase::WaitIdle()
                     {
                         // Create a temporary fence to wait on the object.
                         // Get the parent device, create a fence, and wait on queue operations to complete.
-                        ID3D12DevicePtr device;
+                        graphics::dx12::ID3D12DeviceComPtr device;
                         if (SUCCEEDED(queue->GetDevice(IID_PPV_ARGS(&device))))
                         {
-                            ID3D12FencePtr fence;
+                            graphics::dx12::ID3D12FenceComPtr fence;
                             if (SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
                             {
                                 queue->Signal(fence, 1);
