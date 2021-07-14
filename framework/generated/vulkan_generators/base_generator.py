@@ -1064,14 +1064,17 @@ class BaseGenerator(OutputGenerator):
 
         if return_type != 'void':
             if dx12_method:
-                return_value = self.get_return_value_info(
-                    'returnValue', return_type
-                )
+                return_value = self.get_return_value_info(return_type)
                 rtn_type1 = self.make_decoded_param_type(return_value)
                 if rtn_type1.find('Decoder') != -1:
                     rtn_type1 += '*'
                 param_decl = self.make_aligned_param_decl(
-                    rtn_type1, 'returnValue', self.INDENT_SIZE,
+                    rtn_type1, 'return_value', self.INDENT_SIZE,
+                    self.genOpts.align_func_param
+                )
+            elif self.is_dx12_class():
+                param_decl = self.make_aligned_param_decl(
+                    return_type, 'return_value', self.INDENT_SIZE,
                     self.genOpts.align_func_param
                 )
             else:

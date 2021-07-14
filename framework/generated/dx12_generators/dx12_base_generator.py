@@ -168,7 +168,7 @@ class Dx12BaseGenerator(BaseGenerator):
                 rtn += t
         return rtn
 
-    def get_return_value_info(self, param_name, param_type):
+    def get_return_value_info(self, param_type):
         base_type = ''
         full_type = param_type
         const = False
@@ -200,7 +200,7 @@ class Dx12BaseGenerator(BaseGenerator):
             pointer += replace_with.count('*')
 
         return ValueInfo(
-            name=param_name,
+            name='return_value',
             base_type=base_type,
             full_type=full_type,
             pointer_count=pointer,

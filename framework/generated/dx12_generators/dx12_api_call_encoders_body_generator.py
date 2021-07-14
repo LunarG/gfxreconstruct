@@ -315,7 +315,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if is_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'Create'
-            end_call_args = 'result, {}, {}'.format(
+            end_call_args = 'return_value, {}, {}'.format(
                 create_object_tuple[0], create_object_tuple[1]
             )
             if class_name:
@@ -357,7 +357,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
         if is_result:
             body += '        bool omit_output_data = false;\n'\
-                    '        if (result != S_OK)\n'\
+                    '        if (return_value != S_OK)\n'\
                     '        {\n'\
                     '            omit_output_data = true;\n'\
                     '        }\n'
@@ -369,7 +369,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_parameter = {}
-            rtn_parameter['name'] = 'result'
+            rtn_parameter['name'] = 'return_value'
             rtn_parameter['type'] = rtn_type
 
             encode = self.get_encode_parameter(rtn_parameter, False, is_result)

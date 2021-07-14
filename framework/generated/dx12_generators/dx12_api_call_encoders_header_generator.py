@@ -139,7 +139,7 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
 
             if class_name:
                 parameters += ',\n'
-            parameters += '    ' + rtn_types1 + ' result'
+            parameters += '    ' + rtn_types1 + ' return_value'
             if rtn_types1 == 'HRESULT':
                 is_result = True
 

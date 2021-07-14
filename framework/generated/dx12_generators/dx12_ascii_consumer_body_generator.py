@@ -69,9 +69,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         code += '    oss << "{}(\\n    /* ";\n\n'.format(method_info['name'])
 
         if return_type.find('void ') == -1 or return_type.find('void *') != -1:
-            return_value = self.get_return_value_info(
-                'returnValue', return_type
-            )
+            return_value = self.get_return_value_info(return_type)
             code += '    oss << "return = " ;\n'
             code += self.add_argument(
                 return_value, '    ', '                ', True

@@ -6870,7 +6870,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded__SECURITY_ATTRIBUT
 **
 */
 void Dx12AsciiConsumer::Process_CreateDXGIFactory(
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
 {
@@ -6878,7 +6878,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
     oss << "CreateDXGIFactory(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -6897,7 +6897,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
 
 
 void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
 {
@@ -6905,7 +6905,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
     oss << "CreateDXGIFactory1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -6925,7 +6925,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
 
 void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID Name,
         UINT DataSize,
         PointerDecoder<uint8_t>* pData)
@@ -6935,7 +6935,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -6958,7 +6958,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
 
 void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID Name,
         format::HandleId pUnknown)
 {
@@ -6967,7 +6967,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -6984,7 +6984,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
 
 void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID Name,
         PointerDecoder<UINT>* pDataSize,
         PointerDecoder<uint8_t>* pData)
@@ -6994,7 +6994,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7020,7 +7020,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
 
 void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppParent)
 {
@@ -7029,7 +7029,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
     oss << "GetParent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7049,7 +7049,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
 
 void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppDevice)
 {
@@ -7058,7 +7058,7 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7078,7 +7078,7 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pSharedHandle)
 {
     std::ostringstream oss;
@@ -7086,7 +7086,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
     oss << "GetSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7103,7 +7103,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<DXGI_USAGE>* pUsage)
 {
     std::ostringstream oss;
@@ -7111,7 +7111,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
     oss << "GetUsage(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7128,7 +7128,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
 
 void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT EvictionPriority)
 {
     std::ostringstream oss;
@@ -7136,7 +7136,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
     oss << "SetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7150,7 +7150,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
 
 void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pEvictionPriority)
 {
     std::ostringstream oss;
@@ -7158,7 +7158,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
     oss << "GetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7175,7 +7175,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
 
 void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 Key,
         DWORD dwMilliseconds)
 {
@@ -7184,7 +7184,7 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     oss << "AcquireSync(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7201,7 +7201,7 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
 
 void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 Key)
 {
     std::ostringstream oss;
@@ -7209,7 +7209,7 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     oss << "ReleaseSync(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7223,7 +7223,7 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
 
 void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
 {
     std::ostringstream oss;
@@ -7231,7 +7231,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7248,7 +7248,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
 
 void Dx12AsciiConsumer::Process_IDXGISurface_Map(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
         UINT MapFlags)
 {
@@ -7257,7 +7257,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7277,14 +7277,14 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
 
 void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGISurface_id" << object_id << "->";
     oss << "Unmap(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -7295,7 +7295,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
 
 void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         BOOL Discard,
         PointerDecoder<uint64_t, void*>* phdc)
 {
@@ -7304,7 +7304,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
     oss << "GetDC(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7324,7 +7324,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
 
 void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
 {
     std::ostringstream oss;
@@ -7332,7 +7332,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
     oss << "ReleaseDC(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7349,7 +7349,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Output,
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
@@ -7358,7 +7358,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
     oss << "EnumOutputs(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7378,7 +7378,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
 {
     std::ostringstream oss;
@@ -7386,7 +7386,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7403,7 +7403,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID InterfaceName,
         StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
@@ -7412,7 +7412,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     oss << "CheckInterfaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7432,7 +7432,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
 {
     std::ostringstream oss;
@@ -7440,7 +7440,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7457,7 +7457,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_FORMAT EnumFormat,
         UINT Flags,
         PointerDecoder<UINT>* pNumModes,
@@ -7468,7 +7468,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
     oss << "GetDisplayModeList(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7497,7 +7497,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
         format::HandleId pConcernedDevice)
@@ -7507,7 +7507,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     oss << "FindClosestMatchingMode(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7533,14 +7533,14 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIOutput_id" << object_id << "->";
     oss << "WaitForVBlank(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -7551,7 +7551,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         BOOL Exclusive)
 {
@@ -7560,7 +7560,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
     oss << "TakeOwnership(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7590,7 +7590,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_ReleaseOwnership(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
 {
     std::ostringstream oss;
@@ -7598,7 +7598,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     oss << "GetGammaControlCapabilities(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7615,7 +7615,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     std::ostringstream oss;
@@ -7623,7 +7623,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
     oss << "SetGammaControl(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7640,7 +7640,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     std::ostringstream oss;
@@ -7648,7 +7648,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
     oss << "GetGammaControl(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7665,7 +7665,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pScanoutSurface)
 {
     std::ostringstream oss;
@@ -7673,7 +7673,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
     oss << "SetDisplaySurface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7687,7 +7687,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDestination)
 {
     std::ostringstream oss;
@@ -7695,7 +7695,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     oss << "GetDisplaySurfaceData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7709,7 +7709,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     std::ostringstream oss;
@@ -7717,7 +7717,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7734,7 +7734,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT SyncInterval,
         UINT Flags)
 {
@@ -7743,7 +7743,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
     oss << "Present(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7760,7 +7760,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Buffer,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSurface)
@@ -7770,7 +7770,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
     oss << "GetBuffer(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7793,7 +7793,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         BOOL Fullscreen,
         format::HandleId pTarget)
 {
@@ -7802,7 +7802,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
     oss << "SetFullscreenState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7819,7 +7819,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<BOOL>* pFullscreen,
         HandlePointerDecoder<IDXGIOutput*>* ppTarget)
 {
@@ -7828,7 +7828,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
     oss << "GetFullscreenState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7851,7 +7851,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
 {
     std::ostringstream oss;
@@ -7859,7 +7859,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7876,7 +7876,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT BufferCount,
         UINT Width,
         UINT Height,
@@ -7888,7 +7888,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
     oss << "ResizeBuffers(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7914,7 +7914,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
 {
     std::ostringstream oss;
@@ -7922,7 +7922,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
     oss << "ResizeTarget(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7939,7 +7939,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
     std::ostringstream oss;
@@ -7947,7 +7947,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
     oss << "GetContainingOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7964,7 +7964,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     std::ostringstream oss;
@@ -7972,7 +7972,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -7989,7 +7989,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pLastPresentCount)
 {
     std::ostringstream oss;
@@ -7997,7 +7997,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     oss << "GetLastPresentCount(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8014,7 +8014,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Adapter,
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
@@ -8023,7 +8023,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
     oss << "EnumAdapters(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8043,7 +8043,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t WindowHandle,
         UINT Flags)
 {
@@ -8052,7 +8052,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     oss << "MakeWindowAssociation(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8069,7 +8069,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pWindowHandle)
 {
     std::ostringstream oss;
@@ -8077,7 +8077,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
     oss << "GetWindowAssociation(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8094,7 +8094,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
         HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
@@ -8104,7 +8104,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
     oss << "CreateSwapChain(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8130,7 +8130,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t Module,
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
@@ -8139,7 +8139,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     oss << "CreateSoftwareAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8159,7 +8159,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
 {
     std::ostringstream oss;
@@ -8167,7 +8167,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
     oss << "GetAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8184,7 +8184,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
         UINT NumSurfaces,
         DXGI_USAGE Usage,
@@ -8196,7 +8196,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
     oss << "CreateSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8231,7 +8231,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<IUnknown*>* ppResources,
         PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
         UINT NumResources)
@@ -8241,7 +8241,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
     oss << "QueryResourceResidency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8267,7 +8267,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         INT Priority)
 {
     std::ostringstream oss;
@@ -8275,7 +8275,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     oss << "SetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8289,7 +8289,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<INT>* pPriority)
 {
     std::ostringstream oss;
@@ -8297,7 +8297,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     oss << "GetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8314,7 +8314,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Adapter,
         HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
 {
@@ -8323,7 +8323,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
     oss << "EnumAdapters1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8343,14 +8343,14 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory1_IsCurrent(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIFactory1_id" << object_id << "->";
     oss << "IsCurrent(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8361,7 +8361,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_IsCurrent(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
 {
     std::ostringstream oss;
@@ -8369,7 +8369,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8386,7 +8386,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT MaxLatency)
 {
     std::ostringstream oss;
@@ -8394,7 +8394,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8408,7 +8408,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pMaxLatency)
 {
     std::ostringstream oss;
@@ -8416,7 +8416,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8437,14 +8437,14 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
 */
 void Dx12AsciiConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIDisplayControl_id" << object_id << "->";
     oss << "IsStereoEnabled(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8492,7 +8492,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetDesc(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT TimeoutInMilliseconds,
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
         HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
@@ -8502,7 +8502,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     oss << "AcquireNextFrame(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8528,7 +8528,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT DirtyRectsBufferSize,
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
         PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
@@ -8538,7 +8538,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     oss << "GetFrameDirtyRects(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8564,7 +8564,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT MoveRectsBufferSize,
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
         PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
@@ -8574,7 +8574,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     oss << "GetFrameMoveRects(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8600,7 +8600,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT PointerShapeBufferSize,
         PointerDecoder<uint8_t>* pPointerShapeBuffer,
         PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
@@ -8611,7 +8611,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     oss << "GetFramePointerShape(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8643,7 +8643,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
 {
     std::ostringstream oss;
@@ -8651,7 +8651,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     oss << "MapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8668,14 +8668,14 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIOutputDuplication_id" << object_id << "->";
     oss << "UnMapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8686,14 +8686,14 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
 
 void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIOutputDuplication_id" << object_id << "->";
     oss << "ReleaseFrame(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -8704,7 +8704,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
 
 void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppParentResource,
         PointerDecoder<UINT>* pSubresourceIndex)
@@ -8714,7 +8714,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
     oss << "GetResource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8740,7 +8740,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
 
 void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT index,
         HandlePointerDecoder<IDXGISurface2*>* ppSurface)
 {
@@ -8749,7 +8749,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     oss << "CreateSubresourceSurface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8769,7 +8769,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
 
 void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
@@ -8780,7 +8780,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8812,7 +8812,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumResources,
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         DXGI_OFFER_RESOURCE_PRIORITY Priority)
@@ -8822,7 +8822,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
     oss << "OfferResources(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8845,7 +8845,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumResources,
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         PointerDecoder<BOOL>* pDiscarded)
@@ -8855,7 +8855,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
     oss << "ReclaimResources(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8881,7 +8881,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent)
 {
     std::ostringstream oss;
@@ -8889,7 +8889,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     oss << "EnqueueSetEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8903,7 +8903,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
 {
     std::ostringstream oss;
@@ -8911,7 +8911,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8928,7 +8928,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
 {
     std::ostringstream oss;
@@ -8936,7 +8936,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     oss << "GetFullscreenDesc(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8953,7 +8953,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint64_t, void*>* pHwnd)
 {
     std::ostringstream oss;
@@ -8961,7 +8961,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
     oss << "GetHwnd(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -8978,7 +8978,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID refiid,
         HandlePointerDecoder<void*>* ppUnk)
 {
@@ -8987,7 +8987,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     oss << "GetCoreWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9007,7 +9007,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT SyncInterval,
         UINT PresentFlags,
         StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
@@ -9017,7 +9017,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
     oss << "Present1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9040,14 +9040,14 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "IDXGISwapChain1_id" << object_id << "->";
     oss << "IsTemporaryMonoSupported(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9058,7 +9058,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
 {
     std::ostringstream oss;
@@ -9066,7 +9066,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     oss << "GetRestrictToOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9083,7 +9083,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     std::ostringstream oss;
@@ -9091,7 +9091,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     oss << "SetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9108,7 +9108,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     std::ostringstream oss;
@@ -9116,7 +9116,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     oss << "GetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9133,7 +9133,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_MODE_ROTATION Rotation)
 {
     std::ostringstream oss;
@@ -9141,7 +9141,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
     oss << "SetRotation(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9155,7 +9155,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
 {
     std::ostringstream oss;
@@ -9163,7 +9163,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
     oss << "GetRotation(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9180,14 +9180,14 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIFactory2_id" << object_id << "->";
     oss << "IsWindowedStereoEnabled(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9198,7 +9198,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         uint64_t hWnd,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -9211,7 +9211,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     oss << "CreateSwapChainForHwnd(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9249,7 +9249,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         format::HandleId pWindow,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -9261,7 +9261,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     oss << "CreateSwapChainForCoreWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9293,7 +9293,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hResource,
         StructPointerDecoder<Decoded_LUID>* pLuid)
 {
@@ -9302,7 +9302,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     oss << "GetSharedResourceAdapterLuid(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9322,7 +9322,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t WindowHandle,
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie)
@@ -9332,7 +9332,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     oss << "RegisterStereoStatusWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9355,7 +9355,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
@@ -9364,7 +9364,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     oss << "RegisterStereoStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9401,7 +9401,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t WindowHandle,
         UINT wMsg,
         PointerDecoder<DWORD>* pdwCookie)
@@ -9411,7 +9411,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     oss << "RegisterOcclusionStatusWindow(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9434,7 +9434,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
@@ -9443,7 +9443,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     oss << "RegisterOcclusionStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9480,7 +9480,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
         format::HandleId pRestrictToOutput,
@@ -9491,7 +9491,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     oss << "CreateSwapChainForComposition(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9520,7 +9520,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
 {
     std::ostringstream oss;
@@ -9528,7 +9528,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
     oss << "GetDesc2(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9545,7 +9545,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_FORMAT EnumFormat,
         UINT Flags,
         PointerDecoder<UINT>* pNumModes,
@@ -9556,7 +9556,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     oss << "GetDisplayModeList1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9585,7 +9585,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
         format::HandleId pConcernedDevice)
@@ -9595,7 +9595,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     oss << "FindClosestMatchingMode1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9621,7 +9621,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDestination)
 {
     std::ostringstream oss;
@@ -9629,7 +9629,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     oss << "GetDisplaySurfaceData1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9643,7 +9643,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
@@ -9652,7 +9652,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
     oss << "DuplicateOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9675,7 +9675,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
 **
 */
 void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Flags,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFactory)
@@ -9684,7 +9684,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
     oss << "CreateDXGIFactory2(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9706,7 +9706,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
 
 
 void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Flags,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* pDebug)
@@ -9715,7 +9715,7 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
     oss << "DXGIGetDebugInterface1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9751,7 +9751,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice3_Trim(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Width,
         UINT Height)
 {
@@ -9760,7 +9760,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
     oss << "SetSourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9777,7 +9777,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pWidth,
         PointerDecoder<UINT>* pHeight)
 {
@@ -9786,7 +9786,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
     oss << "GetSourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9809,7 +9809,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT MaxLatency)
 {
     std::ostringstream oss;
@@ -9817,7 +9817,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9831,7 +9831,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pMaxLatency)
 {
     std::ostringstream oss;
@@ -9839,7 +9839,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9856,14 +9856,14 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         format::HandleId object_id,
-        uint64_t returnValue)
+        uint64_t return_value)
 {
     std::ostringstream oss;
     oss << "IDXGISwapChain2_id" << object_id << "->";
     oss << "GetFrameLatencyWaitableObject(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9874,7 +9874,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     std::ostringstream oss;
@@ -9882,7 +9882,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     oss << "SetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9899,7 +9899,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     std::ostringstream oss;
@@ -9907,7 +9907,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     oss << "GetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9924,14 +9924,14 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput2_SupportsOverlays(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIOutput2_id" << object_id << "->";
     oss << "SupportsOverlays(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9942,14 +9942,14 @@ void Dx12AsciiConsumer::Process_IDXGIOutput2_SupportsOverlays(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
         format::HandleId object_id,
-        UINT returnValue)
+        UINT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIFactory3_id" << object_id << "->";
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9960,7 +9960,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT BufferToPresent,
         UINT SyncInterval,
         UINT Flags)
@@ -9970,7 +9970,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     oss << "PresentBuffer(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -9990,7 +9990,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
@@ -9998,7 +9998,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     oss << "SetSourceRect(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10015,7 +10015,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
@@ -10023,7 +10023,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     oss << "SetTargetRect(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10040,7 +10040,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Width,
         UINT Height)
 {
@@ -10049,7 +10049,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     oss << "SetDestSize(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10066,7 +10066,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
@@ -10074,7 +10074,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     oss << "GetSourceRect(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10091,7 +10091,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
@@ -10099,7 +10099,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     oss << "GetTargetRect(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10116,7 +10116,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pWidth,
         PointerDecoder<UINT>* pHeight)
 {
@@ -10125,7 +10125,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     oss << "GetDestSize(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10148,7 +10148,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
 {
     std::ostringstream oss;
@@ -10156,7 +10156,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     oss << "SetColorSpace(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10170,14 +10170,14 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
 
 void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
         format::HandleId object_id,
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS returnValue)
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
 {
     std::ostringstream oss;
     oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
     oss << "GetColorSpace(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10188,7 +10188,7 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
 
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -10200,7 +10200,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
     oss << "CreateSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10232,7 +10232,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
 
 void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         uint64_t hSurface,
         StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
@@ -10245,7 +10245,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
     oss << "CreateDecodeSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10280,7 +10280,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
 {
     std::ostringstream oss;
@@ -10288,7 +10288,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     oss << "GetFrameStatisticsMedia(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10305,7 +10305,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Duration)
 {
     std::ostringstream oss;
@@ -10313,7 +10313,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     oss << "SetPresentDuration(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10327,7 +10327,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT DesiredPresentDuration,
         PointerDecoder<UINT>* pClosestSmallerPresentDuration,
         PointerDecoder<UINT>* pClosestLargerPresentDuration)
@@ -10337,7 +10337,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
     oss << "CheckPresentDurationSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10363,7 +10363,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_FORMAT EnumFormat,
         format::HandleId pConcernedDevice,
         PointerDecoder<UINT>* pFlags)
@@ -10373,7 +10373,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     oss << "CheckOverlaySupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10400,14 +10400,14 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
 */
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
         format::HandleId object_id,
-        UINT returnValue)
+        UINT return_value)
 {
     std::ostringstream oss;
     oss << "IDXGISwapChain3_id" << object_id << "->";
     oss << "GetCurrentBackBufferIndex(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10418,7 +10418,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_COLOR_SPACE_TYPE ColorSpace,
         PointerDecoder<UINT>* pColorSpaceSupport)
 {
@@ -10427,7 +10427,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     oss << "CheckColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10447,7 +10447,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_COLOR_SPACE_TYPE ColorSpace)
 {
     std::ostringstream oss;
@@ -10455,7 +10455,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     oss << "SetColorSpace1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10469,7 +10469,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT BufferCount,
         UINT Width,
         UINT Height,
@@ -10483,7 +10483,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     oss << "ResizeBuffers1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10521,7 +10521,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_FORMAT Format,
         DXGI_COLOR_SPACE_TYPE ColorSpace,
         format::HandleId pConcernedDevice,
@@ -10532,7 +10532,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     oss << "CheckOverlayColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10558,7 +10558,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_LUID AdapterLuid,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvAdapter)
@@ -10568,7 +10568,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     oss << "EnumAdapterByLuid(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10591,7 +10591,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvAdapter)
 {
@@ -10600,7 +10600,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     oss << "EnumWarpAdapter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10620,7 +10620,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
@@ -10629,7 +10629,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
     oss << "RegisterHardwareContentProtectionTeardownStatusEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10666,7 +10666,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectio
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NodeIndex,
         DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
         StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
@@ -10676,7 +10676,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     oss << "QueryVideoMemoryInfo(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10699,7 +10699,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NodeIndex,
         DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
         UINT64 Reservation)
@@ -10709,7 +10709,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     oss << "SetVideoMemoryReservation(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10729,7 +10729,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
@@ -10738,7 +10738,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
     oss << "RegisterVideoMemoryBudgetChangeNotificationEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10779,7 +10779,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
 */
 void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pDevice,
         UINT Flags,
         UINT SupportedFormatsCount,
@@ -10791,7 +10791,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     oss << "DuplicateOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10823,7 +10823,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
 
 void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DXGI_HDR_METADATA_TYPE Type,
         UINT Size,
         PointerDecoder<uint8_t>* pMetaData)
@@ -10833,7 +10833,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     oss << "SetHDRMetaData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10856,7 +10856,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumResources,
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         DXGI_OFFER_RESOURCE_PRIORITY Priority,
@@ -10867,7 +10867,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
     oss << "OfferResources1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10893,7 +10893,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
 
 void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumResources,
         HandlePointerDecoder<IDXGIResource*>* ppResources,
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
@@ -10903,7 +10903,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
     oss << "ReclaimResources1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10932,13 +10932,13 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
 **
 */
 void Dx12AsciiConsumer::Process_DXGIDeclareAdapterRemovalSupport(
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "DXGIDeclareAdapterRemovalSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -10949,7 +10949,7 @@ void Dx12AsciiConsumer::Process_DXGIDeclareAdapterRemovalSupport(
 
 void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
 {
     std::ostringstream oss;
@@ -10957,7 +10957,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
     oss << "GetDesc3(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10974,7 +10974,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
 {
     std::ostringstream oss;
@@ -10982,7 +10982,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -10999,7 +10999,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
 
 void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pFlags)
 {
     std::ostringstream oss;
@@ -11007,7 +11007,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     oss << "CheckHardwareCompositionSupport(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11024,7 +11024,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Adapter,
         DXGI_GPU_PREFERENCE GpuPreference,
         Decoded_GUID riid,
@@ -11035,7 +11035,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     oss << "EnumAdapterByGpuPreference(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11061,7 +11061,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hEvent,
         PointerDecoder<DWORD>* pdwCookie)
 {
@@ -11070,7 +11070,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     oss << "RegisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11090,7 +11090,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
 
 void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         DWORD dwCookie)
 {
     std::ostringstream oss;
@@ -11098,7 +11098,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     oss << "UnregisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11115,7 +11115,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 **
 */
 void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* pRootSignature,
         D3D_ROOT_SIGNATURE_VERSION Version,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob,
@@ -11125,7 +11125,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
     oss << "D3D12SerializeRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11156,7 +11156,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
 
 
 void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint8_t>* pSrcData,
         SIZE_T SrcDataSizeInBytes,
         Decoded_GUID pRootSignatureDeserializerInterface,
@@ -11166,7 +11166,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
     oss << "D3D12CreateRootSignatureDeserializer(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11194,7 +11194,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
 
 
 void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob,
         HandlePointerDecoder<ID3D10Blob*>* ppErrorBlob)
@@ -11203,7 +11203,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
     oss << "D3D12SerializeVersionedRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11231,7 +11231,7 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
 
 
 void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint8_t>* pSrcData,
         SIZE_T SrcDataSizeInBytes,
         Decoded_GUID pRootSignatureDeserializerInterface,
@@ -11241,7 +11241,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     oss << "D3D12CreateVersionedRootSignatureDeserializer(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11269,7 +11269,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
 
 
 void Dx12AsciiConsumer::Process_D3D12CreateDevice(
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pAdapter,
         D3D_FEATURE_LEVEL MinimumFeatureLevel,
         Decoded_GUID riid,
@@ -11279,7 +11279,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
     oss << "D3D12CreateDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11304,7 +11304,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
 
 
 void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDebug)
 {
@@ -11312,7 +11312,7 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
     oss << "D3D12GetDebugInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11331,7 +11331,7 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
 
 
 void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumFeatures,
         StructPointerDecoder<Decoded_GUID>* pIIDs,
         PointerDecoder<uint8_t>* pConfigurationStructs,
@@ -11341,7 +11341,7 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
     oss << "D3D12EnableExperimentalFeatures(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11373,7 +11373,7 @@ void Dx12AsciiConsumer::Process_D3D12EnableExperimentalFeatures(
 
 void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID guid,
         PointerDecoder<UINT>* pDataSize,
         PointerDecoder<uint8_t>* pData)
@@ -11383,7 +11383,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11409,7 +11409,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID guid,
         UINT DataSize,
         PointerDecoder<uint8_t>* pData)
@@ -11419,7 +11419,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11442,7 +11442,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID guid,
         format::HandleId pData)
 {
@@ -11451,7 +11451,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11468,7 +11468,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
 
 void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* Name)
 {
     std::ostringstream oss;
@@ -11476,7 +11476,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
     oss << "SetName(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11493,7 +11493,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDevice)
 {
@@ -11502,7 +11502,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11522,16 +11522,16 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
 
 void Dx12AsciiConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
         format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* returnValue)
+        StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12RootSignatureDeserializer_id" << object_id << "->";
     oss << "GetRootSignatureDesc(\n    /* ";
 
     oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, returnValue, "                ", false))
+    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
     {
-        WriteStructString(oss, returnValue->GetMetaStructPointer(), "                ", true, false);
+        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
     }
     oss << ",\n       ";
 
@@ -11543,7 +11543,7 @@ void Dx12AsciiConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignature
 
 void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*>* ppDesc)
 {
@@ -11552,7 +11552,7 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
     oss << "GetRootSignatureDescAtVersion(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11572,16 +11572,16 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
 
 void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
         format::HandleId object_id,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* returnValue)
+        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12VersionedRootSignatureDeserializer_id" << object_id << "->";
     oss << "GetUnconvertedRootSignatureDesc(\n    /* ";
 
     oss << "return = " ;
-    if (WriteCheckPointerDecoderNull(oss, returnValue, "                ", false))
+    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
     {
-        WriteStructString(oss, returnValue->GetMetaStructPointer(), "                ", true, false);
+        WriteStructString(oss, return_value->GetMetaStructPointer(), "                ", true, false);
     }
     oss << ",\n       ";
 
@@ -11593,14 +11593,14 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnco
 
 void Dx12AsciiConsumer::Process_ID3D12Heap_GetDesc(
         format::HandleId object_id,
-        Decoded_D3D12_HEAP_DESC returnValue)
+        Decoded_D3D12_HEAP_DESC return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Heap_id" << object_id << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11611,7 +11611,7 @@ void Dx12AsciiConsumer::Process_ID3D12Heap_GetDesc(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT Subresource,
         StructPointerDecoder<Decoded_D3D12_RANGE>* pReadRange,
         PointerDecoder<uint64_t, void*>* ppData)
@@ -11621,7 +11621,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11671,14 +11671,14 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetDesc(
         format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_DESC returnValue)
+        Decoded_D3D12_RESOURCE_DESC return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Resource_id" << object_id << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11689,14 +11689,14 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetDesc(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
         format::HandleId object_id,
-        D3D12_GPU_VIRTUAL_ADDRESS returnValue)
+        D3D12_GPU_VIRTUAL_ADDRESS return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Resource_id" << object_id << "->";
     oss << "GetGPUVirtualAddress(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11707,7 +11707,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT DstSubresource,
         StructPointerDecoder<Decoded_D3D12_BOX>* pDstBox,
         uint64_t pSrcData,
@@ -11719,7 +11719,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
     oss << "WriteToSubresource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11748,7 +11748,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t pDstData,
         UINT DstRowPitch,
         UINT DstDepthPitch,
@@ -11760,7 +11760,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
     oss << "ReadFromSubresource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11789,7 +11789,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
         PointerDecoder<D3D12_HEAP_FLAGS>* pHeapFlags)
 {
@@ -11798,7 +11798,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
     oss << "GetHeapProperties(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11821,14 +11821,14 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12CommandAllocator_id" << object_id << "->";
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11839,14 +11839,14 @@ void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Fence_id" << object_id << "->";
     oss << "GetCompletedValue(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11857,7 +11857,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 Value,
         uint64_t hEvent)
 {
@@ -11866,7 +11866,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     oss << "SetEventOnCompletion(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11883,7 +11883,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
 
 void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 Value)
 {
     std::ostringstream oss;
@@ -11891,7 +11891,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11905,14 +11905,14 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
 
 void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
         format::HandleId object_id,
-        D3D12_FENCE_FLAGS returnValue)
+        D3D12_FENCE_FLAGS return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Fence1_id" << object_id << "->";
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11923,7 +11923,7 @@ void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob)
 {
     std::ostringstream oss;
@@ -11931,7 +11931,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     oss << "GetCachedBlob(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -11948,14 +11948,14 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetDesc(
         format::HandleId object_id,
-        Decoded_D3D12_DESCRIPTOR_HEAP_DESC returnValue)
+        Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12DescriptorHeap_id" << object_id << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11966,14 +11966,14 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetDesc(
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
         format::HandleId object_id,
-        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE returnValue)
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12DescriptorHeap_id" << object_id << "->";
     oss << "GetCPUDescriptorHandleForHeapStart(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -11984,14 +11984,14 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHe
 
 void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
         format::HandleId object_id,
-        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE returnValue)
+        Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12DescriptorHeap_id" << object_id << "->";
     oss << "GetGPUDescriptorHandleForHeapStart(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -12002,14 +12002,14 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHe
 
 void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
         format::HandleId object_id,
-        D3D12_COMMAND_LIST_TYPE returnValue)
+        D3D12_COMMAND_LIST_TYPE return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12CommandList_id" << object_id << "->";
     oss << "GetType(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -12020,14 +12020,14 @@ void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
     oss << "Close(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -12038,7 +12038,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
 
 void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pAllocator,
         format::HandleId pInitialState)
 {
@@ -12047,7 +12047,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13808,7 +13808,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pFence,
         UINT64 Value)
 {
@@ -13817,7 +13817,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13834,7 +13834,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pFence,
         UINT64 Value)
 {
@@ -13843,7 +13843,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
     oss << "Wait(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13860,7 +13860,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT64>* pFrequency)
 {
     std::ostringstream oss;
@@ -13868,7 +13868,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     oss << "GetTimestampFrequency(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13885,7 +13885,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT64>* pGpuTimestamp,
         PointerDecoder<UINT64>* pCpuTimestamp)
 {
@@ -13894,7 +13894,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     oss << "GetClockCalibration(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13917,14 +13917,14 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
 
 void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetDesc(
         format::HandleId object_id,
-        Decoded_D3D12_COMMAND_QUEUE_DESC returnValue)
+        Decoded_D3D12_COMMAND_QUEUE_DESC return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12CommandQueue_id" << object_id << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -13935,14 +13935,14 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetDesc(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
         format::HandleId object_id,
-        UINT returnValue)
+        UINT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Device_id" << object_id << "->";
     oss << "GetNodeCount(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -13953,7 +13953,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandQueue)
@@ -13963,7 +13963,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
     oss << "CreateCommandQueue(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -13989,7 +13989,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_COMMAND_LIST_TYPE type,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppCommandAllocator)
@@ -13999,7 +13999,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
     oss << "CreateCommandAllocator(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14022,7 +14022,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
@@ -14032,7 +14032,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     oss << "CreateGraphicsPipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14058,7 +14058,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
@@ -14068,7 +14068,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
     oss << "CreateComputePipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14094,7 +14094,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT nodeMask,
         D3D12_COMMAND_LIST_TYPE type,
         format::HandleId pCommandAllocator,
@@ -14107,7 +14107,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
     oss << "CreateCommandList(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14139,7 +14139,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* pDescriptorHeapDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
@@ -14149,7 +14149,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     oss << "CreateDescriptorHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14175,7 +14175,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
         format::HandleId object_id,
-        UINT returnValue,
+        UINT return_value,
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType)
 {
     std::ostringstream oss;
@@ -14183,7 +14183,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     oss << "GetDescriptorHandleIncrementSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14197,7 +14197,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT nodeMask,
         PointerDecoder<uint8_t>* pBlobWithRootSignature,
         SIZE_T blobLengthInBytes,
@@ -14209,7 +14209,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
     oss << "CreateRootSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14487,7 +14487,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
         format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO returnValue,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
         UINT visibleMask,
         UINT numResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs)
@@ -14497,7 +14497,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     oss << "GetResourceAllocationInfo(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14520,7 +14520,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
         format::HandleId object_id,
-        Decoded_D3D12_HEAP_PROPERTIES returnValue,
+        Decoded_D3D12_HEAP_PROPERTIES return_value,
         UINT nodeMask,
         D3D12_HEAP_TYPE heapType)
 {
@@ -14529,7 +14529,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     oss << "GetCustomHeapProperties(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14546,7 +14546,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
         D3D12_HEAP_FLAGS HeapFlags,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -14560,7 +14560,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
     oss << "CreateCommittedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14604,7 +14604,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
@@ -14614,7 +14614,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
     oss << "CreateHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14640,7 +14640,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pHeap,
         UINT64 HeapOffset,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -14654,7 +14654,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
     oss << "CreatePlacedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14695,7 +14695,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
@@ -14707,7 +14707,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
     oss << "CreateReservedResource(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14742,7 +14742,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pObject,
         StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
@@ -14754,7 +14754,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14789,7 +14789,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t NTHandle,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvObj)
@@ -14799,7 +14799,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
     oss << "OpenSharedHandle(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14822,7 +14822,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* Name,
         DWORD Access,
         PointerDecoder<uint64_t, void*>* pNTHandle)
@@ -14832,7 +14832,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     oss << "OpenSharedHandleByName(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14858,7 +14858,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
@@ -14867,7 +14867,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
     oss << "MakeResident(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14887,7 +14887,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
@@ -14896,7 +14896,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
     oss << "Evict(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14916,7 +14916,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 InitialValue,
         D3D12_FENCE_FLAGS Flags,
         Decoded_GUID riid,
@@ -14927,7 +14927,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
     oss << "CreateFence(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -14953,14 +14953,14 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Device_id" << object_id << "->";
     oss << "GetDeviceRemovedReason(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15031,7 +15031,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
@@ -15041,7 +15041,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
     oss << "CreateQueryHeap(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15067,7 +15067,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         BOOL Enable)
 {
     std::ostringstream oss;
@@ -15075,7 +15075,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
     oss << "SetStablePowerState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15089,7 +15089,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
         format::HandleId pRootSignature,
         Decoded_GUID riid,
@@ -15100,7 +15100,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
     oss << "CreateCommandSignature(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15185,14 +15185,14 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
 
 void Dx12AsciiConsumer::Process_ID3D12Device_GetAdapterLuid(
         format::HandleId object_id,
-        Decoded_LUID returnValue)
+        Decoded_LUID return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Device_id" << object_id << "->";
     oss << "GetAdapterLuid(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15203,7 +15203,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetAdapterLuid(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* pName,
         format::HandleId pPipeline)
 {
@@ -15212,7 +15212,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     oss << "StorePipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15232,7 +15232,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
@@ -15243,7 +15243,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     oss << "LoadGraphicsPipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15275,7 +15275,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
         Decoded_GUID riid,
@@ -15286,7 +15286,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     oss << "LoadComputePipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15318,14 +15318,14 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
         format::HandleId object_id,
-        SIZE_T returnValue)
+        SIZE_T return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12PipelineLibrary_id" << object_id << "->";
     oss << "GetSerializedSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15336,7 +15336,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint8_t>* pData,
         SIZE_T DataSizeInBytes)
 {
@@ -15345,7 +15345,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
     oss << "Serialize(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15365,7 +15365,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
 
 void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         WStringDecoder* pName,
         StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
         Decoded_GUID riid,
@@ -15376,7 +15376,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     oss << "LoadPipeline(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15408,7 +15408,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<uint8_t>* pLibraryBlob,
         SIZE_T BlobLength,
         Decoded_GUID riid,
@@ -15419,7 +15419,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     oss << "CreatePipelineLibrary(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15448,7 +15448,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         HandlePointerDecoder<ID3D12Fence*>* ppFences,
         PointerDecoder<UINT64>* pFenceValues,
         UINT NumFences,
@@ -15460,7 +15460,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     oss << "SetEventOnMultipleFenceCompletion(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15492,7 +15492,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
 
 void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects,
         PointerDecoder<D3D12_RESIDENCY_PRIORITY>* pPriorities)
@@ -15502,7 +15502,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
     oss << "SetResidencyPriority(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15528,7 +15528,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
 
 void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppPipelineState)
@@ -15538,7 +15538,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
     oss << "CreatePipelineState(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15564,7 +15564,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t pAddress,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
@@ -15574,7 +15574,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     oss << "OpenExistingHeapFromAddress(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15597,7 +15597,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t hFileMapping,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvHeap)
@@ -15607,7 +15607,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     oss << "OpenExistingHeapFromFileMapping(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15630,7 +15630,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
 
 void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_RESIDENCY_FLAGS Flags,
         UINT NumObjects,
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects,
@@ -15642,7 +15642,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     oss << "EnqueueMakeResident(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15671,7 +15671,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppFence)
 {
@@ -15680,7 +15680,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     oss << "GetStatusFence(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15700,14 +15700,14 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
         format::HandleId object_id,
-        D3D12_PROTECTED_SESSION_STATUS returnValue)
+        D3D12_PROTECTED_SESSION_STATUS return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12ProtectedSession_id" << object_id << "->";
     oss << "GetSessionStatus(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15718,14 +15718,14 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
         format::HandleId object_id,
-        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC returnValue)
+        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12ProtectedResourceSession_id" << object_id << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -15736,7 +15736,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT nodeMask,
         D3D12_COMMAND_LIST_TYPE type,
         D3D12_COMMAND_LIST_FLAGS flags,
@@ -15748,7 +15748,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
     oss << "CreateCommandList1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15777,7 +15777,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSession)
@@ -15787,7 +15787,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     oss << "CreateProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15813,7 +15813,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
         D3D12_HEAP_FLAGS HeapFlags,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -15828,7 +15828,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     oss << "CreateCommittedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15875,7 +15875,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
         format::HandleId pProtectedSession,
         Decoded_GUID riid,
@@ -15886,7 +15886,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
     oss << "CreateHeap1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15915,7 +15915,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
         D3D12_RESOURCE_STATES InitialState,
         StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
@@ -15928,7 +15928,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     oss << "CreateReservedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -15966,7 +15966,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
         format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO returnValue,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
         UINT visibleMask,
         UINT numResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs,
@@ -15977,7 +15977,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     oss << "GetResourceAllocationInfo1(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16023,14 +16023,14 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
         format::HandleId object_id,
-        Decoded_LUID returnValue)
+        Decoded_LUID return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
     oss << "GetLUID(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16041,7 +16041,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppv)
 {
@@ -16050,7 +16050,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     oss << "GetSwapChainObject(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16070,7 +16070,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riidResource,
         HandlePointerDecoder<void*>* ppvResource,
         Decoded_GUID riidQueue,
@@ -16081,7 +16081,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
     oss << "GetCurrentResourceAndCommandQueue(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16110,14 +16110,14 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
 
 void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
     oss << "InsertImplicitSync(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16128,7 +16128,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
 
 void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pObject)
 {
     std::ostringstream oss;
@@ -16136,7 +16136,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     oss << "DestroyOwnedObject(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16150,7 +16150,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         format::HandleId object_id,
-        uint64_t returnValue,
+        uint64_t return_value,
         WStringDecoder* pExportName)
 {
     std::ostringstream oss;
@@ -16158,7 +16158,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     oss << "GetShaderIdentifier(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16175,7 +16175,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
         format::HandleId object_id,
-        UINT64 returnValue,
+        UINT64 return_value,
         WStringDecoder* pExportName)
 {
     std::ostringstream oss;
@@ -16183,7 +16183,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     oss << "GetShaderStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16200,14 +16200,14 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12StateObjectProperties_id" << object_id << "->";
     oss << "GetPipelineStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16235,7 +16235,7 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pOwner,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvTracker)
@@ -16245,7 +16245,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     oss << "CreateLifetimeTracker(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16281,7 +16281,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_RemoveDevice(
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         PointerDecoder<UINT>* pNumMetaCommands,
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_DESC>* pDescs)
 {
@@ -16290,7 +16290,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     oss << "EnumerateMetaCommands(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16313,7 +16313,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID CommandId,
         D3D12_META_COMMAND_PARAMETER_STAGE Stage,
         PointerDecoder<UINT>* pTotalStructureSizeInBytes,
@@ -16325,7 +16325,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     oss << "EnumerateMetaCommandParameters(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16360,7 +16360,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID CommandId,
         UINT NodeMask,
         PointerDecoder<uint8_t>* pCreationParametersData,
@@ -16373,7 +16373,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
     oss << "CreateMetaCommand(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16408,7 +16408,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppStateObject)
@@ -16418,7 +16418,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
     oss << "CreateStateObject(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16471,7 +16471,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructure
 
 void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
         format::HandleId object_id,
-        D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS returnValue,
+        D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS return_value,
         D3D12_SERIALIZED_DATA_TYPE SerializedDataType,
         StructPointerDecoder<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>* pIdentifierToCheck)
 {
@@ -16480,7 +16480,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     oss << "CheckDriverMatchingIdentifier(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16568,7 +16568,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBrea
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
 {
     std::ostringstream oss;
@@ -16576,7 +16576,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
     oss << "GetAutoBreadcrumbsOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16593,7 +16593,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
 {
     std::ostringstream oss;
@@ -16601,7 +16601,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
     oss << "GetPageFaultAllocationOutput(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16618,7 +16618,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
 {
     std::ostringstream oss;
@@ -16626,7 +16626,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
     oss << "GetAutoBreadcrumbsOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16643,7 +16643,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
 
 void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
 {
     std::ostringstream oss;
@@ -16651,7 +16651,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
     oss << "GetPageFaultAllocationOutput1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16668,7 +16668,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
 
 void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_BACKGROUND_PROCESSING_MODE Mode,
         D3D12_MEASUREMENTS_ACTION MeasurementsAction,
         uint64_t hEventToSignalUponCompletion,
@@ -16679,7 +16679,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     oss << "SetBackgroundProcessingMode(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16705,14 +16705,14 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
 
 void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
         format::HandleId object_id,
-        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 returnValue)
+        Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12ProtectedResourceSession1_id" << object_id << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16723,7 +16723,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pAddition,
         format::HandleId pStateObjectToGrowFrom,
         Decoded_GUID riid,
@@ -16734,7 +16734,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
     oss << "AddToStateObject(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16763,7 +16763,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
 
 void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1>* pDesc,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppSession)
@@ -16773,7 +16773,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     oss << "CreateProtectedResourceSession1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16799,7 +16799,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
         format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_ALLOCATION_INFO returnValue,
+        Decoded_D3D12_RESOURCE_ALLOCATION_INFO return_value,
         UINT visibleMask,
         UINT numResourceDescs,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
@@ -16810,7 +16810,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     oss << "GetResourceAllocationInfo2(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16839,7 +16839,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
         D3D12_HEAP_FLAGS HeapFlags,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
@@ -16854,7 +16854,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     oss << "CreateCommittedResource2(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -16901,7 +16901,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
 
 void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         format::HandleId pHeap,
         UINT64 HeapOffset,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
@@ -16915,7 +16915,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     oss << "CreatePlacedResource1(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17041,7 +17041,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
@@ -17050,7 +17050,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17070,14 +17070,14 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
 
 void Dx12AsciiConsumer::Process_ID3D12Resource2_GetDesc1(
         format::HandleId object_id,
-        Decoded_D3D12_RESOURCE_DESC1 returnValue)
+        Decoded_D3D12_RESOURCE_DESC1 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Resource2_id" << object_id << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
-    WriteStructString(oss, &returnValue, "                ", true, false);
+    WriteStructString(oss, &return_value, "                ", true, false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17088,7 +17088,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource2_GetDesc1(
 
 void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
@@ -17097,7 +17097,7 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17134,7 +17134,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
 
 void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSize(
         format::HandleId object_id,
-        UINT64 returnValue,
+        UINT64 return_value,
         D3D12_META_COMMAND_PARAMETER_STAGE Stage,
         UINT ParameterIndex)
 {
@@ -17143,7 +17143,7 @@ void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSi
     oss << "GetRequiredParameterResourceSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17405,14 +17405,14 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
 
 void Dx12AsciiConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12Tools_id" << object_id << "->";
     oss << "ShaderInstrumentationEnabled(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17493,14 +17493,14 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
 */
 void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
         format::HandleId object_id,
-        uint64_t returnValue)
+        uint64_t return_value)
 {
     std::ostringstream oss;
     oss << "ID3D10Blob_id" << object_id << "->";
     oss << "GetBufferPointer(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17511,14 +17511,14 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
 
 void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
         format::HandleId object_id,
-        SIZE_T returnValue)
+        SIZE_T return_value)
 {
     std::ostringstream oss;
     oss << "ID3D10Blob_id" << object_id << "->";
     oss << "GetBufferSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17529,7 +17529,7 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
 
 void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallback(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         uint64_t callbackFn,
         uint64_t pData,
         PointerDecoder<UINT>* pCallbackID)
@@ -17539,7 +17539,7 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
     oss << "RegisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17562,7 +17562,7 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
 
 void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCallback(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT callbackID)
 {
     std::ostringstream oss;
@@ -17570,7 +17570,7 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
     oss << "UnregisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17716,7 +17716,7 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -17726,7 +17726,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17749,7 +17749,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -17759,7 +17759,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17782,7 +17782,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_RLDO_FLAGS Flags)
 {
     std::ostringstream oss;
@@ -17790,7 +17790,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17804,7 +17804,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_FEATURE Mask)
 {
     std::ostringstream oss;
@@ -17812,7 +17812,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17826,14 +17826,14 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
         format::HandleId object_id,
-        D3D12_DEBUG_FEATURE returnValue)
+        D3D12_DEBUG_FEATURE return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12DebugDevice_id" << object_id << "->";
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17844,7 +17844,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_RLDO_FLAGS Flags)
 {
     std::ostringstream oss;
@@ -17852,7 +17852,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17866,7 +17866,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -17876,7 +17876,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17899,7 +17899,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -17909,7 +17909,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17932,7 +17932,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         format::HandleId pResource,
         UINT Subresource,
         UINT State)
@@ -17942,7 +17942,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17962,7 +17962,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         format::HandleId pResource,
         UINT Subresource,
         UINT State)
@@ -17972,7 +17972,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -17992,7 +17992,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -18002,7 +18002,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18025,7 +18025,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -18035,7 +18035,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18058,7 +18058,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         format::HandleId pResource,
         UINT Subresource,
         UINT State)
@@ -18068,7 +18068,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18088,7 +18088,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_FEATURE Mask)
 {
     std::ostringstream oss;
@@ -18096,7 +18096,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18110,14 +18110,14 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
         format::HandleId object_id,
-        D3D12_DEBUG_FEATURE returnValue)
+        D3D12_DEBUG_FEATURE return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12DebugCommandList_id" << object_id << "->";
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
-    oss << ConverttoText(returnValue);
+    oss << ConverttoText(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18128,7 +18128,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -18138,7 +18138,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18161,7 +18161,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
 
 void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
         PointerDecoder<uint8_t>* pData,
         UINT DataSize)
@@ -18171,7 +18171,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18274,7 +18274,7 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 MessageCountLimit)
 {
     std::ostringstream oss;
@@ -18282,7 +18282,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
     oss << "SetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18309,7 +18309,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         UINT64 MessageIndex,
         StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
         PointerDecoder<SIZE_T>* pMessageByteLength)
@@ -18319,7 +18319,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
     oss << "GetMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18345,14 +18345,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetNumMessagesAllowedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18363,14 +18363,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFi
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetNumMessagesDeniedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18381,14 +18381,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFil
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetNumStoredMessages(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18399,14 +18399,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetNumStoredMessagesAllowedByRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18417,14 +18417,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRet
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetNumMessagesDiscardedByMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18435,14 +18435,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessage
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
         format::HandleId object_id,
-        UINT64 returnValue)
+        UINT64 return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18453,7 +18453,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
@@ -18461,7 +18461,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
     oss << "AddStorageFilterEntries(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18478,7 +18478,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
@@ -18487,7 +18487,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
     oss << "GetStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18523,14 +18523,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "PushEmptyStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18541,14 +18541,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "PushCopyOfStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18559,7 +18559,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
@@ -18567,7 +18567,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
     oss << "PushStorageFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18597,14 +18597,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
         format::HandleId object_id,
-        UINT returnValue)
+        UINT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetStorageFilterStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18615,7 +18615,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
@@ -18623,7 +18623,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
     oss << "AddRetrievalFilterEntries(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18640,7 +18640,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
@@ -18649,7 +18649,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
     oss << "GetRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18685,14 +18685,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "PushEmptyRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18703,14 +18703,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
         format::HandleId object_id,
-        HRESULT returnValue)
+        HRESULT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "PushCopyOfRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18721,7 +18721,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
@@ -18729,7 +18729,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
     oss << "PushRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18759,14 +18759,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
         format::HandleId object_id,
-        UINT returnValue)
+        UINT return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetRetrievalFilterStackSize(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18777,7 +18777,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_MESSAGE_CATEGORY Category,
         D3D12_MESSAGE_SEVERITY Severity,
         D3D12_MESSAGE_ID ID,
@@ -18788,7 +18788,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
     oss << "AddMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18814,7 +18814,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_MESSAGE_SEVERITY Severity,
         StringDecoder* pDescription)
 {
@@ -18823,7 +18823,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
     oss << "AddApplicationMessage(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18843,7 +18843,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_MESSAGE_CATEGORY Category,
         BOOL bEnable)
 {
@@ -18852,7 +18852,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
     oss << "SetBreakOnCategory(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18869,7 +18869,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_MESSAGE_SEVERITY Severity,
         BOOL bEnable)
 {
@@ -18878,7 +18878,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
     oss << "SetBreakOnSeverity(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18895,7 +18895,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         D3D12_MESSAGE_ID ID,
         BOOL bEnable)
 {
@@ -18904,7 +18904,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
     oss << "SetBreakOnID(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18921,7 +18921,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         D3D12_MESSAGE_CATEGORY Category)
 {
     std::ostringstream oss;
@@ -18929,7 +18929,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
     oss << "GetBreakOnCategory(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18943,7 +18943,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         D3D12_MESSAGE_SEVERITY Severity)
 {
     std::ostringstream oss;
@@ -18951,7 +18951,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
     oss << "GetBreakOnSeverity(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -18965,7 +18965,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
         format::HandleId object_id,
-        BOOL returnValue,
+        BOOL return_value,
         D3D12_MESSAGE_ID ID)
 {
     std::ostringstream oss;
@@ -18973,7 +18973,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
     oss << "GetBreakOnID(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -19004,14 +19004,14 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
 
 void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
         format::HandleId object_id,
-        BOOL returnValue)
+        BOOL return_value)
 {
     std::ostringstream oss;
     oss << "ID3D12InfoQueue_id" << object_id << "->";
     oss << "GetMuteDebugOutput(\n    /* ";
 
     oss << "return = " ;
-    WriteBOOLString(oss, returnValue, "                ", false);
+    WriteBOOLString(oss, return_value, "                ", false);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -19026,7 +19026,7 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
 */
 void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
         format::HandleId object_id,
-        HRESULT returnValue,
+        HRESULT return_value,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvObject)
 {
@@ -19035,7 +19035,7 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
     oss << "QueryInterface(\n    /* ";
 
     oss << "return = " ;
-    oss << enumutil::GetResultValueString(returnValue);
+    oss << enumutil::GetResultValueString(return_value);
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";
@@ -19055,14 +19055,14 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
 
 void Dx12AsciiConsumer::Process_IUnknown_AddRef(
         format::HandleId object_id,
-        ULONG returnValue)
+        ULONG return_value)
 {
     std::ostringstream oss;
     oss << "IUnknown_id" << object_id << "->";
     oss << "AddRef(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -19073,14 +19073,14 @@ void Dx12AsciiConsumer::Process_IUnknown_AddRef(
 
 void Dx12AsciiConsumer::Process_IUnknown_Release(
         format::HandleId object_id,
-        ULONG returnValue)
+        ULONG return_value)
 {
     std::ostringstream oss;
     oss << "IUnknown_id" << object_id << "->";
     oss << "Release(\n    /* ";
 
     oss << "return = " ;
-    oss << returnValue;
+    oss << return_value;
     oss << ",\n       ";
 
     oss << "thread_id = WIP */);\n\n";

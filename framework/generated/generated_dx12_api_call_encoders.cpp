@@ -44,7 +44,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 */
 
 void Encode_CreateDXGIFactory(
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppFactory)
 {
@@ -52,19 +52,19 @@ void Encode_CreateDXGIFactory(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFactory, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, ppFactory);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, ppFactory);
     }
 }
 
 void Encode_CreateDXGIFactory1(
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppFactory)
 {
@@ -72,14 +72,14 @@ void Encode_CreateDXGIFactory1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFactory, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, ppFactory);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, ppFactory);
     }
 }
 
@@ -153,7 +153,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC& value)
 
 void Encode_IDXGIObject_SetPrivateData(
     IDXGIObject_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID Name,
     UINT DataSize,
     const void* pData)
@@ -162,21 +162,21 @@ void Encode_IDXGIObject_SetPrivateData(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, Name);
         encoder->EncodeUInt32Value(DataSize);
         encoder->EncodeVoidArray(pData, DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIObject_SetPrivateDataInterface(
     IDXGIObject_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID Name,
     const IUnknown* pUnknown)
 {
@@ -184,20 +184,20 @@ void Encode_IDXGIObject_SetPrivateDataInterface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, Name);
         encoder->EncodeObjectValue(pUnknown);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIObject_GetPrivateData(
     IDXGIObject_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID Name,
     UINT* pDataSize,
     void* pData)
@@ -206,21 +206,21 @@ void Encode_IDXGIObject_GetPrivateData(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, Name);
         encoder->EncodeUInt32Ptr(pDataSize);
         encoder->EncodeVoidArray(pData, * pDataSize, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIObject_GetParent(
     IDXGIObject_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppParent)
 {
@@ -228,20 +228,20 @@ void Encode_IDXGIObject_GetParent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppParent, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppParent, static_cast<void*>(nullptr));
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppParent, static_cast<void*>(nullptr));
     }
 }
 
 void Encode_IDXGIDeviceSubObject_GetDevice(
     IDXGIDeviceSubObject_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppDevice)
 {
@@ -249,96 +249,96 @@ void Encode_IDXGIDeviceSubObject_GetDevice(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppDevice, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppDevice, static_cast<void*>(nullptr));
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppDevice, static_cast<void*>(nullptr));
     }
 }
 
 void Encode_IDXGIResource_GetSharedHandle(
     IDXGIResource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE* pSharedHandle)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtrPtr(pSharedHandle, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIResource_GetUsage(
     IDXGIResource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_USAGE* pUsage)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIResource_GetUsage, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pUsage);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIResource_SetEvictionPriority(
     IDXGIResource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT EvictionPriority)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIResource_SetEvictionPriority, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(EvictionPriority);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIResource_GetEvictionPriority(
     IDXGIResource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pEvictionPriority)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pEvictionPriority, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIKeyedMutex_AcquireSync(
     IDXGIKeyedMutex_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 Key,
     DWORD dwMilliseconds)
 {
@@ -346,58 +346,58 @@ void Encode_IDXGIKeyedMutex_AcquireSync(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(Key);
         encoder->EncodeUInt32Value(dwMilliseconds);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIKeyedMutex_ReleaseSync(
     IDXGIKeyedMutex_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 Key)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIKeyedMutex_ReleaseSync, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(Key);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface_GetDesc(
     IDXGISurface_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_SURFACE_DESC* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISurface_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface_Map(
     IDXGISurface_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MAPPED_RECT* pLockedRect,
     UINT MapFlags)
 {
@@ -405,37 +405,37 @@ void Encode_IDXGISurface_Map(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pLockedRect, omit_output_data);
         encoder->EncodeUInt32Value(MapFlags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface_Unmap(
     IDXGISurface_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISurface_Unmap, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface1_GetDC(
     IDXGISurface1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     BOOL Discard,
     HDC* phdc)
 {
@@ -443,39 +443,39 @@ void Encode_IDXGISurface1_GetDC(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Value(Discard);
         encoder->EncodeVoidPtrPtr(phdc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface1_ReleaseDC(
     IDXGISurface1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     RECT* pDirtyRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISurface1_ReleaseDC, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDirtyRect);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIAdapter_EnumOutputs(
     IDXGIAdapter_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Output,
     IDXGIOutput** ppOutput)
 {
@@ -483,39 +483,39 @@ void Encode_IDXGIAdapter_EnumOutputs(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Output);
         encoder->EncodeObjectPtr(ppOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), wrapper);
     }
 }
 
 void Encode_IDXGIAdapter_GetDesc(
     IDXGIAdapter_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_ADAPTER_DESC* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIAdapter_CheckInterfaceSupport(
     IDXGIAdapter_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID InterfaceName,
     LARGE_INTEGER* pUMDVersion)
 {
@@ -523,39 +523,39 @@ void Encode_IDXGIAdapter_CheckInterfaceSupport(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, InterfaceName);
         EncodeStructPtr(encoder, pUMDVersion, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_GetDesc(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_OUTPUT_DESC* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_GetDisplayModeList(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FORMAT EnumFormat,
     UINT Flags,
     UINT* pNumModes,
@@ -565,7 +565,7 @@ void Encode_IDXGIOutput_GetDisplayModeList(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -573,14 +573,14 @@ void Encode_IDXGIOutput_GetDisplayModeList(
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeUInt32Ptr(pNumModes);
         EncodeStructArray(encoder, pDesc, * pNumModes, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_FindClosestMatchingMode(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_MODE_DESC* pModeToMatch,
     DXGI_MODE_DESC* pClosestMatch,
     IUnknown* pConcernedDevice)
@@ -589,38 +589,38 @@ void Encode_IDXGIOutput_FindClosestMatchingMode(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pModeToMatch);
         EncodeStructPtr(encoder, pClosestMatch, omit_output_data);
         encoder->EncodeObjectValue(pConcernedDevice);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_WaitForVBlank(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_WaitForVBlank, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_TakeOwnership(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     BOOL Exclusive)
 {
@@ -628,13 +628,13 @@ void Encode_IDXGIOutput_TakeOwnership(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pDevice);
         encoder->EncodeInt32Value(Exclusive);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -651,121 +651,121 @@ void Encode_IDXGIOutput_ReleaseOwnership(
 
 void Encode_IDXGIOutput_GetGammaControlCapabilities(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pGammaCaps, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_SetGammaControl(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_GAMMA_CONTROL* pArray)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_SetGammaControl, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pArray);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_GetGammaControl(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_GAMMA_CONTROL* pArray)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pArray, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_SetDisplaySurface(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGISurface* pScanoutSurface)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_SetDisplaySurface, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pScanoutSurface);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_GetDisplaySurfaceData(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGISurface* pDestination)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_GetDisplaySurfaceData, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pDestination);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput_GetFrameStatistics(
     IDXGIOutput_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FRAME_STATISTICS* pStats)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pStats, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_Present(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT SyncInterval,
     UINT Flags)
 {
@@ -773,20 +773,20 @@ void Encode_IDXGISwapChain_Present(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(SyncInterval);
         encoder->EncodeUInt32Value(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_GetBuffer(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Buffer,
     REFIID riid,
     void** ppSurface)
@@ -795,21 +795,21 @@ void Encode_IDXGISwapChain_GetBuffer(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Buffer);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppSurface, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppSurface, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppSurface, wrapper);
     }
 }
 
 void Encode_IDXGISwapChain_SetFullscreenState(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     BOOL Fullscreen,
     IDXGIOutput* pTarget)
 {
@@ -817,20 +817,20 @@ void Encode_IDXGISwapChain_SetFullscreenState(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Value(Fullscreen);
         encoder->EncodeObjectValue(pTarget);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_GetFullscreenState(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     BOOL* pFullscreen,
     IDXGIOutput** ppTarget)
 {
@@ -838,39 +838,39 @@ void Encode_IDXGISwapChain_GetFullscreenState(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Ptr(pFullscreen, omit_output_data);
         encoder->EncodeObjectPtr(ppTarget, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutput, reinterpret_cast<void**>(ppTarget), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutput, reinterpret_cast<void**>(ppTarget), wrapper);
     }
 }
 
 void Encode_IDXGISwapChain_GetDesc(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_SWAP_CHAIN_DESC* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_ResizeBuffers(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT BufferCount,
     UINT Width,
     UINT Height,
@@ -881,7 +881,7 @@ void Encode_IDXGISwapChain_ResizeBuffers(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -890,90 +890,90 @@ void Encode_IDXGISwapChain_ResizeBuffers(
         encoder->EncodeUInt32Value(Height);
         encoder->EncodeEnumValue(NewFormat);
         encoder->EncodeUInt32Value(SwapChainFlags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_ResizeTarget(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_MODE_DESC* pNewTargetParameters)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_ResizeTarget, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pNewTargetParameters);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_GetContainingOutput(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGIOutput** ppOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_GetContainingOutput, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectPtr(ppOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutput, reinterpret_cast<void**>(ppOutput), wrapper);
     }
 }
 
 void Encode_IDXGISwapChain_GetFrameStatistics(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FRAME_STATISTICS* pStats)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pStats, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain_GetLastPresentCount(
     IDXGISwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pLastPresentCount)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pLastPresentCount, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory_EnumAdapters(
     IDXGIFactory_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Adapter,
     IDXGIAdapter** ppAdapter)
 {
@@ -981,20 +981,20 @@ void Encode_IDXGIFactory_EnumAdapters(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Adapter);
         encoder->EncodeObjectPtr(ppAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), wrapper);
     }
 }
 
 void Encode_IDXGIFactory_MakeWindowAssociation(
     IDXGIFactory_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HWND WindowHandle,
     UINT Flags)
 {
@@ -1002,39 +1002,39 @@ void Encode_IDXGIFactory_MakeWindowAssociation(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory_GetWindowAssociation(
     IDXGIFactory_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HWND* pWindowHandle)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtrPtr(pWindowHandle, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory_CreateSwapChain(
     IDXGIFactory_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     DXGI_SWAP_CHAIN_DESC* pDesc,
     IDXGISwapChain** ppSwapChain)
@@ -1043,21 +1043,21 @@ void Encode_IDXGIFactory_CreateSwapChain(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pDevice);
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISwapChain, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISwapChain, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
 void Encode_IDXGIFactory_CreateSoftwareAdapter(
     IDXGIFactory_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HMODULE Module,
     IDXGIAdapter** ppAdapter)
 {
@@ -1065,39 +1065,39 @@ void Encode_IDXGIFactory_CreateSoftwareAdapter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(Module);
         encoder->EncodeObjectPtr(ppAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIAdapter, reinterpret_cast<void**>(ppAdapter), wrapper);
     }
 }
 
 void Encode_IDXGIDevice_GetAdapter(
     IDXGIDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGIAdapter** pAdapter)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice_GetAdapter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectPtr(pAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIAdapter, reinterpret_cast<void**>(pAdapter), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIAdapter, reinterpret_cast<void**>(pAdapter), wrapper);
     }
 }
 
 void Encode_IDXGIDevice_CreateSurface(
     IDXGIDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_SURFACE_DESC* pDesc,
     UINT NumSurfaces,
     DXGI_USAGE Usage,
@@ -1108,7 +1108,7 @@ void Encode_IDXGIDevice_CreateSurface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -1117,14 +1117,14 @@ void Encode_IDXGIDevice_CreateSurface(
         encoder->EncodeUInt32Value(Usage);
         EncodeStructPtr(encoder, pSharedResource);
         encoder->EncodeObjectPtr(ppSurface, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISurface, reinterpret_cast<void**>(ppSurface), wrapper);
     }
 }
 
 void Encode_IDXGIDevice_QueryResourceResidency(
     IDXGIDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* const* ppResources,
     DXGI_RESIDENCY* pResidencyStatus,
     UINT NumResources)
@@ -1133,52 +1133,52 @@ void Encode_IDXGIDevice_QueryResourceResidency(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectArray(ppResources, NumResources);
         encoder->EncodeEnumArray(pResidencyStatus, NumResources, omit_output_data);
         encoder->EncodeUInt32Value(NumResources);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice_SetGPUThreadPriority(
     IDXGIDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     INT Priority)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice_SetGPUThreadPriority, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Value(Priority);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice_GetGPUThreadPriority(
     IDXGIDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     INT* pPriority)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Ptr(pPriority, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -1205,7 +1205,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_DISPLAY_COLOR_SPACE& val
 
 void Encode_IDXGIFactory1_EnumAdapters1(
     IDXGIFactory1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Adapter,
     IDXGIAdapter1** ppAdapter)
 {
@@ -1213,82 +1213,82 @@ void Encode_IDXGIFactory1_EnumAdapters1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Adapter);
         encoder->EncodeObjectPtr(ppAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIAdapter1, reinterpret_cast<void**>(ppAdapter), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIAdapter1, reinterpret_cast<void**>(ppAdapter), wrapper);
     }
 }
 
 void Encode_IDXGIFactory1_IsCurrent(
     IDXGIFactory1_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory1_IsCurrent, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIAdapter1_GetDesc1(
     IDXGIAdapter1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_ADAPTER_DESC1* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice1_SetMaximumFrameLatency(
     IDXGIDevice1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT MaxLatency)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice1_SetMaximumFrameLatency, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(MaxLatency);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice1_GetMaximumFrameLatency(
     IDXGIDevice1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pMaxLatency)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pMaxLatency, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -1301,12 +1301,12 @@ void Encode_IDXGIDevice1_GetMaximumFrameLatency(
 
 void Encode_IDXGIDisplayControl_IsStereoEnabled(
     IDXGIDisplayControl_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDisplayControl_IsStereoEnabled, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -1377,7 +1377,7 @@ void Encode_IDXGIOutputDuplication_GetDesc(
 
 void Encode_IDXGIOutputDuplication_AcquireNextFrame(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT TimeoutInMilliseconds,
     DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
     IDXGIResource** ppDesktopResource)
@@ -1386,21 +1386,21 @@ void Encode_IDXGIOutputDuplication_AcquireNextFrame(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(TimeoutInMilliseconds);
         EncodeStructPtr(encoder, pFrameInfo, omit_output_data);
         encoder->EncodeObjectPtr(ppDesktopResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIResource, reinterpret_cast<void**>(ppDesktopResource), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIResource, reinterpret_cast<void**>(ppDesktopResource), wrapper);
     }
 }
 
 void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT DirtyRectsBufferSize,
     RECT* pDirtyRectsBuffer,
     UINT* pDirtyRectsBufferSizeRequired)
@@ -1409,21 +1409,21 @@ void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(DirtyRectsBufferSize);
         EncodeStructArray(encoder, pDirtyRectsBuffer, DirtyRectsBufferSize/sizeof tagRECT, omit_output_data);
         encoder->EncodeUInt32Ptr(pDirtyRectsBufferSizeRequired, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT MoveRectsBufferSize,
     DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
     UINT* pMoveRectsBufferSizeRequired)
@@ -1432,21 +1432,21 @@ void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(MoveRectsBufferSize);
         EncodeStructArray(encoder, pMoveRectBuffer, MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT, omit_output_data);
         encoder->EncodeUInt32Ptr(pMoveRectsBufferSizeRequired, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutputDuplication_GetFramePointerShape(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT PointerShapeBufferSize,
     void* pPointerShapeBuffer,
     UINT* pPointerShapeBufferSizeRequired,
@@ -1456,7 +1456,7 @@ void Encode_IDXGIOutputDuplication_GetFramePointerShape(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -1464,67 +1464,67 @@ void Encode_IDXGIOutputDuplication_GetFramePointerShape(
         encoder->EncodeVoidArray(pPointerShapeBuffer, PointerShapeBufferSize, omit_output_data);
         encoder->EncodeUInt32Ptr(pPointerShapeBufferSizeRequired, omit_output_data);
         EncodeStructPtr(encoder, pPointerShapeInfo, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutputDuplication_MapDesktopSurface(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MAPPED_RECT* pLockedRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pLockedRect, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutputDuplication_UnMapDesktopSurface, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutputDuplication_ReleaseFrame(
     IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutputDuplication_ReleaseFrame, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISurface2_GetResource(
     IDXGISurface2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppParentResource,
     UINT* pSubresourceIndex)
@@ -1533,21 +1533,21 @@ void Encode_IDXGISurface2_GetResource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppParentResource, omit_output_data);
         encoder->EncodeUInt32Ptr(pSubresourceIndex, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppParentResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppParentResource, wrapper);
     }
 }
 
 void Encode_IDXGIResource1_CreateSubresourceSurface(
     IDXGIResource1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT index,
     IDXGISurface2** ppSurface)
 {
@@ -1555,20 +1555,20 @@ void Encode_IDXGIResource1_CreateSubresourceSurface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(index);
         encoder->EncodeObjectPtr(ppSurface, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISurface2, reinterpret_cast<void**>(ppSurface), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISurface2, reinterpret_cast<void**>(ppSurface), wrapper);
     }
 }
 
 void Encode_IDXGIResource1_CreateSharedHandle(
     IDXGIResource1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const SECURITY_ATTRIBUTES* pAttributes,
     DWORD dwAccess,
     LPCWSTR lpName,
@@ -1578,7 +1578,7 @@ void Encode_IDXGIResource1_CreateSharedHandle(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -1586,14 +1586,14 @@ void Encode_IDXGIResource1_CreateSharedHandle(
         encoder->EncodeUInt32Value(dwAccess);
         encoder->EncodeWString(lpName);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice2_OfferResources(
     IDXGIDevice2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     DXGI_OFFER_RESOURCE_PRIORITY Priority)
@@ -1602,21 +1602,21 @@ void Encode_IDXGIDevice2_OfferResources(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumResources);
         encoder->EncodeObjectArray(ppResources, NumResources);
         encoder->EncodeEnumValue(Priority);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice2_ReclaimResources(
     IDXGIDevice2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     BOOL* pDiscarded)
@@ -1625,33 +1625,33 @@ void Encode_IDXGIDevice2_ReclaimResources(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumResources);
         encoder->EncodeObjectArray(ppResources, NumResources);
         encoder->EncodeInt32Array(pDiscarded, NumResources, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice2_EnqueueSetEvent(
     IDXGIDevice2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -1700,64 +1700,64 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_PRESENT_PARAMETERS& valu
 
 void Encode_IDXGISwapChain1_GetDesc1(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_SWAP_CHAIN_DESC1* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetFullscreenDesc(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetHwnd(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HWND* pHwnd)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtrPtr(pHwnd, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetCoreWindow(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID refiid,
     void** ppUnk)
 {
@@ -1765,20 +1765,20 @@ void Encode_IDXGISwapChain1_GetCoreWindow(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, refiid);
         encoder->EncodeObjectPtr(ppUnk, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, refiid, ppUnk, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, refiid, ppUnk, wrapper);
     }
 }
 
 void Encode_IDXGISwapChain1_Present1(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT SyncInterval,
     UINT PresentFlags,
     const DXGI_PRESENT_PARAMETERS* pPresentParameters)
@@ -1787,140 +1787,140 @@ void Encode_IDXGISwapChain1_Present1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(SyncInterval);
         encoder->EncodeUInt32Value(PresentFlags);
         EncodeStructPtr(encoder, pPresentParameters);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
     IDXGISwapChain1_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_IsTemporaryMonoSupported, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetRestrictToOutput(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGIOutput** ppRestrictToOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetRestrictToOutput, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectPtr(ppRestrictToOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutput, reinterpret_cast<void**>(ppRestrictToOutput), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutput, reinterpret_cast<void**>(ppRestrictToOutput), wrapper);
     }
 }
 
 void Encode_IDXGISwapChain1_SetBackgroundColor(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_RGBA* pColor)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_SetBackgroundColor, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pColor);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetBackgroundColor(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_RGBA* pColor)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pColor, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_SetRotation(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MODE_ROTATION Rotation)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_SetRotation, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Rotation);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain1_GetRotation(
     IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MODE_ROTATION* pRotation)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumPtr(pRotation, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory2_IsWindowedStereoEnabled(
     IDXGIFactory2_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory2_IsWindowedStereoEnabled, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     HWND hWnd,
     const DXGI_SWAP_CHAIN_DESC1* pDesc,
@@ -1932,7 +1932,7 @@ void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -1942,14 +1942,14 @@ void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
         EncodeStructPtr(encoder, pFullscreenDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
 void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     IUnknown* pWindow,
     const DXGI_SWAP_CHAIN_DESC1* pDesc,
@@ -1960,7 +1960,7 @@ void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -1969,14 +1969,14 @@ void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
 void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hResource,
     LUID* pLuid)
 {
@@ -1984,20 +1984,20 @@ void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hResource);
         EncodeStructPtr(encoder, pLuid, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HWND WindowHandle,
     UINT wMsg,
     DWORD* pdwCookie)
@@ -2006,21 +2006,21 @@ void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(wMsg);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent,
     DWORD* pdwCookie)
 {
@@ -2028,13 +2028,13 @@ void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -2053,7 +2053,7 @@ void Encode_IDXGIFactory2_UnregisterStereoStatus(
 
 void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HWND WindowHandle,
     UINT wMsg,
     DWORD* pdwCookie)
@@ -2062,21 +2062,21 @@ void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(WindowHandle);
         encoder->EncodeUInt32Value(wMsg);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent,
     DWORD* pdwCookie)
 {
@@ -2084,13 +2084,13 @@ void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -2109,7 +2109,7 @@ void Encode_IDXGIFactory2_UnregisterOcclusionStatus(
 
 void Encode_IDXGIFactory2_CreateSwapChainForComposition(
     IDXGIFactory2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     const DXGI_SWAP_CHAIN_DESC1* pDesc,
     IDXGIOutput* pRestrictToOutput,
@@ -2119,7 +2119,7 @@ void Encode_IDXGIFactory2_CreateSwapChainForComposition(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2127,8 +2127,8 @@ void Encode_IDXGIFactory2_CreateSwapChainForComposition(
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
@@ -2150,26 +2150,26 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC2& value)
 
 void Encode_IDXGIAdapter2_GetDesc2(
     IDXGIAdapter2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_ADAPTER_DESC2* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput1_GetDisplayModeList1(
     IDXGIOutput1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FORMAT EnumFormat,
     UINT Flags,
     UINT* pNumModes,
@@ -2179,7 +2179,7 @@ void Encode_IDXGIOutput1_GetDisplayModeList1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2187,14 +2187,14 @@ void Encode_IDXGIOutput1_GetDisplayModeList1(
         encoder->EncodeUInt32Value(Flags);
         encoder->EncodeUInt32Ptr(pNumModes);
         EncodeStructArray(encoder, pDesc, * pNumModes, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput1_FindClosestMatchingMode1(
     IDXGIOutput1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_MODE_DESC1* pModeToMatch,
     DXGI_MODE_DESC1* pClosestMatch,
     IUnknown* pConcernedDevice)
@@ -2203,40 +2203,40 @@ void Encode_IDXGIOutput1_FindClosestMatchingMode1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pModeToMatch);
         EncodeStructPtr(encoder, pClosestMatch, omit_output_data);
         encoder->EncodeObjectValue(pConcernedDevice);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput1_GetDisplaySurfaceData1(
     IDXGIOutput1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IDXGIResource* pDestination)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplaySurfaceData1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pDestination);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput1_DuplicateOutput(
     IDXGIOutput1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     IDXGIOutputDuplication** ppOutputDuplication)
 {
@@ -2244,14 +2244,14 @@ void Encode_IDXGIOutput1_DuplicateOutput(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pDevice);
         encoder->EncodeObjectPtr(ppOutputDuplication, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), wrapper);
     }
 }
 
@@ -2262,7 +2262,7 @@ void Encode_IDXGIOutput1_DuplicateOutput(
 */
 
 void Encode_CreateDXGIFactory2(
-    HRESULT result,
+    HRESULT return_value,
     UINT Flags,
     REFIID riid,
     void** ppFactory)
@@ -2271,20 +2271,20 @@ void Encode_CreateDXGIFactory2(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Flags);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFactory, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, ppFactory);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, ppFactory);
     }
 }
 
 void Encode_DXGIGetDebugInterface1(
-    HRESULT result,
+    HRESULT return_value,
     UINT Flags,
     REFIID riid,
     void** pDebug)
@@ -2293,15 +2293,15 @@ void Encode_DXGIGetDebugInterface1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Flags);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(pDebug, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, pDebug);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, pDebug);
     }
 }
 
@@ -2327,7 +2327,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_MATRIX_3X2_F& value)
 
 void Encode_IDXGISwapChain2_SetSourceSize(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Width,
     UINT Height)
 {
@@ -2335,20 +2335,20 @@ void Encode_IDXGISwapChain2_SetSourceSize(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Width);
         encoder->EncodeUInt32Value(Height);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_GetSourceSize(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pWidth,
     UINT* pHeight)
 {
@@ -2356,125 +2356,125 @@ void Encode_IDXGISwapChain2_GetSourceSize(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pWidth, omit_output_data);
         encoder->EncodeUInt32Ptr(pHeight, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_SetMaximumFrameLatency(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT MaxLatency)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain2_SetMaximumFrameLatency, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(MaxLatency);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_GetMaximumFrameLatency(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pMaxLatency)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pMaxLatency, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     IDXGISwapChain2_Wrapper* wrapper,
-    HANDLE result)
+    HANDLE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain2_GetFrameLatencyWaitableObject, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeVoidPtr(result);
+        encoder->EncodeVoidPtr(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_SetMatrixTransform(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const DXGI_MATRIX_3X2_F* pMatrix)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain2_SetMatrixTransform, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pMatrix);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain2_GetMatrixTransform(
     IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MATRIX_3X2_F* pMatrix)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pMatrix, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput2_SupportsOverlays(
     IDXGIOutput2_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput2_SupportsOverlays, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory3_GetCreationFlags(
     IDXGIFactory3_Wrapper* wrapper,
-    UINT result)
+    UINT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory3_GetCreationFlags, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -2486,7 +2486,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_DECODE_SWAP_CHAIN_DESC& 
 
 void Encode_IDXGIDecodeSwapChain_PresentBuffer(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT BufferToPresent,
     UINT SyncInterval,
     UINT Flags)
@@ -2495,59 +2495,59 @@ void Encode_IDXGIDecodeSwapChain_PresentBuffer(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(BufferToPresent);
         encoder->EncodeUInt32Value(SyncInterval);
         encoder->EncodeUInt32Value(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_SetSourceRect(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const RECT* pRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetSourceRect, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pRect);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_SetTargetRect(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const RECT* pRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetTargetRect, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pRect);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_SetDestSize(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Width,
     UINT Height)
 {
@@ -2555,58 +2555,58 @@ void Encode_IDXGIDecodeSwapChain_SetDestSize(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Width);
         encoder->EncodeUInt32Value(Height);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_GetSourceRect(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     RECT* pRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pRect, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_GetTargetRect(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     RECT* pRect)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pRect, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_GetDestSize(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pWidth,
     UINT* pHeight)
 {
@@ -2614,51 +2614,51 @@ void Encode_IDXGIDecodeSwapChain_GetDestSize(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pWidth, omit_output_data);
         encoder->EncodeUInt32Ptr(pHeight, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_SetColorSpace(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_SetColorSpace, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(ColorSpace);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDecodeSwapChain_GetColorSpace(
     IDXGIDecodeSwapChain_Wrapper* wrapper,
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS result)
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetColorSpace, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     IDXGIFactoryMedia_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     HANDLE hSurface,
     const DXGI_SWAP_CHAIN_DESC1* pDesc,
@@ -2669,7 +2669,7 @@ void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2678,14 +2678,14 @@ void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
         EncodeStructPtr(encoder, pDesc);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
 void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
     IDXGIFactoryMedia_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     HANDLE hSurface,
     DXGI_DECODE_SWAP_CHAIN_DESC* pDesc,
@@ -2697,7 +2697,7 @@ void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2707,8 +2707,8 @@ void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
         encoder->EncodeObjectValue(pYuvDecodeBuffers);
         encoder->EncodeObjectValue(pRestrictToOutput);
         encoder->EncodeObjectPtr(ppSwapChain, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIDecodeSwapChain, reinterpret_cast<void**>(ppSwapChain), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIDecodeSwapChain, reinterpret_cast<void**>(ppSwapChain), wrapper);
     }
 }
 
@@ -2725,45 +2725,45 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS_MEDIA& 
 
 void Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FRAME_STATISTICS_MEDIA* pStats)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pStats, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChainMedia_SetPresentDuration(
     IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Duration)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChainMedia_SetPresentDuration, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Duration);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
     IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT DesiredPresentDuration,
     UINT* pClosestSmallerPresentDuration,
     UINT* pClosestLargerPresentDuration)
@@ -2772,21 +2772,21 @@ void Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(DesiredPresentDuration);
         encoder->EncodeUInt32Ptr(pClosestSmallerPresentDuration, omit_output_data);
         encoder->EncodeUInt32Ptr(pClosestLargerPresentDuration, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput3_CheckOverlaySupport(
     IDXGIOutput3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FORMAT EnumFormat,
     IUnknown* pConcernedDevice,
     UINT* pFlags)
@@ -2795,14 +2795,14 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(EnumFormat);
         encoder->EncodeObjectValue(pConcernedDevice);
         encoder->EncodeUInt32Ptr(pFlags, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -2815,19 +2815,19 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
 
 void Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
     IDXGISwapChain3_Wrapper* wrapper,
-    UINT result)
+    UINT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain3_CheckColorSpaceSupport(
     IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_COLOR_SPACE_TYPE ColorSpace,
     UINT* pColorSpaceSupport)
 {
@@ -2835,39 +2835,39 @@ void Encode_IDXGISwapChain3_CheckColorSpaceSupport(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(ColorSpace);
         encoder->EncodeUInt32Ptr(pColorSpaceSupport, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain3_SetColorSpace1(
     IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_COLOR_SPACE_TYPE ColorSpace)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain3_SetColorSpace1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(ColorSpace);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGISwapChain3_ResizeBuffers1(
     IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT BufferCount,
     UINT Width,
     UINT Height,
@@ -2880,7 +2880,7 @@ void Encode_IDXGISwapChain3_ResizeBuffers1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2891,14 +2891,14 @@ void Encode_IDXGISwapChain3_ResizeBuffers1(
         encoder->EncodeUInt32Value(SwapChainFlags);
         encoder->EncodeUInt32Array(pCreationNodeMask, BufferCount);
         encoder->EncodeObjectArray(ppPresentQueue, BufferCount);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     IDXGIOutput4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_FORMAT Format,
     DXGI_COLOR_SPACE_TYPE ColorSpace,
     IUnknown* pConcernedDevice,
@@ -2908,7 +2908,7 @@ void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -2916,14 +2916,14 @@ void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         encoder->EncodeEnumValue(ColorSpace);
         encoder->EncodeObjectValue(pConcernedDevice);
         encoder->EncodeUInt32Ptr(pFlags, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory4_EnumAdapterByLuid(
     IDXGIFactory4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LUID AdapterLuid,
     REFIID riid,
     void** ppvAdapter)
@@ -2932,21 +2932,21 @@ void Encode_IDXGIFactory4_EnumAdapterByLuid(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, AdapterLuid);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvAdapter, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvAdapter, wrapper);
     }
 }
 
 void Encode_IDXGIFactory4_EnumWarpAdapter(
     IDXGIFactory4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppvAdapter)
 {
@@ -2954,14 +2954,14 @@ void Encode_IDXGIFactory4_EnumWarpAdapter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvAdapter, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvAdapter, wrapper);
     }
 }
 
@@ -2975,7 +2975,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_QUERY_VIDEO_MEMORY_INFO&
 
 void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent,
     DWORD* pdwCookie)
 {
@@ -2983,13 +2983,13 @@ void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -3008,7 +3008,7 @@ void Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
 
 void Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
     IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
     DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo)
@@ -3017,21 +3017,21 @@ void Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NodeIndex);
         encoder->EncodeEnumValue(MemorySegmentGroup);
         EncodeStructPtr(encoder, pVideoMemoryInfo, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIAdapter3_SetVideoMemoryReservation(
     IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
     UINT64 Reservation)
@@ -3040,21 +3040,21 @@ void Encode_IDXGIAdapter3_SetVideoMemoryReservation(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NodeIndex);
         encoder->EncodeEnumValue(MemorySegmentGroup);
         encoder->EncodeUInt64Value(Reservation);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent,
     DWORD* pdwCookie)
 {
@@ -3062,13 +3062,13 @@ void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -3093,7 +3093,7 @@ void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
 
 void Encode_IDXGIOutput5_DuplicateOutput1(
     IDXGIOutput5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pDevice,
     UINT Flags,
     UINT SupportedFormatsCount,
@@ -3104,7 +3104,7 @@ void Encode_IDXGIOutput5_DuplicateOutput1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3113,8 +3113,8 @@ void Encode_IDXGIOutput5_DuplicateOutput1(
         encoder->EncodeUInt32Value(SupportedFormatsCount);
         encoder->EncodeEnumArray(pSupportedFormats, SupportedFormatsCount);
         encoder->EncodeObjectPtr(ppOutputDuplication, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_IDXGIOutputDuplication, reinterpret_cast<void**>(ppOutputDuplication), wrapper);
     }
 }
 
@@ -3137,7 +3137,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10PLUS& 
 
 void Encode_IDXGISwapChain4_SetHDRMetaData(
     IDXGISwapChain4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_HDR_METADATA_TYPE Type,
     UINT Size,
     void* pMetaData)
@@ -3146,21 +3146,21 @@ void Encode_IDXGISwapChain4_SetHDRMetaData(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeUInt32Value(Size);
         encoder->EncodeVoidArray(pMetaData, Size);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice4_OfferResources1(
     IDXGIDevice4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     DXGI_OFFER_RESOURCE_PRIORITY Priority,
@@ -3170,7 +3170,7 @@ void Encode_IDXGIDevice4_OfferResources1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3178,14 +3178,14 @@ void Encode_IDXGIDevice4_OfferResources1(
         encoder->EncodeObjectArray(ppResources, NumResources);
         encoder->EncodeEnumValue(Priority);
         encoder->EncodeUInt32Value(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIDevice4_ReclaimResources1(
     IDXGIDevice4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumResources,
     IDXGIResource* const* ppResources,
     DXGI_RECLAIM_RESOURCE_RESULTS* pResults)
@@ -3194,14 +3194,14 @@ void Encode_IDXGIDevice4_ReclaimResources1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumResources);
         encoder->EncodeObjectArray(ppResources, NumResources);
         encoder->EncodeEnumArray(pResults, NumResources, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -3213,17 +3213,17 @@ void Encode_IDXGIDevice4_ReclaimResources1(
 */
 
 void Encode_DXGIDeclareAdapterRemovalSupport(
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport);
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndApiCallCapture();
     }
 }
@@ -3246,19 +3246,19 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value)
 
 void Encode_IDXGIAdapter4_GetDesc3(
     IDXGIAdapter4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_ADAPTER_DESC3* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -3283,45 +3283,45 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC1& value)
 
 void Encode_IDXGIOutput6_GetDesc1(
     IDXGIOutput6_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DXGI_OUTPUT_DESC1* pDesc)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
     IDXGIOutput6_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pFlags)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pFlags, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
     IDXGIFactory6_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Adapter,
     DXGI_GPU_PREFERENCE GpuPreference,
     REFIID riid,
@@ -3331,7 +3331,7 @@ void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3339,14 +3339,14 @@ void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
         encoder->EncodeEnumValue(GpuPreference);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvAdapter, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvAdapter, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvAdapter, wrapper);
     }
 }
 
 void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
     IDXGIFactory7_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hEvent,
     DWORD* pdwCookie)
 {
@@ -3354,32 +3354,32 @@ void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hEvent);
         encoder->EncodeUInt32Ptr(pdwCookie, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     IDXGIFactory7_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     DWORD dwCookie)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGIFactory7_UnregisterAdaptersChangedEvent, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(dwCookie);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -3479,7 +3479,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE&
 */
 
 void Encode_D3D12SerializeRootSignature(
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_ROOT_SIGNATURE_DESC* pRootSignature,
     D3D_ROOT_SIGNATURE_VERSION Version,
     ID3DBlob** ppBlob,
@@ -3489,7 +3489,7 @@ void Encode_D3D12SerializeRootSignature(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3497,13 +3497,13 @@ void Encode_D3D12SerializeRootSignature(
         encoder->EncodeEnumValue(Version);
         encoder->EncodeObjectPtr(ppBlob, omit_output_data);
         encoder->EncodeObjectPtr(ppErrorBlob, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndApiCallCapture();
     }
 }
 
 void Encode_D3D12CreateRootSignatureDeserializer(
-    HRESULT result,
+    HRESULT return_value,
     LPCVOID pSrcData,
     SIZE_T SrcDataSizeInBytes,
     REFIID pRootSignatureDeserializerInterface,
@@ -3513,7 +3513,7 @@ void Encode_D3D12CreateRootSignatureDeserializer(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3521,13 +3521,13 @@ void Encode_D3D12CreateRootSignatureDeserializer(
         encoder->EncodeSizeTValue(SrcDataSizeInBytes);
         EncodeStruct(encoder, pRootSignatureDeserializerInterface);
         encoder->EncodeObjectPtr(ppRootSignatureDeserializer, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
     }
 }
 
 void Encode_D3D12SerializeVersionedRootSignature(
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
     ID3DBlob** ppBlob,
     ID3DBlob** ppErrorBlob)
@@ -3536,20 +3536,20 @@ void Encode_D3D12SerializeVersionedRootSignature(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pRootSignature);
         encoder->EncodeObjectPtr(ppBlob, omit_output_data);
         encoder->EncodeObjectPtr(ppErrorBlob, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndApiCallCapture();
     }
 }
 
 void Encode_D3D12CreateVersionedRootSignatureDeserializer(
-    HRESULT result,
+    HRESULT return_value,
     LPCVOID pSrcData,
     SIZE_T SrcDataSizeInBytes,
     REFIID pRootSignatureDeserializerInterface,
@@ -3559,7 +3559,7 @@ void Encode_D3D12CreateVersionedRootSignatureDeserializer(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3567,13 +3567,13 @@ void Encode_D3D12CreateVersionedRootSignatureDeserializer(
         encoder->EncodeSizeTValue(SrcDataSizeInBytes);
         EncodeStruct(encoder, pRootSignatureDeserializerInterface);
         encoder->EncodeObjectPtr(ppRootSignatureDeserializer, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, pRootSignatureDeserializerInterface, ppRootSignatureDeserializer);
     }
 }
 
 void Encode_D3D12CreateDevice(
-    HRESULT result,
+    HRESULT return_value,
     IUnknown* pAdapter,
     D3D_FEATURE_LEVEL MinimumFeatureLevel,
     REFIID riid,
@@ -3583,7 +3583,7 @@ void Encode_D3D12CreateDevice(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3591,13 +3591,13 @@ void Encode_D3D12CreateDevice(
         encoder->EncodeEnumValue(MinimumFeatureLevel);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppDevice, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, ppDevice);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, ppDevice);
     }
 }
 
 void Encode_D3D12GetDebugInterface(
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppvDebug)
 {
@@ -3605,19 +3605,19 @@ void Encode_D3D12GetDebugInterface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvDebug, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateApiCallCapture(result, riid, ppvDebug);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateApiCallCapture(return_value, riid, ppvDebug);
     }
 }
 
 void Encode_D3D12EnableExperimentalFeatures(
-    HRESULT result,
+    HRESULT return_value,
     UINT NumFeatures,
     const IID* pIIDs,
     void* pConfigurationStructs,
@@ -3627,7 +3627,7 @@ void Encode_D3D12EnableExperimentalFeatures(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -3635,7 +3635,7 @@ void Encode_D3D12EnableExperimentalFeatures(
         EncodeStructArray(encoder, pIIDs, NumFeatures);
         encoder->EncodeVoidArray(pConfigurationStructs, NumFeatures);
         encoder->EncodeUInt32Array(pConfigurationStructSizes, NumFeatures);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndApiCallCapture();
     }
 }
@@ -3760,7 +3760,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RASTERIZER_DESC& value)
 
 void Encode_ID3D12Object_GetPrivateData(
     ID3D12Object_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID guid,
     UINT* pDataSize,
     void* pData)
@@ -3769,21 +3769,21 @@ void Encode_ID3D12Object_GetPrivateData(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, guid);
         encoder->EncodeUInt32Ptr(pDataSize);
         encoder->EncodeVoidArray(pData, * pDataSize, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Object_SetPrivateData(
     ID3D12Object_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID guid,
     UINT DataSize,
     const void* pData)
@@ -3792,21 +3792,21 @@ void Encode_ID3D12Object_SetPrivateData(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, guid);
         encoder->EncodeUInt32Value(DataSize);
         encoder->EncodeVoidArray(pData, DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Object_SetPrivateDataInterface(
     ID3D12Object_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID guid,
     const IUnknown* pData)
 {
@@ -3814,39 +3814,39 @@ void Encode_ID3D12Object_SetPrivateDataInterface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, guid);
         encoder->EncodeObjectValue(pData);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Object_SetName(
     ID3D12Object_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR Name)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Object_SetName, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeWString(Name);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DeviceChild_GetDevice(
     ID3D12DeviceChild_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppvDevice)
 {
@@ -3854,14 +3854,14 @@ void Encode_ID3D12DeviceChild_GetDevice(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvDevice, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvDevice, static_cast<void*>(nullptr));
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvDevice, static_cast<void*>(nullptr));
     }
 }
 
@@ -4619,19 +4619,19 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_ROOT_SIGNATURE_DESC1& v
 
 void Encode_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     ID3D12RootSignatureDeserializer_Wrapper* wrapper,
-    const D3D12_ROOT_SIGNATURE_DESC * result)
+    const D3D12_ROOT_SIGNATURE_DESC * return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12RootSignatureDeserializer_GetRootSignatureDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStructPtr(encoder, result);
+        EncodeStructPtr(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
     ID3D12VersionedRootSignatureDeserializer_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D_ROOT_SIGNATURE_VERSION convertToVersion,
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC** ppDesc)
 {
@@ -4639,25 +4639,25 @@ void Encode_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersi
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(convertToVersion);
         EncodeStructPtr(encoder, *ppDesc, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
     ID3D12VersionedRootSignatureDeserializer_Wrapper* wrapper,
-    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC * result)
+    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC * return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStructPtr(encoder, result);
+        EncodeStructPtr(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -4753,19 +4753,19 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMAND_SIGNATURE_DESC&
 
 void Encode_ID3D12Heap_GetDesc(
     ID3D12Heap_Wrapper* wrapper,
-    D3D12_HEAP_DESC result)
+    D3D12_HEAP_DESC return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Heap_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Resource_Map(
     ID3D12Resource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT Subresource,
     const D3D12_RANGE* pReadRange,
     void** ppData)
@@ -4774,14 +4774,14 @@ void Encode_ID3D12Resource_Map(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(Subresource);
         EncodeStructPtr(encoder, pReadRange);
         encoder->EncodeVoidPtrPtr(ppData, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -4802,31 +4802,31 @@ void Encode_ID3D12Resource_Unmap(
 
 void Encode_ID3D12Resource_GetDesc(
     ID3D12Resource_Wrapper* wrapper,
-    D3D12_RESOURCE_DESC result)
+    D3D12_RESOURCE_DESC return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Resource_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Resource_GetGPUVirtualAddress(
     ID3D12Resource_Wrapper* wrapper,
-    D3D12_GPU_VIRTUAL_ADDRESS result)
+    D3D12_GPU_VIRTUAL_ADDRESS return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Resource_WriteToSubresource(
     ID3D12Resource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT DstSubresource,
     const D3D12_BOX* pDstBox,
     const void* pSrcData,
@@ -4837,7 +4837,7 @@ void Encode_ID3D12Resource_WriteToSubresource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -4846,14 +4846,14 @@ void Encode_ID3D12Resource_WriteToSubresource(
         encoder->EncodeVoidPtr(pSrcData);
         encoder->EncodeUInt32Value(SrcRowPitch);
         encoder->EncodeUInt32Value(SrcDepthPitch);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Resource_ReadFromSubresource(
     ID3D12Resource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     void* pDstData,
     UINT DstRowPitch,
     UINT DstDepthPitch,
@@ -4864,7 +4864,7 @@ void Encode_ID3D12Resource_ReadFromSubresource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -4873,14 +4873,14 @@ void Encode_ID3D12Resource_ReadFromSubresource(
         encoder->EncodeUInt32Value(DstDepthPitch);
         encoder->EncodeUInt32Value(SrcSubresource);
         EncodeStructPtr(encoder, pSrcBox);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Resource_GetHeapProperties(
     ID3D12Resource_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS* pHeapFlags)
 {
@@ -4888,49 +4888,49 @@ void Encode_ID3D12Resource_GetHeapProperties(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pHeapProperties, omit_output_data);
         encoder->EncodeEnumPtr(pHeapFlags, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandAllocator_Reset(
     ID3D12CommandAllocator_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandAllocator_Reset, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Fence_GetCompletedValue(
     ID3D12Fence_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Fence_GetCompletedValue, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Fence_SetEventOnCompletion(
     ID3D12Fence_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 Value,
     HANDLE hEvent)
 {
@@ -4938,135 +4938,135 @@ void Encode_ID3D12Fence_SetEventOnCompletion(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(Value);
         encoder->EncodeVoidPtr(hEvent);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Fence_Signal(
     ID3D12Fence_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 Value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Fence_Signal, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(Value);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Fence1_GetCreationFlags(
     ID3D12Fence1_Wrapper* wrapper,
-    D3D12_FENCE_FLAGS result)
+    D3D12_FENCE_FLAGS return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Fence1_GetCreationFlags, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12PipelineState_GetCachedBlob(
     ID3D12PipelineState_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3DBlob** ppBlob)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectPtr(ppBlob, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), wrapper);
     }
 }
 
 void Encode_ID3D12DescriptorHeap_GetDesc(
     ID3D12DescriptorHeap_Wrapper* wrapper,
-    D3D12_DESCRIPTOR_HEAP_DESC result)
+    D3D12_DESCRIPTOR_HEAP_DESC return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
     ID3D12DescriptorHeap_Wrapper* wrapper,
-    D3D12_CPU_DESCRIPTOR_HANDLE result)
+    D3D12_CPU_DESCRIPTOR_HANDLE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
     ID3D12DescriptorHeap_Wrapper* wrapper,
-    D3D12_GPU_DESCRIPTOR_HANDLE result)
+    D3D12_GPU_DESCRIPTOR_HANDLE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandList_GetType(
     ID3D12CommandList_Wrapper* wrapper,
-    D3D12_COMMAND_LIST_TYPE result)
+    D3D12_COMMAND_LIST_TYPE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandList_GetType, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12GraphicsCommandList_Close(
     ID3D12GraphicsCommandList_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
     }
 }
 
 void Encode_ID3D12GraphicsCommandList_Reset(
     ID3D12GraphicsCommandList_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12CommandAllocator* pAllocator,
     ID3D12PipelineState* pInitialState)
 {
@@ -5074,13 +5074,13 @@ void Encode_ID3D12GraphicsCommandList_Reset(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pAllocator);
         encoder->EncodeObjectValue(pInitialState);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
     }
 }
@@ -6113,7 +6113,7 @@ void Encode_ID3D12CommandQueue_EndEvent(
 
 void Encode_ID3D12CommandQueue_Signal(
     ID3D12CommandQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12Fence* pFence,
     UINT64 Value)
 {
@@ -6121,20 +6121,20 @@ void Encode_ID3D12CommandQueue_Signal(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pFence);
         encoder->EncodeUInt64Value(Value);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandQueue_Wait(
     ID3D12CommandQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12Fence* pFence,
     UINT64 Value)
 {
@@ -6142,39 +6142,39 @@ void Encode_ID3D12CommandQueue_Wait(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pFence);
         encoder->EncodeUInt64Value(Value);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandQueue_GetTimestampFrequency(
     ID3D12CommandQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64* pFrequency)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_GetTimestampFrequency, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Ptr(pFrequency, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandQueue_GetClockCalibration(
     ID3D12CommandQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64* pGpuTimestamp,
     UINT64* pCpuTimestamp)
 {
@@ -6182,44 +6182,44 @@ void Encode_ID3D12CommandQueue_GetClockCalibration(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Ptr(pGpuTimestamp, omit_output_data);
         encoder->EncodeUInt64Ptr(pCpuTimestamp, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12CommandQueue_GetDesc(
     ID3D12CommandQueue_Wrapper* wrapper,
-    D3D12_COMMAND_QUEUE_DESC result)
+    D3D12_COMMAND_QUEUE_DESC return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_GetNodeCount(
     ID3D12Device_Wrapper* wrapper,
-    UINT result)
+    UINT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_CreateCommandQueue(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_COMMAND_QUEUE_DESC* pDesc,
     REFIID riid,
     void** ppCommandQueue)
@@ -6228,21 +6228,21 @@ void Encode_ID3D12Device_CreateCommandQueue(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppCommandQueue, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppCommandQueue, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppCommandQueue, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateCommandAllocator(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_COMMAND_LIST_TYPE type,
     REFIID riid,
     void** ppCommandAllocator)
@@ -6251,21 +6251,21 @@ void Encode_ID3D12Device_CreateCommandAllocator(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(type);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppCommandAllocator, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppCommandAllocator, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppCommandAllocator, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateGraphicsPipelineState(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState)
@@ -6274,21 +6274,21 @@ void Encode_ID3D12Device_CreateGraphicsPipelineState(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateComputePipelineState(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_COMPUTE_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState)
@@ -6297,21 +6297,21 @@ void Encode_ID3D12Device_CreateComputePipelineState(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateCommandList(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT nodeMask,
     D3D12_COMMAND_LIST_TYPE type,
     ID3D12CommandAllocator* pCommandAllocator,
@@ -6323,7 +6323,7 @@ void Encode_ID3D12Device_CreateCommandList(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6333,14 +6333,14 @@ void Encode_ID3D12Device_CreateCommandList(
         encoder->EncodeObjectValue(pInitialState);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppCommandList, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppCommandList, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppCommandList, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateDescriptorHeap(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_DESCRIPTOR_HEAP_DESC* pDescriptorHeapDesc,
     REFIID riid,
     void** ppvHeap)
@@ -6349,35 +6349,35 @@ void Encode_ID3D12Device_CreateDescriptorHeap(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDescriptorHeapDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device_GetDescriptorHandleIncrementSize(
     ID3D12Device_Wrapper* wrapper,
-    UINT result,
+    UINT return_value,
     D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeEnumValue(DescriptorHeapType);
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_CreateRootSignature(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT nodeMask,
     const void* pBlobWithRootSignature,
     SIZE_T blobLengthInBytes,
@@ -6388,7 +6388,7 @@ void Encode_ID3D12Device_CreateRootSignature(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6397,8 +6397,8 @@ void Encode_ID3D12Device_CreateRootSignature(
         encoder->EncodeSizeTValue(blobLengthInBytes);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvRootSignature, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvRootSignature, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvRootSignature, wrapper);
     }
 }
 
@@ -6540,7 +6540,7 @@ void Encode_ID3D12Device_CopyDescriptorsSimple(
 
 void Encode_ID3D12Device_GetResourceAllocationInfo(
     ID3D12Device_Wrapper* wrapper,
-    D3D12_RESOURCE_ALLOCATION_INFO result,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
     UINT visibleMask,
     UINT numResourceDescs,
     const D3D12_RESOURCE_DESC* pResourceDescs)
@@ -6551,14 +6551,14 @@ void Encode_ID3D12Device_GetResourceAllocationInfo(
         encoder->EncodeUInt32Value(visibleMask);
         encoder->EncodeUInt32Value(numResourceDescs);
         EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_GetCustomHeapProperties(
     ID3D12Device_Wrapper* wrapper,
-    D3D12_HEAP_PROPERTIES result,
+    D3D12_HEAP_PROPERTIES return_value,
     UINT nodeMask,
     D3D12_HEAP_TYPE heapType)
 {
@@ -6567,14 +6567,14 @@ void Encode_ID3D12Device_GetCustomHeapProperties(
     {
         encoder->EncodeUInt32Value(nodeMask);
         encoder->EncodeEnumValue(heapType);
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_CreateCommittedResource(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
     const D3D12_RESOURCE_DESC* pDesc,
@@ -6587,7 +6587,7 @@ void Encode_ID3D12Device_CreateCommittedResource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6598,14 +6598,14 @@ void Encode_ID3D12Device_CreateCommittedResource(
         EncodeStructPtr(encoder, pOptimizedClearValue);
         EncodeStruct(encoder, riidResource);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riidResource, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riidResource, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateHeap(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_HEAP_DESC* pDesc,
     REFIID riid,
     void** ppvHeap)
@@ -6614,21 +6614,21 @@ void Encode_ID3D12Device_CreateHeap(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreatePlacedResource(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12Heap* pHeap,
     UINT64 HeapOffset,
     const D3D12_RESOURCE_DESC* pDesc,
@@ -6641,7 +6641,7 @@ void Encode_ID3D12Device_CreatePlacedResource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6652,14 +6652,14 @@ void Encode_ID3D12Device_CreatePlacedResource(
         EncodeStructPtr(encoder, pOptimizedClearValue);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateReservedResource(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialState,
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
@@ -6670,7 +6670,7 @@ void Encode_ID3D12Device_CreateReservedResource(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6679,14 +6679,14 @@ void Encode_ID3D12Device_CreateReservedResource(
         EncodeStructPtr(encoder, pOptimizedClearValue);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device_CreateSharedHandle(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12DeviceChild* pObject,
     const SECURITY_ATTRIBUTES* pAttributes,
     DWORD Access,
@@ -6697,7 +6697,7 @@ void Encode_ID3D12Device_CreateSharedHandle(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6706,14 +6706,14 @@ void Encode_ID3D12Device_CreateSharedHandle(
         encoder->EncodeUInt32Value(Access);
         encoder->EncodeWString(Name);
         encoder->EncodeVoidPtrPtr(pHandle, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_OpenSharedHandle(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE NTHandle,
     REFIID riid,
     void** ppvObj)
@@ -6722,21 +6722,21 @@ void Encode_ID3D12Device_OpenSharedHandle(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(NTHandle);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvObj, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvObj, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvObj, wrapper);
     }
 }
 
 void Encode_ID3D12Device_OpenSharedHandleByName(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR Name,
     DWORD Access,
     HANDLE* pNTHandle)
@@ -6745,21 +6745,21 @@ void Encode_ID3D12Device_OpenSharedHandleByName(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeWString(Name);
         encoder->EncodeUInt32Value(Access);
         encoder->EncodeVoidPtrPtr(pNTHandle, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_MakeResident(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects)
 {
@@ -6767,20 +6767,20 @@ void Encode_ID3D12Device_MakeResident(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumObjects);
         encoder->EncodeObjectArray(ppObjects, NumObjects);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_Evict(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects)
 {
@@ -6788,20 +6788,20 @@ void Encode_ID3D12Device_Evict(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumObjects);
         encoder->EncodeObjectArray(ppObjects, NumObjects);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_CreateFence(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 InitialValue,
     D3D12_FENCE_FLAGS Flags,
     REFIID riid,
@@ -6811,7 +6811,7 @@ void Encode_ID3D12Device_CreateFence(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6819,24 +6819,24 @@ void Encode_ID3D12Device_CreateFence(
         encoder->EncodeEnumValue(Flags);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFence, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppFence, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppFence, wrapper);
     }
 }
 
 void Encode_ID3D12Device_GetDeviceRemovedReason(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_GetDeviceRemovedReason, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -6869,7 +6869,7 @@ void Encode_ID3D12Device_GetCopyableFootprints(
 
 void Encode_ID3D12Device_CreateQueryHeap(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_QUERY_HEAP_DESC* pDesc,
     REFIID riid,
     void** ppvHeap)
@@ -6878,40 +6878,40 @@ void Encode_ID3D12Device_CreateQueryHeap(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device_SetStablePowerState(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     BOOL Enable)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_SetStablePowerState, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeInt32Value(Enable);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device_CreateCommandSignature(
     ID3D12Device_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_COMMAND_SIGNATURE_DESC* pDesc,
     ID3D12RootSignature* pRootSignature,
     REFIID riid,
@@ -6921,7 +6921,7 @@ void Encode_ID3D12Device_CreateCommandSignature(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -6929,8 +6929,8 @@ void Encode_ID3D12Device_CreateCommandSignature(
         encoder->EncodeObjectValue(pRootSignature);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvCommandSignature, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvCommandSignature, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvCommandSignature, wrapper);
     }
 }
 
@@ -6960,19 +6960,19 @@ void Encode_ID3D12Device_GetResourceTiling(
 
 void Encode_ID3D12Device_GetAdapterLuid(
     ID3D12Device_Wrapper* wrapper,
-    LUID result)
+    LUID return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Device_GetAdapterLuid, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12PipelineLibrary_StorePipeline(
     ID3D12PipelineLibrary_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR pName,
     ID3D12PipelineState* pPipeline)
 {
@@ -6980,20 +6980,20 @@ void Encode_ID3D12PipelineLibrary_StorePipeline(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeWString(pName);
         encoder->EncodeObjectValue(pPipeline);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     ID3D12PipelineLibrary_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR pName,
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
@@ -7003,7 +7003,7 @@ void Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7011,14 +7011,14 @@ void Encode_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12PipelineLibrary_LoadComputePipeline(
     ID3D12PipelineLibrary_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR pName,
     const D3D12_COMPUTE_PIPELINE_STATE_DESC* pDesc,
     REFIID riid,
@@ -7028,7 +7028,7 @@ void Encode_ID3D12PipelineLibrary_LoadComputePipeline(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7036,26 +7036,26 @@ void Encode_ID3D12PipelineLibrary_LoadComputePipeline(
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12PipelineLibrary_GetSerializedSize(
     ID3D12PipelineLibrary_Wrapper* wrapper,
-    SIZE_T result)
+    SIZE_T return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeSizeTValue(result);
+        encoder->EncodeSizeTValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12PipelineLibrary_Serialize(
     ID3D12PipelineLibrary_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     void* pData,
     SIZE_T DataSizeInBytes)
 {
@@ -7063,20 +7063,20 @@ void Encode_ID3D12PipelineLibrary_Serialize(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidArray(pData, DataSizeInBytes, omit_output_data);
         encoder->EncodeSizeTValue(DataSizeInBytes);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12PipelineLibrary1_LoadPipeline(
     ID3D12PipelineLibrary1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     LPCWSTR pName,
     const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc,
     REFIID riid,
@@ -7086,7 +7086,7 @@ void Encode_ID3D12PipelineLibrary1_LoadPipeline(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7094,14 +7094,14 @@ void Encode_ID3D12PipelineLibrary1_LoadPipeline(
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12Device1_CreatePipelineLibrary(
     ID3D12Device1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const void* pLibraryBlob,
     SIZE_T BlobLength,
     REFIID riid,
@@ -7111,7 +7111,7 @@ void Encode_ID3D12Device1_CreatePipelineLibrary(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7119,14 +7119,14 @@ void Encode_ID3D12Device1_CreatePipelineLibrary(
         encoder->EncodeSizeTValue(BlobLength);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineLibrary, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineLibrary, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineLibrary, wrapper);
     }
 }
 
 void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     ID3D12Device1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12Fence* const* ppFences,
     const UINT64* pFenceValues,
     UINT NumFences,
@@ -7137,7 +7137,7 @@ void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7146,14 +7146,14 @@ void Encode_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         encoder->EncodeUInt32Value(NumFences);
         encoder->EncodeEnumValue(Flags);
         encoder->EncodeVoidPtr(hEvent);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device1_SetResidencyPriority(
     ID3D12Device1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects,
     const D3D12_RESIDENCY_PRIORITY* pPriorities)
@@ -7162,21 +7162,21 @@ void Encode_ID3D12Device1_SetResidencyPriority(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(NumObjects);
         encoder->EncodeObjectArray(ppObjects, NumObjects);
         encoder->EncodeEnumArray(pPriorities, NumObjects);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device2_CreatePipelineState(
     ID3D12Device2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc,
     REFIID riid,
     void** ppPipelineState)
@@ -7185,21 +7185,21 @@ void Encode_ID3D12Device2_CreatePipelineState(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppPipelineState, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppPipelineState, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppPipelineState, wrapper);
     }
 }
 
 void Encode_ID3D12Device3_OpenExistingHeapFromAddress(
     ID3D12Device3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const void* pAddress,
     REFIID riid,
     void** ppvHeap)
@@ -7208,21 +7208,21 @@ void Encode_ID3D12Device3_OpenExistingHeapFromAddress(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(pAddress);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
     ID3D12Device3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     HANDLE hFileMapping,
     REFIID riid,
     void** ppvHeap)
@@ -7231,21 +7231,21 @@ void Encode_ID3D12Device3_OpenExistingHeapFromFileMapping(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeVoidPtr(hFileMapping);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device3_EnqueueMakeResident(
     ID3D12Device3_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_RESIDENCY_FLAGS Flags,
     UINT NumObjects,
     ID3D12Pageable* const* ppObjects,
@@ -7256,7 +7256,7 @@ void Encode_ID3D12Device3_EnqueueMakeResident(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7265,14 +7265,14 @@ void Encode_ID3D12Device3_EnqueueMakeResident(
         encoder->EncodeObjectArray(ppObjects, NumObjects);
         encoder->EncodeObjectValue(pFenceToSignal);
         encoder->EncodeUInt64Value(FenceValueToSignal);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12ProtectedSession_GetStatusFence(
     ID3D12ProtectedSession_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppFence)
 {
@@ -7280,25 +7280,25 @@ void Encode_ID3D12ProtectedSession_GetStatusFence(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppFence, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppFence, static_cast<void*>(nullptr));
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppFence, static_cast<void*>(nullptr));
     }
 }
 
 void Encode_ID3D12ProtectedSession_GetSessionStatus(
     ID3D12ProtectedSession_Wrapper* wrapper,
-    D3D12_PROTECTED_SESSION_STATUS result)
+    D3D12_PROTECTED_SESSION_STATUS return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12ProtectedSession_GetSessionStatus, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7317,19 +7317,19 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PROTECTED_RESOURCE_SESS
 
 void Encode_ID3D12ProtectedResourceSession_GetDesc(
     ID3D12ProtectedResourceSession_Wrapper* wrapper,
-    D3D12_PROTECTED_RESOURCE_SESSION_DESC result)
+    D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession_GetDesc, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device4_CreateCommandList1(
     ID3D12Device4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT nodeMask,
     D3D12_COMMAND_LIST_TYPE type,
     D3D12_COMMAND_LIST_FLAGS flags,
@@ -7340,7 +7340,7 @@ void Encode_ID3D12Device4_CreateCommandList1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7349,14 +7349,14 @@ void Encode_ID3D12Device4_CreateCommandList1(
         encoder->EncodeEnumValue(flags);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppCommandList, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppCommandList, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppCommandList, wrapper);
     }
 }
 
 void Encode_ID3D12Device4_CreateProtectedResourceSession(
     ID3D12Device4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_PROTECTED_RESOURCE_SESSION_DESC* pDesc,
     REFIID riid,
     void** ppSession)
@@ -7365,21 +7365,21 @@ void Encode_ID3D12Device4_CreateProtectedResourceSession(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppSession, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppSession, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppSession, wrapper);
     }
 }
 
 void Encode_ID3D12Device4_CreateCommittedResource1(
     ID3D12Device4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
     const D3D12_RESOURCE_DESC* pDesc,
@@ -7393,7 +7393,7 @@ void Encode_ID3D12Device4_CreateCommittedResource1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7405,14 +7405,14 @@ void Encode_ID3D12Device4_CreateCommittedResource1(
         encoder->EncodeObjectValue(pProtectedSession);
         EncodeStruct(encoder, riidResource);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riidResource, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riidResource, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device4_CreateHeap1(
     ID3D12Device4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_HEAP_DESC* pDesc,
     ID3D12ProtectedResourceSession* pProtectedSession,
     REFIID riid,
@@ -7422,7 +7422,7 @@ void Encode_ID3D12Device4_CreateHeap1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7430,14 +7430,14 @@ void Encode_ID3D12Device4_CreateHeap1(
         encoder->EncodeObjectValue(pProtectedSession);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvHeap, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvHeap, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvHeap, wrapper);
     }
 }
 
 void Encode_ID3D12Device4_CreateReservedResource1(
     ID3D12Device4_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialState,
     const D3D12_CLEAR_VALUE* pOptimizedClearValue,
@@ -7449,7 +7449,7 @@ void Encode_ID3D12Device4_CreateReservedResource1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7459,14 +7459,14 @@ void Encode_ID3D12Device4_CreateReservedResource1(
         encoder->EncodeObjectValue(pProtectedSession);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device4_GetResourceAllocationInfo1(
     ID3D12Device4_Wrapper* wrapper,
-    D3D12_RESOURCE_ALLOCATION_INFO result,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
     UINT visibleMask,
     UINT numResourceDescs,
     const D3D12_RESOURCE_DESC* pResourceDescs,
@@ -7479,7 +7479,7 @@ void Encode_ID3D12Device4_GetResourceAllocationInfo1(
         encoder->EncodeUInt32Value(numResourceDescs);
         EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
         EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7498,19 +7498,19 @@ void Encode_ID3D12LifetimeOwner_LifetimeStateUpdated(
 
 void Encode_ID3D12SwapChainAssistant_GetLUID(
     ID3D12SwapChainAssistant_Wrapper* wrapper,
-    LUID result)
+    LUID return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_GetLUID, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12SwapChainAssistant_GetSwapChainObject(
     ID3D12SwapChainAssistant_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppv)
 {
@@ -7518,20 +7518,20 @@ void Encode_ID3D12SwapChainAssistant_GetSwapChainObject(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppv, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppv, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppv, wrapper);
     }
 }
 
 void Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
     ID3D12SwapChainAssistant_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riidResource,
     void** ppvResource,
     REFIID riidQueue,
@@ -7541,7 +7541,7 @@ void Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7549,43 +7549,43 @@ void Encode_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
         EncodeStruct(encoder, riidQueue);
         encoder->EncodeObjectPtr(ppvQueue, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12SwapChainAssistant_InsertImplicitSync(
     ID3D12SwapChainAssistant_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12SwapChainAssistant_InsertImplicitSync, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12LifetimeTracker_DestroyOwnedObject(
     ID3D12LifetimeTracker_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12DeviceChild* pObject)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12LifetimeTracker_DestroyOwnedObject, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pObject);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7609,40 +7609,40 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_META_COMMAND_DESC& valu
 
 void Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
     ID3D12StateObjectProperties_Wrapper* wrapper,
-    void* result,
+    void* return_value,
     LPCWSTR pExportName)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderIdentifier, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeWString(pExportName);
-        encoder->EncodeVoidPtr(result);
+        encoder->EncodeVoidPtr(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12StateObjectProperties_GetShaderStackSize(
     ID3D12StateObjectProperties_Wrapper* wrapper,
-    UINT64 result,
+    UINT64 return_value,
     LPCWSTR pExportName)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetShaderStackSize, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeWString(pExportName);
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12StateObjectProperties_GetPipelineStackSize(
     ID3D12StateObjectProperties_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12StateObjectProperties_GetPipelineStackSize, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7853,7 +7853,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
 
 void Encode_ID3D12Device5_CreateLifetimeTracker(
     ID3D12Device5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12LifetimeOwner* pOwner,
     REFIID riid,
     void** ppvTracker)
@@ -7862,15 +7862,15 @@ void Encode_ID3D12Device5_CreateLifetimeTracker(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeObjectValue(pOwner);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvTracker, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvTracker, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvTracker, wrapper);
     }
 }
 
@@ -7886,7 +7886,7 @@ void Encode_ID3D12Device5_RemoveDevice(
 
 void Encode_ID3D12Device5_EnumerateMetaCommands(
     ID3D12Device5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT* pNumMetaCommands,
     D3D12_META_COMMAND_DESC* pDescs)
 {
@@ -7894,20 +7894,20 @@ void Encode_ID3D12Device5_EnumerateMetaCommands(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Ptr(pNumMetaCommands);
         EncodeStructArray(encoder, pDescs, * pNumMetaCommands, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
     ID3D12Device5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID CommandId,
     D3D12_META_COMMAND_PARAMETER_STAGE Stage,
     UINT* pTotalStructureSizeInBytes,
@@ -7918,7 +7918,7 @@ void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7927,14 +7927,14 @@ void Encode_ID3D12Device5_EnumerateMetaCommandParameters(
         encoder->EncodeUInt32Ptr(pTotalStructureSizeInBytes, omit_output_data);
         encoder->EncodeUInt32Ptr(pParameterCount);
         EncodeStructArray(encoder, pParameterDescs, * pParameterCount, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device5_CreateMetaCommand(
     ID3D12Device5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFGUID CommandId,
     UINT NodeMask,
     const void* pCreationParametersData,
@@ -7946,7 +7946,7 @@ void Encode_ID3D12Device5_CreateMetaCommand(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -7956,14 +7956,14 @@ void Encode_ID3D12Device5_CreateMetaCommand(
         encoder->EncodeSizeTValue(CreationParametersDataSizeInBytes);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppMetaCommand, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppMetaCommand, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppMetaCommand, wrapper);
     }
 }
 
 void Encode_ID3D12Device5_CreateStateObject(
     ID3D12Device5_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_STATE_OBJECT_DESC* pDesc,
     REFIID riid,
     void** ppStateObject)
@@ -7972,15 +7972,15 @@ void Encode_ID3D12Device5_CreateStateObject(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppStateObject, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppStateObject, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppStateObject, wrapper);
     }
 }
 
@@ -8000,7 +8000,7 @@ void Encode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
 
 void Encode_ID3D12Device5_CheckDriverMatchingIdentifier(
     ID3D12Device5_Wrapper* wrapper,
-    D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS result,
+    D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS return_value,
     D3D12_SERIALIZED_DATA_TYPE SerializedDataType,
     const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* pIdentifierToCheck)
 {
@@ -8009,7 +8009,7 @@ void Encode_ID3D12Device5_CheckDriverMatchingIdentifier(
     {
         encoder->EncodeEnumValue(SerializedDataType);
         EncodeStructPtr(encoder, pIdentifierToCheck);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -8161,83 +8161,83 @@ void Encode_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablem
 
 void Encode_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
     ID3D12DeviceRemovedExtendedData_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT* pOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
     ID3D12DeviceRemovedExtendedData_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DRED_PAGE_FAULT_OUTPUT* pOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
     ID3D12DeviceRemovedExtendedData1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1* pOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
     ID3D12DeviceRemovedExtendedData1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DRED_PAGE_FAULT_OUTPUT1* pOutput)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pOutput, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device6_SetBackgroundProcessingMode(
     ID3D12Device6_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_BACKGROUND_PROCESSING_MODE Mode,
     D3D12_MEASUREMENTS_ACTION MeasurementsAction,
     HANDLE hEventToSignalUponCompletion,
@@ -8247,7 +8247,7 @@ void Encode_ID3D12Device6_SetBackgroundProcessingMode(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -8255,7 +8255,7 @@ void Encode_ID3D12Device6_SetBackgroundProcessingMode(
         encoder->EncodeEnumValue(MeasurementsAction);
         encoder->EncodeVoidPtr(hEventToSignalUponCompletion);
         encoder->EncodeInt32Ptr(pbFurtherMeasurementsDesired, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -8282,19 +8282,19 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PROTECTED_RESOURCE_SESS
 
 void Encode_ID3D12ProtectedResourceSession1_GetDesc1(
     ID3D12ProtectedResourceSession1_Wrapper* wrapper,
-    D3D12_PROTECTED_RESOURCE_SESSION_DESC1 result)
+    D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12ProtectedResourceSession1_GetDesc1, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device7_AddToStateObject(
     ID3D12Device7_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_STATE_OBJECT_DESC* pAddition,
     ID3D12StateObject* pStateObjectToGrowFrom,
     REFIID riid,
@@ -8304,7 +8304,7 @@ void Encode_ID3D12Device7_AddToStateObject(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -8312,14 +8312,14 @@ void Encode_ID3D12Device7_AddToStateObject(
         encoder->EncodeObjectValue(pStateObjectToGrowFrom);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppNewStateObject, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppNewStateObject, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppNewStateObject, wrapper);
     }
 }
 
 void Encode_ID3D12Device7_CreateProtectedResourceSession1(
     ID3D12Device7_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_PROTECTED_RESOURCE_SESSION_DESC1* pDesc,
     REFIID riid,
     void** ppSession)
@@ -8328,21 +8328,21 @@ void Encode_ID3D12Device7_CreateProtectedResourceSession1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pDesc);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppSession, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppSession, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppSession, wrapper);
     }
 }
 
 void Encode_ID3D12Device8_GetResourceAllocationInfo2(
     ID3D12Device8_Wrapper* wrapper,
-    D3D12_RESOURCE_ALLOCATION_INFO result,
+    D3D12_RESOURCE_ALLOCATION_INFO return_value,
     UINT visibleMask,
     UINT numResourceDescs,
     const D3D12_RESOURCE_DESC1* pResourceDescs,
@@ -8355,14 +8355,14 @@ void Encode_ID3D12Device8_GetResourceAllocationInfo2(
         encoder->EncodeUInt32Value(numResourceDescs);
         EncodeStructArray(encoder, pResourceDescs, numResourceDescs);
         EncodeStructArray(encoder, pResourceAllocationInfo1, numResourceDescs);
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Device8_CreateCommittedResource2(
     ID3D12Device8_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     const D3D12_HEAP_PROPERTIES* pHeapProperties,
     D3D12_HEAP_FLAGS HeapFlags,
     const D3D12_RESOURCE_DESC1* pDesc,
@@ -8376,7 +8376,7 @@ void Encode_ID3D12Device8_CreateCommittedResource2(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -8388,14 +8388,14 @@ void Encode_ID3D12Device8_CreateCommittedResource2(
         encoder->EncodeObjectValue(pProtectedSession);
         EncodeStruct(encoder, riidResource);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riidResource, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riidResource, ppvResource, wrapper);
     }
 }
 
 void Encode_ID3D12Device8_CreatePlacedResource1(
     ID3D12Device8_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     ID3D12Heap* pHeap,
     UINT64 HeapOffset,
     const D3D12_RESOURCE_DESC1* pDesc,
@@ -8408,7 +8408,7 @@ void Encode_ID3D12Device8_CreatePlacedResource1(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -8419,8 +8419,8 @@ void Encode_ID3D12Device8_CreatePlacedResource1(
         EncodeStructPtr(encoder, pOptimizedClearValue);
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvResource, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvResource, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvResource, wrapper);
     }
 }
 
@@ -8468,7 +8468,7 @@ void Encode_ID3D12Device8_GetCopyableFootprints1(
 
 void Encode_ID3D12Resource1_GetProtectedResourceSession(
     ID3D12Resource1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppProtectedSession)
 {
@@ -8476,32 +8476,32 @@ void Encode_ID3D12Resource1_GetProtectedResourceSession(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppProtectedSession, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppProtectedSession, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppProtectedSession, wrapper);
     }
 }
 
 void Encode_ID3D12Resource2_GetDesc1(
     ID3D12Resource2_Wrapper* wrapper,
-    D3D12_RESOURCE_DESC1 result)
+    D3D12_RESOURCE_DESC1 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Resource2_GetDesc1, wrapper->GetCaptureId());
     if(encoder)
     {
-        EncodeStruct(encoder, result);
+        EncodeStruct(encoder, return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12Heap1_GetProtectedResourceSession(
     ID3D12Heap1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppProtectedSession)
 {
@@ -8509,14 +8509,14 @@ void Encode_ID3D12Heap1_GetProtectedResourceSession(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppProtectedSession, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppProtectedSession, wrapper);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppProtectedSession, wrapper);
     }
 }
 
@@ -8575,7 +8575,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_DEPTH_STENC
 
 void Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
     ID3D12MetaCommand_Wrapper* wrapper,
-    UINT64 result,
+    UINT64 return_value,
     D3D12_META_COMMAND_PARAMETER_STAGE Stage,
     UINT ParameterIndex)
 {
@@ -8584,7 +8584,7 @@ void Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
     {
         encoder->EncodeEnumValue(Stage);
         encoder->EncodeUInt32Value(ParameterIndex);
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -8746,12 +8746,12 @@ void Encode_ID3D12Tools_EnableShaderInstrumentation(
 
 void Encode_ID3D12Tools_ShaderInstrumentationEnabled(
     ID3D12Tools_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Tools_ShaderInstrumentationEnabled, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -8833,31 +8833,31 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D_SHADER_MACRO& value)
 
 void Encode_ID3D10Blob_GetBufferPointer(
     ID3D10Blob_Wrapper* wrapper,
-    LPVOID result)
+    LPVOID return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeVoidPtr(result);
+        encoder->EncodeVoidPtr(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D10Blob_GetBufferSize(
     ID3D10Blob_Wrapper* wrapper,
-    SIZE_T result)
+    SIZE_T return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeSizeTValue(result);
+        encoder->EncodeSizeTValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3DDestructionNotifier_RegisterDestructionCallback(
     ID3DDestructionNotifier_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     PFN_DESTRUCTION_CALLBACK callbackFn,
     void* pData,
     UINT* pCallbackID)
@@ -8866,33 +8866,33 @@ void Encode_ID3DDestructionNotifier_RegisterDestructionCallback(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeFunctionPtr(callbackFn);
         encoder->EncodeVoidPtr(pData);
         encoder->EncodeUInt32Ptr(pCallbackID, omit_output_data);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
     ID3DDestructionNotifier_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT callbackID)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3DDestructionNotifier_UnregisterDestructionCallback, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt32Value(callbackID);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9009,7 +9009,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_DEVICE_GPU_SLOWDO
 
 void Encode_ID3D12DebugDevice1_SetDebugParameter(
     ID3D12DebugDevice1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize)
@@ -9018,21 +9018,21 @@ void Encode_ID3D12DebugDevice1_SetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice1_GetDebugParameter(
     ID3D12DebugDevice1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize)
@@ -9041,90 +9041,90 @@ void Encode_ID3D12DebugDevice1_GetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize, omit_output_data);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice1_ReportLiveDeviceObjects(
     ID3D12DebugDevice1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_RLDO_FLAGS Flags)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugDevice1_ReportLiveDeviceObjects, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice_SetFeatureMask(
     ID3D12DebugDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_FEATURE Mask)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugDevice_SetFeatureMask, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Mask);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice_GetFeatureMask(
     ID3D12DebugDevice_Wrapper* wrapper,
-    D3D12_DEBUG_FEATURE result)
+    D3D12_DEBUG_FEATURE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugDevice_GetFeatureMask, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice_ReportLiveDeviceObjects(
     ID3D12DebugDevice_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_RLDO_FLAGS Flags)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugDevice_ReportLiveDeviceObjects, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Flags);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice2_SetDebugParameter(
     ID3D12DebugDevice2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize)
@@ -9133,21 +9133,21 @@ void Encode_ID3D12DebugDevice2_SetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugDevice2_GetDebugParameter(
     ID3D12DebugDevice2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize)
@@ -9156,21 +9156,21 @@ void Encode_ID3D12DebugDevice2_GetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize, omit_output_data);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandQueue_AssertResourceState(
     ID3D12DebugCommandQueue_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     ID3D12Resource* pResource,
     UINT Subresource,
     UINT State)
@@ -9181,7 +9181,7 @@ void Encode_ID3D12DebugCommandQueue_AssertResourceState(
         encoder->EncodeObjectValue(pResource);
         encoder->EncodeUInt32Value(Subresource);
         encoder->EncodeUInt32Value(State);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9193,7 +9193,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEBUG_COMMAND_LIST_GPU_
 
 void Encode_ID3D12DebugCommandList1_AssertResourceState(
     ID3D12DebugCommandList1_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     ID3D12Resource* pResource,
     UINT Subresource,
     UINT State)
@@ -9204,14 +9204,14 @@ void Encode_ID3D12DebugCommandList1_AssertResourceState(
         encoder->EncodeObjectValue(pResource);
         encoder->EncodeUInt32Value(Subresource);
         encoder->EncodeUInt32Value(State);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList1_SetDebugParameter(
     ID3D12DebugCommandList1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize)
@@ -9220,21 +9220,21 @@ void Encode_ID3D12DebugCommandList1_SetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList1_GetDebugParameter(
     ID3D12DebugCommandList1_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize)
@@ -9243,21 +9243,21 @@ void Encode_ID3D12DebugCommandList1_GetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize, omit_output_data);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList_AssertResourceState(
     ID3D12DebugCommandList_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     ID3D12Resource* pResource,
     UINT Subresource,
     UINT State)
@@ -9268,45 +9268,45 @@ void Encode_ID3D12DebugCommandList_AssertResourceState(
         encoder->EncodeObjectValue(pResource);
         encoder->EncodeUInt32Value(Subresource);
         encoder->EncodeUInt32Value(State);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList_SetFeatureMask(
     ID3D12DebugCommandList_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_FEATURE Mask)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugCommandList_SetFeatureMask, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Mask);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList_GetFeatureMask(
     ID3D12DebugCommandList_Wrapper* wrapper,
-    D3D12_DEBUG_FEATURE result)
+    D3D12_DEBUG_FEATURE return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DebugCommandList_GetFeatureMask, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList2_SetDebugParameter(
     ID3D12DebugCommandList2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     const void* pData,
     UINT DataSize)
@@ -9315,21 +9315,21 @@ void Encode_ID3D12DebugCommandList2_SetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12DebugCommandList2_GetDebugParameter(
     ID3D12DebugCommandList2_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE Type,
     void* pData,
     UINT DataSize)
@@ -9338,14 +9338,14 @@ void Encode_ID3D12DebugCommandList2_GetDebugParameter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Type);
         encoder->EncodeVoidArray(pData, DataSize, omit_output_data);
         encoder->EncodeUInt32Value(DataSize);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9431,19 +9431,19 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_INFO_QUEUE_FILTER& valu
 
 void Encode_ID3D12InfoQueue_SetMessageCountLimit(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 MessageCountLimit)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_SetMessageCountLimit, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(MessageCountLimit);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9460,7 +9460,7 @@ void Encode_ID3D12InfoQueue_ClearStoredMessages(
 
 void Encode_ID3D12InfoQueue_GetMessage(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     UINT64 MessageIndex,
     D3D12_MESSAGE* pMessage,
     SIZE_T* pMessageByteLength)
@@ -9469,112 +9469,112 @@ void Encode_ID3D12InfoQueue_GetMessage(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(MessageIndex);
         EncodeStructArray(encoder, pMessage, * pMessageByteLength, omit_output_data);
         encoder->EncodeSizeTPtr(pMessageByteLength);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetNumStoredMessages(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessages, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetMessageCountLimit(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT64 result)
+    UINT64 return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessageCountLimit, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt64Value(result);
+        encoder->EncodeUInt64Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_AddStorageFilterEntries(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_AddStorageFilterEntries, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pFilter);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter,
     SIZE_T* pFilterByteLength)
 {
@@ -9582,13 +9582,13 @@ void Encode_ID3D12InfoQueue_GetStorageFilter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructArray(encoder, pFilter, * pFilterByteLength, omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9605,53 +9605,53 @@ void Encode_ID3D12InfoQueue_ClearStorageFilter(
 
 void Encode_ID3D12InfoQueue_PushEmptyStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyStorageFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_PushCopyOfStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfStorageFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_PushStorageFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushStorageFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pFilter);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9668,38 +9668,38 @@ void Encode_ID3D12InfoQueue_PopStorageFilter(
 
 void Encode_ID3D12InfoQueue_GetStorageFilterStackSize(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT result)
+    UINT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilterStackSize, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_AddRetrievalFilterEntries(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_AddRetrievalFilterEntries, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pFilter);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetRetrievalFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter,
     SIZE_T* pFilterByteLength)
 {
@@ -9707,13 +9707,13 @@ void Encode_ID3D12InfoQueue_GetRetrievalFilter(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructArray(encoder, pFilter, * pFilterByteLength, omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9730,53 +9730,53 @@ void Encode_ID3D12InfoQueue_ClearRetrievalFilter(
 
 void Encode_ID3D12InfoQueue_PushEmptyRetrievalFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushEmptyRetrievalFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result)
+    HRESULT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushCopyOfRetrievalFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_PushRetrievalFilter(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_INFO_QUEUE_FILTER* pFilter)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_PushRetrievalFilter, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStructPtr(encoder, pFilter);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9793,19 +9793,19 @@ void Encode_ID3D12InfoQueue_PopRetrievalFilter(
 
 void Encode_ID3D12InfoQueue_GetRetrievalFilterStackSize(
     ID3D12InfoQueue_Wrapper* wrapper,
-    UINT result)
+    UINT return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilterStackSize, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_AddMessage(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_MESSAGE_CATEGORY Category,
     D3D12_MESSAGE_SEVERITY Severity,
     D3D12_MESSAGE_ID ID,
@@ -9815,7 +9815,7 @@ void Encode_ID3D12InfoQueue_AddMessage(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
@@ -9823,14 +9823,14 @@ void Encode_ID3D12InfoQueue_AddMessage(
         encoder->EncodeEnumValue(Severity);
         encoder->EncodeEnumValue(ID);
         encoder->EncodeString(pDescription);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_AddApplicationMessage(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_MESSAGE_SEVERITY Severity,
     LPCSTR pDescription)
 {
@@ -9838,20 +9838,20 @@ void Encode_ID3D12InfoQueue_AddApplicationMessage(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Severity);
         encoder->EncodeString(pDescription);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_SetBreakOnCategory(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_MESSAGE_CATEGORY Category,
     BOOL bEnable)
 {
@@ -9859,20 +9859,20 @@ void Encode_ID3D12InfoQueue_SetBreakOnCategory(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Category);
         encoder->EncodeInt32Value(bEnable);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_SetBreakOnSeverity(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_MESSAGE_SEVERITY Severity,
     BOOL bEnable)
 {
@@ -9880,20 +9880,20 @@ void Encode_ID3D12InfoQueue_SetBreakOnSeverity(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(Severity);
         encoder->EncodeInt32Value(bEnable);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_SetBreakOnID(
     ID3D12InfoQueue_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     D3D12_MESSAGE_ID ID,
     BOOL bEnable)
 {
@@ -9901,55 +9901,55 @@ void Encode_ID3D12InfoQueue_SetBreakOnID(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         encoder->EncodeEnumValue(ID);
         encoder->EncodeInt32Value(bEnable);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetBreakOnCategory(
     ID3D12InfoQueue_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     D3D12_MESSAGE_CATEGORY Category)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnCategory, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeEnumValue(Category);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetBreakOnSeverity(
     ID3D12InfoQueue_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     D3D12_MESSAGE_SEVERITY Severity)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnSeverity, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeEnumValue(Severity);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_ID3D12InfoQueue_GetBreakOnID(
     ID3D12InfoQueue_Wrapper* wrapper,
-    BOOL result,
+    BOOL return_value,
     D3D12_MESSAGE_ID ID)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetBreakOnID, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeEnumValue(ID);
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9968,12 +9968,12 @@ void Encode_ID3D12InfoQueue_SetMuteDebugOutput(
 
 void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
     ID3D12InfoQueue_Wrapper* wrapper,
-    BOOL result)
+    BOOL return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMuteDebugOutput, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeInt32Value(result);
+        encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -9986,7 +9986,7 @@ void Encode_ID3D12InfoQueue_GetMuteDebugOutput(
 
 void Encode_IUnknown_QueryInterface(
     IUnknown_Wrapper* wrapper,
-    HRESULT result,
+    HRESULT return_value,
     REFIID riid,
     void** ppvObject)
 {
@@ -9994,37 +9994,37 @@ void Encode_IUnknown_QueryInterface(
     if(encoder)
     {
         bool omit_output_data = false;
-        if (result != S_OK)
+        if (return_value != S_OK)
         {
             omit_output_data = true;
         }
         EncodeStruct(encoder, riid);
         encoder->EncodeObjectPtr(ppvObject, omit_output_data);
-        encoder->EncodeInt32Value(result);
-        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(result, riid, ppvObject, static_cast<void*>(nullptr));
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvObject, static_cast<void*>(nullptr));
     }
 }
 
 void Encode_IUnknown_AddRef(
     IUnknown_Wrapper* wrapper,
-    ULONG result)
+    ULONG return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IUnknown_AddRef, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
 
 void Encode_IUnknown_Release(
     IUnknown_Wrapper* wrapper,
-    ULONG result)
+    ULONG return_value)
 {
     auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IUnknown_Release, wrapper->GetCaptureId());
     if(encoder)
     {
-        encoder->EncodeUInt32Value(result);
+        encoder->EncodeUInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }

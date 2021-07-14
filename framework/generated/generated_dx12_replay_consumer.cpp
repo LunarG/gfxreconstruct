@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 void Dx12ReplayConsumer::Process_CreateDXGIFactory(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFactory)
 {
@@ -46,11 +46,11 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory(
     {
         AddObject(out_p_ppFactory, out_hp_ppFactory);
     }
-    CheckReplayResult("CreateDXGIFactory", returnValue, replay_result);
+    CheckReplayResult("CreateDXGIFactory", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_CreateDXGIFactory1(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFactory)
 {
@@ -63,11 +63,11 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory1(
     {
         AddObject(out_p_ppFactory, out_hp_ppFactory);
     }
-    CheckReplayResult("CreateDXGIFactory1", returnValue, replay_result);
+    CheckReplayResult("CreateDXGIFactory1", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Flags,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFactory)
@@ -75,7 +75,7 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
     if(!ppFactory->IsNull()) ppFactory->SetHandleLength(1);
     DxObjectInfo object_info{};
     ppFactory->SetConsumerData(0, &object_info);
-    auto replay_result = OverrideCreateDXGIFactory2(returnValue,
+    auto replay_result = OverrideCreateDXGIFactory2(return_value,
                                                     Flags,
                                                     riid,
                                                     ppFactory);
@@ -83,11 +83,11 @@ void Dx12ReplayConsumer::Process_CreateDXGIFactory2(
     {
         AddObject(ppFactory->GetPointer(), ppFactory->GetHandlePointer(), std::move(object_info));
     }
-    CheckReplayResult("CreateDXGIFactory2", returnValue, replay_result);
+    CheckReplayResult("CreateDXGIFactory2", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_DXGIGetDebugInterface1(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Flags,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                pDebug)
@@ -102,18 +102,18 @@ void Dx12ReplayConsumer::Process_DXGIGetDebugInterface1(
     {
         AddObject(out_p_pDebug, out_hp_pDebug);
     }
-    CheckReplayResult("DXGIGetDebugInterface1", returnValue, replay_result);
+    CheckReplayResult("DXGIGetDebugInterface1", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_DXGIDeclareAdapterRemovalSupport(
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_result = DXGIDeclareAdapterRemovalSupport();
-    CheckReplayResult("DXGIDeclareAdapterRemovalSupport", returnValue, replay_result);
+    CheckReplayResult("DXGIDeclareAdapterRemovalSupport", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* pRootSignature,
     D3D_ROOT_SIGNATURE_VERSION                  Version,
     HandlePointerDecoder<ID3D10Blob*>*          ppBlob,
@@ -134,11 +134,11 @@ void Dx12ReplayConsumer::Process_D3D12SerializeRootSignature(
         AddObject(out_p_ppBlob, out_hp_ppBlob);
         AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob);
     }
-    CheckReplayResult("D3D12SerializeRootSignature", returnValue, replay_result);
+    CheckReplayResult("D3D12SerializeRootSignature", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint8_t>*                    pSrcData,
     SIZE_T                                      SrcDataSizeInBytes,
     Decoded_GUID                                pRootSignatureDeserializerInterface,
@@ -155,11 +155,11 @@ void Dx12ReplayConsumer::Process_D3D12CreateRootSignatureDeserializer(
     {
         AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer);
     }
-    CheckReplayResult("D3D12CreateRootSignatureDeserializer", returnValue, replay_result);
+    CheckReplayResult("D3D12CreateRootSignatureDeserializer", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* pRootSignature,
     HandlePointerDecoder<ID3D10Blob*>*          ppBlob,
     HandlePointerDecoder<ID3D10Blob*>*          ppErrorBlob)
@@ -178,11 +178,11 @@ void Dx12ReplayConsumer::Process_D3D12SerializeVersionedRootSignature(
         AddObject(out_p_ppBlob, out_hp_ppBlob);
         AddObject(out_p_ppErrorBlob, out_hp_ppErrorBlob);
     }
-    CheckReplayResult("D3D12SerializeVersionedRootSignature", returnValue, replay_result);
+    CheckReplayResult("D3D12SerializeVersionedRootSignature", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint8_t>*                    pSrcData,
     SIZE_T                                      SrcDataSizeInBytes,
     Decoded_GUID                                pRootSignatureDeserializerInterface,
@@ -199,11 +199,11 @@ void Dx12ReplayConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     {
         AddObject(out_p_ppRootSignatureDeserializer, out_hp_ppRootSignatureDeserializer);
     }
-    CheckReplayResult("D3D12CreateVersionedRootSignatureDeserializer", returnValue, replay_result);
+    CheckReplayResult("D3D12CreateVersionedRootSignatureDeserializer", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12CreateDevice(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pAdapter,
     D3D_FEATURE_LEVEL                           MinimumFeatureLevel,
     Decoded_GUID                                riid,
@@ -213,7 +213,7 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
     if(!ppDevice->IsNull()) ppDevice->SetHandleLength(1);
     DxObjectInfo object_info{};
     ppDevice->SetConsumerData(0, &object_info);
-    auto replay_result = OverrideD3D12CreateDevice(returnValue,
+    auto replay_result = OverrideD3D12CreateDevice(return_value,
                                                    in_pAdapter,
                                                    MinimumFeatureLevel,
                                                    riid,
@@ -222,11 +222,11 @@ void Dx12ReplayConsumer::Process_D3D12CreateDevice(
     {
         AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info));
     }
-    CheckReplayResult("D3D12CreateDevice", returnValue, replay_result);
+    CheckReplayResult("D3D12CreateDevice", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12GetDebugInterface(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvDebug)
 {
@@ -239,11 +239,11 @@ void Dx12ReplayConsumer::Process_D3D12GetDebugInterface(
     {
         AddObject(out_p_ppvDebug, out_hp_ppvDebug);
     }
-    CheckReplayResult("D3D12GetDebugInterface", returnValue, replay_result);
+    CheckReplayResult("D3D12GetDebugInterface", return_value, replay_result);
 }
 
 void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumFeatures,
     StructPointerDecoder<Decoded_GUID>*         pIIDs,
     PointerDecoder<uint8_t>*                    pConfigurationStructs,
@@ -253,11 +253,11 @@ void Dx12ReplayConsumer::Process_D3D12EnableExperimentalFeatures(
                                                          pIIDs->GetPointer(),
                                                          pConfigurationStructs->GetPointer(),
                                                          pConfigurationStructSizes->GetPointer());
-    CheckReplayResult("D3D12EnableExperimentalFeatures", returnValue, replay_result);
+    CheckReplayResult("D3D12EnableExperimentalFeatures", return_value, replay_result);
 }
 void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                Name,
     UINT                                        DataSize,
     PointerDecoder<uint8_t>*                    pData)
@@ -268,13 +268,13 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
         auto replay_result = replay_object->SetPrivateData(*Name.decoded_value,
                                                            DataSize,
                                                            pData->GetPointer());
-        CheckReplayResult("IDXGIObject_SetPrivateData", returnValue, replay_result);
+        CheckReplayResult("IDXGIObject_SetPrivateData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                Name,
     format::HandleId                            pUnknown)
 {
@@ -284,13 +284,13 @@ void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         auto in_pUnknown = MapObject<IUnknown>(pUnknown);
         auto replay_result = replay_object->SetPrivateDataInterface(*Name.decoded_value,
                                                                     in_pUnknown);
-        CheckReplayResult("IDXGIObject_SetPrivateDataInterface", returnValue, replay_result);
+        CheckReplayResult("IDXGIObject_SetPrivateDataInterface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                Name,
     PointerDecoder<UINT>*                       pDataSize,
     PointerDecoder<uint8_t>*                    pData)
@@ -301,13 +301,13 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
         auto replay_result = replay_object->GetPrivateData(*Name.decoded_value,
                                                            pDataSize->GetPointer(),
                                                            pData->GetPointer());
-        CheckReplayResult("IDXGIObject_GetPrivateData", returnValue, replay_result);
+        CheckReplayResult("IDXGIObject_GetPrivateData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIObject_GetParent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppParent)
 {
@@ -323,13 +323,13 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetParent(
         {
             AddObject(out_p_ppParent, out_hp_ppParent);
         }
-        CheckReplayResult("IDXGIObject_GetParent", returnValue, replay_result);
+        CheckReplayResult("IDXGIObject_GetParent", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppDevice)
 {
@@ -345,13 +345,13 @@ void Dx12ReplayConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         {
             AddObject(out_p_ppDevice, out_hp_ppDevice);
         }
-        CheckReplayResult("IDXGIDeviceSubObject_GetDevice", returnValue, replay_result);
+        CheckReplayResult("IDXGIDeviceSubObject_GetDevice", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint64_t, void*>*            pSharedHandle)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
@@ -361,53 +361,53 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
         auto out_p_pSharedHandle    = pSharedHandle->GetPointer();
         auto out_op_pSharedHandle   = reinterpret_cast<HANDLE*>(pSharedHandle->GetOutputPointer());
         auto replay_result = replay_object->GetSharedHandle(out_op_pSharedHandle);
-        CheckReplayResult("IDXGIResource_GetSharedHandle", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource_GetSharedHandle", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pSharedHandle, out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource_GetUsage(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<DXGI_USAGE>*                 pUsage)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetUsage(pUsage->GetPointer());
-        CheckReplayResult("IDXGIResource_GetUsage", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource_GetUsage", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource_SetEvictionPriority(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        EvictionPriority)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetEvictionPriority(EvictionPriority);
-        CheckReplayResult("IDXGIResource_SetEvictionPriority", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource_SetEvictionPriority", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pEvictionPriority)
 {
     auto replay_object = MapObject<IDXGIResource>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetEvictionPriority(pEvictionPriority->GetPointer());
-        CheckReplayResult("IDXGIResource_GetEvictionPriority", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource_GetEvictionPriority", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      Key,
     DWORD                                       dwMilliseconds)
 {
@@ -416,39 +416,39 @@ void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     {
         auto replay_result = replay_object->AcquireSync(Key,
                                                         dwMilliseconds);
-        CheckReplayResult("IDXGIKeyedMutex_AcquireSync", returnValue, replay_result);
+        CheckReplayResult("IDXGIKeyedMutex_AcquireSync", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      Key)
 {
     auto replay_object = MapObject<IDXGIKeyedMutex>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReleaseSync(Key);
-        CheckReplayResult("IDXGIKeyedMutex_ReleaseSync", returnValue, replay_result);
+        CheckReplayResult("IDXGIKeyedMutex_ReleaseSync", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface_GetDesc(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
 {
     auto replay_object = MapObject<IDXGISurface>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        CheckReplayResult("IDXGISurface_GetDesc", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface_GetDesc", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface_Map(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
     UINT                                        MapFlags)
 {
@@ -457,25 +457,25 @@ void Dx12ReplayConsumer::Process_IDXGISurface_Map(
     {
         auto replay_result = replay_object->Map(pLockedRect->GetPointer(),
                                                 MapFlags);
-        CheckReplayResult("IDXGISurface_Map", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface_Map", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface_Unmap(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<IDXGISurface>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->Unmap();
-        CheckReplayResult("IDXGISurface_Unmap", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface_Unmap", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     BOOL                                        Discard,
     PointerDecoder<uint64_t, void*>*            phdc)
 {
@@ -487,27 +487,27 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
         auto out_op_phdc   = reinterpret_cast<HDC*>(phdc->GetOutputPointer());
         auto replay_result = replay_object->GetDC(Discard,
                                                   out_op_phdc);
-        CheckReplayResult("IDXGISurface1_GetDC", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface1_GetDC", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_phdc, out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface1_ReleaseDC(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_tagRECT>*      pDirtyRect)
 {
     auto replay_object = MapObject<IDXGISurface1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReleaseDC(pDirtyRect->GetPointer());
-        CheckReplayResult("IDXGISurface1_ReleaseDC", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface1_ReleaseDC", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Output,
     HandlePointerDecoder<IDXGIOutput*>*         ppOutput)
 {
@@ -523,26 +523,26 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_EnumOutputs(
         {
             AddObject(out_p_ppOutput, out_hp_ppOutput);
         }
-        CheckReplayResult("IDXGIAdapter_EnumOutputs", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter_EnumOutputs", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
 {
     auto replay_object = MapObject<IDXGIAdapter>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        CheckReplayResult("IDXGIAdapter_GetDesc", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter_GetDesc", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                InterfaceName,
     StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
@@ -551,26 +551,26 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     {
         auto replay_result = replay_object->CheckInterfaceSupport(*InterfaceName.decoded_value,
                                                                   pUMDVersion->GetPointer());
-        CheckReplayResult("IDXGIAdapter_CheckInterfaceSupport", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter_CheckInterfaceSupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetDesc(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        CheckReplayResult("IDXGIOutput_GetDesc", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetDesc", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_FORMAT                                 EnumFormat,
     UINT                                        Flags,
     PointerDecoder<UINT>*                       pNumModes,
@@ -583,13 +583,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
                                                                Flags,
                                                                pNumModes->GetPointer(),
                                                                pDesc->GetPointer());
-        CheckReplayResult("IDXGIOutput_GetDisplayModeList", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetDisplayModeList", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
     format::HandleId                            pConcernedDevice)
@@ -601,25 +601,25 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         auto replay_result = replay_object->FindClosestMatchingMode(pModeToMatch->GetPointer(),
                                                                     pClosestMatch->GetPointer(),
                                                                     in_pConcernedDevice);
-        CheckReplayResult("IDXGIOutput_FindClosestMatchingMode", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_FindClosestMatchingMode", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_WaitForVBlank(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->WaitForVBlank();
-        CheckReplayResult("IDXGIOutput_WaitForVBlank", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_WaitForVBlank", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     BOOL                                        Exclusive)
 {
@@ -629,7 +629,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_TakeOwnership(
         auto in_pDevice = MapObject<IUnknown>(pDevice);
         auto replay_result = replay_object->TakeOwnership(in_pDevice,
                                                           Exclusive);
-        CheckReplayResult("IDXGIOutput_TakeOwnership", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_TakeOwnership", return_value, replay_result);
     }
 }
 
@@ -645,46 +645,46 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_ReleaseOwnership(
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGammaControlCapabilities(pGammaCaps->GetPointer());
-        CheckReplayResult("IDXGIOutput_GetGammaControlCapabilities", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetGammaControlCapabilities", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_SetGammaControl(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetGammaControl(pArray->GetPointer());
-        CheckReplayResult("IDXGIOutput_SetGammaControl", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_SetGammaControl", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGammaControl(pArray->GetPointer());
-        CheckReplayResult("IDXGIOutput_GetGammaControl", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetGammaControl", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pScanoutSurface)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
@@ -692,13 +692,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_SetDisplaySurface(
     {
         auto in_pScanoutSurface = MapObject<IDXGISurface>(pScanoutSurface);
         auto replay_result = replay_object->SetDisplaySurface(in_pScanoutSurface);
-        CheckReplayResult("IDXGIOutput_SetDisplaySurface", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_SetDisplaySurface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDestination)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
@@ -706,26 +706,26 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     {
         auto in_pDestination = MapObject<IDXGISurface>(pDestination);
         auto replay_result = replay_object->GetDisplaySurfaceData(in_pDestination);
-        CheckReplayResult("IDXGIOutput_GetDisplaySurfaceData", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetDisplaySurfaceData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     auto replay_object = MapObject<IDXGIOutput>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatistics(pStats->GetPointer());
-        CheckReplayResult("IDXGIOutput_GetFrameStatistics", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput_GetFrameStatistics", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        SyncInterval,
     UINT                                        Flags)
 {
@@ -733,16 +733,16 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_Present(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverridePresent(replay_object,
-                                             returnValue,
+                                             return_value,
                                              SyncInterval,
                                              Flags);
-        CheckReplayResult("IDXGISwapChain_Present", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_Present", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Buffer,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppSurface)
@@ -754,7 +754,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
         DxObjectInfo object_info{};
         ppSurface->SetConsumerData(0, &object_info);
         auto replay_result = OverrideGetBuffer(replay_object,
-                                               returnValue,
+                                               return_value,
                                                Buffer,
                                                riid,
                                                ppSurface);
@@ -762,13 +762,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetBuffer(
         {
             AddObject(ppSurface->GetPointer(), ppSurface->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("IDXGISwapChain_GetBuffer", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetBuffer", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     BOOL                                        Fullscreen,
     format::HandleId                            pTarget)
 {
@@ -778,13 +778,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_SetFullscreenState(
         auto in_pTarget = MapObject<IDXGIOutput>(pTarget);
         auto replay_result = replay_object->SetFullscreenState(Fullscreen,
                                                                in_pTarget);
-        CheckReplayResult("IDXGISwapChain_SetFullscreenState", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_SetFullscreenState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<BOOL>*                       pFullscreen,
     HandlePointerDecoder<IDXGIOutput*>*         ppTarget)
 {
@@ -800,26 +800,26 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
         {
             AddObject(out_p_ppTarget, out_hp_ppTarget);
         }
-        CheckReplayResult("IDXGISwapChain_GetFullscreenState", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetFullscreenState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
 {
     auto replay_object = MapObject<IDXGISwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc(pDesc->GetPointer());
-        CheckReplayResult("IDXGISwapChain_GetDesc", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetDesc", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        BufferCount,
     UINT                                        Width,
     UINT                                        Height,
@@ -830,32 +830,32 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeBuffers(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideResizeBuffers(replay_object,
-                                                   returnValue,
+                                                   return_value,
                                                    BufferCount,
                                                    Width,
                                                    Height,
                                                    NewFormat,
                                                    SwapChainFlags);
-        CheckReplayResult("IDXGISwapChain_ResizeBuffers", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_ResizeBuffers", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_ResizeTarget(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
 {
     auto replay_object = MapObject<IDXGISwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ResizeTarget(pNewTargetParameters->GetPointer());
-        CheckReplayResult("IDXGISwapChain_ResizeTarget", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_ResizeTarget", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<IDXGIOutput*>*         ppOutput)
 {
     auto replay_object = MapObject<IDXGISwapChain>(object_id);
@@ -869,39 +869,39 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetContainingOutput(
         {
             AddObject(out_p_ppOutput, out_hp_ppOutput);
         }
-        CheckReplayResult("IDXGISwapChain_GetContainingOutput", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetContainingOutput", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     auto replay_object = MapObject<IDXGISwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatistics(pStats->GetPointer());
-        CheckReplayResult("IDXGISwapChain_GetFrameStatistics", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetFrameStatistics", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pLastPresentCount)
 {
     auto replay_object = MapObject<IDXGISwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetLastPresentCount(pLastPresentCount->GetPointer());
-        CheckReplayResult("IDXGISwapChain_GetLastPresentCount", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain_GetLastPresentCount", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Adapter,
     HandlePointerDecoder<IDXGIAdapter*>*        ppAdapter)
 {
@@ -917,13 +917,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_EnumAdapters(
         {
             AddObject(out_p_ppAdapter, out_hp_ppAdapter);
         }
-        CheckReplayResult("IDXGIFactory_EnumAdapters", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory_EnumAdapters", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    WindowHandle,
     UINT                                        Flags)
 {
@@ -933,13 +933,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         auto in_WindowHandle = static_cast<HWND>(PreProcessExternalObject(WindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation, "IDXGIFactory_MakeWindowAssociation"));
         auto replay_result = replay_object->MakeWindowAssociation(in_WindowHandle,
                                                                   Flags);
-        CheckReplayResult("IDXGIFactory_MakeWindowAssociation", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory_MakeWindowAssociation", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint64_t, void*>*            pWindowHandle)
 {
     auto replay_object = MapObject<IDXGIFactory>(object_id);
@@ -949,14 +949,14 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
         auto out_p_pWindowHandle    = pWindowHandle->GetPointer();
         auto out_op_pWindowHandle   = reinterpret_cast<HWND*>(pWindowHandle->GetOutputPointer());
         auto replay_result = replay_object->GetWindowAssociation(out_op_pWindowHandle);
-        CheckReplayResult("IDXGIFactory_GetWindowAssociation", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory_GetWindowAssociation", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pWindowHandle, out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
     HandlePointerDecoder<IDXGISwapChain*>*      ppSwapChain)
@@ -969,7 +969,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
         DxObjectInfo object_info{};
         ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChain(replay_object,
-                                                     returnValue,
+                                                     return_value,
                                                      in_pDevice,
                                                      pDesc,
                                                      ppSwapChain);
@@ -977,13 +977,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSwapChain(
         {
             AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("IDXGIFactory_CreateSwapChain", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory_CreateSwapChain", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    Module,
     HandlePointerDecoder<IDXGIAdapter*>*        ppAdapter)
 {
@@ -1000,13 +1000,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         {
             AddObject(out_p_ppAdapter, out_hp_ppAdapter);
         }
-        CheckReplayResult("IDXGIFactory_CreateSoftwareAdapter", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory_CreateSoftwareAdapter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<IDXGIAdapter*>*        pAdapter)
 {
     auto replay_object = MapObject<IDXGIDevice>(object_id);
@@ -1020,13 +1020,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetAdapter(
         {
             AddObject(out_p_pAdapter, out_hp_pAdapter);
         }
-        CheckReplayResult("IDXGIDevice_GetAdapter", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice_GetAdapter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
     UINT                                        NumSurfaces,
     DXGI_USAGE                                  Usage,
@@ -1048,13 +1048,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_CreateSurface(
         {
             AddObject(out_p_ppSurface, out_hp_ppSurface);
         }
-        CheckReplayResult("IDXGIDevice_CreateSurface", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice_CreateSurface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<IUnknown*>*            ppResources,
     PointerDecoder<DXGI_RESIDENCY>*             pResidencyStatus,
     UINT                                        NumResources)
@@ -1066,39 +1066,39 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
         auto replay_result = replay_object->QueryResourceResidency(in_ppResources,
                                                                    pResidencyStatus->GetPointer(),
                                                                    NumResources);
-        CheckReplayResult("IDXGIDevice_QueryResourceResidency", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice_QueryResourceResidency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     INT                                         Priority)
 {
     auto replay_object = MapObject<IDXGIDevice>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetGPUThreadPriority(Priority);
-        CheckReplayResult("IDXGIDevice_SetGPUThreadPriority", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice_SetGPUThreadPriority", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<INT>*                        pPriority)
 {
     auto replay_object = MapObject<IDXGIDevice>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetGPUThreadPriority(pPriority->GetPointer());
-        CheckReplayResult("IDXGIDevice_GetGPUThreadPriority", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice_GetGPUThreadPriority", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Adapter,
     HandlePointerDecoder<IDXGIAdapter1*>*       ppAdapter)
 {
@@ -1114,13 +1114,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory1_EnumAdapters1(
         {
             AddObject(out_p_ppAdapter, out_hp_ppAdapter);
         }
-        CheckReplayResult("IDXGIFactory1_EnumAdapters1", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory1_EnumAdapters1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<IDXGIFactory1>(object_id);
     if (replay_object != nullptr)
@@ -1131,46 +1131,46 @@ void Dx12ReplayConsumer::Process_IDXGIFactory1_IsCurrent(
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
 {
     auto replay_object = MapObject<IDXGIAdapter1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        CheckReplayResult("IDXGIAdapter1_GetDesc1", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter1_GetDesc1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        MaxLatency)
 {
     auto replay_object = MapObject<IDXGIDevice1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMaximumFrameLatency(MaxLatency);
-        CheckReplayResult("IDXGIDevice1_SetMaximumFrameLatency", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice1_SetMaximumFrameLatency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pMaxLatency)
 {
     auto replay_object = MapObject<IDXGIDevice1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMaximumFrameLatency(pMaxLatency->GetPointer());
-        CheckReplayResult("IDXGIDevice1_GetMaximumFrameLatency", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice1_GetMaximumFrameLatency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<IDXGIDisplayControl>(object_id);
     if (replay_object != nullptr)
@@ -1203,7 +1203,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetDesc(
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        TimeoutInMilliseconds,
     StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
     HandlePointerDecoder<IDXGIResource*>*       ppDesktopResource)
@@ -1221,13 +1221,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         {
             AddObject(out_p_ppDesktopResource, out_hp_ppDesktopResource);
         }
-        CheckReplayResult("IDXGIOutputDuplication_AcquireNextFrame", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_AcquireNextFrame", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        DirtyRectsBufferSize,
     StructPointerDecoder<Decoded_tagRECT>*      pDirtyRectsBuffer,
     PointerDecoder<UINT>*                       pDirtyRectsBufferSizeRequired)
@@ -1238,13 +1238,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         auto replay_result = replay_object->GetFrameDirtyRects(DirtyRectsBufferSize,
                                                                pDirtyRectsBuffer->GetPointer(),
                                                                pDirtyRectsBufferSizeRequired->GetPointer());
-        CheckReplayResult("IDXGIOutputDuplication_GetFrameDirtyRects", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_GetFrameDirtyRects", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        MoveRectsBufferSize,
     StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
     PointerDecoder<UINT>*                       pMoveRectsBufferSizeRequired)
@@ -1255,13 +1255,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         auto replay_result = replay_object->GetFrameMoveRects(MoveRectsBufferSize,
                                                               pMoveRectBuffer->GetPointer(),
                                                               pMoveRectsBufferSizeRequired->GetPointer());
-        CheckReplayResult("IDXGIOutputDuplication_GetFrameMoveRects", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_GetFrameMoveRects", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        PointerShapeBufferSize,
     PointerDecoder<uint8_t>*                    pPointerShapeBuffer,
     PointerDecoder<UINT>*                       pPointerShapeBufferSizeRequired,
@@ -1274,50 +1274,50 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
                                                                  pPointerShapeBuffer->GetPointer(),
                                                                  pPointerShapeBufferSizeRequired->GetPointer(),
                                                                  pPointerShapeInfo->GetPointer());
-        CheckReplayResult("IDXGIOutputDuplication_GetFramePointerShape", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_GetFramePointerShape", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
 {
     auto replay_object = MapObject<IDXGIOutputDuplication>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->MapDesktopSurface(pLockedRect->GetPointer());
-        CheckReplayResult("IDXGIOutputDuplication_MapDesktopSurface", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_MapDesktopSurface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<IDXGIOutputDuplication>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->UnMapDesktopSurface();
-        CheckReplayResult("IDXGIOutputDuplication_UnMapDesktopSurface", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_UnMapDesktopSurface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<IDXGIOutputDuplication>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReleaseFrame();
-        CheckReplayResult("IDXGIOutputDuplication_ReleaseFrame", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutputDuplication_ReleaseFrame", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppParentResource,
     PointerDecoder<UINT>*                       pSubresourceIndex)
@@ -1335,13 +1335,13 @@ void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
         {
             AddObject(out_p_ppParentResource, out_hp_ppParentResource);
         }
-        CheckReplayResult("IDXGISurface2_GetResource", returnValue, replay_result);
+        CheckReplayResult("IDXGISurface2_GetResource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        index,
     HandlePointerDecoder<IDXGISurface2*>*       ppSurface)
 {
@@ -1357,13 +1357,13 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         {
             AddObject(out_p_ppSurface, out_hp_ppSurface);
         }
-        CheckReplayResult("IDXGIResource1_CreateSubresourceSurface", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource1_CreateSubresourceSurface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       dwAccess,
     WStringDecoder*                             lpName,
@@ -1379,14 +1379,14 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
                                                                dwAccess,
                                                                lpName->GetPointer(),
                                                                out_op_pHandle);
-        CheckReplayResult("IDXGIResource1_CreateSharedHandle", returnValue, replay_result);
+        CheckReplayResult("IDXGIResource1_CreateSharedHandle", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle, "IDXGIResource1_CreateSharedHandle");
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumResources,
     HandlePointerDecoder<IDXGIResource*>*       ppResources,
     DXGI_OFFER_RESOURCE_PRIORITY                Priority)
@@ -1398,13 +1398,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_OfferResources(
         auto replay_result = replay_object->OfferResources(NumResources,
                                                            in_ppResources,
                                                            Priority);
-        CheckReplayResult("IDXGIDevice2_OfferResources", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice2_OfferResources", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumResources,
     HandlePointerDecoder<IDXGIResource*>*       ppResources,
     PointerDecoder<BOOL>*                       pDiscarded)
@@ -1416,13 +1416,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
         auto replay_result = replay_object->ReclaimResources(NumResources,
                                                              in_ppResources,
                                                              pDiscarded->GetPointer());
-        CheckReplayResult("IDXGIDevice2_ReclaimResources", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice2_ReclaimResources", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent)
 {
     auto replay_object = MapObject<IDXGIDevice2>(object_id);
@@ -1430,39 +1430,39 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     {
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIDevice2_EnqueueSetEvent, "IDXGIDevice2_EnqueueSetEvent"));
         auto replay_result = replay_object->EnqueueSetEvent(in_hEvent);
-        CheckReplayResult("IDXGIDevice2_EnqueueSetEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice2_EnqueueSetEvent", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        CheckReplayResult("IDXGISwapChain1_GetDesc1", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetDesc1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFullscreenDesc(pDesc->GetPointer());
-        CheckReplayResult("IDXGISwapChain1_GetFullscreenDesc", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetFullscreenDesc", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint64_t, void*>*            pHwnd)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
@@ -1472,14 +1472,14 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
         auto out_p_pHwnd    = pHwnd->GetPointer();
         auto out_op_pHwnd   = reinterpret_cast<HWND*>(pHwnd->GetOutputPointer());
         auto replay_result = replay_object->GetHwnd(out_op_pHwnd);
-        CheckReplayResult("IDXGISwapChain1_GetHwnd", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetHwnd", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pHwnd, out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                refiid,
     HandlePointerDecoder<void*>*                ppUnk)
 {
@@ -1495,13 +1495,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         {
             AddObject(out_p_ppUnk, out_hp_ppUnk);
         }
-        CheckReplayResult("IDXGISwapChain1_GetCoreWindow", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetCoreWindow", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        SyncInterval,
     UINT                                        PresentFlags,
     StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
@@ -1510,17 +1510,17 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_Present1(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverridePresent1(replay_object,
-                                              returnValue,
+                                              return_value,
                                               SyncInterval,
                                               PresentFlags,
                                               pPresentParameters);
-        CheckReplayResult("IDXGISwapChain1_Present1", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_Present1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
@@ -1531,7 +1531,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<IDXGIOutput*>*         ppRestrictToOutput)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
@@ -1545,65 +1545,65 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         {
             AddObject(out_p_ppRestrictToOutput, out_hp_ppRestrictToOutput);
         }
-        CheckReplayResult("IDXGISwapChain1_GetRestrictToOutput", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetRestrictToOutput", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetBackgroundColor(pColor->GetPointer());
-        CheckReplayResult("IDXGISwapChain1_SetBackgroundColor", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_SetBackgroundColor", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetBackgroundColor(pColor->GetPointer());
-        CheckReplayResult("IDXGISwapChain1_GetBackgroundColor", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetBackgroundColor", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_SetRotation(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_MODE_ROTATION                          Rotation)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetRotation(Rotation);
-        CheckReplayResult("IDXGISwapChain1_SetRotation", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_SetRotation", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<DXGI_MODE_ROTATION>*         pRotation)
 {
     auto replay_object = MapObject<IDXGISwapChain1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetRotation(pRotation->GetPointer());
-        CheckReplayResult("IDXGISwapChain1_GetRotation", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain1_GetRotation", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<IDXGIFactory2>(object_id);
     if (replay_object != nullptr)
@@ -1614,7 +1614,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     uint64_t                                    hWnd,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -1631,7 +1631,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         DxObjectInfo object_info{};
         ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForHwnd(replay_object,
-                                                            returnValue,
+                                                            return_value,
                                                             in_pDevice,
                                                             hWnd,
                                                             pDesc,
@@ -1642,13 +1642,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         {
             AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("IDXGIFactory2_CreateSwapChainForHwnd", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_CreateSwapChainForHwnd", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     format::HandleId                            pWindow,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -1665,7 +1665,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         DxObjectInfo object_info{};
         ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForCoreWindow(replay_object,
-                                                                  returnValue,
+                                                                  return_value,
                                                                   in_pDevice,
                                                                   in_pWindow,
                                                                   pDesc,
@@ -1675,13 +1675,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         {
             AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("IDXGIFactory2_CreateSwapChainForCoreWindow", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_CreateSwapChainForCoreWindow", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hResource,
     StructPointerDecoder<Decoded_LUID>*         pLuid)
 {
@@ -1691,13 +1691,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         auto in_hResource = static_cast<HANDLE>(PreProcessExternalObject(hResource, format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid, "IDXGIFactory2_GetSharedResourceAdapterLuid"));
         auto replay_result = replay_object->GetSharedResourceAdapterLuid(in_hResource,
                                                                          pLuid->GetPointer());
-        CheckReplayResult("IDXGIFactory2_GetSharedResourceAdapterLuid", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_GetSharedResourceAdapterLuid", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    WindowHandle,
     UINT                                        wMsg,
     PointerDecoder<DWORD>*                      pdwCookie)
@@ -1709,13 +1709,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         auto replay_result = replay_object->RegisterStereoStatusWindow(in_WindowHandle,
                                                                        wMsg,
                                                                        pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIFactory2_RegisterStereoStatusWindow", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_RegisterStereoStatusWindow", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
@@ -1725,7 +1725,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent, "IDXGIFactory2_RegisterStereoStatusEvent"));
         auto replay_result = replay_object->RegisterStereoStatusEvent(in_hEvent,
                                                                       pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIFactory2_RegisterStereoStatusEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_RegisterStereoStatusEvent", return_value, replay_result);
     }
 }
 
@@ -1742,7 +1742,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    WindowHandle,
     UINT                                        wMsg,
     PointerDecoder<DWORD>*                      pdwCookie)
@@ -1754,13 +1754,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         auto replay_result = replay_object->RegisterOcclusionStatusWindow(in_WindowHandle,
                                                                           wMsg,
                                                                           pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusWindow", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusWindow", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
@@ -1770,7 +1770,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent, "IDXGIFactory2_RegisterOcclusionStatusEvent"));
         auto replay_result = replay_object->RegisterOcclusionStatusEvent(in_hEvent,
                                                                          pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusEvent", return_value, replay_result);
     }
 }
 
@@ -1787,7 +1787,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
 
 void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
     format::HandleId                            pRestrictToOutput,
@@ -1802,7 +1802,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         DxObjectInfo object_info{};
         ppSwapChain->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateSwapChainForComposition(replay_object,
-                                                                   returnValue,
+                                                                   return_value,
                                                                    in_pDevice,
                                                                    pDesc,
                                                                    in_pRestrictToOutput,
@@ -1811,26 +1811,26 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         {
             AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("IDXGIFactory2_CreateSwapChainForComposition", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory2_CreateSwapChainForComposition", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
 {
     auto replay_object = MapObject<IDXGIAdapter2>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc2(pDesc->GetPointer());
-        CheckReplayResult("IDXGIAdapter2_GetDesc2", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter2_GetDesc2", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_FORMAT                                 EnumFormat,
     UINT                                        Flags,
     PointerDecoder<UINT>*                       pNumModes,
@@ -1843,13 +1843,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
                                                                 Flags,
                                                                 pNumModes->GetPointer(),
                                                                 pDesc->GetPointer());
-        CheckReplayResult("IDXGIOutput1_GetDisplayModeList1", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput1_GetDisplayModeList1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
     StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
     format::HandleId                            pConcernedDevice)
@@ -1861,13 +1861,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         auto replay_result = replay_object->FindClosestMatchingMode1(pModeToMatch->GetPointer(),
                                                                      pClosestMatch->GetPointer(),
                                                                      in_pConcernedDevice);
-        CheckReplayResult("IDXGIOutput1_FindClosestMatchingMode1", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput1_FindClosestMatchingMode1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDestination)
 {
     auto replay_object = MapObject<IDXGIOutput1>(object_id);
@@ -1875,13 +1875,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     {
         auto in_pDestination = MapObject<IDXGIResource>(pDestination);
         auto replay_result = replay_object->GetDisplaySurfaceData1(in_pDestination);
-        CheckReplayResult("IDXGIOutput1_GetDisplaySurfaceData1", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput1_GetDisplaySurfaceData1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
@@ -1898,7 +1898,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_DuplicateOutput(
         {
             AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication);
         }
-        CheckReplayResult("IDXGIOutput1_DuplicateOutput", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput1_DuplicateOutput", return_value, replay_result);
     }
 }
 
@@ -1914,7 +1914,7 @@ void Dx12ReplayConsumer::Process_IDXGIDevice3_Trim(
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Width,
     UINT                                        Height)
 {
@@ -1923,13 +1923,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetSourceSize(
     {
         auto replay_result = replay_object->SetSourceSize(Width,
                                                           Height);
-        CheckReplayResult("IDXGISwapChain2_SetSourceSize", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_SetSourceSize", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pWidth,
     PointerDecoder<UINT>*                       pHeight)
 {
@@ -1938,39 +1938,39 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
     {
         auto replay_result = replay_object->GetSourceSize(pWidth->GetPointer(),
                                                           pHeight->GetPointer());
-        CheckReplayResult("IDXGISwapChain2_GetSourceSize", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_GetSourceSize", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        MaxLatency)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMaximumFrameLatency(MaxLatency);
-        CheckReplayResult("IDXGISwapChain2_SetMaximumFrameLatency", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_SetMaximumFrameLatency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pMaxLatency)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMaximumFrameLatency(pMaxLatency->GetPointer());
-        CheckReplayResult("IDXGISwapChain2_GetMaximumFrameLatency", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_GetMaximumFrameLatency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     format::HandleId                            object_id,
-    uint64_t                                    returnValue)
+    uint64_t                                    return_value)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
@@ -1981,33 +1981,33 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMatrixTransform(pMatrix->GetPointer());
-        CheckReplayResult("IDXGISwapChain2_SetMatrixTransform", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_SetMatrixTransform", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     auto replay_object = MapObject<IDXGISwapChain2>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetMatrixTransform(pMatrix->GetPointer());
-        CheckReplayResult("IDXGISwapChain2_GetMatrixTransform", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain2_GetMatrixTransform", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<IDXGIOutput2>(object_id);
     if (replay_object != nullptr)
@@ -2018,7 +2018,7 @@ void Dx12ReplayConsumer::Process_IDXGIOutput2_SupportsOverlays(
 
 void Dx12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
     format::HandleId                            object_id,
-    UINT                                        returnValue)
+    UINT                                        return_value)
 {
     auto replay_object = MapObject<IDXGIFactory3>(object_id);
     if (replay_object != nullptr)
@@ -2029,7 +2029,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory3_GetCreationFlags(
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        BufferToPresent,
     UINT                                        SyncInterval,
     UINT                                        Flags)
@@ -2040,39 +2040,39 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         auto replay_result = replay_object->PresentBuffer(BufferToPresent,
                                                           SyncInterval,
                                                           Flags);
-        CheckReplayResult("IDXGIDecodeSwapChain_PresentBuffer", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_PresentBuffer", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetSourceRect(pRect->GetPointer());
-        CheckReplayResult("IDXGIDecodeSwapChain_SetSourceRect", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_SetSourceRect", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetTargetRect(pRect->GetPointer());
-        CheckReplayResult("IDXGIDecodeSwapChain_SetTargetRect", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_SetTargetRect", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Width,
     UINT                                        Height)
 {
@@ -2081,39 +2081,39 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     {
         auto replay_result = replay_object->SetDestSize(Width,
                                                         Height);
-        CheckReplayResult("IDXGIDecodeSwapChain_SetDestSize", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_SetDestSize", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetSourceRect(pRect->GetPointer());
-        CheckReplayResult("IDXGIDecodeSwapChain_GetSourceRect", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_GetSourceRect", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_tagRECT>*      pRect)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetTargetRect(pRect->GetPointer());
-        CheckReplayResult("IDXGIDecodeSwapChain_GetTargetRect", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_GetTargetRect", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pWidth,
     PointerDecoder<UINT>*                       pHeight)
 {
@@ -2122,26 +2122,26 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
     {
         auto replay_result = replay_object->GetDestSize(pWidth->GetPointer(),
                                                         pHeight->GetPointer());
-        CheckReplayResult("IDXGIDecodeSwapChain_GetDestSize", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_GetDestSize", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS         ColorSpace)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetColorSpace(ColorSpace);
-        CheckReplayResult("IDXGIDecodeSwapChain_SetColorSpace", returnValue, replay_result);
+        CheckReplayResult("IDXGIDecodeSwapChain_SetColorSpace", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
     format::HandleId                            object_id,
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS         returnValue)
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS         return_value)
 {
     auto replay_object = MapObject<IDXGIDecodeSwapChain>(object_id);
     if (replay_object != nullptr)
@@ -2152,7 +2152,7 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
 
 void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     uint64_t                                    hSurface,
     StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
@@ -2177,13 +2177,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForComposition
         {
             AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
         }
-        CheckReplayResult("IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     uint64_t                                    hSurface,
     StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
@@ -2211,39 +2211,39 @@ void Dx12ReplayConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompo
         {
             AddObject(out_p_ppSwapChain, out_hp_ppSwapChain);
         }
-        CheckReplayResult("IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
 {
     auto replay_object = MapObject<IDXGISwapChainMedia>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetFrameStatisticsMedia(pStats->GetPointer());
-        CheckReplayResult("IDXGISwapChainMedia_GetFrameStatisticsMedia", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChainMedia_GetFrameStatisticsMedia", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Duration)
 {
     auto replay_object = MapObject<IDXGISwapChainMedia>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetPresentDuration(Duration);
-        CheckReplayResult("IDXGISwapChainMedia_SetPresentDuration", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChainMedia_SetPresentDuration", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        DesiredPresentDuration,
     PointerDecoder<UINT>*                       pClosestSmallerPresentDuration,
     PointerDecoder<UINT>*                       pClosestLargerPresentDuration)
@@ -2254,13 +2254,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport
         auto replay_result = replay_object->CheckPresentDurationSupport(DesiredPresentDuration,
                                                                         pClosestSmallerPresentDuration->GetPointer(),
                                                                         pClosestLargerPresentDuration->GetPointer());
-        CheckReplayResult("IDXGISwapChainMedia_CheckPresentDurationSupport", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChainMedia_CheckPresentDurationSupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_FORMAT                                 EnumFormat,
     format::HandleId                            pConcernedDevice,
     PointerDecoder<UINT>*                       pFlags)
@@ -2272,13 +2272,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         auto replay_result = replay_object->CheckOverlaySupport(EnumFormat,
                                                                 in_pConcernedDevice,
                                                                 pFlags->GetPointer());
-        CheckReplayResult("IDXGIOutput3_CheckOverlaySupport", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput3_CheckOverlaySupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
     format::HandleId                            object_id,
-    UINT                                        returnValue)
+    UINT                                        return_value)
 {
     auto replay_object = MapObject<IDXGISwapChain3>(object_id);
     if (replay_object != nullptr)
@@ -2289,7 +2289,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_COLOR_SPACE_TYPE                       ColorSpace,
     PointerDecoder<UINT>*                       pColorSpaceSupport)
 {
@@ -2298,26 +2298,26 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
     {
         auto replay_result = replay_object->CheckColorSpaceSupport(ColorSpace,
                                                                    pColorSpaceSupport->GetPointer());
-        CheckReplayResult("IDXGISwapChain3_CheckColorSpaceSupport", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain3_CheckColorSpaceSupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain3_SetColorSpace1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_COLOR_SPACE_TYPE                       ColorSpace)
 {
     auto replay_object = MapObject<IDXGISwapChain3>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetColorSpace1(ColorSpace);
-        CheckReplayResult("IDXGISwapChain3_SetColorSpace1", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain3_SetColorSpace1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        BufferCount,
     UINT                                        Width,
     UINT                                        Height,
@@ -2331,7 +2331,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     {
         MapObjects<IUnknown>(ppPresentQueue, BufferCount);
         auto replay_result = OverrideResizeBuffers1(replay_object,
-                                                    returnValue,
+                                                    return_value,
                                                     BufferCount,
                                                     Width,
                                                     Height,
@@ -2339,13 +2339,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
                                                     SwapChainFlags,
                                                     pCreationNodeMask,
                                                     ppPresentQueue);
-        CheckReplayResult("IDXGISwapChain3_ResizeBuffers1", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain3_ResizeBuffers1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_FORMAT                                 Format,
     DXGI_COLOR_SPACE_TYPE                       ColorSpace,
     format::HandleId                            pConcernedDevice,
@@ -2359,13 +2359,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
                                                                           ColorSpace,
                                                                           in_pConcernedDevice,
                                                                           pFlags->GetPointer());
-        CheckReplayResult("IDXGIOutput4_CheckOverlayColorSpaceSupport", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput4_CheckOverlayColorSpaceSupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_LUID                                AdapterLuid,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvAdapter)
@@ -2383,13 +2383,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         {
             AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
         }
-        CheckReplayResult("IDXGIFactory4_EnumAdapterByLuid", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory4_EnumAdapterByLuid", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvAdapter)
 {
@@ -2405,13 +2405,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         {
             AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
         }
-        CheckReplayResult("IDXGIFactory4_EnumWarpAdapter", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory4_EnumWarpAdapter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
@@ -2421,7 +2421,7 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtection
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent, "IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent"));
         auto replay_result = replay_object->RegisterHardwareContentProtectionTeardownStatusEvent(in_hEvent,
                                                                                                  pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent", return_value, replay_result);
     }
 }
 
@@ -2438,7 +2438,7 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtecti
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP                   MemorySegmentGroup,
     StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
@@ -2449,13 +2449,13 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         auto replay_result = replay_object->QueryVideoMemoryInfo(NodeIndex,
                                                                  MemorySegmentGroup,
                                                                  pVideoMemoryInfo->GetPointer());
-        CheckReplayResult("IDXGIAdapter3_QueryVideoMemoryInfo", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter3_QueryVideoMemoryInfo", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NodeIndex,
     DXGI_MEMORY_SEGMENT_GROUP                   MemorySegmentGroup,
     UINT64                                      Reservation)
@@ -2466,13 +2466,13 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         auto replay_result = replay_object->SetVideoMemoryReservation(NodeIndex,
                                                                       MemorySegmentGroup,
                                                                       Reservation);
-        CheckReplayResult("IDXGIAdapter3_SetVideoMemoryReservation", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter3_SetVideoMemoryReservation", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
@@ -2482,7 +2482,7 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNo
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent, "IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent"));
         auto replay_result = replay_object->RegisterVideoMemoryBudgetChangeNotificationEvent(in_hEvent,
                                                                                              pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent", return_value, replay_result);
     }
 }
 
@@ -2499,7 +2499,7 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChange
 
 void Dx12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pDevice,
     UINT                                        Flags,
     UINT                                        SupportedFormatsCount,
@@ -2522,13 +2522,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         {
             AddObject(out_p_ppOutputDuplication, out_hp_ppOutputDuplication);
         }
-        CheckReplayResult("IDXGIOutput5_DuplicateOutput1", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput5_DuplicateOutput1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DXGI_HDR_METADATA_TYPE                      Type,
     UINT                                        Size,
     PointerDecoder<uint8_t>*                    pMetaData)
@@ -2539,13 +2539,13 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         auto replay_result = replay_object->SetHDRMetaData(Type,
                                                            Size,
                                                            pMetaData->GetPointer());
-        CheckReplayResult("IDXGISwapChain4_SetHDRMetaData", returnValue, replay_result);
+        CheckReplayResult("IDXGISwapChain4_SetHDRMetaData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumResources,
     HandlePointerDecoder<IDXGIResource*>*       ppResources,
     DXGI_OFFER_RESOURCE_PRIORITY                Priority,
@@ -2559,13 +2559,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_OfferResources1(
                                                             in_ppResources,
                                                             Priority,
                                                             Flags);
-        CheckReplayResult("IDXGIDevice4_OfferResources1", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice4_OfferResources1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumResources,
     HandlePointerDecoder<IDXGIResource*>*       ppResources,
     PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
@@ -2577,52 +2577,52 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
         auto replay_result = replay_object->ReclaimResources1(NumResources,
                                                               in_ppResources,
                                                               pResults->GetPointer());
-        CheckReplayResult("IDXGIDevice4_ReclaimResources1", returnValue, replay_result);
+        CheckReplayResult("IDXGIDevice4_ReclaimResources1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
 {
     auto replay_object = MapObject<IDXGIAdapter4>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc3(pDesc->GetPointer());
-        CheckReplayResult("IDXGIAdapter4_GetDesc3", returnValue, replay_result);
+        CheckReplayResult("IDXGIAdapter4_GetDesc3", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
 {
     auto replay_object = MapObject<IDXGIOutput6>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDesc1(pDesc->GetPointer());
-        CheckReplayResult("IDXGIOutput6_GetDesc1", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput6_GetDesc1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pFlags)
 {
     auto replay_object = MapObject<IDXGIOutput6>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->CheckHardwareCompositionSupport(pFlags->GetPointer());
-        CheckReplayResult("IDXGIOutput6_CheckHardwareCompositionSupport", returnValue, replay_result);
+        CheckReplayResult("IDXGIOutput6_CheckHardwareCompositionSupport", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Adapter,
     DXGI_GPU_PREFERENCE                         GpuPreference,
     Decoded_GUID                                riid,
@@ -2642,13 +2642,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         {
             AddObject(out_p_ppvAdapter, out_hp_ppvAdapter);
         }
-        CheckReplayResult("IDXGIFactory6_EnumAdapterByGpuPreference", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory6_EnumAdapterByGpuPreference", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hEvent,
     PointerDecoder<DWORD>*                      pdwCookie)
 {
@@ -2658,26 +2658,26 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent, "IDXGIFactory7_RegisterAdaptersChangedEvent"));
         auto replay_result = replay_object->RegisterAdaptersChangedEvent(in_hEvent,
                                                                          pdwCookie->GetPointer());
-        CheckReplayResult("IDXGIFactory7_RegisterAdaptersChangedEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory7_RegisterAdaptersChangedEvent", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     DWORD                                       dwCookie)
 {
     auto replay_object = MapObject<IDXGIFactory7>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->UnregisterAdaptersChangedEvent(dwCookie);
-        CheckReplayResult("IDXGIFactory7_UnregisterAdaptersChangedEvent", returnValue, replay_result);
+        CheckReplayResult("IDXGIFactory7_UnregisterAdaptersChangedEvent", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                guid,
     PointerDecoder<UINT>*                       pDataSize,
     PointerDecoder<uint8_t>*                    pData)
@@ -2688,13 +2688,13 @@ void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
         auto replay_result = replay_object->GetPrivateData(*guid.decoded_value,
                                                            pDataSize->GetPointer(),
                                                            pData->GetPointer());
-        CheckReplayResult("ID3D12Object_GetPrivateData", returnValue, replay_result);
+        CheckReplayResult("ID3D12Object_GetPrivateData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                guid,
     UINT                                        DataSize,
     PointerDecoder<uint8_t>*                    pData)
@@ -2705,13 +2705,13 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateData(
         auto replay_result = replay_object->SetPrivateData(*guid.decoded_value,
                                                            DataSize,
                                                            pData->GetPointer());
-        CheckReplayResult("ID3D12Object_SetPrivateData", returnValue, replay_result);
+        CheckReplayResult("ID3D12Object_SetPrivateData", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                guid,
     format::HandleId                            pData)
 {
@@ -2721,26 +2721,26 @@ void Dx12ReplayConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         auto in_pData = MapObject<IUnknown>(pData);
         auto replay_result = replay_object->SetPrivateDataInterface(*guid.decoded_value,
                                                                     in_pData);
-        CheckReplayResult("ID3D12Object_SetPrivateDataInterface", returnValue, replay_result);
+        CheckReplayResult("ID3D12Object_SetPrivateDataInterface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Object_SetName(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             Name)
 {
     auto replay_object = MapObject<ID3D12Object>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetName(Name->GetPointer());
-        CheckReplayResult("ID3D12Object_SetName", returnValue, replay_result);
+        CheckReplayResult("ID3D12Object_SetName", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvDevice)
 {
@@ -2756,13 +2756,13 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceChild_GetDevice(
         {
             AddObject(out_p_ppvDevice, out_hp_ppvDevice);
         }
-        CheckReplayResult("ID3D12DeviceChild_GetDevice", returnValue, replay_result);
+        CheckReplayResult("ID3D12DeviceChild_GetDevice", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatureDesc(
     format::HandleId                            object_id,
-    StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* returnValue)
+    StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value)
 {
     auto replay_object = MapObject<ID3D12RootSignatureDeserializer>(object_id);
     if (replay_object != nullptr)
@@ -2773,7 +2773,7 @@ void Dx12ReplayConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignatur
 
 void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D_ROOT_SIGNATURE_VERSION                  convertToVersion,
     StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*>* ppDesc)
 {
@@ -2782,13 +2782,13 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
     {
         auto replay_result = replay_object->GetRootSignatureDescAtVersion(convertToVersion,
                                                                           const_cast<const D3D12_VERSIONED_ROOT_SIGNATURE_DESC**>(ppDesc->GetPointer()));
-        CheckReplayResult("ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion", returnValue, replay_result);
+        CheckReplayResult("ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
     format::HandleId                            object_id,
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* returnValue)
+    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value)
 {
     auto replay_object = MapObject<ID3D12VersionedRootSignatureDeserializer>(object_id);
     if (replay_object != nullptr)
@@ -2799,7 +2799,7 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnc
 
 void Dx12ReplayConsumer::Process_ID3D12Heap_GetDesc(
     format::HandleId                            object_id,
-    Decoded_D3D12_HEAP_DESC                     returnValue)
+    Decoded_D3D12_HEAP_DESC                     return_value)
 {
     auto replay_object = MapObject<ID3D12Heap>(object_id);
     if (replay_object != nullptr)
@@ -2810,7 +2810,7 @@ void Dx12ReplayConsumer::Process_ID3D12Heap_GetDesc(
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        Subresource,
     StructPointerDecoder<Decoded_D3D12_RANGE>*  pReadRange,
     PointerDecoder<uint64_t, void*>*            ppData)
@@ -2820,11 +2820,11 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Map(
     {
         ppData->AllocateOutputData(1);
         auto replay_result = OverrideResourceMap(replay_object,
-                                                 returnValue,
+                                                 return_value,
                                                  Subresource,
                                                  pReadRange,
                                                  ppData);
-        CheckReplayResult("ID3D12Resource_Map", returnValue, replay_result);
+        CheckReplayResult("ID3D12Resource_Map", return_value, replay_result);
     }
 }
 
@@ -2844,7 +2844,7 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_Unmap(
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_GetDesc(
     format::HandleId                            object_id,
-    Decoded_D3D12_RESOURCE_DESC                 returnValue)
+    Decoded_D3D12_RESOURCE_DESC                 return_value)
 {
     auto replay_object = MapObject<ID3D12Resource>(object_id);
     if (replay_object != nullptr)
@@ -2855,19 +2855,19 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetDesc(
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     format::HandleId                            object_id,
-    D3D12_GPU_VIRTUAL_ADDRESS                   returnValue)
+    D3D12_GPU_VIRTUAL_ADDRESS                   return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideGetGpuVirtualAddress(replay_object,
-                                                          returnValue);
+                                                          return_value);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        DstSubresource,
     StructPointerDecoder<Decoded_D3D12_BOX>*    pDstBox,
     uint64_t                                    pSrcData,
@@ -2878,19 +2878,19 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_WriteToSubresource(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideWriteToSubresource(replay_object,
-                                                        returnValue,
+                                                        return_value,
                                                         DstSubresource,
                                                         pDstBox,
                                                         pSrcData,
                                                         SrcRowPitch,
                                                         SrcDepthPitch);
-        CheckReplayResult("ID3D12Resource_WriteToSubresource", returnValue, replay_result);
+        CheckReplayResult("ID3D12Resource_WriteToSubresource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    pDstData,
     UINT                                        DstRowPitch,
     UINT                                        DstDepthPitch,
@@ -2901,19 +2901,19 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_ReadFromSubresource(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideReadFromSubresource(replay_object,
-                                                         returnValue,
+                                                         return_value,
                                                          pDstData,
                                                          DstRowPitch,
                                                          DstDepthPitch,
                                                          SrcSubresource,
                                                          pSrcBox);
-        CheckReplayResult("ID3D12Resource_ReadFromSubresource", returnValue, replay_result);
+        CheckReplayResult("ID3D12Resource_ReadFromSubresource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
     PointerDecoder<D3D12_HEAP_FLAGS>*           pHeapFlags)
 {
@@ -2922,37 +2922,37 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
     {
         auto replay_result = replay_object->GetHeapProperties(pHeapProperties->GetPointer(),
                                                               pHeapFlags->GetPointer());
-        CheckReplayResult("ID3D12Resource_GetHeapProperties", returnValue, replay_result);
+        CheckReplayResult("ID3D12Resource_GetHeapProperties", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandAllocator_Reset(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12CommandAllocator>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->Reset();
-        CheckReplayResult("ID3D12CommandAllocator_Reset", returnValue, replay_result);
+        CheckReplayResult("ID3D12CommandAllocator_Reset", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Fence_GetCompletedValue(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideGetCompletedValue(replay_object,
-                                                       returnValue);
+                                                       return_value);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      Value,
     uint64_t                                    hEvent)
 {
@@ -2960,31 +2960,31 @@ void Dx12ReplayConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideSetEventOnCompletion(replay_object,
-                                                          returnValue,
+                                                          return_value,
                                                           Value,
                                                           hEvent);
-        CheckReplayResult("ID3D12Fence_SetEventOnCompletion", returnValue, replay_result);
+        CheckReplayResult("ID3D12Fence_SetEventOnCompletion", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Fence_Signal(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      Value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideFenceSignal(replay_object,
-                                                 returnValue,
+                                                 return_value,
                                                  Value);
-        CheckReplayResult("ID3D12Fence_Signal", returnValue, replay_result);
+        CheckReplayResult("ID3D12Fence_Signal", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
     format::HandleId                            object_id,
-    D3D12_FENCE_FLAGS                           returnValue)
+    D3D12_FENCE_FLAGS                           return_value)
 {
     auto replay_object = MapObject<ID3D12Fence1>(object_id);
     if (replay_object != nullptr)
@@ -2995,7 +2995,7 @@ void Dx12ReplayConsumer::Process_ID3D12Fence1_GetCreationFlags(
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<ID3D10Blob*>*          ppBlob)
 {
     auto replay_object = MapObject<ID3D12PipelineState>(object_id);
@@ -3009,13 +3009,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         {
             AddObject(out_p_ppBlob, out_hp_ppBlob);
         }
-        CheckReplayResult("ID3D12PipelineState_GetCachedBlob", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineState_GetCachedBlob", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
     format::HandleId                            object_id,
-    Decoded_D3D12_DESCRIPTOR_HEAP_DESC          returnValue)
+    Decoded_D3D12_DESCRIPTOR_HEAP_DESC          return_value)
 {
     auto replay_object = MapObject<ID3D12DescriptorHeap>(object_id);
     if (replay_object != nullptr)
@@ -3026,31 +3026,31 @@ void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetDesc(
 
 void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
     format::HandleId                            object_id,
-    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         returnValue)
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE         return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideGetCPUDescriptorHandleForHeapStart(replay_object,
-                                                                        returnValue);
+                                                                        return_value);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
     format::HandleId                            object_id,
-    Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         returnValue)
+    Decoded_D3D12_GPU_DESCRIPTOR_HANDLE         return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideGetGPUDescriptorHandleForHeapStart(replay_object,
-                                                                        returnValue);
+                                                                        return_value);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandList_GetType(
     format::HandleId                            object_id,
-    D3D12_COMMAND_LIST_TYPE                     returnValue)
+    D3D12_COMMAND_LIST_TYPE                     return_value)
 {
     auto replay_object = MapObject<ID3D12CommandList>(object_id);
     if (replay_object != nullptr)
@@ -3061,19 +3061,19 @@ void Dx12ReplayConsumer::Process_ID3D12CommandList_GetType(
 
 void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->Close();
-        CheckReplayResult("ID3D12GraphicsCommandList_Close", returnValue, replay_result);
+        CheckReplayResult("ID3D12GraphicsCommandList_Close", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pAllocator,
     format::HandleId                            pInitialState)
 {
@@ -3084,7 +3084,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Reset(
         auto in_pInitialState = MapObject<ID3D12PipelineState>(pInitialState);
         auto replay_result = replay_object->Reset(in_pAllocator,
                                                   in_pInitialState);
-        CheckReplayResult("ID3D12GraphicsCommandList_Reset", returnValue, replay_result);
+        CheckReplayResult("ID3D12GraphicsCommandList_Reset", return_value, replay_result);
     }
 }
 
@@ -4112,7 +4112,7 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_EndEvent(
 
 void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pFence,
     UINT64                                      Value)
 {
@@ -4121,16 +4121,16 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Signal(
     {
         auto in_pFence = GetObjectInfo(pFence);
         auto replay_result = OverrideCommandQueueSignal(replay_object,
-                                                        returnValue,
+                                                        return_value,
                                                         in_pFence,
                                                         Value);
-        CheckReplayResult("ID3D12CommandQueue_Signal", returnValue, replay_result);
+        CheckReplayResult("ID3D12CommandQueue_Signal", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pFence,
     UINT64                                      Value)
 {
@@ -4139,29 +4139,29 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_Wait(
     {
         auto in_pFence = GetObjectInfo(pFence);
         auto replay_result = OverrideCommandQueueWait(replay_object,
-                                                      returnValue,
+                                                      return_value,
                                                       in_pFence,
                                                       Value);
-        CheckReplayResult("ID3D12CommandQueue_Wait", returnValue, replay_result);
+        CheckReplayResult("ID3D12CommandQueue_Wait", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT64>*                     pFrequency)
 {
     auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetTimestampFrequency(pFrequency->GetPointer());
-        CheckReplayResult("ID3D12CommandQueue_GetTimestampFrequency", returnValue, replay_result);
+        CheckReplayResult("ID3D12CommandQueue_GetTimestampFrequency", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT64>*                     pGpuTimestamp,
     PointerDecoder<UINT64>*                     pCpuTimestamp)
 {
@@ -4170,13 +4170,13 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
     {
         auto replay_result = replay_object->GetClockCalibration(pGpuTimestamp->GetPointer(),
                                                                 pCpuTimestamp->GetPointer());
-        CheckReplayResult("ID3D12CommandQueue_GetClockCalibration", returnValue, replay_result);
+        CheckReplayResult("ID3D12CommandQueue_GetClockCalibration", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
     format::HandleId                            object_id,
-    Decoded_D3D12_COMMAND_QUEUE_DESC            returnValue)
+    Decoded_D3D12_COMMAND_QUEUE_DESC            return_value)
 {
     auto replay_object = MapObject<ID3D12CommandQueue>(object_id);
     if (replay_object != nullptr)
@@ -4187,7 +4187,7 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetDesc(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
     format::HandleId                            object_id,
-    UINT                                        returnValue)
+    UINT                                        return_value)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
@@ -4198,7 +4198,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetNodeCount(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_COMMAND_QUEUE_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppCommandQueue)
@@ -4210,7 +4210,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
         DxObjectInfo object_info{};
         ppCommandQueue->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateCommandQueue(replay_object,
-                                                        returnValue,
+                                                        return_value,
                                                         pDesc,
                                                         riid,
                                                         ppCommandQueue);
@@ -4218,13 +4218,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandQueue(
         {
             AddObject(ppCommandQueue->GetPointer(), ppCommandQueue->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12Device_CreateCommandQueue", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateCommandQueue", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_COMMAND_LIST_TYPE                     type,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppCommandAllocator)
@@ -4242,13 +4242,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
         {
             AddObject(out_p_ppCommandAllocator, out_hp_ppCommandAllocator);
         }
-        CheckReplayResult("ID3D12Device_CreateCommandAllocator", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateCommandAllocator", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
@@ -4267,13 +4267,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         {
             AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
         }
-        CheckReplayResult("ID3D12Device_CreateGraphicsPipelineState", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateGraphicsPipelineState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
@@ -4292,13 +4292,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateComputePipelineState(
         {
             AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
         }
-        CheckReplayResult("ID3D12Device_CreateComputePipelineState", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateComputePipelineState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        nodeMask,
     D3D12_COMMAND_LIST_TYPE                     type,
     format::HandleId                            pCommandAllocator,
@@ -4324,13 +4324,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandList(
         {
             AddObject(out_p_ppCommandList, out_hp_ppCommandList);
         }
-        CheckReplayResult("ID3D12Device_CreateCommandList", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateCommandList", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_DESCRIPTOR_HEAP_DESC>* pDescriptorHeapDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
@@ -4342,7 +4342,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         DxObjectInfo object_info{};
         ppvHeap->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateDescriptorHeap(replay_object,
-                                                          returnValue,
+                                                          return_value,
                                                           pDescriptorHeapDesc,
                                                           riid,
                                                           ppvHeap);
@@ -4350,27 +4350,27 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         {
             AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12Device_CreateDescriptorHeap", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateDescriptorHeap", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     format::HandleId                            object_id,
-    UINT                                        returnValue,
+    UINT                                        return_value,
     D3D12_DESCRIPTOR_HEAP_TYPE                  DescriptorHeapType)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideGetDescriptorHandleIncrementSize(replay_object,
-                                                                      returnValue,
+                                                                      return_value,
                                                                       DescriptorHeapType);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        nodeMask,
     PointerDecoder<uint8_t>*                    pBlobWithRootSignature,
     SIZE_T                                      blobLengthInBytes,
@@ -4392,7 +4392,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateRootSignature(
         {
             AddObject(out_p_ppvRootSignature, out_hp_ppvRootSignature);
         }
-        CheckReplayResult("ID3D12Device_CreateRootSignature", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateRootSignature", return_value, replay_result);
     }
 }
 
@@ -4542,7 +4542,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     format::HandleId                            object_id,
-    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      return_value,
     UINT                                        visibleMask,
     UINT                                        numResourceDescs,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs)
@@ -4558,7 +4558,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     format::HandleId                            object_id,
-    Decoded_D3D12_HEAP_PROPERTIES               returnValue,
+    Decoded_D3D12_HEAP_PROPERTIES               return_value,
     UINT                                        nodeMask,
     D3D12_HEAP_TYPE                             heapType)
 {
@@ -4572,7 +4572,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetCustomHeapProperties(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
     D3D12_HEAP_FLAGS                            HeapFlags,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -4598,13 +4598,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommittedResource(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device_CreateCommittedResource", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateCommittedResource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
@@ -4622,13 +4622,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateHeap(
         {
             AddObject(out_p_ppvHeap, out_hp_ppvHeap);
         }
-        CheckReplayResult("ID3D12Device_CreateHeap", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateHeap", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pHeap,
     UINT64                                      HeapOffset,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -4655,13 +4655,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreatePlacedResource(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device_CreatePlacedResource", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreatePlacedResource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
     D3D12_RESOURCE_STATES                       InitialState,
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
@@ -4683,13 +4683,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device_CreateReservedResource", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateReservedResource", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pObject,
     StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
     DWORD                                       Access,
@@ -4708,14 +4708,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
                                                                Access,
                                                                Name->GetPointer(),
                                                                out_op_pHandle);
-        CheckReplayResult("ID3D12Device_CreateSharedHandle", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateSharedHandle", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle, "ID3D12Device_CreateSharedHandle");
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    NTHandle,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvObj)
@@ -4734,13 +4734,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
         {
             AddObject(out_p_ppvObj, out_hp_ppvObj);
         }
-        CheckReplayResult("ID3D12Device_OpenSharedHandle", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_OpenSharedHandle", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             Name,
     DWORD                                       Access,
     PointerDecoder<uint64_t, void*>*            pNTHandle)
@@ -4754,14 +4754,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         auto replay_result = replay_object->OpenSharedHandleByName(Name->GetPointer(),
                                                                    Access,
                                                                    out_op_pNTHandle);
-        CheckReplayResult("ID3D12Device_OpenSharedHandleByName", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_OpenSharedHandleByName", return_value, replay_result);
         PostProcessExternalObject(replay_result, out_op_pNTHandle, out_p_pNTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName, "ID3D12Device_OpenSharedHandleByName");
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumObjects,
     HandlePointerDecoder<ID3D12Pageable*>*      ppObjects)
 {
@@ -4771,13 +4771,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_MakeResident(
         auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto replay_result = replay_object->MakeResident(NumObjects,
                                                          in_ppObjects);
-        CheckReplayResult("ID3D12Device_MakeResident", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_MakeResident", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumObjects,
     HandlePointerDecoder<ID3D12Pageable*>*      ppObjects)
 {
@@ -4787,13 +4787,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device_Evict(
         auto in_ppObjects = MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto replay_result = replay_object->Evict(NumObjects,
                                                   in_ppObjects);
-        CheckReplayResult("ID3D12Device_Evict", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_Evict", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      InitialValue,
     D3D12_FENCE_FLAGS                           Flags,
     Decoded_GUID                                riid,
@@ -4806,7 +4806,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
         DxObjectInfo object_info{};
         ppFence->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreateFence(replay_object,
-                                                 returnValue,
+                                                 return_value,
                                                  InitialValue,
                                                  Flags,
                                                  riid,
@@ -4815,19 +4815,19 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateFence(
         {
             AddObject(ppFence->GetPointer(), ppFence->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12Device_CreateFence", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateFence", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->GetDeviceRemovedReason();
-        CheckReplayResult("ID3D12Device_GetDeviceRemovedReason", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_GetDeviceRemovedReason", return_value, replay_result);
     }
 }
 
@@ -4858,7 +4858,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetCopyableFootprints(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_QUERY_HEAP_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
@@ -4876,26 +4876,26 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateQueryHeap(
         {
             AddObject(out_p_ppvHeap, out_hp_ppvHeap);
         }
-        CheckReplayResult("ID3D12Device_CreateQueryHeap", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateQueryHeap", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_SetStablePowerState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     BOOL                                        Enable)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetStablePowerState(Enable);
-        CheckReplayResult("ID3D12Device_SetStablePowerState", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_SetStablePowerState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
     format::HandleId                            pRootSignature,
     Decoded_GUID                                riid,
@@ -4916,7 +4916,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandSignature(
         {
             AddObject(out_p_ppvCommandSignature, out_hp_ppvCommandSignature);
         }
-        CheckReplayResult("ID3D12Device_CreateCommandSignature", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device_CreateCommandSignature", return_value, replay_result);
     }
 }
 
@@ -4946,7 +4946,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceTiling(
 
 void Dx12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
     format::HandleId                            object_id,
-    Decoded_LUID                                returnValue)
+    Decoded_LUID                                return_value)
 {
     auto replay_object = MapObject<ID3D12Device>(object_id);
     if (replay_object != nullptr)
@@ -4957,7 +4957,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetAdapterLuid(
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             pName,
     format::HandleId                            pPipeline)
 {
@@ -4967,13 +4967,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         auto in_pPipeline = MapObject<ID3D12PipelineState>(pPipeline);
         auto replay_result = replay_object->StorePipeline(pName->GetPointer(),
                                                           in_pPipeline);
-        CheckReplayResult("ID3D12PipelineLibrary_StorePipeline", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineLibrary_StorePipeline", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             pName,
     StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* pDesc,
     Decoded_GUID                                riid,
@@ -4987,7 +4987,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         DxObjectInfo object_info{};
         ppPipelineState->SetConsumerData(0, &object_info);
         auto replay_result = OverrideLoadGraphicsPipeline(replay_object,
-                                                          returnValue,
+                                                          return_value,
                                                           pName,
                                                           pDesc,
                                                           riid,
@@ -4996,13 +4996,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         {
             AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12PipelineLibrary_LoadGraphicsPipeline", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineLibrary_LoadGraphicsPipeline", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             pName,
     StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* pDesc,
     Decoded_GUID                                riid,
@@ -5016,7 +5016,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         DxObjectInfo object_info{};
         ppPipelineState->SetConsumerData(0, &object_info);
         auto replay_result = OverrideLoadComputePipeline(replay_object,
-                                                         returnValue,
+                                                         return_value,
                                                          pName,
                                                          pDesc,
                                                          riid,
@@ -5025,13 +5025,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         {
             AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12PipelineLibrary_LoadComputePipeline", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineLibrary_LoadComputePipeline", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
     format::HandleId                            object_id,
-    SIZE_T                                      returnValue)
+    SIZE_T                                      return_value)
 {
     auto replay_object = MapObject<ID3D12PipelineLibrary>(object_id);
     if (replay_object != nullptr)
@@ -5042,7 +5042,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint8_t>*                    pData,
     SIZE_T                                      DataSizeInBytes)
 {
@@ -5051,13 +5051,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
     {
         auto replay_result = replay_object->Serialize(pData->GetPointer(),
                                                       DataSizeInBytes);
-        CheckReplayResult("ID3D12PipelineLibrary_Serialize", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineLibrary_Serialize", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     WStringDecoder*                             pName,
     StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
     Decoded_GUID                                riid,
@@ -5071,7 +5071,7 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         DxObjectInfo object_info{};
         ppPipelineState->SetConsumerData(0, &object_info);
         auto replay_result = OverrideLoadPipeline(replay_object,
-                                                  returnValue,
+                                                  return_value,
                                                   pName,
                                                   pDesc,
                                                   riid,
@@ -5080,13 +5080,13 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         {
             AddObject(ppPipelineState->GetPointer(), ppPipelineState->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12PipelineLibrary1_LoadPipeline", returnValue, replay_result);
+        CheckReplayResult("ID3D12PipelineLibrary1_LoadPipeline", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<uint8_t>*                    pLibraryBlob,
     SIZE_T                                      BlobLength,
     Decoded_GUID                                riid,
@@ -5099,7 +5099,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         DxObjectInfo object_info{};
         ppPipelineLibrary->SetConsumerData(0, &object_info);
         auto replay_result = OverrideCreatePipelineLibrary(replay_object,
-                                                           returnValue,
+                                                           return_value,
                                                            pLibraryBlob,
                                                            BlobLength,
                                                            riid,
@@ -5108,13 +5108,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         {
             AddObject(ppPipelineLibrary->GetPointer(), ppPipelineLibrary->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12Device1_CreatePipelineLibrary", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device1_CreatePipelineLibrary", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     HandlePointerDecoder<ID3D12Fence*>*         ppFences,
     PointerDecoder<UINT64>*                     pFenceValues,
     UINT                                        NumFences,
@@ -5131,13 +5131,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion
                                                                               NumFences,
                                                                               Flags,
                                                                               in_hEvent);
-        CheckReplayResult("ID3D12Device1_SetEventOnMultipleFenceCompletion", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device1_SetEventOnMultipleFenceCompletion", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        NumObjects,
     HandlePointerDecoder<ID3D12Pageable*>*      ppObjects,
     PointerDecoder<D3D12_RESIDENCY_PRIORITY>*   pPriorities)
@@ -5149,13 +5149,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device1_SetResidencyPriority(
         auto replay_result = replay_object->SetResidencyPriority(NumObjects,
                                                                  in_ppObjects,
                                                                  pPriorities->GetPointer());
-        CheckReplayResult("ID3D12Device1_SetResidencyPriority", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device1_SetResidencyPriority", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppPipelineState)
@@ -5174,13 +5174,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device2_CreatePipelineState(
         {
             AddObject(out_p_ppPipelineState, out_hp_ppPipelineState);
         }
-        CheckReplayResult("ID3D12Device2_CreatePipelineState", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device2_CreatePipelineState", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    pAddress,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
@@ -5192,7 +5192,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         DxObjectInfo object_info{};
         ppvHeap->SetConsumerData(0, &object_info);
         auto replay_result = OverrideOpenExistingHeapFromAddress(replay_object,
-                                                                 returnValue,
+                                                                 return_value,
                                                                  pAddress,
                                                                  riid,
                                                                  ppvHeap);
@@ -5200,13 +5200,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         {
             AddObject(ppvHeap->GetPointer(), ppvHeap->GetHandlePointer(), std::move(object_info));
         }
-        CheckReplayResult("ID3D12Device3_OpenExistingHeapFromAddress", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device3_OpenExistingHeapFromAddress", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    hFileMapping,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvHeap)
@@ -5225,13 +5225,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         {
             AddObject(out_p_ppvHeap, out_hp_ppvHeap);
         }
-        CheckReplayResult("ID3D12Device3_OpenExistingHeapFromFileMapping", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device3_OpenExistingHeapFromFileMapping", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_RESIDENCY_FLAGS                       Flags,
     UINT                                        NumObjects,
     HandlePointerDecoder<ID3D12Pageable*>*      ppObjects,
@@ -5244,19 +5244,19 @@ void Dx12ReplayConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         MapObjects<ID3D12Pageable>(ppObjects, NumObjects);
         auto in_pFenceToSignal = GetObjectInfo(pFenceToSignal);
         auto replay_result = OverrideEnqueueMakeResident(replay_object,
-                                                         returnValue,
+                                                         return_value,
                                                          Flags,
                                                          NumObjects,
                                                          ppObjects,
                                                          in_pFenceToSignal,
                                                          FenceValueToSignal);
-        CheckReplayResult("ID3D12Device3_EnqueueMakeResident", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device3_EnqueueMakeResident", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppFence)
 {
@@ -5272,13 +5272,13 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         {
             AddObject(out_p_ppFence, out_hp_ppFence);
         }
-        CheckReplayResult("ID3D12ProtectedSession_GetStatusFence", returnValue, replay_result);
+        CheckReplayResult("ID3D12ProtectedSession_GetStatusFence", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
     format::HandleId                            object_id,
-    D3D12_PROTECTED_SESSION_STATUS              returnValue)
+    D3D12_PROTECTED_SESSION_STATUS              return_value)
 {
     auto replay_object = MapObject<ID3D12ProtectedSession>(object_id);
     if (replay_object != nullptr)
@@ -5289,7 +5289,7 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
 
 void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
     format::HandleId                            object_id,
-    Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC returnValue)
+    Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
 {
     auto replay_object = MapObject<ID3D12ProtectedResourceSession>(object_id);
     if (replay_object != nullptr)
@@ -5300,7 +5300,7 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        nodeMask,
     D3D12_COMMAND_LIST_TYPE                     type,
     D3D12_COMMAND_LIST_FLAGS                    flags,
@@ -5322,13 +5322,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommandList1(
         {
             AddObject(out_p_ppCommandList, out_hp_ppCommandList);
         }
-        CheckReplayResult("ID3D12Device4_CreateCommandList1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device4_CreateCommandList1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppSession)
@@ -5346,13 +5346,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         {
             AddObject(out_p_ppSession, out_hp_ppSession);
         }
-        CheckReplayResult("ID3D12Device4_CreateProtectedResourceSession", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device4_CreateProtectedResourceSession", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
     D3D12_HEAP_FLAGS                            HeapFlags,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
@@ -5381,13 +5381,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device4_CreateCommittedResource1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device4_CreateCommittedResource1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
     format::HandleId                            pProtectedSession,
     Decoded_GUID                                riid,
@@ -5408,13 +5408,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateHeap1(
         {
             AddObject(out_p_ppvHeap, out_hp_ppvHeap);
         }
-        CheckReplayResult("ID3D12Device4_CreateHeap1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device4_CreateHeap1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
     D3D12_RESOURCE_STATES                       InitialState,
     StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>* pOptimizedClearValue,
@@ -5439,13 +5439,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device4_CreateReservedResource1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device4_CreateReservedResource1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     format::HandleId                            object_id,
-    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      return_value,
     UINT                                        visibleMask,
     UINT                                        numResourceDescs,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs,
@@ -5474,7 +5474,7 @@ void Dx12ReplayConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
 
 void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
     format::HandleId                            object_id,
-    Decoded_LUID                                returnValue)
+    Decoded_LUID                                return_value)
 {
     auto replay_object = MapObject<ID3D12SwapChainAssistant>(object_id);
     if (replay_object != nullptr)
@@ -5485,7 +5485,7 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
 
 void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppv)
 {
@@ -5501,13 +5501,13 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         {
             AddObject(out_p_ppv, out_hp_ppv);
         }
-        CheckReplayResult("ID3D12SwapChainAssistant_GetSwapChainObject", returnValue, replay_result);
+        CheckReplayResult("ID3D12SwapChainAssistant_GetSwapChainObject", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riidResource,
     HandlePointerDecoder<void*>*                ppvResource,
     Decoded_GUID                                riidQueue,
@@ -5531,25 +5531,25 @@ void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndC
             AddObject(out_p_ppvResource, out_hp_ppvResource);
             AddObject(out_p_ppvQueue, out_hp_ppvQueue);
         }
-        CheckReplayResult("ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue", returnValue, replay_result);
+        CheckReplayResult("ID3D12SwapChainAssistant_GetCurrentResourceAndCommandQueue", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12SwapChainAssistant>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->InsertImplicitSync();
-        CheckReplayResult("ID3D12SwapChainAssistant_InsertImplicitSync", returnValue, replay_result);
+        CheckReplayResult("ID3D12SwapChainAssistant_InsertImplicitSync", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pObject)
 {
     auto replay_object = MapObject<ID3D12LifetimeTracker>(object_id);
@@ -5557,13 +5557,13 @@ void Dx12ReplayConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     {
         auto in_pObject = MapObject<ID3D12DeviceChild>(pObject);
         auto replay_result = replay_object->DestroyOwnedObject(in_pObject);
-        CheckReplayResult("ID3D12LifetimeTracker_DestroyOwnedObject", returnValue, replay_result);
+        CheckReplayResult("ID3D12LifetimeTracker_DestroyOwnedObject", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     format::HandleId                            object_id,
-    uint64_t                                    returnValue,
+    uint64_t                                    return_value,
     WStringDecoder*                             pExportName)
 {
     auto replay_object = MapObject<ID3D12StateObjectProperties>(object_id);
@@ -5575,7 +5575,7 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier
 
 void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     format::HandleId                            object_id,
-    UINT64                                      returnValue,
+    UINT64                                      return_value,
     WStringDecoder*                             pExportName)
 {
     auto replay_object = MapObject<ID3D12StateObjectProperties>(object_id);
@@ -5587,7 +5587,7 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
 
 void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12StateObjectProperties>(object_id);
     if (replay_object != nullptr)
@@ -5609,7 +5609,7 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSiz
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pOwner,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvTracker)
@@ -5628,7 +5628,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         {
             AddObject(out_p_ppvTracker, out_hp_ppvTracker);
         }
-        CheckReplayResult("ID3D12Device5_CreateLifetimeTracker", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device5_CreateLifetimeTracker", return_value, replay_result);
     }
 }
 
@@ -5644,7 +5644,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_RemoveDevice(
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     PointerDecoder<UINT>*                       pNumMetaCommands,
     StructPointerDecoder<Decoded_D3D12_META_COMMAND_DESC>* pDescs)
 {
@@ -5653,13 +5653,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     {
         auto replay_result = replay_object->EnumerateMetaCommands(pNumMetaCommands->GetPointer(),
                                                                   pDescs->GetPointer());
-        CheckReplayResult("ID3D12Device5_EnumerateMetaCommands", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device5_EnumerateMetaCommands", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                CommandId,
     D3D12_META_COMMAND_PARAMETER_STAGE          Stage,
     PointerDecoder<UINT>*                       pTotalStructureSizeInBytes,
@@ -5674,13 +5674,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
                                                                            pTotalStructureSizeInBytes->GetPointer(),
                                                                            pParameterCount->GetPointer(),
                                                                            pParameterDescs->GetPointer());
-        CheckReplayResult("ID3D12Device5_EnumerateMetaCommandParameters", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device5_EnumerateMetaCommandParameters", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                CommandId,
     UINT                                        NodeMask,
     PointerDecoder<uint8_t>*                    pCreationParametersData,
@@ -5704,13 +5704,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateMetaCommand(
         {
             AddObject(out_p_ppMetaCommand, out_hp_ppMetaCommand);
         }
-        CheckReplayResult("ID3D12Device5_CreateMetaCommand", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device5_CreateMetaCommand", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppStateObject)
@@ -5729,7 +5729,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_CreateStateObject(
         {
             AddObject(out_p_ppStateObject, out_hp_ppStateObject);
         }
-        CheckReplayResult("ID3D12Device5_CreateStateObject", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device5_CreateStateObject", return_value, replay_result);
     }
 }
 
@@ -5749,7 +5749,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructur
 
 void Dx12ReplayConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     format::HandleId                            object_id,
-    D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS     returnValue,
+    D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS     return_value,
     D3D12_SERIALIZED_DATA_TYPE                  SerializedDataType,
     StructPointerDecoder<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>* pIdentifierToCheck)
 {
@@ -5807,7 +5807,7 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBre
 
 void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
 {
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData>(object_id);
@@ -5818,13 +5818,13 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
         {
             AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
-        CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", returnValue, replay_result);
+        CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetAutoBreadcrumbsOutput", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
 {
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData>(object_id);
@@ -5832,13 +5832,13 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAll
     {
         MapStructObjects(pOutput->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
         auto replay_result = replay_object->GetPageFaultAllocationOutput(pOutput->GetPointer());
-        CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput", returnValue, replay_result);
+        CheckReplayResult("ID3D12DeviceRemovedExtendedData_GetPageFaultAllocationOutput", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
 {
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
@@ -5849,13 +5849,13 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
         {
             AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
-        CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", returnValue, replay_result);
+        CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetAutoBreadcrumbsOutput1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
 {
     auto replay_object = MapObject<ID3D12DeviceRemovedExtendedData1>(object_id);
@@ -5867,13 +5867,13 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAl
         {
             AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
         }
-        CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", returnValue, replay_result);
+        CheckReplayResult("ID3D12DeviceRemovedExtendedData1_GetPageFaultAllocationOutput1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_BACKGROUND_PROCESSING_MODE            Mode,
     D3D12_MEASUREMENTS_ACTION                   MeasurementsAction,
     uint64_t                                    hEventToSignalUponCompletion,
@@ -5887,13 +5887,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
                                                                         MeasurementsAction,
                                                                         in_hEventToSignalUponCompletion,
                                                                         pbFurtherMeasurementsDesired->GetPointer());
-        CheckReplayResult("ID3D12Device6_SetBackgroundProcessingMode", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device6_SetBackgroundProcessingMode", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
     format::HandleId                            object_id,
-    Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 returnValue)
+    Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
     auto replay_object = MapObject<ID3D12ProtectedResourceSession1>(object_id);
     if (replay_object != nullptr)
@@ -5904,7 +5904,7 @@ void Dx12ReplayConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
 
 void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pAddition,
     format::HandleId                            pStateObjectToGrowFrom,
     Decoded_GUID                                riid,
@@ -5926,13 +5926,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_AddToStateObject(
         {
             AddObject(out_p_ppNewStateObject, out_hp_ppNewStateObject);
         }
-        CheckReplayResult("ID3D12Device7_AddToStateObject", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device7_AddToStateObject", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1>* pDesc,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppSession)
@@ -5950,13 +5950,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         {
             AddObject(out_p_ppSession, out_hp_ppSession);
         }
-        CheckReplayResult("ID3D12Device7_CreateProtectedResourceSession1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device7_CreateProtectedResourceSession1", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     format::HandleId                            object_id,
-    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      returnValue,
+    Decoded_D3D12_RESOURCE_ALLOCATION_INFO      return_value,
     UINT                                        visibleMask,
     UINT                                        numResourceDescs,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pResourceDescs,
@@ -5974,7 +5974,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
 
 void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
     D3D12_HEAP_FLAGS                            HeapFlags,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
@@ -6003,13 +6003,13 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device8_CreateCommittedResource2", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device8_CreateCommittedResource2", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     format::HandleId                            pHeap,
     UINT64                                      HeapOffset,
     StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
@@ -6036,7 +6036,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         {
             AddObject(out_p_ppvResource, out_hp_ppvResource);
         }
-        CheckReplayResult("ID3D12Device8_CreatePlacedResource1", returnValue, replay_result);
+        CheckReplayResult("ID3D12Device8_CreatePlacedResource1", return_value, replay_result);
     }
 }
 
@@ -6085,7 +6085,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
 
 void Dx12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppProtectedSession)
 {
@@ -6101,13 +6101,13 @@ void Dx12ReplayConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         {
             AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession);
         }
-        CheckReplayResult("ID3D12Resource1_GetProtectedResourceSession", returnValue, replay_result);
+        CheckReplayResult("ID3D12Resource1_GetProtectedResourceSession", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
     format::HandleId                            object_id,
-    Decoded_D3D12_RESOURCE_DESC1                returnValue)
+    Decoded_D3D12_RESOURCE_DESC1                return_value)
 {
     auto replay_object = MapObject<ID3D12Resource2>(object_id);
     if (replay_object != nullptr)
@@ -6118,7 +6118,7 @@ void Dx12ReplayConsumer::Process_ID3D12Resource2_GetDesc1(
 
 void Dx12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppProtectedSession)
 {
@@ -6134,7 +6134,7 @@ void Dx12ReplayConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         {
             AddObject(out_p_ppProtectedSession, out_hp_ppProtectedSession);
         }
-        CheckReplayResult("ID3D12Heap1_GetProtectedResourceSession", returnValue, replay_result);
+        CheckReplayResult("ID3D12Heap1_GetProtectedResourceSession", return_value, replay_result);
     }
 }
 
@@ -6152,7 +6152,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResource
 
 void Dx12ReplayConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSize(
     format::HandleId                            object_id,
-    UINT64                                      returnValue,
+    UINT64                                      return_value,
     D3D12_META_COMMAND_PARAMETER_STAGE          Stage,
     UINT                                        ParameterIndex)
 {
@@ -6316,7 +6316,7 @@ void Dx12ReplayConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
 
 void Dx12ReplayConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<ID3D12Tools>(object_id);
     if (replay_object != nullptr)
@@ -6367,7 +6367,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
 
 void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
     format::HandleId                            object_id,
-    uint64_t                                    returnValue)
+    uint64_t                                    return_value)
 {
     auto replay_object = MapObject<ID3D10Blob>(object_id);
     if (replay_object != nullptr)
@@ -6378,7 +6378,7 @@ void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferPointer(
 
 void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
     format::HandleId                            object_id,
-    SIZE_T                                      returnValue)
+    SIZE_T                                      return_value)
 {
     auto replay_object = MapObject<ID3D10Blob>(object_id);
     if (replay_object != nullptr)
@@ -6389,7 +6389,7 @@ void Dx12ReplayConsumer::Process_ID3D10Blob_GetBufferSize(
 
 void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallback(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     uint64_t                                    callbackFn,
     uint64_t                                    pData,
     PointerDecoder<UINT>*                       pCallbackID)
@@ -6401,20 +6401,20 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
         auto replay_result = replay_object->RegisterDestructionCallback(reinterpret_cast<PFN_DESTRUCTION_CALLBACK>(callbackFn),
                                                                         in_pData,
                                                                         pCallbackID->GetPointer());
-        CheckReplayResult("ID3DDestructionNotifier_RegisterDestructionCallback", returnValue, replay_result);
+        CheckReplayResult("ID3DDestructionNotifier_RegisterDestructionCallback", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCallback(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT                                        callbackID)
 {
     auto replay_object = MapObject<ID3DDestructionNotifier>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->UnregisterDestructionCallback(callbackID);
-        CheckReplayResult("ID3DDestructionNotifier_UnregisterDestructionCallback", returnValue, replay_result);
+        CheckReplayResult("ID3DDestructionNotifier_UnregisterDestructionCallback", return_value, replay_result);
     }
 }
 
@@ -6506,7 +6506,7 @@ void Dx12ReplayConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6517,13 +6517,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         auto replay_result = replay_object->SetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugDevice1_SetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice1_SetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6534,39 +6534,39 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         auto replay_result = replay_object->GetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugDevice1_GetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice1_GetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_RLDO_FLAGS                            Flags)
 {
     auto replay_object = MapObject<ID3D12DebugDevice1>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReportLiveDeviceObjects(Flags);
-        CheckReplayResult("ID3D12DebugDevice1_ReportLiveDeviceObjects", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice1_ReportLiveDeviceObjects", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_FEATURE                         Mask)
 {
     auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetFeatureMask(Mask);
-        CheckReplayResult("ID3D12DebugDevice_SetFeatureMask", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice_SetFeatureMask", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
     format::HandleId                            object_id,
-    D3D12_DEBUG_FEATURE                         returnValue)
+    D3D12_DEBUG_FEATURE                         return_value)
 {
     auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
     if (replay_object != nullptr)
@@ -6577,20 +6577,20 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_RLDO_FLAGS                            Flags)
 {
     auto replay_object = MapObject<ID3D12DebugDevice>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->ReportLiveDeviceObjects(Flags);
-        CheckReplayResult("ID3D12DebugDevice_ReportLiveDeviceObjects", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice_ReportLiveDeviceObjects", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6601,13 +6601,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         auto replay_result = replay_object->SetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugDevice2_SetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice2_SetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_DEVICE_PARAMETER_TYPE           Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6618,13 +6618,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         auto replay_result = replay_object->GetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugDevice2_GetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugDevice2_GetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     format::HandleId                            pResource,
     UINT                                        Subresource,
     UINT                                        State)
@@ -6641,7 +6641,7 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     format::HandleId                            pResource,
     UINT                                        Subresource,
     UINT                                        State)
@@ -6658,7 +6658,7 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6669,13 +6669,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         auto replay_result = replay_object->SetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugCommandList1_SetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugCommandList1_SetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6686,13 +6686,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         auto replay_result = replay_object->GetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugCommandList1_GetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugCommandList1_GetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     format::HandleId                            pResource,
     UINT                                        Subresource,
     UINT                                        State)
@@ -6709,20 +6709,20 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_FEATURE                         Mask)
 {
     auto replay_object = MapObject<ID3D12DebugCommandList>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetFeatureMask(Mask);
-        CheckReplayResult("ID3D12DebugCommandList_SetFeatureMask", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugCommandList_SetFeatureMask", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
     format::HandleId                            object_id,
-    D3D12_DEBUG_FEATURE                         returnValue)
+    D3D12_DEBUG_FEATURE                         return_value)
 {
     auto replay_object = MapObject<ID3D12DebugCommandList>(object_id);
     if (replay_object != nullptr)
@@ -6733,7 +6733,7 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6744,13 +6744,13 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         auto replay_result = replay_object->SetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugCommandList2_SetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugCommandList2_SetDebugParameter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE     Type,
     PointerDecoder<uint8_t>*                    pData,
     UINT                                        DataSize)
@@ -6761,7 +6761,7 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         auto replay_result = replay_object->GetDebugParameter(Type,
                                                               pData->GetPointer(),
                                                               DataSize);
-        CheckReplayResult("ID3D12DebugCommandList2_GetDebugParameter", returnValue, replay_result);
+        CheckReplayResult("ID3D12DebugCommandList2_GetDebugParameter", return_value, replay_result);
     }
 }
 
@@ -6820,14 +6820,14 @@ void Dx12ReplayConsumer::Process_ID3D12SharingContract_EndCapturableWork(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      MessageCountLimit)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->SetMessageCountLimit(MessageCountLimit);
-        CheckReplayResult("ID3D12InfoQueue_SetMessageCountLimit", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_SetMessageCountLimit", return_value, replay_result);
     }
 }
 
@@ -6843,7 +6843,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessage(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     UINT64                                      MessageIndex,
     StructPointerDecoder<Decoded_D3D12_MESSAGE>* pMessage,
     PointerDecoder<SIZE_T>*                     pMessageByteLength)
@@ -6854,13 +6854,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessage(
         auto replay_result = replay_object->GetMessage(MessageIndex,
                                                        pMessage->GetPointer(),
                                                        pMessageByteLength->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_GetMessage", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_GetMessage", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFilter(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6871,7 +6871,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageF
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilter(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6882,7 +6882,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFi
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6893,7 +6893,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetrievalFilter(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6904,7 +6904,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRe
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageCountLimit(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6915,7 +6915,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessag
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
     format::HandleId                            object_id,
-    UINT64                                      returnValue)
+    UINT64                                      return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -6926,20 +6926,20 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->AddStorageFilterEntries(pFilter->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_AddStorageFilterEntries", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_AddStorageFilterEntries", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
     PointerDecoder<SIZE_T>*                     pFilterByteLength)
 {
@@ -6948,7 +6948,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
     {
         auto replay_result = replay_object->GetStorageFilter(pFilter->GetPointer(),
                                                              pFilterByteLength->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_GetStorageFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_GetStorageFilter", return_value, replay_result);
     }
 }
 
@@ -6964,38 +6964,38 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushEmptyStorageFilter();
-        CheckReplayResult("ID3D12InfoQueue_PushEmptyStorageFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushEmptyStorageFilter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushCopyOfStorageFilter();
-        CheckReplayResult("ID3D12InfoQueue_PushCopyOfStorageFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushCopyOfStorageFilter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushStorageFilter(pFilter->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_PushStorageFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushStorageFilter", return_value, replay_result);
     }
 }
 
@@ -7011,7 +7011,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
     format::HandleId                            object_id,
-    UINT                                        returnValue)
+    UINT                                        return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -7022,20 +7022,20 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->AddRetrievalFilterEntries(pFilter->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_AddRetrievalFilterEntries", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_AddRetrievalFilterEntries", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter,
     PointerDecoder<SIZE_T>*                     pFilterByteLength)
 {
@@ -7044,7 +7044,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
     {
         auto replay_result = replay_object->GetRetrievalFilter(pFilter->GetPointer(),
                                                                pFilterByteLength->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_GetRetrievalFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_GetRetrievalFilter", return_value, replay_result);
     }
 }
 
@@ -7060,38 +7060,38 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushEmptyRetrievalFilter();
-        CheckReplayResult("ID3D12InfoQueue_PushEmptyRetrievalFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushEmptyRetrievalFilter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue)
+    HRESULT                                     return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushCopyOfRetrievalFilter();
-        CheckReplayResult("ID3D12InfoQueue_PushCopyOfRetrievalFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushCopyOfRetrievalFilter", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
     {
         auto replay_result = replay_object->PushRetrievalFilter(pFilter->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_PushRetrievalFilter", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_PushRetrievalFilter", return_value, replay_result);
     }
 }
 
@@ -7107,7 +7107,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
     format::HandleId                            object_id,
-    UINT                                        returnValue)
+    UINT                                        return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -7118,7 +7118,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddMessage(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_MESSAGE_CATEGORY                      Category,
     D3D12_MESSAGE_SEVERITY                      Severity,
     D3D12_MESSAGE_ID                            ID,
@@ -7131,13 +7131,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddMessage(
                                                        Severity,
                                                        ID,
                                                        pDescription->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_AddMessage", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_AddMessage", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_MESSAGE_SEVERITY                      Severity,
     StringDecoder*                              pDescription)
 {
@@ -7146,13 +7146,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
     {
         auto replay_result = replay_object->AddApplicationMessage(Severity,
                                                                   pDescription->GetPointer());
-        CheckReplayResult("ID3D12InfoQueue_AddApplicationMessage", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_AddApplicationMessage", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_MESSAGE_CATEGORY                      Category,
     BOOL                                        bEnable)
 {
@@ -7161,13 +7161,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
     {
         auto replay_result = replay_object->SetBreakOnCategory(Category,
                                                                bEnable);
-        CheckReplayResult("ID3D12InfoQueue_SetBreakOnCategory", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnCategory", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_MESSAGE_SEVERITY                      Severity,
     BOOL                                        bEnable)
 {
@@ -7176,13 +7176,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
     {
         auto replay_result = replay_object->SetBreakOnSeverity(Severity,
                                                                bEnable);
-        CheckReplayResult("ID3D12InfoQueue_SetBreakOnSeverity", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnSeverity", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     D3D12_MESSAGE_ID                            ID,
     BOOL                                        bEnable)
 {
@@ -7191,13 +7191,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
     {
         auto replay_result = replay_object->SetBreakOnID(ID,
                                                          bEnable);
-        CheckReplayResult("ID3D12InfoQueue_SetBreakOnID", returnValue, replay_result);
+        CheckReplayResult("ID3D12InfoQueue_SetBreakOnID", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     D3D12_MESSAGE_CATEGORY                      Category)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
@@ -7209,7 +7209,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     D3D12_MESSAGE_SEVERITY                      Severity)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
@@ -7221,7 +7221,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
     format::HandleId                            object_id,
-    BOOL                                        returnValue,
+    BOOL                                        return_value,
     D3D12_MESSAGE_ID                            ID)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
@@ -7244,7 +7244,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
 
 void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
     format::HandleId                            object_id,
-    BOOL                                        returnValue)
+    BOOL                                        return_value)
 {
     auto replay_object = MapObject<ID3D12InfoQueue>(object_id);
     if (replay_object != nullptr)
@@ -7255,7 +7255,7 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
 
 void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
     format::HandleId                            object_id,
-    HRESULT                                     returnValue,
+    HRESULT                                     return_value,
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvObject)
 {
@@ -7271,31 +7271,31 @@ void Dx12ReplayConsumer::Process_IUnknown_QueryInterface(
         {
             AddObject(out_p_ppvObject, out_hp_ppvObject);
         }
-        CheckReplayResult("IUnknown_QueryInterface", returnValue, replay_result);
+        CheckReplayResult("IUnknown_QueryInterface", return_value, replay_result);
     }
 }
 
 void Dx12ReplayConsumer::Process_IUnknown_AddRef(
     format::HandleId                            object_id,
-    ULONG                                       returnValue)
+    ULONG                                       return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideAddRef(replay_object,
-                                            returnValue);
+                                            return_value);
     }
 }
 
 void Dx12ReplayConsumer::Process_IUnknown_Release(
     format::HandleId                            object_id,
-    ULONG                                       returnValue)
+    ULONG                                       return_value)
 {
     auto replay_object = GetObjectInfo(object_id);
     if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         auto replay_result = OverrideRelease(replay_object,
-                                             returnValue);
+                                             return_value);
     }
 }
 

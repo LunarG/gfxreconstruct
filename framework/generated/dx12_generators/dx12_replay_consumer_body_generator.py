@@ -408,7 +408,7 @@ class Dx12ReplayConsumerBodyGenerator(
             if return_type != 'void':
                 if not first:
                     code += ',\n{}'.format(' ' * indent_length)
-                code += 'returnValue'
+                code += 'return_value'
                 first = False
         else:
             function_name = name if not is_object else name[name.find('_')
@@ -434,7 +434,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 code += "    }\n"
 
             code += (
-                '    CheckReplayResult("{}", returnValue, replay_result);\n'.
+                '    CheckReplayResult("{}", return_value, replay_result);\n'.
                 format(name)
             )
 
