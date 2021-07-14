@@ -36,6 +36,7 @@
 #if defined(WIN32)
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
+#include "decode/dx12_resource_tracking_consumer.h"
 #endif
 
 #include <exception>
@@ -250,6 +251,24 @@ int main(int argc, const char** argv)
                         [](const char* message) { throw std::runtime_error(message); });
                     // TODO (GH #83): Add D3D12 trimming support, account for state load time in FPS
                     // dx12_replay_consumer.SetFpsInfo(&fps_info);
+
+                    // check for user option if first pass tracking is enabled
+                    if (dx_replay_options.enable_d3d12_resource_tracking)
+                    {
+                        gfxrecon::decode::FileProcessor              file_processor_resource_tracking;
+                        gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
+                        auto resource_tracking_consumer = new gfxrecon::decode::Dx12ResourceTrackingConsumer(
+                            dx_replay_options, &tracked_object_info_table);
+
+                        if (file_processor_resource_tracking.Initialize(filename))
+                        {
+                            dx12_decoder.AddConsumer(resource_tracking_consumer);
+                            file_processor_resource_tracking.AddDecoder(&dx12_decoder);
+                            file_processor_resource_tracking.ProcessAllFrames();
+                            file_processor_resource_tracking.RemoveDecoder(&dx12_decoder);
+                            dx12_decoder.RemoveConsumer(resource_tracking_consumer);
+                        }
+                    }
 
                     dx12_decoder.AddConsumer(&dx12_replay_consumer);
                     file_processor.AddDecoder(&dx12_decoder);

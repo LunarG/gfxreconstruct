@@ -86,6 +86,7 @@ const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
+const char kDxTrackResource[] = "--dx12trackresources";
 #endif
 
 enum class WsiPlatform
@@ -692,6 +693,12 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     replay_options.enable_d3d12         = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
     replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
     replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
+
+    if (arg_parser.IsOptionSet(kDxTrackResource))
+    {
+        replay_options.enable_d3d12_resource_tracking = true;
+    }
+
     return replay_options;
 }
 #endif

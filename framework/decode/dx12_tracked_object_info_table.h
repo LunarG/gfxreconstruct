@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,27 +20,29 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
-#define GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#ifndef GFXRECON_DECODE_DX12_TRACKED_OBJECT_MAPPER_H
+#define GFXRECON_DECODE_DX12_TRACKED_OBJECT_MAPPER_H
 
-#include "decode/replay_options.h"
-
-#include "util/defines.h"
-
-#include <vector>
+#include "util\defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct DxReplayOptions : public ReplayOptions
+// This class stores the tables of the tracked DX12 memories,
+// buffers, images objects information during the first pass
+// of the replay.
+// It is used to generate tables for these tracked objects and
+// will be accessed later by replay consumer class during
+// second pass of replay for memory portability purpose.
+class Dx12TrackedObjectInfoTable
 {
-    bool                 enable_d3d12{ true };
-    bool                 enable_d3d12_resource_tracking{ false };
-    std::vector<int32_t> AllowedDebugMessages;
-    std::vector<int32_t> DeniedDebugMessages;
+  public:
+    // TODO: add getter and setter for tracked objects info.
+  private:
+    // TODO: add maps for each tracked objects info
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX_REPLAY_OPTIONS_H
+#endif // GFXRECON_DECODE_DX12_TRACKED_OBJECT_MAPPER_H
