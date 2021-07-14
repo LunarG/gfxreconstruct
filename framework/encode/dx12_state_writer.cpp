@@ -627,55 +627,48 @@ HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snaps
 
 void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
 {
-    std::vector<HANDLE>       idle_events;
-    std::vector<ID3D12Fence*> fences;
-
     const UINT64 kSignalValue = 1;
 
     state_table.VisitWrappers([&](ID3D12CommandQueue_Wrapper* queue_wrapper) {
-        assert((queue_wrapper != nullptr) && (queue_wrapper->GetWrappedObject() != nullptr) &&
-               (queue_wrapper->GetObjectInfo() != nullptr));
+        assert(queue_wrapper != nullptr);
+        assert(queue_wrapper->GetWrappedObject() != nullptr);
 
-        auto queue_info = queue_wrapper->GetObjectInfo();
-        auto queue      = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
-
-        assert((queue_info->device_wrapper) && (queue_info->device_wrapper->GetWrappedObject() != nullptr));
-
-        auto device_wrapper = queue_info->device_wrapper;
-        auto device         = queue_info->device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+        auto queue = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
 
         // Create a fence and event, then signal it on the queue.
-        ID3D12Fence* fence        = nullptr;
-        auto         fence_result = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-        if (SUCCEEDED(fence_result) && (fence != nullptr))
+        graphics::dx12::ID3D12DeviceComPtr device;
+        if (SUCCEEDED(queue->GetDevice(IID_PPV_ARGS(&device))))
         {
-            HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-            fence->SetEventOnCompletion(kSignalValue, idle_event);
-
-            queue->Signal(fence, kSignalValue);
-
-            idle_events.push_back(idle_event);
-            fences.push_back(fence);
+            graphics::dx12::ID3D12FenceComPtr fence;
+            if (SUCCEEDED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
+            {
+                HANDLE idle_event = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+                if (idle_event != nullptr)
+                {
+                    fence->SetEventOnCompletion(kSignalValue, idle_event);
+                    queue->Signal(fence, kSignalValue);
+                    WaitForSingleObject(idle_event, INFINITE);
+                    if (!CloseHandle(idle_event))
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Failed to close event used to sync ID3D12CommandQueue for trim state writing.");
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to create event to sync ID3D12CommandQueue for trim state writing.");
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to create ID3D12Fence to sync ID3D12CommandQueue for trim state writing.");
+            }
         }
         else
         {
-            GFXRECON_LOG_ERROR(
-                "Failed to create ID3D12Fence object to sync ID3D12CommandQueue for trim state writing.");
+            GFXRECON_LOG_ERROR("Failed to get ID3D12Device to sync ID3D12CommandQueue for trim state writing.");
         }
     });
-
-    // Wait for the queues to signal the fence.
-    for (auto idle_event : idle_events)
-    {
-        WaitForSingleObject(idle_event, INFINITE);
-        CloseHandle(idle_event);
-    }
-
-    // Release fences.
-    for (auto fence : fences)
-    {
-        fence->Release();
-    }
 }
 
 void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)

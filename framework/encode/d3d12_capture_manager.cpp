@@ -1077,23 +1077,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wra
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           device_wrapper,
-                                                                      HRESULT                         result,
-                                                                      const D3D12_COMMAND_QUEUE_DESC* desc,
-                                                                      REFIID                          riid,
-                                                                      void**                          command_queue)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(desc);
-    GFXRECON_UNREFERENCED_PARAMETER(riid);
-
-    if (SUCCEEDED(result) && (device_wrapper != nullptr) && (command_queue != nullptr) && ((*command_queue) != nullptr))
-    {
-        auto queue_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(*command_queue);
-        assert(queue_wrapper->GetObjectInfo() != nullptr);
-        queue_wrapper->GetObjectInfo()->device_wrapper = device_wrapper;
-    }
-}
-
 void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
                                                                             UINT                        num_lists,
                                                                             ID3D12CommandList* const*   lists)

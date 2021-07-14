@@ -166,9 +166,7 @@ struct ID3D12CommandSignatureInfo : public DxWrapperInfo
 {};
 
 struct ID3D12CommandQueueInfo : public DxWrapperInfo
-{
-    ID3D12Device_Wrapper* device_wrapper{ nullptr };
-};
+{};
 
 struct ID3D12PipelineLibraryInfo : public DxWrapperInfo
 {};

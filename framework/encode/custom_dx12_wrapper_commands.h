@@ -304,16 +304,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>
 };
 
 template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandQueue>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12Device_CreateCommandQueue(args...);
-    }
-};
-
-template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
 {
     template <typename... Args>
