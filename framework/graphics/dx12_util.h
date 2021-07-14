@@ -43,8 +43,19 @@ typedef _com_ptr_t<_com_IIID<ID3D12CommandAllocator, &__uuidof(ID3D12CommandAllo
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList, &__uuidof(ID3D12GraphicsCommandList)>>
     ID3D12GraphicsCommandListComPtr;
 
+struct ResourceStateInfo
+{
+    D3D12_RESOURCE_STATES        states{};
+    D3D12_RESOURCE_BARRIER_FLAGS barrier_flags{};
+};
+
+const D3D12_RANGE kZeroRange = { 0, 0 };
+
 // Maps a given sub resource and returns a pointer to the mapped region in data_ptr.
-HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, SIZE_T subresource_size, uint8_t*& data_ptr);
+HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr);
+
+// Waits for the given queue to complete all pending tasks.
+HRESULT WaitForQueue(ID3D12CommandQueue* queue);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

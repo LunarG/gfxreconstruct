@@ -176,8 +176,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(format::HandleId devi
     uint8_t* mapped_data = nullptr;
 
     // Map the subresource.
-    result =
-        graphics::dx12::MapSubresource(mappable_resource, subresource, static_cast<size_t>(data_size), mapped_data);
+    result = graphics::dx12::MapSubresource(mappable_resource, subresource, &graphics::dx12::kZeroRange, mapped_data);
     if (!SUCCEEDED(result))
     {
         GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64

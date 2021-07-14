@@ -572,7 +572,7 @@ HRESULT Dx12StateWriter::WriteResourceSnapshot(const ResourceSnapshotInfo& snaps
         size_t   subresource_size = static_cast<size_t>(resource_info->subresource_sizes[i]);
 
         // Map the subresource.
-        result = graphics::dx12::MapSubresource(mappable_resource, i, subresource_size, mapped_data);
+        result = graphics::dx12::MapSubresource(mappable_resource, i, nullptr, mapped_data);
         if (!SUCCEEDED(result) || (mapped_data == nullptr))
         {
             GFXRECON_LOG_ERROR("Failed to map subresource %" PRIu32 " for resource (id = %" PRIu64

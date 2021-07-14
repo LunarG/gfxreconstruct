@@ -31,6 +31,8 @@ target_sources(gfxrecon_graphics
                PRIVATE
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.cpp>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.h>
+                    $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_resource_data_util.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.h>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_util.cpp>
                     $<$<BOOL:${BUILD_D3D12}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.h>
