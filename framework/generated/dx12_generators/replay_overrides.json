@@ -49,6 +49,9 @@
     "ID3D12PipelineLibrary1": {
       "LoadPipeline": "OverrideLoadPipeline"
     },
+    "ID3D12StateObjectProperties": {
+      "GetShaderIdentifier": "OverrideGetShaderIdentifier"
+    },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },

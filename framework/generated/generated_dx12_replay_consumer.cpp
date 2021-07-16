@@ -5566,10 +5566,12 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier
     PointerDecoder<uint8_t>*                    return_value,
     WStringDecoder*                             pExportName)
 {
-    auto replay_object = MapObject<ID3D12StateObjectProperties>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto replay_result = replay_object->GetShaderIdentifier(pExportName->GetPointer());
+        auto replay_result = OverrideGetShaderIdentifier(replay_object,
+                                                         return_value,
+                                                         pExportName);
     }
 }
 

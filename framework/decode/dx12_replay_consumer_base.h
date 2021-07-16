@@ -339,6 +339,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                  Decoded_GUID                                                    riid,
                                  HandlePointerDecoder<void*>*                                    state);
 
+    void* OverrideGetShaderIdentifier(DxObjectInfo*            replay_object_info,
+                                      PointerDecoder<uint8_t>* original_result,
+                                      WStringDecoder*          pExportName);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -357,6 +361,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
 
     graphics::Dx12GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
+
+    const graphics::Dx12ShaderIdMap& GetShaderIdTable() const { return shader_id_map_; }
+
+    graphics::Dx12ShaderIdMap& GetShaderIdTable() { return shader_id_map_; }
 
   private:
     void RaiseFatalError(const char* message) const;
@@ -417,6 +425,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, HANDLE> event_objects_;
     std::function<void(const char*)>     fatal_error_handler_;
     graphics::Dx12GpuVaMap               gpu_va_map_;
+    graphics::Dx12ShaderIdMap            shader_id_map_;
     std::unique_ptr<uint8_t[]>           debug_message_;
     SIZE_T                               current_message_length_;
     IDXGIInfoQueue*                      info_queue_;

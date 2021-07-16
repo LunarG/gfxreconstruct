@@ -29,6 +29,7 @@
 #include "decode/handle_pointer_decoder.h"
 #include "format/format.h"
 #include "graphics/dx12_gpu_va_map.h"
+#include "graphics/dx12_shader_id_map.h"
 
 #include <map>
 #include <unordered_map>
@@ -45,6 +46,15 @@ void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const graphics::Dx
 void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,
                             size_t                        addresses_len,
                             const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapRayTracingInstanceDescs(D3D12_RAYTRACING_INSTANCE_DESC** first_rt_ins_desc,
+                                uint64_t                         count,
+                                const graphics::Dx12GpuVaMap&    gpu_va_map);
+
+void MapShaderTables(uint8_t**                        first_shader_table,
+                     uint64_t                         count,
+                     uint64_t                         stride_in_bytes,
+                     const graphics::Dx12ShaderIdMap& shader_id_map);
 
 template <typename T>
 static T* MapObject(format::HandleId id, const Dx12ObjectInfoTable& object_info_table)
