@@ -61,15 +61,19 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         code = '\n{\n'\
                '    std::ostringstream oss;\n'
 
+        class_method_name = method_info['name']
         if class_name:
             code += '    oss << "{}_id" << object_id << "->";\n'.format(
                 class_name
             )
+            class_method_name = class_name + '_' + class_method_name
 
         code += '    oss << "{}(\\n    /* ";\n\n'.format(method_info['name'])
 
         if return_type.find('void ') == -1 or return_type.find('void *') != -1:
-            return_value = self.get_return_value_info(return_type)
+            return_value = self.get_return_value_info(
+                return_type, class_method_name
+            )
             code += '    oss << "return = " ;\n'
             code += self.add_argument(
                 return_value, '    ', '                ', True

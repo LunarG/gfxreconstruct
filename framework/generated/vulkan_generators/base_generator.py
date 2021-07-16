@@ -1063,8 +1063,11 @@ class BaseGenerator(OutputGenerator):
             param_decls.append(param_decl)
 
         if return_type != 'void':
-            if dx12_method:
-                return_value = self.get_return_value_info(return_type)
+            if self.is_dx12_class():
+                method_name = name[name.find('::Process_') + 10:]
+                return_value = self.get_return_value_info(
+                    return_type, method_name
+                )
                 rtn_type1 = self.make_decoded_param_type(return_value)
                 if rtn_type1.find('Decoder') != -1:
                     rtn_type1 += '*'

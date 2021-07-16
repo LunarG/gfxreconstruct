@@ -84,7 +84,9 @@ class BaseDecoderBodyGenerator():
         dx12_return_decode_type = None
         if return_type and return_type != 'void':
             if dx12_method:
-                dx12_return_value = self.get_return_value_info(return_type)
+                dx12_return_value = self.get_return_value_info(
+                    return_type, name
+                )
                 dx12_return_decode_type = self.make_decoded_param_type(
                     dx12_return_value
                 )

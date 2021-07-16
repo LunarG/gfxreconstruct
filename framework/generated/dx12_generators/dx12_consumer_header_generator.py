@@ -104,13 +104,17 @@ class Dx12ConsumerHeaderGenerator(Dx12BaseGenerator):
         self, class_name, method_info, consumer_type, indent, function_class
     ):
         parameters = ''
+        class_method_name = method_info['name']
         if class_name:
             parameters = '        format::HandleId object_id'
+            class_method_name = class_name + '_' + class_method_name
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             rtn_type1 = self.clean_type_define(rtn_type)
-            return_value = self.get_return_value_info(rtn_type1)
+            return_value = self.get_return_value_info(
+                rtn_type1, class_method_name
+            )
             rtn_type1 = self.make_decoded_param_type(return_value)
             if rtn_type1.find('Decoder') != -1:
                 rtn_type1 += '*'

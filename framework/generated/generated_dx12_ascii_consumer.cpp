@@ -16150,7 +16150,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
 
 void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         format::HandleId object_id,
-        uint64_t return_value,
+        PointerDecoder<uint8_t>* return_value,
         WStringDecoder* pExportName)
 {
     std::ostringstream oss;
@@ -16158,7 +16158,10 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
     oss << "GetShaderIdentifier(\n    /* ";
 
     oss << "return = " ;
-    oss << return_value;
+    if (WriteCheckPointerDecoderNull(oss, return_value, "                ", false))
+    {
+        oss << "return_value" << " /* value = " << static_cast<uint16_t>(*return_value->GetPointer()) << " */";
+    }
     oss << ",\n       ";
 
     oss << "thread_id = WIP */\n";

@@ -268,7 +268,7 @@ class Dx12ReplayConsumerBodyGenerator(
                     if value.full_type != '_Out_ void *':
                         length = '1'
                         if value.array_length:
-                            if value.array_length[0] is '*':
+                            if value.array_length[0] == '*':
                                 length = value.array_length + '->GetPointer()'
                             else:
                                 length = value.array_length

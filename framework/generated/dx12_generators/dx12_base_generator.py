@@ -60,7 +60,14 @@ class Dx12BaseGenerator(BaseGenerator):
             'ID3D12GraphicsCommandList_OMSetRenderTargets',
             'pRenderTargetDescriptors',
             'RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors'
-        ],
+        ]
+    ]
+
+    RETURN_ARRAY_SIZE_LIST = [
+        [
+            'ID3D12StateObjectProperties_GetShaderIdentifier',
+            'D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES'
+        ]
     ]
 
     NOT_ARRAY_DICT = {'D3D12_MESSAGE': ['pDescription']}
@@ -168,7 +175,7 @@ class Dx12BaseGenerator(BaseGenerator):
                 rtn += t
         return rtn
 
-    def get_return_value_info(self, param_type):
+    def get_return_value_info(self, param_type, function_name):
         base_type = ''
         full_type = param_type
         const = False
@@ -185,6 +192,13 @@ class Dx12BaseGenerator(BaseGenerator):
                 if base_type:
                     base_type += ' '
                 base_type += t
+
+        array_length = None
+        array_capacity = 0
+        array_dimension = 0
+        for e in self.RETURN_ARRAY_SIZE_LIST:
+            if e[0] == function_name:
+                array_length = e[1]
 
         platform_base_type = None
         platform_full_type = None
@@ -204,6 +218,9 @@ class Dx12BaseGenerator(BaseGenerator):
             base_type=base_type,
             full_type=full_type,
             pointer_count=pointer,
+            array_length=array_length,
+            array_capacity=array_capacity,
+            array_dimension=array_dimension,
             platform_base_type=platform_base_type,
             platform_full_type=platform_full_type,
             is_const=const

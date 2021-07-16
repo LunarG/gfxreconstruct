@@ -149,11 +149,16 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             if value.array_capacity == 0:
                 if value.base_type == 'void':
                     omit_output_data = ''
-
-                return 'encoder->Encode{}Ptr({}{}{});'.format(
-                    function_name, write_parameter_value, value.name,
-                    omit_output_data
-                )
+                if not value.array_length:
+                    return 'encoder->Encode{}Ptr({}{}{});'.format(
+                        function_name, write_parameter_value, value.name,
+                        omit_output_data
+                    )
+                else:
+                    return 'encoder->Encode{}Array({}{}{});'.format(
+                        function_name, write_parameter_value, value.name,
+                        omit_output_data
+                    )
 
         elif value.pointer_count == 2:
             return 'encoder->Encode{}PtrPtr({}{}{});'.format(
@@ -180,10 +185,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     )
         return ''
 
-    def get_encode_parameter(self, parameter, is_generating_struct, is_result):
+    def get_encode_parameter(self, value, is_generating_struct, is_result):
         rtn = ''
-        value = self.get_value_info(parameter)
-
         omit_output_data = ''
         if is_result and self.is_output(value):
             omit_output_data = ', omit_output_data'
@@ -257,7 +260,8 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                '{\n'
         for k, v in properties.items():
             for p in v:
-                encode = self.get_encode_parameter(p, True, False)
+                value = self.get_value_info(p)
+                encode = self.get_encode_parameter(value, True, False)
                 body += '    {}\n'.format(encode)
 
         body += '}'
@@ -300,12 +304,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         begin_call_args = ''
         end_call_type = ''
         end_call_args = ''
+        class_method_name = method_info['name']
 
         if class_name:
             api_or_method = 'Method'
             begin_call_args = 'format::ApiCallId::ApiCall_{}_{}, wrapper->GetCaptureId()'.format(
                 class_name, method_name
             )
+            class_method_name = class_name + '_' + class_method_name
+
         else:
             api_or_method = 'Api'
             begin_call_args = 'format::ApiCallId::ApiCall_{}'.format(
@@ -363,16 +370,14 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     '        }\n'
 
         for p in parameters:
-            encode = self.get_encode_parameter(p, False, is_result)
+            value = self.get_value_info(p)
+            encode = self.get_encode_parameter(value, False, is_result)
             body += '        {}\n'.format(encode)
 
         rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
-            rtn_parameter = {}
-            rtn_parameter['name'] = 'return_value'
-            rtn_parameter['type'] = rtn_type
-
-            encode = self.get_encode_parameter(rtn_parameter, False, is_result)
+            value = self.get_return_value_info(rtn_type, class_method_name)
+            encode = self.get_encode_parameter(value, False, is_result)
             body += '        {}\n'.format(encode)
 
         body += ('        D3D12CaptureManager::Get()->{};\n'.format(end_call))

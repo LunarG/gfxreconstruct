@@ -7616,7 +7616,7 @@ void Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
     if(encoder)
     {
         encoder->EncodeWString(pExportName);
-        encoder->EncodeVoidPtr(return_value);
+        encoder->EncodeVoidArray(return_value, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }

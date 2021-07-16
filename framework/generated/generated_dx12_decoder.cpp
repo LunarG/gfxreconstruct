@@ -7983,14 +7983,14 @@ size_t Dx12Decoder::Decode_ID3D12StateObjectProperties_GetShaderIdentifier(forma
     size_t bytes_read = 0;
 
     WStringDecoder pExportName;
-    uint64_t return_value;
+    PointerDecoder<uint8_t> return_value;
 
     bytes_read += pExportName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    bytes_read += return_value.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_ID3D12StateObjectProperties_GetShaderIdentifier(object_id, return_value, &pExportName);
+        consumer->Process_ID3D12StateObjectProperties_GetShaderIdentifier(object_id, &return_value, &pExportName);
     }
 
     return bytes_read;

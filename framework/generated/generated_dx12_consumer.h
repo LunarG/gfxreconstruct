@@ -2005,7 +2005,7 @@ class Dx12Consumer : public Dx12ConsumerBase
 
     virtual void Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         format::HandleId object_id,
-        uint64_t return_value,
+        PointerDecoder<uint8_t>* return_value,
         WStringDecoder* pExportName){}
 
     virtual void Process_ID3D12StateObjectProperties_GetShaderStackSize(
