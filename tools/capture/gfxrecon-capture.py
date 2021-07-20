@@ -28,6 +28,7 @@
 
 import argparse
 import os
+import platform
 import shutil
 import sys
 import subprocess
@@ -43,21 +44,24 @@ def usage_message():
 
     :return: A well formatted usage message string
     '''
-    msg = ('gfxrecon-capture.py [-h]' + os.linesep +
-           '                           [-w dir]' + os.linesep +
-           '                           [-o capture_file]' + os.linesep +
-           '                           [-f capture_frames]' + os.linesep +
-           '                           [--no-file-timestamp]' + os.linesep +
-           '                           [--trigger {F1-F12,TAB,CTRL}]' + os.linesep +
-           '                           [--compression-type {LZ4,ZLIB,ZSTD,NONE}]' + os.linesep +
-           '                           [--file-flush]' + os.linesep +
-           '                           [--log-level {debug,info,warn,error,fatal}]' + os.linesep +
-           '                           [--log-file <file>]' + os.linesep)
+    message = [
+        'usage gfxrecon-capture.py [-h]',
+        '                          [-w dir]',
+        '                          [-o capture_file]',
+        '                          [-f capture_frames]',
+        '                          [--no-file-timestamp]',
+        '                          [--trigger {F1-F12,TAB,CTRL}]',
+        '                          [--compression-type {LZ4,ZLIB,ZSTD,NONE}]',
+        '                          [--file-flush]',
+        '                          [--log-level {debug,info,warn,error,fatal}]',
+        '                          [--log-file <file>]',
+        '                          [--memory-tracking-mode {page_guard,assisted,unassisted}]',
+        '                          [--capture-layer <capture_layer_path>',
+    ]
     if sys.platform == 'win32':
-        msg += '                           [--log-debugview]' + os.linesep
-    msg += '                           [--memory-tracking-mode {page_guard,assisted,unassisted}]' + os.linesep
-    msg += '                           <program> [<programArgs>]'
-    return msg
+        message.append('                          [--log-debugview]')
+    message.append('                          <program> [<program_args>]')
+    return '\n'.join(message)
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -150,12 +154,22 @@ def create_argument_parser():
         help='Log messages with OutputDebugStringA' if sys.platform == 'win32' else argparse.SUPPRESS)
     parser.add_argument(
         '--memory-tracking-mode', dest='memory_tracking_mode', choices=MEMORY_TRACKING_MODE_CHOICES,
-        help='R|Method to use to track changes to memory mapped objects:' + os.linesep +
-             '   page_guard: use pageguard to track changes (default)' + os.linesep +
-             '   assisted: application will call vkFlushMappedMemoryRanges' + os.linesep +
-             '      for memory to be written to the capture file' + os.linesep +
-             '   unassisted: all mapped memory will be written to the' + os.linesep +
-             '      capture file during VkQueueSubmit and VkUnmapMemory')
+        help='\n'.join([
+            'R|Method used to track changes to memory mapped objects:',
+            '  - page_guard: use pageguard to track changes (default)',
+            '  - assisted: application will call vkFlushMappedMemoryRanges',
+            '  - for memory to be written to the capture file',
+            '  - unassisted: all mapped memory will be written to the',
+            '  - capture file during VkQueueSubmit and VkUnmapMemory']))
+    parser.add_argument(
+        '--capture-layer', dest='capture_layer', metavar='<capture_layer>',
+        default=None,
+        help='\n'.join([
+            'The path to the capture layer.',
+            '',
+            'The path specified must contain both the layer JSON, and the',
+            'layer library',
+            'It is recommended to use an absolute path for this option.']))
 
     # Required args
     parser.add_argument(
@@ -213,25 +227,40 @@ def validate_args(args):
                              programName + ' to execute')
 
     # Verify capture_file directory exists and is a valid directory.
-    capture_fileDir = os.path.dirname(os.path.abspath(args.capture_file))
-    if (not os.path.exists(capture_fileDir)):
+    capture_dir = os.path.dirname(os.path.abspath(args.capture_file))
+    if (not os.path.exists(capture_dir)):
         print_error_and_exit('Capture file output directory ' +
-                             capture_fileDir + ' does not exist')
-    if (not os.path.isdir(capture_fileDir)):
+                             capture_dir + ' does not exist')
+    if (not os.path.isdir(capture_dir)):
         print_error_and_exit('Capture file output directory ' +
-                             capture_fileDir + ' is not a valid directory')
+                             capture_dir + ' is not a valid directory')
+
+    # Verify the capture layer paht is a valid directory
+    if (args.capture_layer is not None) and (not os.path.isdir(args.capture_layer)):
+        print_error_and_exit('Capture layer path is not a directory')
 
 
 def set_env_vars(args):
     '''Set environment variables for capture layer
     '''
     # Set VK_INSTANCE_LAYERS
-    # If gfxr layer is not already in VK_INSTANCE_LAYER, append gfxr layer to VK_INSTANCE_LAYERS
+    # If gfxr layer is not already in VK_INSTANCE_LAYER, append gfxr layer
+    # to VK_INSTANCE_LAYERS
     if os.getenv('VK_INSTANCE_LAYERS') is None:
         os.environ['VK_INSTANCE_LAYERS'] = 'VK_LAYER_LUNARG_gfxreconstruct'
     elif (not ('VK_LAYER_LUNARG_gfxreconstruct' in os.getenv('VK_INSTANCE_LAYERS'))):
         os.environ['VK_INSTANCE_LAYERS'] = os.environ['VK_INSTANCE_LAYERS'] + \
             os.pathsep + 'VK_LAYER_LUNARG_gfxreconstruct'
+    if args.capture_layer is not None:
+        # Prefix the layer path provided by the user to the layer search path
+        path_delimiter = ':'
+        if 'windows' == platform.platform().lower():
+            path_delimiter = ';'
+        vk_layer_path = ''
+        if 'VK_LAYER_PATH' in os.environ:
+            vk_layer_path = os.environ['VK_LAYER_PATH']
+        os.environ['VK_LAYER_PATH'] = path_delimiter.join([
+            args.capture_layer, vk_layer_path])
 
     # Set GFXRECON_* capture options
     # The capture layer will validate these options and generate errors as needed
@@ -275,6 +304,7 @@ def PrintLayerEnv():
     print_env_var('GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING')
     print_env_var('GFXRECON_MEMORY_TRACKING_MODE')
     print_env_var('VK_INSTANCE_LAYERS')
+    print_env_var('VK_LAYER_PATH')
 
 
 if '__main__' == __name__:
