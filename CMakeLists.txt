@@ -108,6 +108,11 @@ macro(common_build_directives TARGET)
     add_target_to_test_package(${TARGET})
 endmacro()
 
+option(GFXRECON_DISABLE_ASSERTS "Disable asserts that use the GFXRECON_ASSERT macro." OFF)
+if(${GFXRECON_DISABLE_ASSERTS})
+    add_definitions(-DGFXRECON_DISABLE_ASSERTS)
+endif(${GFXRECON_DISABLE_ASSERTS})
+
 if(MSVC)
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set (PRECOMPILED_ARCH "64")
