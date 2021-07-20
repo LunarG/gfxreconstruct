@@ -254,7 +254,7 @@ def set_env_vars(args):
     if args.capture_layer is not None:
         # Prefix the layer path provided by the user to the layer search path
         path_delimiter = ':'
-        if 'windows' == platform.platform().lower():
+        if 'windows' == platform.system().lower():
             path_delimiter = ';'
         vk_layer_path = ''
         if 'VK_LAYER_PATH' in os.environ:
@@ -316,12 +316,14 @@ if '__main__' == __name__:
     # Get and validate args
     parser = create_argument_parser()
     args = parser.parse_args()
-    # print_args(args)   # For debugging
+    if 'debug' == args.log_level:
+        print_args(args)   # For debugging
     validate_args(args)
 
     # Set up environment
     set_env_vars(args)
-    # PrintLayerEnv()    # For debugging
+    if 'debug' == args.log_level:
+        PrintLayerEnv()    # For debugging
 
     # If working_dir was specified, make it the cwd
     if args.working_dir is not None:
