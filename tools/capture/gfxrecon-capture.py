@@ -184,7 +184,7 @@ def print_args(args):
     print('program_and_args', args.program_and_args)
 
 
-def GetCommandPath(args):
+def get_command_path(args):
     '''Get the full path to the command to execute
     '''
     # Replace ~ or ~user with the user's home path before calling shutil.which()
@@ -192,7 +192,7 @@ def GetCommandPath(args):
     return shutil.which(programName)
 
 
-def ValidateArgs(args):
+def validate_args(args):
     '''Validate command line arguments
     '''
     # Verify working_dir exists and is a directory.
@@ -208,7 +208,7 @@ def ValidateArgs(args):
         print_error_and_exit('<program> must be specified')
 
     # Verify programName exists and is executable.
-    if GetCommandPath(args) is None:
+    if get_command_path(args) is None:
         print_error_and_exit('Cannot find program ' +
                              programName + ' to execute')
 
@@ -287,7 +287,7 @@ if '__main__' == __name__:
     parser = create_argument_parser()
     args = parser.parse_args()
     # print_args(args)   # For debugging
-    ValidateArgs(args)
+    validate_args(args)
 
     # Set up environment
     set_env_vars(args)
@@ -298,6 +298,9 @@ if '__main__' == __name__:
         os.chdir(args.working_dir)
 
     # Run the program and and exit with the exit status of the program
-    print('Executing program', GetCommandPath(args))
-    result = subprocess.run(args.program_and_args)
+    print('Executing program', get_command_path(args))
+    result = subprocess.run(args.program_and_args, capture_output=True)
+    if 0 != result.returncode:
+        print('Errors:\n', result.stderr.decode('utf-8'))
+    print('Output:\n', result.stdout.decode('utf-8'))
     sys.exit(result.returncode)
