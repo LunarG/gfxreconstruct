@@ -428,8 +428,6 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 
 void Dx12StateWriter::WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper)
 {
-    // TODO (GH #83): how does shared/internal ref count factor in here?
-
     // Add AddRef/Release commands as needed to set object ref count for replay.
     for (unsigned long i = 1; i < wrapper->GetRefCount(); ++i)
     {
