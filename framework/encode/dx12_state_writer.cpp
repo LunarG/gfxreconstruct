@@ -728,26 +728,31 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
 void Dx12StateWriter::WriteGraphicsCommandListState(const Dx12StateTable& state_table)
 {
     std::vector<ID3D12GraphicsCommandList_Wrapper*> direct_command_lists;
-    state_table.VisitWrappers([&](ID3D12GraphicsCommandList_Wrapper* list_wrapper) {
-        assert(list_wrapper != nullptr);
-        assert(list_wrapper->GetWrappedObject() != nullptr);
-        assert(list_wrapper->GetObjectInfo() != nullptr);
+    std::vector<ID3D12GraphicsCommandList_Wrapper*> open_command_lists;
 
+    state_table.VisitWrappers([&](ID3D12GraphicsCommandList_Wrapper* list_wrapper) {
+        GFXRECON_ASSERT(list_wrapper != nullptr);
+        GFXRECON_ASSERT(list_wrapper->GetWrappedObject() != nullptr);
+        GFXRECON_ASSERT(list_wrapper->GetObjectInfo() != nullptr);
+
+        auto list      = list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList>();
         auto list_info = list_wrapper->GetObjectInfo();
 
-        assert(list_info->create_parameters != nullptr);
-        assert(list_info->create_object_id != format::kNullHandleId);
+        GFXRECON_ASSERT(list_info->create_parameters != nullptr);
+        GFXRECON_ASSERT(list_info->create_object_id != format::kNullHandleId);
 
-        auto list = list_wrapper->GetWrappedObjectAs<ID3D12GraphicsCommandList>();
-
-        // Write call to create the command list.
-        WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
-        WriteAddRefAndReleaseCommands(list_wrapper);
-
-        // Write bundle command list commands and keep track of primary command lists.
+        // Write create calls and commands for bundle command lists. Keep track of primary and open command lists to be
+        // written afterward.
         if (list->GetType() == D3D12_COMMAND_LIST_TYPE_BUNDLE)
         {
-            WriteGraphicsCommandListCommands(list_wrapper, state_table);
+            if (list_info->closed)
+            {
+                WriteSingleGraphicsCommandListState(list_wrapper, state_table);
+            }
+            else
+            {
+                open_command_lists.push_back(list_wrapper);
+            }
         }
         else
         {
@@ -755,21 +760,35 @@ void Dx12StateWriter::WriteGraphicsCommandListState(const Dx12StateTable& state_
         }
     });
 
-    // Write primary command list commands.
+    // Write primary command lists state.
     for (auto list_wrapper : direct_command_lists)
     {
-        WriteGraphicsCommandListCommands(list_wrapper, state_table);
+        auto list_info = list_wrapper->GetObjectInfo();
+        if (list_info->closed)
+        {
+            WriteSingleGraphicsCommandListState(list_wrapper, state_table);
+        }
+        else
+        {
+            open_command_lists.push_back(list_wrapper);
+        }
+    }
+
+    // Write open command lists state.
+    for (auto list_wrapper : open_command_lists)
+    {
+        WriteSingleGraphicsCommandListState(list_wrapper, state_table);
     }
 }
 
-void Dx12StateWriter::WriteGraphicsCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                                       const Dx12StateTable&                    state_table)
+void Dx12StateWriter::WriteSingleGraphicsCommandListState(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                                          const Dx12StateTable&                    state_table)
 {
-    assert(list_wrapper != nullptr);
-    assert(list_wrapper->GetWrappedObject() != nullptr);
-    assert(list_wrapper->GetObjectInfo() != nullptr);
-
     auto list_info = list_wrapper->GetObjectInfo();
+
+    // Write call to create the command list.
+    WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
+    WriteAddRefAndReleaseCommands(list_wrapper);
 
     // TODO (GH #83): VulkanStateWriter verifies that all command list inputs have valid handles and skips the command
     // list if not. Does that need to be done here?

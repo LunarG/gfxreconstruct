@@ -353,6 +353,23 @@ class D3D12CaptureManager : public CaptureManager
                                                                UINT                               num_barriers,
                                                                const D3D12_RESOURCE_BARRIER*      barriers);
 
+    void PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
+                                                    HRESULT                 result,
+                                                    UINT                    nodeMask,
+                                                    D3D12_COMMAND_LIST_TYPE type,
+                                                    ID3D12CommandAllocator* pCommandAllocator,
+                                                    ID3D12PipelineState*    pInitialState,
+                                                    REFIID                  riid,
+                                                    void**                  ppCommandList);
+
+    void PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Device_Wrapper*    device_wrapper,
+                                                      HRESULT                  result,
+                                                      UINT                     nodeMask,
+                                                      D3D12_COMMAND_LIST_TYPE  type,
+                                                      D3D12_COMMAND_LIST_FLAGS flags,
+                                                      REFIID                   riid,
+                                                      void**                   ppCommandList);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 

@@ -115,8 +115,8 @@ class Dx12StateWriter
 
     void WriteGraphicsCommandListState(const Dx12StateTable& state_table);
 
-    void WriteGraphicsCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* wrapper,
-                                          const Dx12StateTable&                    state_table);
+    void WriteSingleGraphicsCommandListState(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                             const Dx12StateTable&                    state_table);
 
   private:
     util::FileOutputStream*  output_stream_;

@@ -241,8 +241,8 @@ struct ID3D12ToolsInfo : public DxWrapperInfo
 
 struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {
-    util::MemoryOutputStream command_data;
-
+    bool                             closed{ false };
+    util::MemoryOutputStream         command_data;
     std::vector<DxTransitionBarrier> transition_barriers;
 };
 

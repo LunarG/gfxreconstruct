@@ -1514,6 +1514,37 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandList(ID3D12Device_Wrapper*   device_wrapper,
+                                                                     HRESULT                 result,
+                                                                     UINT                    nodeMask,
+                                                                     D3D12_COMMAND_LIST_TYPE type,
+                                                                     ID3D12CommandAllocator* pCommandAllocator,
+                                                                     ID3D12PipelineState*    pInitialState,
+                                                                     REFIID                  riid,
+                                                                     void**                  ppCommandList)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        state_tracker_->TrackCommandListCreation(list_wrapper, false);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Device_Wrapper*    device_wrapper,
+                                                                       HRESULT                  result,
+                                                                       UINT                     nodeMask,
+                                                                       D3D12_COMMAND_LIST_TYPE  type,
+                                                                       D3D12_COMMAND_LIST_FLAGS flags,
+                                                                       REFIID                   riid,
+                                                                       void**                   ppCommandList)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(*ppCommandList);
+        state_tracker_->TrackCommandListCreation(list_wrapper, true);
+    }
+}
+
 CaptureSettings::TraceSettings D3D12CaptureManager::GetDefaultTraceSettings()
 {
     CaptureSettings::TraceSettings d3d12_trace_settings = {};

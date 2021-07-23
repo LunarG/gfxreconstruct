@@ -101,11 +101,18 @@ void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrap
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
     {
+        list_info->closed = false;
+
         // Clear command data on command buffer reset.
         list_info->command_data.Reset();
 
         // Clear pending resource transitions.
         list_info->transition_barriers.clear();
+    }
+
+    if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
+    {
+        list_info->closed = true;
     }
 
     // Append the command data.
@@ -190,6 +197,12 @@ void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wr
         resource_info->subresource_transitions.push_back(
             std::make_pair(initial_state, D3D12_RESOURCE_BARRIER_FLAG_NONE));
     }
+}
+
+void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed)
+{
+    auto list_info    = list_wrapper->GetObjectInfo();
+    list_info->closed = created_closed;
 }
 
 void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
