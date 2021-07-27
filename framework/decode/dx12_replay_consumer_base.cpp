@@ -1305,10 +1305,15 @@ void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*         
                                                           PointerDecoder<uint8_t>* original_result,
                                                           WStringDecoder*          pExportName)
 {
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
     auto replay_object = static_cast<ID3D12StateObjectProperties*>(replay_object_info->object);
     auto new_shader_identifier_ptr =
         static_cast<uint8_t*>(replay_object->GetShaderIdentifier(pExportName->GetPointer()));
-    shader_id_map_.Add(replay_object_info->capture_id, original_result->GetPointer(), new_shader_identifier_ptr);
+
+    if ((original_result != 0) && (new_shader_identifier_ptr != 0))
+    {
+        shader_id_map_.Add(replay_object_info->capture_id, original_result->GetPointer(), new_shader_identifier_ptr);
+    }
     return new_shader_identifier_ptr;
 }
 
@@ -1522,8 +1527,6 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
                 auto& mapped_info = entry.second;
                 mapped_memory_.erase(mapped_info.memory_id);
             }
-            shader_id_map_.Remove(info->capture_id);
-
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
         {

@@ -39,18 +39,17 @@ typedef std::array<uint8_t, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES> Dx12ShaderIde
 class Dx12ShaderIdMap
 {
   public:
-    void Add(format::HandleId resource_id, uint8_t* old_shader_id, uint8_t* new_shader_id);
+    // state_object_properties_id is unused. Leave it for the future.
+    void Add(format::HandleId state_object_properties_id, uint8_t* old_shader_id, uint8_t* new_shader_id);
 
-    void Remove(format::HandleId resource_id);
+    // TODO: It's not implementation.
+    void Remove(uint8_t* shader_id);
 
-    // TODO: If it could give resource_id, it could reduce one iteration.
-    //       It needs to wait until translating shader table done to see if it's possible.
     void Map(uint8_t** translated_shader_id) const;
 
   private:
     // Key is old shader id. Value is new.
-    typedef std::map<Dx12ShaderIdentifier, Dx12ShaderIdentifier> Dx12ShaderIdentifierPair;
-    typedef std::map<format::HandleId, Dx12ShaderIdentifierPair> ShaderIdMap;
+    typedef std::map<Dx12ShaderIdentifier, Dx12ShaderIdentifier> ShaderIdMap;
 
   private:
     Dx12ShaderIdentifier PackDx12ShaderIdentifier(uint8_t* shader_id) const;
