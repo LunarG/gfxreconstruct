@@ -43,7 +43,7 @@ import os
 import pdb
 import sys
 import time
-from reg import Registry, etree
+from registry.reg import Registry, etree
 from generator import write
 
 # API Call Decoders

@@ -27,6 +27,7 @@ import subprocess
 
 # Relative path from code generators to directory containing the Vulkan XML Registry.
 registry_path = '../../external/Vulkan-Headers/registry'
+vk_headers_path = '../../external/Vulkan-Headers'
 
 # Relative path to vulkan code generators for trace encode/decode.
 generator_path = './vulkan_generators'
@@ -63,6 +64,7 @@ if __name__ == '__main__':
     current_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     generator_dir = os.path.normpath(os.path.join(current_dir, generator_path))
     registry_dir = os.path.normpath(os.path.join(current_dir, registry_path))
+    vk_headers_dir = os.path.normpath(os.path.join(current_dir, vk_headers_path))
 
     base_generator_dir = os.path.normpath(
         os.path.join(current_dir, base_generator_path)
@@ -72,6 +74,7 @@ if __name__ == '__main__':
 
     sys.path.append(generator_dir)
     sys.path.append(registry_dir)
+    sys.path.append(vk_headers_dir)
 
     env = os.environ
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
