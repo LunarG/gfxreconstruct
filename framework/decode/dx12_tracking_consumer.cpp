@@ -21,7 +21,7 @@
 */
 
 #include "util/defines.h"
-#include "decode/dx12_resource_tracking_consumer.h"
+#include "decode/dx12_tracking_consumer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO: all functions are declared as skeletons,
+// TODO(#256): all functions are declared as skeletons,
 // need to fill up the functions body to do resources tracking
 
 Dx12ResourceTrackingConsumer::Dx12ResourceTrackingConsumer(const DxReplayOptions&      options,

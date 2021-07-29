@@ -28,7 +28,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// This class stores the tables of the tracked DX12 memories,
+// This class stores the tables of the tracked DX12 memory,
 // buffers, images objects information during the first pass
 // of the replay.
 // It is used to generate tables for these tracked objects and
@@ -37,9 +37,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12TrackedObjectInfoTable
 {
   public:
-    // TODO: add getter and setter for tracked objects info.
+    // TODO(#256): add getter and setter for tracked objects info.
   private:
-    // TODO: add maps for each tracked objects info
+    // TODO(#256): add maps for each tracked objects info
 };
 
 GFXRECON_END_NAMESPACE(decode)

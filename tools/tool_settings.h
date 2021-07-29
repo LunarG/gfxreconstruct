@@ -696,7 +696,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 
     if (arg_parser.IsOptionSet(kDxTrackResource))
     {
-        replay_options.enable_d3d12_resource_tracking = true;
+        replay_options.enable_d3d12_two_pass_replay = true;
     }
 
     return replay_options;

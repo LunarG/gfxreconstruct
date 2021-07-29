@@ -36,7 +36,7 @@
 #if defined(WIN32)
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
-#include "decode/dx12_resource_tracking_consumer.h"
+#include "decode/dx12_tracking_consumer.h"
 #endif
 
 #include <exception>
@@ -253,7 +253,7 @@ int main(int argc, const char** argv)
                     // dx12_replay_consumer.SetFpsInfo(&fps_info);
 
                     // check for user option if first pass tracking is enabled
-                    if (dx_replay_options.enable_d3d12_resource_tracking)
+                    if (dx_replay_options.enable_d3d12_two_pass_replay)
                     {
                         gfxrecon::decode::FileProcessor              file_processor_resource_tracking;
                         gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
