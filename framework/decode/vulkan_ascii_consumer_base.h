@@ -27,6 +27,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+#include "util/to_string.h"
 
 #include "vulkan/vulkan.h"
 
@@ -51,10 +52,31 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     const std::string& GetFilename() const { return m_filename; }
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void
+    Process_vkAllocateCommandBuffers(VkResult                                                   returnValue,
+                                     format::HandleId                                           device,
+                                     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
+                                     HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
+
+    virtual void
+    Process_vkAllocateDescriptorSets(VkResult                                                   returnValue,
+                                     format::HandleId                                           device,
+                                     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
+                                     HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
+
+    virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
+        format::HandleId                                                           commandBuffer,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        PointerDecoder<VkDeviceAddress>*                                           pIndirectDeviceAddresses,
+        PointerDecoder<uint32_t>*                                                  pIndirectStrides,
+        PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts) override;
+
+    virtual void Process_vkCmdBuildAccelerationStructuresKHR(
+        format::HandleId                                                           commandBuffer,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
@@ -62,17 +84,42 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
                                                                uint32_t         set,
                                                                DescriptorUpdateTemplateDecoder* pData) override;
 
+    virtual void Process_vkGetAccelerationStructureBuildSizesKHR(
+        format::HandleId                                                           device,
+        VkAccelerationStructureBuildTypeKHR                                        buildType,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pBuildInfo,
+        PointerDecoder<uint32_t>*                                                  pMaxPrimitiveCounts,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>*    pSizeInfo) override;
+
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData) override;
+
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
   protected:
-    FILE* GetFile() const { return m_file; }
+    template <typename ToStringFunctionType>
+    inline void WriteApiCallToFile(const std::string&   functionName,
+                                   util::ToStringFlags  toStringFlags,
+                                   uint32_t&            tabCount,
+                                   uint32_t             tabSize,
+                                   ToStringFunctionType toStringFunction)
+    {
+        using namespace util;
+        fprintf(m_file, "%s\n", (m_apiCallCount ? "," : ""));
+        fprintf(m_file, "\"[%s]%s\":", std::to_string(m_apiCallCount++).c_str(), functionName.c_str());
+        fprintf(m_file, "%s", GetWhitespaceString(toStringFlags).c_str());
+        fprintf(m_file, "%s", ObjectToString(toStringFlags, tabCount, tabSize, toStringFunction).c_str());
+    }
 
   private:
     FILE*       m_file;
     std::string m_filename;
+    uint64_t    m_apiCallCount{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -77,6 +77,13 @@ from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNext
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator,VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator,VulkanStructHandleWrappersBodyGeneratorOptions
 
+# To String
+from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator,VulkanEnumToStringBodyGeneratorOptions
+from vulkan_enum_to_string_header_generator import VulkanEnumToStringHeaderGenerator,VulkanEnumToStringHeaderGeneratorOptions
+from vulkan_struct_to_string_body_generator import VulkanStructToStringBodyGenerator,VulkanStructToStringBodyGeneratorOptions
+from vulkan_pnext_to_string_body_generator import VulkanPNextToStringBodyGenerator,VulkanPNextToStringBodyGeneratorOptions
+from vulkan_struct_to_string_header_generator import VulkanStructToStringHeaderGenerator,VulkanStructToStringHeaderGeneratorOptions
+
 # Simple timer functions
 startTime = None
 
@@ -480,6 +487,68 @@ def makeGenOpts(args):
             filename          = 'generated_vulkan_struct_handle_wrappers.cpp',
             directory         = directory,
             blacklists        = blacklists,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    #
+    # To string generators
+    genOpts['generated_vulkan_enum_to_string.h'] = [
+          VulkanEnumToStringHeaderGenerator,
+          VulkanEnumToStringHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_enum_to_string.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_enum_to_string.cpp'] = [
+          VulkanEnumToStringBodyGenerator,
+          VulkanEnumToStringBodyGeneratorOptions(
+            filename          = 'generated_vulkan_enum_to_string.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_pnext_to_string.cpp'] = [
+          VulkanPNextToStringBodyGenerator,
+          VulkanPNextToStringBodyGeneratorOptions(
+            filename          = 'generated_vulkan_pnext_to_string.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_to_string.h'] = [
+          VulkanStructToStringHeaderGenerator,
+          VulkanStructToStringHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_to_string.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_to_string.cpp'] = [
+          VulkanStructToStringBodyGenerator,
+          VulkanStructToStringBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_to_string.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = False)

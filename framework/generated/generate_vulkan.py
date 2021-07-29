@@ -59,7 +59,12 @@ generate_targets = [
     'generated_vulkan_referenced_resource_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
-    'generated_vulkan_feature_util.cpp'
+    'generated_vulkan_feature_util.cpp',
+    'generated_vulkan_enum_to_string.h',
+    'generated_vulkan_enum_to_string.cpp',
+    'generated_vulkan_pnext_to_string.cpp',
+    'generated_vulkan_struct_to_string.h',
+    'generated_vulkan_struct_to_string.cpp'
 ]
 
 if __name__ == '__main__':
@@ -76,4 +81,3 @@ if __name__ == '__main__':
     for target in generate_targets:
         print('Generating', target)
         subprocess.call([sys.executable, os.path.join(generator_dir, 'gencode.py'), '-o', current_dir, '-configs', generator_dir, '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)
-
