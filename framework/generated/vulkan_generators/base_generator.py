@@ -246,6 +246,8 @@ class BaseGenerator(OutputGenerator):
         self.handleNames = set()                          # Set of Vulkan handle typenames
         self.flagsTypes = dict()                          # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enumNames = set()                            # Set of Vulkan enumeration typenames
+        self.enumAliases = dict()                         # Map of enum names to aliases
+        self.enumEnumerants = dict()                      # Map of enum names to enumerants
 
         # Type processing options
         self.processCmds = processCmds                    # Populate the featureCmdParams map
@@ -389,6 +391,17 @@ class BaseGenerator(OutputGenerator):
     def genGroup(self, groupinfo, groupName, alias):
         OutputGenerator.genGroup(self, groupinfo, groupName, alias)
         self.enumNames.add(groupName)
+        if not alias:
+            enumerants = dict()
+            for elem in groupinfo.elem:
+                supported = elem.get('supported')
+                if not supported or not 'disabled' in supported:
+                    name = elem.get('name')
+                    if name and not elem.get('alias'):
+                        enumerants[name] = elem.get('value')
+            self.enumEnumerants[groupName] = enumerants
+        else:
+            self.enumAliases[groupName] = alias
 
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually

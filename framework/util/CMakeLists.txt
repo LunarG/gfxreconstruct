@@ -66,6 +66,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.h
                     ${CMAKE_CURRENT_LIST_DIR}/shared_mutex.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/to_string.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>

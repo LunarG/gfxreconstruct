@@ -33,11 +33,15 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_ascii_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_ascii_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_to_string.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_allocator.h
@@ -117,6 +121,11 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
 )
 
 if (MSVC AND (MSVC_VERSION LESS 1920))
