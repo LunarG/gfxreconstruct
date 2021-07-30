@@ -55,6 +55,12 @@ std::string ToString<VkAccelerationStructureGeometryDataKHR>(const VkAcceleratio
                                                              uint32_t      tabSize);
 
 template <>
+std::string ToString<VkAccelerationStructureMotionInstanceNV>(const VkAccelerationStructureMotionInstanceNV& obj,
+                                                              ToStringFlags toStringFlags,
+                                                              uint32_t      tabCount,
+                                                              uint32_t      tabSize);
+
+template <>
 std::string
 ToString<VkAccelerationStructureMotionInstanceDataNV>(const VkAccelerationStructureMotionInstanceDataNV& obj,
                                                       ToStringFlags                                      toStringFlags,

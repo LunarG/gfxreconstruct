@@ -57,7 +57,31 @@ std::string ToString<VkAccelerationStructureGeometryKHR>(const VkAccelerationStr
             FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
             FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "geometryType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.geometryType, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "geometry", toStringFlags, tabCount, tabSize, ToString(obj.geometry, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "geometry", toStringFlags, tabCount, tabSize,
+                ObjectToString(toStringFlags, tabCount, tabSize,
+                    [&](std::stringstream& strStrm)
+                    {
+                        switch (obj.geometryType)
+                        {
+                        case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                        {
+                            FieldToString(strStrm, true, "triangles", toStringFlags, tabCount, tabSize, ToString(obj.geometry.triangles, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_GEOMETRY_TYPE_AABBS_KHR:
+                        {
+                            FieldToString(strStrm, true, "aabbs", toStringFlags, tabCount, tabSize, ToString(obj.geometry.aabbs, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                        {
+                            FieldToString(strStrm, true, "instances", toStringFlags, tabCount, tabSize, ToString(obj.geometry.instances, toStringFlags, tabCount, tabSize));
+                        } break;
+                        default:
+                        {
+                        } break;
+                        }
+                    }
+                )
+            );
             FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
         }
     );
@@ -72,6 +96,43 @@ std::string ToString<VkAccelerationStructureGeometryDataKHR>(const VkAcceleratio
             FieldToString(strStrm, true, "triangles", toStringFlags, tabCount, tabSize, ToString(obj.triangles, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "aabbs", toStringFlags, tabCount, tabSize, ToString(obj.aabbs, toStringFlags, tabCount, tabSize));
             FieldToString(strStrm, false, "instances", toStringFlags, tabCount, tabSize, ToString(obj.instances, toStringFlags, tabCount, tabSize));
+        }
+    );
+}
+
+template <>
+std::string ToString<VkAccelerationStructureMotionInstanceNV>(const VkAccelerationStructureMotionInstanceNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "flags", toStringFlags, tabCount, tabSize, ToString(obj.flags, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "data", toStringFlags, tabCount, tabSize,
+                ObjectToString(toStringFlags, tabCount, tabSize,
+                    [&](std::stringstream& strStrm)
+                    {
+                        switch (obj.type)
+                        {
+                        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
+                        {
+                            FieldToString(strStrm, true, "staticInstance", toStringFlags, tabCount, tabSize, ToString(obj.data.staticInstance, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
+                        {
+                            FieldToString(strStrm, true, "matrixMotionInstance", toStringFlags, tabCount, tabSize, ToString(obj.data.matrixMotionInstance, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
+                        {
+                            FieldToString(strStrm, true, "srtMotionInstance", toStringFlags, tabCount, tabSize, ToString(obj.data.srtMotionInstance, toStringFlags, tabCount, tabSize));
+                        } break;
+                        default:
+                        {
+                        } break;
+                        }
+                    }
+                )
+            );
         }
     );
 }
@@ -168,6 +229,50 @@ std::string ToString<VkPerformanceCounterResultKHR>(const VkPerformanceCounterRe
 }
 
 template <>
+std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+{
+    return ObjectToString(toStringFlags, tabCount, tabSize,
+        [&](std::stringstream& strStrm)
+        {
+            FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "data", toStringFlags, tabCount, tabSize,
+                ObjectToString(toStringFlags, tabCount, tabSize,
+                    [&](std::stringstream& strStrm)
+                    {
+                        switch (obj.type)
+                        {
+                        case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL:
+                        {
+                            FieldToString(strStrm, true, "value32", toStringFlags, tabCount, tabSize, ToString(obj.data.value32, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL:
+                        {
+                            FieldToString(strStrm, true, "value64", toStringFlags, tabCount, tabSize, ToString(obj.data.value64, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL:
+                        {
+                            FieldToString(strStrm, true, "valueFloat", toStringFlags, tabCount, tabSize, ToString(obj.data.valueFloat, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL:
+                        {
+                            FieldToString(strStrm, true, "valueBool", toStringFlags, tabCount, tabSize, ToString(obj.data.valueBool, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL:
+                        {
+                            FieldToString(strStrm, true, "valueString", toStringFlags, tabCount, tabSize, (obj.data.valueString ? ('"' + std::string(obj.data.valueString) + '"') : "null"));
+                        } break;
+                        default:
+                        {
+                        } break;
+                        }
+                    }
+                )
+            );
+        }
+    );
+}
+
+template <>
 std::string ToString<VkPerformanceValueDataINTEL>(const VkPerformanceValueDataINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -182,14 +287,45 @@ std::string ToString<VkPerformanceValueDataINTEL>(const VkPerformanceValueDataIN
     );
 }
 
-template <>
-std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
+template <> std::string ToString<VkPipelineExecutableStatisticKHR>(const VkPipelineExecutableStatisticKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
         [&](std::stringstream& strStrm)
         {
-            FieldToString(strStrm, true, "type", toStringFlags, tabCount, tabSize, '"' + ToString(obj.type, toStringFlags, tabCount, tabSize) + '"');
-            FieldToString(strStrm, false, "data", toStringFlags, tabCount, tabSize, ToString(obj.data, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, true, "sType", toStringFlags, tabCount, tabSize, '"' + ToString(obj.sType, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "pNext", toStringFlags, tabCount, tabSize, PNextToString(obj.pNext, toStringFlags, tabCount, tabSize));
+            FieldToString(strStrm, false, "name", toStringFlags, tabCount, tabSize, '"' + std::string(obj.name) + '"');
+            FieldToString(strStrm, false, "description", toStringFlags, tabCount, tabSize, '"' + std::string(obj.description) + '"');
+            FieldToString(strStrm, false, "format", toStringFlags, tabCount, tabSize, '"' + ToString(obj.format, toStringFlags, tabCount, tabSize) + '"');
+            FieldToString(strStrm, false, "value", toStringFlags, tabCount, tabSize,
+                ObjectToString(toStringFlags, tabCount, tabSize,
+                    [&](std::stringstream& strStrm)
+                    {
+                        switch (obj.format)
+                        {
+                        case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR:
+                        {
+                            FieldToString(strStrm, true, "b32", toStringFlags, tabCount, tabSize, ToString(obj.value.b32, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR:
+                        {
+                            FieldToString(strStrm, true, "i64", toStringFlags, tabCount, tabSize, ToString(obj.value.i64, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR:
+                        {
+                            FieldToString(strStrm, true, "u64", toStringFlags, tabCount, tabSize, ToString(obj.value.u64, toStringFlags, tabCount, tabSize));
+                        } break;
+                        case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR:
+                        {
+                            FieldToString(strStrm, true, "f64", toStringFlags, tabCount, tabSize, ToString(obj.value.f64, toStringFlags, tabCount, tabSize));
+                        } break;
+                        default:
+                        {
+                        } break;
+                        }
+                    }
+                )
+            );
         }
     );
 }
