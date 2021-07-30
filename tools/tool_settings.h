@@ -86,7 +86,7 @@ const char kScreenshotDirArgument[]            = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 #if defined(WIN32)
 const char kApiFamilyOption[] = "--api";
-const char kDxTrackResource[] = "--dx12trackresources";
+const char kDxTwoPassReplay[] = "--dx12-two-pass-replay";
 #endif
 
 enum class WsiPlatform
@@ -694,7 +694,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
     replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
 
-    if (arg_parser.IsOptionSet(kDxTrackResource))
+    if (arg_parser.IsOptionSet(kDxTwoPassReplay))
     {
         replay_options.enable_d3d12_two_pass_replay = true;
     }
