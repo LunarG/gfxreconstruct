@@ -119,6 +119,7 @@ void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
 }
 
 void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
+                                                    IUnknown*               device,
                                                     uint32_t                image_count,
                                                     DXGI_SWAP_EFFECT        swap_effect)
 {
@@ -129,13 +130,18 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
 
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
+        if (device != nullptr)
+            info->device_id = GetWrappedId<IUnknown>(device);
 
-        if (info->images == nullptr)
+        if (info->child_images.empty())
         {
-            auto swap_chain   = wrapper->GetWrappedObjectAs<IDXGISwapChain>();
-            info->images      = std::make_unique<ID3D12Resource_Wrapper*[]>(image_count);
-            info->image_count = image_count;
+            auto swap_chain = wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+            info->child_images.resize(image_count);
             info->swap_effect = swap_effect;
+
+            // TODO: In VK version, this thing is done in InitializeGroupObjectState,
+            //       This might need to be removed to InitializeGroupObjectState when it's ready.
+            info->image_acquired_info.resize(image_count);
 
             for (uint32_t i = 0; i < image_count; ++i)
             {
@@ -149,7 +155,7 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
                     // reference count by only holding an internal reference to the wrapped resource.
                     ID3D12Resource_Wrapper* resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
                     resource_wrapper->MakeRefInternal();
-                    info->images[i] = resource_wrapper;
+                    info->child_images[i] = resource_wrapper;
 
                     // TODO (GH #261): Initialize members of ID3D12ResourceInfo for resource_wrapper in order to track
                     // frame buffer state.
@@ -180,15 +186,14 @@ void D3D12CaptureManager::ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        if (info->images != nullptr)
+        if (!info->child_images.empty())
         {
-            for (uint32_t i = 0; i < info->image_count; ++i)
+            for (auto& resource_wrapper : info->child_images)
             {
-                auto resource_wrapper = info->images[i];
                 resource_wrapper->ReleaseRefInternal();
             }
 
-            info->images.reset();
+            info->child_images.clear();
         }
     }
 }
@@ -332,7 +337,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -356,7 +361,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForHwnd(
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -377,7 +382,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForCoreWindow
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -396,11 +401,11 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForCompositio
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, desc->BufferCount, desc->SwapEffect);
+        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
-void D3D12CaptureManager::PreProcess_IDXGISwapchain_ResizeBuffers(
+void D3D12CaptureManager::PreProcess_IDXGISwapChain_ResizeBuffers(
     IDXGISwapChain_Wrapper* wrapper, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT flags)
 {
     GFXRECON_UNREFERENCED_PARAMETER(width);
@@ -420,26 +425,32 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrap
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
-
+    if (SUCCEEDED(result))
+    {
+        state_tracker_->TrackPresentedImages(wrapper, sync_interval, flags, nullptr);
+    }
     EndFrame();
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
                                                                HRESULT                        result,
                                                                UINT                           sync_interval,
-                                                               UINT                           flags,
+                                                               UINT                           present_flags,
                                                                const DXGI_PRESENT_PARAMETERS* present_parameters)
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
-
+    if (SUCCEEDED(result))
+    {
+        state_tracker_->TrackPresentedImages(wrapper, sync_interval, present_flags, present_parameters);
+    }
     EndFrame();
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
                                                                    HRESULT                 result,
                                                                    UINT                    buffer_count,
                                                                    UINT                    width,
@@ -457,11 +468,11 @@ void D3D12CaptureManager::PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChai
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        PreAcquireSwapChainImages(wrapper, buffer_count, info->swap_effect);
+        PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
     }
 }
 
-void D3D12CaptureManager::PreProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+void D3D12CaptureManager::PreProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
                                                                     UINT                    buffer_count,
                                                                     UINT                    width,
                                                                     UINT                    height,
@@ -480,7 +491,7 @@ void D3D12CaptureManager::PreProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapCha
     ReleaseSwapChainImages(wrapper);
 }
 
-void D3D12CaptureManager::PostProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+void D3D12CaptureManager::PostProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
                                                                      HRESULT                 result,
                                                                      UINT                    buffer_count,
                                                                      UINT                    width,
@@ -502,8 +513,14 @@ void D3D12CaptureManager::PostProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapCh
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
 
-        PreAcquireSwapChainImages(wrapper, buffer_count, info->swap_effect);
+        PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
     }
+}
+
+void D3D12CaptureManager::PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(IDXGISwapChain_Wrapper* wrapper,
+                                                                                UINT                    result)
+{
+    state_tracker_->TrackAcquireImage(result, wrapper);
 }
 
 void D3D12CaptureManager::Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper)

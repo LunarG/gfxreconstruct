@@ -130,6 +130,9 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
     WriteGraphicsCommandListState(state_table);
 
+    // Process swapchain image acquire.
+    WriteSwapchainImageState(state_table);
+
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 }
@@ -831,6 +834,43 @@ void Dx12StateWriter::WriteSingleGraphicsCommandListState(const ID3D12GraphicsCo
         GFXRECON_LOG_ERROR("Encountered unexpected data offset in command data when writing trimmed state for "
                            "command list. Capture file may be invalid.");
     }
+}
+
+void Dx12StateWriter::WriteSwapchainImageState(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](const IDXGISwapChain_Wrapper* swapchain_wrapper) {
+        GFXRECON_ASSERT(swapchain_wrapper != nullptr);
+        GFXRECON_ASSERT(swapchain_wrapper->GetWrappedObject() != nullptr);
+        GFXRECON_ASSERT(swapchain_wrapper->GetObjectInfo() != nullptr);
+
+        auto swapchain      = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+        auto swapchain_info = swapchain_wrapper->GetObjectInfo();
+        auto image_count    = swapchain_info->child_images.size();
+
+        format::SetSwapchainImageStateCommandHeader header;
+        format::SwapchainImageStateInfo             info{};
+
+        // Initialize standard block header.
+        header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(header) + (image_count * sizeof(info));
+        header.meta_header.block_header.type = format::kMetaDataBlock;
+
+        // Initialize block data for set-swapchain-image-state meta-data command.
+        header.meta_header.meta_data_id = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
+                                                                 format::MetaDataType::kSetSwapchainImageStateCommand);
+        header.thread_id                = thread_id_;
+        header.device_id                = swapchain_info->device_id; // ID3D12CommandQueue
+        header.swapchain_id             = swapchain_wrapper->GetCaptureId();
+        header.last_presented_image     = swapchain_info->last_presented_image;
+        header.image_info_count         = static_cast<uint32_t>(image_count);
+
+        output_stream_->Write(&header, sizeof(header));
+
+        // last_presented_image is the only need for replay, so nothing is written into format::SwapchainImageStateInfo.
+        for (size_t i = 0; i < image_count; ++i)
+        {
+            output_stream_->Write(&info, sizeof(info));
+        }
+    });
 }
 
 GFXRECON_END_NAMESPACE(encode)

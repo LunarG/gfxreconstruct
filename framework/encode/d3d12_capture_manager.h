@@ -187,23 +187,25 @@ class D3D12CaptureManager : public CaptureManager
                                                                  IDXGIOutput*                 restrict_to_output,
                                                                  IDXGISwapChain1**            swap_chain);
 
-    void
-    PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
+    void PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
+                                            HRESULT                 result,
+                                            UINT                    sync_interval,
+                                            UINT                    flags);
 
     void PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
                                               HRESULT                        result,
                                               UINT                           sync_interval,
-                                              UINT                           flags,
+                                              UINT                           present_flags,
                                               const DXGI_PRESENT_PARAMETERS* present_parameters);
 
-    void PreProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+    void PreProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
                                                  UINT                    buffer_count,
                                                  UINT                    width,
                                                  UINT                    height,
                                                  DXGI_FORMAT             new_format,
                                                  UINT                    flags);
 
-    void PostProcess_IDXGISwapchain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
+    void PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
                                                   HRESULT                 result,
                                                   UINT                    buffer_count,
                                                   UINT                    width,
@@ -211,7 +213,7 @@ class D3D12CaptureManager : public CaptureManager
                                                   DXGI_FORMAT             new_format,
                                                   UINT                    flags);
 
-    void PreProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+    void PreProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
                                                    UINT                    buffer_count,
                                                    UINT                    width,
                                                    UINT                    height,
@@ -220,7 +222,7 @@ class D3D12CaptureManager : public CaptureManager
                                                    const UINT*             node_mask,
                                                    IUnknown* const*        present_queue);
 
-    void PostProcess_IDXGISwapchain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
+    void PostProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
                                                     HRESULT                 result,
                                                     UINT                    buffer_count,
                                                     UINT                    width,
@@ -229,6 +231,8 @@ class D3D12CaptureManager : public CaptureManager
                                                     UINT                    flags,
                                                     const UINT*             node_mask,
                                                     IUnknown* const*        present_queue);
+
+    void PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(IDXGISwapChain_Wrapper* wrapper, UINT result);
 
     void Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper);
 
@@ -452,7 +456,10 @@ class D3D12CaptureManager : public CaptureManager
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
-    void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, uint32_t image_count, DXGI_SWAP_EFFECT swap_effect);
+    void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
+                                   IUnknown*               device,
+                                   uint32_t                image_count,
+                                   DXGI_SWAP_EFFECT        swap_effect);
 
     void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 

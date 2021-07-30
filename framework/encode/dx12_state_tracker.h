@@ -133,6 +133,13 @@ class Dx12StateTracker
 
     void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed);
 
+    void TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper);
+
+    void TrackPresentedImages(IDXGISwapChain_Wrapper*        wrapper,
+                              UINT                           sync_interval,
+                              UINT                           present_flags,
+                              const DXGI_PRESENT_PARAMETERS* present_parameters);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

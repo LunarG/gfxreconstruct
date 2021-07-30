@@ -213,5 +213,44 @@ void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*    
         std::make_pair(transition.state_after, transition.barrier_flags);
 }
 
+void Dx12StateTracker::TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    GFXRECON_ASSERT((wrapper_info != nullptr) && (image_index < wrapper_info->image_acquired_info.size()));
+    wrapper_info->current_back_buffer_index                    = image_index;
+    wrapper_info->image_acquired_info[image_index].is_acquired = true;
+}
+
+void Dx12StateTracker::TrackPresentedImages(IDXGISwapChain_Wrapper*        wrapper,
+                                            UINT                           sync_interval,
+                                            UINT                           present_flags,
+                                            const DXGI_PRESENT_PARAMETERS* present_parameters)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto     wrapper_info              = wrapper->GetObjectInfo();
+    uint32_t image_index               = wrapper_info->current_back_buffer_index;
+    wrapper_info->last_presented_image = image_index;
+
+    GFXRECON_ASSERT((wrapper_info != nullptr) && (image_index < wrapper_info->image_acquired_info.size()));
+
+    wrapper_info->image_acquired_info[image_index].sync_interval         = sync_interval;
+    wrapper_info->image_acquired_info[image_index].present_flags         = present_flags;
+    wrapper_info->image_acquired_info[image_index].is_acquired           = false;
+    wrapper_info->image_acquired_info[image_index].is_present_parameters = false;
+    if (present_parameters)
+    {
+        wrapper_info->image_acquired_info[image_index].is_present_parameters = true;
+        wrapper_info->image_acquired_info[image_index].dirty_rects.resize(present_parameters->DirtyRectsCount);
+        util::platform::MemoryCopy(wrapper_info->image_acquired_info[image_index].dirty_rects.data(),
+                                   present_parameters->DirtyRectsCount * sizeof RECT,
+                                   present_parameters->pDirtyRects,
+                                   present_parameters->DirtyRectsCount * sizeof RECT);
+        wrapper_info->image_acquired_info[image_index].scroll_rect   = *present_parameters->pScrollRect;
+        wrapper_info->image_acquired_info[image_index].scroll_offset = *present_parameters->pScrollOffset;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -118,6 +118,8 @@ class Dx12StateWriter
     void WriteSingleGraphicsCommandListState(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
                                              const Dx12StateTable&                    state_table);
 
+    void WriteSwapchainImageState(const Dx12StateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

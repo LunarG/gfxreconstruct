@@ -117,7 +117,7 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuff
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
-        manager->PreProcess_IDXGISwapchain_ResizeBuffers(args...);
+        manager->PreProcess_IDXGISwapChain_ResizeBuffers(args...);
     }
 };
 
@@ -127,7 +127,7 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuf
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
-        manager->PostProcess_IDXGISwapchain_ResizeBuffers(args...);
+        manager->PostProcess_IDXGISwapChain_ResizeBuffers(args...);
     }
 };
 
@@ -137,7 +137,7 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuf
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
-        manager->PreProcess_IDXGISwapchain3_ResizeBuffers1(args...);
+        manager->PreProcess_IDXGISwapChain3_ResizeBuffers1(args...);
     }
 };
 
@@ -147,7 +147,17 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBu
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
-        manager->PostProcess_IDXGISwapchain3_ResizeBuffers1(args...);
+        manager->PostProcess_IDXGISwapChain3_ResizeBuffers1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(args...);
     }
 };
 

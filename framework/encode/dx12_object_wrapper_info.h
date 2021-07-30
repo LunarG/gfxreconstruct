@@ -94,6 +94,19 @@ struct DxTransitionBarrier
     D3D12_RESOURCE_BARRIER_FLAGS barrier_flags{};
 };
 
+struct DxImageAcquiredInfo
+{
+    bool is_acquired{ false };
+    UINT sync_interval{ 0 };
+    UINT present_flags{ 0 };
+
+    // DXGI_PRESENT_PARAMETERS
+    bool              is_present_parameters{ false };
+    std::vector<RECT> dirty_rects;
+    RECT              scroll_rect{};
+    POINT             scroll_offset{};
+};
+
 struct IDXGIKeyedMutexInfo : public DxWrapperInfo
 {};
 
@@ -120,9 +133,15 @@ struct IDXGISwapChainMediaInfo : public DxWrapperInfo
 
 struct IDXGISwapChainInfo : public DxWrapperInfo
 {
-    DXGI_SWAP_EFFECT                           swap_effect{};
-    uint32_t                                   image_count{ 0 };
-    std::unique_ptr<ID3D12Resource_Wrapper*[]> images;
+    format::HandleId device_id{ format::kNullHandleId }; // ID3D12CommandQueue
+    DXGI_SWAP_EFFECT swap_effect{};
+    // Members for general wrapper support.
+    std::vector<ID3D12Resource_Wrapper*> child_images;
+
+    // Members for trimming state tracking.
+    uint32_t                         current_back_buffer_index{ std::numeric_limits<uint32_t>::max() };
+    uint32_t                         last_presented_image{ std::numeric_limits<uint32_t>::max() };
+    std::vector<DxImageAcquiredInfo> image_acquired_info;
 };
 
 struct IDXGIDeviceInfo : public DxWrapperInfo
