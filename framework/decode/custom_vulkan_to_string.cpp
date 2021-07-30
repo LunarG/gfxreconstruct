@@ -88,19 +88,6 @@ std::string ToString<VkAccelerationStructureGeometryKHR>(const VkAccelerationStr
 }
 
 template <>
-std::string ToString<VkAccelerationStructureGeometryDataKHR>(const VkAccelerationStructureGeometryDataKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "triangles", toStringFlags, tabCount, tabSize, ToString(obj.triangles, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "aabbs", toStringFlags, tabCount, tabSize, ToString(obj.aabbs, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "instances", toStringFlags, tabCount, tabSize, ToString(obj.instances, toStringFlags, tabCount, tabSize));
-        }
-    );
-}
-
-template <>
 std::string ToString<VkAccelerationStructureMotionInstanceNV>(const VkAccelerationStructureMotionInstanceNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -133,19 +120,6 @@ std::string ToString<VkAccelerationStructureMotionInstanceNV>(const VkAccelerati
                     }
                 )
             );
-        }
-    );
-}
-
-template <>
-std::string ToString<VkAccelerationStructureMotionInstanceDataNV>(const VkAccelerationStructureMotionInstanceDataNV& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "staticInstance", toStringFlags, tabCount, tabSize, ToString(obj.staticInstance, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "matrixMotionInstance", toStringFlags, tabCount, tabSize, ToString(obj.matrixMotionInstance, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "srtMotionInstance", toStringFlags, tabCount, tabSize, ToString(obj.srtMotionInstance, toStringFlags, tabCount, tabSize));
         }
     );
 }
@@ -272,21 +246,6 @@ std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj
     );
 }
 
-template <>
-std::string ToString<VkPerformanceValueDataINTEL>(const VkPerformanceValueDataINTEL& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "value32", toStringFlags, tabCount, tabSize, ToString(obj.value32, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "value64", toStringFlags, tabCount, tabSize, ToString(obj.value64, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "valueFloat", toStringFlags, tabCount, tabSize, ToString(obj.valueFloat, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "valueBool", toStringFlags, tabCount, tabSize, ToString(obj.valueBool, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "valueString", toStringFlags, tabCount, tabSize, '"' + PtrToString(obj.valueString) + '"');
-        }
-    );
-}
-
 template <> std::string ToString<VkPipelineExecutableStatisticKHR>(const VkPipelineExecutableStatisticKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
 {
     return ObjectToString(toStringFlags, tabCount, tabSize,
@@ -326,20 +285,6 @@ template <> std::string ToString<VkPipelineExecutableStatisticKHR>(const VkPipel
                     }
                 )
             );
-        }
-    );
-}
-
-template <>
-std::string ToString<VkPipelineExecutableStatisticValueKHR>(const VkPipelineExecutableStatisticValueKHR& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
-{
-    return ObjectToString(toStringFlags, tabCount, tabSize,
-        [&](std::stringstream& strStrm)
-        {
-            FieldToString(strStrm, true, "b32", toStringFlags, tabCount, tabSize, ToString(obj.b32, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "i64", toStringFlags, tabCount, tabSize, ToString(obj.i64, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "u64", toStringFlags, tabCount, tabSize, ToString(obj.u64, toStringFlags, tabCount, tabSize));
-            FieldToString(strStrm, false, "f64", toStringFlags, tabCount, tabSize, ToString(obj.f64, toStringFlags, tabCount, tabSize));
         }
     );
 }

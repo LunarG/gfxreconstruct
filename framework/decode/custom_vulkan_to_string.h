@@ -49,23 +49,10 @@ std::string ToString<VkAccelerationStructureGeometryKHR>(const VkAccelerationStr
                                                          uint32_t                                  tabSize);
 
 template <>
-std::string ToString<VkAccelerationStructureGeometryDataKHR>(const VkAccelerationStructureGeometryDataKHR& obj,
-                                                             ToStringFlags toStringFlags,
-                                                             uint32_t      tabCount,
-                                                             uint32_t      tabSize);
-
-template <>
 std::string ToString<VkAccelerationStructureMotionInstanceNV>(const VkAccelerationStructureMotionInstanceNV& obj,
                                                               ToStringFlags toStringFlags,
                                                               uint32_t      tabCount,
                                                               uint32_t      tabSize);
-
-template <>
-std::string
-ToString<VkAccelerationStructureMotionInstanceDataNV>(const VkAccelerationStructureMotionInstanceDataNV& obj,
-                                                      ToStringFlags                                      toStringFlags,
-                                                      uint32_t                                           tabCount,
-                                                      uint32_t                                           tabSize);
 
 template <>
 std::string ToString<VkClearColorValue>(const VkClearColorValue& obj,
@@ -108,22 +95,10 @@ std::string ToString<VkPerformanceCounterResultKHR>(const VkPerformanceCounterRe
                                                     uint32_t                             tabSize);
 
 template <>
-std::string ToString<VkPerformanceValueDataINTEL>(const VkPerformanceValueDataINTEL& obj,
-                                                  ToStringFlags                      toStringFlags,
-                                                  uint32_t                           tabCount,
-                                                  uint32_t                           tabSize);
-
-template <>
 std::string ToString<VkPerformanceValueINTEL>(const VkPerformanceValueINTEL& obj,
                                               ToStringFlags                  toStringFlags,
                                               uint32_t                       tabCount,
                                               uint32_t                       tabSize);
-
-template <>
-std::string ToString<VkPipelineExecutableStatisticValueKHR>(const VkPipelineExecutableStatisticValueKHR& obj,
-                                                            ToStringFlags                                toStringFlags,
-                                                            uint32_t                                     tabCount,
-                                                            uint32_t                                     tabSize);
 
 template <>
 std::string ToString<VkWriteDescriptorSet>(const VkWriteDescriptorSet& obj,
