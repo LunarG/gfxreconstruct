@@ -54,6 +54,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
             'VkAccelerationStructureBuildGeometryInfoKHR',
             'VkAccelerationStructureVersionInfoKHR',
             'VkPhysicalDeviceMemoryProperties',
+            'VkPipelineExecutableStatisticKHR',
             'VkPipelineMultisampleStateCreateInfo',
             'VkShaderModuleCreateInfo',
             'VkTransformMatrixKHR',
