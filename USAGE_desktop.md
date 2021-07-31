@@ -31,7 +31,8 @@ Vulkan API calls on Desktop systems.
     2. [Capture File Compression](#capture-file-compression)
     3. [Shader Extraction](#shader-extraction)
     4. [Trimmed File Optimizer](#trimmed-file-optimizer)
-    5. [Command Launcher](#command-launcher)
+    5. [To ASCII](#to-ascii)
+    6. [Command Launcher](#command-launcher)
 
 ## Capturing API calls
 
@@ -540,6 +541,26 @@ Required arguments:
                         processed.
   <output-file>         The name of the new GFXReconstruct capture file to be
                         created.
+
+Optional arguments:
+  -h                    Print usage information and exit (same as --help).
+  --version             Print version information and exit.
+```
+
+### To ASCII
+
+The `gfxrecon-toascii.exe` converts GFXReconstruct capture files to text.
+The text output is formatted as JSON and written to stdout.
+
+```text
+gfxrecon-toascii.exe - A tool to convert GFXReconstruct capture files to text.
+
+Usage:
+  gfxrecon-toascii.exe [-h | --help] [--version] <file>
+
+Required arguments:
+  <file>                Path to the GFXReconstruct capture file to be converted
+                        to text.
 
 Optional arguments:
   -h                    Print usage information and exit (same as --help).
