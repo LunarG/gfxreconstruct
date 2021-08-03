@@ -918,67 +918,70 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
         auto info = wrapper->GetObjectInfo();
         assert((info != nullptr) && (subresource < info->num_subresources));
 
-        auto& mapped_subresource = info->mapped_subresources[subresource];
-
-        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
-        if (mapped_subresource.map_count > 0)
+        if (IsUploadResource(info->heap_type, info->page_property))
         {
-            if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
+            auto& mapped_subresource = info->mapped_subresources[subresource];
+
+            std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+            if (mapped_subresource.map_count > 0)
             {
-                if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                if ((--mapped_subresource.map_count == 0) && (mapped_subresource.data != nullptr))
                 {
-                    util::PageGuardManager* manager = util::PageGuardManager::Get();
-                    assert(manager != nullptr);
-
-                    auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
-
-                    manager->ProcessMemoryEntry(
-                        memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
-                        });
-
-                    manager->RemoveTrackedMemory(memory_id);
-                }
-                else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
-                {
-                    uint64_t offset = 0;
-                    uint64_t size   = info->subresource_sizes[subresource];
-
-                    if (written_range != nullptr)
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                     {
-                        offset = written_range->Begin;
-                        size   = (written_range->End - written_range->Begin) + 1;
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
+
+                        auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+
+                        manager->ProcessMemoryEntry(
+                            memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                            });
+
+                        manager->RemoveTrackedMemory(memory_id);
                     }
-
-                    WriteFillMemoryCmd(
-                        reinterpret_cast<uint64_t>(mapped_subresource.data), offset, size, mapped_subresource.data);
-
-                    bool is_mapped = false;
-
-                    for (size_t i = 0; i < info->num_subresources; ++i)
+                    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                     {
-                        if (info->mapped_subresources[i].map_count > 0)
+                        uint64_t offset = 0;
+                        uint64_t size   = info->subresource_sizes[subresource];
+
+                        if (written_range != nullptr)
                         {
-                            is_mapped = true;
-                            break;
+                            offset = written_range->Begin;
+                            size   = (written_range->End - written_range->Begin) + 1;
+                        }
+
+                        WriteFillMemoryCmd(
+                            reinterpret_cast<uint64_t>(mapped_subresource.data), offset, size, mapped_subresource.data);
+
+                        bool is_mapped = false;
+
+                        for (size_t i = 0; i < info->num_subresources; ++i)
+                        {
+                            if (info->mapped_subresources[i].map_count > 0)
+                            {
+                                is_mapped = true;
+                                break;
+                            }
+                        }
+
+                        if (!is_mapped)
+                        {
+                            // All subresources have been unmapped.
+                            mapped_resources_.erase(wrapper);
                         }
                     }
 
-                    if (!is_mapped)
-                    {
-                        // All subresources have been unmapped.
-                        mapped_resources_.erase(wrapper);
-                    }
+                    mapped_subresource.data = nullptr;
                 }
-
-                mapped_subresource.data = nullptr;
             }
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Attempting to unmap ID3D12Resource object with capture ID = %" PRIx64
-                                 " that has not been mapped",
-                                 wrapper->GetCaptureId());
+            else
+            {
+                GFXRECON_LOG_WARNING("Attempting to unmap ID3D12Resource object with capture ID = %" PRIx64
+                                     " that has not been mapped",
+                                     wrapper->GetCaptureId());
+            }
         }
     }
 }
