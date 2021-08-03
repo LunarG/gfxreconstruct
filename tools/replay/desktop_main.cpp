@@ -257,7 +257,7 @@ int main(int argc, const char** argv)
                     {
                         gfxrecon::decode::FileProcessor              file_processor_resource_tracking;
                         gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
-                        auto resource_tracking_consumer = new gfxrecon::decode::Dx12ResourceTrackingConsumer(
+                        auto resource_tracking_consumer = new gfxrecon::decode::DX12TrackingConsumer(
                             dx_replay_options, &tracked_object_info_table);
 
                         if (file_processor_resource_tracking.Initialize(filename))

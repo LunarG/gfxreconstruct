@@ -30,11 +30,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class Dx12ResourceTrackingConsumer : public Dx12Consumer
+class DX12TrackingConsumer : public Dx12Consumer
 {
   public:
-    Dx12ResourceTrackingConsumer(const DxReplayOptions& options, Dx12TrackedObjectInfoTable* tracked_object_info_table);
-    virtual ~Dx12ResourceTrackingConsumer();
+    DX12TrackingConsumer(const DxReplayOptions& options, Dx12TrackedObjectInfoTable* tracked_object_info_table);
+    virtual ~DX12TrackingConsumer();
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data);
 
