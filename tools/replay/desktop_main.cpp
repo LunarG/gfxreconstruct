@@ -255,18 +255,18 @@ int main(int argc, const char** argv)
                     // check for user option if first pass tracking is enabled
                     if (dx_replay_options.enable_d3d12_two_pass_replay)
                     {
-                        gfxrecon::decode::FileProcessor              file_processor_resource_tracking;
+                        gfxrecon::decode::FileProcessor              file_processor_tracking;
                         gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
-                        auto resource_tracking_consumer = new gfxrecon::decode::DX12TrackingConsumer(
+                        auto tracking_consumer = new gfxrecon::decode::DX12TrackingConsumer(
                             dx_replay_options, &tracked_object_info_table);
 
-                        if (file_processor_resource_tracking.Initialize(filename))
+                        if (file_processor_tracking.Initialize(filename))
                         {
-                            dx12_decoder.AddConsumer(resource_tracking_consumer);
-                            file_processor_resource_tracking.AddDecoder(&dx12_decoder);
-                            file_processor_resource_tracking.ProcessAllFrames();
-                            file_processor_resource_tracking.RemoveDecoder(&dx12_decoder);
-                            dx12_decoder.RemoveConsumer(resource_tracking_consumer);
+                            dx12_decoder.AddConsumer(tracking_consumer);
+                            file_processor_tracking.AddDecoder(&dx12_decoder);
+                            file_processor_tracking.ProcessAllFrames();
+                            file_processor_tracking.RemoveDecoder(&dx12_decoder);
+                            dx12_decoder.RemoveConsumer(tracking_consumer);
                         }
                     }
 
