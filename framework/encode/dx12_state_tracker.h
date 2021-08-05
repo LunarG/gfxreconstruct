@@ -140,6 +140,10 @@ class Dx12StateTracker
                               UINT                           present_flags,
                               const DXGI_PRESENT_PARAMETERS* present_parameters);
 
+    void TrackCopyDescriptors(UINT                    num_descriptors,
+                              DxDescriptorInfo*       dest_descriptor_info,
+                              const DxDescriptorInfo* src_descriptor_info);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

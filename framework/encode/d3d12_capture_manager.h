@@ -146,6 +146,10 @@ class D3D12CaptureManager : public CaptureManager
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                               ID3D12Device_Wrapper*       create_object_wrapper);
 
+    void EndCopyDescriptorsMethodCallCapture(UINT                    NumDescriptors,
+                                             DxDescriptorInfo*       dest_descriptor_info,
+                                             const DxDescriptorInfo* src_descriptor_info);
+
     void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 
     template <typename Wrapper>
@@ -371,6 +375,21 @@ class D3D12CaptureManager : public CaptureManager
                                                       D3D12_COMMAND_LIST_FLAGS flags,
                                                       REFIID                   riid,
                                                       void**                   ppCommandList);
+
+    void PostProcess_ID3D12Device_CopyDescriptors(ID3D12Device_Wrapper*              wrapper,
+                                                  UINT                               num_dest_ranges,
+                                                  const D3D12_CPU_DESCRIPTOR_HANDLE* dest_range_starts,
+                                                  const UINT*                        dest_range_sizes,
+                                                  UINT                               num_src_ranges,
+                                                  const D3D12_CPU_DESCRIPTOR_HANDLE* src_range_starts,
+                                                  const UINT*                        src_range_sizes,
+                                                  D3D12_DESCRIPTOR_HEAP_TYPE         heap_type);
+
+    void PostProcess_ID3D12Device_CopyDescriptorsSimple(ID3D12Device_Wrapper*       wrapper,
+                                                        UINT                        num_descriptors,
+                                                        D3D12_CPU_DESCRIPTOR_HANDLE dest_start,
+                                                        D3D12_CPU_DESCRIPTOR_HANDLE src_start,
+                                                        D3D12_DESCRIPTOR_HEAP_TYPE  heap_type);
 
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);

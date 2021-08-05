@@ -1600,5 +1600,67 @@ CaptureSettings::TraceSettings D3D12CaptureManager::GetDefaultTraceSettings()
     return d3d12_trace_settings;
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CopyDescriptors(ID3D12Device_Wrapper*              wrapper,
+                                                                   UINT                               num_dest_ranges,
+                                                                   const D3D12_CPU_DESCRIPTOR_HANDLE* dest_range_starts,
+                                                                   const UINT*                        dest_range_sizes,
+                                                                   UINT                               num_src_ranges,
+                                                                   const D3D12_CPU_DESCRIPTOR_HANDLE* src_range_starts,
+                                                                   const UINT*                        src_range_sizes,
+                                                                   D3D12_DESCRIPTOR_HEAP_TYPE         heap_type)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        UINT dest_range_i = 0;
+        UINT src_range_i  = 0;
+        UINT dest_i       = 0;
+        UINT src_i        = 0;
+
+        while (dest_range_i < num_dest_ranges && src_range_i < num_src_ranges)
+        {
+            auto dest_range_size = (dest_range_sizes != nullptr) ? dest_range_sizes[dest_range_i] : 1;
+            auto src_range_size  = (src_range_sizes != nullptr) ? src_range_sizes[src_range_i] : 1;
+
+            auto dest_size = dest_range_size - dest_i;
+            auto src_size  = src_range_size - src_i;
+
+            auto copy_size = std::min(dest_size, src_size);
+
+            auto dest_descriptor_info = GetDescriptorInfo(dest_range_starts[dest_range_i].ptr);
+            auto src_descriptor_info  = GetDescriptorInfo(src_range_starts[src_range_i].ptr);
+
+            state_tracker_->TrackCopyDescriptors(copy_size, dest_descriptor_info + dest_i, src_descriptor_info + src_i);
+
+            dest_i += copy_size;
+            src_i += copy_size;
+
+            if (dest_i == dest_range_size)
+            {
+                dest_i = 0;
+                ++dest_range_i;
+            }
+            if (src_i == src_range_size)
+            {
+                src_i = 0;
+                ++src_range_i;
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CopyDescriptorsSimple(ID3D12Device_Wrapper*       wrapper,
+                                                                         UINT                        num_descriptors,
+                                                                         D3D12_CPU_DESCRIPTOR_HANDLE dest_start,
+                                                                         D3D12_CPU_DESCRIPTOR_HANDLE src_start,
+                                                                         D3D12_DESCRIPTOR_HEAP_TYPE  heap_type)
+{
+    if (((GetCaptureMode() & kModeTrack) == kModeTrack) && (num_descriptors > 0))
+    {
+        auto dest_descriptor_info = GetDescriptorInfo(dest_start.ptr);
+        auto src_descriptor_info  = GetDescriptorInfo(src_start.ptr);
+        state_tracker_->TrackCopyDescriptors(num_descriptors, dest_descriptor_info, src_descriptor_info);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

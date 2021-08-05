@@ -205,6 +205,57 @@ void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrappe
     list_info->closed = created_closed;
 }
 
+void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
+                                            DxDescriptorInfo*       dest_descriptor_info,
+                                            const DxDescriptorInfo* src_descriptor_info)
+{
+    GFXRECON_ASSERT(dest_descriptor_info != nullptr);
+    GFXRECON_ASSERT(src_descriptor_info != nullptr);
+
+    // The last values encoded in the descriptor creation parameters are heap_id and index. Make a copy of
+    // the source descriptor creation parameters and overwrite heap_id and index with the destination heap's
+    // values. This ensures the correct descriptors are created on the destination heap when loading trimmed
+    // state during replay.
+    for (UINT i = 0; i < num_descriptors; ++i)
+    {
+        dest_descriptor_info[i].create_object_id = src_descriptor_info[i].create_object_id;
+        dest_descriptor_info[i].create_call_id   = src_descriptor_info[i].create_call_id;
+        auto dest_heap_id                        = dest_descriptor_info[i].heap_id;
+        auto dest_index                          = dest_descriptor_info[i].index;
+
+        auto src_create_data = src_descriptor_info[i].create_parameters.get();
+
+#ifndef GFXRECON_DISABLE_ASSERTS
+        // Validate that heap id and descriptor index are the last two values in the src parameter stream.
+        format::HandleId src_heap_id = 0;
+        uint32_t         src_index   = 0;
+        const uint8_t*   src_param_info =
+            src_create_data->GetData() + (src_create_data->GetDataSize() - sizeof(src_heap_id) - sizeof(src_index));
+        util::platform::MemoryCopy(&src_heap_id, sizeof(src_heap_id), src_param_info, sizeof(src_heap_id));
+        src_param_info += sizeof(src_heap_id);
+        util::platform::MemoryCopy(&src_index, sizeof(src_index), src_param_info, sizeof(src_index));
+        GFXRECON_ASSERT(src_heap_id == src_descriptor_info[i].heap_id);
+        GFXRECON_ASSERT(src_index == src_descriptor_info[i].index);
+#endif
+
+        // Copy source creation parameters to destination, replacing source's heap_id and index with destination's.
+        auto dest_create_data = dest_descriptor_info[i].create_parameters.get();
+        if (dest_create_data == nullptr)
+        {
+            dest_descriptor_info[i].create_parameters = std::make_unique<util::MemoryOutputStream>();
+            dest_create_data                          = dest_descriptor_info[i].create_parameters.get();
+        }
+        else
+        {
+            dest_create_data->Reset();
+        }
+        dest_create_data->Write(src_create_data->GetData(),
+                                src_create_data->GetDataSize() - sizeof(dest_heap_id) - sizeof(dest_index));
+        dest_create_data->Write(&dest_heap_id, sizeof(dest_heap_id));
+        dest_create_data->Write(&dest_index, sizeof(dest_index));
+    }
+}
+
 void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
                                                          const DxTransitionBarrier& transition,
                                                          UINT                       subresource)

@@ -393,6 +393,26 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateComm
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CopyDescriptors(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptorsSimple>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CopyDescriptorsSimple(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
