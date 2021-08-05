@@ -60,11 +60,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
-    virtual void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(format::HandleId device_id,
-                                                                       format::HandleId resource_id,
-                                                                       uint32_t         subresource,
-                                                                       uint64_t         data_size,
-                                                                       const uint8_t*   data) override;
+    virtual void ProcessInitSubresourceCommand(format::HandleId device_id,
+                                               format::HandleId resource_id,
+                                               uint32_t         subresource,
+                                               uint64_t         data_size,
+                                               const uint8_t*   data) override;
+
+    virtual void
+    ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
+                                         format::HandleId                                    swapchain_id,
+                                         uint32_t                                            last_presented_image,
+                                         const std::vector<format::SwapchainImageStateInfo>& image_state) override;
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
@@ -413,6 +419,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
                            std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs);
+
+    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
+    // the expected state, and then call queue present.
+    void ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
+                                                  DxObjectInfo*       swapchain_info,
+                                                  uint32_t            last_presented_image);
 
   private:
     Dx12ObjectInfoTable                  object_info_table_;

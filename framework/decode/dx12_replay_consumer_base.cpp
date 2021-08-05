@@ -193,6 +193,103 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(format::HandleId devi
     mappable_resource->Unmap(subresource, nullptr);
 }
 
+void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
+                                                                      DxObjectInfo*       swapchain_info,
+                                                                      uint32_t            last_presented_image)
+{
+    GFXRECON_ASSERT((last_presented_image != std::numeric_limits<uint32_t>::max()));
+
+    graphics::dx12::ID3D12DeviceComPtr device = nullptr;
+    HRESULT                            ret    = command_queue->GetDevice(IID_PPV_ARGS(&device));
+    GFXRECON_ASSERT(SUCCEEDED(ret));
+
+    auto                 swapchain = static_cast<IDXGISwapChain3*>(swapchain_info->object);
+    DXGI_SWAP_CHAIN_DESC swap_chain_desc;
+    swapchain->GetDesc(&swap_chain_desc);
+    auto image_count = swap_chain_desc.BufferCount;
+
+    graphics::dx12::ID3D12GraphicsCommandListComPtr command_list      = nullptr;
+    graphics::dx12::ID3D12CommandAllocatorComPtr    command_allocator = nullptr;
+
+    ret = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator));
+    GFXRECON_ASSERT(SUCCEEDED(ret));
+
+    ret = device->CreateCommandList(
+        0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_allocator, nullptr, IID_PPV_ARGS(&command_list));
+    GFXRECON_ASSERT(SUCCEEDED(ret));
+    ret = command_list->Close();
+    GFXRECON_ASSERT(SUCCEEDED(ret));
+
+    for (uint32_t n = 0; n < image_count; ++n)
+    {
+        // Validate the assumption that the swapchain buffer index increases by 1 after each swapchain->Present.
+        GFXRECON_ASSERT(n == swapchain->GetCurrentBackBufferIndex());
+
+        ret = command_allocator->Reset();
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+        ret = command_list->Reset(command_allocator, nullptr);
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+
+        graphics::dx12::ID3D12ResourceComPtr current_buffer = nullptr;
+        ret                                                 = swapchain->GetBuffer(n, IID_PPV_ARGS(&current_buffer));
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+
+        D3D12_RESOURCE_BARRIER barrier = {};
+        barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        barrier.Transition.pResource   = current_buffer;
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+        command_list->ResourceBarrier(1, &barrier);
+
+        ret = command_list->Close();
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+        ID3D12CommandList* command_lists[] = { command_list };
+        command_queue->ExecuteCommandLists(ARRAYSIZE(command_lists), command_lists);
+
+        ret = swapchain->Present(0, 0);
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+
+        ret = graphics::dx12::WaitForQueue(command_queue);
+        GFXRECON_ASSERT(SUCCEEDED(ret));
+
+        // When the presented buffer matches the last presented buffer during capture, exit the loop
+        if (n == last_presented_image)
+        {
+            break;
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
+    format::HandleId                                    device_id,
+    format::HandleId                                    swapchain_id,
+    uint32_t                                            last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>& image_state)
+{
+    auto* command_queue  = MapObject<ID3D12CommandQueue>(device_id);
+    auto  swapchain_info = GetObjectInfo(swapchain_id);
+
+    if (swapchain_info != nullptr && swapchain_info->object != nullptr && command_queue != nullptr)
+    {
+        ProcessSetSwapchainImageStateQueueSubmit(command_queue, swapchain_info, last_presented_image);
+    }
+    else
+    {
+        if (command_queue == nullptr)
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized ID3D12CommandQueue object (ID = %" PRIu64 ")",
+                                 device_id);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized IDXGISwapChain object (ID = %" PRIu64 ")",
+                                 swapchain_id);
+        }
+    }
+}
+
 void Dx12ReplayConsumerBase::MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address)
 {
     object_mapping::MapGpuVirtualAddress(address, gpu_va_map_);
