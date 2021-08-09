@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // need to fill up the functions body to do resources tracking
 
 DX12TrackingConsumer::DX12TrackingConsumer(const DxReplayOptions&      options,
-                                                           Dx12TrackedObjectInfoTable* tracked_object_info_table) :
+                                           Dx12TrackedObjectInfoTable* tracked_object_info_table) :
     options_(options),
     tracked_object_info_table_(tracked_object_info_table)
 {
@@ -44,49 +44,49 @@ DX12TrackingConsumer::DX12TrackingConsumer(const DxReplayOptions&      options,
 DX12TrackingConsumer::~DX12TrackingConsumer() {}
 
 void DX12TrackingConsumer::ProcessFillMemoryCommand(uint64_t       memory_id,
-                                                            uint64_t       offset,
-                                                            uint64_t       size,
-                                                            const uint8_t* data)
+                                                    uint64_t       offset,
+                                                    uint64_t       size,
+                                                    const uint8_t* data)
 {}
 
 void DX12TrackingConsumer::Process_CreateDXGIFactory1(HRESULT                      returnValue,
-                                                              Decoded_GUID                 riid,
-                                                              HandlePointerDecoder<void*>* ppFactory)
+                                                      Decoded_GUID                 riid,
+                                                      HandlePointerDecoder<void*>* ppFactory)
 {}
 
 void DX12TrackingConsumer::Process_CreateDXGIFactory2(HRESULT                      returnValue,
-                                                              UINT                         Flags,
-                                                              Decoded_GUID                 riid,
-                                                              HandlePointerDecoder<void*>* ppFactory)
+                                                      UINT                         Flags,
+                                                      Decoded_GUID                 riid,
+                                                      HandlePointerDecoder<void*>* ppFactory)
 {}
 
 void DX12TrackingConsumer::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                                            HRESULT          original_result,
-                                                                            D3D12_FEATURE    feature,
-                                                                            const void*      capture_feature_data,
-                                                                            void*            replay_feature_data,
-                                                                            UINT             feature_data_size)
+                                                                    HRESULT          original_result,
+                                                                    D3D12_FEATURE    feature,
+                                                                    const void*      capture_feature_data,
+                                                                    void*            replay_feature_data,
+                                                                    UINT             feature_data_size)
 {}
 
 void DX12TrackingConsumer::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                                             HRESULT          original_result,
-                                                                             DXGI_FEATURE     feature,
-                                                                             const void*      capture_feature_data,
-                                                                             void*            replay_feature_data,
-                                                                             UINT             feature_data_size)
+                                                                     HRESULT          original_result,
+                                                                     DXGI_FEATURE     feature,
+                                                                     const void*      capture_feature_data,
+                                                                     void*            replay_feature_data,
+                                                                     UINT             feature_data_size)
 {}
 
 void DX12TrackingConsumer::Process_IDXGIFactory_EnumAdapters(format::HandleId                     object_id,
-                                                                     HRESULT                              returnValue,
-                                                                     UINT                                 Adapter,
-                                                                     HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
+                                                             HRESULT                              returnValue,
+                                                             UINT                                 Adapter,
+                                                             HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {}
 
 void DX12TrackingConsumer::Process_D3D12CreateDevice(HRESULT                      returnValue,
-                                                             format::HandleId             pAdapter,
-                                                             D3D_FEATURE_LEVEL            MinimumFeatureLevel,
-                                                             Decoded_GUID                 riid,
-                                                             HandlePointerDecoder<void*>* ppDevice)
+                                                     format::HandleId             pAdapter,
+                                                     D3D_FEATURE_LEVEL            MinimumFeatureLevel,
+                                                     Decoded_GUID                 riid,
+                                                     HandlePointerDecoder<void*>* ppDevice)
 {}
 
 void DX12TrackingConsumer::Process_ID3D12Device_CreateCommittedResource(
@@ -101,11 +101,11 @@ void DX12TrackingConsumer::Process_ID3D12Device_CreateCommittedResource(
     HandlePointerDecoder<void*>*                         ppvResource)
 {}
 
-void DX12TrackingConsumer::Process_ID3D12Device_CreateHeap(format::HandleId object_id,
-                                                                   HRESULT          returnValue,
-                                                                   StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
-                                                                   Decoded_GUID                                   riid,
-                                                                   HandlePointerDecoder<void*>* ppvHeap)
+void DX12TrackingConsumer::Process_ID3D12Device_CreateHeap(format::HandleId                               object_id,
+                                                           HRESULT                                        returnValue,
+                                                           StructPointerDecoder<Decoded_D3D12_HEAP_DESC>* pDesc,
+                                                           Decoded_GUID                                   riid,
+                                                           HandlePointerDecoder<void*>*                   ppvHeap)
 {}
 
 void DX12TrackingConsumer::Process_ID3D12Device_CreatePlacedResource(
