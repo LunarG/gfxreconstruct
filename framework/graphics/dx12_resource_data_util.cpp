@@ -161,6 +161,8 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
         layouts.resize(num_subresources);
         temp_subresource_row_counts_.clear();
         temp_subresource_row_counts_.resize(num_subresources);
+        temp_subresource_row_size_bytes_.clear();
+        temp_subresource_row_size_bytes_.resize(num_subresources);
 
         device_->GetCopyableFootprints(&resource_desc,
                                        0,
@@ -168,7 +170,7 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
                                        0,
                                        layouts.data(),
                                        temp_subresource_row_counts_.data(),
-                                       nullptr,
+                                       temp_subresource_row_size_bytes_.data(),
                                        &total_size);
 
         subresource_count = num_subresources;
@@ -176,9 +178,26 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
         subresource_offsets.resize(num_subresources);
         for (size_t i = 0; i < num_subresources; ++i)
         {
-            subresource_sizes[i] = static_cast<size_t>(temp_subresource_row_counts_[i]) * layouts[i].Footprint.RowPitch;
+            size_t slice_count = 1;
+            if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D)
+            {
+                slice_count = layouts[i].Footprint.Depth;
+            }
+            else
+            {
+                GFXRECON_ASSERT(layouts[i].Footprint.Depth == 1);
+            }
+
+            // Compute the size required to copy the subresource. The final row of the subresource does not require
+            // padding, so the total size is (row_count - 1) * row_pitch + row_size_bytes.
+            size_t row_count = temp_subresource_row_counts_[i] * slice_count;
+            subresource_sizes[i] =
+                (row_count - 1) * layouts[i].Footprint.RowPitch + temp_subresource_row_size_bytes_[i];
+
             subresource_offsets[i] = layouts[i].Offset;
         }
+
+        GFXRECON_ASSERT((subresource_offsets.back() + subresource_sizes.back()) == total_size);
     }
 }
 
@@ -510,6 +529,14 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
 
     // Transition the resource, copy the data, and transition it back.
     auto    resource_desc = target_resource->GetDesc();
+
+    // TODO (GH #288): Add support for multisampled resources.
+    if (resource_desc.SampleDesc.Count > 1)
+    {
+        GFXRECON_LOG_ERROR("Multisampled resources are not yet supported.");
+        return E_INVALIDARG;
+    }
+
     HRESULT result        = command_list_->Reset(command_allocator_, nullptr);
     if (SUCCEEDED(result))
     {

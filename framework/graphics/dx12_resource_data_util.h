@@ -112,6 +112,7 @@ class Dx12ResourceDataUtil
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;
     std::vector<UINT>                               temp_subresource_row_counts_;
+    std::vector<UINT64>                             temp_subresource_row_size_bytes_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)
