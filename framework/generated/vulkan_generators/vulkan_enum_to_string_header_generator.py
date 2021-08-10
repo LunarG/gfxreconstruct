@@ -93,7 +93,7 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for enum in self.enumNames:
+        for enum in sorted(self.enumNames):
             if not enum in self.processedEnums:
                 self.processedEnums.add(enum)
                 if not enum in self.enumAliases:
