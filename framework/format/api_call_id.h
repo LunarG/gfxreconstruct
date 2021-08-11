@@ -538,6 +538,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDrmDisplayEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1241),
     ApiCall_vkCmdDrawMultiEXT                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1242),
     ApiCall_vkCmdDrawMultiIndexedEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1243),
+    ApiCall_vkWaitForPresentKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1244),
+    ApiCall_vkCmdBindInvocationMaskHUAWEI                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1245),
+    ApiCall_vkGetMemoryRemoteAddressNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1246),
 
     ApiCall_VulkanLast
     // clang-format on

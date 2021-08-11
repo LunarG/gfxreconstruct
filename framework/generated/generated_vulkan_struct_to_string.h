@@ -48,6 +48,7 @@ template <> std::string ToString<VkDrawIndirectCommand>(const VkDrawIndirectComm
 template <> std::string ToString<VkImageSubresourceRange>(const VkImageSubresourceRange& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageMemoryBarrier>(const VkImageMemoryBarrier& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryBarrier>(const VkMemoryBarrier& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPipelineCacheHeaderVersionOne>(const VkPipelineCacheHeaderVersionOne& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkAllocationCallbacks>(const VkAllocationCallbacks& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkApplicationInfo>(const VkApplicationInfo& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkFormatProperties>(const VkFormatProperties& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -330,6 +331,7 @@ template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateFeaturesKHR>
 template <> std::string ToString<VkPhysicalDeviceFragmentShadingRatePropertiesKHR>(const VkPhysicalDeviceFragmentShadingRatePropertiesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceFragmentShadingRateKHR>(const VkPhysicalDeviceFragmentShadingRateKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSurfaceProtectedCapabilitiesKHR>(const VkSurfaceProtectedCapabilitiesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDevicePresentWaitFeaturesKHR>(const VkPhysicalDevicePresentWaitFeaturesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineInfoKHR>(const VkPipelineInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineExecutablePropertiesKHR>(const VkPipelineExecutablePropertiesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -337,6 +339,8 @@ template <> std::string ToString<VkPipelineExecutableInfoKHR>(const VkPipelineEx
 template <> std::string ToString<VkPipelineExecutableStatisticKHR>(const VkPipelineExecutableStatisticKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineExecutableInternalRepresentationKHR>(const VkPipelineExecutableInternalRepresentationKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPipelineLibraryCreateInfoKHR>(const VkPipelineLibraryCreateInfoKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPresentIdKHR>(const VkPresentIdKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDevicePresentIdFeaturesKHR>(const VkPhysicalDevicePresentIdFeaturesKHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkMemoryBarrier2KHR>(const VkMemoryBarrier2KHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkBufferMemoryBarrier2KHR>(const VkBufferMemoryBarrier2KHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImageMemoryBarrier2KHR>(const VkImageMemoryBarrier2KHR& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -556,6 +560,7 @@ template <> std::string ToString<VkPipelineRasterizationLineStateCreateInfoEXT>(
 template <> std::string ToString<VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceIndexTypeUint8FeaturesEXT>(const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>(const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT>(const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>(const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
@@ -618,6 +623,9 @@ template <> std::string ToString<VkMemoryZirconHandlePropertiesFUCHSIA>(const Vk
 template <> std::string ToString<VkMemoryGetZirconHandleInfoFUCHSIA>(const VkMemoryGetZirconHandleInfoFUCHSIA& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkImportSemaphoreZirconHandleInfoFUCHSIA>(const VkImportSemaphoreZirconHandleInfoFUCHSIA& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSemaphoreGetZirconHandleInfoFUCHSIA>(const VkSemaphoreGetZirconHandleInfoFUCHSIA& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkMemoryGetRemoteAddressInfoNV>(const VkMemoryGetRemoteAddressInfoNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkScreenSurfaceCreateInfoQNX>(const VkScreenSurfaceCreateInfoQNX& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPhysicalDeviceColorWriteEnableFeaturesEXT>(const VkPhysicalDeviceColorWriteEnableFeaturesEXT& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);

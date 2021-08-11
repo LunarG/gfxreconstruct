@@ -8290,6 +8290,37 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateKHR>::Dispatch(TraceManager::Get(), commandBuffer, pFragmentSize, combinerOps);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL WaitForPresentKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint64_t                                    presentId,
+    uint64_t                                    timeout)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(TraceManager::Get(), device, swapchain, presentId, timeout);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkSwapchainKHR swapchain_unwrapped = GetWrappedHandle<VkSwapchainKHR>(swapchain);
+
+    VkResult result = GetDeviceTable(device)->WaitForPresentKHR(device_unwrapped, swapchain_unwrapped, presentId, timeout);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitForPresentKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeUInt64Value(presentId);
+        encoder->EncodeUInt64Value(timeout);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForPresentKHR>::Dispatch(TraceManager::Get(), result, device, swapchain, presentId, timeout);
+
+    return result;
+}
+
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
     VkDevice                                    device,
     const VkBufferDeviceAddressInfo*            pInfo)
@@ -13488,6 +13519,68 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreZirconHandleFUCHSIA>::Dispatch(TraceManager::Get(), result, device, pGetZirconHandleInfo, pZirconHandle);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBindInvocationMaskHUAWEI(
+    VkCommandBuffer                             commandBuffer,
+    VkImageView                                 imageView,
+    VkImageLayout                               imageLayout)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI>::Dispatch(TraceManager::Get(), commandBuffer, imageView, imageLayout);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleValue(imageView);
+        encoder->EncodeEnumValue(imageLayout);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, TrackCmdBindInvocationMaskHUAWEIHandles, imageView);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    VkImageView imageView_unwrapped = GetWrappedHandle<VkImageView>(imageView);
+
+    GetDeviceTable(commandBuffer)->CmdBindInvocationMaskHUAWEI(commandBuffer_unwrapped, imageView_unwrapped, imageLayout);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindInvocationMaskHUAWEI>::Dispatch(TraceManager::Get(), commandBuffer, imageView, imageLayout);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryRemoteAddressNV(
+    VkDevice                                    device,
+    const VkMemoryGetRemoteAddressInfoNV*       pMemoryGetRemoteAddressInfo,
+    VkRemoteAddressNV*                          pAddress)
+{
+    auto state_lock = TraceManager::Get()->AcquireSharedStateLock();
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV>::Dispatch(TraceManager::Get(), device, pMemoryGetRemoteAddressInfo, pAddress);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkMemoryGetRemoteAddressInfoNV* pMemoryGetRemoteAddressInfo_unwrapped = UnwrapStructPtrHandles(pMemoryGetRemoteAddressInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->GetMemoryRemoteAddressNV(device_unwrapped, pMemoryGetRemoteAddressInfo_unwrapped, pAddress);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pMemoryGetRemoteAddressInfo);
+        encoder->EncodeVoidPtrPtr(pAddress, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetMemoryRemoteAddressNV>::Dispatch(TraceManager::Get(), result, device, pMemoryGetRemoteAddressInfo, pAddress);
 
     return result;
 }

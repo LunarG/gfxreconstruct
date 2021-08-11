@@ -1633,6 +1633,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         StructPointerDecoder<Decoded_VkExtent2D>*   pFragmentSize,
         PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps) override;
 
+    virtual void Process_vkWaitForPresentKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
+        uint64_t                                    presentId,
+        uint64_t                                    timeout) override;
+
     virtual void Process_vkGetBufferDeviceAddressKHR(
         VkDeviceAddress                             returnValue,
         format::HandleId                            device,
@@ -2632,6 +2639,17 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA>* pGetZirconHandleInfo,
         PointerDecoder<uint32_t>*                   pZirconHandle) override;
+
+    virtual void Process_vkCmdBindInvocationMaskHUAWEI(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            imageView,
+        VkImageLayout                               imageLayout) override;
+
+    virtual void Process_vkGetMemoryRemoteAddressNV(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
+        PointerDecoder<uint64_t, void*>*            pAddress) override;
 
     virtual void Process_vkCmdSetPatchControlPointsEXT(
         format::HandleId                            commandBuffer,

@@ -223,6 +223,8 @@ class BaseGenerator(OutputGenerator):
                               'VkDebugUtilsObjectNameInfoEXT' : {'objectHandle' : 'objectType' },
                               'VkDebugUtilsObjectTagInfoEXT' : {'objectHandle' : 'objectType' }}
 
+    VULKAN_REPLACE_TYPE = {"VkRemoteAddressNV" : {"baseType" : "void", "replaceWith" : "void*" }}
+
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
@@ -1079,6 +1081,7 @@ class BaseGenerator(OutputGenerator):
         for platform_name in platforms:
             platform = platforms[platform_name]
             platform_types = platform['types']
+            platform_types.update(self.VULKAN_REPLACE_TYPE)
 
             for type in platform_types:
                 self.PLATFORM_TYPES[type] = platform_types[type]
