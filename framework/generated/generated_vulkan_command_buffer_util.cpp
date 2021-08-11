@@ -918,6 +918,13 @@ void TrackCmdBindPipelineShaderGroupNVHandles(CommandBufferWrapper* wrapper, VkP
     wrapper->command_handles[CommandHandleType::PipelineHandle].insert(GetWrappedId(pipeline));
 }
 
+void TrackCmdBindInvocationMaskHUAWEIHandles(CommandBufferWrapper* wrapper, VkImageView imageView)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(imageView));
+}
+
 void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
 {
     assert(wrapper != nullptr);

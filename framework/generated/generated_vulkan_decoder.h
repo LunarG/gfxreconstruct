@@ -572,6 +572,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdSetFragmentShadingRateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkWaitForPresentKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetBufferDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetBufferOpaqueCaptureAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -907,6 +909,10 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkImportSemaphoreZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetSemaphoreZirconHandleFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBindInvocationMaskHUAWEI(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetMemoryRemoteAddressNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdSetPatchControlPointsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 

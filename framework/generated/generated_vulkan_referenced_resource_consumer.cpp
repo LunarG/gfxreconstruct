@@ -1261,5 +1261,15 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            imageView,
+    VkImageLayout                               imageLayout)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
+
+    GetTable().AddResourceToUser(commandBuffer, imageView);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
