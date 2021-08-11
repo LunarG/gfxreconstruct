@@ -30,6 +30,7 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <iterator>
 #include <cassert>
 #include <vector>
 
@@ -77,7 +78,7 @@ class HandleUnwrapMemory
         {
             next_buffer = &buffers_[next_index];
             next_buffer->clear();
-            next_buffer->insert(next_buffer->end(), data, data + len);
+            std::copy(data, data + len, std::back_inserter(*next_buffer));
         }
         else
         {
