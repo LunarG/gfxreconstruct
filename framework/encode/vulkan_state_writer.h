@@ -25,7 +25,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_state_table.h"
+#include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"

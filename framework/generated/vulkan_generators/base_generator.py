@@ -229,6 +229,9 @@ class BaseGenerator(OutputGenerator):
     # Dispatchable handle types.
     DISPATCHABLE_HANDLE_TYPES = ['VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue', 'VkCommandBuffer']
 
+    DUPLICATE_HANDLE_TYPES = ['VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR']
+
+
     # Default C++ code indentation size.
     INDENT_SIZE = 4
 

@@ -84,6 +84,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_rebind_allocator.h
@@ -126,6 +127,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
 )
 
 if (MSVC AND (MSVC_VERSION LESS 1920))
