@@ -37,7 +37,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev g++-aarch64-linux-gnu g++-arm-linux-gnueabihf
     - name: Run build script
       run: |
         if [ "${{ matrix.config.type }}" == "release" ]
@@ -48,6 +48,8 @@ jobs:
         else
           python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style
         fi
+        python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style --arch arm --build-dir arm32
+        python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style --arch arm64 --build-dir arm64
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
