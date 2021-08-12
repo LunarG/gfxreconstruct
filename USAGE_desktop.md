@@ -550,7 +550,7 @@ Optional arguments:
 ### To ASCII
 
 The `gfxrecon-toascii.exe` converts GFXReconstruct capture files to text.
-The text output is formatted as JSON and written to stdout.
+The text output is formatted as JSON and written to to a .txt file in the directory of the specified GFXReconstruct capture file.
 
 ```text
 gfxrecon-toascii.exe - A tool to convert GFXReconstruct capture files to text.
