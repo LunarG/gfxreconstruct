@@ -365,7 +365,7 @@ Next, add the following lines to the application's `build.gradle` file:
 1. Download the latest Android Vulkan Validation Layer binaries from the [GitHub release page](https://github.com/KhronosGroup/Vulkan-ValidationLayers/releases)
 2. Extract the prebuilt layer binaries and include them in the `gfxrecon-replay` APK by adding them to the following directories:
     ```
-    src/main/jniLibs/
+    gfxreconstruct/android/tools/replay/src/main/jniLibs/
         arm64-v8a/
             libVkLayer_khronos_validation.so
           armeabi-v7a/
