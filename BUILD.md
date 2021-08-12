@@ -362,11 +362,11 @@ Next, add the following lines to the application's `build.gradle` file:
     gfxreconstruct/android/tools/replay/src/main/jniLibs/
         arm64-v8a/
             libVkLayer_khronos_validation.so
-          armeabi-v7a/
+        armeabi-v7a/
             libVkLayer_khronos_validation.so
-          x86/
+        x86/
             libVkLayer_khronos_validation.so
-          x86-64/
+        x86-64/
             libVkLayer_khronos_validation.so
     ```
 3. Rebuild and deploy `gfxrecon-replay`
