@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2021 Valve Corporation
+# Copyright (c) 2018-2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -129,8 +129,8 @@ def makeGenOpts(args):
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
-        '** Copyright (c) 2018-2020 Valve Corporation',
-        '** Copyright (c) 2018-2020 LunarG, Inc.',
+        '** Copyright (c) 2018-2021 Valve Corporation',
+        '** Copyright (c) 2018-2021 LunarG, Inc.',
         '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a',
         '** copy of this software and associated documentation files (the "Software"),',
