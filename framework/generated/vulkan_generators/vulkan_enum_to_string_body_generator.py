@@ -91,7 +91,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for enum in self.enumNames:
+        for enum in sorted(self.enumNames):
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
                 body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'

@@ -84,6 +84,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_realign_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_rebind_allocator.h
@@ -126,14 +127,18 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_to_string.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
 )
 
-if (MSVC AND (MSVC_VERSION LESS 1920))
+if (MSVC)
     # These files may fail to compile with VS2017 and older, requiring the default section limit of 2^16 to be increased.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_string.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    if (MSVC_VERSION LESS 1920)
+        set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+        set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+        set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_object_cleanup_util.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+        set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    endif()
 endif()
 
 target_include_directories(gfxrecon_decode

@@ -1,6 +1,6 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
-# Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
+# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2019-2021 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -50,7 +50,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_info.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_table.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker_initializers.h
@@ -66,6 +66,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
+
 )
 
 if (MSVC AND (MSVC_VERSION LESS 1920))

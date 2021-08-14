@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2021 Valve Corporation
+# Copyright (c) 2018-2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -84,6 +84,9 @@ from vulkan_struct_to_string_body_generator import VulkanStructToStringBodyGener
 from vulkan_pnext_to_string_body_generator import VulkanPNextToStringBodyGenerator,VulkanPNextToStringBodyGeneratorOptions
 from vulkan_struct_to_string_header_generator import VulkanStructToStringHeaderGenerator,VulkanStructToStringHeaderGeneratorOptions
 
+from vulkan_object_info_table_base2_header_generator import VulkanObjectInfoTableBase2HeaderGenerator,VulkanObjectInfoTableBase2HeaderGeneratorOptions
+from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator,VulkanStateTableHeaderGeneratorOptions
+
 # Simple timer functions
 startTime = None
 
@@ -126,8 +129,8 @@ def makeGenOpts(args):
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
-        '** Copyright (c) 2018-2020 Valve Corporation',
-        '** Copyright (c) 2018-2020 LunarG, Inc.',
+        '** Copyright (c) 2018-2021 Valve Corporation',
+        '** Copyright (c) 2018-2021 LunarG, Inc.',
         '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a',
         '** copy of this software and associated documentation files (the "Software"),',
@@ -551,6 +554,30 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_object_info_table_base2.h'] = [
+          VulkanObjectInfoTableBase2HeaderGenerator,
+          VulkanObjectInfoTableBase2HeaderGeneratorOptions(
+            filename          = 'generated_vulkan_object_info_table_base2.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_state_table.h'] = [
+          VulkanStateTableHeaderGenerator,
+          VulkanStateTableHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_state_table.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
             protectFeature    = False)
         ]
 

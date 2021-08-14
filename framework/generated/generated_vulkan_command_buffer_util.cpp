@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -916,6 +916,13 @@ void TrackCmdBindPipelineShaderGroupNVHandles(CommandBufferWrapper* wrapper, VkP
     assert(wrapper != nullptr);
 
     wrapper->command_handles[CommandHandleType::PipelineHandle].insert(GetWrappedId(pipeline));
+}
+
+void TrackCmdBindInvocationMaskHUAWEIHandles(CommandBufferWrapper* wrapper, VkImageView imageView)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(imageView));
 }
 
 void TrackCmdBuildAccelerationStructuresKHRHandles(CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)

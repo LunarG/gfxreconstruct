@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -311,6 +311,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkSignalSemaphoreKHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::SignalSemaphoreKHR) },
     { "vkGetPhysicalDeviceFragmentShadingRatesKHR",                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceFragmentShadingRatesKHR) },
     { "vkCmdSetFragmentShadingRateKHR",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetFragmentShadingRateKHR) },
+    { "vkWaitForPresentKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::WaitForPresentKHR) },
     { "vkGetBufferDeviceAddressKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::GetBufferDeviceAddressKHR) },
     { "vkGetBufferOpaqueCaptureAddressKHR",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetBufferOpaqueCaptureAddressKHR) },
     { "vkGetDeviceMemoryOpaqueCaptureAddressKHR",                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceMemoryOpaqueCaptureAddressKHR) },
@@ -479,6 +480,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetMemoryZirconHandlePropertiesFUCHSIA",                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::GetMemoryZirconHandlePropertiesFUCHSIA) },
     { "vkImportSemaphoreZirconHandleFUCHSIA",                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::ImportSemaphoreZirconHandleFUCHSIA) },
     { "vkGetSemaphoreZirconHandleFUCHSIA",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetSemaphoreZirconHandleFUCHSIA) },
+    { "vkCmdBindInvocationMaskHUAWEI",                                                                       reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBindInvocationMaskHUAWEI) },
+    { "vkGetMemoryRemoteAddressNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetMemoryRemoteAddressNV) },
     { "vkCmdSetPatchControlPointsEXT",                                                                       reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetPatchControlPointsEXT) },
     { "vkCmdSetRasterizerDiscardEnableEXT",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetRasterizerDiscardEnableEXT) },
     { "vkCmdSetDepthBiasEnableEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetDepthBiasEnableEXT) },

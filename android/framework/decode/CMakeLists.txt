@@ -52,6 +52,7 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_cleanup_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.h
@@ -89,6 +90,7 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
               )
 
 target_include_directories(gfxrecon_decode

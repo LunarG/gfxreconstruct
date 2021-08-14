@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -248,8 +248,14 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
             return ToString(*reinterpret_cast<const VkSurfaceProtectedCapabilitiesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
+            return ToString(*reinterpret_cast<const VkPhysicalDevicePresentWaitFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
             return ToString(*reinterpret_cast<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
+            return ToString(*reinterpret_cast<const VkPresentIdKHR*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
+            return ToString(*reinterpret_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR:
             return ToString(*reinterpret_cast<const VkMemoryBarrier2KHR*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR:
@@ -512,6 +518,8 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8FeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
@@ -590,6 +598,10 @@ std::string PNextToString(const void* pNext, ToStringFlags toStringFlags, uint32
             return ToString(*reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
             return ToString(*reinterpret_cast<const VkImportMemoryZirconHandleInfoFUCHSIA*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(pNext), toStringFlags, tabCount, tabSize);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
+            return ToString(*reinterpret_cast<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
             return ToString(*reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(pNext), toStringFlags, tabCount, tabSize);
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:

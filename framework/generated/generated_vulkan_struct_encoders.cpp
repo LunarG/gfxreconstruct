@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -136,6 +136,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value)
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.srcAccessMask);
     encoder->EncodeFlagsValue(value.dstAccessMask);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionOne& value)
+{
+    encoder->EncodeUInt32Value(value.headerSize);
+    encoder->EncodeEnumValue(value.headerVersion);
+    encoder->EncodeUInt32Value(value.vendorID);
+    encoder->EncodeUInt32Value(value.deviceID);
+    encoder->EncodeUInt8Array(value.pipelineCacheUUID, VK_UUID_SIZE);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value)
@@ -2995,6 +3004,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceProtectedCapabilitie
     encoder->EncodeVkBool32Value(value.supportsProtected);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentWaitFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.presentWait);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3054,6 +3070,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKH
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.libraryCount);
     encoder->EncodeHandleArray(value.pLibraries, value.libraryCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentIdKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    encoder->EncodeUInt64Array(value.pPresentIds, value.swapchainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentIdFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.presentId);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier2KHR& value)
@@ -4969,6 +5000,24 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynam
     encoder->EncodeVkBool32Value(value.extendedDynamicState);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat16Atomics);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat16AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat16AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat32AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat64AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat16Atomics);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat16AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat16AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat32AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat64AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.shaderImageFloat32AtomicMinMax);
+    encoder->EncodeVkBool32Value(value.sparseImageFloat32AtomicMinMax);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -5511,6 +5560,28 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreGetZirconHandleInf
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeHandleValue(value.semaphore);
     encoder->EncodeEnumValue(value.handleType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.invocationMask);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetRemoteAddressInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.memory);
+    encoder->EncodeEnumValue(value.handleType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.externalMemoryRDMA);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT& value)

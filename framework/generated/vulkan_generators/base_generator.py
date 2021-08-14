@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018-2020 Valve Corporation
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2021 Valve Corporation
+# Copyright (c) 2018-2021 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -223,11 +223,16 @@ class BaseGenerator(OutputGenerator):
                               'VkDebugUtilsObjectNameInfoEXT' : {'objectHandle' : 'objectType' },
                               'VkDebugUtilsObjectTagInfoEXT' : {'objectHandle' : 'objectType' }}
 
+    VULKAN_REPLACE_TYPE = {"VkRemoteAddressNV" : {"baseType" : "void", "replaceWith" : "void*" }}
+
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     # Dispatchable handle types.
     DISPATCHABLE_HANDLE_TYPES = ['VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue', 'VkCommandBuffer']
+
+    DUPLICATE_HANDLE_TYPES = ['VkDescriptorUpdateTemplateKHR', 'VkSamplerYcbcrConversionKHR']
+
 
     # Default C++ code indentation size.
     INDENT_SIZE = 4
@@ -1076,6 +1081,7 @@ class BaseGenerator(OutputGenerator):
         for platform_name in platforms:
             platform = platforms[platform_name]
             platform_types = platform['types']
+            platform_types.update(self.VULKAN_REPLACE_TYPE)
 
             for type in platform_types:
                 self.PLATFORM_TYPES[type] = platform_types[type]

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1259,6 +1259,16 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesCountBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesIndexBuffer);
     }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            imageView,
+    VkImageLayout                               imageLayout)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(imageLayout);
+
+    GetTable().AddResourceToUser(commandBuffer, imageView);
 }
 
 GFXRECON_END_NAMESPACE(decode)
