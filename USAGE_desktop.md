@@ -416,6 +416,10 @@ Optional arguments:
   --validate            Enables the Khronos Vulkan validation layer when replaying a
                         Vulkan capture or the Direct3D debug layer when replaying a
                         Direct3D 12 capture.
+  --debug-device-lost   Enables automatic injection of breadcrumbs into command buffers
+                        and page fault reporting.
+                        Used to debug Direct3D 12 device removed problems.
+                        Not currently supported for Vulkan.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:

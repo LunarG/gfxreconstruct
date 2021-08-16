@@ -78,6 +78,20 @@ HRESULT WaitForQueue(ID3D12CommandQueue* queue)
     return result;
 }
 
+void AnalyzeDeviceRemoved(ID3D12Device* device)
+{
+    ID3D12DeviceRemovedExtendedData1ComPtr dred = nullptr;
+    HRESULT hr = device->QueryInterface(IID_PPV_ARGS(&dred));
+
+    D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dred_auto_breadcrumb_output = {};
+    hr = dred->GetAutoBreadcrumbsOutput1(&dred_auto_breadcrumb_output);
+
+    D3D12_DRED_PAGE_FAULT_OUTPUT dred_page_fault_output = {};
+    hr = dred->GetPageFaultAllocationOutput(&dred_page_fault_output);
+
+    // Analyze output structs here
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

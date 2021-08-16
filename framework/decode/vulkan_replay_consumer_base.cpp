@@ -161,6 +161,11 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory
     {
         InitializeScreenshotHandler();
     }
+
+    if (options_.enable_debug_device_lost)
+    {
+        GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
+    }
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()

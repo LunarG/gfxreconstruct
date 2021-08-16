@@ -42,6 +42,10 @@ typedef _com_ptr_t<_com_IIID<ID3D12CommandQueue, &__uuidof(ID3D12CommandQueue)>>
 typedef _com_ptr_t<_com_IIID<ID3D12CommandAllocator, &__uuidof(ID3D12CommandAllocator)>> ID3D12CommandAllocatorComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList, &__uuidof(ID3D12GraphicsCommandList)>>
     ID3D12GraphicsCommandListComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12DeviceRemovedExtendedData1)>>
+ID3D12DeviceRemovedExtendedData1ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedDataSettings1, &__uuidof(ID3D12DeviceRemovedExtendedDataSettings1)>>
+ID3D12DeviceRemovedExtendedDataSettings1ComPtr;
 
 struct ResourceStateInfo
 {
@@ -56,6 +60,11 @@ HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_R
 
 // Waits for the given queue to complete all pending tasks.
 HRESULT WaitForQueue(ID3D12CommandQueue* queue);
+
+// Utility function to analyze DRED output. 
+// This function is meant to be called when device gets removed, to get extended debug information.
+// For it to work, gfxrecon-replay must be launched with: --debug-device-lost
+void AnalyzeDeviceRemoved(ID3D12Device* device);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

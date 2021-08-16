@@ -27,7 +27,7 @@
 
 const char kOptions[] =
     "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-    "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--screenshot-all";
+    "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--screenshot-all";
 const char kArguments[] = "--log-level,--log-file,--gpu,--pause-frame,--wsi,--surface-index,-m|--memory-translation,--"
                           "replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--screenshot-dir,--screenshot-prefix";
 
@@ -130,6 +130,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
+    GFXRECON_WRITE_CONSOLE("  --debug-device-lost\t\tEnables automatic injection of breadcrumbs into command buffers");
+    GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
+    GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");
+    GFXRECON_WRITE_CONSOLE("            \t\tNot currently supported for Vulkan.");
 #else
     GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer.");
 #endif

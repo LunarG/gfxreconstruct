@@ -75,6 +75,7 @@ const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kSyncOption[]                       = "--sync";
 const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
 const char kValidateOption[]                   = "--validate";
+const char kDebugDeviceLostOption[]            = "--debug-device-lost";
 const char kDeniedMessages[]                   = "--denied-messages";
 const char kAllowedMessages[]                  = "--allowed-messages";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
@@ -614,6 +615,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     if (arg_parser.IsOptionSet(kValidateOption))
     {
         options.enable_validation_layer = true;
+    }
+
+    if (arg_parser.IsOptionSet(kDebugDeviceLostOption))
+    {
+        options.enable_debug_device_lost = true;
     }
 
     if (arg_parser.IsOptionSet(kSyncOption))
