@@ -76,14 +76,16 @@ struct MappedSubresource
 // DxDescriptorInfos are contained by DxDescriptorHeapInfo.
 struct DxDescriptorInfo
 {
-    format::HandleId                          create_object_id{ format::kNullHandleId };
-    format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    std::unique_ptr<util::MemoryOutputStream> create_parameters;
-
     size_t           cpu_address{ 0 };
     uint64_t         gpu_address{ 0 };
     format::HandleId heap_id{ format::kNullHandleId };
     uint32_t         index{ 0 };
+
+    // State tracking info
+    format::HandleId                          create_object_id{ format::kNullHandleId };
+    format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    std::unique_ptr<util::MemoryOutputStream> create_parameters;
+    bool is_copy{ false }; // True if the descriptor was created as a copy with CopyDescriptors
 };
 
 struct DxTransitionBarrier

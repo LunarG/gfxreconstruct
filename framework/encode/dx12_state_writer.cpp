@@ -422,11 +422,32 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
         {
             const DxDescriptorInfo& descriptor_info = heap_info->descriptor_info[i];
+
+            GFXRECON_ASSERT(descriptor_info.heap_id == heap_wrapper->GetCaptureId());
+            GFXRECON_ASSERT(descriptor_info.index == i);
+
             if (descriptor_info.create_parameters != nullptr)
             {
-                WriteMethodCall(descriptor_info.create_call_id,
-                                descriptor_info.create_object_id,
-                                descriptor_info.create_parameters.get());
+                if (descriptor_info.is_copy)
+                {
+                    // Append heap id and descriptor index if the create parameters were copied from another descriptor
+                    // in CopyDescriptors.
+                    auto dest_heap_id = descriptor_info.heap_id;
+                    auto dest_index   = descriptor_info.index;
+                    parameter_stream_.Write(descriptor_info.create_parameters->GetData(),
+                                            descriptor_info.create_parameters->GetDataSize());
+                    parameter_stream_.Write(&dest_heap_id, sizeof(dest_heap_id));
+                    parameter_stream_.Write(&dest_index, sizeof(dest_index));
+                    WriteMethodCall(
+                        descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
+                    parameter_stream_.Reset();
+                }
+                else
+                {
+                    WriteMethodCall(descriptor_info.create_call_id,
+                                    descriptor_info.create_object_id,
+                                    descriptor_info.create_parameters.get());
+                }
             }
         }
     });

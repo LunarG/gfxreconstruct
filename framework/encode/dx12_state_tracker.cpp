@@ -205,6 +205,21 @@ void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrappe
     list_info->closed = created_closed;
 }
 
+void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           create_object_wrapper,
+                                               format::ApiCallId               call_id,
+                                               const util::MemoryOutputStream* parameter_buffer,
+                                               DxDescriptorInfo*               descriptor_info)
+{
+    GFXRECON_ASSERT(descriptor_info != nullptr);
+
+    // Store creation data with descriptor info struct.
+    descriptor_info->create_object_id = create_object_wrapper->GetCaptureId();
+    descriptor_info->create_call_id   = call_id;
+    descriptor_info->create_parameters =
+        std::make_unique<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+    descriptor_info->is_copy = false;
+}
+
 void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
                                             DxDescriptorInfo*       dest_descriptor_info,
                                             const DxDescriptorInfo* src_descriptor_info)
@@ -212,47 +227,41 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
     GFXRECON_ASSERT(dest_descriptor_info != nullptr);
     GFXRECON_ASSERT(src_descriptor_info != nullptr);
 
-    // The last values encoded in the descriptor creation parameters are heap_id and index. Make a copy of
-    // the source descriptor creation parameters and overwrite heap_id and index with the destination heap's
-    // values. This ensures the correct descriptors are created on the destination heap when loading trimmed
-    // state during replay.
     for (UINT i = 0; i < num_descriptors; ++i)
     {
+        if (dest_descriptor_info[i].create_parameters == src_descriptor_info[i].create_parameters)
+        {
+            GFXRECON_LOG_WARNING("Source and destination descriptors are the same in CopyDescriptors. Skipping copy.");
+            continue;
+        }
+
+        size_t heap_and_index_size = 0;
+        if (!src_descriptor_info->is_copy)
+        {
+            heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
+        }
+
         dest_descriptor_info[i].create_object_id = src_descriptor_info[i].create_object_id;
         dest_descriptor_info[i].create_call_id   = src_descriptor_info[i].create_call_id;
-        auto dest_heap_id                        = dest_descriptor_info[i].heap_id;
-        auto dest_index                          = dest_descriptor_info[i].index;
 
-        auto src_create_data = src_descriptor_info[i].create_parameters.get();
+        dest_descriptor_info[i].is_copy = true;
 
-#ifndef GFXRECON_DISABLE_ASSERTS
-        // Validate that heap id and descriptor index are the last two values in the src parameter stream.
-        format::HandleId src_heap_id = 0;
-        uint32_t         src_index   = 0;
-        const uint8_t*   src_param_info =
-            src_create_data->GetData() + (src_create_data->GetDataSize() - sizeof(src_heap_id) - sizeof(src_index));
-        util::platform::MemoryCopy(&src_heap_id, sizeof(src_heap_id), src_param_info, sizeof(src_heap_id));
-        src_param_info += sizeof(src_heap_id);
-        util::platform::MemoryCopy(&src_index, sizeof(src_index), src_param_info, sizeof(src_index));
-        GFXRECON_ASSERT(src_heap_id == src_descriptor_info[i].heap_id);
-        GFXRECON_ASSERT(src_index == src_descriptor_info[i].index);
-#endif
+        GFXRECON_ASSERT(src_descriptor_info[i].create_parameters->GetDataSize() > heap_and_index_size);
 
-        // Copy source creation parameters to destination, replacing source's heap_id and index with destination's.
-        auto dest_create_data = dest_descriptor_info[i].create_parameters.get();
-        if (dest_create_data == nullptr)
+        // Copy source creation parameters to destination.
+        if (dest_descriptor_info[i].create_parameters == nullptr)
         {
-            dest_descriptor_info[i].create_parameters = std::make_unique<util::MemoryOutputStream>();
-            dest_create_data                          = dest_descriptor_info[i].create_parameters.get();
+            dest_descriptor_info[i].create_parameters = std::make_unique<util::MemoryOutputStream>(
+                src_descriptor_info[i].create_parameters->GetData(),
+                src_descriptor_info[i].create_parameters->GetDataSize() - heap_and_index_size);
         }
         else
         {
-            dest_create_data->Reset();
+            dest_descriptor_info[i].create_parameters->Reset();
+            dest_descriptor_info[i].create_parameters->Write(src_descriptor_info[i].create_parameters->GetData(),
+                                                             src_descriptor_info[i].create_parameters->GetDataSize() -
+                                                                 heap_and_index_size);
         }
-        dest_create_data->Write(src_create_data->GetData(),
-                                src_create_data->GetDataSize() - sizeof(dest_heap_id) - sizeof(dest_index));
-        dest_create_data->Write(&dest_heap_id, sizeof(dest_heap_id));
-        dest_create_data->Write(&dest_index, sizeof(dest_index));
     }
 }
 

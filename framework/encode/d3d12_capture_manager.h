@@ -146,10 +146,6 @@ class D3D12CaptureManager : public CaptureManager
     void EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor,
                                               ID3D12Device_Wrapper*       create_object_wrapper);
 
-    void EndCopyDescriptorsMethodCallCapture(UINT                    NumDescriptors,
-                                             DxDescriptorInfo*       dest_descriptor_info,
-                                             const DxDescriptorInfo* src_descriptor_info);
-
     void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 
     template <typename Wrapper>

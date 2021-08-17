@@ -87,12 +87,10 @@ void D3D12CaptureManager::EndCreateDescriptorMethodCallCapture(D3D12_CPU_DESCRIP
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
-        // Store creation data with descriptor info struct.
-        DxDescriptorInfo* descriptor_info  = GetDescriptorInfo(dest_descriptor.ptr);
-        descriptor_info->create_object_id  = create_object_wrapper->GetCaptureId();
-        descriptor_info->create_call_id    = thread_data->call_id_;
-        descriptor_info->create_parameters = std::make_unique<util::MemoryOutputStream>(
-            thread_data->parameter_buffer_->GetData(), thread_data->parameter_buffer_->GetDataSize());
+        state_tracker_->TrackDescriptorCreation(create_object_wrapper,
+                                                thread_data->call_id_,
+                                                thread_data->parameter_buffer_.get(),
+                                                GetDescriptorInfo(dest_descriptor.ptr));
     }
 
     EndMethodCallCapture();
