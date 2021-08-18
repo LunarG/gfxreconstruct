@@ -478,7 +478,9 @@ class D3D12CaptureManager : public CaptureManager
     bool UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     void EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
     bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
+    PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void EnableDebugLayer();
+    void                          EnableDRED();
 
   private:
     static D3D12CaptureManager*       instance_;
@@ -488,6 +490,7 @@ class D3D12CaptureManager : public CaptureManager
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
+    bool debug_device_lost_enabled_;          ///< Track if DRED has been enabled.
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 };

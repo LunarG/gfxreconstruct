@@ -24,6 +24,7 @@
 
 #include "encode/d3d12_capture_manager.h"
 
+#include "graphics/dx12_util.h"
 #include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/dx12_object_wrapper_info.h"
 #include "encode/dx12_state_writer.h"
@@ -37,7 +38,7 @@ thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
 D3D12CaptureManager::D3D12CaptureManager() :
     CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
-    debug_layer_enabled_(false)
+    debug_layer_enabled_(false), debug_device_lost_enabled_(false)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
@@ -1411,38 +1412,68 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     return E_INVALIDARG;
 }
 
+PFN_D3D12_GET_DEBUG_INTERFACE D3D12CaptureManager::GetDebugInterfacePtr()
+{
+    PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
+
+    if (get_debug_interface == nullptr)
+    {
+        HMODULE d3d12_dll = LoadLibraryA("d3d12_ms.dll");
+
+        if (d3d12_dll == nullptr)
+        {
+            d3d12_dll = LoadLibraryA("d3d12.dll");
+        }
+
+        if (d3d12_dll != nullptr)
+        {
+            get_debug_interface =
+                reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(GetProcAddress(d3d12_dll, "D3D12GetDebugInterface"));
+        }
+    }
+
+    return get_debug_interface;
+}
+
 void D3D12CaptureManager::EnableDebugLayer()
 {
     if (debug_layer_enabled_ == false)
     {
-        PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
-
-        if (get_debug_interface == nullptr)
-        {
-            HMODULE d3d12_dll = LoadLibraryA("d3d12_ms.dll");
-
-            if (d3d12_dll == NULL)
-            {
-                d3d12_dll = LoadLibraryA("d3d12.dll");
-            }
-
-            if (d3d12_dll != nullptr)
-            {
-                get_debug_interface = reinterpret_cast<PFN_D3D12_GET_DEBUG_INTERFACE>(
-                    GetProcAddress(d3d12_dll, "D3D12GetDebugInterface"));
-            }
-        }
+        PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = GetDebugInterfacePtr();
 
         if (get_debug_interface != nullptr)
         {
-            ID3D12Debug* debugController = nullptr;
-            HRESULT      result          = get_debug_interface(IID_PPV_ARGS(&debugController));
+            gfxrecon::graphics::dx12::ID3D12DebugComPtr debug_controller = nullptr;
+            HRESULT                                     result = get_debug_interface(IID_PPV_ARGS(&debug_controller));
 
             if (result == S_OK)
             {
-                debugController->EnableDebugLayer();
+                debug_controller->EnableDebugLayer();
 
                 debug_layer_enabled_ = true;
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::EnableDRED()
+{
+    if (debug_device_lost_enabled_ == false)
+    {
+        PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = GetDebugInterfacePtr();
+
+        if (get_debug_interface != nullptr)
+        {
+            gfxrecon::graphics::dx12::ID3D12DeviceRemovedExtendedDataSettings1ComPtr dred_settings = nullptr;
+            HRESULT result = get_debug_interface(IID_PPV_ARGS(&dred_settings));
+
+            if (result == S_OK)
+            {
+                dred_settings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+                dred_settings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+                dred_settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+
+                debug_device_lost_enabled_ = true;
             }
         }
     }
@@ -1480,6 +1511,11 @@ void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapte
     if (GetDebugLayerSetting() == true)
     {
         EnableDebugLayer();
+    }
+
+    if (GetDebugDeviceLostSetting() == true)
+    {
+        EnableDRED();
     }
 }
 

@@ -91,6 +91,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
 #define DEBUG_LAYER_LOWER                   "debug_layer"
 #define DEBUG_LAYER_UPPER                   "DEBUG_LAYER"
+#define DEBUG_DEVICE_LOST_LOWER             "debug_device_lost"
+#define DEBUG_DEVICE_LOST_UPPER             "DEBUG_DEVICE_LOST"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -124,6 +126,7 @@ const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_LOWER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
+const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
 
 #else
 // Desktop environment settings
@@ -156,6 +159,7 @@ const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
+const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -187,6 +191,7 @@ const std::string kOptionKeyPageGuardAlignBufferSizes = std::string(kSettingsFil
 const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_TRACK_AHB_MEMORY_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
 const std::string kDebugLayer                         = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
+const std::string kDebugDeviceLost                    = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -293,6 +298,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Debug environment variables
     LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
+    LoadSingleOptionEnvVar(options, kDebugDeviceLostEnvVar, kDebugDeviceLost);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -373,6 +379,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Debug options
     settings->trace_settings_.debug_layer =
         ParseBoolString(FindOption(options, kDebugLayer), settings->trace_settings_.debug_layer);
+    settings->trace_settings_.debug_device_lost =
+        ParseBoolString(FindOption(options, kDebugDeviceLost), settings->trace_settings_.debug_device_lost);
 
     ProcessLogOptions(options, settings);
 }

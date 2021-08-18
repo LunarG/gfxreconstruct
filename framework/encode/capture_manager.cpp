@@ -89,7 +89,7 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    debug_layer_(false)
+    debug_layer_(false), debug_device_lost_(false)
 {}
 
 CaptureManager::~CaptureManager()
@@ -192,6 +192,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
     debug_layer_          = trace_settings.debug_layer;
+    debug_device_lost_    = trace_settings.debug_device_lost;
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {

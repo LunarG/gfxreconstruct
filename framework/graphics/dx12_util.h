@@ -46,6 +46,7 @@ typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12D
 ID3D12DeviceRemovedExtendedData1ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedDataSettings1, &__uuidof(ID3D12DeviceRemovedExtendedDataSettings1)>>
 ID3D12DeviceRemovedExtendedDataSettings1ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Debug, &__uuidof(ID3D12Debug)>> ID3D12DebugComPtr;
 
 struct ResourceStateInfo
 {
