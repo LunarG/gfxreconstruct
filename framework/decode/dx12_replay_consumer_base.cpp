@@ -234,6 +234,12 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12Comm
 
     for (uint32_t n = 0; n < image_count; ++n)
     {
+        // When the index buffer matches the buffer during capture, exit the loop.
+        if (n == last_presented_image)
+        {
+            break;
+        }
+
         // Validate the assumption that the swapchain buffer index increases by 1 after each swapchain->Present.
         GFXRECON_ASSERT(n == swapchain->GetCurrentBackBufferIndex());
 
@@ -265,13 +271,8 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12Comm
 
         ret = graphics::dx12::WaitForQueue(command_queue);
         GFXRECON_ASSERT(SUCCEEDED(ret));
-
-        // When the presented buffer matches the last presented buffer during capture, exit the loop
-        if (n == last_presented_image)
-        {
-            break;
-        }
     }
+    GFXRECON_ASSERT(swapchain->GetCurrentBackBufferIndex() == last_presented_image);
 }
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateCommand(

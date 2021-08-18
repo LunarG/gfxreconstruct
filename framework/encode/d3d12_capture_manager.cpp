@@ -140,9 +140,12 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
             info->child_images.resize(image_count);
             info->swap_effect = swap_effect;
 
-            // TODO: In VK version, this thing is done in InitializeGroupObjectState,
-            //       This might need to be removed to InitializeGroupObjectState when it's ready.
-            info->image_acquired_info.resize(image_count);
+            if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+            {
+                // TODO: In VK version, this thing is done in InitializeGroupObjectState,
+                //       This might need to be removed to InitializeGroupObjectState when it's ready.
+                info->image_acquired_info.resize(image_count);
+            }
 
             for (uint32_t i = 0; i < image_count; ++i)
             {
@@ -426,10 +429,6 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrap
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
-    if (SUCCEEDED(result))
-    {
-        state_tracker_->TrackPresentedImages(wrapper, sync_interval, flags, nullptr);
-    }
     EndFrame();
 }
 
@@ -444,10 +443,6 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wr
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
-    if (SUCCEEDED(result))
-    {
-        state_tracker_->TrackPresentedImages(wrapper, sync_interval, present_flags, present_parameters);
-    }
     EndFrame();
 }
 
@@ -516,12 +511,6 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapCh
 
         PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
     }
-}
-
-void D3D12CaptureManager::PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(IDXGISwapChain_Wrapper* wrapper,
-                                                                                UINT                    result)
-{
-    state_tracker_->TrackAcquireImage(result, wrapper);
 }
 
 void D3D12CaptureManager::Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper)

@@ -232,8 +232,6 @@ class D3D12CaptureManager : public CaptureManager
                                                     const UINT*             node_mask,
                                                     IUnknown* const*        present_queue);
 
-    void PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(IDXGISwapChain_Wrapper* wrapper, UINT result);
-
     void Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper);
 
     void PostProcess_ID3D12Device_CreateDescriptorHeap(ID3D12Device_Wrapper*             wrapper,

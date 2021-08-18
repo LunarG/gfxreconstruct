@@ -152,16 +152,6 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBu
 };
 
 template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_GetCurrentBackBufferIndex>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_IDXGISwapChain3_GetCurrentBackBufferIndex(args...);
-    }
-};
-
-template <>
 void CustomWrapperDestroyCall<IDXGISwapChain_Wrapper>(IDXGISwapChain_Wrapper* wrapper)
 {
     D3D12CaptureManager::Get()->Destroy_IDXGISwapChain(wrapper);
