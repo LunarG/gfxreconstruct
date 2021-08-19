@@ -274,6 +274,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
         method_name = method_info['name']
         parameters = method_info['parameters']
+        is_tracked_method_call = False  # Track call parameters with no special end call options.
         is_create_call = False
         is_descriptor_create_call = False
         is_command_list_call = False
@@ -298,6 +299,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if 'GraphicsCommandList' in class_name:
             is_command_list_call = True
 
+        if 'TileMappings' in method_name:
+            is_tracked_method_call = True
+
         # Build begin and end calls.
         api_or_method = ''
         begin_call_type = ''
@@ -319,7 +323,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                 method_name
             )
 
-        if is_create_call:
+        if is_tracked_method_call:
+            begin_call_type = 'Tracked'
+        elif is_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'Create'
             end_call_args = 'return_value, {}, {}'.format(

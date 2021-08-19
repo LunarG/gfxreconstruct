@@ -198,6 +198,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreatePlace
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateReservedResource>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateReservedResource(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device4_CreateHeap1>
 {
     template <typename... Args>
@@ -410,6 +420,26 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescrip
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D12Device_CopyDescriptorsSimple(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12CommandQueue_UpdateTileMappings(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12CommandQueue_CopyTileMappings(args...);
     }
 };
 

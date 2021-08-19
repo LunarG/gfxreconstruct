@@ -104,6 +104,8 @@ class Dx12StateWriter
 
     void WriteResourceState(const Dx12StateTable& state_table);
 
+    void WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info);
+
     void
     WriteResourceSnapshots(const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots,
                            const std::unordered_map<format::HandleId, uint64_t>& max_resource_sizes);
@@ -136,10 +138,11 @@ class Dx12StateWriter
     std::unordered_set<format::HandleId> written_objects_;
 #endif
 
-    // Temporary vectors used for resource writing.
-    std::vector<uint8_t>  temp_subresource_data_;
-    std::vector<uint64_t> temp_subresource_sizes_;
-    std::vector<uint64_t> temp_subresource_offsets_;
+    // Temporary vectors.
+    std::vector<uint8_t>           temp_subresource_data_;
+    std::vector<uint64_t>          temp_subresource_sizes_;
+    std::vector<uint64_t>          temp_subresource_offsets_;
+    std::vector<DxTileMappingInfo> temp_tile_mappings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

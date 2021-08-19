@@ -265,6 +265,21 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
     }
 }
 
+void Dx12StateTracker::TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
+                                               format::HandleId                queue_id,
+                                               format::HandleId                heap_id,
+                                               const util::MemoryOutputStream* parameter_buffer)
+{
+    GFXRECON_ASSERT(resource_wrapper != nullptr);
+    GFXRECON_ASSERT(resource_wrapper->GetObjectInfo() != nullptr);
+
+    auto resource_info = resource_wrapper->GetObjectInfo();
+    resource_info->tile_mappings.push_back(
+        { queue_id,
+          heap_id,
+          std::make_unique<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize()) });
+}
+
 void Dx12StateTracker::TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
                                                          const DxTransitionBarrier& transition,
                                                          UINT                       subresource)

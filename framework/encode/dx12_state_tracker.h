@@ -149,6 +149,11 @@ class Dx12StateTracker
                               DxDescriptorInfo*       dest_descriptor_info,
                               const DxDescriptorInfo* src_descriptor_info);
 
+    void TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
+                                 format::HandleId                queue_id,
+                                 format::HandleId                heap_id,
+                                 const util::MemoryOutputStream* parameter_buffer);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

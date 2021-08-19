@@ -6016,7 +6016,7 @@ void Encode_ID3D12CommandQueue_UpdateTileMappings(
     const UINT* pRangeTileCounts,
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings, wrapper->GetCaptureId());
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeObjectValue(pResource);
@@ -6042,7 +6042,7 @@ void Encode_ID3D12CommandQueue_CopyTileMappings(
     const D3D12_TILE_REGION_SIZE* pRegionSize,
     D3D12_TILE_MAPPING_FLAGS Flags)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings, wrapper->GetCaptureId());
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyTileMappings, wrapper->GetCaptureId());
     if(encoder)
     {
         encoder->EncodeObjectValue(pDstResource);

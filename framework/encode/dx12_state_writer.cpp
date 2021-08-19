@@ -543,6 +543,9 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
             }
         }
 
+        // Write tile mappings, if any (for reserved resources).
+        WriteTileMappings(state_table, resource_info.get());
+
         // Store resource wrappers and max resource sizes.
         ResourceSnapshotInfo snapshot_info;
         snapshot_info.resource_wrapper = resource_wrapper;
@@ -737,6 +740,32 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
                            "). Resource data will not be written to capture file.",
                            resource_wrapper->GetCaptureId());
     }
+}
+
+void Dx12StateWriter::WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info)
+{
+    if (resource_info->tile_mappings.empty())
+    {
+        return;
+    }
+
+    temp_tile_mappings_.clear();
+    for (auto& tile_mapping : resource_info->tile_mappings)
+    {
+        bool queue_valid = (state_table.GetID3D12CommandQueue_Wrapper(tile_mapping.queue_id) != nullptr);
+        bool heap_valid  = (tile_mapping.heap_id == format::kNullHandleId) ||
+                          (state_table.GetID3D12Heap_Wrapper(tile_mapping.heap_id) != nullptr);
+        if (queue_valid && heap_valid)
+        {
+            WriteMethodCall(format::ApiCall_ID3D12CommandQueue_UpdateTileMappings,
+                            tile_mapping.queue_id,
+                            tile_mapping.call_parameters.get());
+            temp_tile_mappings_.push_back(std::move(tile_mapping));
+        }
+    }
+
+    // No longer need to track tile mappings that were invalid.
+    std::swap(resource_info->tile_mappings, temp_tile_mappings_);
 }
 
 void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)

@@ -263,6 +263,14 @@ class D3D12CaptureManager : public CaptureManager
                                                        REFIID                     riid,
                                                        void**                     resource);
 
+    void PostProcess_ID3D12Device_CreateReservedResource(ID3D12Device_Wrapper*      wrapper,
+                                                         HRESULT                    result,
+                                                         const D3D12_RESOURCE_DESC* desc,
+                                                         D3D12_RESOURCE_STATES      initial_state,
+                                                         const D3D12_CLEAR_VALUE*   optimized_clear_value,
+                                                         REFIID                     riid,
+                                                         void**                     resource);
+
     void PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                               const void*            address,
                                                               REFIID                 riid,
@@ -386,6 +394,28 @@ class D3D12CaptureManager : public CaptureManager
                                                         D3D12_CPU_DESCRIPTOR_HANDLE dest_start,
                                                         D3D12_CPU_DESCRIPTOR_HANDLE src_start,
                                                         D3D12_DESCRIPTOR_HEAP_TYPE  heap_type);
+
+    void PostProcess_ID3D12CommandQueue_UpdateTileMappings(
+        ID3D12CommandQueue_Wrapper*            queue_wrapper,
+        ID3D12Resource*                        resource,
+        UINT                                   num_resource_regions,
+        const D3D12_TILED_RESOURCE_COORDINATE* resource_region_start_coordinates,
+        const D3D12_TILE_REGION_SIZE*          resource_region_sizes,
+        ID3D12Heap*                            heap,
+        UINT                                   num_ranges,
+        const D3D12_TILE_RANGE_FLAGS*          range_flags,
+        const UINT*                            heap_range_start_offsets,
+        const UINT*                            range_tile_counts,
+        D3D12_TILE_MAPPING_FLAGS               flags);
+
+    void
+    PostProcess_ID3D12CommandQueue_CopyTileMappings(ID3D12CommandQueue_Wrapper*            queue_wrapper,
+                                                    ID3D12Resource*                        dst_resource,
+                                                    const D3D12_TILED_RESOURCE_COORDINATE* dst_region_start_coordinate,
+                                                    ID3D12Resource*                        src_resource,
+                                                    const D3D12_TILED_RESOURCE_COORDINATE* src_region_start_coordinate,
+                                                    const D3D12_TILE_REGION_SIZE*          region_size,
+                                                    D3D12_TILE_MAPPING_FLAGS               flags);
 
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);

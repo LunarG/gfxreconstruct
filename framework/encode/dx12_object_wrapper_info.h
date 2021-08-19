@@ -110,6 +110,13 @@ struct DxImageAcquiredInfo
     POINT             scroll_offset{};
 };
 
+struct DxTileMappingInfo
+{
+    format::HandleId                          queue_id;
+    format::HandleId                          heap_id;
+    std::unique_ptr<util::MemoryOutputStream> call_parameters;
+};
+
 struct IDXGIKeyedMutexInfo : public DxWrapperInfo
 {};
 
@@ -241,9 +248,14 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
 
+    //// State tracking data:
+
     // Most recent transitions for each subresource.
     D3D12_RESOURCE_STATES                          initial_state;
-    std::vector<graphics::dx12::ResourceStateInfo> subresource_transitions{};
+    std::vector<graphics::dx12::ResourceStateInfo> subresource_transitions;
+
+    // Track tile mappings for reserved resources.
+    std::vector<DxTileMappingInfo> tile_mappings;
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo

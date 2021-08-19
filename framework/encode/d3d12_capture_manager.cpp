@@ -653,6 +653,35 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
+    ID3D12Device_Wrapper*      wrapper,
+    HRESULT                    result,
+    const D3D12_RESOURCE_DESC* desc,
+    D3D12_RESOURCE_STATES      initial_state,
+    const D3D12_CLEAR_VALUE*   optimized_clear_value,
+    REFIID                     riid,
+    void**                     resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(optimized_clear_value);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (SUCCEEDED(result) && (wrapper != nullptr) && (desc != nullptr) && (resource != nullptr) &&
+        ((*resource) != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(*resource);
+
+        InitializeID3D12ResourceInfo(wrapper,
+                                     resource_wrapper,
+                                     desc->Dimension,
+                                     desc->Width,
+                                     D3D12_HEAP_TYPE_DEFAULT,
+                                     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+                                     D3D12_MEMORY_POOL_UNKNOWN,
+                                     initial_state,
+                                     false);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromAddress(ID3D12Device3_Wrapper* wrapper,
                                                                                const void*            address,
                                                                                REFIID                 riid,
@@ -1657,6 +1686,47 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CopyDescriptorsSimple(ID3D12D
         auto dest_descriptor_info = GetDescriptorInfo(dest_start.ptr);
         auto src_descriptor_info  = GetDescriptorInfo(src_start.ptr);
         state_tracker_->TrackCopyDescriptors(num_descriptors, dest_descriptor_info, src_descriptor_info);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_UpdateTileMappings(
+    ID3D12CommandQueue_Wrapper*            queue_wrapper,
+    ID3D12Resource*                        resource,
+    UINT                                   num_resource_regions,
+    const D3D12_TILED_RESOURCE_COORDINATE* resource_region_start_coordinates,
+    const D3D12_TILE_REGION_SIZE*          resource_region_sizes,
+    ID3D12Heap*                            heap,
+    UINT                                   num_ranges,
+    const D3D12_TILE_RANGE_FLAGS*          range_flags,
+    const UINT*                            heap_range_start_offsets,
+    const UINT*                            range_tile_counts,
+    D3D12_TILE_MAPPING_FLAGS               flags)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(resource);
+        auto heap_wrapper     = reinterpret_cast<ID3D12Heap_Wrapper*>(heap);
+        state_tracker_->TrackUpdateTileMappings(resource_wrapper,
+                                                queue_wrapper->GetCaptureId(),
+                                                (heap_wrapper != nullptr) ? heap_wrapper->GetCaptureId()
+                                                                          : format::kNullHandleId,
+                                                GetThreadData()->parameter_buffer_.get());
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_CopyTileMappings(
+    ID3D12CommandQueue_Wrapper*            queue_wrapper,
+    ID3D12Resource*                        dst_resource,
+    const D3D12_TILED_RESOURCE_COORDINATE* dst_region_start_coordinate,
+    ID3D12Resource*                        src_resource,
+    const D3D12_TILED_RESOURCE_COORDINATE* src_region_start_coordinate,
+    const D3D12_TILE_REGION_SIZE*          region_size,
+    D3D12_TILE_MAPPING_FLAGS               flags)
+{
+    // TODO (GH #297): Implement tracking for CopyTileMappings.
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        GFXRECON_LOG_ERROR("ID3D12CommandQueue::CopyTileMappings support is not implemented for trimmed capture.");
     }
 }
 
