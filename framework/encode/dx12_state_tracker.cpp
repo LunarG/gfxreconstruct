@@ -85,9 +85,9 @@ void Dx12StateTracker::TrackFenceSignal(ID3D12Fence_Wrapper* fence_wrapper, UINT
     }
 }
 
-void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                    format::ApiCallId                  call_id,
-                                    const util::MemoryOutputStream*    parameter_buffer)
+void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                             format::ApiCallId                  call_id,
+                                             const util::MemoryOutputStream*    parameter_buffer)
 {
     if (list_wrapper == nullptr)
     {
@@ -120,6 +120,16 @@ void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrap
     list_info->command_data.Write(&size, sizeof(size));
     list_info->command_data.Write(&call_id, sizeof(call_id));
     list_info->command_data.Write(parameter_buffer->GetData(), size);
+}
+
+void Dx12StateTracker::TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                    format::ApiCallId                  call_id,
+                                    const util::MemoryOutputStream*    parameter_buffer)
+{
+    if (list_wrapper != nullptr)
+    {
+        TrackCommandExecution(list_wrapper, call_id, parameter_buffer);
+    }
 }
 
 void Dx12StateTracker::TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,

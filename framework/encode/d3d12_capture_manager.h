@@ -148,6 +148,25 @@ class D3D12CaptureManager : public CaptureManager
 
     void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 
+    template <typename GetHandlesFunc, typename... GetHandlesArgs>
+    void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                         GetHandlesFunc                    func,
+                                         GetHandlesArgs... args)
+    {
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->TrackCommand(
+                list_wrapper, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
+        }
+
+        EndMethodCallCapture();
+    }
+
     template <typename Wrapper>
     void ProcessWrapperDestroy(Wrapper* wrapper)
     {

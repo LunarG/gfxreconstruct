@@ -818,14 +818,15 @@ class BaseGenerator(OutputGenerator):
                 # Check the anonymous union for objects.
                 for union_info in value.union_members:
                     if self.is_struct(
-                        union_info[1]
-                    ) and (union_info[1] in structs_with_handles):
+                        union_info.base_type
+                    ) and (union_info.base_type in structs_with_handles):
                         handles.append(value)
                         has_handle_pointer = True
-                    elif union_info[1] in self.source_dict['class_dict']:
+                    elif union_info.base_type in self.source_dict['class_dict'
+                                                                  ]:
                         handles.append(value)
                         has_handle_pointer = True
-                    elif union_info[1] in self.MAP_STRUCT_TYPE:
+                    elif union_info.base_type in self.MAP_STRUCT_TYPE:
                         if (structs_with_map_data is not None):
                             map_data.append(value)
             elif ('pNext' in value.name) and (not self.is_dx12_class()):

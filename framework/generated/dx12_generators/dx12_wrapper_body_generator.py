@@ -209,12 +209,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             # needs to process all struct types to build an
             # accurate list of structs that contain objects.
             for union_info in member.union_members:
-                if self.is_struct(union_info[1]):
-                    umembers = self.feature_struct_members[union_info[1]]
+                if self.is_struct(union_info.base_type):
+                    umembers = self.feature_struct_members[union_info.base_type
+                                                           ]
                     for umember in umembers:
                         if self.is_struct_object_member(umember):
                             return True
-                elif union_info[1] in self.source_dict['class_dict']:
+                elif union_info.base_type in self.source_dict['class_dict']:
                     return True
         return False
 
@@ -542,7 +543,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         expr += indent + '{\n'
         if is_map_class:
             indent = self.increment_indent(indent)
-            expr += indent + 'info_ = std::make_shared<{}Info>();\n'.format(class_name)
+            expr += indent + 'info_ = std::make_shared<{}Info>();\n'.format(
+                class_name
+            )
             expr += indent + 'info_->SetWrapper(this);\n'
             expr += indent + 'AddWrapperMapEntry(object, this, object_map_,'\
                 ' object_map_lock_);\n'

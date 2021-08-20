@@ -123,6 +123,13 @@ class Dx12StateWriter
     void WriteSingleGraphicsCommandListState(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
                                              const Dx12StateTable&                    state_table);
 
+    bool CheckGraphicsCommandListObjects(const ID3D12GraphicsCommandListInfo* list_info,
+                                         const Dx12StateTable&                state_table);
+
+    bool CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectType object_type,
+                                        format::HandleId               handle_id,
+                                        const Dx12StateTable&          state_table);
+
     void WriteSwapchainImageState(const Dx12StateTable& state_table);
 
   private:

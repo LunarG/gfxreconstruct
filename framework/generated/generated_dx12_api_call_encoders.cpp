@@ -26,7 +26,9 @@
 */
 
 #include "generated/generated_dx12_api_call_encoders.h"
+#include "generated/generated_dx12_command_list_util.h"
 #include "encode/custom_dx12_struct_encoders.h"
+#include "encode/custom_dx12_command_list_util.h"
 
 #include "encode/d3d12_capture_manager.h"
 #include "encode/parameter_encoder.h"
@@ -5081,7 +5083,7 @@ void Encode_ID3D12GraphicsCommandList_Reset(
         encoder->EncodeObjectValue(pAllocator);
         encoder->EncodeObjectValue(pInitialState);
         encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_Reset, pAllocator, pInitialState);
     }
 }
 
@@ -5093,7 +5095,7 @@ void Encode_ID3D12GraphicsCommandList_ClearState(
     if(encoder)
     {
         encoder->EncodeObjectValue(pPipelineState);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ClearState, pPipelineState);
     }
 }
 
@@ -5167,7 +5169,7 @@ void Encode_ID3D12GraphicsCommandList_CopyBufferRegion(
         encoder->EncodeObjectValue(pSrcBuffer);
         encoder->EncodeUInt64Value(SrcOffset);
         encoder->EncodeUInt64Value(NumBytes);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_CopyBufferRegion, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, NumBytes);
     }
 }
 
@@ -5189,7 +5191,7 @@ void Encode_ID3D12GraphicsCommandList_CopyTextureRegion(
         encoder->EncodeUInt32Value(DstZ);
         EncodeStructPtr(encoder, pSrc);
         EncodeStructPtr(encoder, pSrcBox);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_CopyTextureRegion, pDst, DstX, DstY, DstZ, pSrc, pSrcBox);
     }
 }
 
@@ -5203,7 +5205,7 @@ void Encode_ID3D12GraphicsCommandList_CopyResource(
     {
         encoder->EncodeObjectValue(pDstResource);
         encoder->EncodeObjectValue(pSrcResource);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_CopyResource, pDstResource, pSrcResource);
     }
 }
 
@@ -5225,7 +5227,7 @@ void Encode_ID3D12GraphicsCommandList_CopyTiles(
         encoder->EncodeObjectValue(pBuffer);
         encoder->EncodeUInt64Value(BufferStartOffsetInBytes);
         encoder->EncodeEnumValue(Flags);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_CopyTiles, pTiledResource, pTileRegionStartCoordinate, pTileRegionSize, pBuffer, BufferStartOffsetInBytes, Flags);
     }
 }
 
@@ -5245,7 +5247,7 @@ void Encode_ID3D12GraphicsCommandList_ResolveSubresource(
         encoder->EncodeObjectValue(pSrcResource);
         encoder->EncodeUInt32Value(SrcSubresource);
         encoder->EncodeEnumValue(Format);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ResolveSubresource, pDstResource, DstSubresource, pSrcResource, SrcSubresource, Format);
     }
 }
 
@@ -5321,7 +5323,7 @@ void Encode_ID3D12GraphicsCommandList_SetPipelineState(
     if(encoder)
     {
         encoder->EncodeObjectValue(pPipelineState);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_SetPipelineState, pPipelineState);
     }
 }
 
@@ -5335,7 +5337,7 @@ void Encode_ID3D12GraphicsCommandList_ResourceBarrier(
     {
         encoder->EncodeUInt32Value(NumBarriers);
         EncodeStructArray(encoder, pBarriers, NumBarriers);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ResourceBarrier, NumBarriers, pBarriers);
     }
 }
 
@@ -5347,7 +5349,7 @@ void Encode_ID3D12GraphicsCommandList_ExecuteBundle(
     if(encoder)
     {
         encoder->EncodeObjectValue(pCommandList);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ExecuteBundle, pCommandList);
     }
 }
 
@@ -5361,7 +5363,7 @@ void Encode_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     {
         encoder->EncodeUInt32Value(NumDescriptorHeaps);
         encoder->EncodeObjectArray(ppDescriptorHeaps, NumDescriptorHeaps);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_SetDescriptorHeaps, NumDescriptorHeaps, ppDescriptorHeaps);
     }
 }
 
@@ -5373,7 +5375,7 @@ void Encode_ID3D12GraphicsCommandList_SetComputeRootSignature(
     if(encoder)
     {
         encoder->EncodeObjectValue(pRootSignature);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_SetComputeRootSignature, pRootSignature);
     }
 }
 
@@ -5385,7 +5387,7 @@ void Encode_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
     if(encoder)
     {
         encoder->EncodeObjectValue(pRootSignature);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature, pRootSignature);
     }
 }
 
@@ -5689,7 +5691,7 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
         encoder->EncodeUInt32Array(Values, 4);
         encoder->EncodeUInt32Value(NumRects);
         EncodeStructArray(encoder, pRects, NumRects);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint, ViewGPUHandleInCurrentHeap, ViewCPUHandle, pResource, Values, NumRects, pRects);
     }
 }
 
@@ -5711,7 +5713,7 @@ void Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
         encoder->EncodeFloatArray(Values, 4);
         encoder->EncodeUInt32Value(NumRects);
         EncodeStructArray(encoder, pRects, NumRects);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat, ViewGPUHandleInCurrentHeap, ViewCPUHandle, pResource, Values, NumRects, pRects);
     }
 }
 
@@ -5725,7 +5727,7 @@ void Encode_ID3D12GraphicsCommandList_DiscardResource(
     {
         encoder->EncodeObjectValue(pResource);
         EncodeStructPtr(encoder, pRegion);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_DiscardResource, pResource, pRegion);
     }
 }
 
@@ -5741,7 +5743,7 @@ void Encode_ID3D12GraphicsCommandList_BeginQuery(
         encoder->EncodeObjectValue(pQueryHeap);
         encoder->EncodeEnumValue(Type);
         encoder->EncodeUInt32Value(Index);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_BeginQuery, pQueryHeap, Type, Index);
     }
 }
 
@@ -5757,7 +5759,7 @@ void Encode_ID3D12GraphicsCommandList_EndQuery(
         encoder->EncodeObjectValue(pQueryHeap);
         encoder->EncodeEnumValue(Type);
         encoder->EncodeUInt32Value(Index);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_EndQuery, pQueryHeap, Type, Index);
     }
 }
 
@@ -5779,7 +5781,7 @@ void Encode_ID3D12GraphicsCommandList_ResolveQueryData(
         encoder->EncodeUInt32Value(NumQueries);
         encoder->EncodeObjectValue(pDestinationBuffer);
         encoder->EncodeUInt64Value(AlignedDestinationBufferOffset);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ResolveQueryData, pQueryHeap, Type, StartIndex, NumQueries, pDestinationBuffer, AlignedDestinationBufferOffset);
     }
 }
 
@@ -5795,7 +5797,7 @@ void Encode_ID3D12GraphicsCommandList_SetPredication(
         encoder->EncodeObjectValue(pBuffer);
         encoder->EncodeUInt64Value(AlignedBufferOffset);
         encoder->EncodeEnumValue(Operation);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_SetPredication, pBuffer, AlignedBufferOffset, Operation);
     }
 }
 
@@ -5859,7 +5861,7 @@ void Encode_ID3D12GraphicsCommandList_ExecuteIndirect(
         encoder->EncodeUInt64Value(ArgumentBufferOffset);
         encoder->EncodeObjectValue(pCountBuffer);
         encoder->EncodeUInt64Value(CountBufferOffset);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList_ExecuteIndirect, pCommandSignature, MaxCommandCount, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 }
 
@@ -5883,7 +5885,7 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         encoder->EncodeUInt32Value(Dependencies);
         encoder->EncodeObjectArray(ppDependentResources, Dependencies);
         EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, Dependencies, ppDependentResources, pDependentSubresourceRanges);
     }
 }
 
@@ -5907,7 +5909,7 @@ void Encode_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(
         encoder->EncodeUInt32Value(Dependencies);
         encoder->EncodeObjectArray(ppDependentResources, Dependencies);
         EncodeStructArray(encoder, pDependentSubresourceRanges, Dependencies);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64, pDstBuffer, DstOffset, pSrcBuffer, SrcOffset, Dependencies, ppDependentResources, pDependentSubresourceRanges);
     }
 }
 
@@ -5965,7 +5967,7 @@ void Encode_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(
         EncodeStructPtr(encoder, pSrcRect);
         encoder->EncodeEnumValue(Format);
         encoder->EncodeEnumValue(ResolveMode);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion, pDstResource, DstSubresource, DstX, DstY, pSrcResource, SrcSubresource, pSrcRect, Format, ResolveMode);
     }
 }
 
@@ -8528,7 +8530,7 @@ void Encode_ID3D12GraphicsCommandList3_SetProtectedResourceSession(
     if(encoder)
     {
         encoder->EncodeObjectValue(pProtectedResourceSession);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession, pProtectedResourceSession);
     }
 }
 
@@ -8614,7 +8616,7 @@ void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
         EncodeStructArray(encoder, pRenderTargets, NumRenderTargets);
         EncodeStructPtr(encoder, pDepthStencil);
         encoder->EncodeEnumValue(Flags);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList4_BeginRenderPass, NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
     }
 }
 
@@ -8640,7 +8642,7 @@ void Encode_ID3D12GraphicsCommandList4_InitializeMetaCommand(
         encoder->EncodeObjectValue(pMetaCommand);
         encoder->EncodeVoidArray(pInitializationParametersData, InitializationParametersDataSizeInBytes);
         encoder->EncodeSizeTValue(InitializationParametersDataSizeInBytes);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList4_InitializeMetaCommand, pMetaCommand, pInitializationParametersData, InitializationParametersDataSizeInBytes);
     }
 }
 
@@ -8656,7 +8658,7 @@ void Encode_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         encoder->EncodeObjectValue(pMetaCommand);
         encoder->EncodeVoidArray(pExecutionParametersData, ExecutionParametersDataSizeInBytes);
         encoder->EncodeSizeTValue(ExecutionParametersDataSizeInBytes);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand, pMetaCommand, pExecutionParametersData, ExecutionParametersDataSizeInBytes);
     }
 }
 
@@ -8716,7 +8718,7 @@ void Encode_ID3D12GraphicsCommandList4_SetPipelineState1(
     if(encoder)
     {
         encoder->EncodeObjectValue(pStateObject);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList4_SetPipelineState1, pStateObject);
     }
 }
 
@@ -8792,7 +8794,7 @@ void Encode_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
     if(encoder)
     {
         encoder->EncodeObjectValue(shadingRateImage);
-        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper);
+        D3D12CaptureManager::Get()->EndCommandListMethodCallCapture(wrapper, Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage, shadingRateImage);
     }
 }
 

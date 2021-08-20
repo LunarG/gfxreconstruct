@@ -32,6 +32,7 @@
 #include <d3d12.h>
 #include <dxgi.h>
 
+#include <unordered_set>
 #include <map>
 #include <memory>
 
@@ -274,11 +275,28 @@ struct ID3D12MetaCommandInfo : public DxWrapperInfo
 struct ID3D12ToolsInfo : public DxWrapperInfo
 {};
 
+enum D3D12GraphicsCommandObjectType : uint32_t
+{
+    ID3D12CommandAllocatorObject = 0,
+    ID3D12PipelineStateObject,
+    ID3D12ResourceObject,
+    ID3D12GraphicsCommandListObject,
+    ID3D12DescriptorHeapObject,
+    ID3D12RootSignatureObject,
+    ID3D12QueryHeapObject,
+    ID3D12ProtectedResourceSessionObject,
+    ID3D12MetaCommandObject,
+    ID3D12StateObjectObject,
+    ID3D12CommandSignatureObject,
+    NumObjectTypes
+};
+
 struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {
-    bool                             closed{ false };
-    util::MemoryOutputStream         command_data;
-    std::vector<DxTransitionBarrier> transition_barriers;
+    bool                                 closed{ false };
+    util::MemoryOutputStream             command_data;
+    std::vector<DxTransitionBarrier>     transition_barriers;
+    std::unordered_set<format::HandleId> command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

@@ -907,46 +907,110 @@ void Dx12StateWriter::WriteSingleGraphicsCommandListState(const ID3D12GraphicsCo
     WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
     WriteAddRefAndReleaseCommands(list_wrapper);
 
-    // TODO (GH #83): VulkanStateWriter verifies that all command list inputs have valid handles and skips the command
-    // list if not. Does that need to be done here?
-
-    // Write each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = list_info->command_data.GetDataSize();
-    const uint8_t* data      = list_info->command_data.GetData();
-
-    while (offset < data_size)
+    if (CheckGraphicsCommandListObjects(list_info.get(), state_table))
     {
-        const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-        const format::ApiCallId* call_id = reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-        const uint8_t*           parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
+        // Write each of the commands that was recorded for the command buffer.
+        size_t         offset    = 0;
+        size_t         data_size = list_info->command_data.GetDataSize();
+        const uint8_t* data      = list_info->command_data.GetData();
 
-        // Don't write the reset call if the command list was created open.
-        if (((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset) &&
-            (list_info->create_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList))
+        while (offset < data_size)
         {
-            // command_data is cleared after each reset, so only the first command can be a reset.
-            assert(offset == 0);
-            if (offset != 0)
+            const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
+            const format::ApiCallId* call_id =
+                reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
+            const uint8_t* parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
+
+            // Don't write the reset call if the command list was created open.
+            if (((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset) &&
+                (list_info->create_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList))
             {
-                GFXRECON_LOG_ERROR("Encountered unexpected Reset() in the middle of the command data when writing "
-                                   "trimmed state for command list. Capture file may be invalid.");
+                // command_data is cleared after each reset, so only the first command can be a reset.
+                assert(offset == 0);
+                if (offset != 0)
+                {
+                    GFXRECON_LOG_ERROR("Encountered unexpected Reset() in the middle of the command data when writing "
+                                       "trimmed state for command list. Capture file may be invalid.");
+                }
+            }
+            else
+            {
+                parameter_stream_.Write(parameter_data, (*parameter_size));
+                WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
+                parameter_stream_.Reset();
+            }
+            offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
+        }
+
+        assert(offset == data_size);
+        if (offset != data_size)
+        {
+            GFXRECON_LOG_ERROR("Encountered unexpected data offset in command data when writing trimmed state for "
+                               "command list. Capture file may be invalid.");
+        }
+    }
+    else if ((list_info->create_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateCommandList) &&
+             list_info->closed)
+    {
+        encoder_.EncodeUInt32Value(S_OK);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close,
+                        list_wrapper->GetCaptureId(),
+                        &parameter_stream_);
+        parameter_stream_.Reset();
+    }
+}
+
+bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsCommandListInfo* list_info,
+                                                      const Dx12StateTable&                state_table)
+{
+    // Ignore commands that reference destroyed objects.
+    for (uint32_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
+    {
+        for (auto id : list_info->command_objects[i])
+        {
+            if (!CheckGraphicsCommandListObject(static_cast<D3D12GraphicsCommandObjectType>(i), id, state_table))
+            {
+                return false;
             }
         }
-        else
-        {
-            parameter_stream_.Write(parameter_data, (*parameter_size));
-            WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
-            parameter_stream_.Reset();
-        }
-        offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
     }
 
-    assert(offset == data_size);
-    if (offset != data_size)
+    return true;
+}
+
+bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectType object_type,
+                                                     format::HandleId               handle_id,
+                                                     const Dx12StateTable&          state_table)
+{
+    switch (object_type)
     {
-        GFXRECON_LOG_ERROR("Encountered unexpected data offset in command data when writing trimmed state for "
-                           "command list. Capture file may be invalid.");
+        case D3D12GraphicsCommandObjectType::ID3D12CommandAllocatorObject:
+            return (state_table.GetID3D12CommandAllocator_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject:
+            return (state_table.GetID3D12PipelineState_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12ResourceObject:
+            return (state_table.GetIDXGIResource_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12GraphicsCommandListObject:
+            return (state_table.GetID3D12GraphicsCommandList_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12DescriptorHeapObject:
+            return (state_table.GetID3D12DescriptorHeap_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12RootSignatureObject:
+            return (state_table.GetID3D12RootSignature_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12QueryHeapObject:
+            return (state_table.GetID3D12QueryHeap_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12ProtectedResourceSessionObject:
+            return (state_table.GetID3D12ProtectedResourceSession_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12MetaCommandObject:
+            return (state_table.GetID3D12MetaCommand_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12StateObjectObject:
+            return (state_table.GetID3D12StateObject_Wrapper(handle_id) != nullptr);
+        case D3D12GraphicsCommandObjectType::ID3D12CommandSignatureObject:
+            return (state_table.GetID3D12CommandSignature_Wrapper(handle_id) != nullptr);
+        default:
+            GFXRECON_LOG_ERROR("State write is skipping unrecognized object type when checking handles "
+                               "referenced by command buffers");
+            GFXRECON_ASSERT(false);
+            return false;
     }
 }
 

@@ -73,7 +73,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         """Methond override."""
         code = (
             "#include \"generated/generated_dx12_api_call_encoders.h\"\n"
+            "#include \"generated/generated_dx12_command_list_util.h\"\n"
             "#include \"encode/custom_dx12_struct_encoders.h\"\n"
+            "#include \"encode/custom_dx12_command_list_util.h\"\n"
             "\n"
             "#include \"encode/d3d12_capture_manager.h\"\n"
             "#include \"encode/parameter_encoder.h\"\n"
@@ -274,6 +276,11 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
 
         method_name = method_info['name']
         parameters = method_info['parameters']
+
+        param_values = []
+        for p in parameters:
+            param_values.append(self.get_value_info(p))
+
         is_tracked_method_call = False  # Track call parameters with no special end call options.
         is_create_call = False
         is_descriptor_create_call = False
@@ -352,6 +359,15 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             begin_call_type = 'Tracked'
             end_call_type = 'CommandList'
             end_call_args = '{}'.format('wrapper')
+            object_arg_list = ''
+            required = False
+            for value in param_values:
+                object_arg_list += ', ' + value.name
+                if required == False and self.has_class(value, True):
+                    required = True
+
+            if required:
+                end_call_args += ', ' + 'Track_' + class_name + '_' + method_name + object_arg_list
 
         begin_call = 'Begin{}{}CallCapture({})'.format(
             begin_call_type, api_or_method, begin_call_args
@@ -375,8 +391,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
                     '            omit_output_data = true;\n'\
                     '        }\n'
 
-        for p in parameters:
-            value = self.get_value_info(p)
+        for value in param_values:
             encode = self.get_encode_parameter(value, False, is_result)
             body += '        {}\n'.format(encode)
 

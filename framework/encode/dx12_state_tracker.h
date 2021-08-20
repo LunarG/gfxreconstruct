@@ -121,6 +121,20 @@ class Dx12StateTracker
                       format::ApiCallId                  call_id,
                       const util::MemoryOutputStream*    parameter_buffer);
 
+    template <typename GetHandlesFunc, typename... GetHandlesArgs>
+    void TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                      format::ApiCallId               call_id,
+                      const util::MemoryOutputStream* parameter_buffer,
+                      GetHandlesFunc                  func,
+                      GetHandlesArgs... args)
+    {
+        if (list_wrapper != nullptr)
+        {
+            TrackCommandExecution(list_wrapper, call_id, parameter_buffer);
+            func(list_wrapper, args...);
+        }
+    }
+
     void TrackResourceBarriers(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
                                UINT                               num_barriers,
                                const D3D12_RESOURCE_BARRIER*      barriers);
@@ -169,6 +183,10 @@ class Dx12StateTracker
     void TrackSubresourceTransitionBarrier(ID3D12ResourceInfo*        resource_info,
                                            const DxTransitionBarrier& transition,
                                            UINT                       subresource);
+
+    void TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                               format::ApiCallId                  call_id,
+                               const util::MemoryOutputStream*    parameter_buffer);
 
   private:
     std::mutex     state_table_mutex_;

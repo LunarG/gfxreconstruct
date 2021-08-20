@@ -270,16 +270,16 @@ class Dx12BaseGenerator(BaseGenerator):
         union_members = list()
         if union:
             for m in union['members']:
-                union_members.append([m['name'], m['type']])
+                union_members.append(self.get_value_info(m))
 
         array_length = None
         array_capacity = 0
         array_dimension = 0
         if 'array_size' in param:
-            array_capacity = param['array_size']
+            array_capacity = int(param['array_size'])
             array_length = array_capacity
             if 'multi_dimensional_array' in param:
-                array_dimension = param['multi_dimensional_array']
+                array_dimension = int(param['multi_dimensional_array'])
 
         # Check if it is an array pointer, and get the size of parameter's name.
         if pointer > 0:
@@ -413,6 +413,34 @@ class Dx12BaseGenerator(BaseGenerator):
         else:
             return self.source_dict['struct_dict'].keys()
 
+    def has_class(self, value, check_union):
+        if self.is_class(value) or self.has_class_in_struct(
+            value.base_type, check_union
+        ) or (check_union and self.has_class_in_union(value)):
+            return True
+        return False
+
+    def has_class_in_struct(self, type, check_union):
+        struct_dict = self.source_dict['struct_dict']
+        struct_info = struct_dict.get(type)
+        if struct_info is None:
+            return False
+
+        properties = struct_info['properties']
+        for k, v in properties.items():
+            for p in v:
+                value = self.get_value_info(p)
+                if self.has_class(value, check_union):
+                    return True
+        return False
+
+    def has_class_in_union(self, value):
+        if value.union_members:
+            for m in value.union_members:
+                if self.has_class(m, True):
+                    return True
+        return False
+
     def is_struct(self, type):
         """Methond override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
@@ -422,6 +450,10 @@ class Dx12BaseGenerator(BaseGenerator):
         if type in struct_dict:
             return True
         return False
+
+    def get_struct_info(self, type):
+        struct_dict = self.source_dict['struct_dict']
+        return struct_dict.get(type)
 
     def is_class(self, value):
         """Methond override. Use value, not type because it needs to check void** case."""

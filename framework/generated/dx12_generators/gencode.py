@@ -51,6 +51,8 @@ from dx12_struct_wrapper_body_generator import Dx12StructWrapperBodyGenerator
 from dx12_convert_to_texts_header_generator import Dx12ConvertToTextsHeaderGenerator
 from dx12_add_entries_header_generator import Dx12AddEntriesHeaderGenerator
 from dx12_state_table_header_generator import Dx12StateTableHeaderGenerator
+from dx12_command_list_util_header_generator import Dx12CommandListUtilHeaderGenerator
+from dx12_command_list_util_body_generator import Dx12CommandListUtilBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -496,6 +498,36 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_command_list_util_header_generator.py'
+    )
+    gen_opts['generated_dx12_command_list_util.h'] = [
+        Dx12CommandListUtilHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_command_list_util.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_command_list_util_body_generator.py'
+    )
+    gen_opts['generated_dx12_command_list_util.cpp'] = [
+        Dx12CommandListUtilBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_command_list_util.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
             protect_feature=False
         )
     ]
