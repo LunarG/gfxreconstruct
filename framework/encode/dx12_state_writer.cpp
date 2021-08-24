@@ -546,12 +546,28 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         // Write tile mappings, if any (for reserved resources).
         WriteTileMappings(state_table, resource_info.get());
 
-        // Store resource wrappers and max resource sizes.
-        ResourceSnapshotInfo snapshot_info;
-        snapshot_info.resource_wrapper = resource_wrapper;
-        resource_snapshots[resource_info->device_id].push_back(snapshot_info);
-        max_resource_sizes[resource_info->device_id] =
-            std::max(resource_size, max_resource_sizes[resource_info->device_id]);
+        if (resource_desc.SampleDesc.Count > 1)
+        {
+            // TODO (GH #288): Add support for multi-sampled resources.
+            GFXRECON_LOG_WARNING_ONCE("Skipping resource data capture for multi-sampled resource(s).");
+        }
+        else if ((resource_info->initial_state & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
+                 D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
+        {
+            // Skip the capture of any ray tracing resource's data. Its contents will need to be recreated from inputs
+            // during replay.
+            GFXRECON_LOG_WARNING_ONCE(
+                "Skipping resource data capture for ray tracing acceleration structure resource(s).");
+        }
+        else
+        {
+            // Store resource wrappers and max resource sizes.
+            ResourceSnapshotInfo snapshot_info;
+            snapshot_info.resource_wrapper = resource_wrapper;
+            resource_snapshots[resource_info->device_id].push_back(snapshot_info);
+            max_resource_sizes[resource_info->device_id] =
+                std::max(resource_size, max_resource_sizes[resource_info->device_id]);
+        }
     });
 
     // Write resource snapshots to the capture file.
@@ -598,9 +614,9 @@ void Dx12StateWriter::WriteResourceSnapshots(
         {
             for (auto snapshot : kvp.second)
             {
-                GFXRECON_LOG_ERROR("Resource (id = %" PRIu64
-                                   ") has a null device id. Its contents will not be captured or replayed.",
-                                   snapshot.resource_wrapper->GetCaptureId());
+                GFXRECON_LOG_WARNING("Resource (id = %" PRIu64
+                                     ") has a null device id. Its contents will not be captured or replayed.",
+                                     snapshot.resource_wrapper->GetCaptureId());
             }
             continue;
         }

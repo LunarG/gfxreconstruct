@@ -528,20 +528,29 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     auto staging_buffer = GetStagingBuffer(copy_type, copy_size);
 
     // Transition the resource, copy the data, and transition it back.
-    auto    resource_desc = target_resource->GetDesc();
+    auto resource_desc = target_resource->GetDesc();
 
-    // TODO (GH #288): Add support for multisampled resources.
+    // TODO (GH #288): Add support for multi-sampled resources.
     if (resource_desc.SampleDesc.Count > 1)
     {
-        GFXRECON_LOG_ERROR("Multisampled resources are not yet supported.");
+        GFXRECON_LOG_ERROR("Dx12ResourceDataUtil: Multi-sampled resources are not supported.");
         return E_INVALIDARG;
     }
 
-    HRESULT result        = command_list_->Reset(command_allocator_, nullptr);
+    HRESULT result = command_list_->Reset(command_allocator_, nullptr);
     if (SUCCEEDED(result))
     {
         for (UINT i = 0; i < subresource_count; ++i)
         {
+            if ((before_states[i].states & D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE) ==
+                D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
+            {
+                command_list_->Close();
+                GFXRECON_LOG_ERROR(
+                    "Dx12ResourceDataUtil: Ray tracing acceleration structure resources are not supported.");
+                return E_INVALIDARG;
+            }
+
             // Prepare resource state.
             AddTransitionBarrier(command_list_, target_resource, i, before_states[i], copy_state);
 
