@@ -41,19 +41,6 @@ typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
-const char kDefaultScreenshotFilePrefix[] = "screenshot";
-
-enum class ScreenshotFormat : uint32_t
-{
-    kBmp = 0
-};
-
-struct ScreenshotRange
-{
-    uint32_t first{ 0 }; // First frame to capture.
-    uint32_t last{ 0 };  // Last frame to capture.
-};
-
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };

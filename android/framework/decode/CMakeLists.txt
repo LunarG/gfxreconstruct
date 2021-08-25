@@ -32,6 +32,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/resource_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/screenshot_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/screenshot_handler.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/screenshot_handler_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/screenshot_handler_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_array_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h

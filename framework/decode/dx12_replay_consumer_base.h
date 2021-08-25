@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -37,6 +38,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <dxgidebug.h>
+#include <graphics/dx12_image_renderer.h>
+#include <decode/screenshot_handler_base.h>
+
+#include <wrl/client.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -413,10 +418,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ReadDebugMessages();
 
+    void InitializeScreenshotHandler();
+
+    void WriteScreenshots(DxObjectInfo* replay_object_info);
+
     void WaitForFenceEvent(format::HandleId fence_id, HANDLE event);
 
     void SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
                            std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs);
+
+    HRESULT GetCommandQueue();
+
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected state, and then call queue present.
@@ -427,6 +439,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void ApplyResourceInitInfo();
 
   private:
+    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
     Dx12ObjectInfoTable                  object_info_table_;
     WindowFactory*                       window_factory_;
     DxReplayOptions                      options_;
@@ -464,6 +477,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     };
     ResourceInitInfo                                resource_init_info_;
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
+    std::string                          screenshot_file_prefix_;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue_;
+    std::unique_ptr<ScreenshotHandlerBase> screenshot_handler_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

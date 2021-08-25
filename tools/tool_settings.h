@@ -699,6 +699,11 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         replay_options.enable_d3d12_two_pass_replay = true;
     }
 
+
+    replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
+    replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
+    replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
+    replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     return replay_options;
 }
 #endif

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-**
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
 ** to deal in the Software without restriction, including without limitation
@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_SCREENSHOT_HANDLER_H
 #define GFXRECON_DECODE_SCREENSHOT_HANDLER_H
 
+#include "decode/screenshot_handler_base.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -37,18 +38,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class ScreenshotHandler
+class ScreenshotHandler : public ScreenshotHandlerBase
 {
   public:
-    ScreenshotHandler(ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges);
+    ScreenshotHandler(ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges) :
+        ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
+    {}
 
-    ScreenshotHandler(ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges);
-
-    uint32_t GetCurrentFrame() const { return current_frame_number_; }
-
-    void EndFrame();
-
-    bool IsScreenshotFrame() const;
+    ScreenshotHandler(ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges) :
+        ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
+    {}
 
     void WriteImage(const std::string&                      filename_prefix,
                     VkDevice                                device,
@@ -112,11 +111,7 @@ class ScreenshotHandler
     void DestroyCopyResource(VkDevice device, CopyResource* copy_resource) const;
 
   private:
-    uint32_t                     current_frame_number_;
-    CommandPools                 copy_resources_;
-    ScreenshotFormat             screenshot_format_;
-    std::vector<ScreenshotRange> screenshot_ranges_;
-    size_t                       current_range_index_;
+    CommandPools copy_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

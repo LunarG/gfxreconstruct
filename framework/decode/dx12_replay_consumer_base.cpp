@@ -24,12 +24,17 @@
 
 #include "decode/dx12_enum_util.h"
 #include "graphics/dx12_util.h"
+#include <graphics/dx12_image_renderer.h>
 #include "util/gpu_va_range.h"
 #include "util/platform.h"
+#include "util/file_path.h"
+#include "util/image_writer.h"
 
 #include <dxgidebug.h>
 
 #include <cassert>
+
+#include <wrl/client.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -64,7 +69,7 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr)
+    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -99,6 +104,11 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
             dred_settings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
             dred_settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
         }
+    }
+
+    if (!options.screenshot_ranges.empty())
+    {
+        InitializeScreenshotHandler();
     }
 }
 
@@ -445,6 +455,18 @@ HRESULT Dx12ReplayConsumerBase::OverridePresent(DxObjectInfo* replay_object_info
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
     auto result        = replay_object->Present(sync_interval, flags);
     ReadDebugMessages();
+    if (screenshot_handler_ != nullptr)
+    {
+        if (screenshot_handler_->IsScreenshotFrame())
+        {
+            WriteScreenshots(replay_object_info);
+        }
+        else
+        {
+            screenshot_handler_->EndFrame();
+        }
+    }
+
     return result;
 }
 
@@ -458,6 +480,18 @@ Dx12ReplayConsumerBase::OverridePresent1(DxObjectInfo*                          
     auto replay_object = static_cast<IDXGISwapChain1*>(replay_object_info->object);
     auto result        = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
     ReadDebugMessages();
+    if (screenshot_handler_ != nullptr)
+    {
+        if (screenshot_handler_->IsScreenshotFrame())
+        {
+            WriteScreenshots(replay_object_info);
+        }
+        else
+        {
+            screenshot_handler_->EndFrame();
+        }
+    }
+
     return result;
 }
 
@@ -640,6 +674,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandQueue(DxObjectInfo* replay_
     auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
     auto replay_result =
         replay_object->CreateCommandQueue(desc->GetPointer(), *riid.decoded_value, command_queue->GetHandlePointer());
+    if (command_queue_ == nullptr)
+    {
+        replay_object->CreateCommandQueue(desc->GetPointer(), IID_PPV_ARGS(&command_queue_));
+    }
 
     if (SUCCEEDED(replay_result))
     {
@@ -1939,6 +1977,34 @@ void Dx12ReplayConsumerBase::SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSA
     }
 }
 
+HRESULT Dx12ReplayConsumerBase::GetCommandQueue()
+{
+    HRESULT result      = E_FAIL;
+    int     queue_count = 0;
+    for (auto& entry : object_info_table_)
+    {
+        auto& info = entry.second;
+        if (info.extra_info != nullptr)
+        {
+            auto extra_info = info.extra_info.get();
+            if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
+            {
+                if (static_cast<ID3D12CommandQueue*>(info.object)->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
+                {
+                    command_queue_ = static_cast<ID3D12CommandQueue*>(info.object);
+                    result         = S_OK;
+                    queue_count++;
+                }
+            }
+        }
+    }
+    if (queue_count > 1)
+    {
+        GFXRECON_LOG_WARNING("More than one command queue of type D3D12_COMMAND_LIST_TYPE_DIRECT was found");
+    }
+    return result;
+}
+
 void Dx12ReplayConsumerBase::ReadDebugMessages()
 {
     if (info_queue_ == nullptr)
@@ -1983,6 +2049,102 @@ void Dx12ReplayConsumerBase::ReadDebugMessages()
         }
     }
     info_queue_->ClearStoredMessages(DXGI_DEBUG_ALL);
+}
+
+void Dx12ReplayConsumerBase::InitializeScreenshotHandler()
+{
+    screenshot_file_prefix_ = options_.screenshot_file_prefix;
+
+    if (screenshot_file_prefix_.empty())
+    {
+        screenshot_file_prefix_ = kDefaultScreenshotFilePrefix;
+    }
+
+    if (!options_.screenshot_dir.empty())
+    {
+        screenshot_file_prefix_ = util::filepath::Join(options_.screenshot_dir, screenshot_file_prefix_);
+    }
+    screenshot_handler_ =
+        std::make_unique<ScreenshotHandlerBase>(options_.screenshot_format, options_.screenshot_ranges);
+}
+
+void Dx12ReplayConsumerBase::WriteScreenshots(DxObjectInfo* replay_object_info)
+{
+    auto                                   replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
+    Microsoft::WRL::ComPtr<ID3D12Resource> frame_buffer_resource;
+    HRESULT                                gotFrameBuffer = replay_object->GetBuffer(
+        0, __uuidof(ID3D12Resource), reinterpret_cast<void**>(frame_buffer_resource.GetAddressOf()));
+    D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
+
+    DXGI_FORMAT format = fb_desc.Format;
+
+    if (command_queue_ == nullptr)
+        return;
+
+    auto result = GetCommandQueue();
+    if (result != S_OK)
+    {
+        GFXRECON_LOG_WARNING("WriteScreenshots command queue not found");
+    }
+
+    Microsoft::WRL::ComPtr<ID3D12Device> parent_device;
+
+    HRESULT got_device = command_queue_->GetDevice(IID_PPV_ARGS(&parent_device));
+
+    if (got_device == S_OK)
+    {
+        if (frame_buffer_renderer_ == nullptr)
+        {
+            graphics::DX12ImageRendererConfig renderer_config;
+            renderer_config.cmd_queue = command_queue_.Get();
+            renderer_config.device    = parent_device.Get();
+            frame_buffer_renderer_    = graphics::DX12ImageRenderer::Create(renderer_config);
+        }
+        else
+        {
+            D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
+            DXGI_FORMAT         format  = fb_desc.Format;
+        }
+        auto pitch = (fb_desc.Width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
+                     D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+        graphics::CpuImage captured_image;
+        HRESULT            capture_result = frame_buffer_renderer_->CaptureImage(frame_buffer_resource.Get(),
+                                                                      D3D12_RESOURCE_STATE_PRESENT,
+                                                                      static_cast<unsigned int>(fb_desc.Width),
+                                                                      fb_desc.Height,
+                                                                      static_cast<unsigned int>(pitch),
+                                                                      format);
+        if (capture_result == S_OK)
+        {
+            auto buffer_byte_size = pitch * fb_desc.Height;
+            auto desc             = frame_buffer_resource->GetDesc();
+            capture_result        = frame_buffer_renderer_->RetrieveImageData(&captured_image,
+                                                                       static_cast<unsigned int>(fb_desc.Width),
+                                                                       fb_desc.Height,
+                                                                       static_cast<unsigned int>(pitch),
+                                                                       desc.Format);
+
+            if (capture_result == S_OK)
+            {
+
+                auto        datasize        = static_cast<int>(buffer_byte_size);
+                std::string filename_prefix = screenshot_file_prefix_;
+
+                filename_prefix += "_frame_";
+                filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
+                filename_prefix += ".bmp";
+
+                util::imagewriter::WriteBmpImage(filename_prefix,
+                                                 static_cast<unsigned int>(fb_desc.Width),
+                                                 static_cast<unsigned int>(fb_desc.Height),
+                                                 datasize,
+                                                 std::data(captured_image.data),
+                                                 static_cast<unsigned int>(pitch));
+            }
+        }
+    }
+
+    screenshot_handler_->EndFrame();
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,

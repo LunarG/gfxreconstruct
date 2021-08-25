@@ -29,6 +29,7 @@
 #include "util/defines.h"
 
 #include <vector>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -39,6 +40,13 @@ struct DxReplayOptions : public ReplayOptions
     bool                 enable_d3d12_two_pass_replay{ false };
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
+
+    ScreenshotFormat             screenshot_format{ ScreenshotFormat::kBmp };
+    std::vector<ScreenshotRange> screenshot_ranges;
+    std::string                  screenshot_dir;
+    std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
+    std::string                  replace_dir;
+
 };
 
 GFXRECON_END_NAMESPACE(decode)

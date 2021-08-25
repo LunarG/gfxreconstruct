@@ -29,6 +29,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+static constexpr char kDefaultScreenshotFilePrefix[] = "screenshot";
+
+enum class ScreenshotFormat : uint32_t
+{
+    kBmp = 0
+};
+
+struct ScreenshotRange
+{
+    uint32_t first{ 0 }; // First frame to capture.
+    uint32_t last{ 0 };  // Last frame to capture.
+};
+
 struct ReplayOptions
 {
     bool enable_validation_layer{ false };

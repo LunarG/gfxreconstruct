@@ -69,6 +69,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/screenshot_handler_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/string_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h

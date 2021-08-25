@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-**
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
 ** to deal in the Software without restriction, including without limitation
@@ -31,56 +31,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const uint32_t kDefaultQueueFamilyIndex = 0;
-const uint32_t kDefaultQueueIndex       = 0;
+static constexpr uint32_t kDefaultQueueFamilyIndex = 0;
+static constexpr uint32_t kDefaultQueueIndex       = 0;
 
-const size_t kUnormIndex = 0;
-const size_t kSrgbIndex  = 1;
+static constexpr size_t kUnormIndex = 0;
+static constexpr size_t kSrgbIndex  = 1;
 
 const VkFormat kImageFormats[][2] = {
     // Vulkan image formats for ScreenshotFormat::kBmp
     { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_B8G8R8A8_SRGB }
 };
-
-ScreenshotHandler::ScreenshotHandler(ScreenshotFormat                    screenshot_format,
-                                     const std::vector<ScreenshotRange>& screenshot_ranges) :
-    current_frame_number_(1),
-    screenshot_format_(screenshot_format), screenshot_ranges_(screenshot_ranges), current_range_index_(0)
-{}
-
-ScreenshotHandler::ScreenshotHandler(ScreenshotFormat               screenshot_format,
-                                     std::vector<ScreenshotRange>&& screenshot_ranges) :
-    current_frame_number_(1),
-    screenshot_format_(screenshot_format), screenshot_ranges_(std::move(screenshot_ranges)), current_range_index_(0)
-{}
-
-void ScreenshotHandler::EndFrame()
-{
-    if (current_range_index_ < screenshot_ranges_.size())
-    {
-        const auto& current_range = screenshot_ranges_[current_range_index_];
-        if (current_range.last == current_frame_number_)
-        {
-            ++current_range_index_;
-        }
-    }
-
-    ++current_frame_number_;
-}
-
-bool ScreenshotHandler::IsScreenshotFrame() const
-{
-    if (current_range_index_ < screenshot_ranges_.size())
-    {
-        const auto& current_range = screenshot_ranges_[current_range_index_];
-        if ((current_range.first <= current_frame_number_) && (current_range.last >= current_frame_number_))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
                                    VkDevice                                device,

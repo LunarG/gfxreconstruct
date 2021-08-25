@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-**
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+* 
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
 ** to deal in the Software without restriction, including without limitation
@@ -31,10 +32,17 @@ GFXRECON_BEGIN_NAMESPACE(imagewriter)
 const uint16_t kBmpBitCount = 32; // Expecting 32-bit BGRA bitmap data.
 const uint32_t kBmpBpp      = 4;  // Expecting 4 bytes per pixel for 32-bit BGRA bitmap data.
 
-bool WriteBmpImage(const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data)
+bool WriteBmpImage(
+    const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
 {
-    bool     success    = false;
-    uint32_t row_pitch  = width * kBmpBpp;
+    bool     success   = false;
+    uint32_t row_pitch = width * kBmpBpp;
+
+    if (pitch != 0)
+    {
+        row_pitch = pitch;
+    }
+
     uint32_t image_size = height * row_pitch;
 
     if (image_size <= data_size)
@@ -74,7 +82,7 @@ bool WriteBmpImage(const std::string& filename, uint32_t width, uint32_t height,
 
             for (uint32_t i = 0; i < height; ++i)
             {
-                util::platform::FileWrite(&bytes[(height_1 - i) * row_pitch], 1, row_pitch, file);
+                util::platform::FileWrite(&bytes[(height_1 - i) * row_pitch], 1, width * kBmpBpp, file);
             }
 
             if (!ferror(file))
