@@ -343,6 +343,14 @@ class BaseGenerator(OutputGenerator):
             write('#define ', headerSym, file=self.outFile)
             self.newline()
 
+    def includeVulkanHeaders(self, gen_opts):
+        """Write Vulkan header include statements
+        """
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        for extra_vulkan_header in gen_opts.extraVulkanHeaders:
+            header_include_path = re.sub(r'\\', '/', extra_vulkan_header)
+            write(f'#include "{header_include_path}"', file=self.outFile)
+
     # Method override
     def endFile(self):
         # Finish C++ wrapper and multiple inclusion protection

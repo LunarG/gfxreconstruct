@@ -74,16 +74,17 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        includes = inspect.cleandoc('''
             #include "format/platform_types.h"
             #include "util/to_string.h"
-            
-            #include "vulkan/vulkan.h"
-
+            ''')
+        write(includes, file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
+        namespace = inspect.cleandoc('''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
             ''')
-        write(body, file=self.outFile)
+        write(namespace, file=self.outFile)
 
     # Method override
     def endFile(self):

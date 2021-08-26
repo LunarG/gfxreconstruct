@@ -102,7 +102,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
               file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)

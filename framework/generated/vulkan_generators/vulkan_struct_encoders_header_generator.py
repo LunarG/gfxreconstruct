@@ -72,7 +72,7 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('#include <cstdint>', file=self.outFile)
         self.newline()

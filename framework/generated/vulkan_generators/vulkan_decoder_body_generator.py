@@ -86,7 +86,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('#include <cstddef>', file=self.outFile)
         self.newline()
