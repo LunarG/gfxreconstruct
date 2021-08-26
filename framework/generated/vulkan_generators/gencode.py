@@ -200,7 +200,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_decoder.h'] = [
@@ -212,7 +213,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     #
@@ -226,7 +228,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_decoders_forward.h'] = [
@@ -238,7 +241,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_decoders.h'] = [
@@ -250,7 +254,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_decode_pnext_struct.cpp'] = [
@@ -260,7 +265,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     #
@@ -277,7 +283,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_ascii_consumer.h'] = [
@@ -292,7 +299,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_referenced_resource_consumer.h'] = [
@@ -304,7 +312,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_replay_consumer.h'] = [
@@ -321,7 +330,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_ascii_consumer.cpp'] = [
@@ -333,7 +343,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_replay_consumer.cpp'] = [
@@ -346,7 +357,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_referenced_resource_consumer.cpp'] = [
@@ -358,7 +370,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_handle_mappers.h'] = [
@@ -369,7 +382,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_handle_mappers.cpp'] = [
@@ -380,7 +394,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_feature_util.cpp'] = [
@@ -391,7 +406,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     #
@@ -405,7 +421,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_api_call_encoders.cpp'] = [
@@ -418,7 +435,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_command_buffer_util.h'] = [
@@ -430,7 +448,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_command_buffer_util.cpp'] = [
@@ -442,7 +461,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_dispatch_table.h'] = [
@@ -452,7 +472,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_layer_func_table.h'] = [
@@ -462,7 +483,8 @@ def makeGenOpts(args):
                                        prefixText=prefixStrings +
                                        vkPrefixStrings,
                                        protectFile=True,
-                                       protectFeature=False)
+                                       protectFeature=False,
+                                       extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     #
@@ -476,7 +498,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_encoders.h'] = [
@@ -488,7 +511,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_encode_pnext_struct.cpp'] = [
@@ -498,7 +522,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_handle_wrappers.h'] = [
@@ -509,7 +534,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_handle_wrappers.cpp'] = [
@@ -520,7 +546,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     #
@@ -534,7 +561,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_enum_to_string.cpp'] = [
@@ -546,7 +574,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_pnext_to_string.cpp'] = [
@@ -558,7 +587,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_to_string.h'] = [
@@ -570,7 +600,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_struct_to_string.cpp'] = [
@@ -582,7 +613,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_object_info_table_base2.h'] = [
@@ -594,7 +626,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
     genOpts['generated_vulkan_state_table.h'] = [
@@ -606,7 +639,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False)
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders)
     ]
 
 

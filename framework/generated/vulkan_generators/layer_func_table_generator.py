@@ -21,8 +21,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 #
 # Eliminates JSON blackLists and platformTypes files, which are not necessary for
@@ -30,44 +31,59 @@ from base_generator import *
 class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan layer function table C++ code generation"""
     def __init__(self,
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, None, None,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+                 filename=None,
+                 directory='.',
+                 prefixText='',
+                 protectFile=False,
+                 protectFeature=True,
+                 extraVulkanHeaders=[]):
+        BaseGeneratorOptions.__init__(self,
+                                      None,
+                                      None,
+                                      filename,
+                                      directory,
+                                      prefixText,
+                                      protectFile,
+                                      protectFeature,
+                                      extraVulkanHeaders=extraVulkanHeaders)
+
 
 # LayerFuncTableGenerator - subclass of BaseGenerator.
 # Generates C++ function table for the Vulkan API calls exported by the layer.
 class LayerFuncTableGenerator(BaseGenerator):
     """Generate Vulkan layer function table C++ type declarations"""
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 errFile=sys.stderr,
+                 warnFile=sys.stderr,
+                 diagFile=sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               processCmds=True,
+                               processStructs=False,
+                               featureBreak=False,
+                               errFile=errFile,
+                               warnFile=warnFile,
+                               diagFile=diagFile)
 
         # The trace layer does not currently implement or export the instance version query
         self.APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
 
         # These functions are provided directly by the layer, and are not encoded
-        self.LAYER_FUNCTIONS = ['vkGetInstanceProcAddr',
-                                'vkGetDeviceProcAddr',
-                                'vkEnumerateInstanceLayerProperties',
-                                'vkEnumerateDeviceLayerProperties',
-                                'vkEnumerateInstanceExtensionProperties',
-                                'vkEnumerateDeviceExtensionProperties']
+        self.LAYER_FUNCTIONS = [
+            'vkGetInstanceProcAddr', 'vkGetDeviceProcAddr',
+            'vkEnumerateInstanceLayerProperties',
+            'vkEnumerateDeviceLayerProperties',
+            'vkEnumerateInstanceExtensionProperties',
+            'vkEnumerateDeviceExtensionProperties'
+        ]
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "encode/custom_vulkan_api_call_encoders.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
+        write('#include "encode/custom_vulkan_api_call_encoders.h"',
+              file=self.outFile)
+        write('#include "generated/generated_vulkan_api_call_encoders.h"',
+              file=self.outFile)
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -77,7 +93,9 @@ class LayerFuncTableGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
-        write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
+        write(
+            'const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {',
+            file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -101,8 +119,9 @@ class LayerFuncTableGenerator(BaseGenerator):
         for cmd in self.getFilteredCmdNames():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(
+                    cmd, (' ' * align), cmd[2:])
             else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(cmd, (' ' * align), cmd[2:])
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:])
             write(body, file=self.outFile)
-

@@ -20,34 +20,48 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,inspect
+import os, re, sys, inspect
 from base_generator import *
+
 
 class VulkanStructToStringBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+    def __init__(
+            self,
+            blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+            platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+            filename=None,
+            directory='.',
+            prefixText='',
+            protectFile=False,
+            protectFeature=True,
+            extraVulkanHeaders=[]):
+        BaseGeneratorOptions.__init__(self,
+                                      blacklists,
+                                      platformTypes,
+                                      filename,
+                                      directory,
+                                      prefixText,
+                                      protectFile,
+                                      protectFeature,
+                                      extraVulkanHeaders=extraVulkanHeaders)
+
 
 # VulkanStructToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
 class VulkanStructToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
     def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
+                 errFile=sys.stderr,
+                 warnFile=sys.stderr,
+                 diagFile=sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+                               processCmds=False,
+                               processStructs=True,
+                               featureBreak=True,
+                               errFile=errFile,
+                               warnFile=warnFile,
+                               diagFile=diagFile)
 
         # The following structures require custom implementations for ToString()
         self.customImplementationRequired = {
@@ -105,7 +119,8 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
                             {{
                     '''.format(struct))
                 body += '\n'
-                body += self.makeStructBody(struct, self.featureStructMembers[struct])
+                body += self.makeStructBody(struct,
+                                            self.featureStructMembers[struct])
                 body += inspect.cleandoc('''
                             }
                         );
@@ -187,5 +202,6 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
 
             firstField = 'true' if not body else 'false'
             toString = toString.format(value.name, value.arrayLength)
-            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
+            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(
+                firstField, value.name, toString)
         return body
