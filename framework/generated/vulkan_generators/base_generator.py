@@ -111,7 +111,6 @@ class ValueInfo():
         platform_full_type=None,
         bitfield_width=None,
         is_const=False,
-        union_members=None,
         is_com_outptr=False
     ):
         self.name = name
@@ -130,7 +129,6 @@ class ValueInfo():
         self.is_array = True if array_length else False
         self.is_dynamic = True if not array_capacity else False
         self.is_const = is_const
-        self.union_members = union_members
         self.is_com_outptr = is_com_outptr
 
 
@@ -814,9 +812,10 @@ class BaseGenerator(OutputGenerator):
                     and (value.name in structs_with_handle_ptrs)
                 ):
                     has_handle_pointer = True
-            elif value.union_members:
+            elif self.is_union(value.base_type):
                 # Check the anonymous union for objects.
-                for union_info in value.union_members:
+                union_members = self.get_union_members(value.base_type)
+                for union_info in union_members:
                     if self.is_struct(
                         union_info.base_type
                     ) and (union_info.base_type in structs_with_handles):

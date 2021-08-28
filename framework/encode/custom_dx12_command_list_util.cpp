@@ -23,6 +23,8 @@
 #include "encode/custom_dx12_command_list_util.h"
 #include "encode/dx12_object_wrapper_util.h"
 
+#include "util/logging.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -33,7 +35,7 @@ void TrackObjectForCommandList(ID3D12GraphicsCommandListInfo* info,
 {
     if (object)
     {
-        info->command_objects[type].insert(GetWrappedId(object));
+        info->command_objects[type].insert(GetWrappedId<T>(object));
     }
 }
 
@@ -41,9 +43,9 @@ void Track_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12GraphicsCommandList_W
                                                      UINT                               NumBarriers,
                                                      const D3D12_RESOURCE_BARRIER*      pBarriers)
 {
-    assert(wrapper != nullptr);
+    GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
-    assert(info != nullptr);
+    GFXRECON_ASSERT(info != nullptr);
 
     if (pBarriers != nullptr)
     {
@@ -87,14 +89,15 @@ void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_
                                                       const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
                                                       D3D12_RENDER_PASS_FLAGS                     Flags)
 {
-    assert(wrapper != nullptr);
+    GFXRECON_ASSERT(wrapper != nullptr);
     auto info = wrapper->GetObjectInfo();
-    assert(info != nullptr);
+    GFXRECON_ASSERT(info != nullptr);
 
     if (pRenderTargets != nullptr)
     {
         for (UINT i = 0; i < NumRenderTargets; ++i)
         {
+            info->command_cpu_descriptor_handles.insert(pRenderTargets[i].cpuDescriptor.ptr);
             if (pRenderTargets[i].EndingAccess.Type == D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE)
             {
                 TrackObjectForCommandList(info.get(),
@@ -127,6 +130,68 @@ void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_
                                       D3D12GraphicsCommandObjectType::ID3D12ResourceObject,
                                       pDepthStencil->StencilEndingAccess.Resolve.pDstResource);
         }
+    }
+}
+
+void TrackRaytracingGeometry(ID3D12GraphicsCommandListInfo*        info,
+                             D3D12_RAYTRACING_GEOMETRY_TYPE        type,
+                             const D3D12_RAYTRACING_GEOMETRY_DESC* geometry_desc)
+{
+    if (type == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+    {
+        info->command_gpu_virtual_addresses.insert(geometry_desc->Triangles.Transform3x4);
+        info->command_gpu_virtual_addresses.insert(geometry_desc->Triangles.IndexBuffer);
+        info->command_gpu_virtual_addresses.insert(geometry_desc->Triangles.VertexBuffer.StartAddress);
+    }
+    else if (type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
+    {
+        info->command_gpu_virtual_addresses.insert(geometry_desc->AABBs.AABBs.StartAddress);
+    }
+}
+
+void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+    ID3D12GraphicsCommandList_Wrapper*                                 wrapper,
+    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
+    UINT                                                               NumPostbuildInfoDescs,
+    const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+
+    if (pDesc != nullptr)
+    {
+        info->command_gpu_virtual_addresses.insert(pDesc->DestAccelerationStructureData);
+        info->command_gpu_virtual_addresses.insert(pDesc->SourceAccelerationStructureData);
+        info->command_gpu_virtual_addresses.insert(pDesc->ScratchAccelerationStructureData);
+        switch (pDesc->Inputs.Type)
+        {
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL:
+                info->command_gpu_virtual_addresses.insert(pDesc->Inputs.InstanceDescs);
+                break;
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL:
+                for (UINT i = 0; i < pDesc->Inputs.NumDescs; ++i)
+                {
+                    if (pDesc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+                    {
+                        TrackRaytracingGeometry(
+                            info.get(), pDesc->Inputs.pGeometryDescs[i].Type, &pDesc->Inputs.pGeometryDescs[i]);
+                    }
+                    else if (pDesc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+                    {
+                        TrackRaytracingGeometry(
+                            info.get(), pDesc->Inputs.ppGeometryDescs[i]->Type, pDesc->Inputs.ppGeometryDescs[i]);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (pPostbuildInfoDescs != nullptr)
+    {
+        info->command_gpu_virtual_addresses.insert(pPostbuildInfoDescs->DestBuffer);
     }
 }
 

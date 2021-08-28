@@ -77,6 +77,34 @@ void Track_ID3D12GraphicsCommandList_SetComputeRootSignature(ID3D12GraphicsComma
 
 void Track_ID3D12GraphicsCommandList_SetGraphicsRootSignature(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12RootSignature * pRootSignature);
 
+void Track_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
+
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
+
+void Track_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+void Track_ID3D12GraphicsCommandList_IASetIndexBuffer(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_INDEX_BUFFER_VIEW * pView);
+
+void Track_ID3D12GraphicsCommandList_IASetVertexBuffers(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_VERTEX_BUFFER_VIEW * pViews);
+
+void Track_ID3D12GraphicsCommandList_SOSetTargets(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT StartSlot, UINT NumViews, const D3D12_STREAM_OUTPUT_BUFFER_VIEW * pViews);
+
+void Track_ID3D12GraphicsCommandList_OMSetRenderTargets(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT NumRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE * pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE * pDepthStencilDescriptor);
+
+void Track_ID3D12GraphicsCommandList_ClearDepthStencilView(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView, D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil, UINT NumRects, const D3D12_RECT * pRects);
+
+void Track_ID3D12GraphicsCommandList_ClearRenderTargetView(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetView, const FLOAT* ColorRGBA, UINT NumRects, const D3D12_RECT * pRects);
+
 void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const UINT* Values, UINT NumRects, const D3D12_RECT * pRects);
 
 void Track_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource * pResource, const FLOAT* Values, UINT NumRects, const D3D12_RECT * pRects);
@@ -99,13 +127,21 @@ void Track_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64(ID3D12GraphicsComma
 
 void Track_ID3D12GraphicsCommandList1_ResolveSubresourceRegion(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * pDstResource, UINT DstSubresource, UINT DstX, UINT DstY, ID3D12Resource * pSrcResource, UINT SrcSubresource, D3D12_RECT * pSrcRect, DXGI_FORMAT Format, D3D12_RESOLVE_MODE ResolveMode);
 
+void Track_ID3D12GraphicsCommandList2_WriteBufferImmediate(ID3D12GraphicsCommandList_Wrapper* wrapper, UINT Count, const D3D12_WRITEBUFFERIMMEDIATE_PARAMETER * pParams, const D3D12_WRITEBUFFERIMMEDIATE_MODE * pModes);
+
 void Track_ID3D12GraphicsCommandList3_SetProtectedResourceSession(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12ProtectedResourceSession * pProtectedResourceSession);
 
 void Track_ID3D12GraphicsCommandList4_InitializeMetaCommand(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pInitializationParametersData, SIZE_T InitializationParametersDataSizeInBytes);
 
 void Track_ID3D12GraphicsCommandList4_ExecuteMetaCommand(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12MetaCommand * pMetaCommand, const void * pExecutionParametersData, SIZE_T ExecutionParametersDataSizeInBytes);
 
+void Track_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC * pDesc, UINT NumSourceAccelerationStructures, const D3D12_GPU_VIRTUAL_ADDRESS * pSourceAccelerationStructureData);
+
+void Track_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(ID3D12GraphicsCommandList_Wrapper* wrapper, D3D12_GPU_VIRTUAL_ADDRESS DestAccelerationStructureData, D3D12_GPU_VIRTUAL_ADDRESS SourceAccelerationStructureData, D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode);
+
 void Track_ID3D12GraphicsCommandList4_SetPipelineState1(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12StateObject * pStateObject);
+
+void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12GraphicsCommandList_Wrapper* wrapper, const D3D12_DISPATCH_RAYS_DESC * pDesc);
 
 void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12Resource * shadingRateImage);
 

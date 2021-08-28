@@ -266,12 +266,6 @@ class Dx12BaseGenerator(BaseGenerator):
                 const = True
             pointer += replace_with.count('*')
 
-        union = self.get_union(base_type)
-        union_members = list()
-        if union:
-            for m in union['members']:
-                union_members.append(self.get_value_info(m))
-
         array_length = None
         array_capacity = 0
         array_dimension = 0
@@ -345,7 +339,6 @@ class Dx12BaseGenerator(BaseGenerator):
             platform_full_type=platform_full_type,
             bitfield_width=self.get_bit_field(struct_name, name),
             is_const=const,
-            union_members=union_members,
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
         )
 
@@ -413,33 +406,103 @@ class Dx12BaseGenerator(BaseGenerator):
         else:
             return self.source_dict['struct_dict'].keys()
 
-    def has_class(self, value, check_union):
-        if self.is_class(value) or self.has_class_in_struct(
-            value.base_type, check_union
-        ) or (check_union and self.has_class_in_union(value)):
+    def get_category_type(self, type):
+        if self.is_struct(type):
+            return 'struct'
+        elif self.is_class_type(type):
+            return 'class'
+        elif self.is_enum(type):
+            return 'enum'
+        elif self.is_union(type):
+            return 'union'
+        return 'base'
+
+    def is_track_command_list(self, value):
+        if self.has_class(value) or self.has_cpu_descriptor_handle(
+            value
+        ) or self.has_gpu_descriptor_handle(
+            value
+        ) or self.has_gpu_virtual_address(value):
             return True
         return False
 
-    def has_class_in_struct(self, type, check_union):
-        struct_dict = self.source_dict['struct_dict']
-        struct_info = struct_dict.get(type)
-        if struct_info is None:
-            return False
+    def has_cpu_descriptor_handle(self, value):
+        if 'D3D12_CPU_DESCRIPTOR_HANDLE' in value.base_type:
+            return True
 
-        properties = struct_info['properties']
-        for k, v in properties.items():
-            for p in v:
-                value = self.get_value_info(p)
-                if self.has_class(value, check_union):
+        members = self.get_members(value.base_type, False)
+        if members:
+            for v in members:
+                if self.has_cpu_descriptor_handle(v):
+                    return True
+        return False
+
+    def has_gpu_descriptor_handle(self, value):
+        if 'D3D12_GPU_DESCRIPTOR_HANDLE' in value.base_type:
+            return True
+
+        members = self.get_members(value.base_type, False)
+        if members:
+            for v in members:
+                if self.has_gpu_descriptor_handle(v):
+                    return True
+        return False
+
+    def has_gpu_virtual_address(self, value):
+        if 'D3D12_GPU_VIRTUAL_ADDRESS' in value.base_type:
+            return True
+
+        members = self.get_members(value.base_type, False)
+        if members:
+            for v in members:
+                if self.has_gpu_virtual_address(v):
+                    return True
+        return False
+
+    def has_class(self, value):
+        if self.is_class(value) or self.has_class_in_struct(
+            value.base_type
+        ) or (self.has_class_in_union(value)):
+            return True
+        return False
+
+    def has_class_in_struct(self, type):
+        struct_members = self.get_struct_members(type)
+        if struct_members:
+            for v in struct_members:
+                if self.has_class(v):
                     return True
         return False
 
     def has_class_in_union(self, value):
-        if value.union_members:
-            for m in value.union_members:
-                if self.has_class(m, True):
+        union_members = self.get_union_members(value.base_type)
+        if union_members:
+            for m in union_members:
+                if self.has_class(m):
                     return True
         return False
+
+    def get_function_arguments(self, info):
+        values = list()
+        for p in info['parameters']:
+            values.append(self.get_value_info(p))
+        return values
+
+    def get_members(self, type, is_enum=True, is_union=True, is_struct=True):
+        # D3D12's class has no members.
+        if is_struct:
+            members = self.get_struct_members(type)
+            if members:
+                return members
+        if is_enum:
+            members = self.get_enum_members(type)
+            if members:
+                return members
+        if is_union:
+            members = self.get_union_members(type)
+            if members:
+                return members
+        return None
 
     def is_struct(self, type):
         """Methond override."""
@@ -447,13 +510,22 @@ class Dx12BaseGenerator(BaseGenerator):
         if type == 'LARGE_INTEGER':
             return True
         struct_dict = self.source_dict['struct_dict']
-        if type in struct_dict:
-            return True
-        return False
+        return type in struct_dict
 
-    def get_struct_info(self, type):
+    def get_struct_members(self, type):
         struct_dict = self.source_dict['struct_dict']
-        return struct_dict.get(type)
+        struct_info = struct_dict.get(type)
+        if struct_info:
+            members = list()
+            for k, v in struct_info['properties'].items():
+                for p in v:
+                    members.append(self.get_value_info(p))
+            return members
+        return None
+
+    def is_class_type(self, type):
+        class_dict = self.source_dict['class_dict']
+        return type in class_dict
 
     def is_class(self, value):
         """Methond override. Use value, not type because it needs to check void** case."""
@@ -461,9 +533,7 @@ class Dx12BaseGenerator(BaseGenerator):
             return True
 
         class_dict = self.source_dict['class_dict']
-        if value.base_type in class_dict:
-            return True
-        return False
+        return value.base_type in class_dict
 
     def get_bit_field(self, struct_name, param_name):
         for m in self.BIT_FIELD_LIST:
@@ -474,14 +544,33 @@ class Dx12BaseGenerator(BaseGenerator):
     def is_enum(self, type):
         """Methond override."""
         enum_dict = self.source_dict['enum_dict']
-        if type in enum_dict:
-            return True
-        return False
+        return type in enum_dict
 
-    def get_union(self, type):
+    def get_enum_members(self, type):
+        enum_dict = self.source_dict['enum_dict']
+        enum_info = enum_dict.get(type)
+        if enum_info:
+            members = list()
+            for v in enum_info['values']:
+                members.append([v['name'], v['value']])
+            return members
+        return None
+
+    def is_union(self, type):
         if type[:12] == '<anon-union-':
             union_dict = self.source_dict['union_dict']
-            return union_dict.get(type)
+            return type in union_dict
+        return False
+
+    def get_union_members(self, type):
+        if type[:12] == '<anon-union-':
+            union_dict = self.source_dict['union_dict']
+            union_info = union_dict.get(type)
+            if union_info:
+                members = list()
+                for m in union_info['members']:
+                    members.append(self.get_value_info(m))
+                return members
         return None
 
     def convert_function(self, type):
@@ -498,7 +587,7 @@ class Dx12BaseGenerator(BaseGenerator):
         if type == 'Function':
             type = 'FunctionPtr'
         else:
-            union = self.get_union(type)
+            union = self.is_union(type)
             if union:
                 type = 'Union'
         return type

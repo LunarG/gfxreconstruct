@@ -363,7 +363,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             required = False
             for value in param_values:
                 object_arg_list += ', ' + value.name
-                if required == False and self.has_class(value, True):
+                if required == False and self.is_track_command_list(value):
                     required = True
 
             if required:

@@ -57,6 +57,12 @@ void Track_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList_
                                                       const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
                                                       D3D12_RENDER_PASS_FLAGS                     Flags);
 
+void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
+    ID3D12GraphicsCommandList_Wrapper*                                 wrapper,
+    const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC*          pDesc,
+    UINT                                                               NumPostbuildInfoDescs,
+    const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pPostbuildInfoDescs);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

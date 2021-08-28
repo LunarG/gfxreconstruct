@@ -203,12 +203,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             (member.name in self.structs_with_objects)
         ):
             return True
-        elif 'anon-union' in member.base_type:
+        elif self.is_union(member.base_type):
             # Check the anonymous union for objects.  This step
             # should not ignore blacklisted struct types.  It
             # needs to process all struct types to build an
             # accurate list of structs that contain objects.
-            for union_info in member.union_members:
+            union_members = self.get_union_members(member.base_type)
+            for union_info in union_members:
                 if self.is_struct(union_info.base_type):
                     umembers = self.feature_struct_members[union_info.base_type
                                                            ]

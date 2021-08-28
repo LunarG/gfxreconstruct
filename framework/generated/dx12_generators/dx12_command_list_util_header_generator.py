@@ -29,6 +29,13 @@ class Dx12CommandListUtilHeaderGenerator(Dx12BaseGenerator):
     """Generate a C++ class for Dx12 Track CommandList objects.
     """
 
+    # Tracked data is union. That's written in custom functions.
+    SKIP_COMMAND_METHODS = [
+        'ID3D12GraphicsCommandList_ResourceBarrier',
+        'ID3D12GraphicsCommandList4_BeginRenderPass',
+        'ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure'
+    ]
+
     def __init__(
         self,
         source_dict,
@@ -76,8 +83,14 @@ class Dx12CommandListUtilHeaderGenerator(Dx12BaseGenerator):
                             self.write_track_function(class_name, m)
 
     def write_track_function(self, class_name, method_info):
+        if (
+            class_name + '_' + method_info['name']
+        ) in self.SKIP_COMMAND_METHODS:
+            return
+
         parameters = 'ID3D12GraphicsCommandList_Wrapper* wrapper'
         required = False
+
         for p in method_info['parameters']:
             value = self.get_value_info(p)
             value_type = self.clean_type_define(p['type'])
@@ -86,7 +99,7 @@ class Dx12CommandListUtilHeaderGenerator(Dx12BaseGenerator):
                 value_type += '*'
 
             parameters += ', ' + value_type + ' ' + value.name
-            if self.has_class(value, False):
+            if self.is_track_command_list(value):
                 required = True
 
         if required:

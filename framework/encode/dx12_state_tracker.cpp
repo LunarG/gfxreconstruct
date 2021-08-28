@@ -108,6 +108,15 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
 
         // Clear pending resource transitions.
         list_info->transition_barriers.clear();
+
+        list_info->command_cpu_descriptor_handles.clear();
+        list_info->command_gpu_descriptor_handles.clear();
+        list_info->command_gpu_virtual_addresses.clear();
+
+        for (size_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
+        {
+            list_info->command_objects[i].clear();
+        }
     }
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)

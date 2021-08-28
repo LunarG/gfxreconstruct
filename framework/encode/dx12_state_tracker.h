@@ -123,9 +123,9 @@ class Dx12StateTracker
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
     void TrackCommand(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                      format::ApiCallId               call_id,
-                      const util::MemoryOutputStream* parameter_buffer,
-                      GetHandlesFunc                  func,
+                      format::ApiCallId                  call_id,
+                      const util::MemoryOutputStream*    parameter_buffer,
+                      GetHandlesFunc                     func,
                       GetHandlesArgs... args)
     {
         if (list_wrapper != nullptr)
