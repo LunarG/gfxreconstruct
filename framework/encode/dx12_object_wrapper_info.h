@@ -118,6 +118,12 @@ struct DxTileMappingInfo
     std::unique_ptr<util::MemoryOutputStream> call_parameters;
 };
 
+struct DxResizeBuffersInfo
+{
+    format::ApiCallId                         call_id{ format::ApiCall_Unknown };
+    std::unique_ptr<util::MemoryOutputStream> call_parameters;
+};
+
 struct IDXGIKeyedMutexInfo : public DxWrapperInfo
 {};
 
@@ -153,6 +159,7 @@ struct IDXGISwapChainInfo : public DxWrapperInfo
     uint32_t                         current_back_buffer_index{ std::numeric_limits<uint32_t>::max() };
     uint32_t                         last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<DxImageAcquiredInfo> image_acquired_info;
+    DxResizeBuffersInfo              resize_info;
 };
 
 struct IDXGIDeviceInfo : public DxWrapperInfo

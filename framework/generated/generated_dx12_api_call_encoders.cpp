@@ -879,7 +879,7 @@ void Encode_IDXGISwapChain_ResizeBuffers(
     DXGI_FORMAT NewFormat,
     UINT SwapChainFlags)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers, wrapper->GetCaptureId());
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain_ResizeBuffers, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;
@@ -2878,7 +2878,7 @@ void Encode_IDXGISwapChain3_ResizeBuffers1(
     const UINT* pCreationNodeMask,
     IUnknown* const* ppPresentQueue)
 {
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1, wrapper->GetCaptureId());
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_IDXGISwapChain3_ResizeBuffers1, wrapper->GetCaptureId());
     if(encoder)
     {
         bool omit_output_data = false;

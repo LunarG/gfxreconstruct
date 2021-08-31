@@ -336,5 +336,18 @@ void Dx12StateTracker::TrackPresentedImages(IDXGISwapChain_Wrapper*        wrapp
     }
 }
 
+void Dx12StateTracker::TrackResizeBuffers(IDXGISwapChain_Wrapper*         swapchain_wrapper,
+                                          format::ApiCallId               call_id,
+                                          const util::MemoryOutputStream* parameter_buffer)
+{
+    GFXRECON_ASSERT(swapchain_wrapper != nullptr);
+    GFXRECON_ASSERT(swapchain_wrapper->GetObjectInfo() != nullptr);
+
+    auto swapchain_info         = swapchain_wrapper->GetObjectInfo();
+    swapchain_info->resize_info = { call_id,
+                                    std::make_unique<util::MemoryOutputStream>(parameter_buffer->GetData(),
+                                                                               parameter_buffer->GetDataSize()) };
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

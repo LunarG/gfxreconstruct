@@ -168,6 +168,10 @@ class Dx12StateTracker
                                  format::HandleId                heap_id,
                                  const util::MemoryOutputStream* parameter_buffer);
 
+    void TrackResizeBuffers(IDXGISwapChain_Wrapper*         swapchain_wrapper,
+                            format::ApiCallId               call_id,
+                            const util::MemoryOutputStream* parameter_buffer);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

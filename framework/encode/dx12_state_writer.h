@@ -130,7 +130,7 @@ class Dx12StateWriter
                                         format::HandleId               handle_id,
                                         const Dx12StateTable&          state_table);
 
-    void WriteSwapchainImageState(const Dx12StateTable& state_table);
+    void WriteSwapChainState(const Dx12StateTable& state_table);
 
   private:
     util::FileOutputStream*  output_stream_;

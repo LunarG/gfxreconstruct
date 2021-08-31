@@ -77,7 +77,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12CommandQueue_Wrapper>(state_table);
 
     // Swap chain
-    StandardCreateWrite<IDXGISwapChain_Wrapper>(state_table);
+    WriteSwapChainState(state_table);
     StandardCreateWrite<IDXGISwapChainMedia_Wrapper>(state_table);
     StandardCreateWrite<ID3D12SwapChainAssistant_Wrapper>(state_table);
 
@@ -132,9 +132,6 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
     WriteGraphicsCommandListState(state_table);
-
-    // Process swapchain image acquire.
-    WriteSwapchainImageState(state_table);
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
@@ -1030,26 +1027,40 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
     }
 }
 
-void Dx12StateWriter::WriteSwapchainImageState(const Dx12StateTable& state_table)
+void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
 {
     state_table.VisitWrappers([&](IDXGISwapChain_Wrapper* swapchain_wrapper) {
         GFXRECON_ASSERT(swapchain_wrapper != nullptr);
         GFXRECON_ASSERT(swapchain_wrapper->GetWrappedObject() != nullptr);
         GFXRECON_ASSERT(swapchain_wrapper->GetObjectInfo() != nullptr);
 
-        auto iunknown_swapchain = swapchain_wrapper->GetWrappedObject();
-        auto swapchain_info     = swapchain_wrapper->GetObjectInfo();
+        auto swapchain      = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+        auto swapchain_info = swapchain_wrapper->GetObjectInfo();
 
-        UINT swapchain_buffer_index = 0;
+        // Write swapchain creation call.
+        StandardCreateWrite(swapchain_wrapper->GetCaptureId(), *swapchain_info.get());
+        WriteAddRefAndReleaseCommands(swapchain_wrapper);
 
-        graphics::dx12::IDXGISwapChain3ComPtr swapchain;
-        if (SUCCEEDED(iunknown_swapchain->QueryInterface(IID_PPV_ARGS(&swapchain))))
+        // Write call to resize the swapchain buffers.
+        if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
         {
-            swapchain_buffer_index = swapchain->GetCurrentBackBufferIndex();
+            WriteMethodCall(swapchain_info->resize_info.call_id,
+                            swapchain_wrapper->GetCaptureId(),
+                            swapchain_info->resize_info.call_parameters.get());
+        }
+
+        // Write image state command.
+        UINT                                  swapchain_buffer_index = 0;
+        graphics::dx12::IDXGISwapChain3ComPtr swapchain3;
+        if (SUCCEEDED(swapchain->QueryInterface(IID_PPV_ARGS(&swapchain3))))
+        {
+            swapchain_buffer_index = swapchain3->GetCurrentBackBufferIndex();
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to get current swap chain buffer index. Swap chain may not replay correctly.");
+            GFXRECON_LOG_ERROR("Failed to get current swap chain (id=%" PRIu64
+                               ") buffer index. Swap chain may not replay correctly.",
+                               swapchain_wrapper->GetCaptureId());
         }
 
         format::SetSwapchainImageStateCommandHeader header;

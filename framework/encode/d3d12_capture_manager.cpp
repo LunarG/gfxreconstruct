@@ -463,6 +463,12 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChai
         assert(info != nullptr);
 
         PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
+
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            state_tracker_->TrackResizeBuffers(
+                wrapper, format::ApiCall_IDXGISwapChain_ResizeBuffers, GetThreadData()->parameter_buffer_.get());
+        }
     }
 }
 
@@ -508,6 +514,12 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapCh
         assert(info != nullptr);
 
         PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
+
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            state_tracker_->TrackResizeBuffers(
+                wrapper, format::ApiCall_IDXGISwapChain3_ResizeBuffers1, GetThreadData()->parameter_buffer_.get());
+        }
     }
 }
 
