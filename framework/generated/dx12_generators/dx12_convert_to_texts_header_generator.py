@@ -28,6 +28,11 @@ from dx12_base_generator import Dx12BaseGenerator
 class Dx12ConvertToTextsHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for Convert to texts."""
 
+    BITS_LIST = [
+        '_FLAGS', '_STATES', '_STATUS', 'D3D12_SHADER_MIN_PRECISION_SUPPORT',
+        'D3D12_FORMAT_SUPPORT1', 'D3D12_FORMAT_SUPPORT2'
+    ]
+
     def __init__(
         self,
         source_dict,
@@ -72,29 +77,52 @@ class Dx12ConvertToTextsHeaderGenerator(Dx12BaseGenerator):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
             code = 'static const std::string ConverttoText(const {} value)\n'\
-                   '{{\n'\
-                   '    switch(value)\n'\
-                   '    {{\n'.format(k)
+                   '{{\n'.format(k)
 
-            value_set = set()
-            for value in v['values']:
-                if (
-                    (type(value['value']) == int) or
-                    (('+ 1') in value['value'])
-                ) and (not value['value'] in value_set):
-                    code += '        case({0}):\n'\
-                            '            return "{0}";\n'.format(value['name'])
-                    value_set.add(value['value'])
+            is_bits = False
+            for bits in self.BITS_LIST:
+                if k.find(bits) >= 0:
+                    is_bits = True
+                    break
+            if is_bits:
+                code += '    std::string code = "";\n'
+                for value in v['values']:
+                    code += '    if ({} & value)\n'.format(value['name'])
+                    code += '    {\n'
+                    code += '        if (code.length() > 0) code.append(" | ");\n'
+                    code += '        code.append("{}");\n'.format(
+                        value['name']
+                    )
+                    code += '    }\n'
+                code += '    if (code.length() == 0)\n'
+                code += '    {\n'
+                code += '        code.append("Invalid {}(");\n'.format(k)
+                code += '        code.append(std::to_string(value));\n'
+                code += '        code.append(")");\n'
+                code += '    }\n'
+                code += '    return code;\n'
+            else:
+                value_set = set()
+                code += '    switch(value)\n'
+                code += '    {\n'
+                for value in v['values']:
+                    if (
+                        (type(value['value']) == int) or
+                        (('+ 1') in value['value'])
+                    ) and (not value['value'] in value_set):
+                        code += '        case({0}):\n'\
+                                '            return "{0}";\n'.format(value['name'])
+                        value_set.add(value['value'])
 
-            code += '        default:\n'\
-                    '            {{\n'\
-                    '                std::string code = "Invalid {}(";\n'\
-                    '                code.append(std::to_string(value));\n'\
-                    '                code.append(")");\n'\
-                    '                return code;\n'\
-                    '            }}\n'\
-                    '    }}\n'\
-                    '}}\n'.format(k)
+                code += '        default:\n'\
+                        '            {{\n'\
+                        '                std::string code = "Invalid {}(";\n'\
+                        '                code.append(std::to_string(value));\n'\
+                        '                code.append(")");\n'\
+                        '                return code;\n'\
+                        '            }}\n'\
+                        '    }}\n'.format(k)
+            code += '}\n'
             write(code, file=self.outFile)
 
     def write_iid_covert_to_text(self):
