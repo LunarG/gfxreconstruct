@@ -443,6 +443,56 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_CopyT
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateShaderResourceView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateUnorderedAccessView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRenderTargetView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateRenderTargetView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateDepthStencilView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateDepthStencilView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

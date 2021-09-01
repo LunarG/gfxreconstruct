@@ -87,6 +87,7 @@ struct DxDescriptorInfo
     format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
     std::unique_ptr<util::MemoryOutputStream> create_parameters;
     bool is_copy{ false }; // True if the descriptor was created as a copy with CopyDescriptors
+    std::unordered_set<format::HandleId> resource_ids;
 };
 
 struct DxTransitionBarrier

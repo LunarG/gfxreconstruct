@@ -24,6 +24,7 @@
 
 #include "generated/generated_dx12_api_call_encoders.h"
 #include "encode/custom_dx12_struct_encoders.h"
+#include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/struct_pointer_encoder.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_util.h"
@@ -988,6 +989,21 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
         }
     }
 
+    for (auto cpu_descriptor_handle : list_info->command_cpu_descriptor_handles)
+    {
+        auto* descriptor_info = GetDescriptorInfo(cpu_descriptor_handle);
+        if (!descriptor_info || descriptor_info->resource_ids.empty())
+        {
+            return false;
+        }
+        for (auto resource_id : descriptor_info->resource_ids)
+        {
+            if (!CheckGraphicsCommandListObject(ID3D12ResourceObject, resource_id, state_table))
+            {
+                return false;
+            }
+        }
+    }
     return true;
 }
 

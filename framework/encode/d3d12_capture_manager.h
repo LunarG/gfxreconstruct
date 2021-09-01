@@ -150,7 +150,7 @@ class D3D12CaptureManager : public CaptureManager
 
     template <typename GetHandlesFunc, typename... GetHandlesArgs>
     void EndCommandListMethodCallCapture(ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                         GetHandlesFunc                    func,
+                                         GetHandlesFunc                     func,
                                          GetHandlesArgs... args)
     {
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
@@ -206,10 +206,8 @@ class D3D12CaptureManager : public CaptureManager
                                                                  IDXGIOutput*                 restrict_to_output,
                                                                  IDXGISwapChain1**            swap_chain);
 
-    void PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
-                                            HRESULT                 result,
-                                            UINT                    sync_interval,
-                                            UINT                    flags);
+    void
+    PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT sync_interval, UINT flags);
 
     void PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
                                               HRESULT                        result,
@@ -436,6 +434,32 @@ class D3D12CaptureManager : public CaptureManager
                                                     const D3D12_TILE_REGION_SIZE*          region_size,
                                                     D3D12_TILE_MAPPING_FLAGS               flags);
 
+    void PostProcess_ID3D12Device_CreateShaderResourceView(ID3D12Device_Wrapper*                  device_wrapper,
+                                                           ID3D12Resource*                        pResource,
+                                                           const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
+                                                           D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor);
+
+    void PostProcess_ID3D12Device_CreateUnorderedAccessView(ID3D12Device_Wrapper*                   device_wrapper,
+                                                            ID3D12Resource*                         pResource,
+                                                            ID3D12Resource*                         pCounterResource,
+                                                            const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+                                                            D3D12_CPU_DESCRIPTOR_HANDLE             DestDescriptor);
+
+    void PostProcess_ID3D12Device_CreateRenderTargetView(ID3D12Device_Wrapper*                device_wrapper,
+                                                         ID3D12Resource*                      pResource,
+                                                         const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+                                                         D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
+
+    void PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12Device_Wrapper*                device_wrapper,
+                                                         ID3D12Resource*                      pResource,
+                                                         const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+                                                         D3D12_CPU_DESCRIPTOR_HANDLE          DestDescriptor);
+
+    void PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(ID3D12Device_Wrapper* device_wrapper,
+                                                                            ID3D12Resource*       pTargetedResource,
+                                                                            ID3D12Resource*       pFeedbackResource,
+                                                                            D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -541,7 +565,7 @@ class D3D12CaptureManager : public CaptureManager
     void EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
     bool IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
-    void EnableDebugLayer();
+    void                          EnableDebugLayer();
     void                          EnableDRED();
 
   private:

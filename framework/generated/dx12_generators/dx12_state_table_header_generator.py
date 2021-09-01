@@ -149,7 +149,7 @@ class Dx12StateTableHeaderGenerator(Dx12BaseGenerator):
                 name_wrapper
             )
 
-        code = 'class Dx12StateTable : Dx12StateTableBase\n'
+        code = 'class Dx12StateTable : public Dx12StateTableBase\n'
         code += '{\n'
         code += '  public:\n'
         code += '    Dx12StateTable() {}\n'

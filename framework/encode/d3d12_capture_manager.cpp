@@ -1742,5 +1742,71 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_CopyTileMappings(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateShaderResourceView(
+    ID3D12Device_Wrapper*                  device_wrapper,
+    ID3D12Resource*                        pResource,
+    const D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE            DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateUnorderedAccessView(
+    ID3D12Device_Wrapper*                   device_wrapper,
+    ID3D12Resource*                         pResource,
+    ID3D12Resource*                         pCounterResource,
+    const D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+    D3D12_CPU_DESCRIPTOR_HANDLE             DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pCounterResource));
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateRenderTargetView(ID3D12Device_Wrapper* device_wrapper,
+                                                                          ID3D12Resource*       pResource,
+                                                                          const D3D12_RENDER_TARGET_VIEW_DESC* pDesc,
+                                                                          D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12Device_Wrapper* device_wrapper,
+                                                                          ID3D12Resource*       pResource,
+                                                                          const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+                                                                          D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorderedAccessView(
+    ID3D12Device_Wrapper*       device_wrapper,
+    ID3D12Resource*             pTargetedResource,
+    ID3D12Resource*             pFeedbackResource,
+    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pTargetedResource));
+        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pFeedbackResource));
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

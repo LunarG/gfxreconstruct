@@ -33,7 +33,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class Dx12StateTable : Dx12StateTableBase
+class Dx12StateTable : public Dx12StateTableBase
 {
   public:
     Dx12StateTable() {}

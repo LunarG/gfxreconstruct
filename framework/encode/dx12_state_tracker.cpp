@@ -281,6 +281,7 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
                                                              src_descriptor_info[i].create_parameters->GetDataSize() -
                                                                  heap_and_index_size);
         }
+        dest_descriptor_info[i].resource_ids = src_descriptor_info[i].resource_ids;
     }
 }
 
