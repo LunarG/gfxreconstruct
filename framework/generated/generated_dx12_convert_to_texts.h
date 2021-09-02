@@ -991,10 +991,9 @@ static const std::string ConverttoText(const D3D12_COMMAND_LIST_TYPE value)
 static const std::string ConverttoText(const D3D12_COMMAND_QUEUE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_COMMAND_QUEUE_FLAG_NONE & value)
+    if (value == D3D12_COMMAND_QUEUE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_COMMAND_QUEUE_FLAG_NONE");
+        return "D3D12_COMMAND_QUEUE_FLAG_NONE";
     }
     if (D3D12_COMMAND_QUEUE_FLAG_DISABLE_GPU_TIMEOUT & value)
     {
@@ -1369,10 +1368,9 @@ static const std::string ConverttoText(const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE 
 static const std::string ConverttoText(const D3D12_PIPELINE_STATE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_PIPELINE_STATE_FLAG_NONE & value)
+    if (value == D3D12_PIPELINE_STATE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_PIPELINE_STATE_FLAG_NONE");
+        return "D3D12_PIPELINE_STATE_FLAG_NONE";
     }
     if (D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG & value)
     {
@@ -1523,10 +1521,9 @@ static const std::string ConverttoText(const D3D12_FEATURE value)
 static const std::string ConverttoText(const D3D12_SHADER_MIN_PRECISION_SUPPORT value)
 {
     std::string code = "";
-    if (D3D12_SHADER_MIN_PRECISION_SUPPORT_NONE & value)
+    if (value == D3D12_SHADER_MIN_PRECISION_SUPPORT_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_SHADER_MIN_PRECISION_SUPPORT_NONE");
+        return "D3D12_SHADER_MIN_PRECISION_SUPPORT_NONE";
     }
     if (D3D12_SHADER_MIN_PRECISION_SUPPORT_10_BIT & value)
     {
@@ -1616,10 +1613,9 @@ static const std::string ConverttoText(const D3D12_CONSERVATIVE_RASTERIZATION_TI
 static const std::string ConverttoText(const D3D12_FORMAT_SUPPORT1 value)
 {
     std::string code = "";
-    if (D3D12_FORMAT_SUPPORT1_NONE & value)
+    if (value == D3D12_FORMAT_SUPPORT1_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_FORMAT_SUPPORT1_NONE");
+        return "D3D12_FORMAT_SUPPORT1_NONE";
     }
     if (D3D12_FORMAT_SUPPORT1_BUFFER & value)
     {
@@ -1778,10 +1774,9 @@ static const std::string ConverttoText(const D3D12_FORMAT_SUPPORT1 value)
 static const std::string ConverttoText(const D3D12_FORMAT_SUPPORT2 value)
 {
     std::string code = "";
-    if (D3D12_FORMAT_SUPPORT2_NONE & value)
+    if (value == D3D12_FORMAT_SUPPORT2_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_FORMAT_SUPPORT2_NONE");
+        return "D3D12_FORMAT_SUPPORT2_NONE";
     }
     if (D3D12_FORMAT_SUPPORT2_UAV_ATOMIC_ADD & value)
     {
@@ -1855,10 +1850,9 @@ static const std::string ConverttoText(const D3D12_FORMAT_SUPPORT2 value)
 static const std::string ConverttoText(const D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE & value)
+    if (value == D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE");
+        return "D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE";
     }
     if (D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_TILED_RESOURCE & value)
     {
@@ -2009,10 +2003,9 @@ static const std::string ConverttoText(const D3D_SHADER_MODEL value)
 static const std::string ConverttoText(const D3D12_SHADER_CACHE_SUPPORT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_SHADER_CACHE_SUPPORT_NONE & value)
+    if (value == D3D12_SHADER_CACHE_SUPPORT_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_SHADER_CACHE_SUPPORT_NONE");
+        return "D3D12_SHADER_CACHE_SUPPORT_NONE";
     }
     if (D3D12_SHADER_CACHE_SUPPORT_SINGLE_PSO & value)
     {
@@ -2046,10 +2039,9 @@ static const std::string ConverttoText(const D3D12_SHADER_CACHE_SUPPORT_FLAGS va
 static const std::string ConverttoText(const D3D12_COMMAND_LIST_SUPPORT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_COMMAND_LIST_SUPPORT_FLAG_NONE & value)
+    if (value == D3D12_COMMAND_LIST_SUPPORT_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_COMMAND_LIST_SUPPORT_FLAG_NONE");
+        return "D3D12_COMMAND_LIST_SUPPORT_FLAG_NONE";
     }
     if (D3D12_COMMAND_LIST_SUPPORT_FLAG_DIRECT & value)
     {
@@ -2298,10 +2290,9 @@ static const std::string ConverttoText(const D3D12_MEMORY_POOL value)
 static const std::string ConverttoText(const D3D12_HEAP_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_HEAP_FLAG_NONE & value)
+    if (value == D3D12_HEAP_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_HEAP_FLAG_NONE");
+        return "D3D12_HEAP_FLAG_NONE";
     }
     if (D3D12_HEAP_FLAG_SHARED & value)
     {
@@ -2358,10 +2349,9 @@ static const std::string ConverttoText(const D3D12_HEAP_FLAGS value)
         if (code.length() > 0) code.append(" | ");
         code.append("D3D12_HEAP_FLAG_CREATE_NOT_ZEROED");
     }
-    if (D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES & value)
+    if (value == D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES");
+        return "D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES";
     }
     if (D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS & value)
     {
@@ -2436,10 +2426,9 @@ static const std::string ConverttoText(const D3D12_TEXTURE_LAYOUT value)
 static const std::string ConverttoText(const D3D12_RESOURCE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RESOURCE_FLAG_NONE & value)
+    if (value == D3D12_RESOURCE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RESOURCE_FLAG_NONE");
+        return "D3D12_RESOURCE_FLAG_NONE";
     }
     if (D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET & value)
     {
@@ -2488,10 +2477,9 @@ static const std::string ConverttoText(const D3D12_RESOURCE_FLAGS value)
 static const std::string ConverttoText(const D3D12_TILE_RANGE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_TILE_RANGE_FLAG_NONE & value)
+    if (value == D3D12_TILE_RANGE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_TILE_RANGE_FLAG_NONE");
+        return "D3D12_TILE_RANGE_FLAG_NONE";
     }
     if (D3D12_TILE_RANGE_FLAG_NULL & value)
     {
@@ -2520,10 +2508,9 @@ static const std::string ConverttoText(const D3D12_TILE_RANGE_FLAGS value)
 static const std::string ConverttoText(const D3D12_TILE_MAPPING_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_TILE_MAPPING_FLAG_NONE & value)
+    if (value == D3D12_TILE_MAPPING_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_TILE_MAPPING_FLAG_NONE");
+        return "D3D12_TILE_MAPPING_FLAG_NONE";
     }
     if (D3D12_TILE_MAPPING_FLAG_NO_HAZARD & value)
     {
@@ -2542,10 +2529,9 @@ static const std::string ConverttoText(const D3D12_TILE_MAPPING_FLAGS value)
 static const std::string ConverttoText(const D3D12_TILE_COPY_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_TILE_COPY_FLAG_NONE & value)
+    if (value == D3D12_TILE_COPY_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_TILE_COPY_FLAG_NONE");
+        return "D3D12_TILE_COPY_FLAG_NONE";
     }
     if (D3D12_TILE_COPY_FLAG_NO_HAZARD & value)
     {
@@ -2574,10 +2560,9 @@ static const std::string ConverttoText(const D3D12_TILE_COPY_FLAGS value)
 static const std::string ConverttoText(const D3D12_RESOURCE_STATES value)
 {
     std::string code = "";
-    if (D3D12_RESOURCE_STATE_COMMON & value)
+    if (value == D3D12_RESOURCE_STATE_COMMON)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RESOURCE_STATE_COMMON");
+        return "D3D12_RESOURCE_STATE_COMMON";
     }
     if (D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER & value)
     {
@@ -2664,10 +2649,9 @@ static const std::string ConverttoText(const D3D12_RESOURCE_STATES value)
         if (code.length() > 0) code.append(" | ");
         code.append("D3D12_RESOURCE_STATE_GENERIC_READ");
     }
-    if (D3D12_RESOURCE_STATE_PRESENT & value)
+    if (value == D3D12_RESOURCE_STATE_PRESENT)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RESOURCE_STATE_PRESENT");
+        return "D3D12_RESOURCE_STATE_PRESENT";
     }
     if (D3D12_RESOURCE_STATE_PREDICATION & value)
     {
@@ -2736,10 +2720,9 @@ static const std::string ConverttoText(const D3D12_RESOURCE_BARRIER_TYPE value)
 static const std::string ConverttoText(const D3D12_RESOURCE_BARRIER_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RESOURCE_BARRIER_FLAG_NONE & value)
+    if (value == D3D12_RESOURCE_BARRIER_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RESOURCE_BARRIER_FLAG_NONE");
+        return "D3D12_RESOURCE_BARRIER_FLAG_NONE";
     }
     if (D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY & value)
     {
@@ -2807,10 +2790,9 @@ static const std::string ConverttoText(const D3D12_RESOLVE_MODE value)
 static const std::string ConverttoText(const D3D12_VIEW_INSTANCING_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_VIEW_INSTANCING_FLAG_NONE & value)
+    if (value == D3D12_VIEW_INSTANCING_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_VIEW_INSTANCING_FLAG_NONE");
+        return "D3D12_VIEW_INSTANCING_FLAG_NONE";
     }
     if (D3D12_VIEW_INSTANCING_FLAG_ENABLE_VIEW_INSTANCE_MASKING & value)
     {
@@ -2855,10 +2837,9 @@ static const std::string ConverttoText(const D3D12_SHADER_COMPONENT_MAPPING valu
 static const std::string ConverttoText(const D3D12_BUFFER_SRV_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_BUFFER_SRV_FLAG_NONE & value)
+    if (value == D3D12_BUFFER_SRV_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_BUFFER_SRV_FLAG_NONE");
+        return "D3D12_BUFFER_SRV_FLAG_NONE";
     }
     if (D3D12_BUFFER_SRV_FLAG_RAW & value)
     {
@@ -3065,10 +3046,9 @@ static const std::string ConverttoText(const D3D12_TEXTURE_ADDRESS_MODE value)
 static const std::string ConverttoText(const D3D12_BUFFER_UAV_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_BUFFER_UAV_FLAG_NONE & value)
+    if (value == D3D12_BUFFER_UAV_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_BUFFER_UAV_FLAG_NONE");
+        return "D3D12_BUFFER_UAV_FLAG_NONE";
     }
     if (D3D12_BUFFER_UAV_FLAG_RAW & value)
     {
@@ -3147,10 +3127,9 @@ static const std::string ConverttoText(const D3D12_RTV_DIMENSION value)
 static const std::string ConverttoText(const D3D12_DSV_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_DSV_FLAG_NONE & value)
+    if (value == D3D12_DSV_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_DSV_FLAG_NONE");
+        return "D3D12_DSV_FLAG_NONE";
     }
     if (D3D12_DSV_FLAG_READ_ONLY_DEPTH & value)
     {
@@ -3224,10 +3203,9 @@ static const std::string ConverttoText(const D3D12_CLEAR_FLAGS value)
 static const std::string ConverttoText(const D3D12_FENCE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_FENCE_FLAG_NONE & value)
+    if (value == D3D12_FENCE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_FENCE_FLAG_NONE");
+        return "D3D12_FENCE_FLAG_NONE";
     }
     if (D3D12_FENCE_FLAG_SHARED & value)
     {
@@ -3280,10 +3258,9 @@ static const std::string ConverttoText(const D3D12_DESCRIPTOR_HEAP_TYPE value)
 static const std::string ConverttoText(const D3D12_DESCRIPTOR_HEAP_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_DESCRIPTOR_HEAP_FLAG_NONE & value)
+    if (value == D3D12_DESCRIPTOR_HEAP_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_DESCRIPTOR_HEAP_FLAG_NONE");
+        return "D3D12_DESCRIPTOR_HEAP_FLAG_NONE";
     }
     if (D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE & value)
     {
@@ -3378,10 +3355,9 @@ static const std::string ConverttoText(const D3D12_ROOT_PARAMETER_TYPE value)
 static const std::string ConverttoText(const D3D12_ROOT_SIGNATURE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_ROOT_SIGNATURE_FLAG_NONE & value)
+    if (value == D3D12_ROOT_SIGNATURE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_ROOT_SIGNATURE_FLAG_NONE");
+        return "D3D12_ROOT_SIGNATURE_FLAG_NONE";
     }
     if (D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT & value)
     {
@@ -3465,10 +3441,9 @@ static const std::string ConverttoText(const D3D12_STATIC_BORDER_COLOR value)
 static const std::string ConverttoText(const D3D12_DESCRIPTOR_RANGE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_DESCRIPTOR_RANGE_FLAG_NONE & value)
+    if (value == D3D12_DESCRIPTOR_RANGE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_DESCRIPTOR_RANGE_FLAG_NONE");
+        return "D3D12_DESCRIPTOR_RANGE_FLAG_NONE";
     }
     if (D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE & value)
     {
@@ -3507,10 +3482,9 @@ static const std::string ConverttoText(const D3D12_DESCRIPTOR_RANGE_FLAGS value)
 static const std::string ConverttoText(const D3D12_ROOT_DESCRIPTOR_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_ROOT_DESCRIPTOR_FLAG_NONE & value)
+    if (value == D3D12_ROOT_DESCRIPTOR_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_ROOT_DESCRIPTOR_FLAG_NONE");
+        return "D3D12_ROOT_DESCRIPTOR_FLAG_NONE";
     }
     if (D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE & value)
     {
@@ -3671,20 +3645,18 @@ static const std::string ConverttoText(const D3D12_WRITEBUFFERIMMEDIATE_MODE val
 static const std::string ConverttoText(const D3D12_MULTIPLE_FENCE_WAIT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_MULTIPLE_FENCE_WAIT_FLAG_NONE & value)
+    if (value == D3D12_MULTIPLE_FENCE_WAIT_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_MULTIPLE_FENCE_WAIT_FLAG_NONE");
+        return "D3D12_MULTIPLE_FENCE_WAIT_FLAG_NONE";
     }
     if (D3D12_MULTIPLE_FENCE_WAIT_FLAG_ANY & value)
     {
         if (code.length() > 0) code.append(" | ");
         code.append("D3D12_MULTIPLE_FENCE_WAIT_FLAG_ANY");
     }
-    if (D3D12_MULTIPLE_FENCE_WAIT_FLAG_ALL & value)
+    if (value == D3D12_MULTIPLE_FENCE_WAIT_FLAG_ALL)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_MULTIPLE_FENCE_WAIT_FLAG_ALL");
+        return "D3D12_MULTIPLE_FENCE_WAIT_FLAG_ALL";
     }
     if (code.length() == 0)
     {
@@ -3722,10 +3694,9 @@ static const std::string ConverttoText(const D3D12_RESIDENCY_PRIORITY value)
 static const std::string ConverttoText(const D3D12_RESIDENCY_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RESIDENCY_FLAG_NONE & value)
+    if (value == D3D12_RESIDENCY_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RESIDENCY_FLAG_NONE");
+        return "D3D12_RESIDENCY_FLAG_NONE";
     }
     if (D3D12_RESIDENCY_FLAG_DENY_OVERBUDGET & value)
     {
@@ -3744,10 +3715,9 @@ static const std::string ConverttoText(const D3D12_RESIDENCY_FLAGS value)
 static const std::string ConverttoText(const D3D12_COMMAND_LIST_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_COMMAND_LIST_FLAG_NONE & value)
+    if (value == D3D12_COMMAND_LIST_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_COMMAND_LIST_FLAG_NONE");
+        return "D3D12_COMMAND_LIST_FLAG_NONE";
     }
     if (code.length() == 0)
     {
@@ -3761,10 +3731,9 @@ static const std::string ConverttoText(const D3D12_COMMAND_LIST_FLAGS value)
 static const std::string ConverttoText(const D3D12_COMMAND_POOL_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_COMMAND_POOL_FLAG_NONE & value)
+    if (value == D3D12_COMMAND_POOL_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_COMMAND_POOL_FLAG_NONE");
+        return "D3D12_COMMAND_POOL_FLAG_NONE";
     }
     if (code.length() == 0)
     {
@@ -3778,10 +3747,9 @@ static const std::string ConverttoText(const D3D12_COMMAND_POOL_FLAGS value)
 static const std::string ConverttoText(const D3D12_COMMAND_RECORDER_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_COMMAND_RECORDER_FLAG_NONE & value)
+    if (value == D3D12_COMMAND_RECORDER_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_COMMAND_RECORDER_FLAG_NONE");
+        return "D3D12_COMMAND_RECORDER_FLAG_NONE";
     }
     if (code.length() == 0)
     {
@@ -3795,10 +3763,9 @@ static const std::string ConverttoText(const D3D12_COMMAND_RECORDER_FLAGS value)
 static const std::string ConverttoText(const D3D12_PROTECTED_SESSION_STATUS value)
 {
     std::string code = "";
-    if (D3D12_PROTECTED_SESSION_STATUS_OK & value)
+    if (value == D3D12_PROTECTED_SESSION_STATUS_OK)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_PROTECTED_SESSION_STATUS_OK");
+        return "D3D12_PROTECTED_SESSION_STATUS_OK";
     }
     if (D3D12_PROTECTED_SESSION_STATUS_INVALID & value)
     {
@@ -3817,10 +3784,9 @@ static const std::string ConverttoText(const D3D12_PROTECTED_SESSION_STATUS valu
 static const std::string ConverttoText(const D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAG_NONE & value)
+    if (value == D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAG_NONE");
+        return "D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAG_NONE";
     }
     if (D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAG_SUPPORTED & value)
     {
@@ -3839,10 +3805,9 @@ static const std::string ConverttoText(const D3D12_PROTECTED_RESOURCE_SESSION_SU
 static const std::string ConverttoText(const D3D12_PROTECTED_RESOURCE_SESSION_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_PROTECTED_RESOURCE_SESSION_FLAG_NONE & value)
+    if (value == D3D12_PROTECTED_RESOURCE_SESSION_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_PROTECTED_RESOURCE_SESSION_FLAG_NONE");
+        return "D3D12_PROTECTED_RESOURCE_SESSION_FLAG_NONE";
     }
     if (code.length() == 0)
     {
@@ -3940,10 +3905,9 @@ static const std::string ConverttoText(const D3D12_META_COMMAND_PARAMETER_STAGE 
 static const std::string ConverttoText(const D3D12_GRAPHICS_STATES value)
 {
     std::string code = "";
-    if (D3D12_GRAPHICS_STATE_NONE & value)
+    if (value == D3D12_GRAPHICS_STATE_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_GRAPHICS_STATE_NONE");
+        return "D3D12_GRAPHICS_STATE_NONE";
     }
     if (D3D12_GRAPHICS_STATE_IA_VERTEX_BUFFERS & value)
     {
@@ -4082,10 +4046,9 @@ static const std::string ConverttoText(const D3D12_STATE_SUBOBJECT_TYPE value)
 static const std::string ConverttoText(const D3D12_STATE_OBJECT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_STATE_OBJECT_FLAG_NONE & value)
+    if (value == D3D12_STATE_OBJECT_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_STATE_OBJECT_FLAG_NONE");
+        return "D3D12_STATE_OBJECT_FLAG_NONE";
     }
     if (D3D12_STATE_OBJECT_FLAG_ALLOW_LOCAL_DEPENDENCIES_ON_EXTERNAL_DEFINITIONS & value)
     {
@@ -4114,10 +4077,9 @@ static const std::string ConverttoText(const D3D12_STATE_OBJECT_FLAGS value)
 static const std::string ConverttoText(const D3D12_EXPORT_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_EXPORT_FLAG_NONE & value)
+    if (value == D3D12_EXPORT_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_EXPORT_FLAG_NONE");
+        return "D3D12_EXPORT_FLAG_NONE";
     }
     if (code.length() == 0)
     {
@@ -4149,10 +4111,9 @@ static const std::string ConverttoText(const D3D12_HIT_GROUP_TYPE value)
 static const std::string ConverttoText(const D3D12_RAYTRACING_PIPELINE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RAYTRACING_PIPELINE_FLAG_NONE & value)
+    if (value == D3D12_RAYTRACING_PIPELINE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RAYTRACING_PIPELINE_FLAG_NONE");
+        return "D3D12_RAYTRACING_PIPELINE_FLAG_NONE";
     }
     if (D3D12_RAYTRACING_PIPELINE_FLAG_SKIP_TRIANGLES & value)
     {
@@ -4194,10 +4155,9 @@ static const std::string ConverttoText(const D3D12_STATE_OBJECT_TYPE value)
 static const std::string ConverttoText(const D3D12_RAYTRACING_GEOMETRY_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RAYTRACING_GEOMETRY_FLAG_NONE & value)
+    if (value == D3D12_RAYTRACING_GEOMETRY_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RAYTRACING_GEOMETRY_FLAG_NONE");
+        return "D3D12_RAYTRACING_GEOMETRY_FLAG_NONE";
     }
     if (D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE & value)
     {
@@ -4239,10 +4199,9 @@ static const std::string ConverttoText(const D3D12_RAYTRACING_GEOMETRY_TYPE valu
 static const std::string ConverttoText(const D3D12_RAYTRACING_INSTANCE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RAYTRACING_INSTANCE_FLAG_NONE & value)
+    if (value == D3D12_RAYTRACING_INSTANCE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RAYTRACING_INSTANCE_FLAG_NONE");
+        return "D3D12_RAYTRACING_INSTANCE_FLAG_NONE";
     }
     if (D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE & value)
     {
@@ -4276,10 +4235,9 @@ static const std::string ConverttoText(const D3D12_RAYTRACING_INSTANCE_FLAGS val
 static const std::string ConverttoText(const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE & value)
+    if (value == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE");
+        return "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE";
     }
     if (D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE & value)
     {
@@ -4421,10 +4379,9 @@ static const std::string ConverttoText(const D3D12_SERIALIZED_DATA_TYPE value)
 static const std::string ConverttoText(const D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS value)
 {
     std::string code = "";
-    if (D3D12_DRIVER_MATCHING_IDENTIFIER_COMPATIBLE_WITH_DEVICE & value)
+    if (value == D3D12_DRIVER_MATCHING_IDENTIFIER_COMPATIBLE_WITH_DEVICE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_DRIVER_MATCHING_IDENTIFIER_COMPATIBLE_WITH_DEVICE");
+        return "D3D12_DRIVER_MATCHING_IDENTIFIER_COMPATIBLE_WITH_DEVICE";
     }
     if (D3D12_DRIVER_MATCHING_IDENTIFIER_UNSUPPORTED_TYPE & value)
     {
@@ -4458,10 +4415,9 @@ static const std::string ConverttoText(const D3D12_DRIVER_MATCHING_IDENTIFIER_ST
 static const std::string ConverttoText(const D3D12_RAY_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RAY_FLAG_NONE & value)
+    if (value == D3D12_RAY_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RAY_FLAG_NONE");
+        return "D3D12_RAY_FLAG_NONE";
     }
     if (D3D12_RAY_FLAG_FORCE_OPAQUE & value)
     {
@@ -4663,10 +4619,9 @@ static const std::string ConverttoText(const D3D12_DRED_VERSION value)
 static const std::string ConverttoText(const D3D12_DRED_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_DRED_FLAG_NONE & value)
+    if (value == D3D12_DRED_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_DRED_FLAG_NONE");
+        return "D3D12_DRED_FLAG_NONE";
     }
     if (D3D12_DRED_FLAG_FORCE_ENABLE & value)
     {
@@ -4866,10 +4821,9 @@ static const std::string ConverttoText(const D3D12_RENDER_PASS_ENDING_ACCESS_TYP
 static const std::string ConverttoText(const D3D12_RENDER_PASS_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RENDER_PASS_FLAG_NONE & value)
+    if (value == D3D12_RENDER_PASS_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RENDER_PASS_FLAG_NONE");
+        return "D3D12_RENDER_PASS_FLAG_NONE";
     }
     if (D3D12_RENDER_PASS_FLAG_ALLOW_UAV_WRITES & value)
     {
@@ -5910,10 +5864,9 @@ static const std::string ConverttoText(const D3D_INTERPOLATION_MODE value)
 static const std::string ConverttoText(const D3D_PARAMETER_FLAGS value)
 {
     std::string code = "";
-    if (D3D_PF_NONE & value)
+    if (value == D3D_PF_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D_PF_NONE");
+        return "D3D_PF_NONE";
     }
     if (D3D_PF_IN & value)
     {
@@ -5942,10 +5895,9 @@ static const std::string ConverttoText(const D3D_PARAMETER_FLAGS value)
 static const std::string ConverttoText(const D3D12_GPU_BASED_VALIDATION_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_GPU_BASED_VALIDATION_FLAGS_NONE & value)
+    if (value == D3D12_GPU_BASED_VALIDATION_FLAGS_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_GPU_BASED_VALIDATION_FLAGS_NONE");
+        return "D3D12_GPU_BASED_VALIDATION_FLAGS_NONE";
     }
     if (D3D12_GPU_BASED_VALIDATION_FLAGS_DISABLE_STATE_TRACKING & value)
     {
@@ -5964,10 +5916,9 @@ static const std::string ConverttoText(const D3D12_GPU_BASED_VALIDATION_FLAGS va
 static const std::string ConverttoText(const D3D12_RLDO_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_RLDO_NONE & value)
+    if (value == D3D12_RLDO_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_RLDO_NONE");
+        return "D3D12_RLDO_NONE";
     }
     if (D3D12_RLDO_SUMMARY & value)
     {
@@ -6064,10 +6015,9 @@ static const std::string ConverttoText(const D3D12_GPU_BASED_VALIDATION_SHADER_P
 static const std::string ConverttoText(const D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS value)
 {
     std::string code = "";
-    if (D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG_NONE & value)
+    if (value == D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG_NONE)
     {
-        if (code.length() > 0) code.append(" | ");
-        code.append("D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG_NONE");
+        return "D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG_NONE";
     }
     if (D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAG_FRONT_LOAD_CREATE_TRACKING_ONLY_SHADERS & value)
     {

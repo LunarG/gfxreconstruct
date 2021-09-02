@@ -87,12 +87,17 @@ class Dx12ConvertToTextsHeaderGenerator(Dx12BaseGenerator):
             if is_bits:
                 code += '    std::string code = "";\n'
                 for value in v['values']:
-                    code += '    if ({} & value)\n'.format(value['name'])
-                    code += '    {\n'
-                    code += '        if (code.length() > 0) code.append(" | ");\n'
-                    code += '        code.append("{}");\n'.format(
-                        value['name']
-                    )
+                    if value['value'] == 0:
+                        code += '    if (value == {})\n'.format(value['name'])
+                        code += '    {\n'
+                        code += '        return "{}";\n'.format(value['name'])
+                    else:
+                        code += '    if ({} & value)\n'.format(value['name'])
+                        code += '    {\n'
+                        code += '        if (code.length() > 0) code.append(" | ");\n'
+                        code += '        code.append("{}");\n'.format(
+                            value['name']
+                        )
                     code += '    }\n'
                 code += '    if (code.length() == 0)\n'
                 code += '    {\n'
