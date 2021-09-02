@@ -101,7 +101,8 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Reset)
     {
-        list_info->closed = false;
+        list_info->was_reset = true;
+        list_info->is_closed = false;
 
         // Clear command data on command buffer reset.
         list_info->command_data.Reset();
@@ -121,7 +122,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12GraphicsCommandList_Wrapper* 
 
     if (call_id == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close)
     {
-        list_info->closed = true;
+        list_info->is_closed = true;
     }
 
     // Append the command data.
@@ -220,8 +221,8 @@ void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wr
 
 void Dx12StateTracker::TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed)
 {
-    auto list_info    = list_wrapper->GetObjectInfo();
-    list_info->closed = created_closed;
+    auto list_info       = list_wrapper->GetObjectInfo();
+    list_info->is_closed = created_closed;
 }
 
 void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           create_object_wrapper,

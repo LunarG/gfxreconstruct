@@ -120,8 +120,12 @@ class Dx12StateWriter
 
     void WriteGraphicsCommandListState(const Dx12StateTable& state_table);
 
-    void WriteSingleGraphicsCommandListState(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
-                                             const Dx12StateTable&                    state_table);
+    void WriteCommandListCreation(const ID3D12GraphicsCommandList_Wrapper* list_wrapper);
+
+    void WriteCommandListCommands(const ID3D12GraphicsCommandList_Wrapper* list_wrapper,
+                                  const Dx12StateTable&                    state_table);
+
+    void WriteCommandListClose(const ID3D12GraphicsCommandList_Wrapper* list_wrapper);
 
     bool CheckGraphicsCommandListObjects(const ID3D12GraphicsCommandListInfo* list_info,
                                          const Dx12StateTable&                state_table);

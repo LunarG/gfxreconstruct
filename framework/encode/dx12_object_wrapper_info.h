@@ -301,7 +301,8 @@ enum D3D12GraphicsCommandObjectType : uint32_t
 
 struct ID3D12GraphicsCommandListInfo : public DxWrapperInfo
 {
-    bool                                 closed{ false };
+    bool                                 was_reset{ false };
+    bool                                 is_closed{ false };
     util::MemoryOutputStream             command_data;
     std::vector<DxTransitionBarrier>     transition_barriers;
     std::unordered_set<format::HandleId> command_objects[D3D12GraphicsCommandObjectType::NumObjectTypes];
