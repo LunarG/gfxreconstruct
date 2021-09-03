@@ -61,21 +61,35 @@ bool AddTransitionBarrier(ID3D12GraphicsCommandList*     cmd_list,
                           const dx12::ResourceStateInfo& current_state,
                           const dx12::ResourceStateInfo& desired_state)
 {
+    // It is expected that barrier_flags can have bits set for either D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY or
+    // D3D12_RESOURCE_BARRIER_FLAG_END_ONLY, not both.
+    GFXRECON_ASSERT((current_state.barrier_flags &
+                     (D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY | D3D12_RESOURCE_BARRIER_FLAG_END_ONLY)) !=
+                    (D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY | D3D12_RESOURCE_BARRIER_FLAG_END_ONLY));
+    GFXRECON_ASSERT((current_state.barrier_flags &
+                     (D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY | D3D12_RESOURCE_BARRIER_FLAG_END_ONLY)) !=
+                    (D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY | D3D12_RESOURCE_BARRIER_FLAG_END_ONLY));
+
     // Return early if the resource is already in the desired state
-    if ((current_state.states == desired_state.states) && (current_state.barrier_flags == desired_state.barrier_flags))
+    bool current_barrier_begins_split = ((current_state.barrier_flags & D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY) ==
+                                         D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY);
+    bool desired_barrier_begins_split = ((desired_state.barrier_flags & D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY) ==
+                                         D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY);
+    if (current_state.states == desired_state.states)
     {
-        return false;
+        if (current_barrier_begins_split == desired_barrier_begins_split)
+        {
+            return false;
+        }
     }
 
-    D3D12_RESOURCE_BARRIER_FLAGS flags = desired_state.barrier_flags;
+    D3D12_RESOURCE_BARRIER_FLAGS flags = desired_barrier_begins_split ? D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY : D3D12_RESOURCE_BARRIER_FLAG_NONE;
 
     // Handle the cases where the resource is currently in the middle of a split transition barrier.
-    if (current_state.barrier_flags == D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY)
+    if (current_barrier_begins_split)
     {
-        // If the previous state started a split transition to the desired state, and the desired state is not the start
-        // of a split transition, complete the current split transition.
-        if ((desired_state.states == current_state.states) &&
-            (desired_state.barrier_flags != D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY))
+        // If the previous state started a split transition to the desired state, complete the current split transition.
+        if (desired_state.states == current_state.states)
         {
             flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
         }
