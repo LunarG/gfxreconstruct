@@ -7738,23 +7738,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_Present(
         UINT SyncInterval,
         UINT Flags)
 {
-    std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
-    oss << "Present(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << SyncInterval;
-    oss << ",\n";
-
-    oss << "    " << Flags;
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    OverridePresent(
+        object_id,
+        return_value,
+        SyncInterval,
+        Flags);
 }
 
 
@@ -9012,29 +9000,12 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_Present1(
         UINT PresentFlags,
         StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
 {
-    std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
-    oss << "Present1(\n    /* ";
-
-    oss << "return = " ;
-    oss << enumutil::GetResultValueString(return_value);
-    oss << ",\n       ";
-
-    oss << "thread_id = WIP */\n";
-
-    oss << "    " << SyncInterval;
-    oss << ",\n";
-
-    oss << "    " << PresentFlags;
-    oss << ",\n";
-
-    if (WriteCheckPointerDecoderNull(oss, pPresentParameters, "    ", false))
-    {
-        WriteStructString(oss, pPresentParameters->GetMetaStructPointer(), "    ", false, false);
-    }
-    oss << ");\n\n";
-
-    fprintf(GetFile(), "%s\n", oss.str().c_str());
+    OverridePresent1(
+        object_id,
+        return_value,
+        SyncInterval,
+        PresentFlags,
+        pPresentParameters);
 }
 
 

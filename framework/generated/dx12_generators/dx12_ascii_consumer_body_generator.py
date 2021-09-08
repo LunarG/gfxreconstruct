@@ -20,13 +20,47 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import json
 from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
-from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
+from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator, Dx12AsciiConsumerHeaderGeneratorOptions
+
+
+class Dx12AsciiBodyGeneratorOptions(Dx12AsciiConsumerHeaderGeneratorOptions):
+    """Options for generating C++ functions for Dx12 capture."""
+
+    def __init__(
+        self,
+        constructor_args,
+        # Path to JSON file listing Vulkan API calls to override on capture.
+        ascii_overrides=None,
+        # Path to JSON file listing apicalls and structs to ignore.
+        blacklists=None,
+        # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        platform_types=None,
+        filename=None,
+        directory='.',
+        prefix_text='',
+        protect_file=False,
+        protect_feature=True
+    ):
+        Dx12AsciiConsumerHeaderGeneratorOptions.__init__(
+            self, constructor_args, blacklists, platform_types, filename, directory, prefix_text,
+            protect_file, protect_feature
+        )
+        self.ascii_overrides = ascii_overrides
 
 
 class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
     """Generates C++ functions responsible for consuming Dx12 API calls."""
+
+    ASCII_OVERRIDES = {}
+
+    def beginFile(self, genOpts):
+        """Methond override."""
+        Dx12AsciiConsumerHeaderGenerator.beginFile(self, genOpts)
+        if genOpts.ascii_overrides:
+            self.__load_ascii_overrides(genOpts.ascii_overrides)
 
     def write_include(self):
         """Methond override."""
@@ -58,49 +92,65 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def get_consumer_function_body(self, class_name, method_info, return_type):
         """Methond override."""
-        code = '\n{\n'\
-               '    std::ostringstream oss;\n'
-
         class_method_name = method_info['name']
-        if class_name:
-            code += '    oss << "{}_id" << object_id << "->";\n'.format(
-                class_name
-            )
-            class_method_name = class_name + '_' + class_method_name
-
-        code += '    oss << "{}(\\n    /* ";\n\n'.format(method_info['name'])
-
-        if return_type.find('void ') == -1 or return_type.find('void *') != -1:
-            return_value = self.get_return_value_info(
-                return_type, class_method_name
-            )
-            code += '    oss << "return = " ;\n'
-            code += self.add_argument(
-                return_value, '    ', '                ', True
-            )
-            code += '    oss << ",\\n       ";\n\n'
-
-        # TODO: Add thread_id
-        code += '    oss << "thread_id = WIP */'
-        params = method_info['parameters']
-
-        if params:
-            code += '\\n";\n\n'
+        is_override = False
+        if class_name in self.ASCII_OVERRIDES['classmethods']:
+            is_override = class_method_name in self.ASCII_OVERRIDES[
+                'classmethods'][class_name]
+        if is_override:
+            code = '\n{\n    '
+            code += self.ASCII_OVERRIDES['classmethods'][class_name][
+                class_method_name] + '(\n'
+            code += '        object_id,\n'
+            code += '        return_value'
+            for p in method_info['parameters']:
+                code += ',\n'
+                code += '        '+p['name']
+            code += ');\n}\n'
         else:
-            code += ');\\n\\n";\n\n'
+            code = '\n{\n'\
+                '    std::ostringstream oss;\n'
 
-        index = 0
-        for p in params:
-            index += 1
-            value = self.get_value_info(p)
-            comma = '",\\n"'
-            if index == len(method_info['parameters']):
-                comma = '");\\n\\n"'
-            code += self.add_argument(value, '    ', '    ', False)
-            code += '    oss << {};\n\n'.format(comma)
+            if class_name:
+                code += '    oss << "{}_id" << object_id << "->";\n'.format(
+                    class_name
+                )
+                class_method_name = class_name + '_' + class_method_name
 
-        code += '    fprintf(GetFile(), "%s\\n", oss.str().c_str());\n'\
-                '}\n'
+            code += '    oss << "{}(\\n    /* ";\n\n'.format(
+                method_info['name'])
+
+            if return_type.find('void ') == -1 or return_type.find('void *') != -1:
+                return_value = self.get_return_value_info(
+                    return_type, class_method_name
+                )
+                code += '    oss << "return = " ;\n'
+                code += self.add_argument(
+                    return_value, '    ', '                ', True
+                )
+                code += '    oss << ",\\n       ";\n\n'
+
+            # TODO: Add thread_id
+            code += '    oss << "thread_id = WIP */'
+            params = method_info['parameters']
+
+            if params:
+                code += '\\n";\n\n'
+            else:
+                code += ');\\n\\n";\n\n'
+
+            index = 0
+            for p in params:
+                index += 1
+                value = self.get_value_info(p)
+                comma = '",\\n"'
+                if index == len(method_info['parameters']):
+                    comma = '");\\n\\n"'
+                code += self.add_argument(value, '    ', '    ', False)
+                code += '    oss << {};\n\n'.format(comma)
+
+            code += '    fprintf(GetFile(), "%s\\n", oss.str().c_str());\n'\
+                    '}\n'
         return code
 
     def add_argument(self, value, indent_code, indent_file, prefix):
@@ -541,3 +591,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
     def trim_generate_write_empty(self, value):
         return value.replace('"" << ', '')
+
+    def __load_ascii_overrides(self, filename):
+        overrides = json.loads(open(filename, 'r').read())
+        self.ASCII_OVERRIDES = overrides

@@ -37,7 +37,7 @@ from dx12_consumer_header_generator import Dx12ConsumerHeaderGenerator, Dx12Cons
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator, Dx12ReplayConsumerHeaderGeneratorOptions
 from dx12_replay_consumer_body_generator import Dx12ReplayConsumerBodyGenerator, Dx12ReplayConsumerBodyGeneratorOptions
 from dx12_ascii_consumer_header_generator import Dx12AsciiConsumerHeaderGenerator
-from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator
+from dx12_ascii_consumer_body_generator import Dx12AsciiConsumerBodyGenerator, Dx12AsciiBodyGeneratorOptions
 from dx12_wrapper_header_generator import Dx12WrapperHeaderGenerator
 from dx12_wrapper_body_generator import Dx12WrapperBodyGenerator, Dx12WrapperBodyGeneratorOptions
 from dx12_wrapper_creators_header_generator import Dx12WrapperCreatorsHeaderGenerator
@@ -59,6 +59,7 @@ default_blacklists = 'blacklists.json'
 default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
 default_capture_overrides = 'capture_overrides.json'
+default_ascii_overrides = 'ascii_overrides.json'
 
 
 def make_gen_opts(args):
@@ -79,6 +80,7 @@ def make_gen_opts(args):
     platform_types = os.path.join(args.configs, default_platform_types)
     replay_overrides = os.path.join(args.configs, default_replay_overrides)
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
+    ascii_overrides = os.path.join(args.configs, default_ascii_overrides)
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -292,11 +294,13 @@ def make_gen_opts(args):
     )
     gen_opts['generated_dx12_ascii_consumer.cpp'] = [
         Dx12AsciiConsumerBodyGenerator,
-        Dx12ConsumerHeaderGeneratorOptions(
+        Dx12AsciiBodyGeneratorOptions(
             filename='generated_dx12_ascii_consumer.cpp',
             directory=directory,
+            constructor_args='',
             blacklists=blacklists,
             platform_types=platform_types,
+            ascii_overrides=ascii_overrides,
             prefix_text=prefix_strings + py_prefix_strings,
             protect_file=False,
             protect_feature=False

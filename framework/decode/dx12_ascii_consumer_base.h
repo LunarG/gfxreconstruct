@@ -56,8 +56,23 @@ class Dx12AsciiConsumerBase : public Dx12Consumer
                                                    void*            replay_feature_data,
                                                    UINT             feature_data_size) override;
 
+    void OverridePresent(format::HandleId object_id, HRESULT return_value, UINT SyncInterval, UINT Flags);
+
+    void OverridePresent1(format::HandleId                                       object_id,
+                          HRESULT                                                return_value,
+                          UINT                                                   SyncInterval,
+                          UINT                                                   PresentFlags,
+                          StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters);
+
+    void DumpPresentWithFrameNumber(format::HandleId                                       object_id,
+                                    HRESULT                                                return_value,
+                                    UINT                                                   SyncInterval,
+                                    UINT                                                   PresentFlags,
+                                    StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters);
+
   protected:
-    FILE* GetFile() const { return m_file; }
+    FILE*    GetFile() const { return m_file; }
+    uint32_t current_frame_number_;
 
   private:
     FILE*       m_file;

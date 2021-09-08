@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-Dx12AsciiConsumerBase::Dx12AsciiConsumerBase() : m_file(nullptr) {}
+Dx12AsciiConsumerBase::Dx12AsciiConsumerBase() : m_file(nullptr), current_frame_number_(0) {}
 
 Dx12AsciiConsumerBase::~Dx12AsciiConsumerBase()
 {
@@ -277,7 +277,7 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
                                                                       void*            replay_feature_data,
                                                                       UINT             feature_data_size)
 {
-    const char* indent = "    ";
+    const char*        indent = "    ";
     std::ostringstream oss;
     oss << "IDXGIFactory5_id" << object_id << "->";
     oss << "CheckFeatureSupport(\n" << indent << "/* ";
@@ -307,6 +307,65 @@ void Dx12AsciiConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Ha
 
     oss << indent << feature_data_size;
     oss << ");\n\n";
+
+    fprintf(GetFile(), "%s\n", oss.str().c_str());
+}
+
+void Dx12AsciiConsumerBase::OverridePresent(format::HandleId object_id,
+                                            HRESULT          return_value,
+                                            UINT             SyncInterval,
+                                            UINT             Flags)
+{
+    DumpPresentWithFrameNumber(object_id, return_value, SyncInterval, Flags, nullptr);
+}
+
+void Dx12AsciiConsumerBase::OverridePresent1(format::HandleId                                       object_id,
+                                             HRESULT                                                return_value,
+                                             UINT                                                   SyncInterval,
+                                             UINT                                                   PresentFlags,
+                                             StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
+{
+    DumpPresentWithFrameNumber(object_id, return_value, SyncInterval, PresentFlags, pPresentParameters);
+}
+
+// TODO(#311): add thread ID information for all API call ascii dump.
+
+void Dx12AsciiConsumerBase::DumpPresentWithFrameNumber(
+    format::HandleId                                       object_id,
+    HRESULT                                                return_value,
+    UINT                                                   SyncInterval,
+    UINT                                                   PresentFlags,
+    StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters)
+{
+    current_frame_number_++;
+
+    std::ostringstream oss;
+    oss << "Frame number: " << current_frame_number_ << "\n";
+
+    oss << "IDXGISwapChain1_id" << object_id << "->";
+    oss << "Present1(\n    /* ";
+
+    oss << "return = ";
+    oss << enumutil::GetResultValueString(return_value);
+    oss << ",\n       ";
+
+    oss << "thread_id = WIP */\n";
+
+    oss << "    " << SyncInterval;
+    oss << ",\n";
+
+    oss << "    " << PresentFlags;
+
+    if (pPresentParameters)
+    {
+        oss << ",\n";
+
+        if (WriteCheckPointerDecoderNull(oss, pPresentParameters, "    ", false))
+        {
+            WriteStructString(oss, pPresentParameters->GetMetaStructPointer(), "    ", false, false);
+        }
+        oss << ");\n\n";
+    }
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
