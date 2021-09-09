@@ -119,7 +119,7 @@ void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
 }
 
 void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
-                                                    IUnknown*               device,
+                                                    IUnknown*               command_queue,
                                                     uint32_t                image_count,
                                                     DXGI_SWAP_EFFECT        swap_effect)
 {
@@ -130,8 +130,10 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
 
         auto info = wrapper->GetObjectInfo();
         assert(info != nullptr);
-        if (device != nullptr)
-            info->device_id = GetWrappedId<IUnknown>(device);
+        if (command_queue != nullptr)
+        {
+            info->command_queue_id = GetWrappedId<IUnknown>(command_queue);
+        }
 
         if (info->child_images.empty())
         {
@@ -160,8 +162,9 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
                     resource_wrapper->MakeRefInternal();
                     info->child_images[i] = resource_wrapper;
 
-                    // TODO (GH #261): Initialize members of ID3D12ResourceInfo for resource_wrapper in order to track
-                    // frame buffer state.
+                    // Initialize members of ID3D12ResourceInfo for resource_wrapper in order to track swap chain buffer
+                    // state.
+                    InitializeSwapChainBufferResourceInfo(resource_wrapper, D3D12_RESOURCE_STATE_PRESENT);
                 }
                 else
                 {
@@ -274,7 +277,28 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
 
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        state_tracker_->TrackResourceCreation(resource_wrapper, initial_state);
+        state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, false);
+    }
+}
+
+void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
+                                                                D3D12_RESOURCE_STATES   initial_state)
+{
+    GFXRECON_ASSERT(resource_wrapper != nullptr);
+    GFXRECON_ASSERT(resource_wrapper->GetObjectInfo() != nullptr);
+
+    auto info = resource_wrapper->GetObjectInfo();
+
+    // Not all fields of ID3D12ResourceInfo are used for swap chain buffers.
+    info->device_id            = format::kNullHandleId;
+    info->num_subresources     = 1;
+    info->mapped_subresources  = std::make_unique<MappedSubresource[]>(info->num_subresources);
+    info->subresource_sizes    = std::make_unique<uint64_t[]>(info->num_subresources);
+    info->subresource_sizes[0] = 0;
+
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackResourceCreation(resource_wrapper, initial_state, true);
     }
 }
 

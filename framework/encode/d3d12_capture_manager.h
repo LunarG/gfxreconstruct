@@ -556,7 +556,7 @@ class D3D12CaptureManager : public CaptureManager
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
-                                   IUnknown*               device,
+                                   IUnknown*               command_queue,
                                    uint32_t                image_count,
                                    DXGI_SWAP_EFFECT        swap_effect);
 
@@ -571,6 +571,9 @@ class D3D12CaptureManager : public CaptureManager
                                       D3D12_MEMORY_POOL        memory_pool,
                                       D3D12_RESOURCE_STATES    initial_state,
                                       bool                     has_write_watch);
+
+    void InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
+                                               D3D12_RESOURCE_STATES   initial_state);
 
   private:
     void CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);

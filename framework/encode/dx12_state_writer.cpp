@@ -562,7 +562,7 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
             GFXRECON_LOG_WARNING_ONCE(
                 "Skipping resource data capture for ray tracing acceleration structure resource(s).");
         }
-        else
+        else if (!resource_info->is_swapchain_buffer) // swapchain buffer state is handled separately.
         {
             // Store resource wrappers and max resource sizes.
             ResourceSnapshotInfo snapshot_info;
@@ -610,16 +610,14 @@ void Dx12StateWriter::WriteResourceSnapshots(
         auto device_id = kvp.first;
         auto snapshots = kvp.second;
 
-        // TODO (GH #83): If device id is format::kNullHandleId, this resource may not have been tracked at creation.
-        // This can happen for resources such as swapchain buffers which are not explicitly created. Ultimately the
-        // contents of those resources will need to be captured and replayed.
+        // Error if encountering a resource with null device id.
         if (device_id == format::kNullHandleId)
         {
             for (auto snapshot : kvp.second)
             {
-                GFXRECON_LOG_WARNING("Resource (id = %" PRIu64
-                                     ") has a null device id. Its contents will not be captured or replayed.",
-                                     snapshot.resource_wrapper->GetCaptureId());
+                GFXRECON_LOG_ERROR("Resource (id = %" PRIu64
+                                   ") has a null device id. Its contents will not be captured or replayed.",
+                                   snapshot.resource_wrapper->GetCaptureId());
             }
             continue;
         }
@@ -1130,7 +1128,6 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         }
 
         format::SetSwapchainImageStateCommandHeader header;
-        format::SwapchainImageStateInfo             info{};
 
         // Initialize standard block header.
         header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(header);
@@ -1140,9 +1137,14 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         header.meta_header.meta_data_id = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
                                                                  format::MetaDataType::kSetSwapchainImageStateCommand);
         header.thread_id                = thread_id_;
-        header.device_id                = swapchain_info->device_id; // ID3D12CommandQueue
         header.swapchain_id             = swapchain_wrapper->GetCaptureId();
-        header.last_presented_image     = swapchain_buffer_index;
+
+        // The object used to create a swap chain is a command queue for DX12. Store the command_queue's HandleId in
+        // the header's device_id field.
+        header.device_id = swapchain_info->command_queue_id;
+
+        // last_presented_image is used to store the current swapchain buffer index for DX12.
+        header.last_presented_image = swapchain_buffer_index;
 
         // last_presented_image is the only need for replay, so nothing is written into format::SwapchainImageStateInfo.
         header.image_info_count = 0;

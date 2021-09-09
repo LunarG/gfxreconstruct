@@ -94,7 +94,7 @@ class Dx12ConsumerBase
 
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
                                                       format::HandleId swapchain_id,
-                                                      uint32_t         last_presented_image,
+                                                      uint32_t         current_buffer_index,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {}
 

@@ -251,9 +251,9 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
                                                                       DxObjectInfo*       swapchain_info,
-                                                                      uint32_t            last_presented_image)
+                                                                      uint32_t            current_buffer_index)
 {
-    GFXRECON_ASSERT((last_presented_image != std::numeric_limits<uint32_t>::max()));
+    GFXRECON_ASSERT((current_buffer_index != std::numeric_limits<uint32_t>::max()));
 
     graphics::dx12::ID3D12DeviceComPtr device = nullptr;
     HRESULT                            ret    = command_queue->GetDevice(IID_PPV_ARGS(&device));
@@ -262,24 +262,12 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12Comm
     auto                 swapchain = static_cast<IDXGISwapChain3*>(swapchain_info->object);
     DXGI_SWAP_CHAIN_DESC swap_chain_desc;
     swapchain->GetDesc(&swap_chain_desc);
-    auto image_count = swap_chain_desc.BufferCount;
+    auto buffer_count = swap_chain_desc.BufferCount;
 
-    graphics::dx12::ID3D12GraphicsCommandListComPtr command_list      = nullptr;
-    graphics::dx12::ID3D12CommandAllocatorComPtr    command_allocator = nullptr;
-
-    ret = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator));
-    GFXRECON_ASSERT(SUCCEEDED(ret));
-
-    ret = device->CreateCommandList(
-        0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_allocator, nullptr, IID_PPV_ARGS(&command_list));
-    GFXRECON_ASSERT(SUCCEEDED(ret));
-    ret = command_list->Close();
-    GFXRECON_ASSERT(SUCCEEDED(ret));
-
-    for (uint32_t n = 0; n < image_count; ++n)
+    for (uint32_t n = 0; n < buffer_count; ++n)
     {
         // When the index buffer matches the buffer during capture, exit the loop.
-        if (n == last_presented_image)
+        if (n == current_buffer_index)
         {
             break;
         }
@@ -287,42 +275,19 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12Comm
         // Validate the assumption that the swapchain buffer index increases by 1 after each swapchain->Present.
         GFXRECON_ASSERT(n == swapchain->GetCurrentBackBufferIndex());
 
-        ret = command_allocator->Reset();
-        GFXRECON_ASSERT(SUCCEEDED(ret));
-        ret = command_list->Reset(command_allocator, nullptr);
-        GFXRECON_ASSERT(SUCCEEDED(ret));
-
-        graphics::dx12::ID3D12ResourceComPtr current_buffer = nullptr;
-        ret                                                 = swapchain->GetBuffer(n, IID_PPV_ARGS(&current_buffer));
-        GFXRECON_ASSERT(SUCCEEDED(ret));
-
-        D3D12_RESOURCE_BARRIER barrier = {};
-        barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barrier.Transition.pResource   = current_buffer;
-        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-        barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-        command_list->ResourceBarrier(1, &barrier);
-
-        ret = command_list->Close();
-        GFXRECON_ASSERT(SUCCEEDED(ret));
-        ID3D12CommandList* command_lists[] = { command_list };
-        command_queue->ExecuteCommandLists(ARRAYSIZE(command_lists), command_lists);
-
         ret = swapchain->Present(0, 0);
         GFXRECON_ASSERT(SUCCEEDED(ret));
 
         ret = graphics::dx12::WaitForQueue(command_queue);
         GFXRECON_ASSERT(SUCCEEDED(ret));
     }
-    GFXRECON_ASSERT(swapchain->GetCurrentBackBufferIndex() == last_presented_image);
+    GFXRECON_ASSERT(swapchain->GetCurrentBackBufferIndex() == current_buffer_index);
 }
 
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     format::HandleId                                    device_id,
     format::HandleId                                    swapchain_id,
-    uint32_t                                            last_presented_image,
+    uint32_t                                            current_buffer_index,
     const std::vector<format::SwapchainImageStateInfo>& image_state)
 {
     auto* command_queue  = MapObject<ID3D12CommandQueue>(device_id);
@@ -330,7 +295,7 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 
     if (swapchain_info != nullptr && swapchain_info->object != nullptr && command_queue != nullptr)
     {
-        ProcessSetSwapchainImageStateQueueSubmit(command_queue, swapchain_info, last_presented_image);
+        ProcessSetSwapchainImageStateQueueSubmit(command_queue, swapchain_info, current_buffer_index);
     }
     else
     {

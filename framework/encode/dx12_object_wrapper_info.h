@@ -154,7 +154,7 @@ struct IDXGISwapChainMediaInfo : public DxWrapperInfo
 
 struct IDXGISwapChainInfo : public DxWrapperInfo
 {
-    format::HandleId device_id{ format::kNullHandleId }; // ID3D12CommandQueue
+    format::HandleId command_queue_id{ format::kNullHandleId };
     DXGI_SWAP_EFFECT swap_effect{};
     // Members for general wrapper support.
     std::vector<ID3D12Resource_Wrapper*> child_images;
@@ -268,6 +268,8 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
 
     // Track tile mappings for reserved resources.
     std::vector<DxTileMappingInfo> tile_mappings;
+
+    bool is_swapchain_buffer{ false };
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo

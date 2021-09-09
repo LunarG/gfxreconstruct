@@ -69,7 +69,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
                                          format::HandleId                                    swapchain_id,
-                                         uint32_t                                            last_presented_image,
+                                         uint32_t                                            current_buffer_index,
                                          const std::vector<format::SwapchainImageStateInfo>& image_state) override;
 
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
@@ -437,7 +437,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     // the expected state, and then call queue present.
     void ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
                                                   DxObjectInfo*       swapchain_info,
-                                                  uint32_t            last_presented_image);
+                                                  uint32_t            current_buffer_index);
 
     void ApplyResourceInitInfo();
 

@@ -143,7 +143,9 @@ class Dx12StateTracker
                                   UINT                        num_lists,
                                   ID3D12CommandList* const*   lists);
 
-    void TrackResourceCreation(ID3D12Resource_Wrapper* resource_wrapper, D3D12_RESOURCE_STATES initial_state);
+    void TrackResourceCreation(ID3D12Resource_Wrapper* resource_wrapper,
+                               D3D12_RESOURCE_STATES   initial_state,
+                               bool                    swapchain_buffer);
 
     void TrackCommandListCreation(ID3D12GraphicsCommandList_Wrapper* list_wrapper, bool created_closed);
 

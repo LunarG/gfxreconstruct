@@ -208,9 +208,12 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
 }
 
 void Dx12StateTracker::TrackResourceCreation(ID3D12Resource_Wrapper* resource_wrapper,
-                                             D3D12_RESOURCE_STATES   initial_state)
+                                             D3D12_RESOURCE_STATES   initial_state,
+                                             bool                    swapchain_buffer)
 {
     auto resource_info = resource_wrapper->GetObjectInfo();
+
+    resource_info->is_swapchain_buffer = swapchain_buffer;
 
     // Set all subresources to the initial state.
     resource_info->initial_state = initial_state;
