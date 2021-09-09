@@ -1750,8 +1750,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateShaderResourceView(
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
     }
 }
 
@@ -1764,9 +1763,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateUnorderedAccessView(
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pCounterResource));
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource, pCounterResource);
     }
 }
 
@@ -1777,8 +1774,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateRenderTargetView(ID3D12
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
     }
 }
 
@@ -1789,8 +1785,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDepthStencilView(ID3D12
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pResource));
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
     }
 }
 
@@ -1802,9 +1797,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
 {
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
-        auto* descriptor_info = GetDescriptorInfo(DestDescriptor.ptr);
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pTargetedResource));
-        descriptor_info->resource_ids.insert(GetWrappedId<ID3D12Resource>(pFeedbackResource));
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pTargetedResource, pFeedbackResource);
     }
 }
 

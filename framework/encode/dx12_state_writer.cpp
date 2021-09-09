@@ -1024,13 +1024,14 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
     for (auto cpu_descriptor_handle : list_info->command_cpu_descriptor_handles)
     {
         auto* descriptor_info = GetDescriptorInfo(cpu_descriptor_handle);
-        if (!descriptor_info || descriptor_info->resource_ids.empty())
+        if (!descriptor_info)
         {
             return false;
         }
         for (auto resource_id : descriptor_info->resource_ids)
         {
-            if (!CheckGraphicsCommandListObject(ID3D12ResourceObject, resource_id, state_table))
+            if ((resource_id != format::kNullHandleId) &&
+                !CheckGraphicsCommandListObject(ID3D12ResourceObject, resource_id, state_table))
             {
                 return false;
             }

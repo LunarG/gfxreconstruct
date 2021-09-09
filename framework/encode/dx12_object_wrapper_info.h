@@ -32,6 +32,7 @@
 #include <d3d12.h>
 #include <dxgi.h>
 
+#include <array>
 #include <unordered_set>
 #include <map>
 #include <memory>
@@ -87,7 +88,9 @@ struct DxDescriptorInfo
     format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
     std::unique_ptr<util::MemoryOutputStream> create_parameters;
     bool is_copy{ false }; // True if the descriptor was created as a copy with CopyDescriptors
-    std::unordered_set<format::HandleId> resource_ids;
+
+    // Descriptors can be created with up to 2 resource dependencies.
+    std::array<format::HandleId, 2> resource_ids{ format::kNullHandleId, format::kNullHandleId };
 };
 
 struct DxTransitionBarrier

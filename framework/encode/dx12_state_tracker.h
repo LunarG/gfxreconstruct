@@ -163,6 +163,10 @@ class Dx12StateTracker
                               DxDescriptorInfo*       dest_descriptor_info,
                               const DxDescriptorInfo* src_descriptor_info);
 
+    void TrackDescriptorResources(SIZE_T          descriptor_cpu_address,
+                                  ID3D12Resource* resource1,
+                                  ID3D12Resource* resource2 = nullptr);
+
     void TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
                                  format::HandleId                queue_id,
                                  format::HandleId                heap_id,

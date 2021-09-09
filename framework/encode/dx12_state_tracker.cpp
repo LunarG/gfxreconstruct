@@ -22,6 +22,8 @@
 
 #include "encode/dx12_state_tracker.h"
 
+#include "encode/custom_dx12_struct_unwrappers.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -284,6 +286,15 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         }
         dest_descriptor_info[i].resource_ids = src_descriptor_info[i].resource_ids;
     }
+}
+
+void Dx12StateTracker::TrackDescriptorResources(SIZE_T          descriptor_cpu_address,
+                                                ID3D12Resource* resource1,
+                                                ID3D12Resource* resource2)
+{
+    auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
+    descriptor_info->resource_ids[0] = GetWrappedId<ID3D12Resource>(resource1);
+    descriptor_info->resource_ids[1] = GetWrappedId<ID3D12Resource>(resource2);
 }
 
 void Dx12StateTracker::TrackUpdateTileMappings(ID3D12Resource_Wrapper*         resource_wrapper,
