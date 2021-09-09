@@ -1018,7 +1018,7 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
         case D3D12GraphicsCommandObjectType::ID3D12PipelineStateObject:
             return (state_table.GetID3D12PipelineState_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12ResourceObject:
-            return (state_table.GetIDXGIResource_Wrapper(handle_id) != nullptr);
+            return (state_table.GetID3D12Resource_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12GraphicsCommandListObject:
             return (state_table.GetID3D12GraphicsCommandList_Wrapper(handle_id) != nullptr);
         case D3D12GraphicsCommandObjectType::ID3D12DescriptorHeapObject:
