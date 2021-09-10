@@ -8,6 +8,9 @@
       "AddRef": "OverrideAddRef",
       "Release": "OverrideRelease"
     },
+    "ID3D12Debug": {
+      "EnableDebugLayer": "OverrideEnableDebugLayer"
+    },
     "ID3D12Device": {
       "CreateCommandQueue": "OverrideCreateCommandQueue",
       "CreateDescriptorHeap": "OverrideCreateDescriptorHeap",

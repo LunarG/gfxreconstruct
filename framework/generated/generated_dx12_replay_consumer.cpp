@@ -6423,10 +6423,10 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCa
 void Dx12ReplayConsumer::Process_ID3D12Debug_EnableDebugLayer(
     format::HandleId                            object_id)
 {
-    auto replay_object = MapObject<ID3D12Debug>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->EnableDebugLayer();
+        OverrideEnableDebugLayer(replay_object);
     }
 }
 

@@ -460,6 +460,10 @@ class D3D12CaptureManager : public CaptureManager
                                                                             ID3D12Resource*       pFeedbackResource,
                                                                             D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
 
+    void PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_Wrapper* debug_wrapper);
+
+    void PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1_Wrapper* debug1_wrapper);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -531,6 +535,8 @@ class D3D12CaptureManager : public CaptureManager
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
+    inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }
+
   protected:
     D3D12CaptureManager();
 
@@ -577,6 +583,8 @@ class D3D12CaptureManager : public CaptureManager
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
     bool debug_device_lost_enabled_;          ///< Track if DRED has been enabled.
+    format::HandleId
+        track_enable_debug_layer_object_id_; ///< Track object id since ID3D12Debug could be released very soon.
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 };

@@ -69,23 +69,15 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr)
+    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false)
 {
     if (options_.enable_validation_layer)
     {
         ID3D12Debug* dx12_debug = nullptr;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dx12_debug))))
         {
-            dx12_debug->EnableDebugLayer();
+            EnableDebugLayer(dx12_debug);
             dx12_debug->Release();
-            if (FAILED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue_))))
-            {
-                GFXRECON_LOG_WARNING("Failed to retrieve IDXGIInfoQueue for replay option '--validate'.");
-            }
-            else
-            {
-                SetDebugMsgFilter(options_.DeniedDebugMessages, options_.AllowedDebugMessages);
-            }
         }
         else
         {
@@ -110,6 +102,30 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
     {
         InitializeScreenshotHandler();
     }
+}
+
+void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
+{
+    if (!debug_layer_enabled_)
+    {
+        debug_layer_enabled_ = true;
+        dx12_debug->EnableDebugLayer();
+        if (FAILED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue_))))
+        {
+            GFXRECON_LOG_WARNING(
+                "Failed to retrieve IDXGIInfoQueue for replay option '--validate' or trimming EnableDebugLayer.");
+        }
+        else
+        {
+            SetDebugMsgFilter(options_.DeniedDebugMessages, options_.AllowedDebugMessages);
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideEnableDebugLayer(DxObjectInfo* replay_object_info)
+{
+    auto replay_object = static_cast<ID3D12Debug*>(replay_object_info->object);
+    EnableDebugLayer(replay_object);
 }
 
 Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()

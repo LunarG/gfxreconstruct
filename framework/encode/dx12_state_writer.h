@@ -136,6 +136,8 @@ class Dx12StateWriter
 
     void WriteSwapChainState(const Dx12StateTable& state_table);
 
+    void WriteEnableDebugLayer();
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

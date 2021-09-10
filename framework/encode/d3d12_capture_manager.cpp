@@ -38,7 +38,8 @@ thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
 D3D12CaptureManager::D3D12CaptureManager() :
     CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
-    debug_layer_enabled_(false), debug_device_lost_enabled_(false)
+    debug_layer_enabled_(false), debug_device_lost_enabled_(false),
+    track_enable_debug_layer_object_id_(format::kNullHandleId)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
@@ -1798,6 +1799,24 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateSamplerFeedbackUnorder
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
         state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pTargetedResource, pFeedbackResource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Debug_EnableDebugLayer(ID3D12Debug_Wrapper* debug_wrapper)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        // Track object id since ID3D12Debug could be released very soon.
+        track_enable_debug_layer_object_id_ = debug_wrapper->GetCaptureId();
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1_Wrapper* debug1_wrapper)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        // Track object id since ID3D12Debug1 could be released very soon.
+        track_enable_debug_layer_object_id_ = debug1_wrapper->GetCaptureId();
     }
 }
 

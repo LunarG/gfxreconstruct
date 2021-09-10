@@ -26,6 +26,7 @@
 #include "encode/custom_dx12_struct_encoders.h"
 #include "encode/custom_dx12_struct_unwrappers.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/d3d12_capture_manager.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_util.h"
 
@@ -59,6 +60,11 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     // Wait for command queues to complete all pending work.
     WaitForCommandQueues(state_table);
+
+    // Debug objects
+    WriteEnableDebugLayer();
+    StandardCreateWrite<ID3D12Debug_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12Debug1_Wrapper>(state_table);
 
     // DXGI objects
     StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
@@ -118,9 +124,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
 
     // Debug objects
-    StandardCreateWrite<ID3D12Debug1_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Debug2_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12Debug_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DebugDevice1_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DebugDevice_Wrapper>(state_table);
     StandardCreateWrite<ID3D12DebugCommandQueue_Wrapper>(state_table);
@@ -1132,6 +1136,20 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
 
         output_stream_->Write(&header, sizeof(header));
     });
+}
+
+void Dx12StateWriter::WriteEnableDebugLayer()
+{
+    auto debug_object_id = D3D12CaptureManager::Get()->GetEnableDebugLayerObjectId();
+    if (debug_object_id != format::kNullHandleId)
+    {
+        EncodeStruct(&encoder_, IID_ID3D12Debug);
+        encoder_.EncodeHandleIdPtr(&debug_object_id);
+        encoder_.EncodeUInt32Value(S_OK);
+        WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer, debug_object_id, &parameter_stream_);
+        WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, debug_object_id, &parameter_stream_);
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

@@ -352,6 +352,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                       PointerDecoder<uint8_t>* original_result,
                                       WStringDecoder*          pExportName);
 
+    void OverrideEnableDebugLayer(DxObjectInfo* replay_object_info);
+
+    void EnableDebugLayer(ID3D12Debug* dx12_debug);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -429,7 +433,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     HRESULT GetCommandQueue();
 
-
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected state, and then call queue present.
     void ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
@@ -440,20 +443,21 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
   private:
     std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
-    Dx12ObjectInfoTable                  object_info_table_;
-    WindowFactory*                       window_factory_;
-    DxReplayOptions                      options_;
-    std::unordered_set<Window*>          active_windows_;
-    std::unordered_map<uint64_t, HWND>   window_handles_;
-    std::unordered_map<uint64_t, void*>  mapped_memory_;
-    std::unordered_map<uint64_t, void*>  heap_allocations_;
-    std::unordered_map<uint64_t, HANDLE> event_objects_;
-    std::function<void(const char*)>     fatal_error_handler_;
-    graphics::Dx12GpuVaMap               gpu_va_map_;
-    graphics::Dx12ShaderIdMap            shader_id_map_;
-    std::unique_ptr<uint8_t[]>           debug_message_;
-    SIZE_T                               current_message_length_;
-    IDXGIInfoQueue*                      info_queue_;
+    Dx12ObjectInfoTable                          object_info_table_;
+    WindowFactory*                               window_factory_;
+    DxReplayOptions                              options_;
+    std::unordered_set<Window*>                  active_windows_;
+    std::unordered_map<uint64_t, HWND>           window_handles_;
+    std::unordered_map<uint64_t, void*>          mapped_memory_;
+    std::unordered_map<uint64_t, void*>          heap_allocations_;
+    std::unordered_map<uint64_t, HANDLE>         event_objects_;
+    std::function<void(const char*)>             fatal_error_handler_;
+    graphics::Dx12GpuVaMap                       gpu_va_map_;
+    graphics::Dx12ShaderIdMap                    shader_id_map_;
+    std::unique_ptr<uint8_t[]>                   debug_message_;
+    SIZE_T                                       current_message_length_;
+    IDXGIInfoQueue*                              info_queue_;
+    bool                                         debug_layer_enabled_;
 
     struct ResourceInitInfo
     {
@@ -477,9 +481,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     };
     ResourceInitInfo                                resource_init_info_;
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
-    std::string                          screenshot_file_prefix_;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue_;
-    std::unique_ptr<ScreenshotHandlerBase> screenshot_handler_;
+    std::string                                     screenshot_file_prefix_;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue>      command_queue_;
+    std::unique_ptr<ScreenshotHandlerBase>          screenshot_handler_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
