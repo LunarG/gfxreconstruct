@@ -562,6 +562,8 @@ class D3D12CaptureManager : public CaptureManager
 
     void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 
+    void ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT buffer_count);
+
     void InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
                                       ID3D12Resource_Wrapper*  resource_wrapper,
                                       D3D12_RESOURCE_DIMENSION dimension,

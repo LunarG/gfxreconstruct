@@ -204,6 +204,33 @@ void D3D12CaptureManager::ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper
     }
 }
 
+void D3D12CaptureManager::ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT buffer_count)
+{
+    if (SUCCEEDED(result) && (wrapper != nullptr))
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+
+        // If ResizeBuffers is called with buffer_count == 0, the number of swapchain buffers doesn't change, so read it
+        // from the DXGI_SWAP_CHAIN_DESC.
+        UINT final_buffer_count = buffer_count;
+        if (final_buffer_count == 0)
+        {
+            DXGI_SWAP_CHAIN_DESC swapchain_desc;
+            wrapper->GetWrappedObjectAs<IDXGISwapChain>()->GetDesc(&swapchain_desc);
+            final_buffer_count = swapchain_desc.BufferCount;
+        }
+
+        PreAcquireSwapChainImages(wrapper, nullptr, final_buffer_count, info->swap_effect);
+
+        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+        {
+            state_tracker_->TrackResizeBuffers(
+                wrapper, format::ApiCall_IDXGISwapChain_ResizeBuffers, GetThreadData()->parameter_buffer_.get());
+        }
+    }
+}
+
 void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    device_wrapper,
                                                        ID3D12Resource_Wrapper*  resource_wrapper,
                                                        D3D12_RESOURCE_DIMENSION dimension,
@@ -503,19 +530,7 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChai
     GFXRECON_UNREFERENCED_PARAMETER(new_format);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
 
-    if (SUCCEEDED(result) && (wrapper != nullptr))
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
-
-        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
-        {
-            state_tracker_->TrackResizeBuffers(
-                wrapper, format::ApiCall_IDXGISwapChain_ResizeBuffers, GetThreadData()->parameter_buffer_.get());
-        }
-    }
+    ResizeSwapChainImages(wrapper, result, buffer_count);
 }
 
 void D3D12CaptureManager::PreProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapChain_Wrapper* wrapper,
@@ -554,19 +569,7 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain3_ResizeBuffers1(IDXGISwapCh
     GFXRECON_UNREFERENCED_PARAMETER(node_mask);
     GFXRECON_UNREFERENCED_PARAMETER(present_queue);
 
-    if (SUCCEEDED(result) && (wrapper != nullptr))
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        PreAcquireSwapChainImages(wrapper, nullptr, buffer_count, info->swap_effect);
-
-        if ((GetCaptureMode() & kModeTrack) == kModeTrack)
-        {
-            state_tracker_->TrackResizeBuffers(
-                wrapper, format::ApiCall_IDXGISwapChain3_ResizeBuffers1, GetThreadData()->parameter_buffer_.get());
-        }
-    }
+    ResizeSwapChainImages(wrapper, result, buffer_count);
 }
 
 void D3D12CaptureManager::Destroy_IDXGISwapChain(IDXGISwapChain_Wrapper* wrapper)
