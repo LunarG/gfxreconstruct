@@ -3045,7 +3045,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     VkResult            result       = VK_SUCCESS;
     const VkSubmitInfo* submit_infos = pSubmits->GetPointer();
-    assert(submit_infos != nullptr);
+    assert(submitCount == 0 || submit_infos != nullptr);
     auto    submit_info_data = pSubmits->GetMetaStructPointer();
     VkFence fence            = VK_NULL_HANDLE;
 
