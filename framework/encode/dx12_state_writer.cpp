@@ -95,14 +95,14 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
     WriteHeapState(state_table);
 
-    // State objects
-    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
-
     // Root signatures
     StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
     StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
     StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
+
+    // State objects
+    StandardCreateWrite<ID3D12StateObject_Wrapper>(state_table);
+    StandardCreateWrite<ID3D12StateObjectProperties_Wrapper>(state_table);
 
     // Resources and descriptors
     WriteResourceState(state_table);
