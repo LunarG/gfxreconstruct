@@ -228,10 +228,6 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                     code += self.add_array_argument(
                         value, indent_code, indent_file, is_output
                     )
-                elif count > 1:
-                    code += indent_code2 + 'WriteStructString(oss, *{}->GetMetaStructPointer(), "{}", {}, {});\n'.format(
-                        value.name, indent_file, prefix_string, output_string
-                    )
                 else:
                     code += indent_code2 + 'WriteStructString(oss, {}->GetMetaStructPointer(), "{}", {}, {});\n'.format(
                         value.name, indent_file, prefix_string, output_string

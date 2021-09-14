@@ -168,6 +168,7 @@ class Dx12ReplayConsumerBodyGenerator(
             write(cmddef, file=self.outFile)
             first = False
 
+
     def make_consumer_func_body(self, return_type, name, values):
         """Methond override."""
         code = ''
@@ -363,8 +364,10 @@ class Dx12ReplayConsumerBodyGenerator(
 
                 elif value.pointer_count > 0 or value.is_array:
                     if is_struct and value.pointer_count == 2 and value.is_const:
+                        code += '    auto in_{0}    = {0}->GetPointer();\n'\
+                            .format(value.name)
                         arg_list.append(
-                            'const_cast<const {}**>({}->GetPointer())'.format(
+                            'const_cast<const {}**>(&in_{})'.format(
                                 value.base_type, value.name
                             )
                         )

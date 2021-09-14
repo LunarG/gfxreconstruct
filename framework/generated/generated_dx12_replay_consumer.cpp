@@ -2775,13 +2775,14 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
     format::HandleId                            object_id,
     HRESULT                                     return_value,
     D3D_ROOT_SIGNATURE_VERSION                  convertToVersion,
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*>* ppDesc)
+    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc)
 {
     auto replay_object = MapObject<ID3D12VersionedRootSignatureDeserializer>(object_id);
     if (replay_object != nullptr)
     {
+        auto in_ppDesc    = ppDesc->GetPointer();
         auto replay_result = replay_object->GetRootSignatureDescAtVersion(convertToVersion,
-                                                                          const_cast<const D3D12_VERSIONED_ROOT_SIGNATURE_DESC**>(ppDesc->GetPointer()));
+                                                                          const_cast<const D3D12_VERSIONED_ROOT_SIGNATURE_DESC**>(&in_ppDesc));
         CheckReplayResult("ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion", return_value, replay_result);
     }
 }

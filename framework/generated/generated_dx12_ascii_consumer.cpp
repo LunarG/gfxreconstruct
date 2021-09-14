@@ -11516,7 +11516,7 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
         format::HandleId object_id,
         HRESULT return_value,
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*>* ppDesc)
+        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc)
 {
     std::ostringstream oss;
     oss << "ID3D12VersionedRootSignatureDeserializer_id" << object_id << "->";
@@ -11533,7 +11533,7 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
 
     if (WriteCheckPointerDecoderNull(oss, ppDesc, "    ", true))
     {
-        WriteStructString(oss, *ppDesc->GetMetaStructPointer(), "    ", false, true);
+        WriteStructString(oss, ppDesc->GetMetaStructPointer(), "    ", false, true);
     }
     oss << ");\n\n";
 

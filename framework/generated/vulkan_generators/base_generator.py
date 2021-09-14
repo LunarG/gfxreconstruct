@@ -994,7 +994,7 @@ class BaseGenerator(OutputGenerator):
             count = value.pointer_count
 
             if self.is_struct(type_name):
-                if count > 1:
+                if value.array_dimension and value.array_dimension == 1:
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name
                     )

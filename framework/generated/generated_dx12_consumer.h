@@ -1031,7 +1031,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         D3D_ROOT_SIGNATURE_VERSION convertToVersion,
-        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*>* ppDesc){}
+        StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc){}
 
     virtual void Process_ID3D12VersionedRootSignatureDeserializer_GetUnconvertedRootSignatureDesc(
         format::HandleId object_id,

@@ -4689,7 +4689,7 @@ size_t Dx12Decoder::Decode_ID3D12VersionedRootSignatureDeserializer_GetRootSigna
     size_t bytes_read = 0;
 
     D3D_ROOT_SIGNATURE_VERSION convertToVersion;
-    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC*> ppDesc;
+    StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC> ppDesc;
     HRESULT return_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &convertToVersion);
