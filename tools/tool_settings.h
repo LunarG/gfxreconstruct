@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -39,6 +40,7 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/options.h"
 
 #include "vulkan/vulkan_core.h"
 
@@ -397,118 +399,15 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     else
     {
         const auto& value = arg_parser.GetArgumentValue(kScreenshotRangeArgument);
+
         if (!value.empty())
         {
-            std::istringstream value_input;
-            value_input.str(value);
+            std::vector<gfxrecon::util::FrameRange> frame_ranges = gfxrecon::util::GetFrameRanges(value);
 
-            for (std::string range; std::getline(value_input, range, ',');)
+            for (uint32_t i = 0; i < frame_ranges.size(); ++i)
             {
-                if (range.empty() || (std::count(range.begin(), range.end(), '-') > 1))
-                {
-                    GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
-                    continue;
-                }
-
-                // Remove whitespace.
-                range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
-
-                // Split string on '-' delimiter.
-                bool                     invalid = false;
-                std::vector<std::string> values;
-                std::istringstream       range_input;
-                range_input.str(range);
-
-                for (std::string value; std::getline(range_input, value, '-');)
-                {
-                    if (value.empty())
-                    {
-                        break;
-                    }
-
-                    // Check that the value string only contains numbers.
-                    size_t count = std::count_if(value.begin(), value.end(), ::isdigit);
-                    if (count == value.length())
-                    {
-                        values.push_back(value);
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Ignoring invalid screenshot frame range \"%s\", which contains non-numeric values",
-                            range.c_str());
-                        invalid = true;
-                        break;
-                    }
-                }
-
-                if (!invalid)
-                {
-                    gfxrecon::decode::ScreenshotRange screenshot_range;
-
-                    if (values.size() == 1)
-                    {
-                        if (std::count(range.begin(), range.end(), '-') == 0)
-                        {
-                            screenshot_range.first = std::stoi(values[0]);
-                            screenshot_range.last  = screenshot_range.first;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
-                            continue;
-                        }
-                    }
-                    else if (values.size() == 2)
-                    {
-                        screenshot_range.first = std::stoi(values[0]);
-                        screenshot_range.last  = std::stoi(values[1]);
-                        if (screenshot_range.first > screenshot_range.last)
-                        {
-                            GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", where first frame is "
-                                                 "greater than last frame",
-                                                 range.c_str());
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
-                        continue;
-                    }
-
-                    // Check for invalid start frame of 0.
-                    if (screenshot_range.first == 0)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Ignoring invalid screenshot frame range \"%s\", with first frame equal to zero",
-                            range.c_str());
-                        continue;
-                    }
-
-                    uint32_t next_allowed = 0;
-
-                    // Check that first frame is outside the bounds of the previous range.
-                    if (!ranges.empty())
-                    {
-                        // The number of the frame after the last frame of the last range.
-                        next_allowed = ranges.back().last + 1;
-                    }
-
-                    if (screenshot_range.first >= next_allowed)
-                    {
-                        ranges.emplace_back(std::move(screenshot_range));
-                    }
-                    else
-                    {
-                        const auto& back = ranges.back();
-                        GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", "
-                                             "where start frame precedes the end of the previous range \"%u-%u\"",
-                                             range.c_str(),
-                                             back.first,
-                                             back.last);
-                    }
-                }
+                gfxrecon::decode::ScreenshotRange range = { frame_ranges[i].first, frame_ranges[i].last };
+                ranges.push_back(range);
             }
         }
     }

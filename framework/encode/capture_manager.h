@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -117,6 +117,8 @@ class CaptureManager
     void EndMethodCallCapture();
 
     void EndFrame();
+
+    bool ShouldTriggerScreenshot();
 
     void CheckContinueCaptureForWriteMode();
 
@@ -237,6 +239,8 @@ class CaptureManager
     std::unique_ptr<util::Compressor> compressor_;
     std::mutex                        mapped_memory_lock_;
     util::Keyboard                    keyboard_;
+    std::string                       screenshot_prefix_;
+    uint32_t                          global_frame_count_;
 
     void WriteToFile(const void* data, size_t size);
 
@@ -285,6 +289,8 @@ class CaptureManager
     bool                                    previous_hotkey_state_;
     bool                                    debug_layer_;
     bool                                    debug_device_lost_;
+    bool                                    screenshots_enabled_;
+    std::vector<uint32_t>                   screenshot_indices_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

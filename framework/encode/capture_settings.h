@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2019 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
+#include "util/options.h"
 
 #include <string>
 #include <unordered_map>
@@ -68,6 +69,8 @@ class CaptureSettings
         bool                   time_stamp_file{ true };
         bool                   force_flush{ false };
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
+        std::string                   screenshot_dir;
+        std::vector<util::FrameRange> screenshot_ranges;
         std::vector<TrimRange> trim_ranges;
         std::string            trim_key;
         bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
@@ -126,6 +129,8 @@ class CaptureSettings
                                                               format::CompressionType default_value);
 
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
+
+    static void ParseFramesList(const std::string& value_string, std::vector<util::FrameRange>* frames);
 
     static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
 

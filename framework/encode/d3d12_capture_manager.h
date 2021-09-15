@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -34,6 +34,7 @@
 #include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "generated/generated_dx12_wrappers.h"
+#include "graphics/dx12_image_renderer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -259,6 +260,12 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_ID3D12Device_CreateHeap(
         ID3D12Device_Wrapper* wrapper, HRESULT result, const D3D12_HEAP_DESC* desc, REFIID riid, void** heap);
+
+    void PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           wrapper,
+                                                     HRESULT                         result,
+                                                     const D3D12_COMMAND_QUEUE_DESC* pDesc,
+                                                     REFIID                          riid,
+                                                     void**                          ppCommandQueue);
 
     void PostProcess_ID3D12Device_CreateCommittedResource(ID3D12Device_Wrapper*        wrapper,
                                                           HRESULT                      result,
@@ -575,6 +582,9 @@ class D3D12CaptureManager : public CaptureManager
     void                          EnableDRED();
 
   private:
+    void TakeScreenshot(IDXGISwapChain_Wrapper* swapchain_wrapper);
+    void PostPresent(IDXGISwapChain_Wrapper* wrapper);
+
     static D3D12CaptureManager*       instance_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
@@ -587,6 +597,9 @@ class D3D12CaptureManager : public CaptureManager
         track_enable_debug_layer_object_id_; ///< Track object id since ID3D12Debug could be released very soon.
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
+
+    std::vector<ID3D12CommandQueue_Wrapper*>     direct_queues_;
+    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

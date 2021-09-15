@@ -39,7 +39,7 @@ thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 D3D12CaptureManager::D3D12CaptureManager() :
     CaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
     debug_layer_enabled_(false), debug_device_lost_enabled_(false),
-    track_enable_debug_layer_object_id_(format::kNullHandleId)
+    track_enable_debug_layer_object_id_(format::kNullHandleId), frame_buffer_renderer_(nullptr)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
@@ -419,6 +419,25 @@ void D3D12CaptureManager::PreProcess_IDXGISwapChain_ResizeBuffers(
     ReleaseSwapChainImages(wrapper);
 }
 
+void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
+{
+    EndFrame();
+
+    if (ShouldTriggerScreenshot())
+    {
+        ID3D12CommandQueue_Wrapper* queue_wrapper = direct_queues_.back();
+
+        if (queue_wrapper != nullptr)
+        {
+            auto queue     = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
+            auto swapchain = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+
+            gfxrecon::graphics::dx12::TakeScreenshot(
+                frame_buffer_renderer_, queue, swapchain, global_frame_count_, screenshot_prefix_);
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
                                                              HRESULT                 result,
                                                              UINT                    sync_interval,
@@ -428,7 +447,8 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrap
     GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
-    EndFrame();
+
+    PostPresent(wrapper);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
@@ -442,7 +462,8 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wr
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
-    EndFrame();
+
+    PostPresent(wrapper);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
@@ -1817,6 +1838,20 @@ void D3D12CaptureManager::PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1
     {
         // Track object id since ID3D12Debug1 could be released very soon.
         track_enable_debug_layer_object_id_ = debug1_wrapper->GetCaptureId();
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Device_Wrapper*           wrapper,
+                                                                      HRESULT                         result,
+                                                                      const D3D12_COMMAND_QUEUE_DESC* pDesc,
+                                                                      REFIID                          riid,
+                                                                      void**                          ppCommandQueue)
+{
+    if (pDesc->Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
+    {
+        auto queue_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(*ppCommandQueue);
+
+        direct_queues_.push_back(queue_wrapper);
     }
 }
 

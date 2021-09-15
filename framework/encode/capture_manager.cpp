@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2021 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -89,7 +89,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    debug_layer_(false), debug_device_lost_(false)
+    debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
+    global_frame_count_(0)
 {}
 
 CaptureManager::~CaptureManager()
@@ -182,6 +183,49 @@ void CaptureManager::DestroyInstance(std::function<const CaptureManager*()> GetI
     }
 }
 
+std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::FrameRange> ranges)
+{
+    // Take a range of frames and convert it to a flat list of indices
+    std::vector<uint32_t> indices;
+
+    for (uint32_t i = 0; i < ranges.size(); ++i)
+    {
+        util::FrameRange& range = ranges[i];
+
+        uint32_t diff = range.last - range.first + 1;
+
+        for (uint32_t j = 0; j < diff; ++j)
+        {
+            uint32_t screenshot_index = range.first + j;
+
+            indices.push_back(screenshot_index);
+        }
+    }
+
+    // Sort and reverse index list once, so that we may refer to only last element as we Present()
+    std::sort(indices.begin(), indices.end());
+    std::reverse(indices.begin(), indices.end());
+
+    return indices;
+}
+
+std::string PrepScreenshotPrefix(const std::string& dir)
+{
+    std::string out = dir;
+
+    if (!out.empty())
+    {
+        if (out.back() != util::filepath::kPathSep)
+        {
+            out += util::filepath::kPathSep;
+        }
+    }
+
+    out += "screenshot";
+
+    return out;
+}
+
 bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = true;
@@ -193,6 +237,9 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
     force_file_flush_     = trace_settings.force_flush;
     debug_layer_          = trace_settings.debug_layer;
     debug_device_lost_    = trace_settings.debug_device_lost;
+    screenshots_enabled_  = !trace_settings.screenshot_ranges.empty();
+    screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges);
+    screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
@@ -547,6 +594,34 @@ void CaptureManager::CheckStartCaptureForTrackMode()
     }
 }
 
+bool CaptureManager::ShouldTriggerScreenshot()
+{
+    bool triger_screenshot = false;
+
+    if (screenshots_enabled_)
+    {
+        // Get next frame to screenshot from the back
+        uint32_t target_frame = screenshot_indices_.back();
+
+        // If this is a frame of interest, take a screenshot
+        if (target_frame == global_frame_count_)
+        {
+            triger_screenshot = true;
+
+            // Took screenshot, so remove it from the list
+            screenshot_indices_.pop_back();
+        }
+
+        // If no more frames left, disable screenshots
+        if (screenshot_indices_.empty())
+        {
+            screenshots_enabled_ = false;
+        }
+    }
+
+    return triger_screenshot;
+}
+
 void CaptureManager::EndFrame()
 {
     if (trim_enabled_)
@@ -566,6 +641,8 @@ void CaptureManager::EndFrame()
             CheckStartCaptureForTrackMode();
         }
     }
+
+    global_frame_count_++;
 }
 
 std::string CaptureManager::CreateTrimFilename(const std::string&                base_filename,

@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,6 +26,7 @@
 
 #include "util/defines.h"
 #include "util/platform.h"
+#include "graphics/dx12_image_renderer.h"
 
 #include <comdef.h>
 #include <d3d12.h>
@@ -58,6 +60,13 @@ struct ResourceStateInfo
 };
 
 const D3D12_RANGE kZeroRange = { 0, 0 };
+
+// Take a screenshot
+void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
+                    ID3D12CommandQueue*                                     queue,
+                    IDXGISwapChain*                                         swapchain,
+                    uint32_t                                                frame_num,
+                    const std::string&                                      filename_prefix);
 
 // Maps a given sub resource and returns a pointer to the mapped region in data_ptr.
 HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr);

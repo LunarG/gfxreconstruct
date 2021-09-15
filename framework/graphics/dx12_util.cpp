@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,9 +23,99 @@
 
 #include "graphics/dx12_util.h"
 
+#include "util/image_writer.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
+
+void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
+                    ID3D12CommandQueue*                           queue,
+                    IDXGISwapChain*                               swapchain,
+                    uint32_t                                      frame_num,
+                    const std::string&                            filename_prefix)
+{
+    if (queue != nullptr && swapchain != nullptr)
+    {
+        Microsoft::WRL::ComPtr<IDXGISwapChain3> swapchain3   = nullptr;
+        Microsoft::WRL::ComPtr<IDXGISwapChain>  swapChainCom = swapchain;
+
+        HRESULT hr = swapChainCom.As(&swapchain3);
+
+        if (hr == S_OK)
+        {
+            const int backbuffer_idx = swapchain3->GetCurrentBackBufferIndex();
+
+            Microsoft::WRL::ComPtr<ID3D12Resource> frame_buffer_resource = nullptr;
+            hr                                                           = swapchain->GetBuffer(backbuffer_idx,
+                                      __uuidof(ID3D12Resource),
+                                      reinterpret_cast<void**>(frame_buffer_resource.GetAddressOf()));
+
+            if (hr == S_OK)
+            {
+                if (image_renderer == nullptr)
+                {
+                    Microsoft::WRL::ComPtr<ID3D12Device> parent_device = nullptr;
+                    hr                                                 = queue->GetDevice(IID_PPV_ARGS(&parent_device));
+
+                    if (hr == S_OK)
+                    {
+                        gfxrecon::graphics::DX12ImageRendererConfig renderer_config;
+                        renderer_config.cmd_queue = queue;
+                        renderer_config.device    = parent_device.Get();
+
+                        image_renderer = gfxrecon::graphics::DX12ImageRenderer::Create(renderer_config);
+                    }
+                }
+
+                if (image_renderer != nullptr)
+                {
+                    D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
+
+                    auto pitch = (fb_desc.Width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
+                                 D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+
+                    graphics::CpuImage captured_image = {};
+
+                    HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.Get(),
+                                                                          D3D12_RESOURCE_STATE_PRESENT,
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          fb_desc.Height,
+                                                                          static_cast<unsigned int>(pitch),
+                                                                          fb_desc.Format);
+
+                    if (capture_result == S_OK)
+                    {
+                        auto buffer_byte_size = pitch * fb_desc.Height;
+                        auto desc             = frame_buffer_resource->GetDesc();
+                        capture_result        = image_renderer->RetrieveImageData(&captured_image,
+                                                                           static_cast<unsigned int>(fb_desc.Width),
+                                                                           fb_desc.Height,
+                                                                           static_cast<unsigned int>(pitch),
+                                                                           desc.Format);
+
+                        if (capture_result == S_OK)
+                        {
+                            auto        datasize = static_cast<int>(buffer_byte_size);
+                            std::string filename = filename_prefix;
+
+                            filename += "_frame_";
+                            filename += std::to_string(frame_num);
+                            filename += ".bmp";
+
+                            util::imagewriter::WriteBmpImage(filename,
+                                                             static_cast<unsigned int>(fb_desc.Width),
+                                                             static_cast<unsigned int>(fb_desc.Height),
+                                                             datasize,
+                                                             std::data(captured_image.data),
+                                                             static_cast<unsigned int>(pitch));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 HRESULT MapSubresource(ID3D12Resource* resource, UINT subresource, const D3D12_RANGE* read_range, uint8_t*& data_ptr)
 {

@@ -33,13 +33,13 @@
 #include "generated/generated_dx12_consumer.h"
 #include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
+#include "graphics/dx12_image_renderer.h"
+#include "decode/screenshot_handler_base.h"
 
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
 #include <dxgidebug.h>
-#include <graphics/dx12_image_renderer.h>
-#include <decode/screenshot_handler_base.h>
 
 #include <wrl/client.h>
 
@@ -355,6 +355,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void OverrideEnableDebugLayer(DxObjectInfo* replay_object_info);
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
+    
+    void PostPresent(IDXGISwapChain* swapchain);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
@@ -423,8 +425,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void ReadDebugMessages();
 
     void InitializeScreenshotHandler();
-
-    void WriteScreenshots(DxObjectInfo* replay_object_info);
 
     void WaitForFenceEvent(format::HandleId fence_id, HANDLE event);
 
