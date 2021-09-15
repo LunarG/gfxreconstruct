@@ -30,9 +30,24 @@
 #include <memory>
 #include <wrl/client.h>
 #include <vector>
+#include <set>
+#include <list>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+static const std::set<DXGI_FORMAT> B8G8R8 = { DXGI_FORMAT_B8G8R8A8_UNORM,    DXGI_FORMAT_B8G8R8X8_UNORM,
+                                                DXGI_FORMAT_B8G8R8A8_TYPELESS, DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
+                                                DXGI_FORMAT_B8G8R8X8_TYPELESS, DXGI_FORMAT_B8G8R8X8_UNORM_SRGB };
+
+static const std::set<DXGI_FORMAT> R8G8B8A8 = { DXGI_FORMAT_R8G8B8A8_TYPELESS, DXGI_FORMAT_R8G8B8A8_TYPELESS,
+                                                DXGI_FORMAT_R8G8B8A8_UNORM,    DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+                                                DXGI_FORMAT_R8G8B8A8_UINT,     DXGI_FORMAT_R8G8B8A8_SNORM,
+                                                DXGI_FORMAT_R8G8B8A8_SINT };
+
+static const std::set<DXGI_FORMAT> R10G10B10A2 = { DXGI_FORMAT_R10G10B10A2_TYPELESS,
+                                                   DXGI_FORMAT_R10G10B10A2_UNORM,
+                                                   DXGI_FORMAT_R10G10B10A2_UINT };
 
 /// Bytes per pixel definition
 static const UINT BytesPerPixel = 4;
@@ -106,6 +121,7 @@ class DX12ImageRenderer
     HRESULT
     CaptureImage(
         ID3D12Resource* res, D3D12_RESOURCE_STATES prev_state, UINT width, UINT height, UINT pitch, DXGI_FORMAT format);
+
   private:
     //-----------------------------------------------------------------------------
     /// Constructor.
@@ -144,6 +160,8 @@ class DX12ImageRenderer
     Microsoft::WRL::ComPtr<ID3D12Resource> staging_;
 
     unsigned int staging_resource_size_;
+
+    std::list<DXGI_FORMAT> issued_warning_list_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

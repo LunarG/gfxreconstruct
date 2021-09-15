@@ -291,20 +291,33 @@ DX12ImageRenderer::RetrieveImageData(CpuImage* img_out, UINT width, UINT height,
         img_out->width  = width;
         img_out->height = height;
         img_out->data.resize(total_bytes);
-        memset(&img_out->data[0], 0, total_bytes);
         memcpy(&img_out->data[0], uav_data, total_bytes);
 
-        if (format == DXGI_FORMAT_R10G10B10A2_TYPELESS || format == DXGI_FORMAT_R10G10B10A2_UNORM ||
-            format == DXGI_FORMAT_R10G10B10A2_UINT)
+        if (B8G8R8.find(format) != B8G8R8.end())
+        {
+            staging_->Unmap(0, nullptr);
+        }
+        else if (R10G10B10A2.find(format) != R10G10B10A2.end())
         {
             ConvertR10G10B10A2ToB8G8R8(img_out->data, width, height, pitch);
+            staging_->Unmap(0, nullptr);
         }
-        else if (format >= DXGI_FORMAT_R8G8B8A8_TYPELESS && format <= DXGI_FORMAT_R8G8B8A8_SINT)
+        else if (R8G8B8A8.find(format) != R8G8B8A8.end())
         {
             ConvertR8G8B8A8ToB8G8R8(img_out->data, width, height, pitch);
+            staging_->Unmap(0, nullptr);
         }
-
-        staging_->Unmap(0, nullptr);
+        else
+        {
+            auto entry = std::find(issued_warning_list_.begin(), issued_warning_list_.end(), format);
+            if (entry == issued_warning_list_.end())
+            {
+                issued_warning_list_.insert(entry, format);
+                GFXRECON_LOG_ERROR("DX12ImageRenderer does not support %d DXGI_FORMAT", format);
+            }
+            
+            staging_->Unmap(0, nullptr);
+        }
     }
     return result;
 }
