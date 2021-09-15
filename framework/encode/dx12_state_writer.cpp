@@ -428,7 +428,8 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             GFXRECON_ASSERT(descriptor_info.heap_id == heap_wrapper->GetCaptureId());
             GFXRECON_ASSERT(descriptor_info.index == i);
 
-            if (descriptor_info.create_parameters != nullptr)
+            if ((CheckDescriptorObjects(descriptor_info, state_table)) &&
+                (descriptor_info.create_parameters != nullptr))
             {
                 if (descriptor_info.is_copy)
                 {
@@ -1032,13 +1033,10 @@ bool Dx12StateWriter::CheckGraphicsCommandListObjects(const ID3D12GraphicsComman
         {
             return false;
         }
-        for (auto resource_id : descriptor_info->resource_ids)
+
+        if (!CheckDescriptorObjects(const_cast<DxDescriptorInfo&>(*descriptor_info), state_table))
         {
-            if ((resource_id != format::kNullHandleId) &&
-                !CheckGraphicsCommandListObject(ID3D12ResourceObject, resource_id, state_table))
-            {
-                return false;
-            }
+            return false;
         }
     }
     return true;
@@ -1078,6 +1076,21 @@ bool Dx12StateWriter::CheckGraphicsCommandListObject(D3D12GraphicsCommandObjectT
             GFXRECON_ASSERT(false);
             return false;
     }
+}
+
+bool Dx12StateWriter::CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table)
+{
+    // Ignore descriptors that reference destroyed resource object.
+    for (auto descriptor_resource_id : descriptor_info.resource_ids)
+    {
+        if ((descriptor_resource_id != format::kNullHandleId) &&
+            !CheckGraphicsCommandListObject(ID3D12ResourceObject, descriptor_resource_id, state_table))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)

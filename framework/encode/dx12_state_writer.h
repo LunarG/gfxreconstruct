@@ -134,6 +134,8 @@ class Dx12StateWriter
                                         format::HandleId               handle_id,
                                         const Dx12StateTable&          state_table);
 
+    bool CheckDescriptorObjects(const DxDescriptorInfo& descriptor_info, const Dx12StateTable& state_table);
+
     void WriteSwapChainState(const Dx12StateTable& state_table);
 
     void WriteEnableDebugLayer();
