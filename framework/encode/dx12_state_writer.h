@@ -140,6 +140,8 @@ class Dx12StateWriter
 
     void WriteEnableDebugLayer();
 
+    void WriteEnableDRED();
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;

@@ -358,6 +358,22 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     
     void PostPresent(IDXGISwapChain* swapchain);
 
+    void OverrideSetAutoBreadcrumbsEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
+
+    void SetAutoBreadcrumbsEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                      D3D12_DRED_ENABLEMENT                     enablement);
+
+    void OverrideSetBreadcrumbContextEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
+
+    void SetBreadcrumbContextEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                        D3D12_DRED_ENABLEMENT                     enablement);
+
+    void OverrideSetPageFaultEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
+
+    void SetPageFaultEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                D3D12_DRED_ENABLEMENT                     enablement);
+
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -458,6 +474,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     SIZE_T                                       current_message_length_;
     IDXGIInfoQueue*                              info_queue_;
     bool                                         debug_layer_enabled_;
+    bool                                         set_auto_breadcrumbs_enablement_;
+    bool                                         set_breadcrumb_context_enablement_;
+    bool                                         set_page_fault_enablement_;
 
     struct ResourceInitInfo
     {

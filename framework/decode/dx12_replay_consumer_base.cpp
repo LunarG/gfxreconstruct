@@ -70,15 +70,15 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false)
+    resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false)
 {
     if (options_.enable_validation_layer)
     {
-        ID3D12Debug* dx12_debug = nullptr;
+        gfxrecon::graphics::dx12::ID3D12DebugComPtr dx12_debug = nullptr;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dx12_debug))))
         {
             EnableDebugLayer(dx12_debug);
-            dx12_debug->Release();
         }
         else
         {
@@ -93,9 +93,14 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
 
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dred_settings))))
         {
-            dred_settings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-            dred_settings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-            dred_settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+            SetAutoBreadcrumbsEnablement(dred_settings, D3D12_DRED_ENABLEMENT_FORCED_ON);
+            SetBreadcrumbContextEnablement(dred_settings, D3D12_DRED_ENABLEMENT_FORCED_ON);
+            SetPageFaultEnablement(dred_settings, D3D12_DRED_ENABLEMENT_FORCED_ON);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to enable ID3D12DeviceRemovedExtendedDataSettings1 for replay option '--debug-device-lost'.");
+            options_.enable_debug_device_lost = false;
         }
     }
 
@@ -120,6 +125,57 @@ void Dx12ReplayConsumerBase::EnableDebugLayer(ID3D12Debug* dx12_debug)
         {
             SetDebugMsgFilter(options_.DeniedDebugMessages, options_.AllowedDebugMessages);
         }
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideSetAutoBreadcrumbsEnablement(DxObjectInfo*         replay_object_info,
+                                                                  D3D12_DRED_ENABLEMENT enablement)
+{
+    auto replay_object = static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(replay_object_info->object);
+    SetAutoBreadcrumbsEnablement(replay_object, enablement);
+}
+
+void Dx12ReplayConsumerBase::SetAutoBreadcrumbsEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                                          D3D12_DRED_ENABLEMENT                     enablement)
+{
+    if (!set_auto_breadcrumbs_enablement_)
+    {
+        set_auto_breadcrumbs_enablement_ = true;
+        dred_settings->SetAutoBreadcrumbsEnablement(enablement);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideSetBreadcrumbContextEnablement(DxObjectInfo*         replay_object_info,
+                                                                    D3D12_DRED_ENABLEMENT enablement)
+{
+    auto replay_object = static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(replay_object_info->object);
+    SetBreadcrumbContextEnablement(replay_object, enablement);
+}
+
+void Dx12ReplayConsumerBase::SetBreadcrumbContextEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                                            D3D12_DRED_ENABLEMENT                     enablement)
+{
+    if (!set_breadcrumb_context_enablement_)
+    {
+        set_breadcrumb_context_enablement_ = true;
+        dred_settings->SetBreadcrumbContextEnablement(enablement);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideSetPageFaultEnablement(DxObjectInfo*         replay_object_info,
+                                                            D3D12_DRED_ENABLEMENT enablement)
+{
+    auto replay_object = static_cast<ID3D12DeviceRemovedExtendedDataSettings1*>(replay_object_info->object);
+    SetPageFaultEnablement(replay_object, enablement);
+}
+
+void Dx12ReplayConsumerBase::SetPageFaultEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
+                                                    D3D12_DRED_ENABLEMENT                     enablement)
+{
+    if (!set_page_fault_enablement_)
+    {
+        set_page_fault_enablement_ = true;
+        dred_settings->SetPageFaultEnablement(enablement);
     }
 }
 

@@ -471,6 +471,15 @@ class D3D12CaptureManager : public CaptureManager
 
     void PostProcess_ID3D12Debug1_EnableDebugLayer(ID3D12Debug1_Wrapper* debug1_wrapper);
 
+    void PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
+        ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement);
+
+    void PostProcess_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
+        ID3D12DeviceRemovedExtendedDataSettings1_Wrapper* dred1_wrapper, D3D12_DRED_ENABLEMENT enablement);
+
+    void PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
+        ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -544,6 +553,8 @@ class D3D12CaptureManager : public CaptureManager
 
     inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }
 
+    inline const EnableDREDInfo& GetEnableDREDInfo() { return track_enable_dred_info_; }
+
   protected:
     D3D12CaptureManager();
 
@@ -600,6 +611,9 @@ class D3D12CaptureManager : public CaptureManager
     bool debug_device_lost_enabled_;          ///< Track if DRED has been enabled.
     format::HandleId
         track_enable_debug_layer_object_id_; ///< Track object id since ID3D12Debug could be released very soon.
+
+    EnableDREDInfo track_enable_dred_info_; ///< Track EnableDREDInfo since ID3D12DeviceRemovedExtendedDataSettings1
+                                            ///< could be released very soon.
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 

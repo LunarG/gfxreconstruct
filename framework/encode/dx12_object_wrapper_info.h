@@ -235,6 +235,14 @@ struct ID3D12StateObjectInfo : public DxWrapperInfo
 struct ID3D12StateObjectPropertiesInfo : public DxWrapperInfo
 {};
 
+struct EnableDREDInfo
+{
+    format::HandleId      dred_settings1_object_id{ format::kNullHandleId }; // ID3D12DeviceRemovedExtendedDataSettings1
+    D3D12_DRED_ENABLEMENT set_auto_breadcrumbs_enablement_{ D3D12_DRED_ENABLEMENT_SYSTEM_CONTROLLED };
+    D3D12_DRED_ENABLEMENT set_breadcrumb_context_enablement_{ D3D12_DRED_ENABLEMENT_SYSTEM_CONTROLLED };
+    D3D12_DRED_ENABLEMENT set_page_fault_enablement_{ D3D12_DRED_ENABLEMENT_SYSTEM_CONTROLLED };
+};
+
 struct ID3D12DeviceRemovedExtendedDataSettingsInfo : public DxWrapperInfo
 {};
 
@@ -245,9 +253,7 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 {};
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
-{
-    // TODO (GH #83): Track debug layer state here?
-};
+{};
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {

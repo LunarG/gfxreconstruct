@@ -1882,5 +1882,35 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommandQueue(ID3D12Devi
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement(
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        track_enable_dred_info_.dred_settings1_object_id         = dred_wrapper->GetCaptureId();
+        track_enable_dred_info_.set_auto_breadcrumbs_enablement_ = enablement;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement(
+    ID3D12DeviceRemovedExtendedDataSettings1_Wrapper* dred1_wrapper, D3D12_DRED_ENABLEMENT enablement)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        track_enable_dred_info_.dred_settings1_object_id           = dred1_wrapper->GetCaptureId();
+        track_enable_dred_info_.set_breadcrumb_context_enablement_ = enablement;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
+    ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        track_enable_dred_info_.dred_settings1_object_id   = dred_wrapper->GetCaptureId();
+        track_enable_dred_info_.set_page_fault_enablement_ = enablement;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -5768,10 +5768,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAuto
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
-    auto replay_object = MapObject<ID3D12DeviceRemovedExtendedDataSettings>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->SetAutoBreadcrumbsEnablement(Enablement);
+        OverrideSetAutoBreadcrumbsEnablement(replay_object,
+                                             Enablement);
     }
 }
 
@@ -5779,10 +5780,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPage
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
-    auto replay_object = MapObject<ID3D12DeviceRemovedExtendedDataSettings>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->SetPageFaultEnablement(Enablement);
+        OverrideSetPageFaultEnablement(replay_object,
+                                       Enablement);
     }
 }
 
@@ -5801,10 +5803,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBre
     format::HandleId                            object_id,
     D3D12_DRED_ENABLEMENT                       Enablement)
 {
-    auto replay_object = MapObject<ID3D12DeviceRemovedExtendedDataSettings1>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        replay_object->SetBreadcrumbContextEnablement(Enablement);
+        OverrideSetBreadcrumbContextEnablement(replay_object,
+                                               Enablement);
     }
 }
 

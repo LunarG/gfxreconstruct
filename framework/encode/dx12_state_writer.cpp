@@ -65,6 +65,8 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteEnableDebugLayer();
     StandardCreateWrite<ID3D12Debug_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Debug1_Wrapper>(state_table);
+    WriteEnableDRED();
+    StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
 
     // DXGI objects
     StandardCreateWrite<IDXGIFactory_Wrapper>(state_table);
@@ -110,7 +112,6 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
 
     // Other
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12DeviceRemovedExtendedDataSettings_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
     StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
@@ -1162,8 +1163,44 @@ void Dx12StateWriter::WriteEnableDebugLayer()
         encoder_.EncodeHandleIdPtr(&debug_object_id);
         encoder_.EncodeUInt32Value(S_OK);
         WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
+        parameter_stream_.Reset();
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer, debug_object_id, &parameter_stream_);
         WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, debug_object_id, &parameter_stream_);
+    }
+}
+
+void Dx12StateWriter::WriteEnableDRED()
+{
+    const auto& enable_dred_info = D3D12CaptureManager::Get()->GetEnableDREDInfo();
+    if (enable_dred_info.dred_settings1_object_id != format::kNullHandleId)
+    {
+        EncodeStruct(&encoder_, IID_ID3D12DeviceRemovedExtendedDataSettings1);
+        encoder_.EncodeHandleIdPtr(&enable_dred_info.dred_settings1_object_id);
+        encoder_.EncodeUInt32Value(S_OK);
+        WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
+        parameter_stream_.Reset();
+
+        encoder_.EncodeEnumValue(enable_dred_info.set_auto_breadcrumbs_enablement_);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement,
+                        enable_dred_info.dred_settings1_object_id,
+                        &parameter_stream_);
+        parameter_stream_.Reset();
+
+        encoder_.EncodeEnumValue(enable_dred_info.set_breadcrumb_context_enablement_);
+        WriteMethodCall(
+            format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement,
+            enable_dred_info.dred_settings1_object_id,
+            &parameter_stream_);
+        parameter_stream_.Reset();
+
+        encoder_.EncodeEnumValue(enable_dred_info.set_page_fault_enablement_);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement,
+                        enable_dred_info.dred_settings1_object_id,
+                        &parameter_stream_);
+        parameter_stream_.Reset();
+
+        WriteMethodCall(
+            format::ApiCallId::ApiCall_IUnknown_Release, enable_dred_info.dred_settings1_object_id, &parameter_stream_);
     }
 }
 
