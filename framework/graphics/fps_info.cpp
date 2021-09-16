@@ -79,6 +79,7 @@ void FpsInfo::EndAndLog(uint64_t end_frame)
 
 void FpsInfo::ProcessStateEndMarker(uint64_t frame)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(frame);
     replay_start_frame_ = frame;
     replay_start_time_  = util::datetime::GetTimestamp();
 }

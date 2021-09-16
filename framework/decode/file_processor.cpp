@@ -1338,6 +1338,15 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
 
     if (success)
     {
+        if (marker_type == format::kBeginMarker)
+        {
+            GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number);
+        }
+        else if (marker_type == format::kEndMarker)
+        {
+            GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
+        }
+
         for (auto decoder : decoders_)
         {
             if (marker_type == format::kBeginMarker)

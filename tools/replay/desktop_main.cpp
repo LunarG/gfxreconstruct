@@ -249,8 +249,7 @@ int main(int argc, const char** argv)
                 {
                     dx12_replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
-                    // TODO (GH #83): Add D3D12 trimming support, account for state load time in FPS
-                    // dx12_replay_consumer.SetFpsInfo(&fps_info);
+                    dx12_replay_consumer.SetFpsInfo(&fps_info);
 
                     // check for user option if first pass tracking is enabled
                     if (dx_replay_options.enable_d3d12_two_pass_replay)

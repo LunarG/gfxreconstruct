@@ -71,7 +71,8 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, const DxReplayOptions& options) :
     window_factory_(window_factory), options_(options), current_message_length_(0), info_queue_(nullptr),
     resource_data_util_(nullptr), command_queue_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
-    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false)
+    set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
+    set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -99,7 +100,8 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(WindowFactory* window_factory, co
         }
         else
         {
-            GFXRECON_LOG_WARNING("Failed to enable ID3D12DeviceRemovedExtendedDataSettings1 for replay option '--debug-device-lost'.");
+            GFXRECON_LOG_WARNING(
+                "Failed to enable ID3D12DeviceRemovedExtendedDataSettings1 for replay option '--debug-device-lost'.");
             options_.enable_debug_device_lost = false;
         }
     }
@@ -196,6 +198,22 @@ Dx12ReplayConsumerBase::~Dx12ReplayConsumerBase()
     if (info_queue_ != nullptr)
     {
         info_queue_->Release();
+    }
+}
+
+void Dx12ReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
+    loading_trim_state_ = true;
+}
+
+void Dx12ReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
+    loading_trim_state_ = false;
+    if (fps_info_ != nullptr)
+    {
+        fps_info_->ProcessStateEndMarker(frame_number);
     }
 }
 

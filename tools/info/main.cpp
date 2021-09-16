@@ -146,6 +146,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(frame_number);
         // Theres should only be one of these in a capture file.
         trimmed_frame_ = static_cast<uint32_t>(frame_number);
     }

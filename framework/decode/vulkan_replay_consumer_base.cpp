@@ -215,13 +215,13 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
 void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number);
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = true;
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
     if (fps_info_ != nullptr)
     {
@@ -3088,8 +3088,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     assert((device_info != nullptr) && (event_info != nullptr));
 
     VkResult result;
-    VkDevice device = device_info->handle;
-    VkEvent  event  = event_info->handle;
+    VkDevice device  = device_info->handle;
+    VkEvent  event   = event_info->handle;
     size_t   retries = 0;
 
     do

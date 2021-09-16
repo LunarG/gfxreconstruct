@@ -35,6 +35,7 @@
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
+#include "graphics/fps_info.h"
 
 #include <functional>
 #include <unordered_map>
@@ -54,6 +55,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual ~Dx12ReplayConsumerBase() override;
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+
+    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
+
+    virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
+
+    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
@@ -477,6 +484,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     bool                                         set_auto_breadcrumbs_enablement_;
     bool                                         set_breadcrumb_context_enablement_;
     bool                                         set_page_fault_enablement_;
+    bool                                         loading_trim_state_;
+    graphics::FpsInfo*                           fps_info_;
 
     struct ResourceInitInfo
     {
