@@ -240,54 +240,86 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
     // Store creation data with descriptor info struct.
     descriptor_info->create_object_id = create_object_wrapper->GetCaptureId();
     descriptor_info->create_call_id   = call_id;
-    descriptor_info->create_parameters =
-        std::make_unique<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+
+    if (descriptor_info->create_parameters == nullptr)
+    {
+        descriptor_info->create_parameters =
+            std::make_unique<util::MemoryOutputStream>(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+    }
+    else
+    {
+        descriptor_info->create_parameters->Reset();
+        descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
+    }
     descriptor_info->is_copy = false;
 }
 
 void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
-                                            DxDescriptorInfo*       dest_descriptor_info,
-                                            const DxDescriptorInfo* src_descriptor_info)
+                                            DxDescriptorInfo*       dest_descriptor_infos,
+                                            const DxDescriptorInfo* src_descriptor_infos)
 {
-    GFXRECON_ASSERT(dest_descriptor_info != nullptr);
-    GFXRECON_ASSERT(src_descriptor_info != nullptr);
+    GFXRECON_ASSERT(dest_descriptor_infos != nullptr);
+    GFXRECON_ASSERT(src_descriptor_infos != nullptr);
 
     for (UINT i = 0; i < num_descriptors; ++i)
     {
-        if (dest_descriptor_info[i].create_parameters == src_descriptor_info[i].create_parameters)
+        auto src = &src_descriptor_infos[i];
+        auto dst = &dest_descriptor_infos[i];
+
+        GFXRECON_ASSERT(src->create_parameters != nullptr);
+        GFXRECON_ASSERT(dst->create_parameters != src->create_parameters)
+
+        // Create or reset the destination descriptors create_parameters buffer.
+        if (dst->create_parameters == nullptr)
         {
-            GFXRECON_LOG_WARNING("Source and destination descriptors are the same in CopyDescriptors. Skipping copy.");
-            continue;
-        }
-
-        size_t heap_and_index_size = 0;
-        if (!src_descriptor_info->is_copy)
-        {
-            heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
-        }
-
-        dest_descriptor_info[i].create_object_id = src_descriptor_info[i].create_object_id;
-        dest_descriptor_info[i].create_call_id   = src_descriptor_info[i].create_call_id;
-
-        dest_descriptor_info[i].is_copy = true;
-
-        GFXRECON_ASSERT(src_descriptor_info[i].create_parameters->GetDataSize() > heap_and_index_size);
-
-        // Copy source creation parameters to destination.
-        if (dest_descriptor_info[i].create_parameters == nullptr)
-        {
-            dest_descriptor_info[i].create_parameters = std::make_unique<util::MemoryOutputStream>(
-                src_descriptor_info[i].create_parameters->GetData(),
-                src_descriptor_info[i].create_parameters->GetDataSize() - heap_and_index_size);
+            dst->create_parameters = std::make_unique<util::MemoryOutputStream>();
         }
         else
         {
-            dest_descriptor_info[i].create_parameters->Reset();
-            dest_descriptor_info[i].create_parameters->Write(src_descriptor_info[i].create_parameters->GetData(),
-                                                             src_descriptor_info[i].create_parameters->GetDataSize() -
-                                                                 heap_and_index_size);
+            dst->create_parameters->Reset();
         }
-        dest_descriptor_info[i].resource_ids = src_descriptor_info[i].resource_ids;
+
+        // Compute copy size.
+        size_t heap_and_index_size = 0;
+        if (!src->is_copy)
+        {
+            heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
+        }
+        size_t src_size  = src->create_parameters->GetDataSize();
+        size_t copy_size = src_size - heap_and_index_size;
+
+        // If the source descriptor is modified asynchronously in another thread, its parameter_data may be invalid.
+        // This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a warning and
+        // prevent the copy from crashing if an unexpected copy size is encountered.
+        if ((copy_size == 0) || (copy_size > src_size))
+        {
+            GFXRECON_LOG_WARNING("The state of the source descriptor (0x%zx) in CopyDescriptors has an unexpected "
+                                 "size. Skipping copy to destination descriptor (0x%zx).",
+                                 src->cpu_address,
+                                 dst->cpu_address);
+        }
+        else
+        {
+            // Copy source creation parameters to destination.
+            dst->create_parameters->Write(src->create_parameters->GetData(), copy_size);
+
+            // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
+            // descriptor.
+            if ((src->create_parameters->GetDataSize() - heap_and_index_size) != dst->create_parameters->GetDataSize())
+            {
+                GFXRECON_LOG_WARNING(
+                    "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "
+                    "of the destination descriptor (0x%zx) may be invalid.",
+                    src->cpu_address,
+                    dst->cpu_address);
+            }
+
+            // Copy remaining state.
+            dst->create_object_id = src->create_object_id;
+            dst->create_call_id   = src->create_call_id;
+            dst->is_copy          = true;
+            dst->resource_ids     = src->resource_ids;
+        }
     }
 }
 

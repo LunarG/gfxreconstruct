@@ -162,8 +162,8 @@ class Dx12StateTracker
                                  DxDescriptorInfo*               descriptor_info);
 
     void TrackCopyDescriptors(UINT                    num_descriptors,
-                              DxDescriptorInfo*       dest_descriptor_info,
-                              const DxDescriptorInfo* src_descriptor_info);
+                              DxDescriptorInfo*       dest_descriptor_infos,
+                              const DxDescriptorInfo* src_descriptor_infos);
 
     void TrackDescriptorResources(SIZE_T          descriptor_cpu_address,
                                   ID3D12Resource* resource1,

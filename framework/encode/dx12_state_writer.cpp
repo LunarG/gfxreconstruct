@@ -430,7 +430,8 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             GFXRECON_ASSERT(descriptor_info.index == i);
 
             if ((CheckDescriptorObjects(descriptor_info, state_table)) &&
-                (descriptor_info.create_parameters != nullptr))
+                (descriptor_info.create_parameters != nullptr) &&
+                (descriptor_info.create_parameters->GetDataSize() != 0))
             {
                 if (descriptor_info.is_copy)
                 {
