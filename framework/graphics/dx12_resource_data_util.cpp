@@ -540,6 +540,14 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
         return E_INVALIDARG;
     }
 
+    // Make sure the target resource is resident.
+    ID3D12Pageable* const pageable = target_resource;
+    if (!SUCCEEDED(device_->MakeResident(1, &pageable)))
+    {
+        GFXRECON_LOG_WARNING("Failed to make resource resident for writing data to resource");
+        return E_FAIL;
+    }
+
     auto staging_buffer = GetStagingBuffer(copy_type, copy_size);
 
     // Transition the resource, copy the data, and transition it back.
