@@ -463,9 +463,6 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
                                                 const std::vector<uint64_t>&                subresource_offsets,
                                                 const std::vector<uint64_t>&                subresource_sizes)
 {
-    D3D12_HEAP_TYPE required_heap_type =
-        (copy_type == kCopyTypeRead) ? D3D12_HEAP_TYPE_READBACK : D3D12_HEAP_TYPE_UPLOAD;
-
     uint64_t subresource_count = subresource_offsets.size();
 
     // Map the resource and copy the data if the resource has the correct heap type.
@@ -474,9 +471,13 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*                 
     HRESULT               result = target_resource->GetHeapProperties(&target_heap_properties, &target_heap_flags);
     if (SUCCEEDED(result))
     {
-        // TODO (GH #83): Are there other heap properties or resource states that can be efficiently mapped and
-        // read/written?
-        if (target_heap_properties.Type == required_heap_type)
+        bool is_cpu_accessible = (target_heap_properties.Type == D3D12_HEAP_TYPE_UPLOAD) ||
+                                 (target_heap_properties.Type == D3D12_HEAP_TYPE_READBACK) ||
+                                 ((target_heap_properties.Type == D3D12_HEAP_TYPE_CUSTOM) &&
+                                  (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_UNKNOWN) &&
+                                  (target_heap_properties.CPUPageProperty != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE));
+
+        if (is_cpu_accessible)
         {
             for (UINT i = 0; i < subresource_count; ++i)
             {
