@@ -21,48 +21,37 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function and forward type declarations for Vulkan struct decoding"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
 # Generates C++ type and function declarations for decoding Vulkan API structures.
 class VulkanStructDecodersForwardGenerator(BaseGenerator):
     """Generate C++ function and forward type declarations for Vulkan struct decoding"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=False, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
@@ -74,8 +63,10 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -83,6 +74,7 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -93,6 +85,7 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
             write('struct Decoded_{};'.format(struct), file=self.outFile)
@@ -100,8 +93,5 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         self.newline()
 
         for struct in self.getFilteredStructNames():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )
+            write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)
+    # yapf: enable

@@ -62,6 +62,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
         )
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
         body = inspect.cleandoc(
@@ -76,8 +77,10 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
             '''
         )
         write(body, file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         body = inspect.cleandoc(
             '''
@@ -89,6 +92,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -100,9 +104,11 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
             body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(
                 struct
             )
             write(body, file=self.outFile)
+    # yapf: enable

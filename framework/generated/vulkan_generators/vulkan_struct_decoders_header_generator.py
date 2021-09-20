@@ -21,55 +21,41 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ type declarations for Vulkan struct decoding"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ type declarations for the decoded Vulkan API structure wrappers.
 class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     """Generate C++ type declarations for Vulkan struct decoding"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=False, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write(
-            '#include "decode/custom_vulkan_struct_decoders_forward.h"',
-            file=self.outFile
-        )
+        write('#include "decode/custom_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
@@ -78,10 +64,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/format.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
-            file=self.outFile
-        )
+        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -90,8 +73,10 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -99,6 +84,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -109,6 +95,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         first = True
         for struct in self.getFilteredStructNames():
@@ -119,9 +106,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
             body += '\n'
             body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
-            decls = self.makeMemberDeclarations(
-                struct, self.featureStructMembers[struct]
-            )
+            decls = self.makeMemberDeclarations(struct, self.featureStructMembers[struct])
             if decls:
                 body += '\n'
                 body += decls
@@ -134,11 +119,10 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         # Write typedefs for any aliases
         for struct in self.featureStructAliases:
             body = '' if first else '\n'
-            body += 'typedef Decoded_{} Decoded_{};'.format(
-                self.featureStructAliases[struct], struct
-            )
+            body += 'typedef Decoded_{} Decoded_{};'.format(self.featureStructAliases[struct], struct)
             write(body, file=self.outFile)
             first = False
+    # yapf: enable
 
     #
     # Determines if a Vulkan struct member needs an associated member delcaration in the decoded struct wrapper.
@@ -168,6 +152,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
     #
     # Generate the struct member declarations for the decoded struct wrapper.
+    # yapf: disable
     def makeMemberDeclarations(self, name, values):
         body = ''
 
@@ -182,15 +167,12 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
                 defaultValue = self.getDefaultInitValue(typeName)
                 if defaultValue:
-                    body += '    {} {}{{ {} }};\n'.format(
-                        typeName, value.name, defaultValue
-                    )
+                    body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)
                 else:
                     if self.isStruct(value.baseType):
-                        body += '    {} {}{{ nullptr }};\n'.format(
-                            typeName, value.name
-                        )
+                        body += '    {} {}{{ nullptr }};\n'.format(typeName, value.name)
                     else:
                         body += '    {} {};\n'.format(typeName, value.name)
 
         return body
+    # yapf: enable

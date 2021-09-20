@@ -21,49 +21,38 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class declaration for Vulkan API parameter decoding"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ member declarations for the VulkanDecoder class responsible for decoding
 # Vulkan API call parameter data.
 class VulkanDecoderHeaderGenerator(BaseGenerator):
     """Generate a C++ class declaration for Vulkan API parameter decoding"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=True, processStructs=False, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
@@ -75,33 +64,20 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write(
-            'class VulkanDecoder : public VulkanDecoderBase',
-            file=self.outFile
-        )
+        write('class VulkanDecoder : public VulkanDecoderBase', file=self.outFile)
         write('{', file=self.outFile)
         write('  public:', file=self.outFile)
         write('    VulkanDecoder() { }\n', file=self.outFile)
         write('    virtual ~VulkanDecoder() override { }\n', file=self.outFile)
-        write(
-            '    virtual void DecodeFunctionCall(format::ApiCallId             call_id,',
-            file=self.outFile
-        )
-        write(
-            '                                    const ApiCallInfo&            call_info,',
-            file=self.outFile
-        )
-        write(
-            '                                    const uint8_t*                parameter_buffer,',
-            file=self.outFile
-        )
-        write(
-            '                                    size_t                        buffer_size) override;\n',
-            file=self.outFile
-        )
+        write('    virtual void DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
+        write('                                    const ApiCallInfo&            call_info,', file=self.outFile)
+        write('                                    const uint8_t*                parameter_buffer,', file=self.outFile)
+        write('                                    size_t                        buffer_size) override;\n', file=self.outFile)
         write('  private:', end='', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         write('};', file=self.outFile)
         self.newline()
@@ -110,6 +86,7 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -120,12 +97,12 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         first = True
         for cmd in self.getFilteredCmdNames():
             cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(
-                cmd
-            )
+            cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(cmd)
             write(cmddef, file=self.outFile)
             first = False
+    # yapf: enable

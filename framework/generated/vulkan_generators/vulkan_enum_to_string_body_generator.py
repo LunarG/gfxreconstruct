@@ -20,46 +20,34 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys, inspect
+import os,re,sys,inspect
 from base_generator import *
-
 
 class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanEnumToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API enums.
 class VulkanEnumToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=False, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
         # Set of enums that have been processed since we'll encounter enums that are
         #   referenced by extensions multiple times.  This list is prepopulated with
@@ -70,31 +58,31 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
         }
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc(
-            '''
+        body = inspect.cleandoc('''
             #include "generated_vulkan_enum_to_string.h"
             #include "decode/custom_vulkan_to_string.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
-            '''
-        )
+            ''')
         write(body, file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
-        body = inspect.cleandoc(
-            '''
+        body = inspect.cleandoc('''
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            '''
-        )
+            ''')
         write(body, file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -106,6 +94,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         for enum in sorted(self.enumNames):
             if not enum in self.processedEnums and not enum in self.enumAliases:
@@ -115,9 +104,7 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                 if len(self.enumEnumerants[enum]):
                     body += '    switch (value) {{\n'
                     for enumerant in self.enumEnumerants[enum]:
-                        body += '    case {0}: return "{0}";\n'.format(
-                            enumerant
-                        )
+                        body += '    case {0}: return "{0}";\n'.format(enumerant)
                     body += '    default: break;\n'
                     body += '    }}\n'
                 body += '    return "Unhandled {0}";\n'
@@ -128,3 +115,4 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
                     body += '    return BitmaskToString<{0}>(vkFlags);\n'
                     body += '}}\n'
                 write(body.format(enum), file=self.outFile)
+    # yapf: enable

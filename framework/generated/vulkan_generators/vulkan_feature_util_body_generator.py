@@ -20,56 +20,45 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys, json
+import os,re,sys,json
 from base_generator import *
-
 
 class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ code to alter Vulkan device createtion features"""
-
-    def __init__(
-        self,
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self,
-            platformTypes=platformTypes,
-            filename=filename,
-            directory=directory,
-            prefixText=prefixText,
-            protectFile=protectFile,
-            protectFeature=protectFeature
-        )
-
+    def __init__(self,
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self,
+                                      platformTypes=platformTypes,
+                                      filename=filename,
+                                      directory=directory,
+                                      prefixText=prefixText,
+                                      protectFile=protectFile,
+                                      protectFeature=protectFeature)
 
 # VulkanFeatureUtilBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions to alter Vulkan device creation features.
 class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     """Generate C++ code to alter Vulkan device creation features"""
 
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=False, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
         self.physicalDeviceFeatures2sTypes = dict()
         # List of 1.0 features
         self.physicalDeviceFeatures = []
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
@@ -80,8 +69,10 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(feature_util)', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         self.newline()
         write(self.makeFeatureHelper(), file=self.outFile)
@@ -92,6 +83,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Method override
@@ -109,9 +101,8 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
                         if member.baseType == "VkBool32":
                             members.append(member.name)
                     self.physicalDeviceFeatures2sTypes[typename] = {
-                        'sType':
-                        self.makeStructureTypeEnum(typeinfo, typename),
-                        'members': members
+                        'sType' : self.makeStructureTypeEnum(typeinfo, typename),
+                        'members' : members
                     }
 
             #  Get all core 1.0 features
@@ -126,6 +117,7 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
     #
     # Generate help function for features on replaying at device creation time
+    # yapf: disable
     def makeFeatureHelper(self):
         result = 'void RemoveUnsupportedFeatures(VkPhysicalDevice physicalDevice, PFN_vkGetPhysicalDeviceFeatures GetPhysicalDeviceFeatures, PFN_vkGetPhysicalDeviceFeatures2 GetPhysicalDeviceFeatures2, const void* pNext, const VkPhysicalDeviceFeatures* pEnabledFeatures)\n'
         result += '{\n'
@@ -153,25 +145,15 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
 
             result += '            case {}:\n'.format(info['sType'])
             result += '            {\n'
-            result += '                const {}* currentNext = reinterpret_cast<const {}*>(next);\n'.format(
-                typename, typename
-            )
-            result += '                {} query = {{ {}, nullptr }};\n'.format(
-                typename, info['sType']
-            )
+            result += '                const {}* currentNext = reinterpret_cast<const {}*>(next);\n'.format(typename, typename)
+            result += '                {} query = {{ {}, nullptr }};\n'.format(typename, info['sType'])
             result += '                physicalDeviceFeatures2.pNext = &query;\n'
             result += '                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);\n'
             for member in info['members']:
-                result += '                if ((currentNext->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(
-                    member, member
-                )
+                result += '                if ((currentNext->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(member, member)
                 result += '                {\n'
-                result += '                    GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(
-                    member
-                )
-                result += '                    const_cast<{}*>(currentNext)->{} = VK_FALSE;\n'.format(
-                    typename, member
-                )
+                result += '                    GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(member)
+                result += '                    const_cast<{}*>(currentNext)->{} = VK_FALSE;\n'.format(typename, member)
                 result += '                }\n'
             result += '                break;\n'
             result += '             }\n'
@@ -188,17 +170,12 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         result += '        VkPhysicalDeviceFeatures query = {};\n'
         result += '        GetPhysicalDeviceFeatures(physicalDevice, &query);\n'
         for feature in self.physicalDeviceFeatures:
-            result += '        if ((physicalDeviceFeatures->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(
-                feature, feature
-            )
+            result += '        if ((physicalDeviceFeatures->{} == VK_TRUE) && (query.{} == VK_FALSE))\n'.format(feature, feature)
             result += '        {\n'
-            result += '            GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(
-                feature
-            )
-            result += '            const_cast<VkPhysicalDeviceFeatures*>(physicalDeviceFeatures)->{} = VK_FALSE;\n'.format(
-                feature
-            )
+            result += '            GFXRECON_LOG_WARNING("Feature {}, which is not supported by the replay device, will not be enabled");\n'.format(feature)
+            result += '            const_cast<VkPhysicalDeviceFeatures*>(physicalDeviceFeatures)->{} = VK_FALSE;\n'.format(feature)
             result += '        }\n'
         result += '    }\n'
         result += '}'
         return result
+    # yapf: enable
