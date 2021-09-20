@@ -33,8 +33,7 @@ generator_path = './vulkan_generators'
 
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
-    'generated_encode_pnext_struct.cpp',
-    'generated_vulkan_struct_encoders.h',
+    'generated_encode_pnext_struct.cpp', 'generated_vulkan_struct_encoders.h',
     'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
     'generated_vulkan_struct_handle_wrappers.cpp',
@@ -42,16 +41,12 @@ generate_targets = [
     'generated_vulkan_api_call_encoders.cpp',
     'generated_vulkan_command_buffer_util.h',
     'generated_vulkan_command_buffer_util.cpp',
-    'generated_vulkan_dispatch_table.h',
-    'generated_layer_func_table.h',
+    'generated_vulkan_dispatch_table.h', 'generated_layer_func_table.h',
     'generated_vulkan_struct_decoders.h',
     'generated_vulkan_struct_decoders.cpp',
-    'generated_vulkan_struct_decoders_forward.h',
-    'generated_vulkan_decoder.h',
-    'generated_vulkan_decoder.cpp',
-    'generated_decode_pnext_struct.cpp',
-    'generated_vulkan_consumer.h',
-    'generated_vulkan_ascii_consumer.h',
+    'generated_vulkan_struct_decoders_forward.h', 'generated_vulkan_decoder.h',
+    'generated_vulkan_decoder.cpp', 'generated_decode_pnext_struct.cpp',
+    'generated_vulkan_consumer.h', 'generated_vulkan_ascii_consumer.h',
     'generated_vulkan_ascii_consumer.cpp',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
@@ -59,8 +54,7 @@ generate_targets = [
     'generated_vulkan_referenced_resource_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
-    'generated_vulkan_feature_util.cpp',
-    'generated_vulkan_enum_to_string.h',
+    'generated_vulkan_feature_util.cpp', 'generated_vulkan_enum_to_string.h',
     'generated_vulkan_enum_to_string.cpp',
     'generated_vulkan_pnext_to_string.cpp',
     'generated_vulkan_struct_to_string.h',
@@ -82,4 +76,13 @@ if __name__ == '__main__':
 
     for target in generate_targets:
         print('Generating', target)
-        subprocess.call([sys.executable, os.path.join(generator_dir, 'gencode.py'), '-o', current_dir, '-configs', generator_dir, '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)
+        subprocess.call(
+            [
+                sys.executable,
+                os.path.join(generator_dir, 'gencode.py'), '-o', current_dir,
+                '-configs', generator_dir, '-registry',
+                os.path.join(registry_dir, 'vk.xml'), target
+            ],
+            shell=False,
+            env=env
+        )

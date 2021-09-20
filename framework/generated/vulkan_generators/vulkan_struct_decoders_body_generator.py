@@ -21,42 +21,60 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan struct decoding"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructDecodersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for decoding Vulkan API structures.
 class VulkanStructDecodersBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan struct decoding"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_decoders.h"',
+            file=self.outFile
+        )
         self.newline()
-        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write(
+            '#include "decode/custom_vulkan_struct_decoders.h"',
+            file=self.outFile
+        )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
@@ -64,7 +82,10 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);', file=self.outFile)
+        write(
+            'size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, PNextNode** pNext);',
+            file=self.outFile
+        )
 
     # Method override
     def endFile(self):
@@ -88,14 +109,18 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         first = True
         for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
-            body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
+            body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
+                struct
+            )
             body += '{\n'
             body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
             body += '\n'
             body += '    size_t bytes_read = 0;\n'
             body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
-            body += self.makeDecodeStructBody(struct, self.featureStructMembers[struct])
+            body += self.makeDecodeStructBody(
+                struct, self.featureStructMembers[struct]
+            )
             body += '\n'
             body += '    return bytes_read;\n'
             body += '}'
@@ -111,7 +136,9 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by type name
             if 'pNext' in value.name:
-                body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
+                body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+                    value.name
+                )
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
                 body += self.makeDecodeInvocation(name, value)
@@ -145,24 +172,38 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         if value.isPointer or value.isArray:
             if typeName in self.EXTERNAL_OBJECT_TYPES and not value.isArray:
                 # Pointer to an unknown object type, encoded as a 64-bit integer ID.
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(
+                    bufferArgs, value.name
+                )
                 body += '    value->{} = nullptr;\n'.format(value.name)
             else:
-                isStaticArray = True if (value.isArray and not value.isDynamic) else False
+                isStaticArray = True if (
+                    value.isArray and not value.isDynamic
+                ) else False
                 accessOp = '.'
 
                 if isStruct:
-                    body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
+                    body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
+                        value.name, self.makeDecodedParamType(value)
+                    )
                     accessOp = '->'
 
                 if isStaticArray:
                     # The pointer decoder will write directly to the struct member's memory.
-                    body += '    wrapper->{name}{}SetExternalMemory(value->{name}, {arraylen});\n'.format(accessOp, name=value.name, arraylen=value.arrayCapacity)
+                    body += '    wrapper->{name}{}SetExternalMemory(value->{name}, {arraylen});\n'.format(
+                        accessOp,
+                        name=value.name,
+                        arraylen=value.arrayCapacity
+                    )
 
                 if isStruct or isString or isHandle:
-                    body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(value.name, accessOp, bufferArgs)
+                    body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
+                        value.name, accessOp, bufferArgs
+                    )
                 else:
-                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
+                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
+                        value.name, typeName, bufferArgs
+                    )
 
                 if not isStaticArray:
                     if isHandle:
@@ -170,29 +211,48 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                         body += '    value->{} = nullptr;\n'.format(value.name)
                     else:
                         # Point the real struct's member pointer to the pointer decoder's memory.
-                        body += '    value->{name} = wrapper->{name}{}GetPointer();\n'.format(accessOp, name=value.name)
+                        body += '    value->{name} = wrapper->{name}{}GetPointer();\n'.format(
+                            accessOp, name=value.name
+                        )
         else:
             if isStruct:
-                body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
-                body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(name=value.name)
-                body += '    bytes_read += DecodeStruct({}, wrapper->{});\n'.format(bufferArgs, value.name)
+                body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
+                    value.name, self.makeDecodedParamType(value)
+                )
+                body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(
+                    name=value.name
+                )
+                body += '    bytes_read += DecodeStruct({}, wrapper->{});\n'.format(
+                    bufferArgs, value.name
+                )
             elif isFuncp:
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(
+                    bufferArgs, value.name
+                )
                 body += '    value->{} = nullptr;\n'.format(value.name)
             elif isHandle:
-                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
+                    bufferArgs, value.name
+                )
                 body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
             elif self.isGenericStructHandleValue(name, value.name):
-                body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(
+                    bufferArgs, value.name
+                )
                 body += '    value->{} = 0;\n'.format(value.name)
             elif value.bitfieldWidth:
                 # Bit fields need to be read into a tempoaray and then assigned to the struct member.
                 tempParamName = 'temp_{}'.format(value.name)
                 body += '    {} {};\n'.format(value.baseType, tempParamName)
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, tempParamName)
-                body += '    value->{} = {};\n'.format(value.name, tempParamName)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    typeName, bufferArgs, tempParamName
+                )
+                body += '    value->{} = {};\n'.format(
+                    value.name, tempParamName
+                )
             else:
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
+                    typeName, bufferArgs, value.name
+                )
 
         return body
-

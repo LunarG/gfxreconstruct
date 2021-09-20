@@ -21,45 +21,61 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a dispatch table for Vulkan API calls"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanDispatchTableGenerator - subclass of BaseGenerator.
 # Generates a dispatch table for Vulkan API calls.
 class VulkanDispatchTableGenerator(BaseGenerator):
     """Generate dispatch table for Vulkan API calls"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
-        # Map of return types to default return values for no-op functions
-        self.RETURN_DEFAULTS = { 'VkResult' : 'VK_SUCCESS',
-                                 'VkBool32' : 'VK_TRUE',
-                                 'PFN_vkVoidFunction' : 'nullptr',
-                                 'VkDeviceAddress' : '0',
-                                 'VkDeviceSize' : '0',
-                                 'uint32_t' : '0',
-                                 'uint64_t' : '0' }
 
-        self.instanceCmdNames = dict()      # Map of API call names to no-op function declarations
-        self.deviceCmdNames = dict()        # Map of API call names to no-op function declarations
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
+        # Map of return types to default return values for no-op functions
+        self.RETURN_DEFAULTS = {
+            'VkResult': 'VK_SUCCESS',
+            'VkBool32': 'VK_TRUE',
+            'PFN_vkVoidFunction': 'nullptr',
+            'VkDeviceAddress': '0',
+            'VkDeviceSize': '0',
+            'uint32_t': '0',
+            'uint64_t': '0'
+        }
+
+        self.instanceCmdNames = dict(
+        )  # Map of API call names to no-op function declarations
+        self.deviceCmdNames = dict(
+        )  # Map of API call names to no-op function declarations
 
     # Method override
     def beginFile(self, genOpts):
@@ -91,10 +107,19 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('typedef const void* DispatchKey;', file=self.outFile)
         self.newline()
 
-        write('// Retrieve a dispatch key from a dispatchable handle', file=self.outFile)
-        write('static DispatchKey GetDispatchKey(const void* handle)', file=self.outFile)
+        write(
+            '// Retrieve a dispatch key from a dispatchable handle',
+            file=self.outFile
+        )
+        write(
+            'static DispatchKey GetDispatchKey(const void* handle)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
-        write('    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);', file=self.outFile)
+        write(
+            '    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);',
+            file=self.outFile
+        )
         write('    return (*dispatch_key);', file=self.outFile)
         write('}', file=self.outFile)
 
@@ -104,8 +129,14 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
         write('struct LayerTable', file=self.outFile)
         write('{', file=self.outFile)
-        write('    PFN_vkCreateInstance CreateInstance{ nullptr };', file=self.outFile)
-        write('    PFN_vkCreateDevice CreateDevice{ nullptr };', file=self.outFile)
+        write(
+            '    PFN_vkCreateInstance CreateInstance{ nullptr };',
+            file=self.outFile
+        )
+        write(
+            '    PFN_vkCreateDevice CreateDevice{ nullptr };',
+            file=self.outFile
+        )
         write('};', file=self.outFile)
 
         self.newline()
@@ -114,10 +145,19 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         self.generateDeviceCmdTable()
         self.newline()
 
-        write('template <typename GetProcAddr, typename Handle, typename FuncP>', file=self.outFile)
-        write('static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)', file=self.outFile)
+        write(
+            'template <typename GetProcAddr, typename Handle, typename FuncP>',
+            file=self.outFile
+        )
+        write(
+            'static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
-        write('    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));', file=self.outFile)
+        write(
+            '    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));',
+            file=self.outFile
+        )
         write('    if (result != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        (*funcp) = result;', file=self.outFile)
@@ -158,10 +198,16 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                         returnType = info[0]
                         proto = info[1]
 
-                        if not firstParam.baseType in ['VkInstance', 'VkPhysicalDevice']:
-                            self.deviceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                        if not firstParam.baseType in [
+                            'VkInstance', 'VkPhysicalDevice'
+                        ]:
+                            self.deviceCmdNames[name] = self.makeCmdDecl(
+                                returnType, proto, values, name
+                            )
                         else:
-                            self.instanceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                            self.instanceCmdNames[name] = self.makeCmdDecl(
+                                returnType, proto, values, name
+                            )
 
     #
     # Generate instance dispatch table structure
@@ -170,7 +216,9 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('{', file=self.outFile)
 
         for name in self.instanceCmdNames:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(name, name[2:], name[2:])
+            decl = '    PFN_{} {}{{ noop::{} }};'.format(
+                name, name[2:], name[2:]
+            )
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)
@@ -182,7 +230,9 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('{', file=self.outFile)
 
         for name in self.deviceCmdNames:
-            decl = '    PFN_{} {}{{ noop::{} }};'.format(name, name[2:], name[2:])
+            decl = '    PFN_{} {}{{ noop::{} }};'.format(
+                name, name[2:], name[2:]
+            )
             write(decl, file=self.outFile)
 
         write('};', file=self.outFile)
@@ -205,16 +255,23 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     #
     # Generate function to set the instance table's functions with a getprocaddress routine
     def generateLoadInstanceTableFunc(self):
-        write('static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)', file=self.outFile)
+        write(
+            'static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    assert(table != nullptr);', file=self.outFile)
         self.newline()
 
         for name in self.instanceCmdNames:
             if name == 'vkGetInstanceProcAddr':
-                write('    table->GetInstanceProcAddr = gpa;', file=self.outFile)
+                write(
+                    '    table->GetInstanceProcAddr = gpa;', file=self.outFile
+                )
             else:
-                expr = '    LoadFunction(gpa, instance, "{}", &table->{});'.format(name, name[2:])
+                expr = '    LoadFunction(gpa, instance, "{}", &table->{});'.format(
+                    name, name[2:]
+                )
                 write(expr, file=self.outFile)
 
         write('}', file=self.outFile)
@@ -222,7 +279,10 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     #
     # Generate function to set the device table's functions with a getprocaddress routine
     def generateLoadDeviceTableFunc(self):
-        write('static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)', file=self.outFile)
+        write(
+            'static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    assert(table != nullptr);', file=self.outFile)
         self.newline()
@@ -231,11 +291,12 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             if name == 'vkGetDeviceProcAddr':
                 write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
             else:
-                expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(name, name[2:])
+                expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
+                    name, name[2:]
+                )
                 write(expr, file=self.outFile)
 
         write('}', file=self.outFile)
-
 
     #
     # Generate the full typename for the NoOp function parameters; the array types need the [] moved from the parameter name to the parameter typename
@@ -250,12 +311,19 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def makeCmdDecl(self, returnType, proto, values, name):
         params = ', '.join([self.makeFullTypename(value) for value in values])
         if returnType == 'void':
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(proto, params, name)
+            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); }}'.format(
+                proto, params, name
+            )
         else:
             returnValue = ''
             if returnType in self.RETURN_DEFAULTS:
                 returnValue = self.RETURN_DEFAULTS[returnType]
             else:
-                print('Unrecognized return type {} for no-op function generation; returning a zero initialized value'.format(returnType))
+                print(
+                    'Unrecognized return type {} for no-op function generation; returning a zero initialized value'
+                    .format(returnType)
+                )
                 returnValue = '{}{{}}'.format(returnType)
-            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(proto, params, name, returnValue)
+            return 'static {}({}) {{ GFXRECON_LOG_WARNING("Unsupported function {} was called, resulting in no-op behavior."); return {}; }}'.format(
+                proto, params, name, returnValue
+            )

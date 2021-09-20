@@ -21,35 +21,47 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,inspect
+import os, re, sys, inspect
 from base_generator import *
+
 
 class VulkanAsciiConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file to ASCII file generation"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanAsciiConsumerBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanAsciiConsumer class responsible for
 # generating a textfile containing decoded Vulkan API call parameter data.
 class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     """Generate a C++ class for Vulkan capture file to ASCII file generation"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # The following functions require custom implementations for to ASCII
         self.customImplementationRequired = {
@@ -63,7 +75,8 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             #include "generated/generated_vulkan_ascii_consumer.h"
             #include "decode/custom_vulkan_ascii_consumer.h"
             #include "decode/custom_vulkan_to_string.h"
@@ -75,15 +88,18 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
     # Method override
     def endFile(self):
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -107,8 +123,11 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                 values = info[2]
 
                 cmddef = '' if first else '\n'
-                cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanAsciiConsumer::Process_' + cmd, values) + '\n'
-                cmddef += inspect.cleandoc('''
+                cmddef += self.makeConsumerFuncDecl(
+                    returnType, 'VulkanAsciiConsumer::Process_' + cmd, values
+                ) + '\n'
+                cmddef += inspect.cleandoc(
+                    '''
                     {{
                         using namespace gfxrecon::util;
                         ToStringFlags toStringFlags = kToString_Default;
@@ -117,14 +136,17 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         WriteApiCallToFile("{0}", toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
-                    '''.format(cmd))
+                    '''.format(cmd)
+                )
                 cmddef += '\n'
                 cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
-                cmddef += inspect.cleandoc('''
+                cmddef += inspect.cleandoc(
+                    '''
                             }
                         );
                     }
-                    ''')
+                    '''
+                )
                 write(cmddef, file=self.outFile)
                 first = False
 
@@ -194,7 +216,11 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
                         toString = 'ToString({0}, toStringFlags, tabCount, tabSize)'
 
             firstField = 'true' if not body else 'false'
-            valueName = ('[out]' if self.isOutputParameter(value) else '') + value.name
+            valueName = (
+                '[out]' if self.isOutputParameter(value) else ''
+            ) + value.name
             toString = toString.format(value.name, value.arrayLength)
-            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, valueName, toString)
+            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(
+                firstField, valueName, toString
+            )
         return body
