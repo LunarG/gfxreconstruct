@@ -21,35 +21,47 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan API parameter decoding"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanDecoderBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member functions for the VulkanDecoder class responsible for decoding
 # Vulkan API call parameter data.
 class VulkanDecoderBodyGenerator(BaseGenerator):
     """Generate a C++ class for Vulkan API parameter decoding"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Names of all Vulkan commands processed by the generator.
         self.cmdNames = []
@@ -65,8 +77,14 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         write('#include "decode/string_decoder.h"', file=self.outFile)
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/value_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_decoder.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_decoders_forward.h"',
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -107,7 +125,9 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += 'size_t VulkanDecoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(cmd)
+            cmddef += 'size_t VulkanDecoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(
+                cmd
+            )
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
@@ -145,7 +165,9 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         for value in values:
             body += self.makeDecodeInvocation(value)
         if returnType and returnType != 'void':
-            body += self.makeDecodeInvocation(ValueInfo('return_value', returnType, returnType))
+            body += self.makeDecodeInvocation(
+                ValueInfo('return_value', returnType, returnType)
+            )
 
         # Blank line after Decode() method invocations.
         if values or returnType:
@@ -190,44 +212,77 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             if typeName in self.EXTERNAL_OBJECT_TYPES and not value.isArray:
                 if value.pointerCount > 1:
                     # Pointer to a pointer to an unknown object type (void**), encoded as a pointer to a 64-bit integer ID.
-                    body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(value.name, bufferArgs)
+                    body += '    bytes_read += {}.DecodeVoidPtr({});\n'.format(
+                        value.name, bufferArgs
+                    )
                 else:
                     # Pointer to an unknown object type, encoded as a 64-bit integer ID.
-                    body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferArgs, value.name)
+                    body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
+                        bufferArgs, value.name
+                    )
             else:
                 if isStruct or isString or isHandle:
-                    body += '    bytes_read += {}.Decode({});\n'.format(value.name, bufferArgs)
+                    body += '    bytes_read += {}.Decode({});\n'.format(
+                        value.name, bufferArgs
+                    )
                 else:
-                    body += '    bytes_read += {}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
+                    body += '    bytes_read += {}.Decode{}({});\n'.format(
+                        value.name, typeName, bufferArgs
+                    )
         else:
             if isStruct:
-                body += '    bytes_read += DecodeStruct({}, &{});\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += DecodeStruct({}, &{});\n'.format(
+                    bufferArgs, value.name
+                )
             elif isFuncp:
-                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
+                    bufferArgs, value.name
+                )
             elif isHandle:
-                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
+                    bufferArgs, value.name
+                )
             else:
-                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, value.name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    typeName, bufferArgs, value.name
+                )
 
         return body
 
     #
     # Generate the VulkanDecoder::DecodeFunctionCall method.
     def generateDecodeCases(self):
-        write('void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
-        write('                                       const ApiCallInfo&            call_info,', file=self.outFile)
-        write('                                       const uint8_t*                parameter_buffer,', file=self.outFile)
-        write('                                       size_t                        buffer_size)', file=self.outFile)
+        write(
+            'void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,',
+            file=self.outFile
+        )
+        write(
+            '                                       const ApiCallInfo&            call_info,',
+            file=self.outFile
+        )
+        write(
+            '                                       const uint8_t*                parameter_buffer,',
+            file=self.outFile
+        )
+        write(
+            '                                       size_t                        buffer_size)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    switch(call_id)', file=self.outFile)
         write('    {', file=self.outFile)
         write('    default:', file=self.outFile)
-        write('        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);', file=self.outFile)
+        write(
+            '        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);',
+            file=self.outFile
+        )
         write('        break;', file=self.outFile)
 
         for cmd in self.cmdNames:
             cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
-            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(cmd)
+            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(
+                cmd
+            )
             cmddef += '        break;'
             write(cmddef, file=self.outFile)
 

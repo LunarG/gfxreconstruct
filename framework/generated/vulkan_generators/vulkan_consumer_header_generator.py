@@ -21,52 +21,67 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 # Adds the following new option:
 #  isOverride - Specify whether the member function declarations are
 #               virtual function overrides or pure virtual functions.
 class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ class declarations for Vulkan parameter processing"""
-    def __init__(self,
-                 className,
-                 baseClassHeader,
-                 isOverride,
-                 constructorArgs = '',
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        className,
+        baseClassHeader,
+        isOverride,
+        constructorArgs='',
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
         self.className = className
         self.baseClassHeader = baseClassHeader
         self.isOverride = isOverride
         self.constructorArgs = constructorArgs
+
 
 # VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ member declarations for the VulkanConsumer class responsible for processing
 # Vulkan API call parameter data.
 class VulkanConsumerHeaderGenerator(BaseGenerator):
     """Generate C++ class declarations for Vulkan parameter processing"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "decode/{}"'.format(genOpts.baseClassHeader), file=self.outFile)
+        write(
+            '#include "decode/{}"'.format(genOpts.baseClassHeader),
+            file=self.outFile
+        )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -74,15 +89,38 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('class {className} : public {className}Base'.format(className=genOpts.className), file=self.outFile)
+        write(
+            'class {className} : public {className}Base'.format(
+                className=genOpts.className
+            ),
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('  public:', file=self.outFile)
         if genOpts.constructorArgs:
-            argList = ', '.join([arg.split(' ')[-1] for arg in genOpts.constructorArgs.split(',')])
-            write('    {className}({}) : {className}Base({}) {{ }}\n'.format(genOpts.constructorArgs, argList, className=genOpts.className), file=self.outFile)
+            argList = ', '.join(
+                [
+                    arg.split(' ')[-1]
+                    for arg in genOpts.constructorArgs.split(',')
+                ]
+            )
+            write(
+                '    {className}({}) : {className}Base({}) {{ }}\n'.format(
+                    genOpts.constructorArgs,
+                    argList,
+                    className=genOpts.className
+                ),
+                file=self.outFile
+            )
         else:
-            write('    {}() {{ }}\n'.format(genOpts.className), file=self.outFile)
-        write('    virtual ~{}() override {{ }}'.format(genOpts.className), file=self.outFile)
+            write(
+                '    {}() {{ }}\n'.format(genOpts.className),
+                file=self.outFile
+            )
+        write(
+            '    virtual ~{}() override {{ }}'.format(genOpts.className),
+            file=self.outFile
+        )
 
     # Method override
     def endFile(self):
@@ -110,13 +148,19 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
             returnType = info[0]
             values = info[2]
 
-            decl = self.makeConsumerFuncDecl(returnType, 'Process_' + cmd, values)
+            decl = self.makeConsumerFuncDecl(
+                returnType, 'Process_' + cmd, values
+            )
 
             cmddef = '' if first else '\n'
             if self.genOpts.isOverride:
-                cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
+                cmddef += self.indent(
+                    'virtual ' + decl + ' override;', self.INDENT_SIZE
+                )
             else:
-                cmddef += self.indent('virtual ' + decl + ' {}', self.INDENT_SIZE)
+                cmddef += self.indent(
+                    'virtual ' + decl + ' {}', self.INDENT_SIZE
+                )
 
             write(cmddef, file=self.outFile)
             first = False

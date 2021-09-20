@@ -20,34 +20,46 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,inspect
+import os, re, sys, inspect
 from base_generator import *
+
 
 class VulkanStructToStringBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructToStringBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
 class VulkanStructToStringBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # The following structures require custom implementations for ToString()
         self.customImplementationRequired = {
@@ -63,22 +75,26 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             #include "decode/custom_vulkan_to_string.h"
             #include "generated_vulkan_struct_to_string.h"
             #include "generated_vulkan_enum_to_string.h"
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
     # Method override
     def endFile(self):
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -97,20 +113,26 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
             if not struct in self.customImplementationRequired:
-                body = inspect.cleandoc('''
+                body = inspect.cleandoc(
+                    '''
                     template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)
                     {{
                         return ObjectToString(toStringFlags, tabCount, tabSize,
                             [&](std::stringstream& strStrm)
                             {{
-                    '''.format(struct))
+                    '''.format(struct)
+                )
                 body += '\n'
-                body += self.makeStructBody(struct, self.featureStructMembers[struct])
-                body += inspect.cleandoc('''
+                body += self.makeStructBody(
+                    struct, self.featureStructMembers[struct]
+                )
+                body += inspect.cleandoc(
+                    '''
                             }
                         );
                     }
-                    ''')
+                    '''
+                )
                 body += '\n'
                 write(body, file=self.outFile)
 
@@ -187,5 +209,7 @@ class VulkanStructToStringBodyGenerator(BaseGenerator):
 
             firstField = 'true' if not body else 'false'
             toString = toString.format(value.name, value.arrayLength)
-            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(firstField, value.name, toString)
+            body += '            FieldToString(strStrm, {0}, "{1}", toStringFlags, tabCount, tabSize, {2});\n'.format(
+                firstField, value.name, toString
+            )
         return body

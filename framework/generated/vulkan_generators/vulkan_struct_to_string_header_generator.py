@@ -20,39 +20,52 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,inspect
+import os, re, sys, inspect
 from base_generator import *
+
 
 class VulkanStructToStringHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructToStringHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ functions for stringifying Vulkan API structures.
 class VulkanStructToStringHeaderGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan ToString() functions"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             #include "format/platform_types.h"
             #include "util/to_string.h"
             
@@ -60,15 +73,18 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
 
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(util)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
     # Method override
     def endFile(self):
-        body = inspect.cleandoc('''
+        body = inspect.cleandoc(
+            '''
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_END_NAMESPACE(gfxrecon)
-            ''')
+            '''
+        )
         write(body, file=self.outFile)
 
         # Finish processing in superclass
@@ -86,5 +102,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
-            body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(struct)
+            body = 'template <> std::string ToString<{0}>(const {0}& obj, ToStringFlags toStriingFlags, uint32_t tabCount, uint32_t tabSize);'.format(
+                struct
+            )
             write(body, file=self.outFile)
