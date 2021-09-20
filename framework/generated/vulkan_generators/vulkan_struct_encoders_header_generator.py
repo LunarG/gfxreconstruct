@@ -21,48 +21,37 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan struct encoding"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanStructEncodersHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ type and function declarations for encoding Vulkan API structures.
 class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     """Generate C++ function declarations for Vulkan struct encoding"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=False,
-            processStructs=True,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=False, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
@@ -77,12 +66,11 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write(
-            'void EncodePNextStruct(ParameterEncoder* encoder, const void* value);',
-            file=self.outFile
-        )
+        write('void EncodePNextStruct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -90,6 +78,7 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -100,10 +89,8 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
+    # yapf: disable
     def generateFeature(self):
         for struct in self.getFilteredStructNames():
-            write(
-                'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
-                .format(struct),
-                file=self.outFile
-            )
+            write('void EncodeStruct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
+    # yapf: enable

@@ -21,48 +21,37 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function declarations for Vulkan API parameter encoding"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for encoding Vulkan API call parameter data.
 class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     """Generate C++ function declarations for Vulkan API parameter encoding"""
-
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=True,
-            processStructs=False,
-            featureBreak=True,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=True, processStructs=False, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
@@ -73,8 +62,10 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -82,6 +73,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -118,13 +110,11 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
             if value.isArray and not value.isDynamic:
                 valueName += '[{}]'.format(value.arrayCapacity)
 
-            paramDecl = self.makeAlignedParamDecl(
-                valueType, valueName, self.INDENT_SIZE,
-                self.genOpts.alignFuncParam
-            )
+            paramDecl = self.makeAlignedParamDecl(valueType, valueName, self.INDENT_SIZE, self.genOpts.alignFuncParam)
             paramDecls.append(paramDecl)
 
         if paramDecls:
             return '{}(\n{});'.format(proto, ',\n'.join(paramDecls))
 
         return '{}();'.format(proto)
+

@@ -20,28 +20,22 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os, re, sys
+import os,re,sys
 from base_generator import *
-
 
 class VulkanReferencedResourceBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for detecting unreferenced resource handles in a capture file"""
-
-    def __init__(
-        self,
-        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
-        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-        filename=None,
-        directory='.',
-        prefixText='',
-        protectFile=False,
-        protectFeature=True
-    ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
-        )
-
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
 # VulkanReferencedResourceBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanReferencedResource class responsible for
@@ -49,10 +43,7 @@ class VulkanReferencedResourceBodyGeneratorOptions(BaseGeneratorOptions):
 class VulkanReferencedResourceBodyGenerator(BaseGenerator):
     """Generate a C++ class for detecting unreferenced resource handles in a capture file"""
     # All resource and resource associated handle types to be processed.
-    RESOURCE_HANDLE_TYPES = [
-        'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer'
-    ]
+    RESOURCE_HANDLE_TYPES = ['VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer', 'VkDescriptorSet', 'VkCommandBuffer']
 
     # Handle types that contain resource and child resource handle types.
     CONTAINER_HANDLE_TYPES = ['VkDescriptorSet']
@@ -60,42 +51,36 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
     # Handle types that use resource and child resource handle types.
     USER_HANDLE_TYPES = ['VkCommandBuffer']
 
-    def __init__(
-        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
-    ):
-        BaseGenerator.__init__(
-            self,
-            processCmds=True,
-            processStructs=True,
-            featureBreak=False,
-            errFile=errFile,
-            warnFile=warnFile,
-            diagFile=diagFile
-        )
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self,
+                               processCmds=True, processStructs=True, featureBreak=False,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
-        self.pNextStructs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        self.commandInfo = dict()  # Map of Vulkan commands to parameter info
-        self.restrictHandles = True  # Determines if the 'isHandle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
+        self.pNextStructs = dict()    # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
+        self.commandInfo = dict()     # Map of Vulkan commands to parameter info
+        self.restrictHandles = True   # Determines if the 'isHandle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     # Method override
+    # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write(
-            '#include "generated/generated_vulkan_referenced_resource_consumer.h"',
-            file=self.outFile
-        )
+        write('#include "generated/generated_vulkan_referenced_resource_consumer.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+    # yapf: enable
 
     # Method override
+    # yapf: disable
     def endFile(self):
         for cmd, info in self.commandInfo.items():
             returnType = info[0]
@@ -110,11 +95,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
                     # Temporarily remove resource only matching restriction from isHandle() when generating the function signature.
                     self.restrictHandles = False
-                    cmddef += self.makeConsumerFuncDecl(
-                        returnType,
-                        'VulkanReferencedResourceConsumer::Process_' + cmd,
-                        params
-                    ) + '\n'
+                    cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanReferencedResourceConsumer::Process_' + cmd, params) + '\n'
                     self.restrictHandles = True
 
                     cmddef += '{\n'
@@ -124,17 +105,13 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                     unrefCount = 0
                     for param in params[1:]:
                         if not param in handles:
-                            cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
-                                param.name
-                            )
+                            cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(param.name)
                             unrefCount += 1
                     if unrefCount > 0:
                         cmddef += '\n'
 
                     for index, handle in enumerate(handles):
-                        cmddef += self.trackCommandHandle(
-                            index, params[0].name, handle, indent=indent
-                        )
+                        cmddef += self.trackCommandHandle(index, params[0].name, handle, indent=indent)
                     cmddef += '}'
 
                     write(cmddef, file=self.outFile)
@@ -145,6 +122,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+    # yapf: enable
 
     #
     # Method override
@@ -191,17 +169,14 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
         for value in values:
             if self.isHandle(value.baseType):
                 handles.append(value)
-            elif self.isStruct(
-                value.baseType
-            ) and (value.baseType in self.structsWithHandles):
+            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
                 handles.append(value)
         return handles
 
     #
     #
-    def trackCommandHandle(
-        self, index, commandParamName, value, valuePrefix='', indent=''
-    ):
+    # yapf: disable
+    def trackCommandHandle(self, index, commandParamName, value, valuePrefix='', indent=''):
         body = ''
         tail = ''
         indexName = None
@@ -227,9 +202,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
             # Add IsNull and HasData checks for the pointer decoder, before accessing its data.
             # Note that this does not handle the decoded struct member cases for static arrays, which would need to use '.' instead of '->'.
-            body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(
-                prefix=valuePrefix, name=value.name, op=accessOperator
-            )
+            body += indent + 'if (!{prefix}{name}{op}IsNull() && ({prefix}{name}{op}HasData()))\n'.format(prefix=valuePrefix, name=value.name, op=accessOperator)
             body += indent + '{\n'
             tail = indent + '}\n' + tail
             indent += ' ' * self.INDENT_SIZE
@@ -237,24 +210,16 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
             # Get the pointer from the pointer decoder object.
             valueName = '{}_ptr'.format(value.name)
             if isHandle:
-                body += indent + 'auto {} = {}{}{}GetPointer();\n'.format(
-                    valueName, valuePrefix, value.name, accessOperator
-                )
+                body += indent + 'auto {} = {}{}{}GetPointer();\n'.format(valueName, valuePrefix, value.name, accessOperator)
             else:
-                body += indent + 'auto {} = {}{}{}GetMetaStructPointer();\n'.format(
-                    valueName, valuePrefix, value.name, accessOperator
-                )
+                body += indent + 'auto {} = {}{}{}GetMetaStructPointer();\n'.format(valueName, valuePrefix, value.name, accessOperator)
 
             # Add a for loop for an array of values.
             if value.isArray:
                 indexName = '{}_index'.format(value.name)
                 countName = '{}_count'.format(value.name)
-                body += indent + 'size_t {} = {}{}{}GetLength();\n'.format(
-                    countName, valuePrefix, value.name, accessOperator
-                )
-                body += indent + 'for (size_t {i} = 0; {i} < {}; ++{i})\n'.format(
-                    countName, i=indexName
-                )
+                body += indent + 'size_t {} = {}{}{}GetLength();\n'.format(countName, valuePrefix, value.name, accessOperator)
+                body += indent + 'for (size_t {i} = 0; {i} < {}; ++{i})\n'.format(countName, i=indexName)
                 body += indent + '{\n'
                 tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
@@ -267,44 +232,27 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 valueName = '(*{})'.format(valueName)
 
             if value.baseType in self.CONTAINER_HANDLE_TYPES:
-                body += indent + 'GetTable().AddContainerToUser({}, {});\n'.format(
-                    commandParamName, valueName
-                )
+                body += indent + 'GetTable().AddContainerToUser({}, {});\n'.format(commandParamName, valueName)
             elif value.baseType in self.USER_HANDLE_TYPES:
-                body += indent + 'GetTable().AddUserToUser({}, {});\n'.format(
-                    commandParamName, valueName
-                )
+                body += indent + 'GetTable().AddUserToUser({}, {});\n'.format(commandParamName, valueName)
             else:
-                body += indent + 'GetTable().AddResourceToUser({}, {});\n'.format(
-                    commandParamName, valueName
-                )
+                body += indent + 'GetTable().AddResourceToUser({}, {});\n'.format(commandParamName, valueName)
 
-        elif self.isStruct(value.baseType
-                           ) and (value.baseType in self.structsWithHandles):
+        elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
             if value.isArray:
                 accessOperator = '[{}].'.format(indexName)
             else:
                 accessOperator = '->'
 
-            for index, entry in enumerate(
-                self.structsWithHandles[value.baseType]
-            ):
+            for index, entry in enumerate(self.structsWithHandles[value.baseType]):
                 if entry.name == 'pNext':
-                    extStructsWithHandles = [
-                        extStruct for extStruct in
-                        self.registry.validextensionstructs[value.baseType]
-                        if extStruct in self.structsWithHandles
-                    ]
+                    extStructsWithHandles = [extStruct for extStruct in self.registry.validextensionstructs[value.baseType] if extStruct in self.structsWithHandles]
                     if extStructsWithHandles:
                         body += indent + 'const VkBaseInStructure* pnext_header = nullptr;\n'
-                        body += indent + 'if ({name}->pNext != nullptr)\n'.format(
-                            name=valueName
-                        )
+                        body += indent + 'if ({name}->pNext != nullptr)\n'.format(name=valueName)
                         body += indent + '{\n'
                         indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'pnext_header = reinterpret_cast<const VkBaseInStructure*>({}->pNext->GetPointer());\n'.format(
-                            valueName
-                        )
+                        body += indent + 'pnext_header = reinterpret_cast<const VkBaseInStructure*>({}->pNext->GetPointer());\n'.format(valueName)
                         indent = indent[:-self.INDENT_SIZE]
                         body += indent + '}\n'
                         body += indent + 'while (pnext_header)\n'
@@ -318,24 +266,11 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                         body += indent + 'break;\n'
                         indent = indent[:-self.INDENT_SIZE]
                         for extStruct in extStructsWithHandles:
-                            body += indent + 'case {}:\n'.format(
-                                self.pNextStructs[extStruct]
-                            )
+                            body += indent + 'case {}:\n'.format(self.pNextStructs[extStruct])
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE
-                            body += indent + 'auto pnext_value = reinterpret_cast<const Decoded_{}*>({}->pNext->GetPointer());\n'.format(
-                                extStruct, valueName
-                            )
-                            body += self.trackCommandHandle(
-                                index,
-                                commandParamName,
-                                ValueInfo(
-                                    'pnext_value', extStruct,
-                                    'const {} *'.format(extStruct), 1
-                                ),
-                                '',
-                                indent=indent
-                            )
+                            body += indent + 'auto pnext_value = reinterpret_cast<const Decoded_{}*>({}->pNext->GetPointer());\n'.format(extStruct, valueName)
+                            body += self.trackCommandHandle(index, commandParamName, ValueInfo('pnext_value', extStruct, 'const {} *'.format(extStruct), 1), '', indent=indent)
                             body += indent + 'break;\n'
                             indent = indent[:-self.INDENT_SIZE]
                             body += indent + '}\n'
@@ -345,9 +280,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                         indent = indent[:-self.INDENT_SIZE]
                         body += indent + '}\n'
                 else:
-                    body += self.trackCommandHandle(
-                        index, commandParamName, entry,
-                        valueName + accessOperator, indent
-                    )
+                    body += self.trackCommandHandle(index, commandParamName, entry, valueName + accessOperator, indent)
 
         return body + tail
+    # yapf: enable
