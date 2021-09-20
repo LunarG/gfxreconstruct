@@ -21,46 +21,58 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 # Adds the following new option:
 #  isOverride - Specify whether the member function declarations are
 #               virtual function overrides or pure virtual functions.
 class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ class declarations for Vulkan parameter processing"""
-    def __init__(self,
-                 className,
-                 baseClassHeader,
-                 isOverride,
-                 constructorArgs = '',
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        className,
+        baseClassHeader,
+        isOverride,
+        constructorArgs='',
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
         self.className = className
         self.baseClassHeader = baseClassHeader
         self.isOverride = isOverride
         self.constructorArgs = constructorArgs
+
 
 # VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ member declarations for the VulkanConsumer class responsible for processing
 # Vulkan API call parameter data.
 class VulkanConsumerHeaderGenerator(BaseGenerator):
     """Generate C++ class declarations for Vulkan parameter processing"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
     # Method override
     # yapf: disable
