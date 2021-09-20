@@ -21,45 +21,61 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a dispatch table for Vulkan API calls"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanDispatchTableGenerator - subclass of BaseGenerator.
 # Generates a dispatch table for Vulkan API calls.
 class VulkanDispatchTableGenerator(BaseGenerator):
     """Generate dispatch table for Vulkan API calls"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
-        # Map of return types to default return values for no-op functions
-        self.RETURN_DEFAULTS = { 'VkResult' : 'VK_SUCCESS',
-                                 'VkBool32' : 'VK_TRUE',
-                                 'PFN_vkVoidFunction' : 'nullptr',
-                                 'VkDeviceAddress' : '0',
-                                 'VkDeviceSize' : '0',
-                                 'uint32_t' : '0',
-                                 'uint64_t' : '0' }
 
-        self.instanceCmdNames = dict()      # Map of API call names to no-op function declarations
-        self.deviceCmdNames = dict()        # Map of API call names to no-op function declarations
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
+        # Map of return types to default return values for no-op functions
+        self.RETURN_DEFAULTS = {
+            'VkResult': 'VK_SUCCESS',
+            'VkBool32': 'VK_TRUE',
+            'PFN_vkVoidFunction': 'nullptr',
+            'VkDeviceAddress': '0',
+            'VkDeviceSize': '0',
+            'uint32_t': '0',
+            'uint64_t': '0'
+        }
+
+        self.instanceCmdNames = dict(
+        )  # Map of API call names to no-op function declarations
+        self.deviceCmdNames = dict(
+        )  # Map of API call names to no-op function declarations
 
     # Method override
     # yapf: disable
@@ -162,10 +178,16 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                         returnType = info[0]
                         proto = info[1]
 
-                        if not firstParam.baseType in ['VkInstance', 'VkPhysicalDevice']:
-                            self.deviceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                        if not firstParam.baseType in [
+                            'VkInstance', 'VkPhysicalDevice'
+                        ]:
+                            self.deviceCmdNames[name] = self.makeCmdDecl(
+                                returnType, proto, values, name
+                            )
                         else:
-                            self.instanceCmdNames[name] = self.makeCmdDecl(returnType, proto, values, name)
+                            self.instanceCmdNames[name] = self.makeCmdDecl(
+                                returnType, proto, values, name
+                            )
 
     #
     # Generate instance dispatch table structure
@@ -249,7 +271,6 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
         write('}', file=self.outFile)
     # yapf: enable
-
 
     #
     # Generate the full typename for the NoOp function parameters; the array types need the [] moved from the parameter name to the parameter typename

@@ -20,38 +20,50 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,json
+import os, re, sys, json
 from base_generator import *
+
 
 class VulkanFeatureUtilBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ code to alter Vulkan device createtion features"""
-    def __init__(self,
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self,
-                                      platformTypes=platformTypes,
-                                      filename=filename,
-                                      directory=directory,
-                                      prefixText=prefixText,
-                                      protectFile=protectFile,
-                                      protectFeature=protectFeature)
+
+    def __init__(
+        self,
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self,
+            platformTypes=platformTypes,
+            filename=filename,
+            directory=directory,
+            prefixText=prefixText,
+            protectFile=protectFile,
+            protectFeature=protectFeature
+        )
+
 
 # VulkanFeatureUtilBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions to alter Vulkan device creation features.
 class VulkanFeatureUtilBodyGenerator(BaseGenerator):
     """Generate C++ code to alter Vulkan device creation features"""
 
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         self.physicalDeviceFeatures2sTypes = dict()
         # List of 1.0 features
@@ -101,8 +113,9 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
                         if member.baseType == "VkBool32":
                             members.append(member.name)
                     self.physicalDeviceFeatures2sTypes[typename] = {
-                        'sType' : self.makeStructureTypeEnum(typeinfo, typename),
-                        'members' : members
+                        'sType':
+                        self.makeStructureTypeEnum(typeinfo, typename),
+                        'members': members
                     }
 
             #  Get all core 1.0 features

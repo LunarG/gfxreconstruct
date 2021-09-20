@@ -21,42 +21,55 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanStructHandleMappersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating functions to map Vulkan struct member handles at file replay"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructHandleMappersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for mapping struct member handles
 # when replaying decoded Vulkan API call parameter data.
 class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan struct member handle mapping at file replay"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=True,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
         self.structsWithHandlePtrs = []
-        self.pNextStructs = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
+        self.pNextStructs = dict(
+        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
 
@@ -128,7 +141,9 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            if self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs):
+            if self.checkStructMemberHandles(
+                typename, self.structsWithHandles, self.structsWithHandlePtrs
+            ):
                 # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
                 parentStructs = typeinfo.elem.get('structextends')
                 if parentStructs:

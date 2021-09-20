@@ -21,46 +21,59 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 #
 # Eliminates JSON blackLists and platformTypes files, which are not necessary for
 # function table generation.
 class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan layer function table C++ code generation"""
-    def __init__(self,
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, None, None,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, None, None, filename, directory, prefixText, protectFile,
+            protectFeature
+        )
+
 
 # LayerFuncTableGenerator - subclass of BaseGenerator.
 # Generates C++ function table for the Vulkan API calls exported by the layer.
 class LayerFuncTableGenerator(BaseGenerator):
     """Generate Vulkan layer function table C++ type declarations"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=False,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # The trace layer does not currently implement or export the instance version query
         self.APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
 
         # These functions are provided directly by the layer, and are not encoded
-        self.LAYER_FUNCTIONS = ['vkGetInstanceProcAddr',
-                                'vkGetDeviceProcAddr',
-                                'vkEnumerateInstanceLayerProperties',
-                                'vkEnumerateDeviceLayerProperties',
-                                'vkEnumerateInstanceExtensionProperties',
-                                'vkEnumerateDeviceExtensionProperties']
+        self.LAYER_FUNCTIONS = [
+            'vkGetInstanceProcAddr', 'vkGetDeviceProcAddr',
+            'vkEnumerateInstanceLayerProperties',
+            'vkEnumerateDeviceLayerProperties',
+            'vkEnumerateInstanceExtensionProperties',
+            'vkEnumerateDeviceExtensionProperties'
+        ]
 
     # Method override
     # yapf: disable

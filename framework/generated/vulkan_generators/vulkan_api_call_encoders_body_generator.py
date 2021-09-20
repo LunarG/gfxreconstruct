@@ -21,24 +21,30 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding"""
-    def __init__(self,
-                 captureOverrides = None,   # Path to JSON file listing Vulkan API calls to override on capture.
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        captureOverrides=None,  # Path to JSON file listing Vulkan API calls to override on capture.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
         self.captureOverrides = captureOverrides
+
 
 # VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for encoding Vulkan API call parameter data.
@@ -49,13 +55,18 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # will be replaced by the override value.
     CAPTURE_OVERRIDES = {}
 
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
@@ -323,8 +334,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 break
             elif self.isStruct(member.baseType):
                 # This can't handle the case where 'member' is an array of structs
-                memberHandleType, memberHandleName, memberArrayLength = self.getStructHandleMemberInfo(self.structsWithHandles[member.baseType])
-                memberHandleName = '{}.{}'.format(member.name, memberHandleName)
+                memberHandleType, memberHandleName, memberArrayLength = self.getStructHandleMemberInfo(
+                    self.structsWithHandles[member.baseType]
+                )
+                memberHandleName = '{}.{}'.format(
+                    member.name, memberHandleName
+                )
 
         return memberHandleType, memberHandleName, memberArrayLength
 
@@ -525,7 +540,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         for value in values:
             if self.isHandle(value.baseType):
                 handles.append(value)
-            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+            elif self.isStruct(
+                value.baseType
+            ) and (value.baseType in self.structsWithHandles):
                 handles.append(value)
         return handles
 
@@ -539,14 +556,19 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if value.arrayLength:
                     args.append(value.arrayLength)
                 args.append(value.name)
-            return 'Track{}Handles, {}'.format(cmd[2:], ', '.join(self.makeUniqueList(args)))
+            return 'Track{}Handles, {}'.format(
+                cmd[2:], ', '.join(self.makeUniqueList(args))
+            )
         else:
             return None
 
     # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
     def retrievesHandles(self, values):
         for value in values:
-            if self.isOutputParameter(value) and (self.isHandle(value.baseType) or (value.baseType in self.structsWithHandles)):
+            if self.isOutputParameter(value) and (
+                self.isHandle(value.baseType) or
+                (value.baseType in self.structsWithHandles)
+            ):
                 return True
         return False
 

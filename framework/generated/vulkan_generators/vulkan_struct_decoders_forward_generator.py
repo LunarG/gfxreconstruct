@@ -21,34 +21,46 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ function and forward type declarations for Vulkan struct decoding"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
 # Generates C++ type and function declarations for decoding Vulkan API structures.
 class VulkanStructDecodersForwardGenerator(BaseGenerator):
     """Generate C++ function and forward type declarations for Vulkan struct decoding"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
     # Method override
     # yapf: disable

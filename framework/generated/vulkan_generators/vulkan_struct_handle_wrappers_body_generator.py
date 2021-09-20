@@ -21,42 +21,56 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 class VulkanStructHandleWrappersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating functions to wrap Vulkan struct member handles at API capture"""
-    def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
+
 
 # VulkanStructHandleWrappersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for wrapping struct member handles
 # when recording Vulkan API call parameter data.
 class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan struct member handle wrapping at API capture"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=True,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
-        self.pNextStructsWithHandles = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
-        self.pNextStructsWithoutHandles = dict()       # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
+        self.pNextStructsWithHandles = dict(
+        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
+        self.pNextStructsWithoutHandles = dict(
+        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
 
     # Method override
     # yapf: disable
@@ -144,7 +158,9 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            hasHandles = self.checkStructMemberHandles(typename, self.structsWithHandles)
+            hasHandles = self.checkStructMemberHandles(
+                typename, self.structsWithHandles
+            )
 
             # Track this struct if it can be present in a pNext chain.
             parentStructs = typeinfo.elem.get('structextends')

@@ -21,34 +21,46 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys
+import os, re, sys
 from base_generator import *
+
 
 # Eliminates JSON blackLists and platformTypes files, which are not necessary for
 # pNext switch statement generation.
 class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan API pNext structure decoding C++ code generation"""
-    def __init__(self,
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, None, None,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, None, None, filename, directory, prefixText, protectFile,
+            protectFeature
+        )
+
 
 # DecodePNextStructGenerator - subclass of BaseGenerator.
 # Generates C++ code for Vulkan API pNext structure decoding.
 class DecodePNextStructGenerator(BaseGenerator):
     """Generate pNext structure decoding C++ code"""
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=False, featureBreak=False,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=False,
+            processStructs=False,
+            featureBreak=False,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Map to store VkStructureType enum values.
         self.sTypeValues = dict()

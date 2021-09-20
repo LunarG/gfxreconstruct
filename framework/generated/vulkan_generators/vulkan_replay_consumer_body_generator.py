@@ -21,24 +21,30 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os,re,sys,json
+import os, re, sys, json
 from base_generator import *
+
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay"""
-    def __init__(self,
-                 replayOverrides = None,    # Path to JSON file listing Vulkan API calls to override on replay.
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
-                 filename = None,
-                 directory = '.',
-                 prefixText = '',
-                 protectFile = False,
-                 protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText,
-                                      protectFile, protectFeature)
+
+    def __init__(
+        self,
+        replayOverrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
+        platformTypes=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+        filename=None,
+        directory='.',
+        prefixText='',
+        protectFile=False,
+        protectFeature=True
+    ):
+        BaseGeneratorOptions.__init__(
+            self, blacklists, platformTypes, filename, directory, prefixText,
+            protectFile, protectFeature
+        )
         self.replayOverrides = replayOverrides
+
 
 # VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanReplayConsumer class responsible for
@@ -51,16 +57,25 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     REPLAY_OVERRIDES = {}
 
     # Map of pool object types associating the pool type with the allocated type and the allocated type with the pool type.
-    POOL_OBJECT_ASSOCIATIONS = { 'VkCommandBuffer' : 'VkCommandPool', 'VkDescriptorSet' : 'VkDescriptorPool',
-                                 'VkCommandPool' : 'VkCommandBuffer', 'VkDescriptorPool' : 'VkDescriptorSet' }
+    POOL_OBJECT_ASSOCIATIONS = {
+        'VkCommandBuffer': 'VkCommandPool',
+        'VkDescriptorSet': 'VkDescriptorPool',
+        'VkCommandPool': 'VkCommandBuffer',
+        'VkDescriptorPool': 'VkDescriptorSet'
+    }
 
-    def __init__(self,
-                 errFile = sys.stderr,
-                 warnFile = sys.stderr,
-                 diagFile = sys.stdout):
-        BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=True, featureBreak=True,
-                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+    def __init__(
+        self, errFile=sys.stderr, warnFile=sys.stderr, diagFile=sys.stdout
+    ):
+        BaseGenerator.__init__(
+            self,
+            processCmds=True,
+            processStructs=True,
+            featureBreak=True,
+            errFile=errFile,
+            warnFile=warnFile,
+            diagFile=diagFile
+        )
 
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
@@ -69,7 +84,6 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         self.structsWithHandlePtrs = []
         # Map of struct types to associated VkStructureType.
         self.sTypeValues = dict()
-
 
     # Method override
     # yapf: disable
@@ -108,7 +122,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
+            self.checkStructMemberHandles(
+                typename, self.structsWithHandles, self.structsWithHandlePtrs
+            )
 
             sType = self.makeStructureTypeEnum(typeinfo, typename)
             if sType:
@@ -517,8 +533,8 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 expr = 'RemovePoolHandle<{basetype}Info>({}, &VulkanObjectInfoTable::Get{basetype}Info, &VulkanObjectInfoTable::Remove{basetype}Info, &VulkanObjectInfoTable::Remove{}Info);'.format(value.name, self.POOL_OBJECT_ASSOCIATIONS[value.baseType][2:], basetype=value.baseType[2:])
         elif name.startswith('vkFree'):
             # For pool based vkFreeCommandBuffers and vkFreeDescriptorSets, the pool handle is the second parameter, the array count is the third parameter and the array of handles to free is the fourth parameter.
-             value = values[3]
-             expr = 'RemovePoolHandles<{pooltype}Info, {basetype}Info>({}, {}, {}, &VulkanObjectInfoTable::Get{pooltype}Info, &VulkanObjectInfoTable::Remove{basetype}Info);'.format(values[1].name, value.name, values[2].name, basetype=value.baseType[2:], pooltype=self.POOL_OBJECT_ASSOCIATIONS[value.baseType][2:])
+            value = values[3]
+            expr = 'RemovePoolHandles<{pooltype}Info, {basetype}Info>({}, {}, {}, &VulkanObjectInfoTable::Get{pooltype}Info, &VulkanObjectInfoTable::Remove{basetype}Info);'.format(values[1].name, value.name, values[2].name, basetype=value.baseType[2:], pooltype=self.POOL_OBJECT_ASSOCIATIONS[value.baseType][2:])
 
         return expr
     # yapf: enable
