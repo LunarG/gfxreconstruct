@@ -541,7 +541,7 @@ pipeline {
         }*/
     stages {
         stage ('Setup the tools') {
-            agent { label 'BDC-DTW-BLD-04' }
+            agent { label 'BLD-GFXR' }
             steps {
                 script {
                     echo "setting JTools"
@@ -555,7 +555,7 @@ pipeline {
             parallel ('Build') {
                 stage ('Windows') {
                     steps {
-                        Build('BDC-DTW-BLD-04')
+                        Build('BLD-GFXR')
                     }
                 }
                 stage ('Ubuntu') {
