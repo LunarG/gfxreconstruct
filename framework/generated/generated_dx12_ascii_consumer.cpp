@@ -1880,7 +1880,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GRAPHICS_PIP
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_GRAPHICS_PIPELINE_STATE_DESC{\n";
-    oss << indent2 << "ID3D12RootSignature_id" << value->pRootSignature;
+    WriteHandleId(oss, value->pRootSignature, indent2.c_str(), "ID3D12RootSignature");
     oss << ",\n";
 
     WriteStructString(oss, value->VS, indent2.c_str());
@@ -1963,7 +1963,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_COMPUTE_PIPE
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_COMPUTE_PIPELINE_STATE_DESC{\n";
-    oss << indent2 << "ID3D12RootSignature_id" << value->pRootSignature;
+    WriteHandleId(oss, value->pRootSignature, indent2.c_str(), "ID3D12RootSignature");
     oss << ",\n";
 
     WriteStructString(oss, value->CS, indent2.c_str());
@@ -3160,7 +3160,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_TRA
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_RESOURCE_TRANSITION_BARRIER{\n";
-    oss << indent2 << "ID3D12Resource_id" << value->pResource;
+    WriteHandleId(oss, value->pResource, indent2.c_str(), "ID3D12Resource");
     oss << ",\n";
 
     oss << indent2 << value->decoded_value->Subresource;
@@ -3189,10 +3189,10 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_ALI
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_RESOURCE_ALIASING_BARRIER{\n";
-    oss << indent2 << "ID3D12Resource_id" << value->pResourceBefore;
+    WriteHandleId(oss, value->pResourceBefore, indent2.c_str(), "ID3D12Resource");
     oss << ",\n";
 
-    oss << indent2 << "ID3D12Resource_id" << value->pResourceAfter;
+    WriteHandleId(oss, value->pResourceAfter, indent2.c_str(), "ID3D12Resource");
     oss << "}";
 
 }
@@ -3212,7 +3212,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RESOURCE_UAV
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_RESOURCE_UAV_BARRIER{\n";
-    oss << indent2 << "ID3D12Resource_id" << value->pResource;
+    WriteHandleId(oss, value->pResource, indent2.c_str(), "ID3D12Resource");
     oss << "}";
 
 }
@@ -5053,7 +5053,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GLOBAL_ROOT_
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_GLOBAL_ROOT_SIGNATURE{\n";
-    oss << indent2 << "ID3D12RootSignature_id" << value->pGlobalRootSignature;
+    WriteHandleId(oss, value->pGlobalRootSignature, indent2.c_str(), "ID3D12RootSignature");
     oss << "}";
 
 }
@@ -5073,7 +5073,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_LOCAL_ROOT_S
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_LOCAL_ROOT_SIGNATURE{\n";
-    oss << indent2 << "ID3D12RootSignature_id" << value->pLocalRootSignature;
+    WriteHandleId(oss, value->pLocalRootSignature, indent2.c_str(), "ID3D12RootSignature");
     oss << "}";
 
 }
@@ -5174,7 +5174,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_EXISTING_COL
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_EXISTING_COLLECTION_DESC{\n";
-    oss << indent2 << "ID3D12StateObject_id" << value->pExistingCollection;
+    WriteHandleId(oss, value->pExistingCollection, indent2.c_str(), "ID3D12StateObject");
     oss << ",\n";
 
     oss << indent2 << value->decoded_value->NumExports;
@@ -5814,10 +5814,10 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCR
     }
     oss << ",\n";
 
-    oss << indent2 << "ID3D12GraphicsCommandList_id" << value->pCommandList;
+    WriteHandleId(oss, value->pCommandList, indent2.c_str(), "ID3D12GraphicsCommandList");
     oss << ",\n";
 
-    oss << indent2 << "ID3D12CommandQueue_id" << value->pCommandQueue;
+    WriteHandleId(oss, value->pCommandQueue, indent2.c_str(), "ID3D12CommandQueue");
     oss << ",\n";
 
     oss << indent2 << value->decoded_value->BreadcrumbCount;
@@ -5908,10 +5908,10 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_AUTO_BREADCR
     }
     oss << ",\n";
 
-    oss << indent2 << "ID3D12GraphicsCommandList_id" << value->pCommandList;
+    WriteHandleId(oss, value->pCommandList, indent2.c_str(), "ID3D12GraphicsCommandList");
     oss << ",\n";
 
-    oss << indent2 << "ID3D12CommandQueue_id" << value->pCommandQueue;
+    WriteHandleId(oss, value->pCommandQueue, indent2.c_str(), "ID3D12CommandQueue");
     oss << ",\n";
 
     oss << indent2 << value->decoded_value->BreadcrumbCount;
@@ -6046,7 +6046,7 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DRED_ALLOCAT
     }
     oss << ",\n";
 
-    oss << indent2 << "IUnknown_id" << value->pObject;
+    WriteHandleId(oss, value->pObject, indent2.c_str(), "IUnknown");
     oss << "}";
 
 }
@@ -6358,10 +6358,10 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_RENDER_PASS_
         output_string = "/* out */ ";
     }
     oss << indent_first << output_string << "D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS{\n";
-    oss << indent2 << "ID3D12Resource_id" << value->pSrcResource;
+    WriteHandleId(oss, value->pSrcResource, indent2.c_str(), "ID3D12Resource");
     oss << ",\n";
 
-    oss << indent2 << "ID3D12Resource_id" << value->pDstResource;
+    WriteHandleId(oss, value->pDstResource, indent2.c_str(), "ID3D12Resource");
     oss << ",\n";
 
     oss << indent2 << value->decoded_value->SubresourceCount;
@@ -6888,7 +6888,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory(
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppFactory->GetPointer();
+        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -6915,7 +6915,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory1(
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppFactory->GetPointer();
+        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -6931,7 +6931,8 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     std::ostringstream oss;
-    oss << "IDXGIObject_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIObject");
+    oss << "->";
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
@@ -6963,7 +6964,8 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
         format::HandleId pUnknown)
 {
     std::ostringstream oss;
-    oss << "IDXGIObject_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIObject");
+    oss << "->";
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
@@ -6975,7 +6977,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     oss << "    " << ConverttoText(*Name.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pUnknown;
+    WriteHandleId(oss, pUnknown, "    ", "IUnknown", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -6990,7 +6992,8 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     std::ostringstream oss;
-    oss << "IDXGIObject_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIObject");
+    oss << "->";
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
@@ -7025,7 +7028,8 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
         HandlePointerDecoder<void*>* ppParent)
 {
     std::ostringstream oss;
-    oss << "IDXGIObject_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIObject");
+    oss << "->";
     oss << "GetParent(\n    /* ";
 
     oss << "return = " ;
@@ -7039,7 +7043,7 @@ void Dx12AsciiConsumer::Process_IDXGIObject_GetParent(
 
     if (WriteCheckPointerDecoderNull(oss, ppParent, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppParent->GetPointer();
+        WriteHandleId(oss, *ppParent->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -7054,7 +7058,8 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
         HandlePointerDecoder<void*>* ppDevice)
 {
     std::ostringstream oss;
-    oss << "IDXGIDeviceSubObject_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDeviceSubObject");
+    oss << "->";
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
@@ -7068,7 +7073,7 @@ void Dx12AsciiConsumer::Process_IDXGIDeviceSubObject_GetDevice(
 
     if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppDevice->GetPointer();
+        WriteHandleId(oss, *ppDevice->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -7082,7 +7087,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetSharedHandle(
         PointerDecoder<uint64_t, void*>* pSharedHandle)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource");
+    oss << "->";
     oss << "GetSharedHandle(\n    /* ";
 
     oss << "return = " ;
@@ -7107,7 +7113,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetUsage(
         PointerDecoder<DXGI_USAGE>* pUsage)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource");
+    oss << "->";
     oss << "GetUsage(\n    /* ";
 
     oss << "return = " ;
@@ -7132,7 +7139,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource_SetEvictionPriority(
         UINT EvictionPriority)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource");
+    oss << "->";
     oss << "SetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
@@ -7154,7 +7162,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource_GetEvictionPriority(
         PointerDecoder<UINT>* pEvictionPriority)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource");
+    oss << "->";
     oss << "GetEvictionPriority(\n    /* ";
 
     oss << "return = " ;
@@ -7180,7 +7189,8 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_AcquireSync(
         DWORD dwMilliseconds)
 {
     std::ostringstream oss;
-    oss << "IDXGIKeyedMutex_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIKeyedMutex");
+    oss << "->";
     oss << "AcquireSync(\n    /* ";
 
     oss << "return = " ;
@@ -7205,7 +7215,8 @@ void Dx12AsciiConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
         UINT64 Key)
 {
     std::ostringstream oss;
-    oss << "IDXGIKeyedMutex_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIKeyedMutex");
+    oss << "->";
     oss << "ReleaseSync(\n    /* ";
 
     oss << "return = " ;
@@ -7227,7 +7238,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
         StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -7253,7 +7265,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
         UINT MapFlags)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface");
+    oss << "->";
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
@@ -7280,7 +7293,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Unmap(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface");
+    oss << "->";
     oss << "Unmap(\n    /* ";
 
     oss << "return = " ;
@@ -7300,7 +7314,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_GetDC(
         PointerDecoder<uint64_t, void*>* phdc)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface1");
+    oss << "->";
     oss << "GetDC(\n    /* ";
 
     oss << "return = " ;
@@ -7328,7 +7343,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface1_ReleaseDC(
         StructPointerDecoder<Decoded_tagRECT>* pDirtyRect)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface1");
+    oss << "->";
     oss << "ReleaseDC(\n    /* ";
 
     oss << "return = " ;
@@ -7354,7 +7370,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
+    oss << "->";
     oss << "EnumOutputs(\n    /* ";
 
     oss << "return = " ;
@@ -7368,7 +7385,7 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_EnumOutputs(
 
     if (WriteCheckPointerDecoderNull(oss, ppOutput, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutput_id" << *ppOutput->GetPointer();
+        WriteHandleId(oss, *ppOutput->GetPointer(), "    ", "IDXGIOutput", true);
     }
     oss << ");\n\n";
 
@@ -7382,7 +7399,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -7408,7 +7426,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
         StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter");
+    oss << "->";
     oss << "CheckInterfaceSupport(\n    /* ";
 
     oss << "return = " ;
@@ -7436,7 +7455,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -7464,7 +7484,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetDisplayModeList(\n    /* ";
 
     oss << "return = " ;
@@ -7503,7 +7524,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
         format::HandleId pConcernedDevice)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "FindClosestMatchingMode(\n    /* ";
 
     oss << "return = " ;
@@ -7524,7 +7546,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     }
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pConcernedDevice;
+    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7536,7 +7558,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_WaitForVBlank(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "WaitForVBlank(\n    /* ";
 
     oss << "return = " ;
@@ -7556,7 +7579,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
         BOOL Exclusive)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "TakeOwnership(\n    /* ";
 
     oss << "return = " ;
@@ -7565,7 +7589,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_TakeOwnership(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     WriteBOOLString(oss, Exclusive, "    ", false);
@@ -7579,7 +7603,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_ReleaseOwnership(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "ReleaseOwnership(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -7594,7 +7619,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetGammaControlCapabilities(\n    /* ";
 
     oss << "return = " ;
@@ -7619,7 +7645,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetGammaControl(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "SetGammaControl(\n    /* ";
 
     oss << "return = " ;
@@ -7644,7 +7671,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
         StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetGammaControl(\n    /* ";
 
     oss << "return = " ;
@@ -7669,7 +7697,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
         format::HandleId pScanoutSurface)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "SetDisplaySurface(\n    /* ";
 
     oss << "return = " ;
@@ -7678,7 +7707,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_SetDisplaySurface(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IDXGISurface_id" << pScanoutSurface;
+    WriteHandleId(oss, pScanoutSurface, "    ", "IDXGISurface", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7691,7 +7720,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
         format::HandleId pDestination)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetDisplaySurfaceData(\n    /* ";
 
     oss << "return = " ;
@@ -7700,7 +7730,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IDXGISurface_id" << pDestination;
+    WriteHandleId(oss, pDestination, "    ", "IDXGISurface", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7713,7 +7743,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput");
+    oss << "->";
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
@@ -7754,7 +7785,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
         HandlePointerDecoder<void*>* ppSurface)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetBuffer(\n    /* ";
 
     oss << "return = " ;
@@ -7771,7 +7803,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetBuffer(
 
     if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppSurface->GetPointer();
+        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -7786,7 +7818,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
         format::HandleId pTarget)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "SetFullscreenState(\n    /* ";
 
     oss << "return = " ;
@@ -7798,7 +7831,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_SetFullscreenState(
     WriteBOOLString(oss, Fullscreen, "    ", false);
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pTarget;
+    WriteHandleId(oss, pTarget, "    ", "IDXGIOutput", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -7812,7 +7845,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
         HandlePointerDecoder<IDXGIOutput*>* ppTarget)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetFullscreenState(\n    /* ";
 
     oss << "return = " ;
@@ -7829,7 +7863,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFullscreenState(
 
     if (WriteCheckPointerDecoderNull(oss, ppTarget, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutput_id" << *ppTarget->GetPointer();
+        WriteHandleId(oss, *ppTarget->GetPointer(), "    ", "IDXGIOutput", true);
     }
     oss << ");\n\n";
 
@@ -7843,7 +7877,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -7872,7 +7907,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeBuffers(
         UINT SwapChainFlags)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "ResizeBuffers(\n    /* ";
 
     oss << "return = " ;
@@ -7906,7 +7942,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_ResizeTarget(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "ResizeTarget(\n    /* ";
 
     oss << "return = " ;
@@ -7931,7 +7968,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
         HandlePointerDecoder<IDXGIOutput*>* ppOutput)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetContainingOutput(\n    /* ";
 
     oss << "return = " ;
@@ -7942,7 +7980,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetContainingOutput(
 
     if (WriteCheckPointerDecoderNull(oss, ppOutput, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutput_id" << *ppOutput->GetPointer();
+        WriteHandleId(oss, *ppOutput->GetPointer(), "    ", "IDXGIOutput", true);
     }
     oss << ");\n\n";
 
@@ -7956,7 +7994,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetFrameStatistics(\n    /* ";
 
     oss << "return = " ;
@@ -7981,7 +8020,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetLastPresentCount(
         PointerDecoder<UINT>* pLastPresentCount)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain");
+    oss << "->";
     oss << "GetLastPresentCount(\n    /* ";
 
     oss << "return = " ;
@@ -8007,7 +8047,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory");
+    oss << "->";
     oss << "EnumAdapters(\n    /* ";
 
     oss << "return = " ;
@@ -8021,7 +8062,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_EnumAdapters(
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIAdapter_id" << *ppAdapter->GetPointer();
+        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
     }
     oss << ");\n\n";
 
@@ -8036,7 +8077,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_MakeWindowAssociation(
         UINT Flags)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory");
+    oss << "->";
     oss << "MakeWindowAssociation(\n    /* ";
 
     oss << "return = " ;
@@ -8061,7 +8103,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_GetWindowAssociation(
         PointerDecoder<uint64_t, void*>* pWindowHandle)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory");
+    oss << "->";
     oss << "GetWindowAssociation(\n    /* ";
 
     oss << "return = " ;
@@ -8088,7 +8131,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
         HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory");
+    oss << "->";
     oss << "CreateSwapChain(\n    /* ";
 
     oss << "return = " ;
@@ -8097,7 +8141,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -8108,7 +8152,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSwapChain(
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISwapChain_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain", true);
     }
     oss << ");\n\n";
 
@@ -8123,7 +8167,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
         HandlePointerDecoder<IDXGIAdapter*>* ppAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory");
+    oss << "->";
     oss << "CreateSoftwareAdapter(\n    /* ";
 
     oss << "return = " ;
@@ -8137,7 +8182,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIAdapter_id" << *ppAdapter->GetPointer();
+        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
     }
     oss << ");\n\n";
 
@@ -8151,7 +8196,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
         HandlePointerDecoder<IDXGIAdapter*>* pAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice");
+    oss << "->";
     oss << "GetAdapter(\n    /* ";
 
     oss << "return = " ;
@@ -8162,7 +8208,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetAdapter(
 
     if (WriteCheckPointerDecoderNull(oss, pAdapter, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIAdapter_id" << *pAdapter->GetPointer();
+        WriteHandleId(oss, *pAdapter->GetPointer(), "    ", "IDXGIAdapter", true);
     }
     oss << ");\n\n";
 
@@ -8180,7 +8226,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
         HandlePointerDecoder<IDXGISurface*>* ppSurface)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice");
+    oss << "->";
     oss << "CreateSurface(\n    /* ";
 
     oss << "return = " ;
@@ -8209,7 +8256,7 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_CreateSurface(
 
     if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISurface_id" << *ppSurface->GetPointer();
+        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "IDXGISurface", true);
     }
     oss << ");\n\n";
 
@@ -8225,7 +8272,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_QueryResourceResidency(
         UINT NumResources)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice");
+    oss << "->";
     oss << "QueryResourceResidency(\n    /* ";
 
     oss << "return = " ;
@@ -8259,7 +8307,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
         INT Priority)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice");
+    oss << "->";
     oss << "SetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
@@ -8281,7 +8330,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
         PointerDecoder<INT>* pPriority)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice");
+    oss << "->";
     oss << "GetGPUThreadPriority(\n    /* ";
 
     oss << "return = " ;
@@ -8307,7 +8357,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
         HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory1");
+    oss << "->";
     oss << "EnumAdapters1(\n    /* ";
 
     oss << "return = " ;
@@ -8321,7 +8372,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_EnumAdapters1(
 
     if (WriteCheckPointerDecoderNull(oss, ppAdapter, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIAdapter1_id" << *ppAdapter->GetPointer();
+        WriteHandleId(oss, *ppAdapter->GetPointer(), "    ", "IDXGIAdapter1", true);
     }
     oss << ");\n\n";
 
@@ -8334,7 +8385,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory1_IsCurrent(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory1");
+    oss << "->";
     oss << "IsCurrent(\n    /* ";
 
     oss << "return = " ;
@@ -8353,7 +8405,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter1");
+    oss << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
@@ -8378,7 +8431,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
         UINT MaxLatency)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice1");
+    oss << "->";
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
@@ -8400,7 +8454,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
         PointerDecoder<UINT>* pMaxLatency)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice1");
+    oss << "->";
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
@@ -8428,7 +8483,8 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIDisplayControl_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDisplayControl");
+    oss << "->";
     oss << "IsStereoEnabled(\n    /* ";
 
     oss << "return = " ;
@@ -8446,7 +8502,8 @@ void Dx12AsciiConsumer::Process_IDXGIDisplayControl_SetStereoEnabled(
         BOOL enabled)
 {
     std::ostringstream oss;
-    oss << "IDXGIDisplayControl_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDisplayControl");
+    oss << "->";
     oss << "SetStereoEnabled(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -8463,7 +8520,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetDesc(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -8486,7 +8544,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
         HandlePointerDecoder<IDXGIResource*>* ppDesktopResource)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "AcquireNextFrame(\n    /* ";
 
     oss << "return = " ;
@@ -8506,7 +8565,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
 
     if (WriteCheckPointerDecoderNull(oss, ppDesktopResource, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIResource_id" << *ppDesktopResource->GetPointer();
+        WriteHandleId(oss, *ppDesktopResource->GetPointer(), "    ", "IDXGIResource", true);
     }
     oss << ");\n\n";
 
@@ -8522,7 +8581,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
         PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "GetFrameDirtyRects(\n    /* ";
 
     oss << "return = " ;
@@ -8558,7 +8618,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
         PointerDecoder<UINT>* pMoveRectsBufferSizeRequired)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "GetFrameMoveRects(\n    /* ";
 
     oss << "return = " ;
@@ -8595,7 +8656,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
         StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "GetFramePointerShape(\n    /* ";
 
     oss << "return = " ;
@@ -8635,7 +8697,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
         StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "MapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
@@ -8659,7 +8722,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_UnMapDesktopSurface(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "UnMapDesktopSurface(\n    /* ";
 
     oss << "return = " ;
@@ -8677,7 +8741,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_ReleaseFrame(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutputDuplication_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutputDuplication");
+    oss << "->";
     oss << "ReleaseFrame(\n    /* ";
 
     oss << "return = " ;
@@ -8698,7 +8763,8 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
         PointerDecoder<UINT>* pSubresourceIndex)
 {
     std::ostringstream oss;
-    oss << "IDXGISurface2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISurface2");
+    oss << "->";
     oss << "GetResource(\n    /* ";
 
     oss << "return = " ;
@@ -8712,7 +8778,7 @@ void Dx12AsciiConsumer::Process_IDXGISurface2_GetResource(
 
     if (WriteCheckPointerDecoderNull(oss, ppParentResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppParentResource->GetPointer();
+        WriteHandleId(oss, *ppParentResource->GetPointer(), "    ", "void", true);
     }
     oss << ",\n";
 
@@ -8733,7 +8799,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
         HandlePointerDecoder<IDXGISurface2*>* ppSurface)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource1");
+    oss << "->";
     oss << "CreateSubresourceSurface(\n    /* ";
 
     oss << "return = " ;
@@ -8747,7 +8814,7 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
 
     if (WriteCheckPointerDecoderNull(oss, ppSurface, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISurface2_id" << *ppSurface->GetPointer();
+        WriteHandleId(oss, *ppSurface->GetPointer(), "    ", "IDXGISurface2", true);
     }
     oss << ");\n\n";
 
@@ -8764,7 +8831,8 @@ void Dx12AsciiConsumer::Process_IDXGIResource1_CreateSharedHandle(
         PointerDecoder<uint64_t, void*>* pHandle)
 {
     std::ostringstream oss;
-    oss << "IDXGIResource1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIResource1");
+    oss << "->";
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
@@ -8806,7 +8874,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_OfferResources(
         DXGI_OFFER_RESOURCE_PRIORITY Priority)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
+    oss << "->";
     oss << "OfferResources(\n    /* ";
 
     oss << "return = " ;
@@ -8839,7 +8908,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_ReclaimResources(
         PointerDecoder<BOOL>* pDiscarded)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
+    oss << "->";
     oss << "ReclaimResources(\n    /* ";
 
     oss << "return = " ;
@@ -8873,7 +8943,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
         uint64_t hEvent)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice2");
+    oss << "->";
     oss << "EnqueueSetEvent(\n    /* ";
 
     oss << "return = " ;
@@ -8895,7 +8966,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
@@ -8920,7 +8992,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
         StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetFullscreenDesc(\n    /* ";
 
     oss << "return = " ;
@@ -8945,7 +9018,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetHwnd(
         PointerDecoder<uint64_t, void*>* pHwnd)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetHwnd(\n    /* ";
 
     oss << "return = " ;
@@ -8971,7 +9045,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
         HandlePointerDecoder<void*>* ppUnk)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetCoreWindow(\n    /* ";
 
     oss << "return = " ;
@@ -8985,7 +9060,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetCoreWindow(
 
     if (WriteCheckPointerDecoderNull(oss, ppUnk, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppUnk->GetPointer();
+        WriteHandleId(oss, *ppUnk->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -9014,7 +9089,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_IsTemporaryMonoSupported(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "IsTemporaryMonoSupported(\n    /* ";
 
     oss << "return = " ;
@@ -9033,7 +9109,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
         HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetRestrictToOutput(\n    /* ";
 
     oss << "return = " ;
@@ -9044,7 +9121,7 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
 
     if (WriteCheckPointerDecoderNull(oss, ppRestrictToOutput, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutput_id" << *ppRestrictToOutput->GetPointer();
+        WriteHandleId(oss, *ppRestrictToOutput->GetPointer(), "    ", "IDXGIOutput", true);
     }
     oss << ");\n\n";
 
@@ -9058,7 +9135,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetBackgroundColor(
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "SetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
@@ -9083,7 +9161,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
         StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetBackgroundColor(\n    /* ";
 
     oss << "return = " ;
@@ -9108,7 +9187,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_SetRotation(
         DXGI_MODE_ROTATION Rotation)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "SetRotation(\n    /* ";
 
     oss << "return = " ;
@@ -9130,7 +9210,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetRotation(
         PointerDecoder<DXGI_MODE_ROTATION>* pRotation)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain1");
+    oss << "->";
     oss << "GetRotation(\n    /* ";
 
     oss << "return = " ;
@@ -9154,7 +9235,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_IsWindowedStereoEnabled(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "IsWindowedStereoEnabled(\n    /* ";
 
     oss << "return = " ;
@@ -9178,7 +9260,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "CreateSwapChainForHwnd(\n    /* ";
 
     oss << "return = " ;
@@ -9187,7 +9270,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     oss << "    " << hWnd;
@@ -9205,12 +9288,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     }
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
+    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISwapChain1_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
     }
     oss << ");\n\n";
 
@@ -9228,7 +9311,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "CreateSwapChainForCoreWindow(\n    /* ";
 
     oss << "return = " ;
@@ -9237,10 +9321,10 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pWindow;
+    WriteHandleId(oss, pWindow, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9249,12 +9333,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     }
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
+    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISwapChain1_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
     }
     oss << ");\n\n";
 
@@ -9269,7 +9353,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
         StructPointerDecoder<Decoded_LUID>* pLuid)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "GetSharedResourceAdapterLuid(\n    /* ";
 
     oss << "return = " ;
@@ -9299,7 +9384,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "RegisterStereoStatusWindow(\n    /* ";
 
     oss << "return = " ;
@@ -9331,7 +9417,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "RegisterStereoStatusEvent(\n    /* ";
 
     oss << "return = " ;
@@ -9358,7 +9445,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
         DWORD dwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "UnregisterStereoStatus(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -9378,7 +9466,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "RegisterOcclusionStatusWindow(\n    /* ";
 
     oss << "return = " ;
@@ -9410,7 +9499,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "RegisterOcclusionStatusEvent(\n    /* ";
 
     oss << "return = " ;
@@ -9437,7 +9527,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
         DWORD dwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "UnregisterOcclusionStatus(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -9458,7 +9549,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory2");
+    oss << "->";
     oss << "CreateSwapChainForComposition(\n    /* ";
 
     oss << "return = " ;
@@ -9467,7 +9559,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -9476,12 +9568,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     }
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
+    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISwapChain1_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
     }
     oss << ");\n\n";
 
@@ -9495,7 +9587,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter2");
+    oss << "->";
     oss << "GetDesc2(\n    /* ";
 
     oss << "return = " ;
@@ -9523,7 +9616,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
         StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
+    oss << "->";
     oss << "GetDisplayModeList1(\n    /* ";
 
     oss << "return = " ;
@@ -9562,7 +9656,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
         format::HandleId pConcernedDevice)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
+    oss << "->";
     oss << "FindClosestMatchingMode1(\n    /* ";
 
     oss << "return = " ;
@@ -9583,7 +9678,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     }
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pConcernedDevice;
+    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9596,7 +9691,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
         format::HandleId pDestination)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
+    oss << "->";
     oss << "GetDisplaySurfaceData1(\n    /* ";
 
     oss << "return = " ;
@@ -9605,7 +9701,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IDXGIResource_id" << pDestination;
+    WriteHandleId(oss, pDestination, "    ", "IDXGIResource", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -9619,7 +9715,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput1");
+    oss << "->";
     oss << "DuplicateOutput(\n    /* ";
 
     oss << "return = " ;
@@ -9628,12 +9725,12 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_DuplicateOutput(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutputDuplication_id" << *ppOutputDuplication->GetPointer();
+        WriteHandleId(oss, *ppOutputDuplication->GetPointer(), "    ", "IDXGIOutputDuplication", true);
     }
     oss << ");\n\n";
 
@@ -9668,7 +9765,7 @@ void Dx12AsciiConsumer::Process_CreateDXGIFactory2(
 
     if (WriteCheckPointerDecoderNull(oss, ppFactory, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppFactory->GetPointer();
+        WriteHandleId(oss, *ppFactory->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -9699,7 +9796,7 @@ void Dx12AsciiConsumer::Process_DXGIGetDebugInterface1(
 
     if (WriteCheckPointerDecoderNull(oss, pDebug, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *pDebug->GetPointer();
+        WriteHandleId(oss, *pDebug->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -9711,7 +9808,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice3_Trim(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice3");
+    oss << "->";
     oss << "Trim(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -9727,7 +9825,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetSourceSize(
         UINT Height)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "SetSourceSize(\n    /* ";
 
     oss << "return = " ;
@@ -9753,7 +9852,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetSourceSize(
         PointerDecoder<UINT>* pHeight)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "GetSourceSize(\n    /* ";
 
     oss << "return = " ;
@@ -9784,7 +9884,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
         UINT MaxLatency)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "SetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
@@ -9806,7 +9907,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
         PointerDecoder<UINT>* pMaxLatency)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "GetMaximumFrameLatency(\n    /* ";
 
     oss << "return = " ;
@@ -9830,7 +9932,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
         uint64_t return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "GetFrameLatencyWaitableObject(\n    /* ";
 
     oss << "return = " ;
@@ -9849,7 +9952,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_SetMatrixTransform(
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "SetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
@@ -9874,7 +9978,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
         StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain2");
+    oss << "->";
     oss << "GetMatrixTransform(\n    /* ";
 
     oss << "return = " ;
@@ -9898,7 +10003,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput2_SupportsOverlays(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput2");
+    oss << "->";
     oss << "SupportsOverlays(\n    /* ";
 
     oss << "return = " ;
@@ -9916,7 +10022,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory3_GetCreationFlags(
         UINT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory3");
+    oss << "->";
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
@@ -9937,7 +10044,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
         UINT Flags)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "PresentBuffer(\n    /* ";
 
     oss << "return = " ;
@@ -9965,7 +10073,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetSourceRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "SetSourceRect(\n    /* ";
 
     oss << "return = " ;
@@ -9990,7 +10099,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetTargetRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "SetTargetRect(\n    /* ";
 
     oss << "return = " ;
@@ -10016,7 +10126,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
         UINT Height)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "SetDestSize(\n    /* ";
 
     oss << "return = " ;
@@ -10041,7 +10152,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "GetSourceRect(\n    /* ";
 
     oss << "return = " ;
@@ -10066,7 +10178,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
         StructPointerDecoder<Decoded_tagRECT>* pRect)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "GetTargetRect(\n    /* ";
 
     oss << "return = " ;
@@ -10092,7 +10205,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
         PointerDecoder<UINT>* pHeight)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "GetDestSize(\n    /* ";
 
     oss << "return = " ;
@@ -10123,7 +10237,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "SetColorSpace(\n    /* ";
 
     oss << "return = " ;
@@ -10144,7 +10259,8 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
         DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGIDecodeSwapChain_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDecodeSwapChain");
+    oss << "->";
     oss << "GetColorSpace(\n    /* ";
 
     oss << "return = " ;
@@ -10167,7 +10283,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
         HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactoryMedia_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactoryMedia");
+    oss << "->";
     oss << "CreateSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
@@ -10176,7 +10293,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     oss << "    " << hSurface;
@@ -10188,12 +10305,12 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionS
     }
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
+    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGISwapChain1_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGISwapChain1", true);
     }
     oss << ");\n\n";
 
@@ -10212,7 +10329,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
         HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactoryMedia_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactoryMedia");
+    oss << "->";
     oss << "CreateDecodeSwapChainForCompositionSurfaceHandle(\n    /* ";
 
     oss << "return = " ;
@@ -10221,7 +10339,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     oss << "    " << hSurface;
@@ -10233,15 +10351,15 @@ void Dx12AsciiConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompos
     }
     oss << ",\n";
 
-    oss << "    " << "IDXGIResource_id" << pYuvDecodeBuffers;
+    WriteHandleId(oss, pYuvDecodeBuffers, "    ", "IDXGIResource", false);
     oss << ",\n";
 
-    oss << "    " << "IDXGIOutput_id" << pRestrictToOutput;
+    WriteHandleId(oss, pRestrictToOutput, "    ", "IDXGIOutput", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppSwapChain, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIDecodeSwapChain_id" << *ppSwapChain->GetPointer();
+        WriteHandleId(oss, *ppSwapChain->GetPointer(), "    ", "IDXGIDecodeSwapChain", true);
     }
     oss << ");\n\n";
 
@@ -10255,7 +10373,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
         StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChainMedia_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
+    oss << "->";
     oss << "GetFrameStatisticsMedia(\n    /* ";
 
     oss << "return = " ;
@@ -10280,7 +10399,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
         UINT Duration)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChainMedia_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
+    oss << "->";
     oss << "SetPresentDuration(\n    /* ";
 
     oss << "return = " ;
@@ -10304,7 +10424,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
         PointerDecoder<UINT>* pClosestLargerPresentDuration)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChainMedia_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChainMedia");
+    oss << "->";
     oss << "CheckPresentDurationSupport(\n    /* ";
 
     oss << "return = " ;
@@ -10340,7 +10461,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
         PointerDecoder<UINT>* pFlags)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput3");
+    oss << "->";
     oss << "CheckOverlaySupport(\n    /* ";
 
     oss << "return = " ;
@@ -10352,7 +10474,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     oss << "    " << ConverttoText(EnumFormat);
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pConcernedDevice;
+    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10374,7 +10496,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
         UINT return_value)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
+    oss << "->";
     oss << "GetCurrentBackBufferIndex(\n    /* ";
 
     oss << "return = " ;
@@ -10394,7 +10517,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
         PointerDecoder<UINT>* pColorSpaceSupport)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
+    oss << "->";
     oss << "CheckColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
@@ -10422,7 +10546,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_SetColorSpace1(
         DXGI_COLOR_SPACE_TYPE ColorSpace)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
+    oss << "->";
     oss << "SetColorSpace1(\n    /* ";
 
     oss << "return = " ;
@@ -10450,7 +10575,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
         HandlePointerDecoder<IUnknown*>* ppPresentQueue)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain3");
+    oss << "->";
     oss << "ResizeBuffers1(\n    /* ";
 
     oss << "return = " ;
@@ -10499,7 +10625,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
         PointerDecoder<UINT>* pFlags)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput4");
+    oss << "->";
     oss << "CheckOverlayColorSpaceSupport(\n    /* ";
 
     oss << "return = " ;
@@ -10514,7 +10641,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     oss << "    " << ConverttoText(ColorSpace);
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pConcernedDevice;
+    WriteHandleId(oss, pConcernedDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pFlags, "    ", true))
@@ -10535,7 +10662,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory4");
+    oss << "->";
     oss << "EnumAdapterByLuid(\n    /* ";
 
     oss << "return = " ;
@@ -10552,7 +10680,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvAdapter->GetPointer();
+        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -10567,7 +10695,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory4");
+    oss << "->";
     oss << "EnumWarpAdapter(\n    /* ";
 
     oss << "return = " ;
@@ -10581,7 +10710,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvAdapter->GetPointer();
+        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -10596,7 +10725,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionT
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "RegisterHardwareContentProtectionTeardownStatusEvent(\n    /* ";
 
     oss << "return = " ;
@@ -10623,7 +10753,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtectio
         DWORD dwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "UnregisterHardwareContentProtectionTeardownStatus(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -10643,7 +10774,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
         StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "QueryVideoMemoryInfo(\n    /* ";
 
     oss << "return = " ;
@@ -10676,7 +10808,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
         UINT64 Reservation)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "SetVideoMemoryReservation(\n    /* ";
 
     oss << "return = " ;
@@ -10705,7 +10838,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNot
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "RegisterVideoMemoryBudgetChangeNotificationEvent(\n    /* ";
 
     oss << "return = " ;
@@ -10732,7 +10866,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeN
         DWORD dwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter3");
+    oss << "->";
     oss << "UnregisterVideoMemoryBudgetChangeNotification(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -10758,7 +10893,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput5");
+    oss << "->";
     oss << "DuplicateOutput1(\n    /* ";
 
     oss << "return = " ;
@@ -10767,7 +10903,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pDevice;
+    WriteHandleId(oss, pDevice, "    ", "IUnknown", false);
     oss << ",\n";
 
     oss << "    " << Flags;
@@ -10784,7 +10920,7 @@ void Dx12AsciiConsumer::Process_IDXGIOutput5_DuplicateOutput1(
 
     if (WriteCheckPointerDecoderNull(oss, ppOutputDuplication, "    ", true))
     {
-        oss << "    " << "&" << "IDXGIOutputDuplication_id" << *ppOutputDuplication->GetPointer();
+        WriteHandleId(oss, *ppOutputDuplication->GetPointer(), "    ", "IDXGIOutputDuplication", true);
     }
     oss << ");\n\n";
 
@@ -10800,7 +10936,8 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
         PointerDecoder<uint8_t>* pMetaData)
 {
     std::ostringstream oss;
-    oss << "IDXGISwapChain4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGISwapChain4");
+    oss << "->";
     oss << "SetHDRMetaData(\n    /* ";
 
     oss << "return = " ;
@@ -10834,7 +10971,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_OfferResources1(
         UINT Flags)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice4");
+    oss << "->";
     oss << "OfferResources1(\n    /* ";
 
     oss << "return = " ;
@@ -10870,7 +11008,8 @@ void Dx12AsciiConsumer::Process_IDXGIDevice4_ReclaimResources1(
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults)
 {
     std::ostringstream oss;
-    oss << "IDXGIDevice4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIDevice4");
+    oss << "->";
     oss << "ReclaimResources1(\n    /* ";
 
     oss << "return = " ;
@@ -10924,7 +11063,8 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
         StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIAdapter4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIAdapter4");
+    oss << "->";
     oss << "GetDesc3(\n    /* ";
 
     oss << "return = " ;
@@ -10949,7 +11089,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
         StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput6_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput6");
+    oss << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
@@ -10974,7 +11115,8 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
         PointerDecoder<UINT>* pFlags)
 {
     std::ostringstream oss;
-    oss << "IDXGIOutput6_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIOutput6");
+    oss << "->";
     oss << "CheckHardwareCompositionSupport(\n    /* ";
 
     oss << "return = " ;
@@ -11002,7 +11144,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
         HandlePointerDecoder<void*>* ppvAdapter)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory6_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory6");
+    oss << "->";
     oss << "EnumAdapterByGpuPreference(\n    /* ";
 
     oss << "return = " ;
@@ -11022,7 +11165,7 @@ void Dx12AsciiConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
 
     if (WriteCheckPointerDecoderNull(oss, ppvAdapter, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvAdapter->GetPointer();
+        WriteHandleId(oss, *ppvAdapter->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11037,7 +11180,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
         PointerDecoder<DWORD>* pdwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory7_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory7");
+    oss << "->";
     oss << "RegisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
@@ -11065,7 +11209,8 @@ void Dx12AsciiConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
         DWORD dwCookie)
 {
     std::ostringstream oss;
-    oss << "IDXGIFactory7_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IDXGIFactory7");
+    oss << "->";
     oss << "UnregisterAdaptersChangedEvent(\n    /* ";
 
     oss << "return = " ;
@@ -11112,13 +11257,13 @@ void Dx12AsciiConsumer::Process_D3D12SerializeRootSignature(
 
     if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
     {
-        oss << "    " << "&" << "ID3D10Blob_id" << *ppBlob->GetPointer();
+        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppErrorBlob, "    ", true))
     {
-        oss << "    " << "&" << "ID3D10Blob_id" << *ppErrorBlob->GetPointer();
+        WriteHandleId(oss, *ppErrorBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ");\n\n";
 
@@ -11156,7 +11301,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateRootSignatureDeserializer(
 
     if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppRootSignatureDeserializer->GetPointer();
+        WriteHandleId(oss, *ppRootSignatureDeserializer->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11187,13 +11332,13 @@ void Dx12AsciiConsumer::Process_D3D12SerializeVersionedRootSignature(
 
     if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
     {
-        oss << "    " << "&" << "ID3D10Blob_id" << *ppBlob->GetPointer();
+        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, ppErrorBlob, "    ", true))
     {
-        oss << "    " << "&" << "ID3D10Blob_id" << *ppErrorBlob->GetPointer();
+        WriteHandleId(oss, *ppErrorBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ");\n\n";
 
@@ -11231,7 +11376,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
 
     if (WriteCheckPointerDecoderNull(oss, ppRootSignatureDeserializer, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppRootSignatureDeserializer->GetPointer();
+        WriteHandleId(oss, *ppRootSignatureDeserializer->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11255,7 +11400,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "IUnknown_id" << pAdapter;
+    WriteHandleId(oss, pAdapter, "    ", "IUnknown", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(MinimumFeatureLevel);
@@ -11266,7 +11411,7 @@ void Dx12AsciiConsumer::Process_D3D12CreateDevice(
 
     if (WriteCheckPointerDecoderNull(oss, ppDevice, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppDevice->GetPointer();
+        WriteHandleId(oss, *ppDevice->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11293,7 +11438,7 @@ void Dx12AsciiConsumer::Process_D3D12GetDebugInterface(
 
     if (WriteCheckPointerDecoderNull(oss, ppvDebug, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvDebug->GetPointer();
+        WriteHandleId(oss, *ppvDebug->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11350,7 +11495,8 @@ void Dx12AsciiConsumer::Process_ID3D12Object_GetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     std::ostringstream oss;
-    oss << "ID3D12Object_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Object");
+    oss << "->";
     oss << "GetPrivateData(\n    /* ";
 
     oss << "return = " ;
@@ -11386,7 +11532,8 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateData(
         PointerDecoder<uint8_t>* pData)
 {
     std::ostringstream oss;
-    oss << "ID3D12Object_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Object");
+    oss << "->";
     oss << "SetPrivateData(\n    /* ";
 
     oss << "return = " ;
@@ -11418,7 +11565,8 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
         format::HandleId pData)
 {
     std::ostringstream oss;
-    oss << "ID3D12Object_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Object");
+    oss << "->";
     oss << "SetPrivateDataInterface(\n    /* ";
 
     oss << "return = " ;
@@ -11430,7 +11578,7 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     oss << "    " << ConverttoText(*guid.decoded_value);
     oss << ",\n";
 
-    oss << "    " << "IUnknown_id" << pData;
+    WriteHandleId(oss, pData, "    ", "IUnknown", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -11443,7 +11591,8 @@ void Dx12AsciiConsumer::Process_ID3D12Object_SetName(
         WStringDecoder* Name)
 {
     std::ostringstream oss;
-    oss << "ID3D12Object_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Object");
+    oss << "->";
     oss << "SetName(\n    /* ";
 
     oss << "return = " ;
@@ -11469,7 +11618,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
         HandlePointerDecoder<void*>* ppvDevice)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceChild_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceChild");
+    oss << "->";
     oss << "GetDevice(\n    /* ";
 
     oss << "return = " ;
@@ -11483,7 +11633,7 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceChild_GetDevice(
 
     if (WriteCheckPointerDecoderNull(oss, ppvDevice, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvDevice->GetPointer();
+        WriteHandleId(oss, *ppvDevice->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -11496,7 +11646,8 @@ void Dx12AsciiConsumer::Process_ID3D12RootSignatureDeserializer_GetRootSignature
         StructPointerDecoder<Decoded_D3D12_ROOT_SIGNATURE_DESC>* return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12RootSignatureDeserializer_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12RootSignatureDeserializer");
+    oss << "->";
     oss << "GetRootSignatureDesc(\n    /* ";
 
     oss << "return = " ;
@@ -11519,7 +11670,8 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* ppDesc)
 {
     std::ostringstream oss;
-    oss << "ID3D12VersionedRootSignatureDeserializer_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12VersionedRootSignatureDeserializer");
+    oss << "->";
     oss << "GetRootSignatureDescAtVersion(\n    /* ";
 
     oss << "return = " ;
@@ -11546,7 +11698,8 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetUnco
         StructPointerDecoder<Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC>* return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12VersionedRootSignatureDeserializer_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12VersionedRootSignatureDeserializer");
+    oss << "->";
     oss << "GetUnconvertedRootSignatureDesc(\n    /* ";
 
     oss << "return = " ;
@@ -11567,7 +11720,8 @@ void Dx12AsciiConsumer::Process_ID3D12Heap_GetDesc(
         Decoded_D3D12_HEAP_DESC return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Heap_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Heap");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -11588,7 +11742,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Map(
         PointerDecoder<uint64_t, void*>* ppData)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "Map(\n    /* ";
 
     oss << "return = " ;
@@ -11622,7 +11777,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_Unmap(
         StructPointerDecoder<Decoded_D3D12_RANGE>* pWrittenRange)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "Unmap(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -11645,7 +11801,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetDesc(
         Decoded_D3D12_RESOURCE_DESC return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -11663,7 +11820,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
         D3D12_GPU_VIRTUAL_ADDRESS return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "GetGPUVirtualAddress(\n    /* ";
 
     oss << "return = " ;
@@ -11686,7 +11844,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_WriteToSubresource(
         UINT SrcDepthPitch)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "WriteToSubresource(\n    /* ";
 
     oss << "return = " ;
@@ -11727,7 +11886,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_ReadFromSubresource(
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "ReadFromSubresource(\n    /* ";
 
     oss << "return = " ;
@@ -11765,7 +11925,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
         PointerDecoder<D3D12_HEAP_FLAGS>* pHeapFlags)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource");
+    oss << "->";
     oss << "GetHeapProperties(\n    /* ";
 
     oss << "return = " ;
@@ -11795,7 +11956,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandAllocator_Reset(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandAllocator_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandAllocator");
+    oss << "->";
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
@@ -11813,7 +11975,8 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_GetCompletedValue(
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Fence_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Fence");
+    oss << "->";
     oss << "GetCompletedValue(\n    /* ";
 
     oss << "return = " ;
@@ -11833,7 +11996,8 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_SetEventOnCompletion(
         uint64_t hEvent)
 {
     std::ostringstream oss;
-    oss << "ID3D12Fence_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Fence");
+    oss << "->";
     oss << "SetEventOnCompletion(\n    /* ";
 
     oss << "return = " ;
@@ -11858,7 +12022,8 @@ void Dx12AsciiConsumer::Process_ID3D12Fence_Signal(
         UINT64 Value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Fence_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Fence");
+    oss << "->";
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
@@ -11879,7 +12044,8 @@ void Dx12AsciiConsumer::Process_ID3D12Fence1_GetCreationFlags(
         D3D12_FENCE_FLAGS return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Fence1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Fence1");
+    oss << "->";
     oss << "GetCreationFlags(\n    /* ";
 
     oss << "return = " ;
@@ -11898,7 +12064,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
         HandlePointerDecoder<ID3D10Blob*>* ppBlob)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineState_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineState");
+    oss << "->";
     oss << "GetCachedBlob(\n    /* ";
 
     oss << "return = " ;
@@ -11909,7 +12076,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineState_GetCachedBlob(
 
     if (WriteCheckPointerDecoderNull(oss, ppBlob, "    ", true))
     {
-        oss << "    " << "&" << "ID3D10Blob_id" << *ppBlob->GetPointer();
+        WriteHandleId(oss, *ppBlob->GetPointer(), "    ", "ID3D10Blob", true);
     }
     oss << ");\n\n";
 
@@ -11922,7 +12089,8 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetDesc(
         Decoded_D3D12_DESCRIPTOR_HEAP_DESC return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12DescriptorHeap_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -11940,7 +12108,8 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHe
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12DescriptorHeap_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
+    oss << "->";
     oss << "GetCPUDescriptorHandleForHeapStart(\n    /* ";
 
     oss << "return = " ;
@@ -11958,7 +12127,8 @@ void Dx12AsciiConsumer::Process_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHe
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12DescriptorHeap_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DescriptorHeap");
+    oss << "->";
     oss << "GetGPUDescriptorHandleForHeapStart(\n    /* ";
 
     oss << "return = " ;
@@ -11976,7 +12146,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandList_GetType(
         D3D12_COMMAND_LIST_TYPE return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandList");
+    oss << "->";
     oss << "GetType(\n    /* ";
 
     oss << "return = " ;
@@ -11994,7 +12165,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Close(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "Close(\n    /* ";
 
     oss << "return = " ;
@@ -12014,7 +12186,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
         format::HandleId pInitialState)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "Reset(\n    /* ";
 
     oss << "return = " ;
@@ -12023,10 +12196,10 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Reset(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12CommandAllocator_id" << pAllocator;
+    WriteHandleId(oss, pAllocator, "    ", "ID3D12CommandAllocator", false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12PipelineState_id" << pInitialState;
+    WriteHandleId(oss, pInitialState, "    ", "ID3D12PipelineState", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12038,12 +12211,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearState(
         format::HandleId pPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ClearState(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12PipelineState_id" << pPipelineState;
+    WriteHandleId(oss, pPipelineState, "    ", "ID3D12PipelineState", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12058,7 +12232,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
         UINT StartInstanceLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "DrawInstanced(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12088,7 +12263,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
         UINT StartInstanceLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "DrawIndexedInstanced(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12119,7 +12295,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
         UINT ThreadGroupCountZ)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "Dispatch(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12146,18 +12323,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
         UINT64 NumBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "CopyBufferRegion(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
+    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
+    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << SrcOffset;
@@ -12180,7 +12358,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
         StructPointerDecoder<Decoded_D3D12_BOX>* pSrcBox)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "CopyTextureRegion(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12222,15 +12401,16 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
         format::HandleId pSrcResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "CopyResource(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstResource;
+    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcResource;
+    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12247,12 +12427,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         D3D12_TILE_COPY_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "CopyTiles(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pTiledResource;
+    WriteHandleId(oss, pTiledResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pTileRegionStartCoordinate, "    ", false))
@@ -12267,7 +12448,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pBuffer;
+    WriteHandleId(oss, pBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << BufferStartOffsetInBytes;
@@ -12289,18 +12470,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
         DXGI_FORMAT Format)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ResolveSubresource(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstResource;
+    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << DstSubresource;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcResource;
+    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << SrcSubresource;
@@ -12318,7 +12500,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopology
         D3D_PRIMITIVE_TOPOLOGY PrimitiveTopology)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "IASetPrimitiveTopology(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12336,7 +12519,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
         StructPointerDecoder<Decoded_D3D12_VIEWPORT>* pViewports)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "RSSetViewports(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12360,7 +12544,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "RSSetScissorRects(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12383,7 +12568,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
         PointerDecoder<FLOAT> BlendFactor [4])
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "OMSetBlendFactor(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12403,7 +12589,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
         UINT StencilRef)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "OMSetStencilRef(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12420,12 +12607,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
         format::HandleId pPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetPipelineState(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12PipelineState_id" << pPipelineState;
+    WriteHandleId(oss, pPipelineState, "    ", "ID3D12PipelineState", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12438,7 +12626,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ResourceBarrier(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12461,12 +12650,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
         format::HandleId pCommandList)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ExecuteBundle(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12GraphicsCommandList_id" << pCommandList;
+    WriteHandleId(oss, pCommandList, "    ", "ID3D12GraphicsCommandList", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12479,7 +12669,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetDescriptorHeaps(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12502,12 +12693,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatur
         format::HandleId pRootSignature)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRootSignature(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
+    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12519,12 +12711,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatu
         format::HandleId pRootSignature)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRootSignature(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
+    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -12537,7 +12730,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescript
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRootDescriptorTable(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12558,7 +12752,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescrip
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRootDescriptorTable(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12580,7 +12775,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         UINT DestOffsetIn32BitValues)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRoot32BitConstant(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12605,7 +12801,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         UINT DestOffsetIn32BitValues)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRoot32BitConstant(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12631,7 +12828,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCon
         UINT DestOffsetIn32BitValues)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRoot32BitConstants(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12663,7 +12861,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCo
         UINT DestOffsetIn32BitValues)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRoot32BitConstants(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12693,7 +12892,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstant
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRootConstantBufferView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12714,7 +12914,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstan
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRootConstantBufferView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12735,7 +12936,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderRe
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRootShaderResourceView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12756,7 +12958,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderR
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRootShaderResourceView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12777,7 +12980,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnordere
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetComputeRootUnorderedAccessView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12798,7 +13002,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorder
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetGraphicsRootUnorderedAccessView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12818,7 +13023,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetIndexBuffer(
         StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "IASetIndexBuffer(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12840,7 +13046,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
         StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "IASetVertexBuffers(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12868,7 +13075,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
         StructPointerDecoder<Decoded_D3D12_STREAM_OUTPUT_BUFFER_VIEW>* pViews)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SOSetTargets(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12897,7 +13105,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "OMSetRenderTargets(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12934,7 +13143,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ClearDepthStencilView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -12972,7 +13182,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ClearRenderTargetView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13009,7 +13220,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ClearUnorderedAccessViewUint(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13020,7 +13232,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13052,7 +13264,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
         StructPointerDecoder<Decoded_tagRECT>* pRects)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ClearUnorderedAccessViewFloat(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13063,7 +13276,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVi
     WriteStructString(oss, &ViewCPUHandle, "    ", false, false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, Values, "    ", false))
@@ -13091,12 +13304,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
         StructPointerDecoder<Decoded_D3D12_DISCARD_REGION>* pRegion)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "DiscardResource(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pRegion, "    ", false))
@@ -13116,12 +13330,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         UINT Index)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "BeginQuery(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
+    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(Type);
@@ -13141,12 +13356,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         UINT Index)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "EndQuery(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
+    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(Type);
@@ -13169,12 +13385,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
         UINT64 AlignedDestinationBufferOffset)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ResolveQueryData(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12QueryHeap_id" << pQueryHeap;
+    WriteHandleId(oss, pQueryHeap, "    ", "ID3D12QueryHeap", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(Type);
@@ -13186,7 +13403,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     oss << "    " << NumQueries;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDestinationBuffer;
+    WriteHandleId(oss, pDestinationBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << AlignedDestinationBufferOffset;
@@ -13203,12 +13420,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         D3D12_PREDICATION_OP Operation)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetPredication(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pBuffer;
+    WriteHandleId(oss, pBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << AlignedBufferOffset;
@@ -13228,7 +13446,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
         UINT Size)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "SetMarker(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13256,7 +13475,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
         UINT Size)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "BeginEvent(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13281,7 +13501,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "EndEvent(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -13300,24 +13521,25 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
         UINT64 CountBufferOffset)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList");
+    oss << "->";
     oss << "ExecuteIndirect(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12CommandSignature_id" << pCommandSignature;
+    WriteHandleId(oss, pCommandSignature, "    ", "ID3D12CommandSignature", false);
     oss << ",\n";
 
     oss << "    " << MaxCommandCount;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pArgumentBuffer;
+    WriteHandleId(oss, pArgumentBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << ArgumentBufferOffset;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pCountBuffer;
+    WriteHandleId(oss, pCountBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << CountBufferOffset;
@@ -13338,18 +13560,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "AtomicCopyBufferUINT(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
+    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
+    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << SrcOffset;
@@ -13385,18 +13608,19 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT6
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_RANGE_UINT64>* pDependentSubresourceRanges)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "AtomicCopyBufferUINT64(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstBuffer;
+    WriteHandleId(oss, pDstBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << DstOffset;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcBuffer;
+    WriteHandleId(oss, pSrcBuffer, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << SrcOffset;
@@ -13427,7 +13651,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
         FLOAT Max)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "OMSetDepthBounds(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13449,7 +13674,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
         StructPointerDecoder<Decoded_D3D12_SAMPLE_POSITION>* pSamplePositions)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "SetSamplePositions(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13483,12 +13709,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
         D3D12_RESOLVE_MODE ResolveMode)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "ResolveSubresourceRegion(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstResource;
+    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << DstSubresource;
@@ -13500,7 +13727,7 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceReg
     oss << "    " << DstY;
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcResource;
+    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << SrcSubresource;
@@ -13527,7 +13754,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
         UINT Mask)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList1");
+    oss << "->";
     oss << "SetViewInstanceMask(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13546,7 +13774,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
         PointerDecoder<D3D12_WRITEBUFFERIMMEDIATE_MODE>* pModes)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList2");
+    oss << "->";
     oss << "WriteBufferImmediate(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13584,12 +13813,13 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "UpdateTileMappings(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << NumResourceRegions;
@@ -13607,7 +13837,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12Heap_id" << pHeap;
+    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
     oss << ",\n";
 
     oss << "    " << NumRanges;
@@ -13648,12 +13878,13 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         D3D12_TILE_MAPPING_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "CopyTileMappings(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pDstResource;
+    WriteHandleId(oss, pDstResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDstRegionStartCoordinate, "    ", false))
@@ -13662,7 +13893,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pSrcResource;
+    WriteHandleId(oss, pSrcResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pSrcRegionStartCoordinate, "    ", false))
@@ -13690,7 +13921,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
         HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "ExecuteCommandLists(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13715,7 +13947,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_SetMarker(
         UINT Size)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "SetMarker(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13743,7 +13976,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_BeginEvent(
         UINT Size)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "BeginEvent(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -13768,7 +14002,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_EndEvent(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "EndEvent(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -13784,7 +14019,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
         UINT64 Value)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "Signal(\n    /* ";
 
     oss << "return = " ;
@@ -13793,7 +14029,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Signal(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Fence_id" << pFence;
+    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
     oss << ",\n";
 
     oss << "    " << Value;
@@ -13810,7 +14046,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
         UINT64 Value)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "Wait(\n    /* ";
 
     oss << "return = " ;
@@ -13819,7 +14056,7 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_Wait(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Fence_id" << pFence;
+    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
     oss << ",\n";
 
     oss << "    " << Value;
@@ -13835,7 +14072,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
         PointerDecoder<UINT64>* pFrequency)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "GetTimestampFrequency(\n    /* ";
 
     oss << "return = " ;
@@ -13861,7 +14099,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
         PointerDecoder<UINT64>* pCpuTimestamp)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "GetClockCalibration(\n    /* ";
 
     oss << "return = " ;
@@ -13891,7 +14130,8 @@ void Dx12AsciiConsumer::Process_ID3D12CommandQueue_GetDesc(
         Decoded_D3D12_COMMAND_QUEUE_DESC return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12CommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12CommandQueue");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -13909,7 +14149,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetNodeCount(
         UINT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetNodeCount(\n    /* ";
 
     oss << "return = " ;
@@ -13930,7 +14171,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
         HandlePointerDecoder<void*>* ppCommandQueue)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateCommandQueue(\n    /* ";
 
     oss << "return = " ;
@@ -13950,7 +14192,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandQueue(
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandQueue, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppCommandQueue->GetPointer();
+        WriteHandleId(oss, *ppCommandQueue->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -13966,7 +14208,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
         HandlePointerDecoder<void*>* ppCommandAllocator)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateCommandAllocator(\n    /* ";
 
     oss << "return = " ;
@@ -13983,7 +14226,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandAllocator(
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandAllocator, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppCommandAllocator->GetPointer();
+        WriteHandleId(oss, *ppCommandAllocator->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -13999,7 +14242,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateGraphicsPipelineState(\n    /* ";
 
     oss << "return = " ;
@@ -14019,7 +14263,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14035,7 +14279,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateComputePipelineState(\n    /* ";
 
     oss << "return = " ;
@@ -14055,7 +14300,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateComputePipelineState(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14074,7 +14319,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
         HandlePointerDecoder<void*>* ppCommandList)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateCommandList(\n    /* ";
 
     oss << "return = " ;
@@ -14089,10 +14335,10 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
     oss << "    " << ConverttoText(type);
     oss << ",\n";
 
-    oss << "    " << "ID3D12CommandAllocator_id" << pCommandAllocator;
+    WriteHandleId(oss, pCommandAllocator, "    ", "ID3D12CommandAllocator", false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12PipelineState_id" << pInitialState;
+    WriteHandleId(oss, pInitialState, "    ", "ID3D12PipelineState", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -14100,7 +14346,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandList(
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppCommandList->GetPointer();
+        WriteHandleId(oss, *ppCommandList->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14116,7 +14362,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateDescriptorHeap(\n    /* ";
 
     oss << "return = " ;
@@ -14136,7 +14383,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDescriptorHeap(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14150,7 +14397,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetDescriptorHandleIncrementSize(\n    /* ";
 
     oss << "return = " ;
@@ -14176,7 +14424,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
         HandlePointerDecoder<void*>* ppvRootSignature)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateRootSignature(\n    /* ";
 
     oss << "return = " ;
@@ -14202,7 +14451,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRootSignature(
 
     if (WriteCheckPointerDecoderNull(oss, ppvRootSignature, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvRootSignature->GetPointer();
+        WriteHandleId(oss, *ppvRootSignature->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14216,7 +14465,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateConstantBufferView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateConstantBufferView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -14241,12 +14491,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateShaderResourceView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateShaderResourceView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14270,15 +14521,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateUnorderedAccessView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pCounterResource;
+    WriteHandleId(oss, pCounterResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14301,12 +14553,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateRenderTargetView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateRenderTargetView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14329,12 +14582,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateDepthStencilView(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateDepthStencilView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", false))
@@ -14356,7 +14610,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSampler(
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateSampler(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -14385,7 +14640,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptors(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CopyDescriptors(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -14435,7 +14691,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
         D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapsType)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CopyDescriptorsSimple(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -14464,7 +14721,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDescs)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetResourceAllocationInfo(\n    /* ";
 
     oss << "return = " ;
@@ -14496,7 +14754,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCustomHeapProperties(
         D3D12_HEAP_TYPE heapType)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetCustomHeapProperties(\n    /* ";
 
     oss << "return = " ;
@@ -14527,7 +14786,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateCommittedResource(\n    /* ";
 
     oss << "return = " ;
@@ -14565,7 +14825,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommittedResource(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14581,7 +14841,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateHeap(\n    /* ";
 
     oss << "return = " ;
@@ -14601,7 +14862,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateHeap(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14621,7 +14882,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreatePlacedResource(\n    /* ";
 
     oss << "return = " ;
@@ -14630,7 +14892,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Heap_id" << pHeap;
+    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
     oss << ",\n";
 
     oss << "    " << HeapOffset;
@@ -14656,7 +14918,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreatePlacedResource(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14674,7 +14936,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateReservedResource(\n    /* ";
 
     oss << "return = " ;
@@ -14703,7 +14966,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateReservedResource(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14721,7 +14984,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
         PointerDecoder<uint64_t, void*>* pHandle)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateSharedHandle(\n    /* ";
 
     oss << "return = " ;
@@ -14730,7 +14994,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateSharedHandle(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12DeviceChild_id" << pObject;
+    WriteHandleId(oss, pObject, "    ", "ID3D12DeviceChild", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pAttributes, "    ", false))
@@ -14766,7 +15030,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
         HandlePointerDecoder<void*>* ppvObj)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "OpenSharedHandle(\n    /* ";
 
     oss << "return = " ;
@@ -14783,7 +15048,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandle(
 
     if (WriteCheckPointerDecoderNull(oss, ppvObj, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvObj->GetPointer();
+        WriteHandleId(oss, *ppvObj->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14799,7 +15064,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_OpenSharedHandleByName(
         PointerDecoder<uint64_t, void*>* pNTHandle)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "OpenSharedHandleByName(\n    /* ";
 
     oss << "return = " ;
@@ -14834,7 +15100,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_MakeResident(
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "MakeResident(\n    /* ";
 
     oss << "return = " ;
@@ -14863,7 +15130,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_Evict(
         HandlePointerDecoder<ID3D12Pageable*>* ppObjects)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "Evict(\n    /* ";
 
     oss << "return = " ;
@@ -14894,7 +15162,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
         HandlePointerDecoder<void*>* ppFence)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateFence(\n    /* ";
 
     oss << "return = " ;
@@ -14914,7 +15183,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateFence(
 
     if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppFence->GetPointer();
+        WriteHandleId(oss, *ppFence->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -14927,7 +15196,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetDeviceRemovedReason(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetDeviceRemovedReason(\n    /* ";
 
     oss << "return = " ;
@@ -14952,7 +15222,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetCopyableFootprints(
         PointerDecoder<UINT64>* pTotalBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetCopyableFootprints(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -15008,7 +15279,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateQueryHeap(\n    /* ";
 
     oss << "return = " ;
@@ -15028,7 +15300,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateQueryHeap(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15042,7 +15314,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_SetStablePowerState(
         BOOL Enable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "SetStablePowerState(\n    /* ";
 
     oss << "return = " ;
@@ -15067,7 +15340,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
         HandlePointerDecoder<void*>* ppvCommandSignature)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "CreateCommandSignature(\n    /* ";
 
     oss << "return = " ;
@@ -15082,7 +15356,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12RootSignature_id" << pRootSignature;
+    WriteHandleId(oss, pRootSignature, "    ", "ID3D12RootSignature", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -15090,7 +15364,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device_CreateCommandSignature(
 
     if (WriteCheckPointerDecoderNull(oss, ppvCommandSignature, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvCommandSignature->GetPointer();
+        WriteHandleId(oss, *ppvCommandSignature->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15109,12 +15383,13 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetResourceTiling(
         StructPointerDecoder<Decoded_D3D12_SUBRESOURCE_TILING>* pSubresourceTilingsForNonPackedMips)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetResourceTiling(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pTiledResource;
+    WriteHandleId(oss, pTiledResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pNumTilesForEntireResource, "    ", true))
@@ -15159,7 +15434,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device_GetAdapterLuid(
         Decoded_LUID return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device");
+    oss << "->";
     oss << "GetAdapterLuid(\n    /* ";
 
     oss << "return = " ;
@@ -15179,7 +15455,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
         format::HandleId pPipeline)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
+    oss << "->";
     oss << "StorePipeline(\n    /* ";
 
     oss << "return = " ;
@@ -15194,7 +15471,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12PipelineState_id" << pPipeline;
+    WriteHandleId(oss, pPipeline, "    ", "ID3D12PipelineState", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -15210,7 +15487,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
+    oss << "->";
     oss << "LoadGraphicsPipeline(\n    /* ";
 
     oss << "return = " ;
@@ -15236,7 +15514,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15253,7 +15531,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
+    oss << "->";
     oss << "LoadComputePipeline(\n    /* ";
 
     oss << "return = " ;
@@ -15279,7 +15558,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15292,7 +15571,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
         SIZE_T return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
+    oss << "->";
     oss << "GetSerializedSize(\n    /* ";
 
     oss << "return = " ;
@@ -15312,7 +15592,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary_Serialize(
         SIZE_T DataSizeInBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary");
+    oss << "->";
     oss << "Serialize(\n    /* ";
 
     oss << "return = " ;
@@ -15343,7 +15624,8 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12PipelineLibrary1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12PipelineLibrary1");
+    oss << "->";
     oss << "LoadPipeline(\n    /* ";
 
     oss << "return = " ;
@@ -15369,7 +15651,7 @@ void Dx12AsciiConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15386,7 +15668,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
         HandlePointerDecoder<void*>* ppPipelineLibrary)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device1");
+    oss << "->";
     oss << "CreatePipelineLibrary(\n    /* ";
 
     oss << "return = " ;
@@ -15409,7 +15692,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineLibrary, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineLibrary->GetPointer();
+        WriteHandleId(oss, *ppPipelineLibrary->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15427,7 +15710,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         uint64_t hEvent)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device1");
+    oss << "->";
     oss << "SetEventOnMultipleFenceCompletion(\n    /* ";
 
     oss << "return = " ;
@@ -15469,7 +15753,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device1_SetResidencyPriority(
         PointerDecoder<D3D12_RESIDENCY_PRIORITY>* pPriorities)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device1");
+    oss << "->";
     oss << "SetResidencyPriority(\n    /* ";
 
     oss << "return = " ;
@@ -15505,7 +15790,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
         HandlePointerDecoder<void*>* ppPipelineState)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device2");
+    oss << "->";
     oss << "CreatePipelineState(\n    /* ";
 
     oss << "return = " ;
@@ -15525,7 +15811,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device2_CreatePipelineState(
 
     if (WriteCheckPointerDecoderNull(oss, ppPipelineState, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppPipelineState->GetPointer();
+        WriteHandleId(oss, *ppPipelineState->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15541,7 +15827,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device3");
+    oss << "->";
     oss << "OpenExistingHeapFromAddress(\n    /* ";
 
     oss << "return = " ;
@@ -15558,7 +15845,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15574,7 +15861,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device3");
+    oss << "->";
     oss << "OpenExistingHeapFromFileMapping(\n    /* ";
 
     oss << "return = " ;
@@ -15591,7 +15879,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15609,7 +15897,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
         UINT64 FenceValueToSignal)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device3");
+    oss << "->";
     oss << "EnqueueMakeResident(\n    /* ";
 
     oss << "return = " ;
@@ -15630,7 +15919,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12Fence_id" << pFenceToSignal;
+    WriteHandleId(oss, pFenceToSignal, "    ", "ID3D12Fence", false);
     oss << ",\n";
 
     oss << "    " << FenceValueToSignal;
@@ -15647,7 +15936,8 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
         HandlePointerDecoder<void*>* ppFence)
 {
     std::ostringstream oss;
-    oss << "ID3D12ProtectedSession_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12ProtectedSession");
+    oss << "->";
     oss << "GetStatusFence(\n    /* ";
 
     oss << "return = " ;
@@ -15661,7 +15951,7 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
 
     if (WriteCheckPointerDecoderNull(oss, ppFence, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppFence->GetPointer();
+        WriteHandleId(oss, *ppFence->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15674,7 +15964,8 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
         D3D12_PROTECTED_SESSION_STATUS return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12ProtectedSession_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12ProtectedSession");
+    oss << "->";
     oss << "GetSessionStatus(\n    /* ";
 
     oss << "return = " ;
@@ -15692,7 +15983,8 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession_GetDesc(
         Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12ProtectedResourceSession_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12ProtectedResourceSession");
+    oss << "->";
     oss << "GetDesc(\n    /* ";
 
     oss << "return = " ;
@@ -15715,7 +16007,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
         HandlePointerDecoder<void*>* ppCommandList)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "CreateCommandList1(\n    /* ";
 
     oss << "return = " ;
@@ -15738,7 +16031,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommandList1(
 
     if (WriteCheckPointerDecoderNull(oss, ppCommandList, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppCommandList->GetPointer();
+        WriteHandleId(oss, *ppCommandList->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15754,7 +16047,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
         HandlePointerDecoder<void*>* ppSession)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "CreateProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
@@ -15774,7 +16068,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
 
     if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppSession->GetPointer();
+        WriteHandleId(oss, *ppSession->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15795,7 +16089,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "CreateCommittedResource1(\n    /* ";
 
     oss << "return = " ;
@@ -15828,7 +16123,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riidResource.decoded_value);
@@ -15836,7 +16131,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateCommittedResource1(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15853,7 +16148,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
         HandlePointerDecoder<void*>* ppvHeap)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "CreateHeap1(\n    /* ";
 
     oss << "return = " ;
@@ -15868,7 +16164,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -15876,7 +16172,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateHeap1(
 
     if (WriteCheckPointerDecoderNull(oss, ppvHeap, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvHeap->GetPointer();
+        WriteHandleId(oss, *ppvHeap->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15895,7 +16191,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "CreateReservedResource1(\n    /* ";
 
     oss << "return = " ;
@@ -15919,7 +16216,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -15927,7 +16224,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_CreateReservedResource1(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -15944,7 +16241,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device4");
+    oss << "->";
     oss << "GetResourceAllocationInfo1(\n    /* ";
 
     oss << "return = " ;
@@ -15980,7 +16278,8 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeOwner_LifetimeStateUpdated(
         D3D12_LIFETIME_STATE NewState)
 {
     std::ostringstream oss;
-    oss << "ID3D12LifetimeOwner_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12LifetimeOwner");
+    oss << "->";
     oss << "LifetimeStateUpdated(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -15997,7 +16296,8 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetLUID(
         Decoded_LUID return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
+    oss << "->";
     oss << "GetLUID(\n    /* ";
 
     oss << "return = " ;
@@ -16017,7 +16317,8 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
         HandlePointerDecoder<void*>* ppv)
 {
     std::ostringstream oss;
-    oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
+    oss << "->";
     oss << "GetSwapChainObject(\n    /* ";
 
     oss << "return = " ;
@@ -16031,7 +16332,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
 
     if (WriteCheckPointerDecoderNull(oss, ppv, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppv->GetPointer();
+        WriteHandleId(oss, *ppv->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16048,7 +16349,8 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
         HandlePointerDecoder<void*>* ppvQueue)
 {
     std::ostringstream oss;
-    oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
+    oss << "->";
     oss << "GetCurrentResourceAndCommandQueue(\n    /* ";
 
     oss << "return = " ;
@@ -16062,7 +16364,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ",\n";
 
@@ -16071,7 +16373,7 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCo
 
     if (WriteCheckPointerDecoderNull(oss, ppvQueue, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvQueue->GetPointer();
+        WriteHandleId(oss, *ppvQueue->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16084,7 +16386,8 @@ void Dx12AsciiConsumer::Process_ID3D12SwapChainAssistant_InsertImplicitSync(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12SwapChainAssistant_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SwapChainAssistant");
+    oss << "->";
     oss << "InsertImplicitSync(\n    /* ";
 
     oss << "return = " ;
@@ -16103,7 +16406,8 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
         format::HandleId pObject)
 {
     std::ostringstream oss;
-    oss << "ID3D12LifetimeTracker_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12LifetimeTracker");
+    oss << "->";
     oss << "DestroyOwnedObject(\n    /* ";
 
     oss << "return = " ;
@@ -16112,7 +16416,7 @@ void Dx12AsciiConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12DeviceChild_id" << pObject;
+    WriteHandleId(oss, pObject, "    ", "ID3D12DeviceChild", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -16125,7 +16429,8 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderIdentifier(
         WStringDecoder* pExportName)
 {
     std::ostringstream oss;
-    oss << "ID3D12StateObjectProperties_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
+    oss << "->";
     oss << "GetShaderIdentifier(\n    /* ";
 
     oss << "return = " ;
@@ -16153,7 +16458,8 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
         WStringDecoder* pExportName)
 {
     std::ostringstream oss;
-    oss << "ID3D12StateObjectProperties_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
+    oss << "->";
     oss << "GetShaderStackSize(\n    /* ";
 
     oss << "return = " ;
@@ -16177,7 +16483,8 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12StateObjectProperties_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
+    oss << "->";
     oss << "GetPipelineStackSize(\n    /* ";
 
     oss << "return = " ;
@@ -16195,7 +16502,8 @@ void Dx12AsciiConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize
         UINT64 PipelineStackSizeInBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12StateObjectProperties_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12StateObjectProperties");
+    oss << "->";
     oss << "SetPipelineStackSize(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16215,7 +16523,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
         HandlePointerDecoder<void*>* ppvTracker)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "CreateLifetimeTracker(\n    /* ";
 
     oss << "return = " ;
@@ -16224,7 +16533,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12LifetimeOwner_id" << pOwner;
+    WriteHandleId(oss, pOwner, "    ", "ID3D12LifetimeOwner", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -16232,7 +16541,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
 
     if (WriteCheckPointerDecoderNull(oss, ppvTracker, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvTracker->GetPointer();
+        WriteHandleId(oss, *ppvTracker->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16244,7 +16553,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_RemoveDevice(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "RemoveDevice(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -16260,7 +16570,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_DESC>* pDescs)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "EnumerateMetaCommands(\n    /* ";
 
     oss << "return = " ;
@@ -16295,7 +16606,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
         StructPointerDecoder<Decoded_D3D12_META_COMMAND_PARAMETER_DESC>* pParameterDescs)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "EnumerateMetaCommandParameters(\n    /* ";
 
     oss << "return = " ;
@@ -16343,7 +16655,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
         HandlePointerDecoder<void*>* ppMetaCommand)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "CreateMetaCommand(\n    /* ";
 
     oss << "return = " ;
@@ -16372,7 +16685,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateMetaCommand(
 
     if (WriteCheckPointerDecoderNull(oss, ppMetaCommand, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppMetaCommand->GetPointer();
+        WriteHandleId(oss, *ppMetaCommand->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16388,7 +16701,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
         HandlePointerDecoder<void*>* ppStateObject)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "CreateStateObject(\n    /* ";
 
     oss << "return = " ;
@@ -16408,7 +16722,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CreateStateObject(
 
     if (WriteCheckPointerDecoderNull(oss, ppStateObject, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppStateObject->GetPointer();
+        WriteHandleId(oss, *ppStateObject->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16422,7 +16736,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructure
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO>* pInfo)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "GetRaytracingAccelerationStructurePrebuildInfo(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16450,7 +16765,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
         StructPointerDecoder<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>* pIdentifierToCheck)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device5");
+    oss << "->";
     oss << "CheckDriverMatchingIdentifier(\n    /* ";
 
     oss << "return = " ;
@@ -16477,7 +16793,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetAutoB
         D3D12_DRED_ENABLEMENT Enablement)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedDataSettings_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
+    oss << "->";
     oss << "SetAutoBreadcrumbsEnablement(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16494,7 +16811,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetPageF
         D3D12_DRED_ENABLEMENT Enablement)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedDataSettings_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
+    oss << "->";
     oss << "SetPageFaultEnablement(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16511,7 +16829,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings_SetWatso
         D3D12_DRED_ENABLEMENT Enablement)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedDataSettings_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings");
+    oss << "->";
     oss << "SetWatsonDumpEnablement(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16528,7 +16847,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedDataSettings1_SetBrea
         D3D12_DRED_ENABLEMENT Enablement)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedDataSettings1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedDataSettings1");
+    oss << "->";
     oss << "SetBreadcrumbContextEnablement(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -16546,7 +16866,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT>* pOutput)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedData_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData");
+    oss << "->";
     oss << "GetAutoBreadcrumbsOutput(\n    /* ";
 
     oss << "return = " ;
@@ -16571,7 +16892,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT>* pOutput)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedData_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData");
+    oss << "->";
     oss << "GetPageFaultAllocationOutput(\n    /* ";
 
     oss << "return = " ;
@@ -16596,7 +16918,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
         StructPointerDecoder<Decoded_D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1>* pOutput)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedData1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData1");
+    oss << "->";
     oss << "GetAutoBreadcrumbsOutput1(\n    /* ";
 
     oss << "return = " ;
@@ -16621,7 +16944,8 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
         StructPointerDecoder<Decoded_D3D12_DRED_PAGE_FAULT_OUTPUT1>* pOutput)
 {
     std::ostringstream oss;
-    oss << "ID3D12DeviceRemovedExtendedData1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DeviceRemovedExtendedData1");
+    oss << "->";
     oss << "GetPageFaultAllocationOutput1(\n    /* ";
 
     oss << "return = " ;
@@ -16649,7 +16973,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
         PointerDecoder<BOOL>* pbFurtherMeasurementsDesired)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device6_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device6");
+    oss << "->";
     oss << "SetBackgroundProcessingMode(\n    /* ";
 
     oss << "return = " ;
@@ -16682,7 +17007,8 @@ void Dx12AsciiConsumer::Process_ID3D12ProtectedResourceSession1_GetDesc1(
         Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12ProtectedResourceSession1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12ProtectedResourceSession1");
+    oss << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
@@ -16704,7 +17030,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
         HandlePointerDecoder<void*>* ppNewStateObject)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device7_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device7");
+    oss << "->";
     oss << "AddToStateObject(\n    /* ";
 
     oss << "return = " ;
@@ -16719,7 +17046,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12StateObject_id" << pStateObjectToGrowFrom;
+    WriteHandleId(oss, pStateObjectToGrowFrom, "    ", "ID3D12StateObject", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riid.decoded_value);
@@ -16727,7 +17054,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_AddToStateObject(
 
     if (WriteCheckPointerDecoderNull(oss, ppNewStateObject, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppNewStateObject->GetPointer();
+        WriteHandleId(oss, *ppNewStateObject->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16743,7 +17070,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
         HandlePointerDecoder<void*>* ppSession)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device7_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device7");
+    oss << "->";
     oss << "CreateProtectedResourceSession1(\n    /* ";
 
     oss << "return = " ;
@@ -16763,7 +17091,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
 
     if (WriteCheckPointerDecoderNull(oss, ppSession, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppSession->GetPointer();
+        WriteHandleId(oss, *ppSession->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16780,7 +17108,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device8_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device8");
+    oss << "->";
     oss << "GetResourceAllocationInfo2(\n    /* ";
 
     oss << "return = " ;
@@ -16824,7 +17153,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device8_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device8");
+    oss << "->";
     oss << "CreateCommittedResource2(\n    /* ";
 
     oss << "return = " ;
@@ -16857,7 +17187,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     }
     oss << ",\n";
 
-    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedSession;
+    WriteHandleId(oss, pProtectedSession, "    ", "ID3D12ProtectedResourceSession", false);
     oss << ",\n";
 
     oss << "    " << ConverttoText(*riidResource.decoded_value);
@@ -16865,7 +17195,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateCommittedResource2(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16885,7 +17215,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         HandlePointerDecoder<void*>* ppvResource)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device8_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device8");
+    oss << "->";
     oss << "CreatePlacedResource1(\n    /* ";
 
     oss << "return = " ;
@@ -16894,7 +17225,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Heap_id" << pHeap;
+    WriteHandleId(oss, pHeap, "    ", "ID3D12Heap", false);
     oss << ",\n";
 
     oss << "    " << HeapOffset;
@@ -16920,7 +17251,7 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreatePlacedResource1(
 
     if (WriteCheckPointerDecoderNull(oss, ppvResource, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvResource->GetPointer();
+        WriteHandleId(oss, *ppvResource->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -16935,15 +17266,16 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcce
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device8_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device8");
+    oss << "->";
     oss << "CreateSamplerFeedbackUnorderedAccessView(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pTargetedResource;
+    WriteHandleId(oss, pTargetedResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
-    oss << "    " << "ID3D12Resource_id" << pFeedbackResource;
+    WriteHandleId(oss, pFeedbackResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     WriteStructString(oss, &DestDescriptor, "    ", false, false);
@@ -16965,7 +17297,8 @@ void Dx12AsciiConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
         PointerDecoder<UINT64>* pTotalBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12Device8_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Device8");
+    oss << "->";
     oss << "GetCopyableFootprints1(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17020,7 +17353,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource1");
+    oss << "->";
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
@@ -17034,7 +17368,7 @@ void Dx12AsciiConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
 
     if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppProtectedSession->GetPointer();
+        WriteHandleId(oss, *ppProtectedSession->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -17047,7 +17381,8 @@ void Dx12AsciiConsumer::Process_ID3D12Resource2_GetDesc1(
         Decoded_D3D12_RESOURCE_DESC1 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Resource2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Resource2");
+    oss << "->";
     oss << "GetDesc1(\n    /* ";
 
     oss << "return = " ;
@@ -17067,7 +17402,8 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
         HandlePointerDecoder<void*>* ppProtectedSession)
 {
     std::ostringstream oss;
-    oss << "ID3D12Heap1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Heap1");
+    oss << "->";
     oss << "GetProtectedResourceSession(\n    /* ";
 
     oss << "return = " ;
@@ -17081,7 +17417,7 @@ void Dx12AsciiConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
 
     if (WriteCheckPointerDecoderNull(oss, ppProtectedSession, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppProtectedSession->GetPointer();
+        WriteHandleId(oss, *ppProtectedSession->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -17094,12 +17430,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceS
         format::HandleId pProtectedResourceSession)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList3");
+    oss << "->";
     oss << "SetProtectedResourceSession(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12ProtectedResourceSession_id" << pProtectedResourceSession;
+    WriteHandleId(oss, pProtectedResourceSession, "    ", "ID3D12ProtectedResourceSession", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17113,7 +17450,8 @@ void Dx12AsciiConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSi
         UINT ParameterIndex)
 {
     std::ostringstream oss;
-    oss << "ID3D12MetaCommand_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12MetaCommand");
+    oss << "->";
     oss << "GetRequiredParameterResourceSize(\n    /* ";
 
     oss << "return = " ;
@@ -17140,7 +17478,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
         D3D12_RENDER_PASS_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "BeginRenderPass(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17171,7 +17510,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "EndRenderPass(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17187,12 +17527,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand
         SIZE_T InitializationParametersDataSizeInBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "InitializeMetaCommand(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12MetaCommand_id" << pMetaCommand;
+    WriteHandleId(oss, pMetaCommand, "    ", "ID3D12MetaCommand", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pInitializationParametersData, "    ", false))
@@ -17215,12 +17556,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         SIZE_T ExecutionParametersDataSizeInBytes)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "ExecuteMetaCommand(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12MetaCommand_id" << pMetaCommand;
+    WriteHandleId(oss, pMetaCommand, "    ", "ID3D12MetaCommand", false);
     oss << ",\n";
 
     if (WriteCheckPointerDecoderNull(oss, pExecutionParametersData, "    ", false))
@@ -17243,7 +17585,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAccele
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "BuildRaytracingAccelerationStructure(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17274,7 +17617,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAcceler
         PointerDecoder<D3D12_GPU_VIRTUAL_ADDRESS>* pSourceAccelerationStructureData)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "EmitRaytracingAccelerationStructurePostbuildInfo(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17305,7 +17649,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAcceler
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "CopyRaytracingAccelerationStructure(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17328,12 +17673,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
         format::HandleId pStateObject)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "SetPipelineState1(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12StateObject_id" << pStateObject;
+    WriteHandleId(oss, pStateObject, "    ", "ID3D12StateObject", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17345,7 +17691,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList4_DispatchRays(
         StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* pDesc)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList4_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList4");
+    oss << "->";
     oss << "DispatchRays(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17365,7 +17712,8 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_EnableShaderInstrumentation(
         BOOL bEnable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Tools_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Tools");
+    oss << "->";
     oss << "EnableShaderInstrumentation(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17382,7 +17730,8 @@ void Dx12AsciiConsumer::Process_ID3D12Tools_ShaderInstrumentationEnabled(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12Tools_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Tools");
+    oss << "->";
     oss << "ShaderInstrumentationEnabled(\n    /* ";
 
     oss << "return = " ;
@@ -17401,7 +17750,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         PointerDecoder<D3D12_SHADING_RATE_COMBINER>* combiners)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList5");
+    oss << "->";
     oss << "RSSetShadingRate(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17424,12 +17774,13 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage
         format::HandleId shadingRateImage)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList5_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList5");
+    oss << "->";
     oss << "RSSetShadingRateImage(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << shadingRateImage;
+    WriteHandleId(oss, shadingRateImage, "    ", "ID3D12Resource", false);
     oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
@@ -17443,7 +17794,8 @@ void Dx12AsciiConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
         UINT ThreadGroupCountZ)
 {
     std::ostringstream oss;
-    oss << "ID3D12GraphicsCommandList6_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12GraphicsCommandList6");
+    oss << "->";
     oss << "DispatchMesh(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17470,7 +17822,8 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferPointer(
         uint64_t return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D10Blob_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D10Blob");
+    oss << "->";
     oss << "GetBufferPointer(\n    /* ";
 
     oss << "return = " ;
@@ -17488,7 +17841,8 @@ void Dx12AsciiConsumer::Process_ID3D10Blob_GetBufferSize(
         SIZE_T return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D10Blob_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D10Blob");
+    oss << "->";
     oss << "GetBufferSize(\n    /* ";
 
     oss << "return = " ;
@@ -17509,7 +17863,8 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallb
         PointerDecoder<UINT>* pCallbackID)
 {
     std::ostringstream oss;
-    oss << "ID3DDestructionNotifier_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3DDestructionNotifier");
+    oss << "->";
     oss << "RegisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
@@ -17540,7 +17895,8 @@ void Dx12AsciiConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCal
         UINT callbackID)
 {
     std::ostringstream oss;
-    oss << "ID3DDestructionNotifier_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3DDestructionNotifier");
+    oss << "->";
     oss << "UnregisterDestructionCallback(\n    /* ";
 
     oss << "return = " ;
@@ -17564,7 +17920,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug_EnableDebugLayer(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug");
+    oss << "->";
     oss << "EnableDebugLayer(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17577,7 +17934,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_EnableDebugLayer(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
+    oss << "->";
     oss << "EnableDebugLayer(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -17591,7 +17949,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableGPUBasedValidation(
         BOOL Enable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
+    oss << "->";
     oss << "SetEnableGPUBasedValidation(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17608,7 +17967,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug1_SetEnableSynchronizedCommandQueueVa
         BOOL Enable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug1");
+    oss << "->";
     oss << "SetEnableSynchronizedCommandQueueValidation(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17625,7 +17985,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug2");
+    oss << "->";
     oss << "SetGPUBasedValidationFlags(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17642,7 +18003,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableGPUBasedValidation(
         BOOL Enable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
+    oss << "->";
     oss << "SetEnableGPUBasedValidation(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17659,7 +18021,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetEnableSynchronizedCommandQueueVa
         BOOL Enable)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
+    oss << "->";
     oss << "SetEnableSynchronizedCommandQueueValidation(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17676,7 +18039,8 @@ void Dx12AsciiConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
         D3D12_GPU_BASED_VALIDATION_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12Debug3_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12Debug3");
+    oss << "->";
     oss << "SetGPUBasedValidationFlags(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -17696,7 +18060,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
+    oss << "->";
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -17729,7 +18094,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
+    oss << "->";
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -17760,7 +18126,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
         D3D12_RLDO_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice1");
+    oss << "->";
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
@@ -17782,7 +18149,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_SetFeatureMask(
         D3D12_DEBUG_FEATURE Mask)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
+    oss << "->";
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
@@ -17803,7 +18171,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
         D3D12_DEBUG_FEATURE return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
+    oss << "->";
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
@@ -17822,7 +18191,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
         D3D12_RLDO_FLAGS Flags)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice");
+    oss << "->";
     oss << "ReportLiveDeviceObjects(\n    /* ";
 
     oss << "return = " ;
@@ -17846,7 +18216,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice2");
+    oss << "->";
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -17879,7 +18250,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugDevice2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugDevice2");
+    oss << "->";
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -17912,7 +18284,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
         UINT State)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandQueue");
+    oss << "->";
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
@@ -17921,7 +18294,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << Subresource;
@@ -17942,7 +18315,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
         UINT State)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
+    oss << "->";
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
@@ -17951,7 +18325,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << Subresource;
@@ -17972,7 +18346,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
+    oss << "->";
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -18005,7 +18380,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList1_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList1");
+    oss << "->";
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -18038,7 +18414,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
         UINT State)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
+    oss << "->";
     oss << "AssertResourceState(\n    /* ";
 
     oss << "return = " ;
@@ -18047,7 +18424,7 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << Subresource;
@@ -18066,7 +18443,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_SetFeatureMask(
         D3D12_DEBUG_FEATURE Mask)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
+    oss << "->";
     oss << "SetFeatureMask(\n    /* ";
 
     oss << "return = " ;
@@ -18087,7 +18465,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
         D3D12_DEBUG_FEATURE return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList");
+    oss << "->";
     oss << "GetFeatureMask(\n    /* ";
 
     oss << "return = " ;
@@ -18108,7 +18487,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList2");
+    oss << "->";
     oss << "SetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -18141,7 +18521,8 @@ void Dx12AsciiConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
         UINT DataSize)
 {
     std::ostringstream oss;
-    oss << "ID3D12DebugCommandList2_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12DebugCommandList2");
+    oss << "->";
     oss << "GetDebugParameter(\n    /* ";
 
     oss << "return = " ;
@@ -18173,12 +18554,13 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_Present(
         uint64_t window)
 {
     std::ostringstream oss;
-    oss << "ID3D12SharingContract_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
+    oss << "->";
     oss << "Present(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Resource_id" << pResource;
+    WriteHandleId(oss, pResource, "    ", "ID3D12Resource", false);
     oss << ",\n";
 
     oss << "    " << Subresource;
@@ -18197,12 +18579,13 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
         UINT64 FenceValue)
 {
     std::ostringstream oss;
-    oss << "ID3D12SharingContract_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
+    oss << "->";
     oss << "SharedFenceSignal(\n    /* ";
 
     oss << "thread_id = WIP */\n";
 
-    oss << "    " << "ID3D12Fence_id" << pFence;
+    WriteHandleId(oss, pFence, "    ", "ID3D12Fence", false);
     oss << ",\n";
 
     oss << "    " << FenceValue;
@@ -18217,7 +18600,8 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_BeginCapturableWork(
         Decoded_GUID guid)
 {
     std::ostringstream oss;
-    oss << "ID3D12SharingContract_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
+    oss << "->";
     oss << "BeginCapturableWork(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -18234,7 +18618,8 @@ void Dx12AsciiConsumer::Process_ID3D12SharingContract_EndCapturableWork(
         Decoded_GUID guid)
 {
     std::ostringstream oss;
-    oss << "ID3D12SharingContract_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12SharingContract");
+    oss << "->";
     oss << "EndCapturableWork(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -18252,7 +18637,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
         UINT64 MessageCountLimit)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "SetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
@@ -18272,7 +18658,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStoredMessages(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "ClearStoredMessages(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18289,7 +18676,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
         PointerDecoder<SIZE_T>* pMessageByteLength)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetMessage(\n    /* ";
 
     oss << "return = " ;
@@ -18322,7 +18710,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFi
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetNumMessagesAllowedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18340,7 +18729,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFil
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetNumMessagesDeniedByStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18358,7 +18748,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetNumStoredMessages(\n    /* ";
 
     oss << "return = " ;
@@ -18376,7 +18767,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRet
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetNumStoredMessagesAllowedByRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18394,7 +18786,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessage
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetNumMessagesDiscardedByMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
@@ -18412,7 +18805,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
         UINT64 return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetMessageCountLimit(\n    /* ";
 
     oss << "return = " ;
@@ -18431,7 +18825,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddStorageFilterEntries(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "AddStorageFilterEntries(\n    /* ";
 
     oss << "return = " ;
@@ -18457,7 +18852,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18486,7 +18882,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearStorageFilter(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "ClearStorageFilter(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18500,7 +18897,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyStorageFilter(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushEmptyStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18518,7 +18916,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfStorageFilter(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushCopyOfStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18537,7 +18936,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushStorageFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushStorageFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18560,7 +18960,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopStorageFilter(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PopStorageFilter(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18574,7 +18975,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
         UINT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetStorageFilterStackSize(\n    /* ";
 
     oss << "return = " ;
@@ -18593,7 +18995,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddRetrievalFilterEntries(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "AddRetrievalFilterEntries(\n    /* ";
 
     oss << "return = " ;
@@ -18619,7 +19022,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
         PointerDecoder<SIZE_T>* pFilterByteLength)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18648,7 +19052,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_ClearRetrievalFilter(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "ClearRetrievalFilter(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18662,7 +19067,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushEmptyRetrievalFilter(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushEmptyRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18680,7 +19086,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushCopyOfRetrievalFilter(
         HRESULT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushCopyOfRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18699,7 +19106,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PushRetrievalFilter(
         StructPointerDecoder<Decoded_D3D12_INFO_QUEUE_FILTER>* pFilter)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PushRetrievalFilter(\n    /* ";
 
     oss << "return = " ;
@@ -18722,7 +19130,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_PopRetrievalFilter(
         format::HandleId object_id)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "PopRetrievalFilter(\n    /* ";
 
     oss << "thread_id = WIP */);\n\n";
@@ -18736,7 +19145,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
         UINT return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetRetrievalFilterStackSize(\n    /* ";
 
     oss << "return = " ;
@@ -18758,7 +19168,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddMessage(
         StringDecoder* pDescription)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "AddMessage(\n    /* ";
 
     oss << "return = " ;
@@ -18793,7 +19204,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_AddApplicationMessage(
         StringDecoder* pDescription)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "AddApplicationMessage(\n    /* ";
 
     oss << "return = " ;
@@ -18822,7 +19234,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnCategory(
         BOOL bEnable)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "SetBreakOnCategory(\n    /* ";
 
     oss << "return = " ;
@@ -18848,7 +19261,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnSeverity(
         BOOL bEnable)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "SetBreakOnSeverity(\n    /* ";
 
     oss << "return = " ;
@@ -18874,7 +19288,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetBreakOnID(
         BOOL bEnable)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "SetBreakOnID(\n    /* ";
 
     oss << "return = " ;
@@ -18899,7 +19314,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnCategory(
         D3D12_MESSAGE_CATEGORY Category)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetBreakOnCategory(\n    /* ";
 
     oss << "return = " ;
@@ -18921,7 +19337,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnSeverity(
         D3D12_MESSAGE_SEVERITY Severity)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetBreakOnSeverity(\n    /* ";
 
     oss << "return = " ;
@@ -18943,7 +19360,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetBreakOnID(
         D3D12_MESSAGE_ID ID)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetBreakOnID(\n    /* ";
 
     oss << "return = " ;
@@ -18964,7 +19382,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_SetMuteDebugOutput(
         BOOL bMute)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "SetMuteDebugOutput(\n    /* ";
 
     oss << "thread_id = WIP */\n";
@@ -18981,7 +19400,8 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMuteDebugOutput(
         BOOL return_value)
 {
     std::ostringstream oss;
-    oss << "ID3D12InfoQueue_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "ID3D12InfoQueue");
+    oss << "->";
     oss << "GetMuteDebugOutput(\n    /* ";
 
     oss << "return = " ;
@@ -19005,7 +19425,8 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
         HandlePointerDecoder<void*>* ppvObject)
 {
     std::ostringstream oss;
-    oss << "IUnknown_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IUnknown");
+    oss << "->";
     oss << "QueryInterface(\n    /* ";
 
     oss << "return = " ;
@@ -19019,7 +19440,7 @@ void Dx12AsciiConsumer::Process_IUnknown_QueryInterface(
 
     if (WriteCheckPointerDecoderNull(oss, ppvObject, "    ", true))
     {
-        oss << "    " << "&" << "void_id" << *ppvObject->GetPointer();
+        WriteHandleId(oss, *ppvObject->GetPointer(), "    ", "void", true);
     }
     oss << ");\n\n";
 
@@ -19032,7 +19453,8 @@ void Dx12AsciiConsumer::Process_IUnknown_AddRef(
         ULONG return_value)
 {
     std::ostringstream oss;
-    oss << "IUnknown_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IUnknown");
+    oss << "->";
     oss << "AddRef(\n    /* ";
 
     oss << "return = " ;
@@ -19050,7 +19472,8 @@ void Dx12AsciiConsumer::Process_IUnknown_Release(
         ULONG return_value)
 {
     std::ostringstream oss;
-    oss << "IUnknown_id" << object_id << "->";
+    WriteHandleId(oss, object_id, "", "IUnknown");
+    oss << "->";
     oss << "Release(\n    /* ";
 
     oss << "return = " ;

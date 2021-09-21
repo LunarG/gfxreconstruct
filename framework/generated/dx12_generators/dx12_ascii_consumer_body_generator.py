@@ -45,8 +45,8 @@ class Dx12AsciiBodyGeneratorOptions(Dx12AsciiConsumerHeaderGeneratorOptions):
         protect_feature=True
     ):
         Dx12AsciiConsumerHeaderGeneratorOptions.__init__(
-            self, constructor_args, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
+            self, constructor_args, blacklists, platform_types, filename,
+            directory, prefix_text, protect_file, protect_feature
         )
         self.ascii_overrides = ascii_overrides
 
@@ -105,22 +105,23 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
             code += '        return_value'
             for p in method_info['parameters']:
                 code += ',\n'
-                code += '        '+p['name']
+                code += '        ' + p['name']
             code += ');\n}\n'
         else:
             code = '\n{\n'\
                 '    std::ostringstream oss;\n'
 
             if class_name:
-                code += '    oss << "{}_id" << object_id << "->";\n'.format(
-                    class_name
-                )
+                code += '    WriteHandleId(oss, object_id, "", "' + class_name + '");\n'
+                code += '    oss << "->";\n'
                 class_method_name = class_name + '_' + class_method_name
 
             code += '    oss << "{}(\\n    /* ";\n\n'.format(
-                method_info['name'])
+                method_info['name']
+            )
 
-            if return_type.find('void ') == -1 or return_type.find('void *') != -1:
+            if return_type.find('void '
+                                ) == -1 or return_type.find('void *') != -1:
                 return_value = self.get_return_value_info(
                     return_type, class_method_name
                 )
@@ -167,12 +168,22 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
 
         if prefix:
             prefix_string = 'true'
-            prefix11 = self.trim_generate_write_empty(indent_code + 'oss << "' + output + '" << ')
-            prefix21 = self.trim_generate_write_empty(indent_code2 + 'oss << "' + output + '" << ')
+            prefix11 = self.trim_generate_write_empty(
+                indent_code + 'oss << "' + output + '" << '
+            )
+            prefix21 = self.trim_generate_write_empty(
+                indent_code2 + 'oss << "' + output + '" << '
+            )
         else:
             prefix_string = 'false'
-            prefix11 = self.trim_generate_write_empty(indent_code + 'oss << "' + indent_file + '" << "' + output + '" << ')
-            prefix21 = self.trim_generate_write_empty(indent_code2 + 'oss << "' + indent_file + '" << "' + output + '" << ')
+            prefix11 = self.trim_generate_write_empty(
+                indent_code + 'oss << "' + indent_file + '" << "' + output
+                + '" << '
+            )
+            prefix21 = self.trim_generate_write_empty(
+                indent_code2 + 'oss << "' + indent_file + '" << "' + output
+                + '" << '
+            )
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -184,7 +195,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 elif count > 1:
                     pass
                 else:
-                    return prefix11 + '"{}_id" << '.format(value.base_type) + value.name + ';\n'
+                    return indent_code + 'WriteHandleId(oss, ' + value.name + ', "' + indent_code + '", "' + value.base_type + '", ' + output_string + ');\n'
 
             elif type_name == 'void':
                 if value.is_array:
@@ -239,9 +250,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                         value, indent_code, indent_file, is_output
                     )
                 elif count > 1:
-                    code += prefix21 + '"{}_id" << '.format(
-                        value.base_type
-                    ) + '*' + value.name + '->GetPointer();\n'
+                    code += indent_code2 + 'WriteHandleId(oss, *' + value.name + '->GetPointer(), "' + indent_code + '", "' + value.base_type + '", ' + output_string + ');\n'
                 else:
                     pass
 
@@ -398,8 +407,12 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         indent_base = '    '
         indent_code = indent_base
         indent_code2 = indent_code + indent_base
-        prefix12 = self.trim_generate_write_empty(indent_code + 'oss << indent2 << ')
-        prefix22 = self.trim_generate_write_empty(indent_code2 + 'oss << indent2 << ')
+        prefix12 = self.trim_generate_write_empty(
+            indent_code + 'oss << indent2 << '
+        )
+        prefix22 = self.trim_generate_write_empty(
+            indent_code2 + 'oss << indent2 << '
+        )
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -411,9 +424,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 elif count > 1:
                     pass
                 else:
-                    return prefix12 + '"{}_id" << '.format(
-                        value.base_type
-                    ) + 'value->' + value.name + ';\n'
+                    return indent_code + 'WriteHandleId(oss, value->' + value.name + ', indent2.c_str(), "' + value.base_type + '");\n'
 
             elif type_name == 'void':
                 if value.is_array:

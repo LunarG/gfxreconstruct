@@ -84,7 +84,7 @@ void WriteStructString(std::ostringstream&                             oss,
         switch (type)
         {
             case (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE):
-                oss << indent2 << "ID3D12RootSignature_id" << value->root_signature;
+                WriteHandleId(oss, value->root_signature, indent2.c_str(), "ID3D12RootSignature_id");
                 offset += sizeof(format::Dx12SignatureSubobject);
                 break;
             case (D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS):

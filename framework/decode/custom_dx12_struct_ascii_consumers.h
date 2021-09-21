@@ -379,7 +379,7 @@ static void WriteArrayClassesString(std::ostringstream&             oss,
         {
             indent_array = "   ";
         }
-        oss << indent_array << class_name << "_id" << array_id[i];
+        WriteHandleId(oss, array_id[i], indent_array.c_str(), class_name);
         if (i < (size - 1))
         {
             oss << ",\n";
@@ -437,6 +437,26 @@ static bool WriteCheckNull(std::ostringstream& oss, const T* value, const char* 
     }
     return true;
 }
+
+static bool WriteHandleId(
+    std::ostringstream& oss, format::HandleId value, const char* indent, const char* type_name, const bool output = false)
+{
+    std::string output_string = "";
+    if (output)
+    {
+        output_string = "&";
+    }
+
+    if (value == format::kNullHandleId)
+    {
+        oss << indent << output_string << "nullptr";
+        return false;
+    }
+
+    oss << indent << output_string << type_name << "_id" << value;
+    return true;
+}
+
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
