@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-HeadlessContext::HeadlessContext(ApplicationEx* application, bool dpi_aware) :
+HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) :
     WsiContext(application)
 {
     bool supported = false;

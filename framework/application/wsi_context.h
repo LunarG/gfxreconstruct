@@ -32,18 +32,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class ApplicationEx;
+class Application;
 
 class WsiContext
 {
   public:
-    WsiContext(ApplicationEx* application);
+    WsiContext(Application* application);
 
     virtual ~WsiContext() = 0;
 
-    const ApplicationEx* GetApplication() const { return application_; }
+    const Application* GetApplication() const { return application_; }
 
-    ApplicationEx* GetApplication() { return application_; }
+    Application* GetApplication() { return application_; }
 
     const decode::WindowFactory* GetWindowFactory() const { return window_factory_.get(); }
 
@@ -56,7 +56,7 @@ class WsiContext
     virtual void ProcessEvents(bool wait_for_input);
 
   protected:
-    ApplicationEx*                         application_;
+    Application*                         application_;
     std::unique_ptr<decode::WindowFactory> window_factory_;
 
   private:

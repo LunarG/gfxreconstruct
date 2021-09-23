@@ -137,7 +137,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(application::ApplicationEx* application,
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(application::Application* application,
                                                    const ReplayOptions&        options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),

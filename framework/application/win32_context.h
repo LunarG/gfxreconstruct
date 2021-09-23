@@ -33,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class Win32Context : public WsiContext
 {
   public:
-    Win32Context(ApplicationEx* application, bool dpi_aware = true);
+    Win32Context(Application* application, bool dpi_aware = true);
 
     virtual void ProcessEvents(bool wait_for_input) override;
 

@@ -37,7 +37,7 @@ static int ErrorHandler(Display* display, XErrorEvent* error_event)
     return 0;
 }
 
-XlibContext::XlibContext(ApplicationEx* application) : WsiContext(application)
+XlibContext::XlibContext(Application* application) : WsiContext(application)
 {
     if (!xlib_loader_.Initialize())
     {

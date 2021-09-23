@@ -31,7 +31,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-XcbContext::XcbContext(ApplicationEx* application) : WsiContext(application)
+XcbContext::XcbContext(Application* application) : WsiContext(application)
 {
     xcb_loader_.Initialize();
     // TODO : window_factory_ update...

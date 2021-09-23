@@ -37,12 +37,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class ApplicationEx final
+class Application final
 {
   public:
-    ApplicationEx(const std::string& name, decode::FileProcessor* file_processor);
+    Application(const std::string& name, decode::FileProcessor* file_processor);
 
-    ~ApplicationEx();
+    ~Application();
 
     const std::string& GetName() const { return name_; }
 

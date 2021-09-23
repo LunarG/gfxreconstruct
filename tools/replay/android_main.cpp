@@ -107,7 +107,7 @@ void android_main(struct android_app* app)
                 // application    = std::make_unique<gfxrecon::application::AndroidApplication>(kApplicationName, app);
                 // window_factory = std::make_unique<gfxrecon::application::AndroidWindowFactory>(application.get());
 
-                auto application = std::make_unique<gfxrecon::application::ApplicationEx>(kApplicationName, &file_processor);
+                auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 if (/* !application->Initialize(&file_processor)*/ !application)
@@ -217,7 +217,7 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
     if (app->userData != nullptr)
     {
         using namespace gfxrecon::application;
-        auto application = reinterpret_cast<ApplicationEx*>(app->userData);
+        auto application = reinterpret_cast<Application*>(app->userData);
         assert(application);
 
         switch (cmd)
@@ -259,7 +259,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
 
             if (action == AMOTION_EVENT_ACTION_UP)
             {
-                auto application = reinterpret_cast<gfxrecon::application::ApplicationEx*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
                 assert(application);
                 int32_t horizontal_distance = 0;
                 int32_t vertical_distance   = 0;
@@ -311,7 +311,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
             //  N     = 42
             if (action == AKEY_EVENT_ACTION_UP)
             {
-                auto application = reinterpret_cast<gfxrecon::application::ApplicationEx*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
                 assert(application);
                 switch (key)
                 {
@@ -325,7 +325,7 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
             }
             else if (action == AKEY_EVENT_ACTION_DOWN)
             {
-                auto application = reinterpret_cast<gfxrecon::application::ApplicationEx*>(app->userData);
+                auto application = reinterpret_cast<gfxrecon::application::Application*>(app->userData);
                 assert(application);
                 switch (key)
                 {

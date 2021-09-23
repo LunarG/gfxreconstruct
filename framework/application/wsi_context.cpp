@@ -27,7 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-WsiContext::WsiContext(ApplicationEx* application) : application_(application)
+WsiContext::WsiContext(Application* application) : application_(application)
 {
     assert(application_);
 }

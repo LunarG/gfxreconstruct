@@ -35,7 +35,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class ApplicationEx;
+class Application;
 class AndroidWindow;
 
 class AndroidContext : public WsiContext
@@ -47,7 +47,7 @@ class AndroidContext : public WsiContext
         kPortrait  = 1
     };
 
-    AndroidContext(ApplicationEx* application, struct android_app* app);
+    AndroidContext(Application* application, struct android_app* app);
 
     ~AndroidContext() override;
 

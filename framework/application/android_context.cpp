@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-AndroidContext::AndroidContext(ApplicationEx* application, struct android_app* app) :
+AndroidContext::AndroidContext(Application* application, struct android_app* app) :
     WsiContext(application), android_app_(app)
 {
     assert(android_app_);

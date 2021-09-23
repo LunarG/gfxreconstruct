@@ -43,7 +43,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
 {
   public:
     // VulkanReplayConsumer(WindowFactory* window_factory, const ReplayOptions& options) : VulkanReplayConsumerBase(window_factory, options) { }
-    VulkanReplayConsumer(application::ApplicationEx* application, const ReplayOptions& options) : VulkanReplayConsumerBase(application, options) { }
+    VulkanReplayConsumer(application::Application* application, const ReplayOptions& options) : VulkanReplayConsumerBase(application, options) { }
 
     virtual ~VulkanReplayConsumer() override { }
 

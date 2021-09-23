@@ -33,13 +33,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class ApplicationEx;
+class Application;
 class XcbWindow;
 
 class XcbContext : public WsiContext
 {
   public:
-    XcbContext(ApplicationEx* application);
+    XcbContext(Application* application);
 
     virtual ~XcbContext() override;
 
