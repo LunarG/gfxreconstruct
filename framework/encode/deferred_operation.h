@@ -23,39 +23,54 @@
 #ifndef GFXRECON_ENCODE_DEFERRED_OPERATION_H
 #define GFXRECON_ENCODE_DEFERRED_OPERATION_H
 
-#include "encode/capture_settings.h"
-#include "encode/descriptor_update_template_info.h"
-#include "encode/parameter_buffer.h"
-#include "encode/parameter_encoder.h"
-#include "encode/vulkan_handle_wrapper_util.h"
-#include "encode/vulkan_handle_wrappers.h"
-#include "encode/vulkan_state_tracker.h"
-#include "format/api_call_id.h"
-#include "format/format.h"
-#include "format/platform_types.h"
-#include "generated/generated_vulkan_dispatch_table.h"
-#include "generated/generated_vulkan_command_buffer_util.h"
-#include "util/compressor.h"
-#include "util/defines.h"
-#include "util/file_output_stream.h"
-#include "util/keyboard.h"
-#include "util/shared_mutex.h"
-
 #include "vulkan/vulkan.h"
 
-#include <atomic>
-#include <cassert>
-#include <memory>
 #include <mutex>
-#include <set>
-#include <shared_mutex>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+/*
+   If some API call is a deferred operation, the process of that call will
+   not be finished when the call return to caller, the task of the call will
+   be processed on other threads inside the defered operation.
 
+   For such title, if vkCreateRayTracingPipelinesKHR is set to a deferred
+   operation, when call to vkCreateRayTracingPipelinesKHR return, the real
+   task of vkCreateRayTracingPipelinesKHR still not finished, and being
+   processed on other threads if vkDeferredOperationJoinKHR was called on
+   that thread.
+
+   In gfxr source code before the pull request, any API call handling like
+   the following (for example vkCreateRayTracingPipelinesKHR):
+          vkCreateRayTracingPipelinesKHR(......)
+          {
+               pre-process;
+               call real API function of vkCreateRayTracingPipelinesKHR(......)
+               post-process;
+               return result;
+          }
+   If the API call is a deferred operation, we need adding the
+   following changes:
+
+       1> any variables used by calling real API function or after the calling
+       must have lifecycle beyond the API call return, until deferred
+       operation finished on all other threads.
+
+       2> The handling to result of calling real API function in
+       post-process must be happened after deferred operation
+       finished on all other threads.
+
+          The result here is not just return value of the real API function,
+       it include any result which can be accessed by caller, for example,
+       vkCreateRayTracingPipelinesKHR will return pipeline handle in a host
+       memory buffer , GFXR need to do some wrap/unwrap handling for the
+       returned pipeline handle. Such handling need happened in other threads
+       where API vkDeferredOperationJoinKHR was called on that thread if the
+       DeferredOperation was finished.
+
+*/
 class DeferredOperation
 {
   public:
@@ -77,6 +92,11 @@ class DeferredOperation
 class DeferredOperationManager
 {
   public:
+
+    DeferredOperationManager() {}
+
+    ~DeferredOperationManager() {}
+
     static std::unique_ptr<DeferredOperationManager>& Get() { return instance_; }
 
     void add(VkDeferredOperationKHR deferred_operation_handle, std::unique_ptr<DeferredOperation> operation)
@@ -119,10 +139,6 @@ class DeferredOperationManager
         }
         return result;
     }
-
-    DeferredOperationManager() {}
-
-    ~DeferredOperationManager() {}
 
   protected:
     std::unique_ptr<DeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
