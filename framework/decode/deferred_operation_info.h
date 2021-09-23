@@ -25,13 +25,6 @@
 
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/vulkan_object_info.h"
-//#include "decode/vulkan_resource_allocator.h"
-//#include "decode/vulkan_resource_initializer.h"
-//#include "decode/window.h"
-//#include "format/format.h"
-//#include "generated/generated_vulkan_dispatch_table.h"
-//#include "graphics/vulkan_device_util.h"
-//#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
@@ -44,6 +37,37 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+/*
+   If some API call is a deferred operation, the process of that call will
+   not be finished when the call return to caller, the task of the call will
+   be processed on other threads inside the defered operation.
+
+   For an API call which is a deferred operation, we need adding the
+   following changes compared with normal API call handling during playback:
+
+       1> Any variables used by calling the API function must have
+       lifecycle beyond the API call return, until deferred
+       operation finished on all other threads, it might be lots of
+       API calls later in trace file.
+
+       2> The handling to result of calling real API function in
+       post-process must be happened after deferred operation
+       finished on all other threads. This is also different with normal
+       API call, because the result is available once the API call return
+       to caller.
+
+          The result here is not just return value of the API function,
+       it include any result that this API call generated and can be accessed
+       by caller.
+
+    So for such API, we store all related variables in an instance of
+    DeferredOperationInfo. Because different API call as deferred operation
+    will need to store different related variables, so here the class
+    DeferredOperationInfo is a parent class, class for specific API need
+    to be derived from DeferredOperationInfo, for example, the derived class
+    DeferredOperationInfoCreateRayTracingPipelines is used for API
+    vkCreateRayTracingPipelines.
+*/
 class DeferredOperationInfo
 {
   public:
@@ -80,6 +104,12 @@ class DeferredOperationInfoManager
         }
         else
         {
+            // The return of this function is a reference. If changed to nullptr
+            // , a std::unique_ptr instance will be initialized with nullptr in
+            // the function, the instance's reference will be return. But the
+            // instance will be destroyed when the function end. So caller get
+            // a reference of destroyed instance. This is the reason we use
+            // null_operation_ here.
             return null_operation_;
         }
     }
@@ -111,17 +141,17 @@ class DeferredOperationInfoCreateRayTracingPipelines : public DeferredOperationI
 
     format::HandleId& GetDeviceId() { return device_; }
 
-    format::HandleId& GetDeferredOperationId() { return deferredOperation_; }
+    format::HandleId& GetDeferredOperationId() { return deferred_operation_; }
 
-    format::HandleId& GetPipelineCacheId() { return pipelineCache_; }
+    format::HandleId& GetPipelineCacheId() { return pipeline_cache_; }
 
-    uint32_t& GetCreateInfoCount() { return createInfoCount_; }
+    uint32_t& GetCreateInfoCount() { return create_info_count_; }
 
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>& GetCreateInfos() { return CreateInfos_; }
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>& GetCreateInfos() { return create_infos_; }
 
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>& GetAllocator() { return Allocator_; }
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>& GetAllocator() { return allocator_; }
 
-    HandlePointerDecoder<VkPipeline>& GetPipelines() { return Pipelines_; }
+    HandlePointerDecoder<VkPipeline>& GetPipelines() { return pipelines_; }
 
     void SetPipelineHandleInfo(std::unique_ptr<std::vector<PipelineInfo>>& pipeline_infos)
     {
@@ -141,27 +171,27 @@ class DeferredOperationInfoCreateRayTracingPipelines : public DeferredOperationI
     }
 
     void
-    SetModifiedGroups(std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>& modified_pgroups)
+    SetModifiedGroups(std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>& modified_groups)
     {
-        modified_pgroups_ = std::move(modified_pgroups);
+        modified_groups_ = std::move(modified_groups);
     }
 
     std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>>& GetModifiedGroups()
     {
-        return modified_pgroups_;
+        return modified_groups_;
     };
 
   private:
     format::HandleId                                                                device_;
-    format::HandleId                                                                deferredOperation_;
-    format::HandleId                                                                pipelineCache_;
-    uint32_t                                                                        createInfoCount_;
-    HandlePointerDecoder<VkPipeline>                                                Pipelines_;
+    format::HandleId                                                                deferred_operation_;
+    format::HandleId                                                                pipeline_cache_;
+    uint32_t                                                                        create_info_count_;
+    HandlePointerDecoder<VkPipeline>                                                pipelines_;
     std::unique_ptr<std::vector<PipelineInfo>>                                      pipeline_handle_info_;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>                             Allocator_;
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>                 CreateInfos_;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>                             allocator_;
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>                 create_infos_;
     std::unique_ptr<std::vector<VkRayTracingPipelineCreateInfoKHR>>                 modified_create_infos_;
-    std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>> modified_pgroups_;
+    std::unique_ptr<std::vector<std::vector<VkRayTracingShaderGroupCreateInfoKHR>>> modified_groups_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
