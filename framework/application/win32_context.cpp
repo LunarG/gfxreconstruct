@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,29 +20,64 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "application/win32_application.h"
-
+#include "application/win32_context.h"
+#include "application/application.h"
 #include "application/win32_window.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Win32Application::Win32Application(const std::string& name, bool dpi_aware) : Application(name)
+Win32Context::Win32Context(ApplicationEx* application, bool dpi_aware) :
+    WsiContext(application)
 {
+    window_factory_ = std::make_unique<Win32WindowFactory>(this);
     if (dpi_aware)
     {
         SetProcessDPIAware();
     }
 }
 
-bool Win32Application::Initialize(decode::FileProcessor* file_processor)
+void Win32Context::ProcessEvents(bool wait_for_input)
 {
-    // No additional initialization is required for WIN32.
-    SetFileProcessor(file_processor);
-    return true;
+    // Process all pending events.
+    assert(application_);
+    while (application_->IsRunning())
+    {
+        MSG  msg           = {};
+        bool found_message = false;
+    
+        if (wait_for_input)
+        {
+            found_message = (GetMessage(&msg, nullptr, 0, 0) > 0);
+    
+            // Stop waiting after the first event or this function never will exit.
+            wait_for_input = false;
+        }
+        else
+        {
+            found_message = (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != 0);
+        }
+    
+        if (found_message)
+        {
+            if (msg.message == WM_QUIT)
+            {
+                application_->StopRunning();
+            }
+            else
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
-LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
+LRESULT WINAPI Win32Context::WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
 {
     switch (msg)
     {
@@ -54,7 +88,9 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                 case VK_SPACE:
                 case 'P':
                 {
-                    auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    auto win32_context = reinterpret_cast<Win32Context*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    auto app = win32_context ? win32_context->application_ : nullptr;
+                    assert(app);
                     app->SetPaused(!app->GetPaused());
                     break;
                 }
@@ -74,12 +110,14 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                 case VK_RIGHT:
                 case 'N':
                 {
-                    auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
-                    if (app->GetPaused())
-                    {
-                        app->PlaySingleFrame();
-                    }
-                    break;
+                    auto win32_context = reinterpret_cast<Win32Context*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    auto app = win32_context ? win32_context->application_ : nullptr;
+                    assert(app);
+                   if (app->GetPaused())
+                   {
+                       app->PlaySingleFrame();
+                   }
+                   break;
                 }
                 default:
                     return DefWindowProc(window, msg, wp, lp);
@@ -112,45 +150,6 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
     }
 
     return 0;
-}
-
-void Win32Application::ProcessEvents(bool wait_for_input)
-{
-    // Process all pending events.
-    while (IsRunning())
-    {
-        MSG  msg           = {};
-        bool found_message = false;
-
-        if (wait_for_input)
-        {
-            found_message = (GetMessage(&msg, nullptr, 0, 0) > 0);
-
-            // Stop waiting after the first event or this function never will exit.
-            wait_for_input = false;
-        }
-        else
-        {
-            found_message = (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != 0);
-        }
-
-        if (found_message)
-        {
-            if (msg.message == WM_QUIT)
-            {
-                StopRunning();
-            }
-            else
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-        }
-        else
-        {
-            break;
-        }
-    }
 }
 
 GFXRECON_END_NAMESPACE(application)

@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,31 +20,50 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_WIN32_APPLICATION_H
-#define GFXRECON_APPLICATION_WIN32_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_WSI_CONTEXT_H
+#define GFXRECON_APPLICATION_WSI_CONTEXT_H
 
-#include "application/application.h"
+#include "decode/window.h"
 #include "util/defines.h"
-#include "util/platform.h"
+
+#include <memory>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class Win32Application : public Application
+class ApplicationEx;
+
+class WsiContext
 {
   public:
-    Win32Application(const std::string& name, bool dpi_aware = true);
+    WsiContext(ApplicationEx* application);
 
-    virtual ~Win32Application() override {}
+    virtual ~WsiContext() = 0;
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    const ApplicationEx* GetApplication() const { return application_; }
 
-    virtual void ProcessEvents(bool wait_for_input) override;
+    ApplicationEx* GetApplication() { return application_; }
 
-    static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
+    const decode::WindowFactory* GetWindowFactory() const { return window_factory_.get(); }
+
+    decode::WindowFactory* GetWindowFactory() { return window_factory_.get(); }
+
+    bool RegisterWindow(decode::Window* window);
+
+    bool UnregisterWindow(decode::Window* window);
+
+    virtual void ProcessEvents(bool wait_for_input);
+
+  protected:
+    ApplicationEx*                         application_;
+    std::unique_ptr<decode::WindowFactory> window_factory_;
+
+  private:
+    std::vector<decode::Window*> windows_;
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_WIN32_APPLICATION_H
+#endif // GFXRECON_APPLICATION_WSI_CONTEXT_H

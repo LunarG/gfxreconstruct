@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021, Arm Limited.
-** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2018 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,30 +21,45 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
-#define GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_XLIB_CONTEXT_H
+#define GFXRECON_APPLICATION_XLIB_CONTEXT_H
 
-#include "application/application.h"
+#include "application/wsi_context.h"
 #include "util/defines.h"
+#include "util/xlib_loader.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class HeadlessWindow;
+class ApplicationEx;
+class XlibWindow;
 
-class HeadlessApplication : public Application
+class XlibContext : public WsiContext
 {
   public:
-    HeadlessApplication(const std::string& name);
+    XlibContext(ApplicationEx* application);
 
-    virtual ~HeadlessApplication() override{};
+    virtual ~XlibContext() override;
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
+
+    Display* OpenDisplay();
+
+    void CloseDisplay(Display* display);
+
+    bool RegisterXlibWindow(XlibWindow* window);
+
+    bool UnregisterXlibWindow(XlibWindow* window);
 
     virtual void ProcessEvents(bool wait_for_input) override;
+
+  private:
+    Display*         display_ { };
+    size_t           display_open_count_ { };
+    util::XlibLoader xlib_loader_ { };
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_HEADLESS_APPLICATION_H
+#endif // GFXRECON_APPLICATION_XLIB_CONTEXT_H

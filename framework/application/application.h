@@ -24,30 +24,37 @@
 #ifndef GFXRECON_APPLICATION_APPLICATION_H
 #define GFXRECON_APPLICATION_APPLICATION_H
 
+#include "application/wsi_context.h"
 #include "decode/file_processor.h"
 #include "decode/window.h"
 #include "util/defines.h"
 
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class Application
+class ApplicationEx final
 {
   public:
-    Application(const std::string& name);
+    ApplicationEx(const std::string& name, decode::FileProcessor* file_processor);
 
-    virtual ~Application();
+    ~ApplicationEx();
 
     const std::string& GetName() const { return name_; }
 
-    virtual bool Initialize(decode::FileProcessor* file_processor) = 0;
+    const WsiContext* GetWsiContext() const { return wsi_context_.get(); }
+
+    WsiContext* GetWsiContext() { return wsi_context_.get(); }
 
     bool IsRunning() const { return running_; }
 
     void Run();
+
+    void StopRunning() { running_ = false; }
 
     bool GetPaused() const { return paused_; }
 
@@ -57,29 +64,18 @@ class Application
 
     bool PlaySingleFrame();
 
-    bool RegisterWindow(decode::Window* window);
+    void ProcessEvents(bool wait_for_input);
 
-    bool UnregisterWindow(decode::Window* window);
-
-    virtual void ProcessEvents(bool wait_for_input) = 0;
-
-  protected:
-    void StopRunning() { running_ = false; }
-
-    void SetFileProcessor(decode::FileProcessor* file_processor);
+    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
   private:
     // clang-format off
-    std::vector<decode::Window*> windows_;          ///< List of windows that have been registered with the application.
-    decode::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
-                                                    ///< capture file data.
-    bool                         running_;          ///< Indicates that the application is actively processing system
-                                                    ///< events for playback.
-    bool                         paused_;           ///< Indicates that the playback has been paused.  When paused the
-                                                    ///< application will stop rendering, but will continue processing
-                                                    ///< system events.
-    std::string                  name_;             ///< Application name to display in window title bar.
-    uint32_t                     pause_frame_;      ///< The number for a frame that replay should pause after.
+    std::string                 name_;           ///< Application name to display in window title bar.
+    decode::FileProcessor*      file_processor_; ///< The FileProcessor object responsible for decoding and processing capture file data.
+    bool                        running_;        ///< Indicates that the application is actively processing system events for playback.
+    bool                        paused_;         ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
+    uint32_t                    pause_frame_;    ///< The number for a frame that replay should pause after.
+    std::unique_ptr<WsiContext> wsi_context_;    ///< TODO : Documentation
     // clang-format on
 };
 

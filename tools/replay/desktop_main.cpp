@@ -39,30 +39,24 @@
 #include <string>
 #include <vector>
 
-#if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-#include "application/win32_application.h"
-#include "application/win32_window.h"
-#endif
-#else
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-#include "application/xcb_application.h"
-#include "application/xcb_window.h"
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-#include "application/xlib_application.h"
-#include "application/xlib_window.h"
-#endif
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-#include "application/wayland_application.h"
-#include "application/wayland_window.h"
-#endif
-#endif
-
-#if defined(VK_USE_PLATFORM_HEADLESS)
-#include "application/headless_application.h"
-#include "application/headless_window.h"
-#endif
+// #if defined(WIN32)
+// #if defined(VK_USE_PLATFORM_WIN32_KHR)
+// #include "application/win32_window.h"
+// #endif
+// #else
+// #if defined(VK_USE_PLATFORM_XCB_KHR)
+// #include "application/xcb_window.h"
+// #endif
+// #if defined(VK_USE_PLATFORM_XLIB_KHR)
+// #include "application/xlib_window.h"
+// #endif
+// #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+// #include "application/wayland_window.h"
+// #endif
+// #endif
+// #if defined(VK_USE_PLATFORM_HEADLESS)
+// #include "application/headless_window.h"
+// #endif
 
 #if defined(WIN32)
 #include <conio.h>
@@ -125,10 +119,7 @@ int main(int argc, const char** argv)
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         std::string                     filename             = positional_arguments[0];
 
-        gfxrecon::decode::FileProcessor                     file_processor;
-        std::unique_ptr<gfxrecon::application::Application> application;
-        std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
-
+        gfxrecon::decode::FileProcessor file_processor;
         if (!file_processor.Initialize(filename))
         {
             return_code = -1;
@@ -137,9 +128,14 @@ int main(int argc, const char** argv)
         {
             auto wsi_platform = GetWsiPlatform(arg_parser);
 
+            auto application = std::make_unique<gfxrecon::application::ApplicationEx>(kApplicationName, &file_processor);
+
             // Setup platform specific application and window factory.
+            // TODO : window_factory_ update...
+            #if 0
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
+            #if 0
             if (wsi_platform == WsiPlatform::kWin32 || (wsi_platform == WsiPlatform::kAuto && !application))
             {
                 auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
@@ -150,6 +146,9 @@ int main(int argc, const char** argv)
                     application = std::move(win32_application);
                 }
             }
+            #else
+
+            #endif
 #endif
 #else
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
@@ -189,6 +188,7 @@ int main(int argc, const char** argv)
 #endif
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
+            #if 0
             if (wsi_platform == WsiPlatform::kHeadless || (wsi_platform == WsiPlatform::kAuto && !application))
             {
                 auto headless_application =
@@ -200,9 +200,11 @@ int main(int argc, const char** argv)
                     application = std::move(headless_application);
                 }
             }
+            #endif
 #endif
+            #endif
 
-            if (!window_factory || !application)
+            if (/*!window_factory || !application*/ !application)
             {
                 GFXRECON_WRITE_CONSOLE(
                     "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
@@ -214,7 +216,7 @@ int main(int argc, const char** argv)
                 gfxrecon::graphics::FpsInfo                    fps_info;
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                    window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
+                    application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
                 gfxrecon::decode::VulkanDecoder decoder;
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });

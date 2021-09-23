@@ -24,7 +24,7 @@
 #ifndef GFXRECON_APPLICATION_WIN32_WINDOW_H
 #define GFXRECON_APPLICATION_WIN32_WINDOW_H
 
-#include "application/win32_application.h"
+#include "application/win32_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 #include "util/platform.h"
@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class Win32Window : public decode::Window
 {
   public:
-    Win32Window(Win32Application* application);
+    Win32Window(Win32Context* win32_context);
 
     virtual ~Win32Window() override;
 
@@ -72,25 +72,24 @@ class Win32Window : public decode::Window
     virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    HWND              hwnd_;
-    Win32Application* win32_application_;
-    uint32_t          width_;
-    uint32_t          height_;
-    uint32_t          screen_width_;
-    uint32_t          screen_height_;
-    bool              fullscreen_;
-    HINSTANCE         hinstance_;
+    HWND            hwnd_;
+    Win32Context*   win32_context_;
+    uint32_t        width_;
+    uint32_t        height_;
+    uint32_t        screen_width_;
+    uint32_t        screen_height_;
+    bool            fullscreen_;
+    HINSTANCE       hinstance_;
 };
 
 class Win32WindowFactory : public decode::WindowFactory
 {
   public:
-    Win32WindowFactory(Win32Application* application);
+    Win32WindowFactory(Win32Context* win32_context);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
-    virtual decode::Window*
-    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     void Destroy(decode::Window* window) override;
 
@@ -99,7 +98,7 @@ class Win32WindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    Win32Application* win32_application_;
+    Win32Context* win32_context_;
 };
 
 GFXRECON_END_NAMESPACE(application)

@@ -22,8 +22,26 @@
 */
 
 #include "application/application.h"
-
 #include "util/logging.h"
+
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#include "application/win32_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#include "application/wayland_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+#include "application/xcb_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+#include "application/xlib_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include "application/android_context.h"
+#endif
+#if defined(VK_USE_PLATFORM_HEADLESS)
+#include "application/headless_context.h"
+#endif
 
 #include <algorithm>
 #include <cassert>
@@ -31,30 +49,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Application::Application(const std::string& name) :
-    file_processor_(nullptr), running_(false), paused_(false), name_(name)
-{}
-
-Application::~Application()
+ApplicationEx::ApplicationEx(const std::string& name, decode::FileProcessor* file_processor) :
+    name_(name), file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0)
 {
-    if (!windows_.empty())
-    {
-        GFXRECON_LOG_INFO(
-            "Application manager is destroying windows that were not previously destroyed by their owner");
-
-        for (auto window : windows_)
-        {
-            delete window;
-        }
-    }
 }
 
-void Application::SetFileProcessor(decode::FileProcessor* file_processor)
+ApplicationEx ::~ApplicationEx()
 {
-    file_processor_ = file_processor;
 }
 
-void Application::Run()
+void ApplicationEx::Run()
 {
     running_ = true;
 
@@ -70,9 +74,8 @@ void Application::Run()
     }
 }
 
-void Application::SetPaused(bool paused)
+void ApplicationEx::SetPaused(bool paused)
 {
-
     paused_ = paused;
 
     if (paused_ && (file_processor_ != nullptr))
@@ -85,7 +88,7 @@ void Application::SetPaused(bool paused)
     }
 }
 
-bool Application::PlaySingleFrame()
+bool ApplicationEx::PlaySingleFrame()
 {
     bool success = false;
 
@@ -117,37 +120,64 @@ bool Application::PlaySingleFrame()
     return success;
 }
 
-bool Application::RegisterWindow(decode::Window* window)
+void ApplicationEx::ProcessEvents(bool wait_for_input)
 {
-    assert(window != nullptr);
-
-    if (std::find(windows_.begin(), windows_.end(), window) != windows_.end())
+    if (wsi_context_)
     {
-        GFXRECON_LOG_INFO("A window was registered with the application more than once");
-        return false;
+        wsi_context_->ProcessEvents(wait_for_input);
     }
-
-    windows_.push_back(window);
-
-    return true;
 }
 
-bool Application::UnregisterWindow(decode::Window* window)
+void ApplicationEx::InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData)
 {
-    assert(window != nullptr);
-
-    auto pos = std::find(windows_.begin(), windows_.end(), window);
-
-    if (pos == windows_.end())
+    if (!wsi_context_)
     {
-        GFXRECON_LOG_INFO(
-            "A remove window request was made for an window that was never registered with the application");
-        return false;
+        #if defined(VK_USE_PLATFORM_WIN32_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<Win32Context>(this);
+        }
+        else
+        #endif
+        #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<WaylandContext>(this);
+        }
+        else
+        #endif
+        #if defined(VK_USE_PLATFORM_XCB_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<XcbContext>(this);
+        }
+        else
+        #endif
+        #if defined(VK_USE_PLATFORM_XLIB_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<XlibContext>(this);
+        }
+        else
+        #endif
+        #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+        }
+        else
+        #endif
+        #if defined(VK_USE_PLATFORM_HEADLESS)
+        if (!strcmp(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+        {
+            wsi_context_ = std::make_unique<HeadlessContext>(this);
+        }
+        else
+        #endif
+        {
+            // NOOP :
+        }
     }
-
-    windows_.erase(pos);
-
-    return true;
 }
 
 GFXRECON_END_NAMESPACE(application)
