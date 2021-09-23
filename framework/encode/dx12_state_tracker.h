@@ -178,6 +178,8 @@ class Dx12StateTracker
                             format::ApiCallId               call_id,
                             const util::MemoryOutputStream* parameter_buffer);
 
+    void TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name, UINT data_size, const void* data);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

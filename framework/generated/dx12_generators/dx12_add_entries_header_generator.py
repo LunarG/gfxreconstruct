@@ -103,6 +103,27 @@ class Dx12AddEntriesHeaderGenerator(Dx12BaseGenerator):
         write('};', file=self.outFile)
         self.newline()
 
+        write(
+            'static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    GFXRECON_ASSERT(wrapper != nullptr);', file=self.outFile)
+        write('    auto riid = wrapper->GetRiid();', file=self.outFile)
+        for final_class_name in final_class_names:
+            class_family_names = self.get_class_family_names(final_class_name)
+            for name in class_family_names:
+                code = '    if(riid == IID_' + name + ')\n'
+                code += '    {\n'
+                code += '        auto* new_wrapper = reinterpret_cast<' + class_family_names[
+                    0] + '_Wrapper*>(wrapper);\n'
+                code += '        return new_wrapper->GetObjectInfo().get();\n'
+                code += '    }'
+                write(code, file=self.outFile)
+        write('    return nullptr;', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 

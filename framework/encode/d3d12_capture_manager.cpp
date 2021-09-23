@@ -1912,5 +1912,14 @@ void D3D12CaptureManager::PostProcess_ID3D12DeviceRemovedExtendedDataSettings_Se
     }
 }
 
+void D3D12CaptureManager::PostProcess_SetPrivateData(
+    IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, UINT DataSize, const void* pData)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackPrivateData(wrapper, Name, DataSize, pData);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

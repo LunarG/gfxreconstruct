@@ -471,6 +471,27 @@ void Dx12StateWriter::WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrap
     }
 }
 
+void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info)
+{
+    for (auto& data : wrapper_info.private_datas)
+    {
+        uint32_t data_size = static_cast<uint32_t>(data.second.size());
+        EncodeStruct(&encoder_, data.first);
+        encoder_.EncodeUInt32Value(data_size);
+        encoder_.EncodeVoidArray(data.second.data(), data_size);
+        encoder_.EncodeInt32Value(S_OK);
+        if (wrapper_info.IsDxgi())
+        {
+            WriteMethodCall(format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData, handle_id, &parameter_stream_);
+        }
+        else
+        {
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
+        }
+        parameter_stream_.Reset();
+    }
+}
+
 void Dx12StateWriter::WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count)
 {
     encoder_.EncodeUInt32Value(result_ref_count);

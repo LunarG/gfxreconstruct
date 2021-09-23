@@ -43,6 +43,28 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 struct IUnknown_Wrapper;
 class ID3D12Resource_Wrapper;
 
+struct GUID_Hash
+{
+    size_t operator()(REFGUID k) const
+    {
+        uint64_t data2   = k.Data2;
+        uint64_t data3   = k.Data3;
+        uint64_t data123 = k.Data1 ^ (data2 << 32) ^ (data3 << 48);
+        uint64_t data4   = 0;
+        for (uint8_t i = 0; i < 8; ++i)
+        {
+            uint64_t data4 = k.Data4[i];
+            data4 ^= (data4 << (i * 8));
+        }
+        return std::hash<uint64_t>()(data123) ^ (std::hash<uint64_t>()(data4) << 1);
+    }
+};
+
+struct GUID_Equal
+{
+    bool operator()(REFGUID lhs, REFGUID rhs) const { return IsEqualGUID(lhs, rhs); }
+};
+
 struct DxWrapperInfo
 {
     void SetWrapper(const IUnknown_Wrapper* wrapper)
@@ -53,6 +75,8 @@ struct DxWrapperInfo
         wrapper_ = wrapper;
     }
 
+    virtual bool IsDxgi() const { return false; }
+
     const IUnknown_Wrapper* GetWrapper() const { return wrapper_; }
 
     format::ApiCallId                         create_call_id{ format::ApiCallId::ApiCall_Unknown };
@@ -62,9 +86,16 @@ struct DxWrapperInfo
     format::HandleId                     create_object_id{ format::kNullHandleId };
     std::shared_ptr<const DxWrapperInfo> create_object_info;
 
+    std::unordered_map<const GUID, std::vector<uint8_t>, GUID_Hash, GUID_Equal> private_datas;
+
   private:
     // A pointer to the wrapper that owns/created this info struct, or nullptr if the wrapper no longer exists.
     const IUnknown_Wrapper* wrapper_ = nullptr;
+};
+
+struct DxgiWrapperInfo : public DxWrapperInfo
+{
+    virtual bool IsDxgi() const override { return true; }
 };
 
 // MappedSubresources are contained by ID3D12ResourceInfo.
@@ -128,31 +159,31 @@ struct DxResizeBuffersInfo
     std::unique_ptr<util::MemoryOutputStream> call_parameters;
 };
 
-struct IDXGIKeyedMutexInfo : public DxWrapperInfo
+struct IDXGIKeyedMutexInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIDisplayControlInfo : public DxWrapperInfo
+struct IDXGIDisplayControlInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIOutputDuplicationInfo : public DxWrapperInfo
+struct IDXGIOutputDuplicationInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGISurfaceInfo : public DxWrapperInfo
+struct IDXGISurfaceInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIResourceInfo : public DxWrapperInfo
+struct IDXGIResourceInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIDecodeSwapChainInfo : public DxWrapperInfo
+struct IDXGIDecodeSwapChainInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIFactoryMediaInfo : public DxWrapperInfo
+struct IDXGIFactoryMediaInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGISwapChainMediaInfo : public DxWrapperInfo
+struct IDXGISwapChainMediaInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGISwapChainInfo : public DxWrapperInfo
+struct IDXGISwapChainInfo : public DxgiWrapperInfo
 {
     format::HandleId command_queue_id{ format::kNullHandleId };
     DXGI_SWAP_EFFECT swap_effect{};
@@ -166,16 +197,16 @@ struct IDXGISwapChainInfo : public DxWrapperInfo
     DxResizeBuffersInfo              resize_info;
 };
 
-struct IDXGIDeviceInfo : public DxWrapperInfo
+struct IDXGIDeviceInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIAdapterInfo : public DxWrapperInfo
+struct IDXGIAdapterInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIOutputInfo : public DxWrapperInfo
+struct IDXGIOutputInfo : public DxgiWrapperInfo
 {};
 
-struct IDXGIFactoryInfo : public DxWrapperInfo
+struct IDXGIFactoryInfo : public DxgiWrapperInfo
 {};
 
 struct ID3D12RootSignatureInfo : public DxWrapperInfo

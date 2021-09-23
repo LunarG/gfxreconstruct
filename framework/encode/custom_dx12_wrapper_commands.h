@@ -557,6 +557,26 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceRemovedExten
     }
 };
 
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_IDXGIObject_SetPrivateData>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_SetPrivateData(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_SetPrivateData(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

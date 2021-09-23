@@ -75,6 +75,7 @@ class Dx12StateWriter
             {
                 StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
                 WriteAddRefAndReleaseCommands(wrapper);
+                WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
                 processed.insert(wrapper_info->create_parameters.get());
             }
         });
@@ -97,6 +98,8 @@ class Dx12StateWriter
     void WriteDescriptorState(const Dx12StateTable& state_table);
 
     void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);
+
+    void WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
 
     void WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count);
 

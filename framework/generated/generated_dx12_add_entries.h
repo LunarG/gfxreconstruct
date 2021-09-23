@@ -291,6 +291,548 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12InfoQueue, AddEntry<ID3D12InfoQueue_Wrapper> },
 };
 
+static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto riid = wrapper->GetRiid();
+    if(riid == IID_IDXGIKeyedMutex)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIKeyedMutex_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDisplayControl)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDisplayControl_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutputDuplication)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutputDuplication_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISurface)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISurface_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISurface1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISurface_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISurface2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISurface_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIResource)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIResource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIResource1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIResource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDecodeSwapChain)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDecodeSwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactoryMedia)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactoryMedia_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChainMedia)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChainMedia_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChain)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChain1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChain2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChain3)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGISwapChain4)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDevice)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDevice1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDevice2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDevice3)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIDevice4)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIAdapter)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIAdapter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIAdapter1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIAdapter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIAdapter2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIAdapter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIAdapter3)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIAdapter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIAdapter4)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIAdapter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput3)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput4)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput5)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIOutput6)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIOutput_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory1)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory2)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory3)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory4)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory5)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory6)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_IDXGIFactory7)
+    {
+        auto* new_wrapper = reinterpret_cast<IDXGIFactory_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12RootSignature)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12RootSignature_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12RootSignatureDeserializer)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12RootSignatureDeserializer_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12VersionedRootSignatureDeserializer)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12VersionedRootSignatureDeserializer_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12CommandAllocator)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Fence)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Fence_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Fence1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Fence_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12PipelineState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12PipelineState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DescriptorHeap)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12QueryHeap)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12QueryHeap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12CommandSignature)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandSignature_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12CommandQueue)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12PipelineLibrary)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12PipelineLibrary_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12PipelineLibrary1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12PipelineLibrary_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12LifetimeOwner)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12LifetimeOwner_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12SwapChainAssistant)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12SwapChainAssistant_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12LifetimeTracker)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12LifetimeTracker_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12StateObject)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12StateObject_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12StateObjectProperties)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceRemovedExtendedDataSettings)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceRemovedExtendedDataSettings1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedDataSettings_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceRemovedExtendedData)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceRemovedExtendedData1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceRemovedExtendedData_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12ProtectedResourceSession)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12ProtectedResourceSession1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12ProtectedResourceSession_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device5)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device6)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device7)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Device8)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Resource2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Resource_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Heap)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Heap1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12MetaCommand)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Tools)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Tools_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList5)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12GraphicsCommandList6)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D10Blob)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D10Blob_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3DDestructionNotifier)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3DDestructionNotifier_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug1_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug2_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12Debug3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Debug_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugDevice1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugDevice1_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugDevice)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugDevice1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugDevice2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugCommandQueue)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugCommandQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugCommandList1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugCommandList1_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugCommandList)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugCommandList1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DebugCommandList2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DebugCommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12SharingContract)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12SharingContract_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12InfoQueue)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12InfoQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    return nullptr;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

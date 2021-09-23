@@ -480,6 +480,9 @@ class D3D12CaptureManager : public CaptureManager
     void PostProcess_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement(
         ID3D12DeviceRemovedExtendedDataSettings_Wrapper* dred_wrapper, D3D12_DRED_ENABLEMENT enablement);
 
+    void PostProcess_SetPrivateData(
+        IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, UINT DataSize, const void* pData);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
