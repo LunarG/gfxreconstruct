@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,46 +20,27 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_XLIB_APPLICATION_H
-#define GFXRECON_APPLICATION_XLIB_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_WIN32_CONTEXT_H
+#define GFXRECON_APPLICATION_WIN32_CONTEXT_H
 
-#include "application/application.h"
+#include "application/wsi_context.h"
 #include "util/defines.h"
-#include "util/xlib_loader.h"
+#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class XlibWindow;
-
-class XlibApplication : public Application
+class Win32Context : public WsiContext
 {
   public:
-    XlibApplication(const std::string& name);
-
-    virtual ~XlibApplication() override;
-
-    const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
-
-    Display* OpenDisplay();
-
-    void CloseDisplay(Display* display);
-
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
-
-    bool RegisterXlibWindow(XlibWindow* window);
-
-    bool UnregisterXlibWindow(XlibWindow* window);
+    Win32Context(ApplicationEx* application, bool dpi_aware = true);
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
-  private:
-    Display*         display_;
-    size_t           display_open_count_;
-    util::XlibLoader xlib_loader_;
+    static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_XLIB_APPLICATION_H
+#endif // GFXRECON_APPLICATION_WIN32_CONTEXT_H

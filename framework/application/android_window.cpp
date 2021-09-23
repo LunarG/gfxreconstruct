@@ -22,7 +22,7 @@
 */
 
 #include "application/android_window.h"
-
+#include "application/application.h"
 #include "util/logging.h"
 
 #include <android/native_window.h>
@@ -35,10 +35,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-AndroidWindow::AndroidWindow(AndroidApplication* application, ANativeWindow* window) :
-    android_application_(application), window_(window), width_(0), height_(0), pre_transform_(0)
+AndroidWindow::AndroidWindow(AndroidContext* android_context, ANativeWindow* window) :
+    android_context_(android_context), window_(window), width_(0), height_(0), pre_transform_(0)
 {
-    assert((application != nullptr) && (window != nullptr));
+    assert((android_context_ != nullptr) && (window != nullptr));
 
     width_  = ANativeWindow_getWidth(window_);
     height_ = ANativeWindow_getHeight(window_);
@@ -67,8 +67,8 @@ void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t hei
         if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
             (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
         {
-            const std::array<AndroidApplication::ScreenOrientation, 2> kOrientations{
-                AndroidApplication::ScreenOrientation::kLandscape, AndroidApplication::ScreenOrientation::kPortrait
+            const std::array<AndroidContext::ScreenOrientation, 2> kOrientations{
+                AndroidContext::ScreenOrientation::kLandscape, AndroidContext::ScreenOrientation::kPortrait
             };
 
             uint32_t orientation_index = 0;
@@ -85,7 +85,7 @@ void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t hei
                 orientation_index ^= 1;
             }
 
-            android_application_->SetOrientation(kOrientations[orientation_index]);
+            android_context_->SetOrientation(kOrientations[orientation_index]);
         }
 
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
@@ -136,9 +136,9 @@ void AndroidWindow::DestroySurface(const encode::InstanceTable* table, VkInstanc
     }
 }
 
-AndroidWindowFactory::AndroidWindowFactory(AndroidApplication* application) : android_application_(application)
+AndroidWindowFactory::AndroidWindowFactory(AndroidContext* android_context) : android_context_(android_context)
 {
-    assert(application != nullptr);
+    assert(android_context_ != nullptr);
 }
 
 AndroidWindowFactory::~AndroidWindowFactory() {}
@@ -151,12 +151,12 @@ AndroidWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t wi
     GFXRECON_UNREFERENCED_PARAMETER(width);
     GFXRECON_UNREFERENCED_PARAMETER(height);
 
-    return android_application_->GetWindow();
+    return android_context_->GetWindow();
 }
 
 void AndroidWindowFactory::Destroy(decode::Window* window)
 {
-    // Android currently has a single window whose lifetime is managed by AndroidApplication.
+    // Android currently has a single window whose lifetime is managed by AndroidContext.
     GFXRECON_UNREFERENCED_PARAMETER(window);
 }
 

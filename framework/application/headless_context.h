@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,52 +20,24 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_ANDROID_APPLICATION_H
-#define GFXRECON_APPLICATION_ANDROID_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_HEADLESS_CONTEXT_H
+#define GFXRECON_APPLICATION_HEADLESS_CONTEXT_H
 
-#include "application/application.h"
+#include "application/wsi_context.h"
 #include "util/defines.h"
-#include "util/platform.h"
-
-#include <android_native_app_glue.h>
-
-#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class AndroidWindow;
-
-class AndroidApplication : public Application
+class HeadlessContext : public WsiContext
 {
   public:
-    enum ScreenOrientation : int32_t
-    {
-        kLandscape = 0,
-        kPortrait  = 1
-    };
-
-  public:
-    AndroidApplication(const std::string& name, struct android_app* app);
-
-    virtual ~AndroidApplication() override {}
-
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
+    HeadlessContext(ApplicationEx* application, bool dpi_aware = true);
 
     virtual void ProcessEvents(bool wait_for_input) override;
-
-    AndroidWindow* GetWindow() const { return window_.get(); }
-
-    void InitWindow();
-
-    void SetOrientation(ScreenOrientation orientation);
-
-  private:
-    std::unique_ptr<AndroidWindow> window_;
-    struct android_app*            android_app_;
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_ANDROID_APPLICATION_H
+#endif // GFXRECON_APPLICATION_HEADLESS_CONTEXT_H

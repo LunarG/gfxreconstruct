@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_APPLICATION_WAYLAND_APPLICATION_H
-#define GFXRECON_APPLICATION_WAYLAND_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_WAYLAND_CONTEXT_H
+#define GFXRECON_APPLICATION_WAYLAND_CONTEXT_H
 
 #include "application/application.h"
 #include "util/defines.h"
@@ -33,9 +33,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
+class ApplicationEx;
 class WaylandWindow;
 
-class WaylandApplication : public Application
+class WaylandContext : public WsiContext
 {
   public:
     struct OutputInfo
@@ -45,10 +46,9 @@ class WaylandApplication : public Application
         int32_t height;
     };
 
-  public:
-    WaylandApplication(const std::string& name);
+    WaylandContext(ApplicationEx* application);
 
-    virtual ~WaylandApplication() override;
+    virtual ~WaylandContext() override;
 
     const util::WaylandLoader::FunctionTable& GetWaylandFunctionTable() const { return wayland_loader_.GetFunctionTable(); }
 
@@ -59,8 +59,6 @@ class WaylandApplication : public Application
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
     const OutputInfo& GetOutputInfo(const struct wl_output* wl_output) { return output_info_map_[wl_output]; }
-
-    virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
     bool RegisterWaylandWindow(WaylandWindow* window);
 
@@ -128,31 +126,29 @@ class WaylandApplication : public Application
     static void HandleOutputDone(void* data, struct wl_output* wl_output);
     static void HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor);
 
-  private:
     typedef std::unordered_map<struct wl_surface*, WaylandWindow*> WaylandWindowMap;
     typedef std::unordered_map<const struct wl_output*, OutputInfo> OutputInfoMap;
 
-  private:
     static struct wl_pointer_listener  pointer_listener_;
     static struct wl_keyboard_listener keyboard_listener_;
     static struct wl_seat_listener     seat_listener_;
     static struct wl_registry_listener registry_listener_;
     static struct wl_output_listener   output_listener_;
-    struct wl_display*                 display_;
-    struct wl_shell*                   shell_;
-    struct wl_compositor*              compositor_;
-    struct wl_registry*                registry_;
-    struct wl_seat*                    seat_;
-    struct wl_pointer*                 pointer_;
-    struct wl_keyboard*                keyboard_;
-    struct wl_surface*                 current_keyboard_surface_;
-    struct wl_surface*                 current_pointer_surface_;
-    WaylandWindowMap                   wayland_windows_;
-    OutputInfoMap                      output_info_map_;
-    util::WaylandLoader                wayland_loader_;
+    struct wl_display*                 display_ { };
+    struct wl_shell*                   shell_ { };
+    struct wl_compositor*              compositor_ { };
+    struct wl_registry*                registry_ { };
+    struct wl_seat*                    seat_ { };
+    struct wl_pointer*                 pointer_ { };
+    struct wl_keyboard*                keyboard_ { };
+    struct wl_surface*                 current_keyboard_surface_ { };
+    struct wl_surface*                 current_pointer_surface_ { };
+    WaylandWindowMap                   wayland_windows_ { };
+    OutputInfoMap                      output_info_map_ { };
+    util::WaylandLoader                wayland_loader_ { };
 };
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_APPLICATION_WAYLAND_APPLICATION_H
+#endif // GFXRECON_APPLICATION_WAYLAND_CONTEXT_H

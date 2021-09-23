@@ -24,7 +24,7 @@
 #ifndef GFXRECON_APPLICATION_HEADLESS_WINDOW_H
 #define GFXRECON_APPLICATION_HEADLESS_WINDOW_H
 
-#include "application/headless_application.h"
+#include "application/headless_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 
@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class HeadlessWindow : public decode::Window
 {
   public:
-    HeadlessWindow(HeadlessApplication* application);
+    HeadlessWindow(HeadlessContext* headless_context);
 
     virtual ~HeadlessWindow() override;
 
@@ -69,13 +69,13 @@ class HeadlessWindow : public decode::Window
     virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    HeadlessApplication* headless_application_;
+    HeadlessContext* headless_context_;
 };
 
 class HeadlessWindowFactory : public decode::WindowFactory
 {
   public:
-    HeadlessWindowFactory(HeadlessApplication* application);
+    HeadlessWindowFactory(HeadlessContext* headless_context);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME; }
 
@@ -89,7 +89,7 @@ class HeadlessWindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    HeadlessApplication* headless_application_;
+    HeadlessContext* headless_context_;
 };
 
 GFXRECON_END_NAMESPACE(application)

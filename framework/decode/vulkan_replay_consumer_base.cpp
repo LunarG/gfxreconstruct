@@ -22,7 +22,6 @@
 */
 
 #include "decode/vulkan_replay_consumer_base.h"
-
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/resource_util.h"
@@ -138,12 +137,13 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false),
-    create_surface_count_(0), fps_info_(nullptr)
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(application::ApplicationEx* application,
+                                                   const ReplayOptions&        options) :
+    loader_handle_(nullptr),
+    get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
+    loading_trim_state_(false), have_imported_semaphores_(false), create_surface_count_(0), fps_info_(nullptr)
 {
-    assert(window_factory != nullptr);
+    assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
 
     if (!options.screenshot_ranges.empty())
@@ -186,9 +186,14 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         [this](const void* handle) { return GetDeviceTable(handle); });
 
     // Destroy any windows that were created for Vulkan surfaces.
-    for (auto window : active_windows_)
+    auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    if (window_factory)
     {
-        window_factory_->Destroy(window);
+        for (auto window : active_windows_)
+        {
+            window_factory->Destroy(window);
+        }
     }
 
     if (loader_handle_ != nullptr)
@@ -2084,8 +2089,14 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
     if ((options_.surface_index == -1) || (options_.surface_index == create_surface_count_))
     {
         // Create a window for our surface.
-        Window* window = window_factory_->Create(
-            kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight);
+        // Window* window = window_factory_->Create(
+        //     kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight);
+        assert(application_);
+        auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+        assert(wsi_context);
+        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        assert(window_factory);
+        auto window = window_factory ? window_factory->Create(kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight) : nullptr;
 
         if (window == nullptr)
         {
@@ -2107,7 +2118,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
         }
         else
         {
-            window_factory_->Destroy(window);
+            window_factory->Destroy(window);
         }
     }
     else
@@ -2377,18 +2388,25 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
+            // TODO : window_factory_ update...
             // Swap the surface extension supported by platform the replay is running on if different from trace
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
                 const char* current_extension = replay_create_info->ppEnabledExtensionNames[i];
-                if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
-                {
-                    filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
-                }
-                else
-                {
-                    filtered_extensions.push_back(current_extension);
-                }
+                // if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                // {
+                //     filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
+                // }
+                // else
+                // {
+                //     filtered_extensions.push_back(current_extension);
+                // }
+                filtered_extensions.push_back(current_extension);
+            }
+            for (const auto& extension : filtered_extensions)
+            {
+                assert(application_);
+                application_->InitializeWsiContext(extension);
             }
 
             PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
@@ -5345,8 +5363,10 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    return window_factory_->GetPhysicalDevicePresentationSupport(
-        GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
+    auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physical_device), physical_device, queueFamilyIndex) : false;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
@@ -5385,8 +5405,10 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    return window_factory_->GetPhysicalDevicePresentationSupport(
-        GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
+    auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physical_device), physical_device, queueFamilyIndex) : false;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
@@ -5425,8 +5447,10 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    return window_factory_->GetPhysicalDevicePresentationSupport(
-        GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
+    auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physical_device), physical_device, queueFamilyIndex) : false;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
@@ -5463,8 +5487,10 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationS
 
     VkPhysicalDevice physical_device = physical_device_info->handle;
 
-    return window_factory_->GetPhysicalDevicePresentationSupport(
-        GetInstanceTable(physical_device), physical_device, queueFamilyIndex);
+    auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+    auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+    return window_factory ? window_factory->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physical_device), physical_device, queueFamilyIndex) : false;
 }
 
 void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
@@ -5489,7 +5515,12 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
     {
         window->DestroySurface(GetInstanceTable(instance), instance, surface);
         active_windows_.erase(window);
-        window_factory_->Destroy(window);
+        auto wsi_context = application_ ? application_->GetWsiContext() : nullptr;
+        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+        if (window_factory)
+        {
+            window_factory->Destroy(window);
+        }
     }
     else
     {

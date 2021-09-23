@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2018 Valve Corporation
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "application/xlib_application.h"
-
+#include "application/xlib_context.h"
+#include "application/application.h"
 #include "application/xlib_window.h"
 #include "util/logging.h"
 
@@ -30,9 +31,30 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-XlibApplication::XlibApplication(const std::string& name) : Application(name) {}
+static int ErrorHandler(Display* display, XErrorEvent* error_event)
+{
+    GFXRECON_LOG_ERROR("Xlib error: %d", error_event->error_code);
+    return 0;
+}
 
-XlibApplication::~XlibApplication()
+XlibContext::XlibContext(ApplicationEx* application) : WsiContext(application)
+{
+    if (!xlib_loader_.Initialize())
+    {
+        // return false;
+    }
+
+    const auto xlib = xlib_loader_.GetFunctionTable();
+    xlib.SetErrorHandler(ErrorHandler);
+
+    display_ = xlib.OpenDisplay(nullptr);
+    if (!display_)
+    {
+        // return false;
+    }
+}
+
+XlibContext::~XlibContext()
 {
     if (display_ != nullptr)
     {
@@ -41,19 +63,13 @@ XlibApplication::~XlibApplication()
     }
 }
 
-static int ErrorHandler(Display* display, XErrorEvent* error_event)
-{
-    GFXRECON_LOG_ERROR("Xlib error: %d", error_event->error_code);
-    return 0;
-}
-
 // A reference-counting interface to to XOpenDisplay/XCloseDisplay which shares
 // a single display connection among multiple windows, and closes it when the
 // last window is destroyed. This is a workaround for an issue with the NVIDIA
 // driver which registers a callback for XCloseDisplay that needs to happen
 // before the ICD is unloaded at vkDestroyInstance time.
 // https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1894
-Display* XlibApplication::OpenDisplay()
+Display* XlibContext::OpenDisplay()
 {
     if (display_ == nullptr)
     {
@@ -64,7 +80,7 @@ Display* XlibApplication::OpenDisplay()
     return display_;
 }
 
-void XlibApplication::CloseDisplay(Display* display)
+void XlibContext::CloseDisplay(Display* display)
 {
     assert(display == display_);
 
@@ -76,41 +92,21 @@ void XlibApplication::CloseDisplay(Display* display)
     }
 }
 
-bool XlibApplication::Initialize(decode::FileProcessor* file_processor)
+bool XlibContext::RegisterXlibWindow(XlibWindow* window)
 {
-    if (!xlib_loader_.Initialize())
-    {
-        return false;
-    }
+    return WsiContext::RegisterWindow(window);
+}
 
+bool XlibContext::UnregisterXlibWindow(XlibWindow* window)
+{
+    return WsiContext::UnregisterWindow(window);
+}
+
+void XlibContext::ProcessEvents(bool wait_for_input)
+{
+    assert(application_);
     const auto xlib = xlib_loader_.GetFunctionTable();
-    xlib.SetErrorHandler(ErrorHandler);
-
-    display_ = xlib.OpenDisplay(nullptr);
-    if (!display_)
-    {
-        return false;
-    }
-
-    SetFileProcessor(file_processor);
-
-    return true;
-}
-
-bool XlibApplication::RegisterXlibWindow(XlibWindow* window)
-{
-    return Application::RegisterWindow(window);
-}
-
-bool XlibApplication::UnregisterXlibWindow(XlibWindow* window)
-{
-    return Application::UnregisterWindow(window);
-}
-
-void XlibApplication::ProcessEvents(bool wait_for_input)
-{
-    const auto xlib = xlib_loader_.GetFunctionTable();
-    while (IsRunning() && (wait_for_input || (xlib.Pending(display_) > 0)))
+    while (application_->IsRunning() && (wait_for_input || (xlib.Pending(display_) > 0)))
     {
         wait_for_input = false;
 
@@ -123,11 +119,11 @@ void XlibApplication::ProcessEvents(bool wait_for_input)
                 switch (event.xkey.keycode)
                 {
                     case 0x9: // Escape
-                        StopRunning();
+                        application_->StopRunning();
                         break;
                     case 0x21: // p
                     case 0x41: // Space
-                        SetPaused(!GetPaused());
+                        application_->SetPaused(!application_->GetPaused());
                         break;
                     default:
                         break;
@@ -140,9 +136,9 @@ void XlibApplication::ProcessEvents(bool wait_for_input)
                     // Using XCB_KEY_PRESS for repeat when key is held down.
                     case 0x72: // Right arrow
                     case 0x39: // n
-                        if (GetPaused())
+                        if (application_->GetPaused())
                         {
-                            PlaySingleFrame();
+                            application_->PlaySingleFrame();
                         }
                         break;
                     default:

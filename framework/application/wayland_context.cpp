@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2021 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "application/wayland_application.h"
-
+#include "application/wayland_context.h"
+#include "application/application.h"
 #include "application/wayland_window.h"
 #include "util/logging.h"
 
@@ -32,57 +32,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-struct wl_pointer_listener  WaylandApplication::pointer_listener_;
-struct wl_keyboard_listener WaylandApplication::keyboard_listener_;
-struct wl_seat_listener     WaylandApplication::seat_listener_;
-struct wl_registry_listener WaylandApplication::registry_listener_;
-struct wl_output_listener   WaylandApplication::output_listener_;
+struct wl_pointer_listener  WaylandContext::pointer_listener_;
+struct wl_keyboard_listener WaylandContext::keyboard_listener_;
+struct wl_seat_listener     WaylandContext::seat_listener_;
+struct wl_registry_listener WaylandContext::registry_listener_;
+struct wl_output_listener   WaylandContext::output_listener_;
 
-WaylandApplication::WaylandApplication(const std::string& name) :
-    Application(name), display_(nullptr), shell_(nullptr), compositor_(nullptr), registry_(nullptr), seat_(nullptr),
-    pointer_(nullptr), keyboard_(nullptr), current_keyboard_surface_(nullptr), current_pointer_surface_(nullptr)
-{}
-
-WaylandApplication::~WaylandApplication()
-{
-    auto& wl = wayland_loader_.GetFunctionTable();
-    if (keyboard_)
-    {
-        wl.keyboard_destroy(keyboard_);
-    }
-
-    if (pointer_)
-    {
-        wl.pointer_destroy(pointer_);
-    }
-
-    if (seat_)
-    {
-        wl.seat_destroy(seat_);
-    }
-
-    if (shell_)
-    {
-        wl.shell_destroy(shell_);
-    }
-
-    if (compositor_)
-    {
-        wl.compositor_destroy(compositor_);
-    }
-
-    if (registry_)
-    {
-        wl.registry_destroy(registry_);
-    }
-
-    if (display_)
-    {
-        wl.display_disconnect(display_);
-    }
-}
-
-bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
+WaylandContext::WaylandContext(ApplicationEx* application) : WsiContext(application)
 {
     bool success = true;
 
@@ -135,7 +91,7 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
 
     if (success)
     {
-        wl.registry_add_listener(registry_, &WaylandApplication::registry_listener_, this);
+        wl.registry_add_listener(registry_, &WaylandContext::registry_listener_, this);
         wl.display_roundtrip(display_);
 
         if (compositor_ == nullptr)
@@ -149,15 +105,50 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
             success = false;
         }
     }
-
-    SetFileProcessor(file_processor);
-
-    return success;
 }
 
-bool WaylandApplication::RegisterWaylandWindow(WaylandWindow* window)
+WaylandContext::~WaylandContext()
 {
-    bool success = Application::RegisterWindow(window);
+    auto& wl = wayland_loader_.GetFunctionTable();
+    if (keyboard_)
+    {
+        wl.keyboard_destroy(keyboard_);
+    }
+
+    if (pointer_)
+    {
+        wl.pointer_destroy(pointer_);
+    }
+
+    if (seat_)
+    {
+        wl.seat_destroy(seat_);
+    }
+
+    if (shell_)
+    {
+        wl.shell_destroy(shell_);
+    }
+
+    if (compositor_)
+    {
+        wl.compositor_destroy(compositor_);
+    }
+
+    if (registry_)
+    {
+        wl.registry_destroy(registry_);
+    }
+
+    if (display_)
+    {
+        wl.display_disconnect(display_);
+    }
+}
+
+bool WaylandContext::RegisterWaylandWindow(WaylandWindow* window)
+{
+    bool success = WsiContext::RegisterWindow(window);
 
     if (success)
     {
@@ -172,9 +163,9 @@ bool WaylandApplication::RegisterWaylandWindow(WaylandWindow* window)
     return success;
 }
 
-bool WaylandApplication::UnregisterWaylandWindow(WaylandWindow* window)
+bool WaylandContext::UnregisterWaylandWindow(WaylandWindow* window)
 {
-    bool success = Application::UnregisterWindow(window);
+    bool success = WsiContext::UnregisterWindow(window);
 
     if (success)
     {
@@ -184,7 +175,7 @@ bool WaylandApplication::UnregisterWaylandWindow(WaylandWindow* window)
     return success;
 }
 
-void WaylandApplication::ProcessEvents(bool wait_for_input)
+void WaylandContext::ProcessEvents(bool wait_for_input)
 {
     auto& wl = wayland_loader_.GetFunctionTable();
     if (!wait_for_input)
@@ -198,123 +189,131 @@ void WaylandApplication::ProcessEvents(bool wait_for_input)
     }
 }
 
-void WaylandApplication::HandleRegistryGlobal(
+void WaylandContext::HandleRegistryGlobal(
     void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
 {
-    auto  app = reinterpret_cast<WaylandApplication*>(data);
-    auto& wl  = app->GetWaylandFunctionTable();
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl  = wayland_context->GetWaylandFunctionTable();
     if (util::platform::StringCompare(interface, "wl_compositor") == 0)
     {
         // wl_compositor needs to support wl_surface::set_buffer_scale request
-        app->compositor_ = reinterpret_cast<wl_compositor*>(
+        wayland_context->compositor_ = reinterpret_cast<wl_compositor*>(
             wl.registry_bind(registry, id, wl.compositor_interface, WL_SURFACE_SET_BUFFER_SCALE_SINCE_VERSION));
     }
     else if (util::platform::StringCompare(interface, "wl_shell") == 0)
     {
-        app->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
+        wayland_context->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
     }
     else if (util::platform::StringCompare(interface, "wl_seat") == 0)
     {
-        app->seat_ = reinterpret_cast<wl_seat*>(wl.registry_bind(registry, id, wl.seat_interface, 1));
-        wl.seat_add_listener(app->seat_, &seat_listener_, app);
+        wayland_context->seat_ = reinterpret_cast<wl_seat*>(wl.registry_bind(registry, id, wl.seat_interface, 1));
+        wl.seat_add_listener(wayland_context->seat_, &seat_listener_, wayland_context);
     }
     else if (util::platform::StringCompare(interface, "wl_output") == 0)
     {
         // wl_output needs to support wl_output::scale event
         auto output = reinterpret_cast<wl_output*>(
             wl.registry_bind(registry, id, wl.output_interface, WL_OUTPUT_SCALE_SINCE_VERSION));
-        wl.output_add_listener(output, &output_listener_, app);
+        wl.output_add_listener(output, &output_listener_, wayland_context);
     }
 }
 
-void WaylandApplication::HandleRegistryGlobalRemove(void* data, wl_registry* registry, uint32_t name) {}
+void WaylandContext::HandleRegistryGlobalRemove(void* data, wl_registry* registry, uint32_t name) {}
 
-void WaylandApplication::HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t caps)
+void WaylandContext::HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t caps)
 {
     // Subscribe to pointer events.
-    auto  app = reinterpret_cast<WaylandApplication*>(data);
-    auto& wl  = app->GetWaylandFunctionTable();
-    if ((caps & WL_SEAT_CAPABILITY_POINTER) && (app->pointer_ == nullptr))
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl  = wayland_context->GetWaylandFunctionTable();
+    if ((caps & WL_SEAT_CAPABILITY_POINTER) && (wayland_context->pointer_ == nullptr))
     {
-        app->pointer_ = wl.seat_get_pointer(seat);
-        wl.pointer_add_listener(app->pointer_, &pointer_listener_, app);
+        wayland_context->pointer_ = wl.seat_get_pointer(seat);
+        wl.pointer_add_listener(wayland_context->pointer_, &pointer_listener_, wayland_context);
     }
-    else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (app->pointer_ != nullptr))
+    else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (wayland_context->pointer_ != nullptr))
     {
-        wl.pointer_destroy(app->pointer_);
-        app->pointer_ = nullptr;
+        wl.pointer_destroy(wayland_context->pointer_);
+        wayland_context->pointer_ = nullptr;
     }
 
     // Subscribe to keyboard events.
     if (caps & WL_SEAT_CAPABILITY_KEYBOARD)
     {
-        app->keyboard_ = wl.seat_get_keyboard(seat);
-        wl.keyboard_add_listener(app->keyboard_, &keyboard_listener_, app);
+        wayland_context->keyboard_ = wl.seat_get_keyboard(seat);
+        wl.keyboard_add_listener(wayland_context->keyboard_, &keyboard_listener_, wayland_context);
     }
     else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD))
     {
-        wl.keyboard_destroy(app->keyboard_);
-        app->keyboard_ = nullptr;
+        wl.keyboard_destroy(wayland_context->keyboard_);
+        wayland_context->keyboard_ = nullptr;
     }
 }
 
-void WaylandApplication::HandleKeyboardKeymap(
+void WaylandContext::HandleKeyboardKeymap(
     void* data, struct wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size)
 {}
 
-void WaylandApplication::HandleKeyboardEnter(
+void WaylandContext::HandleKeyboardEnter(
     void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface, struct wl_array* keys)
 {
-    auto app                       = reinterpret_cast<WaylandApplication*>(data);
-    app->current_keyboard_surface_ = surface;
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    wayland_context->current_keyboard_surface_ = surface;
 }
 
-void WaylandApplication::HandleKeyboardLeave(void*               data,
+void WaylandContext::HandleKeyboardLeave(void*               data,
                                              struct wl_keyboard* keyboard,
                                              uint32_t            serial,
                                              struct wl_surface*  surface)
 {}
 
-void WaylandApplication::HandleKeyboardKey(
+void WaylandContext::HandleKeyboardKey(
     void* data, struct wl_keyboard* keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
 {
     if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     {
-        auto app = reinterpret_cast<WaylandApplication*>(data);
-
-        switch (key)
+        auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+        auto application = wayland_context ? wayland_context->GetApplication() : nullptr;
+        assert(application);
+        if (application)
         {
-            case KEY_ESC:
-                app->StopRunning();
-                break;
-            case KEY_SPACE:
-            case KEY_P:
-                app->SetPaused(!app->GetPaused());
-                break;
-            default:
-                break;
+            switch (key)
+            {
+                case KEY_ESC:
+                    application->StopRunning();
+                    break;
+                case KEY_SPACE:
+                case KEY_P:
+                    application->SetPaused(!application->GetPaused());
+                    break;
+                default:
+                    break;
+            }
         }
     }
     else if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
     {
-        auto app = reinterpret_cast<WaylandApplication*>(data);
-
-        switch (key)
+        auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+        auto application = wayland_context ? wayland_context->GetApplication() : nullptr;
+        assert(application);
+        if (application)
         {
-            case KEY_RIGHT:
-            case KEY_N:
-                if (app->GetPaused())
-                {
-                    app->PlaySingleFrame();
-                }
-                break;
-            default:
-                break;
+            switch (key)
+            {
+                case KEY_RIGHT:
+                case KEY_N:
+                    if (application->GetPaused())
+                    {
+                        application->PlaySingleFrame();
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
 
-void WaylandApplication::HandleKeyboardModifiers(void*        data,
+void WaylandContext::HandleKeyboardModifiers(void*        data,
                                                  wl_keyboard* keyboard,
                                                  uint32_t     serial,
                                                  uint32_t     mods_depressed,
@@ -323,45 +322,45 @@ void WaylandApplication::HandleKeyboardModifiers(void*        data,
                                                  uint32_t     group)
 {}
 
-void WaylandApplication::HandlePointerEnter(
+void WaylandContext::HandlePointerEnter(
     void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface, wl_fixed_t sx, wl_fixed_t sy)
 {
-    auto app                      = reinterpret_cast<WaylandApplication*>(data);
-    app->current_pointer_surface_ = surface;
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    wayland_context->current_pointer_surface_ = surface;
 }
 
-void WaylandApplication::HandlePointerLeave(void*              data,
+void WaylandContext::HandlePointerLeave(void*              data,
                                             struct wl_pointer* pointer,
                                             uint32_t           serial,
                                             struct wl_surface* surface)
 {}
 
-void WaylandApplication::HandlePointerMotion(
+void WaylandContext::HandlePointerMotion(
     void* data, struct wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
 {}
 
-void WaylandApplication::HandlePointerButton(
+void WaylandContext::HandlePointerButton(
     void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
 {
-    auto  app   = reinterpret_cast<WaylandApplication*>(data);
-    auto& wl    = app->GetWaylandFunctionTable();
-    auto  entry = app->wayland_windows_.find(app->current_keyboard_surface_);
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl = wayland_context->GetWaylandFunctionTable();
+    auto  entry = wayland_context->wayland_windows_.find(wayland_context->current_keyboard_surface_);
 
-    if (entry != app->wayland_windows_.end())
+    if (entry != wayland_context->wayland_windows_.end())
     {
         WaylandWindow* window = entry->second;
         if ((button == BTN_LEFT) && (state == WL_POINTER_BUTTON_STATE_PRESSED))
         {
-            wl.shell_surface_move(window->GetShellSurface(), app->seat_, serial);
+            wl.shell_surface_move(window->GetShellSurface(), wayland_context->seat_, serial);
         }
     }
 }
 
-void WaylandApplication::HandlePointerAxis(
+void WaylandContext::HandlePointerAxis(
     void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
 {}
 
-void WaylandApplication::HandleOutputGeometry(void*             data,
+void WaylandContext::HandleOutputGeometry(void*             data,
                                               struct wl_output* wl_output,
                                               int32_t           x,
                                               int32_t           y,
@@ -373,24 +372,24 @@ void WaylandApplication::HandleOutputGeometry(void*             data,
                                               int32_t           transform)
 {}
 
-void WaylandApplication::HandleOutputMode(
+void WaylandContext::HandleOutputMode(
     void* data, struct wl_output* wl_output, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
 {
-    auto app = reinterpret_cast<WaylandApplication*>(data);
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
     if ((flags & WL_OUTPUT_MODE_CURRENT) == WL_OUTPUT_MODE_CURRENT)
     {
-        auto& output_info  = app->output_info_map_[wl_output];
+        auto& output_info  = wayland_context->output_info_map_[wl_output];
         output_info.width  = width;
         output_info.height = height;
     }
 }
 
-void WaylandApplication::HandleOutputDone(void* data, struct wl_output* wl_output) {}
+void WaylandContext::HandleOutputDone(void* data, struct wl_output* wl_output) {}
 
-void WaylandApplication::HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor)
+void WaylandContext::HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor)
 {
-    auto  app         = reinterpret_cast<WaylandApplication*>(data);
-    auto& output_info = app->output_info_map_[wl_output];
+    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& output_info = wayland_context->output_info_map_[wl_output];
     output_info.scale = factor;
 }
 

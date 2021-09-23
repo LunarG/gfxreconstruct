@@ -24,7 +24,7 @@
 #ifndef GFXRECON_APPLICATION_WAYLAND_WINDOW_H
 #define GFXRECON_APPLICATION_WAYLAND_WINDOW_H
 
-#include "application/wayland_application.h"
+#include "application/wayland_context.h"
 #include "decode/window.h"
 #include "util/defines.h"
 
@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class WaylandWindow : public decode::Window
 {
   public:
-    WaylandWindow(WaylandApplication* application);
+    WaylandWindow(WaylandContext* wayland_context);
 
     virtual ~WaylandWindow() override;
 
@@ -90,7 +90,7 @@ class WaylandWindow : public decode::Window
   private:
     static struct wl_surface_listener       surface_listener_;
     static struct wl_shell_surface_listener shell_surface_listener_;
-    WaylandApplication*                     wayland_application_;
+    WaylandContext*                         wayland_context_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
     uint32_t                                width_;
@@ -102,7 +102,7 @@ class WaylandWindow : public decode::Window
 class WaylandWindowFactory : public decode::WindowFactory
 {
   public:
-    WaylandWindowFactory(WaylandApplication* application);
+    WaylandWindowFactory(WaylandContext* wayland_context);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME; }
 
@@ -116,7 +116,7 @@ class WaylandWindowFactory : public decode::WindowFactory
                                                           uint32_t                     queue_family_index) override;
 
   private:
-    WaylandApplication* wayland_application_;
+    WaylandContext* wayland_context_;
 };
 
 GFXRECON_END_NAMESPACE(util)
