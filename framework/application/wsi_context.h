@@ -56,7 +56,7 @@ class WsiContext
     virtual void ProcessEvents(bool wait_for_input);
 
   protected:
-    Application*                           application_;
+    Application*                         application_;
     std::unique_ptr<decode::WindowFactory> window_factory_;
 
   private:

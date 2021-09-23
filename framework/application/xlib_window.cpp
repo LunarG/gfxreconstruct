@@ -321,8 +321,8 @@ XlibWindowFactory::XlibWindowFactory(XlibContext* context) : xlib_context_(conte
 decode::Window* XlibWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     assert(xlib_context_);
-    decode::Window* window      = new XlibWindow(xlib_context_);
-    auto            application = xlib_context_->GetApplication();
+    decode::Window* window = new XlibWindow(xlib_context_);
+    auto application = xlib_context_->GetApplication();
     assert(application);
     window->Create(application->GetName(), x, y, width, height);
     return window;

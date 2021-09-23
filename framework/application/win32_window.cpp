@@ -294,8 +294,8 @@ decode::Window*
 Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     assert(win32_context_);
-    decode::Window* window      = new Win32Window(win32_context_);
-    auto            application = win32_context_->GetApplication();
+    decode::Window* window = new Win32Window(win32_context_);
+    auto application = win32_context_->GetApplication();
     assert(application);
     window->Create(application->GetName(), x, y, width, height);
     return window;

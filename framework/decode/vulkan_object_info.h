@@ -292,9 +292,9 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
-    VkMemoryPropertyFlags memory_property_flags{ 0 };
-    VkBufferUsageFlags    usage{ 0 };
-    uint32_t              queue_family_index{ 0 };
+    VkMemoryPropertyFlags               memory_property_flags{ 0 };
+    VkBufferUsageFlags                  usage{ 0 };
+    uint32_t                            queue_family_index{ 0 };
 };
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>

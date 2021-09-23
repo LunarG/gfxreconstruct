@@ -68,12 +68,12 @@ class XcbContext : public WsiContext
   private:
     typedef std::unordered_map<xcb_window_t, XcbWindow*> XcbWindowMap;
 
-    xcb_connection_t* connection_{};
-    xcb_screen_t*     screen_{};
-    uint32_t          last_error_sequence_{};
-    uint8_t           last_error_code_{};
-    XcbWindowMap      xcb_windows_{};
-    util::XcbLoader   xcb_loader_{};
+    xcb_connection_t* connection_ { };
+    xcb_screen_t*     screen_ { };
+    uint32_t          last_error_sequence_ { };
+    uint8_t           last_error_code_ { };
+    XcbWindowMap      xcb_windows_ { };
+    util::XcbLoader   xcb_loader_ { };
 };
 
 GFXRECON_END_NAMESPACE(application)

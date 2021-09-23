@@ -101,8 +101,7 @@ void android_main(struct android_app* app)
             }
             else
             {
-                auto application =
-                    std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
+                auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
@@ -110,7 +109,8 @@ void android_main(struct android_app* app)
                     application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
                 gfxrecon::decode::VulkanDecoder decoder;
 
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);

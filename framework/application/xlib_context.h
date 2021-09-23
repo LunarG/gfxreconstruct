@@ -54,9 +54,9 @@ class XlibContext : public WsiContext
     virtual void ProcessEvents(bool wait_for_input) override;
 
   private:
-    Display*         display_{};
-    size_t           display_open_count_{};
-    util::XlibLoader xlib_loader_{};
+    Display*         display_ { };
+    size_t           display_open_count_ { };
+    util::XlibLoader xlib_loader_ { };
 };
 
 GFXRECON_END_NAMESPACE(application)
