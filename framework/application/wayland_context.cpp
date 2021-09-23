@@ -192,8 +192,8 @@ void WaylandContext::ProcessEvents(bool wait_for_input)
 void WaylandContext::HandleRegistryGlobal(
     void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version)
 {
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-    auto& wl  = wayland_context->GetWaylandFunctionTable();
+    auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl              = wayland_context->GetWaylandFunctionTable();
     if (util::platform::StringCompare(interface, "wl_compositor") == 0)
     {
         // wl_compositor needs to support wl_surface::set_buffer_scale request
@@ -223,8 +223,8 @@ void WaylandContext::HandleRegistryGlobalRemove(void* data, wl_registry* registr
 void WaylandContext::HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t caps)
 {
     // Subscribe to pointer events.
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-    auto& wl  = wayland_context->GetWaylandFunctionTable();
+    auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl              = wayland_context->GetWaylandFunctionTable();
     if ((caps & WL_SEAT_CAPABILITY_POINTER) && (wayland_context->pointer_ == nullptr))
     {
         wayland_context->pointer_ = wl.seat_get_pointer(seat);
@@ -256,14 +256,14 @@ void WaylandContext::HandleKeyboardKeymap(
 void WaylandContext::HandleKeyboardEnter(
     void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface, struct wl_array* keys)
 {
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto wayland_context                       = reinterpret_cast<WaylandContext*>(data);
     wayland_context->current_keyboard_surface_ = surface;
 }
 
 void WaylandContext::HandleKeyboardLeave(void*               data,
-                                             struct wl_keyboard* keyboard,
-                                             uint32_t            serial,
-                                             struct wl_surface*  surface)
+                                         struct wl_keyboard* keyboard,
+                                         uint32_t            serial,
+                                         struct wl_surface*  surface)
 {}
 
 void WaylandContext::HandleKeyboardKey(
@@ -272,7 +272,7 @@ void WaylandContext::HandleKeyboardKey(
     if (state == WL_KEYBOARD_KEY_STATE_RELEASED)
     {
         auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-        auto application = wayland_context ? wayland_context->GetApplication() : nullptr;
+        auto application     = wayland_context ? wayland_context->GetApplication() : nullptr;
         assert(application);
         if (application)
         {
@@ -293,7 +293,7 @@ void WaylandContext::HandleKeyboardKey(
     else if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
     {
         auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-        auto application = wayland_context ? wayland_context->GetApplication() : nullptr;
+        auto application     = wayland_context ? wayland_context->GetApplication() : nullptr;
         assert(application);
         if (application)
         {
@@ -314,25 +314,25 @@ void WaylandContext::HandleKeyboardKey(
 }
 
 void WaylandContext::HandleKeyboardModifiers(void*        data,
-                                                 wl_keyboard* keyboard,
-                                                 uint32_t     serial,
-                                                 uint32_t     mods_depressed,
-                                                 uint32_t     mods_latched,
-                                                 uint32_t     mods_locked,
-                                                 uint32_t     group)
+                                             wl_keyboard* keyboard,
+                                             uint32_t     serial,
+                                             uint32_t     mods_depressed,
+                                             uint32_t     mods_latched,
+                                             uint32_t     mods_locked,
+                                             uint32_t     group)
 {}
 
 void WaylandContext::HandlePointerEnter(
     void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface, wl_fixed_t sx, wl_fixed_t sy)
 {
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto wayland_context                      = reinterpret_cast<WaylandContext*>(data);
     wayland_context->current_pointer_surface_ = surface;
 }
 
 void WaylandContext::HandlePointerLeave(void*              data,
-                                            struct wl_pointer* pointer,
-                                            uint32_t           serial,
-                                            struct wl_surface* surface)
+                                        struct wl_pointer* pointer,
+                                        uint32_t           serial,
+                                        struct wl_surface* surface)
 {}
 
 void WaylandContext::HandlePointerMotion(
@@ -342,9 +342,9 @@ void WaylandContext::HandlePointerMotion(
 void WaylandContext::HandlePointerButton(
     void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
 {
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-    auto& wl = wayland_context->GetWaylandFunctionTable();
-    auto  entry = wayland_context->wayland_windows_.find(wayland_context->current_keyboard_surface_);
+    auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& wl              = wayland_context->GetWaylandFunctionTable();
+    auto  entry           = wayland_context->wayland_windows_.find(wayland_context->current_keyboard_surface_);
 
     if (entry != wayland_context->wayland_windows_.end())
     {
@@ -361,15 +361,15 @@ void WaylandContext::HandlePointerAxis(
 {}
 
 void WaylandContext::HandleOutputGeometry(void*             data,
-                                              struct wl_output* wl_output,
-                                              int32_t           x,
-                                              int32_t           y,
-                                              int32_t           physical_width,
-                                              int32_t           physical_height,
-                                              int32_t           subpixel,
-                                              const char*       make,
-                                              const char*       model,
-                                              int32_t           transform)
+                                          struct wl_output* wl_output,
+                                          int32_t           x,
+                                          int32_t           y,
+                                          int32_t           physical_width,
+                                          int32_t           physical_height,
+                                          int32_t           subpixel,
+                                          const char*       make,
+                                          const char*       model,
+                                          int32_t           transform)
 {}
 
 void WaylandContext::HandleOutputMode(
@@ -388,9 +388,9 @@ void WaylandContext::HandleOutputDone(void* data, struct wl_output* wl_output) {
 
 void WaylandContext::HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor)
 {
-    auto wayland_context = reinterpret_cast<WaylandContext*>(data);
-    auto& output_info = wayland_context->output_info_map_[wl_output];
-    output_info.scale = factor;
+    auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
+    auto& output_info     = wayland_context->output_info_map_[wl_output];
+    output_info.scale     = factor;
 }
 
 GFXRECON_END_NAMESPACE(application)
