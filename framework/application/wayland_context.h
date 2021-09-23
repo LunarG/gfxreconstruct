@@ -33,7 +33,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-class ApplicationEx;
+class Application;
 class WaylandWindow;
 
 class WaylandContext : public WsiContext
@@ -46,7 +46,7 @@ class WaylandContext : public WsiContext
         int32_t height;
     };
 
-    WaylandContext(ApplicationEx* application);
+    WaylandContext(Application* application);
 
     virtual ~WaylandContext() override;
 

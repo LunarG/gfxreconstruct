@@ -128,7 +128,7 @@ int main(int argc, const char** argv)
         {
             auto wsi_platform = GetWsiPlatform(arg_parser);
 
-            auto application = std::make_unique<gfxrecon::application::ApplicationEx>(kApplicationName, &file_processor);
+            auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
 
             // Setup platform specific application and window factory.
             // TODO : window_factory_ update...

@@ -27,7 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Win32Context::Win32Context(ApplicationEx* application, bool dpi_aware) :
+Win32Context::Win32Context(Application* application, bool dpi_aware) :
     WsiContext(application)
 {
     window_factory_ = std::make_unique<Win32WindowFactory>(this);

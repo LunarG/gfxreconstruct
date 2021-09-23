@@ -49,16 +49,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-ApplicationEx::ApplicationEx(const std::string& name, decode::FileProcessor* file_processor) :
+Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
     name_(name), file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0)
 {
 }
 
-ApplicationEx ::~ApplicationEx()
+Application ::~Application()
 {
 }
 
-void ApplicationEx::Run()
+void Application::Run()
 {
     running_ = true;
 
@@ -74,7 +74,7 @@ void ApplicationEx::Run()
     }
 }
 
-void ApplicationEx::SetPaused(bool paused)
+void Application::SetPaused(bool paused)
 {
     paused_ = paused;
 
@@ -88,7 +88,7 @@ void ApplicationEx::SetPaused(bool paused)
     }
 }
 
-bool ApplicationEx::PlaySingleFrame()
+bool Application::PlaySingleFrame()
 {
     bool success = false;
 
@@ -120,7 +120,7 @@ bool ApplicationEx::PlaySingleFrame()
     return success;
 }
 
-void ApplicationEx::ProcessEvents(bool wait_for_input)
+void Application::ProcessEvents(bool wait_for_input)
 {
     if (wsi_context_)
     {
@@ -128,7 +128,7 @@ void ApplicationEx::ProcessEvents(bool wait_for_input)
     }
 }
 
-void ApplicationEx::InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData)
+void Application::InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData)
 {
     if (!wsi_context_)
     {

@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class HeadlessContext : public WsiContext
 {
   public:
-    HeadlessContext(ApplicationEx* application, bool dpi_aware = true);
+    HeadlessContext(Application* application, bool dpi_aware = true);
 
     virtual void ProcessEvents(bool wait_for_input) override;
 };

@@ -38,7 +38,7 @@ struct wl_seat_listener     WaylandContext::seat_listener_;
 struct wl_registry_listener WaylandContext::registry_listener_;
 struct wl_output_listener   WaylandContext::output_listener_;
 
-WaylandContext::WaylandContext(ApplicationEx* application) : WsiContext(application)
+WaylandContext::WaylandContext(Application* application) : WsiContext(application)
 {
     bool success = true;
 
