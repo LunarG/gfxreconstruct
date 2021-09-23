@@ -27,8 +27,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Win32Context::Win32Context(Application* application, bool dpi_aware) :
-    WsiContext(application)
+Win32Context::Win32Context(Application* application, bool dpi_aware) : WsiContext(application)
 {
     window_factory_ = std::make_unique<Win32WindowFactory>(this);
     if (dpi_aware)
@@ -45,11 +44,11 @@ void Win32Context::ProcessEvents(bool wait_for_input)
     {
         MSG  msg           = {};
         bool found_message = false;
-    
+
         if (wait_for_input)
         {
             found_message = (GetMessage(&msg, nullptr, 0, 0) > 0);
-    
+
             // Stop waiting after the first event or this function never will exit.
             wait_for_input = false;
         }
@@ -57,7 +56,7 @@ void Win32Context::ProcessEvents(bool wait_for_input)
         {
             found_message = (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != 0);
         }
-    
+
         if (found_message)
         {
             if (msg.message == WM_QUIT)
@@ -89,7 +88,7 @@ LRESULT WINAPI Win32Context::WindowProc(HWND window, unsigned int msg, WPARAM wp
                 case 'P':
                 {
                     auto win32_context = reinterpret_cast<Win32Context*>(GetWindowLongPtr(window, GWLP_USERDATA));
-                    auto app = win32_context ? win32_context->application_ : nullptr;
+                    auto app           = win32_context ? win32_context->application_ : nullptr;
                     assert(app);
                     app->SetPaused(!app->GetPaused());
                     break;
@@ -111,13 +110,13 @@ LRESULT WINAPI Win32Context::WindowProc(HWND window, unsigned int msg, WPARAM wp
                 case 'N':
                 {
                     auto win32_context = reinterpret_cast<Win32Context*>(GetWindowLongPtr(window, GWLP_USERDATA));
-                    auto app = win32_context ? win32_context->application_ : nullptr;
+                    auto app           = win32_context ? win32_context->application_ : nullptr;
                     assert(app);
-                   if (app->GetPaused())
-                   {
-                       app->PlaySingleFrame();
-                   }
-                   break;
+                    if (app->GetPaused())
+                    {
+                        app->PlaySingleFrame();
+                    }
+                    break;
                 }
                 default:
                     return DefWindowProc(window, msg, wp, lp);

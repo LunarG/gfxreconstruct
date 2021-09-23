@@ -37,8 +37,7 @@ void SharedMutex::lock()
 
     // Wait for readers.
     while (reader_count_.load() > (has_read_lock_.load() ? 1u : 0u))
-    {
-    }
+    {}
 }
 
 void SharedMutex::unlock()
