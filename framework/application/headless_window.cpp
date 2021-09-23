@@ -125,8 +125,8 @@ decode::Window*
 HeadlessWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     assert(headless_context_);
-    decode::Window* window      = new HeadlessWindow(headless_context_);
-    auto            application = headless_context_->GetApplication();
+    decode::Window* window = new HeadlessWindow(headless_context_);
+    auto application = headless_context_->GetApplication();
     assert(application);
     window->Create(application->GetName(), x, y, width, height);
     return window;

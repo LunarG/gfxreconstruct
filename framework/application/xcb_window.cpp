@@ -367,7 +367,8 @@ void XcbWindow::SetVisibility(bool show)
         // Wait for map/unmap notification.
         if (!WaitForEvent(cookie.sequence, XCB_MAP_NOTIFY))
         {
-            GFXRECON_LOG_ERROR("Failed to change window visibility with error %u", xcb_context_->GetLastErrorCode());
+            GFXRECON_LOG_ERROR("Failed to change window visibility with error %u",
+                               xcb_context_->GetLastErrorCode());
         }
     }
 }
@@ -508,8 +509,8 @@ XcbWindowFactory::XcbWindowFactory(XcbContext* xcb_context) : xcb_context_(xcb_c
 decode::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     assert(xcb_context_);
-    decode::Window* window      = new XcbWindow(xcb_context_);
-    auto            application = xcb_context_->GetApplication();
+    decode::Window* window = new XcbWindow(xcb_context_);
+    auto application = xcb_context_->GetApplication();
     assert(application);
     window->Create(application->GetName(), x, y, width, height);
     return window;
