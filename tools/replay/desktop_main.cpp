@@ -39,25 +39,6 @@
 #include <string>
 #include <vector>
 
-// #if defined(WIN32)
-// #if defined(VK_USE_PLATFORM_WIN32_KHR)
-// #include "application/win32_window.h"
-// #endif
-// #else
-// #if defined(VK_USE_PLATFORM_XCB_KHR)
-// #include "application/xcb_window.h"
-// #endif
-// #if defined(VK_USE_PLATFORM_XLIB_KHR)
-// #include "application/xlib_window.h"
-// #endif
-// #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-// #include "application/wayland_window.h"
-// #endif
-// #endif
-// #if defined(VK_USE_PLATFORM_HEADLESS)
-// #include "application/headless_window.h"
-// #endif
-
 #if defined(WIN32)
 #include <conio.h>
 void WaitForExit()
@@ -126,127 +107,77 @@ int main(int argc, const char** argv)
         }
         else
         {
-            auto wsi_platform = GetWsiPlatform(arg_parser);
-
             auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
 
-            // Setup platform specific application and window factory.
-            // TODO : window_factory_ update...
-            #if 0
-#if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-            #if 0
-            if (wsi_platform == WsiPlatform::kWin32 || (wsi_platform == WsiPlatform::kAuto && !application))
+            // Setup WSI context based on CLI
+            auto wsi_platform = GetWsiPlatform(arg_parser);
+            #if defined(WIN32)
+            #if defined(VK_USE_PLATFORM_WIN32_KHR)
+            if (wsi_platform == WsiPlatform::kWin32)
             {
-                auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
-                if (win32_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application.get());
-                    application = std::move(win32_application);
-                }
+                application->InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
             }
+            #endif
             #else
-
-            #endif
-#endif
-#else
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            if (wsi_platform == WsiPlatform::kWayland || (wsi_platform == WsiPlatform::kAuto && !application))
+            #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            if (wsi_platform == WsiPlatform::kWayland)
             {
-                auto wayland_application =
-                    std::make_unique<gfxrecon::application::WaylandApplication>(kApplicationName);
-                if (wayland_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application.get());
-                    application = std::move(wayland_application);
-                }
-            }
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-            if (wsi_platform == WsiPlatform::kXcb || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto xcb_application = std::make_unique<gfxrecon::application::XcbApplication>(kApplicationName);
-                if (xcb_application->Initialize(&file_processor))
-                {
-                    window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application.get());
-                    application    = std::move(xcb_application);
-                }
-            }
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-            if (wsi_platform == WsiPlatform::kXlib || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto xlib_application = std::make_unique<gfxrecon::application::XlibApplication>(kApplicationName);
-                if (xlib_application->Initialize(&file_processor))
-                {
-                    window_factory = std::make_unique<gfxrecon::application::XlibWindowFactory>(xlib_application.get());
-                    application    = std::move(xlib_application);
-                }
-            }
-#endif
-#endif
-#if defined(VK_USE_PLATFORM_HEADLESS)
-            #if 0
-            if (wsi_platform == WsiPlatform::kHeadless || (wsi_platform == WsiPlatform::kAuto && !application))
-            {
-                auto headless_application =
-                    std::make_unique<gfxrecon::application::HeadlessApplication>(kApplicationName);
-                if (headless_application->Initialize(&file_processor))
-                {
-                    window_factory =
-                        std::make_unique<gfxrecon::application::HeadlessWindowFactory>(headless_application.get());
-                    application = std::move(headless_application);
-                }
+                application->InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
             }
             #endif
-#endif
+            #if defined(VK_USE_PLATFORM_XCB_KHR)
+            if (wsi_platform == WsiPlatform::kXcb)
+            {
+                application->InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+            }
+            #endif
+            #if defined(VK_USE_PLATFORM_XLIB_KHR)
+            if (wsi_platform == WsiPlatform::kXlib)
+            {
+                application->InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+            }
+            #endif
+            #endif
+            #if defined(VK_USE_PLATFORM_HEADLESS)
+            if (wsi_platform == WsiPlatform::kHeadless)
+            {
+                application->InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
+            }
             #endif
 
-            if (/*!window_factory || !application*/ !application)
+            gfxrecon::graphics::FpsInfo                    fps_info;
+            gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+            gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
+                application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
+            gfxrecon::decode::VulkanDecoder decoder;
+
+            replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+            replay_consumer.SetFpsInfo(&fps_info);
+
+            decoder.AddConsumer(&replay_consumer);
+            file_processor.AddDecoder(&decoder);
+            application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+            // Warn if the capture layer is active.
+            CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
+
+            fps_info.Begin();
+
+            application->Run();
+
+            if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
             {
-                GFXRECON_WRITE_CONSOLE(
-                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                    "Vulkan platform extensions have been enabled.");
+                fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
+            }
+            else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            {
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;
             }
             else
             {
-                gfxrecon::graphics::FpsInfo                    fps_info;
-                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                    application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                gfxrecon::decode::VulkanDecoder decoder;
-
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-                replay_consumer.SetFpsInfo(&fps_info);
-
-                decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
-                application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-                // Warn if the capture layer is active.
-                CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
-
-                fps_info.Begin();
-
-                application->Run();
-
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-                {
-                    fps_info.EndAndLog(file_processor.GetCurrentFrameNumber());
-                }
-                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-                {
-                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
-                    return_code = -1;
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-                }
+                GFXRECON_WRITE_CONSOLE("File did not contain any frames");
             }
         }
     }

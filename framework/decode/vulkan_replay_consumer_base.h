@@ -979,8 +979,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
     std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
-    // WindowFactory*                                                   window_factory_;
-    application::Application*                                      application_;
+    application::Application*                                        application_;
     VulkanObjectInfoTable                                            object_info_table_;
     ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;

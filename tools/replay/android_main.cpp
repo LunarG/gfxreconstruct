@@ -93,9 +93,7 @@ void android_main(struct android_app* app)
 
         try
         {
-            gfxrecon::decode::FileProcessor                            file_processor;
-            // std::unique_ptr<gfxrecon::application::AndroidApplication> application;
-            // std::unique_ptr<gfxrecon::decode::WindowFactory>           window_factory;
+            gfxrecon::decode::FileProcessor file_processor;
 
             if (!file_processor.Initialize(filename))
             {
@@ -103,43 +101,30 @@ void android_main(struct android_app* app)
             }
             else
             {
-                // Setup platform specific application and window factory.
-                // application    = std::make_unique<gfxrecon::application::AndroidApplication>(kApplicationName, app);
-                // window_factory = std::make_unique<gfxrecon::application::AndroidWindowFactory>(application.get());
-
                 auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, &file_processor);
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
-                if (/* !application->Initialize(&file_processor)*/ !application)
-                {
-                    GFXRECON_WRITE_CONSOLE(
-                        "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                        "Vulkan platform extensions have been enabled.");
-                }
-                else
-                {
-                    gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                    gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
-                        application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
-                    gfxrecon::decode::VulkanDecoder decoder;
+                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+                gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
+                    application.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
+                gfxrecon::decode::VulkanDecoder decoder;
 
-                    replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
+                replay_consumer.SetFatalErrorHandler(
+                    [](const char* message) { throw std::runtime_error(message); });
 
-                    decoder.AddConsumer(&replay_consumer);
-                    file_processor.AddDecoder(&decoder);
-                    application->SetPauseFrame(GetPauseFrame(arg_parser));
+                decoder.AddConsumer(&replay_consumer);
+                file_processor.AddDecoder(&decoder);
+                application->SetPauseFrame(GetPauseFrame(arg_parser));
 
-                    // Warn if the capture layer is active.
-                    CheckActiveLayers(kLayerProperty);
+                // Warn if the capture layer is active.
+                CheckActiveLayers(kLayerProperty);
 
-                    // Start the application in the paused state, preventing replay from starting before the app
-                    // gained focus event is received.
-                    application->SetPaused(true);
+                // Start the application in the paused state, preventing replay from starting before the app
+                // gained focus event is received.
+                application->SetPaused(true);
 
-                    app->userData = application.get();
-                    application->Run();
-                }
+                app->userData = application.get();
+                application->Run();
             }
         }
         catch (std::runtime_error error)
