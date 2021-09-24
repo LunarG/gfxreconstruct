@@ -50,7 +50,10 @@ class WaylandContext : public WsiContext
 
     virtual ~WaylandContext() override;
 
-    const util::WaylandLoader::FunctionTable& GetWaylandFunctionTable() const { return wayland_loader_.GetFunctionTable(); }
+    const util::WaylandLoader::FunctionTable& GetWaylandFunctionTable() const
+    {
+        return wayland_loader_.GetFunctionTable();
+    }
 
     struct wl_display* GetDisplay() const { return display_; }
 
@@ -126,7 +129,7 @@ class WaylandContext : public WsiContext
     static void HandleOutputDone(void* data, struct wl_output* wl_output);
     static void HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor);
 
-    typedef std::unordered_map<struct wl_surface*, WaylandWindow*> WaylandWindowMap;
+    typedef std::unordered_map<struct wl_surface*, WaylandWindow*>  WaylandWindowMap;
     typedef std::unordered_map<const struct wl_output*, OutputInfo> OutputInfoMap;
 
     static struct wl_pointer_listener  pointer_listener_;
@@ -134,18 +137,18 @@ class WaylandContext : public WsiContext
     static struct wl_seat_listener     seat_listener_;
     static struct wl_registry_listener registry_listener_;
     static struct wl_output_listener   output_listener_;
-    struct wl_display*                 display_ { };
-    struct wl_shell*                   shell_ { };
-    struct wl_compositor*              compositor_ { };
-    struct wl_registry*                registry_ { };
-    struct wl_seat*                    seat_ { };
-    struct wl_pointer*                 pointer_ { };
-    struct wl_keyboard*                keyboard_ { };
-    struct wl_surface*                 current_keyboard_surface_ { };
-    struct wl_surface*                 current_pointer_surface_ { };
-    WaylandWindowMap                   wayland_windows_ { };
-    OutputInfoMap                      output_info_map_ { };
-    util::WaylandLoader                wayland_loader_ { };
+    struct wl_display*                 display_{};
+    struct wl_shell*                   shell_{};
+    struct wl_compositor*              compositor_{};
+    struct wl_registry*                registry_{};
+    struct wl_seat*                    seat_{};
+    struct wl_pointer*                 pointer_{};
+    struct wl_keyboard*                keyboard_{};
+    struct wl_surface*                 current_keyboard_surface_{};
+    struct wl_surface*                 current_pointer_surface_{};
+    WaylandWindowMap                   wayland_windows_{};
+    OutputInfoMap                      output_info_map_{};
+    util::WaylandLoader                wayland_loader_{};
 };
 
 GFXRECON_END_NAMESPACE(application)

@@ -72,14 +72,14 @@ class Win32Window : public decode::Window
     virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    HWND            hwnd_;
-    Win32Context*   win32_context_;
-    uint32_t        width_;
-    uint32_t        height_;
-    uint32_t        screen_width_;
-    uint32_t        screen_height_;
-    bool            fullscreen_;
-    HINSTANCE       hinstance_;
+    HWND          hwnd_;
+    Win32Context* win32_context_;
+    uint32_t      width_;
+    uint32_t      height_;
+    uint32_t      screen_width_;
+    uint32_t      screen_height_;
+    bool          fullscreen_;
+    HINSTANCE     hinstance_;
 };
 
 class Win32WindowFactory : public decode::WindowFactory
@@ -89,7 +89,8 @@ class Win32WindowFactory : public decode::WindowFactory
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
-    virtual decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window*
+    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     void Destroy(decode::Window* window) override;
 

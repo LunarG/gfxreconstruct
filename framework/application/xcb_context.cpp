@@ -59,7 +59,7 @@ XcbContext::XcbContext(Application* application) : WsiContext(application)
         xcb.screen_next(&iter);
     }
 
-    screen_ = iter.data;
+    screen_         = iter.data;
     window_factory_ = std::make_unique<XcbWindowFactory>(this);
 }
 
