@@ -31,10 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Descriptor handles.
 struct Decoded_D3D12_CPU_DESCRIPTOR_HANDLE;
-struct Decoded_D3D12_GPU_DESCRIPTOR_HANDLE;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CPU_DESCRIPTOR_HANDLE* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* wrapper);
 
 // Unions.
 struct Decoded_D3D12_CLEAR_VALUE;
@@ -66,8 +64,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_ROO
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INDIRECT_ARGUMENT_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper);
+size_t DecodeStruct(const uint8_t*                                                buffer,
+                    size_t                                                        buffer_size,
+                    Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* wrapper);
+size_t
+       DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper);
 

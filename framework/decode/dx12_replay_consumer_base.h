@@ -97,6 +97,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            UINT             feature_data_size) override;
 
   protected:
+    void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
+
+    void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
+
     void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
 
     void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS* addresses, size_t addresses_len);
@@ -362,7 +366,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void OverrideEnableDebugLayer(DxObjectInfo* replay_object_info);
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
-    
+
     void PostPresent(IDXGISwapChain* swapchain);
 
     void OverrideSetAutoBreadcrumbsEnablement(DxObjectInfo* replay_object_info, D3D12_DRED_ENABLEMENT enablement);
@@ -395,6 +399,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
         return nullptr;
     }
+
+    const Dx12DescriptorMap& GetDescriptorMap() const { return descriptor_map_; }
+
+    Dx12DescriptorMap& GetDescriptorMap() { return descriptor_map_; }
 
     const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
 
@@ -475,6 +483,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>          heap_allocations_;
     std::unordered_map<uint64_t, HANDLE>         event_objects_;
     std::function<void(const char*)>             fatal_error_handler_;
+    Dx12DescriptorMap                            descriptor_map_;
     graphics::Dx12GpuVaMap                       gpu_va_map_;
     graphics::Dx12ShaderIdMap                    shader_id_map_;
     std::unique_ptr<uint8_t[]>                   debug_message_;

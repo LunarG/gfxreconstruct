@@ -61,8 +61,7 @@ class Dx12StructUnwrappersHeaderGenerator(Dx12BaseGenerator):
         # List containing names of structs with COM object members.
         structs_with_objects = {
             **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
-            ['ptr'],
-            'D3D12_GPU_DESCRIPTOR_HANDLE': ['ptr']
+            ['ptr']
         }
 
         # Find structs with COM object members, which will need to be

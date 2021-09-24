@@ -828,32 +828,6 @@ void WriteStructString(std::ostringstream&                        oss,
     oss << "}";
 }
 
-void WriteStructString(std::ostringstream&                        oss,
-                       const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* value,
-                       const char*                                indent,
-                       const bool                                 prefix,
-                       const bool                                 output)
-{
-    std::string indent2 = indent;
-    indent2.append("    ");
-    std::string indent_first = indent;
-    if (prefix)
-    {
-        indent_first = "   ";
-    }
-    std::string output_string = "";
-    if (output)
-    {
-        output_string = "/* out */ ";
-    }
-    oss << indent_first << output_string << "D3D12_GPU_DESCRIPTOR_HANDLE{\n";
-    oss << indent2 << value->heap_id;
-    oss << ",\n";
-
-    oss << indent2 << value->index;
-    oss << "}";
-}
-
 void WriteStructString(std::ostringstream&                         oss,
                        const Decoded_D3D12_INDIRECT_ARGUMENT_DESC* value,
                        const char*                                 indent,

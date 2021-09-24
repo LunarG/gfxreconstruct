@@ -416,7 +416,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
 
         // Write call to query the device for heap increment size.
         encoder_.EncodeEnumValue(heap_desc.Type);
-        encoder_.EncodeUInt32Value(S_OK);
+        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
                         heap_info->create_object_id,
                         &parameter_stream_);

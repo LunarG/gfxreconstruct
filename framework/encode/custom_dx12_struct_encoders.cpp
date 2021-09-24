@@ -60,11 +60,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_CPU_DESCRIPTOR_HANDLE& 
     EncodeDescriptorStruct(encoder, value);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& value)
-{
-    EncodeDescriptorStruct(encoder, value);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value)
 {
     encoder->EncodeEnumValue(value.Format);

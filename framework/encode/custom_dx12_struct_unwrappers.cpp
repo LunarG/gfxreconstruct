@@ -53,15 +53,6 @@ void UnwrapStructObjects(D3D12_CPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory*
     }
 }
 
-void UnwrapStructObjects(D3D12_GPU_DESCRIPTOR_HANDLE* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value->ptr != 0)
-    {
-        DxDescriptorInfo* descriptor_info = GetDescriptorInfo(static_cast<size_t>(value->ptr));
-        value->ptr                        = descriptor_info->gpu_address;
-    }
-}
-
 void UnwrapStructObjects(D3D12_RESOURCE_BARRIER* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)

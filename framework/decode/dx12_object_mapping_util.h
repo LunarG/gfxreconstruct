@@ -41,6 +41,12 @@ typedef std::unordered_map<format::HandleId, DxObjectInfo> Dx12ObjectInfoTable;
 
 GFXRECON_BEGIN_NAMESPACE(object_mapping)
 
+void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12DescriptorMap& descriptor_map);
+
+void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles,
+                             size_t                       handles_len,
+                             const Dx12DescriptorMap&     descriptor_map);
+
 void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address, const graphics::Dx12GpuVaMap& gpu_va_map);
 
 void MapGpuVirtualAddresses(D3D12_GPU_VIRTUAL_ADDRESS*    addresses,

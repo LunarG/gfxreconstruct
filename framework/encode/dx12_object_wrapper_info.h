@@ -237,6 +237,7 @@ struct ID3D12DescriptorHeapInfo : public DxWrapperInfo
 
     SIZE_T cpu_start{ 0 };
     UINT64 gpu_start{ 0 };
+    UINT32 descriptor_increment;
 };
 
 struct ID3D12QueryHeapInfo : public DxWrapperInfo

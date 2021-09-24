@@ -331,6 +331,8 @@ void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_DESCRIP
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_ROOT_SIGNATURE_DESC1* value, const char* indent, const bool prefix = false, const bool output = false);
 
+void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* value, const char* indent, const bool prefix = false, const bool output = false);
+
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_DISCARD_REGION* value, const char* indent, const bool prefix = false, const bool output = false);
 
 void WriteStructString(std::ostringstream& oss, const Decoded_D3D12_QUERY_HEAP_DESC* value, const char* indent, const bool prefix = false, const bool output = false);

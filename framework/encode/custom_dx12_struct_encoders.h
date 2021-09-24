@@ -34,7 +34,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 // Descriptor handles.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CPU_DESCRIPTOR_HANDLE& result);
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_DESCRIPTOR_HANDLE& result);
 
 // Unions.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_CLEAR_VALUE& value);

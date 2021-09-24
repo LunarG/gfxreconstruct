@@ -3398,7 +3398,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescrip
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(&BaseDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         replay_object->SetComputeRootDescriptorTable(RootParameterIndex,
                                                      *BaseDescriptor.decoded_value);
     }
@@ -3412,7 +3412,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescri
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(&BaseDescriptor, GetObjectInfoTable(), GetGpuVaTable());
+        MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         replay_object->SetGraphicsRootDescriptorTable(RootParameterIndex,
                                                       *BaseDescriptor.decoded_value);
     }
@@ -3681,7 +3681,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(&ViewGPUHandleInCurrentHeap, GetObjectInfoTable(), GetGpuVaTable());
+        MapGpuDescriptorHandle(*ViewGPUHandleInCurrentHeap.decoded_value);
         MapStructObjects(&ViewCPUHandle, GetObjectInfoTable(), GetGpuVaTable());
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         replay_object->ClearUnorderedAccessViewUint(*ViewGPUHandleInCurrentHeap.decoded_value,
@@ -3705,7 +3705,7 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
     auto replay_object = MapObject<ID3D12GraphicsCommandList>(object_id);
     if (replay_object != nullptr)
     {
-        MapStructObjects(&ViewGPUHandleInCurrentHeap, GetObjectInfoTable(), GetGpuVaTable());
+        MapGpuDescriptorHandle(*ViewGPUHandleInCurrentHeap.decoded_value);
         MapStructObjects(&ViewCPUHandle, GetObjectInfoTable(), GetGpuVaTable());
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         replay_object->ClearUnorderedAccessViewFloat(*ViewGPUHandleInCurrentHeap.decoded_value,

@@ -106,12 +106,6 @@ void WriteStructString(std::ostringstream&                        oss,
                        const bool                                 prefix = false,
                        const bool                                 output = false);
 
-void WriteStructString(std::ostringstream&                        oss,
-                       const Decoded_D3D12_GPU_DESCRIPTOR_HANDLE* value,
-                       const char*                                indent,
-                       const bool                                 prefix = false,
-                       const bool                                 output = false);
-
 void WriteStructString(std::ostringstream&                         oss,
                        const Decoded_D3D12_INDIRECT_ARGUMENT_DESC* value,
                        const char*                                 indent,

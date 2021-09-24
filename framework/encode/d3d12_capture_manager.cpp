@@ -601,8 +601,9 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         auto descriptor_heap = heap_wrapper->GetWrappedObjectAs<ID3D12DescriptorHeap>();
         auto num_descriptors = desc->NumDescriptors;
 
-        info->descriptor_memory = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
-        info->descriptor_info   = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
+        info->descriptor_memory    = std::make_unique<uint8_t[]>(static_cast<size_t>(num_descriptors) * increment);
+        info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
+        info->descriptor_increment = increment;
 
         size_t offset    = 0;
         auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -1255,8 +1256,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_Ge
     assert(info != nullptr);
 
     auto result = heap->GetGPUDescriptorHandleForHeapStart();
-
-    result.ptr = reinterpret_cast<uint64_t>(info->descriptor_memory.get());
 
     if ((GetCaptureMode() & kModeTrack) == kModeTrack)
     {
