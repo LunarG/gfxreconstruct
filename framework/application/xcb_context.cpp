@@ -34,11 +34,10 @@ GFXRECON_BEGIN_NAMESPACE(application)
 XcbContext::XcbContext(Application* application) : WsiContext(application)
 {
     xcb_loader_.Initialize();
-    // TODO : window_factory_ update...
-    // if (!xcb_loader_.Initialize())
-    // {
-    //     return false;
-    // }
+    if (!xcb_loader_.Initialize())
+    {
+        GFXRECON_LOG_DEBUG("Failed initialize XCB loader");
+    }
 
     auto& xcb          = xcb_loader_.GetFunctionTable();
     int   screen_count = 0;
@@ -47,8 +46,6 @@ XcbContext::XcbContext(Application* application) : WsiContext(application)
     if (xcb.connection_has_error(connection_))
     {
         GFXRECON_LOG_DEBUG("Failed to connect to an X server");
-        // TODO : window_factory_ update...
-        // return false;
     }
 
     const xcb_setup_t*    setup = xcb.get_setup(connection_);
@@ -71,40 +68,6 @@ XcbContext::~XcbContext()
         xcb.disconnect(connection_);
     }
 }
-
-#if 0
-bool XcbContext::Initialize(decode::FileProcessor* file_processor)
-{
-    if (!xcb_loader_.Initialize())
-    {
-        return false;
-    }
-
-    auto& xcb          = xcb_loader_.GetFunctionTable();
-    int   screen_count = 0;
-    connection_        = xcb.connect(nullptr, &screen_count);
-
-    if (xcb.connection_has_error(connection_))
-    {
-        GFXRECON_LOG_DEBUG("Failed to connect to an X server");
-        return false;
-    }
-
-    const xcb_setup_t*    setup = xcb.get_setup(connection_);
-    xcb_screen_iterator_t iter  = xcb.setup_roots_iterator(setup);
-
-    for (int i = 0; i < screen_count; ++i)
-    {
-        xcb.screen_next(&iter);
-    }
-
-    screen_ = iter.data;
-
-    SetFileProcessor(file_processor);
-
-    return true;
-}
-#endif
 
 bool XcbContext::RegisterXcbWindow(XcbWindow* window)
 {

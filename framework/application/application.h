@@ -75,7 +75,7 @@ class Application final
     bool                        running_;        ///< Indicates that the application is actively processing system events for playback.
     bool                        paused_;         ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                    pause_frame_;    ///< The number for a frame that replay should pause after.
-    std::unique_ptr<WsiContext> wsi_context_;    ///< TODO : Documentation
+    std::unique_ptr<WsiContext> wsi_context_;    ///< The window system context used for playback
     // clang-format on
 };
 
