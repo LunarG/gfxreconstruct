@@ -60,8 +60,8 @@ class AndroidContext : public WsiContext
     void SetOrientation(ScreenOrientation orientation);
 
   private:
-    std::unique_ptr<AndroidWindow> window_ { };
-    struct android_app*            android_app_ { };
+    std::unique_ptr<AndroidWindow> window_{};
+    struct android_app*            android_app_{};
 };
 
 GFXRECON_END_NAMESPACE(application)
