@@ -37,9 +37,7 @@ AndroidContext::AndroidContext(Application* application, struct android_app* app
     window_factory_ = std::make_unique<AndroidWindowFactory>(this);
 }
 
-AndroidContext::~AndroidContext()
-{
-}
+AndroidContext::~AndroidContext() {}
 
 void AndroidContext::ProcessEvents(bool wait_for_input)
 {
