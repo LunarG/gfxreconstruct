@@ -2390,25 +2390,26 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (replay_create_info->ppEnabledExtensionNames)
         {
-            // TODO : window_factory_ update...
+            // If a WSI was selected on the command line we need to add that WSI surface extension name to the
+            // VkInstance
+            assert(application_);
+            auto wsi_context       = application_->GetWsiContext();
+            auto window_factory    = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+            auto cli_wsi_extension = window_factory ? window_factory->GetSurfaceExtensionName() : nullptr;
+            if (cli_wsi_extension)
+            {
+                filtered_extensions.push_back(cli_wsi_extension);
+            }
+
             // Swap the surface extension supported by platform the replay is running on if different from trace
             for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
             {
-                const char* current_extension = replay_create_info->ppEnabledExtensionNames[i];
-                // if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
-                // {
-                //     filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
-                // }
-                // else
-                // {
-                //     filtered_extensions.push_back(current_extension);
-                // }
+                auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
                 filtered_extensions.push_back(current_extension);
-            }
-            for (const auto& extension : filtered_extensions)
-            {
-                assert(application_);
-                application_->InitializeWsiContext(extension);
+                if (!cli_wsi_extension && kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                {
+                    application_->InitializeWsiContext(current_extension);
+                }
             }
 
             PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
