@@ -51,9 +51,12 @@ GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
     name_(name), file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0)
-{}
+{
+}
 
-Application ::~Application() {}
+Application ::~Application()
+{
+}
 
 void Application::Run()
 {
@@ -129,49 +132,48 @@ void Application::InitializeWsiContext(const char* surfaceExtensionName, void* p
 {
     if (!wsi_context_)
     {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        #if defined(VK_USE_PLATFORM_WIN32_KHR)
         if (!strcmp(surfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<Win32Context>(this);
         }
         else
-#endif
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+        #endif
+        #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<WaylandContext>(this);
         }
         else
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+        #endif
+        #if defined(VK_USE_PLATFORM_XCB_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<XcbContext>(this);
         }
         else
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+        #endif
+        #if defined(VK_USE_PLATFORM_XLIB_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<XlibContext>(this);
         }
         else
-#endif
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-            if (!strcmp(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+        #endif
+        #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (!strcmp(surfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
         {
-            wsi_context_ =
-                std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+            wsi_context_ = std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
         }
         else
-#endif
-#if defined(VK_USE_PLATFORM_HEADLESS)
-            if (!strcmp(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+        #endif
+        #if defined(VK_USE_PLATFORM_HEADLESS)
+        if (!strcmp(surfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
         {
             wsi_context_ = std::make_unique<HeadlessContext>(this);
         }
         else
-#endif
+        #endif
         {
             // NOOP :
         }
