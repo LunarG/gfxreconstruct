@@ -177,9 +177,11 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
 {
     if (table != nullptr)
     {
-        VkWaylandSurfaceCreateInfoKHR create_info{
-            VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR, nullptr, flags, wayland_context_->GetDisplay(), surface_
-        };
+        VkWaylandSurfaceCreateInfoKHR create_info{ VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+                                                   nullptr,
+                                                   flags,
+                                                   wayland_context_->GetDisplay(),
+                                                   surface_ };
 
         return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
     }
@@ -254,8 +256,8 @@ decode::Window*
 WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     assert(wayland_context_);
-    decode::Window* window      = new WaylandWindow(wayland_context_);
-    auto            application = wayland_context_->GetApplication();
+    decode::Window* window = new WaylandWindow(wayland_context_);
+    auto application = wayland_context_->GetApplication();
     assert(application);
     window->Create(application->GetName(), x, y, width, height);
     return window;

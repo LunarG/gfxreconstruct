@@ -36,7 +36,8 @@ WsiContext ::~WsiContext()
 {
     if (!windows_.empty())
     {
-        GFXRECON_LOG_INFO("WsiContext is destroying windows that were not previously destroyed by their owner");
+        GFXRECON_LOG_INFO(
+            "WsiContext is destroying windows that were not previously destroyed by their owner");
 
         for (auto window : windows_)
         {

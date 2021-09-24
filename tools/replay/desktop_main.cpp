@@ -111,39 +111,39 @@ int main(int argc, const char** argv)
 
             // Setup WSI context based on CLI
             auto wsi_platform = GetWsiPlatform(arg_parser);
-#if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
+            #if defined(WIN32)
+            #if defined(VK_USE_PLATFORM_WIN32_KHR)
             if (wsi_platform == WsiPlatform::kWin32)
             {
                 application->InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
             }
-#endif
-#else
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            #endif
+            #else
+            #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
             if (wsi_platform == WsiPlatform::kWayland)
             {
                 application->InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
             }
-#endif
-#if defined(VK_USE_PLATFORM_XCB_KHR)
+            #endif
+            #if defined(VK_USE_PLATFORM_XCB_KHR)
             if (wsi_platform == WsiPlatform::kXcb)
             {
                 application->InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
             }
-#endif
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
+            #endif
+            #if defined(VK_USE_PLATFORM_XLIB_KHR)
             if (wsi_platform == WsiPlatform::kXlib)
             {
                 application->InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
             }
-#endif
-#endif
-#if defined(VK_USE_PLATFORM_HEADLESS)
+            #endif
+            #endif
+            #if defined(VK_USE_PLATFORM_HEADLESS)
             if (wsi_platform == WsiPlatform::kHeadless)
             {
                 application->InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
             }
-#endif
+            #endif
 
             gfxrecon::graphics::FpsInfo                    fps_info;
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
