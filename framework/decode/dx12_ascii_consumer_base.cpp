@@ -364,8 +364,12 @@ void Dx12AsciiConsumerBase::DumpPresentWithFrameNumber(
         {
             WriteStructString(oss, pPresentParameters->GetMetaStructPointer(), "    ", false, false);
         }
-        oss << ");\n\n";
+        else
+        {
+            oss << "nullptr\n";
+        }
     }
+    oss << ");\n\n";
 
     fprintf(GetFile(), "%s\n", oss.str().c_str());
 }
