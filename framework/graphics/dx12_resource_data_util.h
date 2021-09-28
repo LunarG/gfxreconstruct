@@ -41,6 +41,7 @@ class Dx12ResourceDataUtil
     virtual ~Dx12ResourceDataUtil() {}
 
     HRESULT ReadFromResource(ID3D12Resource*                             target_resource,
+                             bool                                        try_map_and_copy,
                              const std::vector<dx12::ResourceStateInfo>& before_states,
                              const std::vector<dx12::ResourceStateInfo>& after_states,
                              std::vector<uint8_t>&                       data,
@@ -48,6 +49,7 @@ class Dx12ResourceDataUtil
                              std::vector<uint64_t>&                      subresource_sizes);
 
     HRESULT WriteToResource(ID3D12Resource*                             target_resource,
+                            bool                                        try_map_and_copy,
                             const std::vector<dx12::ResourceStateInfo>& before_states,
                             const std::vector<dx12::ResourceStateInfo>& after_states,
                             const std::vector<uint8_t>&                 data,

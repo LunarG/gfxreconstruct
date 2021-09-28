@@ -4669,20 +4669,22 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateReservedResource(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvResource)
 {
-    auto replay_object = MapObject<ID3D12Device>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
         if(!ppvResource->IsNull()) ppvResource->SetHandleLength(1);
-        auto out_p_ppvResource    = ppvResource->GetPointer();
-        auto out_hp_ppvResource   = ppvResource->GetHandlePointer();
-        auto replay_result = replay_object->CreateReservedResource(pDesc->GetPointer(),
-                                                                   InitialState,
-                                                                   pOptimizedClearValue->GetPointer(),
-                                                                   *riid.decoded_value,
-                                                                   out_hp_ppvResource);
+        DxObjectInfo object_info{};
+        ppvResource->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateReservedResource(replay_object,
+                                                            return_value,
+                                                            pDesc,
+                                                            InitialState,
+                                                            pOptimizedClearValue,
+                                                            riid,
+                                                            ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device_CreateReservedResource", return_value, replay_result);
     }
@@ -5423,22 +5425,24 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_CreateReservedResource1(
     Decoded_GUID                                riid,
     HandlePointerDecoder<void*>*                ppvResource)
 {
-    auto replay_object = MapObject<ID3D12Device4>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
     {
-        auto in_pProtectedSession = MapObject<ID3D12ProtectedResourceSession>(pProtectedSession);
+        auto in_pProtectedSession = GetObjectInfo(pProtectedSession);
         if(!ppvResource->IsNull()) ppvResource->SetHandleLength(1);
-        auto out_p_ppvResource    = ppvResource->GetPointer();
-        auto out_hp_ppvResource   = ppvResource->GetHandlePointer();
-        auto replay_result = replay_object->CreateReservedResource1(pDesc->GetPointer(),
-                                                                    InitialState,
-                                                                    pOptimizedClearValue->GetPointer(),
-                                                                    in_pProtectedSession,
-                                                                    *riid.decoded_value,
-                                                                    out_hp_ppvResource);
+        DxObjectInfo object_info{};
+        ppvResource->SetConsumerData(0, &object_info);
+        auto replay_result = OverrideCreateReservedResource1(replay_object,
+                                                             return_value,
+                                                             pDesc,
+                                                             InitialState,
+                                                             pOptimizedClearValue,
+                                                             in_pProtectedSession,
+                                                             riid,
+                                                             ppvResource);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvResource, out_hp_ppvResource);
+            AddObject(ppvResource->GetPointer(), ppvResource->GetHandlePointer(), std::move(object_info));
         }
         CheckReplayResult("ID3D12Device4_CreateReservedResource1", return_value, replay_result);
     }

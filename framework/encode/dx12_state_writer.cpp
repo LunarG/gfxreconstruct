@@ -720,8 +720,12 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     temp_subresource_sizes_.clear();
     temp_subresource_offsets_.clear();
 
+    bool try_map_and_copy = (resource_info->create_call_id != format::ApiCall_ID3D12Device_CreateReservedResource) &&
+                            (resource_info->create_call_id != format::ApiCall_ID3D12Device4_CreateReservedResource1);
+
     // Read the data from the resource.
     HRESULT result = resource_data_util->ReadFromResource(resource,
+                                                          try_map_and_copy,
                                                           resource_info->subresource_transitions,
                                                           resource_info->subresource_transitions,
                                                           temp_subresource_data_,

@@ -384,6 +384,22 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetPageFaultEnablement(ID3D12DeviceRemovedExtendedDataSettings1* dred_settings,
                                 D3D12_DRED_ENABLEMENT                     enablement);
 
+    HRESULT OverrideCreateReservedResource(DxObjectInfo*                                      device_object_info,
+                                           HRESULT                                            original_result,
+                                           StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+                                           D3D12_RESOURCE_STATES                              initial_state,
+                                           StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+                                           Decoded_GUID                                       riid,
+                                           HandlePointerDecoder<void*>*                       resource);
+
+    HRESULT OverrideCreateReservedResource1(DxObjectInfo*                                      device_object_info,
+                                            HRESULT                                            original_result,
+                                            StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+                                            D3D12_RESOURCE_STATES                              initial_state,
+                                            StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+                                            DxObjectInfo*                protected_session_object_info,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* resource);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
@@ -499,6 +515,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     struct ResourceInitInfo
     {
         ID3D12Resource*                                resource{ nullptr };
+        bool                                           try_map_and_copy{ true };
         std::vector<uint8_t>                           data;
         std::vector<uint64_t>                          subresource_offsets;
         std::vector<uint64_t>                          subresource_sizes;
@@ -508,7 +525,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         // Prefer Reset over creating new ResourceInitInfos in order to reuse the vectors' heap allocations.
         void Reset()
         {
-            resource = nullptr;
+            resource         = nullptr;
+            try_map_and_copy = true;
             data.clear();
             subresource_offsets.clear();
             subresource_sizes.clear();

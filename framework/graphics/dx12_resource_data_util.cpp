@@ -323,6 +323,7 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetStagingBuffer(CopyType type,
 }
 
 HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                             target_resource,
+                                               bool                                        try_map_and_copy,
                                                const std::vector<dx12::ResourceStateInfo>& before_states,
                                                const std::vector<dx12::ResourceStateInfo>& after_states,
                                                std::vector<uint8_t>&                       data,
@@ -348,14 +349,14 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
     data.resize(static_cast<size_t>(required_data_size));
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeRead,
-                             &data,
-                             nullptr,
-                             subresource_offsets,
-                             subresource_sizes))
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeRead,
+                                                 &data,
+                                                 nullptr,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }
@@ -377,6 +378,7 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
 }
 
 HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                             target_resource,
+                                              bool                                        try_map_and_copy,
                                               const std::vector<dx12::ResourceStateInfo>& before_states,
                                               const std::vector<dx12::ResourceStateInfo>& after_states,
                                               const std::vector<uint8_t>&                 data,
@@ -400,14 +402,14 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
                         required_data_size);
 
     // If the resource can be mapped, map it, copy the data, and return success.
-    if (CopyMappableResource(target_resource,
-                             before_states,
-                             after_states,
-                             kCopyTypeWrite,
-                             nullptr,
-                             &data,
-                             subresource_offsets,
-                             subresource_sizes))
+    if (try_map_and_copy && CopyMappableResource(target_resource,
+                                                 before_states,
+                                                 after_states,
+                                                 kCopyTypeWrite,
+                                                 nullptr,
+                                                 &data,
+                                                 subresource_offsets,
+                                                 subresource_sizes))
     {
         return S_OK;
     }

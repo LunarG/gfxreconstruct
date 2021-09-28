@@ -266,6 +266,7 @@ void Dx12ReplayConsumerBase::ApplyResourceInitInfo()
     if (resource_init_info_.resource != nullptr)
     {
         resource_data_util_->WriteToResource(resource_init_info_.resource,
+                                             resource_init_info_.try_map_and_copy,
                                              resource_init_info_.before_states,
                                              resource_init_info_.after_states,
                                              resource_init_info_.data,
@@ -311,6 +312,13 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     {
         ApplyResourceInitInfo();
         resource_init_info_.resource = resource;
+
+        bool is_reserved_resource = false;
+        if (resource_info->extra_info != nullptr)
+        {
+            is_reserved_resource = GetExtraInfo<D3D12ResourceInfo>(resource_info)->is_reserved_resource;
+        }
+        resource_init_info_.try_map_and_copy = !is_reserved_resource;
     }
 
     resource_init_info_.before_states.push_back(
@@ -2191,6 +2199,87 @@ void Dx12ReplayConsumerBase::RaiseFatalError(const char* message) const
     {
         fatal_error_handler_(message);
     }
+}
+
+// Helper to initialize the resource's D3D12ResourceInfo and set its is_reserved_resource = true.
+static void SetIsReservedResource(HandlePointerDecoder<void*>* resource)
+{
+    auto resource_object_info = static_cast<DxObjectInfo*>(resource->GetConsumerData(0));
+
+    GFXRECON_ASSERT(resource_object_info != nullptr);
+
+    // This function is called from reserved resource creation, so extra_info should not exist yet.
+    GFXRECON_ASSERT(resource_object_info->extra_info == nullptr);
+
+    auto resource_info                  = std::make_unique<D3D12ResourceInfo>();
+    resource_info->is_reserved_resource = true;
+    resource_object_info->extra_info    = std::move(resource_info);
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource(
+    DxObjectInfo*                                      device_object_info,
+    HRESULT                                            original_result,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+    D3D12_RESOURCE_STATES                              initial_state,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+    Decoded_GUID                                       riid,
+    HandlePointerDecoder<void*>*                       resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT(device_object_info != nullptr);
+    GFXRECON_ASSERT(device_object_info->object != nullptr);
+
+    auto    device        = static_cast<ID3D12Device*>(device_object_info->object);
+    HRESULT replay_result = device->CreateReservedResource(desc->GetPointer(),
+                                                           initial_state,
+                                                           optimized_clear_value->GetPointer(),
+                                                           *riid.decoded_value,
+                                                           resource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        SetIsReservedResource(resource);
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource1(
+    DxObjectInfo*                                      device_object_info,
+    HRESULT                                            original_result,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* desc,
+    D3D12_RESOURCE_STATES                              initial_state,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   optimized_clear_value,
+    DxObjectInfo*                                      protected_session_object_info,
+    Decoded_GUID                                       riid,
+    HandlePointerDecoder<void*>*                       resource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT(device_object_info != nullptr);
+    GFXRECON_ASSERT(device_object_info->object != nullptr);
+
+    auto                            device4           = static_cast<ID3D12Device4*>(device_object_info->object);
+    ID3D12ProtectedResourceSession* protected_session = nullptr;
+    if (protected_session_object_info != nullptr)
+    {
+        protected_session = static_cast<ID3D12ProtectedResourceSession*>(protected_session_object_info->object);
+    }
+
+    HRESULT replay_result = device4->CreateReservedResource1(desc->GetPointer(),
+                                                             initial_state,
+                                                             optimized_clear_value->GetPointer(),
+                                                             protected_session,
+                                                             *riid.decoded_value,
+                                                             resource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        SetIsReservedResource(resource);
+    }
+
+    return replay_result;
 }
 
 GFXRECON_END_NAMESPACE(decode)
