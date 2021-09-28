@@ -48,7 +48,8 @@
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
 #endif
-#include <encode/deferred_operation.h>
+#include <encode/deferred_operation_create_ray_tracing_pipelines.h>
+#include <encode/deferred_operation_manager.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)

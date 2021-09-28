@@ -47,6 +47,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation_create_ray_tracing_pipelines.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/deferred_operation.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.cpp

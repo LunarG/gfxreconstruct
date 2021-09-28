@@ -48,6 +48,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/deferred_operation.h
+                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_create_ray_tracing_pipelines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/deferred_operation_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/deferred_operation.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.cpp

@@ -31,6 +31,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
 /*
    If some API call is a deferred operation, the process of that call will
    not be finished when the call return to caller, the task of the call will
@@ -87,113 +88,6 @@ class DeferredOperation
     format::ApiCallId      api_call_id_;
     VkDeferredOperationKHR deferred_operation_;
     VkDevice               device_;
-};
-
-class DeferredOperationManager
-{
-  public:
-
-    DeferredOperationManager() {}
-
-    ~DeferredOperationManager() {}
-
-    static std::unique_ptr<DeferredOperationManager>& Get() { return instance_; }
-
-    void add(VkDeferredOperationKHR deferred_operation_handle, std::unique_ptr<DeferredOperation> operation)
-    {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        if ((deferred_operation_handle != VK_NULL_HANDLE) && (operation))
-        {
-            deferred_operations_[deferred_operation_handle] = std::move(operation);
-        }
-    }
-
-    std::unique_ptr<DeferredOperation>& Find(VkDeferredOperationKHR deferred_operation_handle)
-    {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        return FindDeferredOperation(deferred_operation_handle);
-    }
-
-    void PostProcess(VkDeferredOperationKHR deferred_operation_handle)
-    {
-        const std::lock_guard<std::mutex>   lock(mutex_);
-        std::unique_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
-        if (deferred_operation)
-        {
-            deferred_operation->PostProcess();
-            deferred_operations_.erase(deferred_operation_handle);
-        }
-    }
-
-    // return the current status of the deferred operation.
-    // return VK_ERROR_UNKNOWN if deferred_operation_handle is not found.
-    VkResult GetStatus(VkDeferredOperationKHR deferred_operation_handle)
-    {
-        const std::lock_guard<std::mutex> lock(mutex_);
-        VkResult                          result = VK_ERROR_UNKNOWN;
-
-        std::unique_ptr<DeferredOperation>& deferred_operation = FindDeferredOperation(deferred_operation_handle);
-        if (deferred_operation)
-        {
-            result = deferred_operation->GetStatus();
-        }
-        return result;
-    }
-
-  protected:
-    std::unique_ptr<DeferredOperation>& FindDeferredOperation(VkDeferredOperationKHR deferred_operation_handle)
-    {
-        if (deferred_operations_.find(deferred_operation_handle) != deferred_operations_.end())
-        {
-            return deferred_operations_[deferred_operation_handle];
-        }
-        else
-        {
-            return null_operation_;
-        }
-    }
-
-  private:
-    std::mutex                                                                     mutex_;
-    std::unordered_map<VkDeferredOperationKHR, std::unique_ptr<DeferredOperation>> deferred_operations_;
-    static std::unique_ptr<DeferredOperationManager>                               instance_;
-    std::unique_ptr<DeferredOperation> null_operation_ = std::unique_ptr<DeferredOperation>(nullptr);
-};
-
-class DeferredOperationCreateRayTracingPipelines : public DeferredOperation
-{
-  public:
-    DeferredOperationCreateRayTracingPipelines(VkDevice                                 device,
-                                               VkDeferredOperationKHR                   deferredOperation,
-                                               VkPipelineCache                          pipelineCache,
-                                               uint32_t                                 createInfoCount,
-                                               const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
-                                               const VkAllocationCallbacks*             pAllocator,
-                                               VkPipeline*                              pPipelines) :
-        DeferredOperation(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR, device, deferredOperation),
-        pipeline_cache_(pipelineCache), create_info_count_(createInfoCount),
-        create_infos_(pCreateInfos), allocator_(pAllocator), pipelines_(pPipelines),
-        modified_create_infos_(std::make_unique<VkRayTracingPipelineCreateInfoKHR[]>(createInfoCount))
-    {}
-
-    virtual ~DeferredOperationCreateRayTracingPipelines() {}
-
-    void PostProcess();
-
-    std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]>& GetModifiedCreateInfos() { return modified_create_infos_; }
-    HandleUnwrapMemory&                                   GetHandleUnwrapMemory() { return handle_unwrap_memory_; }
-    const VkRayTracingPipelineCreateInfoKHR*&             GetCreateInfosUnwrapped() { return create_infos_unwrapped_; }
-
-  private:
-    VkPipelineCache                          pipeline_cache_;
-    uint32_t                                 create_info_count_;
-    const VkRayTracingPipelineCreateInfoKHR* create_infos_;
-    const VkAllocationCallbacks*             allocator_;
-    VkPipeline*                              pipelines_;
-
-    HandleUnwrapMemory                                   handle_unwrap_memory_;
-    std::unique_ptr<VkRayTracingPipelineCreateInfoKHR[]> modified_create_infos_;
-    const VkRayTracingPipelineCreateInfoKHR*             create_infos_unwrapped_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
