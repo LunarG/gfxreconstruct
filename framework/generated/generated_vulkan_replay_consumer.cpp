@@ -31,7 +31,8 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_handle_mapping_util.h"
-#include "decode/deferred_operation_info.h"
+#include "decode/deferred_operation_info_create_ray_tracing_pipelines.h"
+#include "decode/deferred_operation_info_manager.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"

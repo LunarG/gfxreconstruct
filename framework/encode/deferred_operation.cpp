@@ -34,7 +34,8 @@
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
-#include "encode/deferred_operation.h"
+#include "encode/deferred_operation_manager.h"
+#include "encode/deferred_operation_create_ray_tracing_pipelines.h"
 
 #include <cassert>
 #include <unordered_set>
