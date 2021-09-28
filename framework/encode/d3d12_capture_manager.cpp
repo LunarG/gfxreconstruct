@@ -1921,5 +1921,17 @@ void D3D12CaptureManager::PostProcess_SetPrivateData(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                                                         HRESULT                         result,
+                                                                         UINT                            NumObjects,
+                                                                         ID3D12Pageable* const*          ppObjects,
+                                                                         const D3D12_RESIDENCY_PRIORITY* pPriorities)
+{
+    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    {
+        state_tracker_->TrackResidencyPriority(device_wrapper, NumObjects, ppObjects, pPriorities);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

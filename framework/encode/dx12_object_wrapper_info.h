@@ -284,7 +284,9 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 {};
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
-{};
+{
+    std::unordered_map<format::HandleId, D3D12_RESIDENCY_PRIORITY> residency_priorities; // ID3D12Pageable
+};
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
 {

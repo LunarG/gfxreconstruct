@@ -180,6 +180,11 @@ class Dx12StateTracker
 
     void TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name, UINT data_size, const void* data);
 
+    void TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                UINT                            num_objects,
+                                ID3D12Pageable* const*          objects,
+                                const D3D12_RESIDENCY_PRIORITY* priorities);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)

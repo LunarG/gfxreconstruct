@@ -101,6 +101,8 @@ class Dx12StateWriter
 
     void WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
 
+    void WriteResidencyPriority(const Dx12StateTable& state_table);
+
     void WriteAddRefCommand(format::HandleId handle_id, unsigned long result_ref_count);
 
     void WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count);

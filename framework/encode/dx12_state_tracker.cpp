@@ -419,5 +419,24 @@ void Dx12StateTracker::TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name,
     }
 }
 
+void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
+                                              UINT                            num_objects,
+                                              ID3D12Pageable* const*          objects,
+                                              const D3D12_RESIDENCY_PRIORITY* priorities)
+{
+    GFXRECON_ASSERT(device_wrapper != nullptr);
+    GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
+    GFXRECON_ASSERT(objects != nullptr);
+    GFXRECON_ASSERT(priorities != nullptr);
+
+    auto device_info = device_wrapper->GetObjectInfo();
+    for (UINT i = 0; i < num_objects; ++i)
+    {
+        GFXRECON_ASSERT(objects[i] != nullptr);
+        auto handle_id                               = GetWrappedId<ID3D12Pageable>(objects[i]);
+        device_info->residency_priorities[handle_id] = priorities[i];
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

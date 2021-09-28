@@ -137,6 +137,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // Command lists
     StandardCreateWrite<ID3D12CommandAllocator_Wrapper>(state_table);
     StandardCreateWrite<ID3D12CommandSignature_Wrapper>(state_table);
+    WriteResidencyPriority(state_table);
     WriteGraphicsCommandListState(state_table);
 
     marker.marker_type = format::kEndMarker;
@@ -878,6 +879,34 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         encoder_.EncodeInt32Value(S_OK);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12Fence_Signal, fence_wrapper->GetCaptureId(), &parameter_stream_);
+        parameter_stream_.Reset();
+    });
+}
+
+void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](ID3D12Device_Wrapper* device_wrapper) {
+        GFXRECON_ASSERT(device_wrapper != nullptr);
+        GFXRECON_ASSERT(device_wrapper->GetObjectInfo() != nullptr);
+
+        auto     device_info = device_wrapper->GetObjectInfo();
+        auto     handle_id   = device_wrapper->GetCaptureId();
+        uint32_t num_objects = static_cast<uint32_t>(device_info->residency_priorities.size());
+
+        std::vector<format::HandleId>         handles;
+        std::vector<D3D12_RESIDENCY_PRIORITY> priorities;
+
+        for (auto& entry : device_info->residency_priorities)
+        {
+            handles.emplace_back(entry.first);
+            priorities.emplace_back(entry.second);
+        }
+
+        encoder_.EncodeUInt32Value(num_objects);
+        encoder_.EncodeHandleIdArray(handles.data(), num_objects);
+        encoder_.EncodeEnumArray(priorities.data(), num_objects);
+        encoder_.EncodeInt32Value(S_OK);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
         parameter_stream_.Reset();
     });
 }
