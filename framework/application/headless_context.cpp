@@ -57,6 +57,8 @@ HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) : Wsi
 
         graphics::ReleaseLoader(loader_handle);
     }
+
+    window_factory_ = std::make_unique<HeadlessWindowFactory>(this);
 }
 
 void HeadlessContext::ProcessEvents(bool wait_for_input)

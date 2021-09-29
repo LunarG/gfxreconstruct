@@ -105,6 +105,8 @@ WaylandContext::WaylandContext(Application* application) : WsiContext(applicatio
             success = false;
         }
     }
+
+    window_factory_ = std::make_unique<WaylandWindowFactory>(this);
 }
 
 WaylandContext::~WaylandContext()

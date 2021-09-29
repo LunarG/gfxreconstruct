@@ -52,6 +52,8 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
     {
         GFXRECON_LOG_DEBUG("Failed to open xlib display");
     }
+
+    window_factory_ = std::make_unique<XlibWindowFactory>(this);
 }
 
 XlibContext::~XlibContext()
