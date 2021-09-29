@@ -41,7 +41,7 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
 {
     if (!xlib_loader_.Initialize())
     {
-        // return false;
+        GFXRECON_LOG_DEBUG("Failed to initialize xlib loader");
     }
 
     const auto xlib = xlib_loader_.GetFunctionTable();
@@ -50,7 +50,7 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
     display_ = xlib.OpenDisplay(nullptr);
     if (!display_)
     {
-        // return false;
+        GFXRECON_LOG_DEBUG("Failed to open xlib display");
     }
 }
 
