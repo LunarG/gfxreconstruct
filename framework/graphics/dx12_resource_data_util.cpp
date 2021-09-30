@@ -546,7 +546,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     ID3D12Pageable* const pageable = target_resource;
     if (!SUCCEEDED(device_->MakeResident(1, &pageable)))
     {
-        GFXRECON_LOG_WARNING("Failed to make resource resident for writing data to resource");
+        GFXRECON_LOG_ERROR("Failed to make resource resident for copying resource data.");
         return E_FAIL;
     }
 
@@ -635,6 +635,12 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     if (FAILED(result))
     {
         GFXRECON_LOG_ERROR("Error executing command list to copy resource data. (error = %lx)", result);
+    }
+
+    // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident above.
+    if (!SUCCEEDED(device_->Evict(1, &pageable)))
+    {
+        GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
     }
 
     return result;
