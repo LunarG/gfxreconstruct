@@ -227,7 +227,7 @@ void TraceManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
     LoadDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
+bool TraceManager::Initialize(const std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = true;
 

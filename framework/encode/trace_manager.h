@@ -946,7 +946,7 @@ class TraceManager
 
     ~TraceManager();
 
-    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
+    bool Initialize(const std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
     enum PageGuardMemoryMode : uint32_t
