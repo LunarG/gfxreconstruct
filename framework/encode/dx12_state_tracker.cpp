@@ -240,7 +240,6 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
     // Store creation data with descriptor info struct.
     descriptor_info->create_object_id = create_object_wrapper->GetCaptureId();
     descriptor_info->create_call_id   = call_id;
-
     if (descriptor_info->create_parameters == nullptr)
     {
         descriptor_info->create_parameters =
@@ -251,7 +250,8 @@ void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           c
         descriptor_info->create_parameters->Reset();
         descriptor_info->create_parameters->Write(parameter_buffer->GetData(), parameter_buffer->GetDataSize());
     }
-    descriptor_info->is_copy = false;
+    descriptor_info->is_copy      = false;
+    descriptor_info->resource_ids = { format::kNullHandleId, format::kNullHandleId };
 }
 
 void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descriptors,
