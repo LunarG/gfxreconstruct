@@ -127,7 +127,7 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 )
                 code += '    oss << "return = " ;\n'
                 code += self.add_argument(
-                    return_value, '    ', '                ', True
+                    return_value, '    ', '                ', True, return_type
                 )
                 code += '    oss << ",\\n       ";\n\n'
 
@@ -147,14 +147,18 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 comma = '",\\n"'
                 if index == len(method_info['parameters']):
                     comma = '");\\n\\n"'
-                code += self.add_argument(value, '    ', '    ', False)
+                code += self.add_argument(
+                    value, '    ', '    ', False, return_type
+                )
                 code += '    oss << {};\n\n'.format(comma)
 
             code += '    fprintf(GetFile(), "%s\\n", oss.str().c_str());\n'\
                     '}\n'
         return code
 
-    def add_argument(self, value, indent_code, indent_file, prefix):
+    def add_argument(
+        self, value, indent_code, indent_file, prefix, return_type
+    ):
         type_name = value.base_type
         indent_base = '    '
         indent_code2 = indent_code + indent_base
@@ -205,9 +209,23 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
                 else:
                     return prefix11 + value.name + ';\n'
 
-            code = indent_code + 'if (WriteCheckPointerDecoderNull(oss, {}, "{}", {}))\n'.format(
-                value.name, indent_file, output_string
-            )
+            # output structs are not output for return_value != S_OK
+            if self.is_output(value) and self.is_struct(type_name) and (
+                return_type.find('HRESULT') != -1
+            ):
+                code = indent_code + 'if (return_value != S_OK)\n'.format(
+                    value.name, indent_file, output_string
+                )
+                code += indent_code + '{\n'
+                code += indent_code + '    oss << "' + indent_file + '" << "/* out */ {}'.format(type_name) + '{/* not encoded due to return value */}";\n'
+                code += indent_code + '}\n'
+                code += indent_code + 'else if (WriteCheckPointerDecoderNull(oss, {}, "{}", {}))\n'.format(
+                    value.name, indent_file, output_string
+                )
+            else:
+                code = indent_code + 'if (WriteCheckPointerDecoderNull(oss, {}, "{}", {}))\n'.format(
+                    value.name, indent_file, output_string
+                )
             code += indent_code + '{\n'
             if 'LARGE_INTEGER' == type_name:
                 code += prefix21 + value.name + '->GetPointer()->QuadPart;\n'

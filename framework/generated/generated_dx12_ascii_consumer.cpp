@@ -7248,7 +7248,11 @@ void Dx12AsciiConsumer::Process_IDXGISurface_GetDesc(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_SURFACE_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7275,7 +7279,11 @@ void Dx12AsciiConsumer::Process_IDXGISurface_Map(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MAPPED_RECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
     {
         WriteStructString(oss, pLockedRect->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7409,7 +7417,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_GetDesc(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_ADAPTER_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7439,7 +7451,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
     oss << "    " << ConverttoText(*InterfaceName.decoded_value);
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pUMDVersion, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ LARGE_INTEGER{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pUMDVersion, "    ", true))
     {
         oss << "    " << "&" << pUMDVersion->GetPointer()->QuadPart;
     }
@@ -7465,7 +7481,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDesc(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_OUTPUT_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7506,7 +7526,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetDisplayModeList(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MODE_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteArrayStructsString(oss, pDesc, "    ", true);
     }
@@ -7540,7 +7564,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MODE_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
     {
         WriteStructString(oss, pClosestMatch->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7629,7 +7657,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pGammaCaps, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_GAMMA_CONTROL_CAPABILITIES{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pGammaCaps, "    ", true))
     {
         WriteStructString(oss, pGammaCaps->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7681,7 +7713,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetGammaControl(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pArray, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_GAMMA_CONTROL{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pArray, "    ", true))
     {
         WriteStructString(oss, pArray->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7753,7 +7789,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput_GetFrameStatistics(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_FRAME_STATISTICS{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
     {
         WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
     }
@@ -7887,7 +7927,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetDesc(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_SWAP_CHAIN_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8004,7 +8048,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain_GetFrameStatistics(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_FRAME_STATISTICS{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
     {
         WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8415,7 +8463,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter1_GetDesc1(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_ADAPTER_DESC1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8557,7 +8609,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     oss << "    " << TimeoutInMilliseconds;
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pFrameInfo, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_OUTDUPL_FRAME_INFO{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pFrameInfo, "    ", true))
     {
         WriteStructString(oss, pFrameInfo->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8594,7 +8650,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     oss << "    " << DirtyRectsBufferSize;
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBuffer, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ tagRECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDirtyRectsBuffer, "    ", true))
     {
         WriteArrayStructsString(oss, pDirtyRectsBuffer, "    ", true);
     }
@@ -8631,7 +8691,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     oss << "    " << MoveRectsBufferSize;
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pMoveRectBuffer, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_OUTDUPL_MOVE_RECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pMoveRectBuffer, "    ", true))
     {
         WriteArrayStructsString(oss, pMoveRectBuffer, "    ", true);
     }
@@ -8681,7 +8745,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pPointerShapeInfo, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_OUTDUPL_POINTER_SHAPE_INFO{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pPointerShapeInfo, "    ", true))
     {
         WriteStructString(oss, pPointerShapeInfo->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8707,7 +8775,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MAPPED_RECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pLockedRect, "    ", true))
     {
         WriteStructString(oss, pLockedRect->GetMetaStructPointer(), "    ", false, true);
     }
@@ -8976,7 +9048,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetDesc1(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_SWAP_CHAIN_DESC1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9002,7 +9078,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_SWAP_CHAIN_FULLSCREEN_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9171,7 +9251,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pColor, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3DCOLORVALUE{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pColor, "    ", true))
     {
         WriteStructString(oss, pColor->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9366,7 +9450,11 @@ void Dx12AsciiConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     oss << "    " << hResource;
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pLuid, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ LUID{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pLuid, "    ", true))
     {
         WriteStructString(oss, pLuid->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9597,7 +9685,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter2_GetDesc2(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_ADAPTER_DESC2{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9638,7 +9730,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MODE_DESC1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteArrayStructsString(oss, pDesc, "    ", true);
     }
@@ -9672,7 +9768,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MODE_DESC1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pClosestMatch, "    ", true))
     {
         WriteStructString(oss, pClosestMatch->GetMetaStructPointer(), "    ", false, true);
     }
@@ -9988,7 +10088,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pMatrix, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_MATRIX_3X2_F{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pMatrix, "    ", true))
     {
         WriteStructString(oss, pMatrix->GetMetaStructPointer(), "    ", false, true);
     }
@@ -10162,7 +10266,11 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ tagRECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
     {
         WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, true);
     }
@@ -10188,7 +10296,11 @@ void Dx12AsciiConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ tagRECT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pRect, "    ", true))
     {
         WriteStructString(oss, pRect->GetMetaStructPointer(), "    ", false, true);
     }
@@ -10383,7 +10495,11 @@ void Dx12AsciiConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_FRAME_STATISTICS_MEDIA{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pStats, "    ", true))
     {
         WriteStructString(oss, pStats->GetMetaStructPointer(), "    ", false, true);
     }
@@ -10790,7 +10906,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     oss << "    " << ConverttoText(MemorySegmentGroup);
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pVideoMemoryInfo, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_QUERY_VIDEO_MEMORY_INFO{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pVideoMemoryInfo, "    ", true))
     {
         WriteStructString(oss, pVideoMemoryInfo->GetMetaStructPointer(), "    ", false, true);
     }
@@ -11073,7 +11193,11 @@ void Dx12AsciiConsumer::Process_IDXGIAdapter4_GetDesc3(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_ADAPTER_DESC3{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -11099,7 +11223,11 @@ void Dx12AsciiConsumer::Process_IDXGIOutput6_GetDesc1(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ DXGI_OUTPUT_DESC1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDesc, "    ", true))
     {
         WriteStructString(oss, pDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -11683,7 +11811,11 @@ void Dx12AsciiConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoot
     oss << "    " << ConverttoText(convertToVersion);
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, ppDesc, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_VERSIONED_ROOT_SIGNATURE_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, ppDesc, "    ", true))
     {
         WriteStructString(oss, ppDesc->GetMetaStructPointer(), "    ", false, true);
     }
@@ -11935,7 +12067,11 @@ void Dx12AsciiConsumer::Process_ID3D12Resource_GetHeapProperties(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_HEAP_PROPERTIES{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pHeapProperties, "    ", true))
     {
         WriteStructString(oss, pHeapProperties->GetMetaStructPointer(), "    ", false, true);
     }
@@ -16586,7 +16722,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pDescs, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_META_COMMAND_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pDescs, "    ", true))
     {
         WriteArrayStructsString(oss, pDescs, "    ", true);
     }
@@ -16634,7 +16774,11 @@ void Dx12AsciiConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
     }
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pParameterDescs, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_META_COMMAND_PARAMETER_DESC{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pParameterDescs, "    ", true))
     {
         WriteArrayStructsString(oss, pParameterDescs, "    ", true);
     }
@@ -16876,7 +17020,11 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcrum
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
     {
         WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
     }
@@ -16902,7 +17050,11 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData_GetPageFaultAllo
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_DRED_PAGE_FAULT_OUTPUT{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
     {
         WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
     }
@@ -16928,7 +17080,11 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcru
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
     {
         WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
     }
@@ -16954,7 +17110,11 @@ void Dx12AsciiConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetPageFaultAll
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_DRED_PAGE_FAULT_OUTPUT1{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pOutput, "    ", true))
     {
         WriteStructString(oss, pOutput->GetMetaStructPointer(), "    ", false, true);
     }
@@ -18689,7 +18849,11 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetMessage(
     oss << "    " << MessageIndex;
     oss << ",\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pMessage, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_MESSAGE{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pMessage, "    ", true))
     {
         WriteArrayStructsString(oss, pMessage, "    ", true);
     }
@@ -18862,7 +19026,11 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_INFO_QUEUE_FILTER{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
     {
         WriteArrayStructsString(oss, pFilter, "    ", true);
     }
@@ -19032,7 +19200,11 @@ void Dx12AsciiConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
 
     oss << "thread_id = WIP */\n";
 
-    if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
+    if (return_value != S_OK)
+    {
+        oss << "    " << "/* out */ D3D12_INFO_QUEUE_FILTER{/* not encoded due to return value */}";
+    }
+    else if (WriteCheckPointerDecoderNull(oss, pFilter, "    ", true))
     {
         WriteArrayStructsString(oss, pFilter, "    ", true);
     }
