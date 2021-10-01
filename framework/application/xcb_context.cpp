@@ -37,6 +37,7 @@ XcbContext::XcbContext(Application* application) : WsiContext(application)
     if (!xcb_loader_.Initialize())
     {
         GFXRECON_LOG_DEBUG("Failed initialize XCB loader");
+        return;
     }
 
     auto& xcb          = xcb_loader_.GetFunctionTable();
@@ -46,6 +47,7 @@ XcbContext::XcbContext(Application* application) : WsiContext(application)
     if (xcb.connection_has_error(connection_))
     {
         GFXRECON_LOG_DEBUG("Failed to connect to an X server");
+        return;
     }
 
     const xcb_setup_t*    setup = xcb.get_setup(connection_);

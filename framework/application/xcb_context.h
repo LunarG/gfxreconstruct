@@ -39,7 +39,7 @@ class XcbWindow;
 class XcbContext : public WsiContext
 {
   public:
-    XcbContext(Application* application);
+    XcbContext(std::shared_ptr<Application> application);
 
     virtual ~XcbContext() override;
 

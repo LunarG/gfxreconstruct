@@ -84,5 +84,10 @@ void WsiContext::ProcessEvents(bool wait_for_input)
     // NOOP :
 }
 
+bool WsiContext::Valid() const
+{
+    return window_factory_ != nullptr;
+}
+
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)
