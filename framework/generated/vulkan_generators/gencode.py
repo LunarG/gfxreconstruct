@@ -340,7 +340,7 @@ def makeGenOpts(args):
             baseClassHeader='vulkan_replay_consumer_base.h',
             isOverride=True,
             constructorArgs=
-            'Applcation* application, const ReplayOptions& options',
+            'std::shared_ptr<application::Application> application, const ReplayOptions& options',
             filename='generated_vulkan_replay_consumer.h',
             directory=directory,
             blacklists=blacklists,
