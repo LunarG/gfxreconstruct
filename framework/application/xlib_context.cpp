@@ -42,6 +42,7 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
     if (!xlib_loader_.Initialize())
     {
         GFXRECON_LOG_DEBUG("Failed to initialize xlib loader");
+        return;
     }
 
     const auto xlib = xlib_loader_.GetFunctionTable();
@@ -51,6 +52,7 @@ XlibContext::XlibContext(Application* application) : WsiContext(application)
     if (!display_)
     {
         GFXRECON_LOG_DEBUG("Failed to open xlib display");
+        return;
     }
 
     window_factory_ = std::make_unique<XlibWindowFactory>(this);
