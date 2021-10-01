@@ -36,7 +36,7 @@ XcbContext::XcbContext(Application* application) : WsiContext(application)
     xcb_loader_.Initialize();
     if (!xcb_loader_.Initialize())
     {
-        GFXRECON_LOG_DEBUG("Failed initialize XCB loader");
+        GFXRECON_LOG_DEBUG("Failed to initialize XCB loader");
         return;
     }
 
