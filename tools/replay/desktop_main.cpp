@@ -116,6 +116,11 @@ int main(int argc, const char** argv)
             if (wsi_platform == WsiPlatform::kWin32)
             {
                 application->InitializeWsiContext(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected Win32 WSI context");
+                    return_code = -1;
+                }
             }
 #endif
 #else
@@ -123,18 +128,33 @@ int main(int argc, const char** argv)
             if (wsi_platform == WsiPlatform::kWayland)
             {
                 application->InitializeWsiContext(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected Wayland WSI context");
+                    return_code = -1;
+                }
             }
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
             if (wsi_platform == WsiPlatform::kXcb)
             {
                 application->InitializeWsiContext(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected XCB WSI context");
+                    return_code = -1;
+                }
             }
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
             if (wsi_platform == WsiPlatform::kXlib)
             {
                 application->InitializeWsiContext(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected Xlib WSI context");
+                    return_code = -1;
+                }
             }
 #endif
 #endif
@@ -142,6 +162,11 @@ int main(int argc, const char** argv)
             if (wsi_platform == WsiPlatform::kHeadless)
             {
                 application->InitializeWsiContext(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME);
+                if (!application->GetWsiContext())
+                {
+                    GFXRECON_WRITE_CONSOLE("Failed to initialize command line selected Headless WSI context");
+                    return_code = -1;
+                }
             }
 #endif
 
