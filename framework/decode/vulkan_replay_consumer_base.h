@@ -68,7 +68,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(application::Application* application, const ReplayOptions& options);
+    VulkanReplayConsumerBase(std::shared_ptr<application::Application> application, const ReplayOptions& options);
 
     virtual ~VulkanReplayConsumerBase() override;
 
@@ -979,7 +979,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
     std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
-    application::Application*                                        application_;
+    std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;
     ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;

@@ -32,8 +32,6 @@
 #include "decode/vulkan_replay_consumer_base.h"
 #include "util/defines.h"
 
-#include "application/application.h"
-
 #include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -42,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumer : public VulkanReplayConsumerBase
 {
   public:
-    VulkanReplayConsumer(application::Application* application, const ReplayOptions& options) : VulkanReplayConsumerBase(application, options) { }
+    VulkanReplayConsumer(std::shared_ptr<application::Application> application, const ReplayOptions& options) : VulkanReplayConsumerBase(application, options) { }
 
     virtual ~VulkanReplayConsumer() override { }
 
