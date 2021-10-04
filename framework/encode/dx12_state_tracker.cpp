@@ -266,10 +266,13 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
         auto src = &src_descriptor_infos[i];
         auto dst = &dest_descriptor_infos[i];
 
-        GFXRECON_ASSERT(src->create_parameters != nullptr);
-        GFXRECON_ASSERT(dst->create_parameters != src->create_parameters)
+        // Copy tracked descriptor state values.
+        dst->create_object_id = src->create_object_id;
+        dst->create_call_id   = src->create_call_id;
+        dst->is_copy          = true;
+        dst->resource_ids     = src->resource_ids;
 
-        // Create or reset the destination descriptors create_parameters buffer.
+        // Create or reset the destination descriptor's create_parameters buffer.
         if (dst->create_parameters == nullptr)
         {
             dst->create_parameters = std::make_unique<util::MemoryOutputStream>();
@@ -279,46 +282,49 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
             dst->create_parameters->Reset();
         }
 
-        // Compute copy size.
-        size_t heap_and_index_size = 0;
-        if (!src->is_copy)
+        // Copy the source descriptor's creation parameters to destination.
+        if ((src->create_parameters != nullptr) && (src->create_parameters->GetDataSize() != 0))
         {
-            heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
-        }
-        size_t src_size  = src->create_parameters->GetDataSize();
-        size_t copy_size = src_size - heap_and_index_size;
+            // Compute copy size.
+            size_t heap_and_index_size = 0;
+            if (!src->is_copy)
+            {
+                heap_and_index_size = sizeof(DxDescriptorInfo::heap_id) + sizeof(DxDescriptorInfo::index);
+            }
+            size_t src_size  = src->create_parameters->GetDataSize();
+            size_t copy_size = src_size - heap_and_index_size;
 
-        // If the source descriptor is modified asynchronously in another thread, its parameter_data may be invalid.
-        // This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a warning and
-        // prevent the copy from crashing if an unexpected copy size is encountered.
-        if ((copy_size == 0) || (copy_size > src_size))
-        {
-            GFXRECON_LOG_WARNING("The state of the source descriptor (0x%zx) in CopyDescriptors has an unexpected "
-                                 "size. Skipping copy to destination descriptor (0x%zx).",
-                                 src->cpu_address,
-                                 dst->cpu_address);
+            // If the source descriptor is modified asynchronously in another thread, its create_parameters may be
+            // invalid. This behavior is not supported by DX12--descriptor creations and copies are free-threaded. Log a
+            // warning and prevent the copy from crashing if an unexpected copy size is encountered.
+            if ((copy_size == 0) || (copy_size > src_size))
+            {
+                GFXRECON_LOG_WARNING("The state of the source descriptor (0x%zx) in CopyDescriptors has an unexpected "
+                                     "size. Skipping copy to destination descriptor (0x%zx).",
+                                     src->cpu_address,
+                                     dst->cpu_address);
+            }
+            else
+            {
+                dst->create_parameters->Write(src->create_parameters->GetData(), copy_size);
+
+                // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
+                // descriptor.
+                if ((src->create_parameters->GetDataSize() - heap_and_index_size) !=
+                    dst->create_parameters->GetDataSize())
+                {
+                    GFXRECON_LOG_WARNING(
+                        "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "
+                        "of the destination descriptor (0x%zx) may be invalid.",
+                        src->cpu_address,
+                        dst->cpu_address);
+                }
+            }
         }
         else
         {
-            // Copy source creation parameters to destination.
-            dst->create_parameters->Write(src->create_parameters->GetData(), copy_size);
-
-            // Additonal check to detect potential errors in the copy due to asynchronous changes to the source
-            // descriptor.
-            if ((src->create_parameters->GetDataSize() - heap_and_index_size) != dst->create_parameters->GetDataSize())
-            {
-                GFXRECON_LOG_WARNING(
-                    "The state of the source descriptor (0x%zx) may have changed during CopyDescriptors. The state "
-                    "of the destination descriptor (0x%zx) may be invalid.",
-                    src->cpu_address,
-                    dst->cpu_address);
-            }
-
-            // Copy remaining state.
-            dst->create_object_id = src->create_object_id;
-            dst->create_call_id   = src->create_call_id;
-            dst->is_copy          = true;
-            dst->resource_ids     = src->resource_ids;
+            GFXRECON_LOG_WARNING_ONCE("CopyDescriptors was called with a source descriptor that may not have been "
+                                      "initialized (created or copied to).");
         }
     }
 }
