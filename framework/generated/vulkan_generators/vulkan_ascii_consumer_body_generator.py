@@ -36,11 +36,19 @@ class VulkanAsciiConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
+            self,
+            blacklists,
+            platformTypes,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -76,20 +84,25 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc('''
+        includes = inspect.cleandoc(
+            '''
             #include "generated/generated_vulkan_ascii_consumer.h"
             #include "decode/custom_vulkan_ascii_consumer.h"
             #include "decode/custom_vulkan_to_string.h"
             #include "generated/generated_vulkan_enum_to_string.h"
             #include "generated/generated_vulkan_struct_to_string.h"
             #include "util/defines.h"
-
-            #include "vulkan/vulkan.h"
-
+            '''
+        )
+        write(includes, file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
+        namespace = inspect.cleandoc(
+            '''
             GFXRECON_BEGIN_NAMESPACE(gfxrecon)
             GFXRECON_BEGIN_NAMESPACE(decode)
-            ''')
-        write(body, file=self.outFile)
+            '''
+        )
+        write(namespace, file=self.outFile)
     # yapf: enable
 
     # Method override

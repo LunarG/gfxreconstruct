@@ -37,11 +37,19 @@ class LayerFuncTableGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, None, None, filename, directory, prefixText, protectFile,
-            protectFeature
+            self,
+            None,
+            None,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -84,7 +92,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
