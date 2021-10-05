@@ -36,11 +36,19 @@ class VulkanDispatchTableGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, blacklists, platformTypes, filename, directory, prefixText,
-            protectFile, protectFeature
+            self,
+            blacklists,
+            platformTypes,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -87,7 +95,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vk_layer.h"', file=self.outFile)
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('#ifdef WIN32', file=self.outFile)
         write('#ifdef CreateEvent', file=self.outFile)

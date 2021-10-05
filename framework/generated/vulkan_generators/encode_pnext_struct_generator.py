@@ -36,11 +36,19 @@ class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, None, None, filename, directory, prefixText, protectFile,
-            protectFeature
+            self,
+            None,
+            None,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
@@ -77,7 +85,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('#include "encode/trace_manager.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.includeVulkanHeaders(genOpts)
         self.newline()
         write('#include <cassert>', file=self.outFile)
         write('#include <cstdio>', file=self.outFile)

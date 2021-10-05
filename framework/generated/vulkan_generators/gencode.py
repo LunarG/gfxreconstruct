@@ -111,6 +111,29 @@ defaultPlatformTypes = 'platform_types.json'
 defaultReplayOverrides = 'replay_overrides.json'
 defaultCaptureOverrides = 'capture_overrides.json'
 
+def _getExtraVulkanHeaders(extraHeadersDir):
+    '''
+    Recursively get a list of extra Vulkan headers used in the generated code,
+    that are included after vulkan/vulkan.h is included
+    '''
+    extraVulkanHeaders = []
+    for child in os.listdir(extraHeadersDir):
+        childPath = os.path.join(extraHeadersDir, child)
+        if os.path.isdir(childPath):
+            extraVulkanHeaders.extend(_getExtraVulkanHeaders(childPath))
+        else:
+            extraVulkanHeaders.append(childPath)
+    return extraVulkanHeaders
+
+def getExtraVulkanHeaders(extraHeadersDir):
+    '''
+    Get a list of extra Vulkan headers used in the generated code, that are
+    included after vulkan/vulkan.h is included
+    '''
+    return [
+        os.path.relpath(header, extraHeadersDir)
+        for header in _getExtraVulkanHeaders(extraHeadersDir)
+    ]
 
 # Returns a directory of [ generator function, generator options ] indexed
 # by specified short names. The generator options incorporate the following
@@ -170,6 +193,10 @@ def makeGenOpts(args):
     ]
     # yapf: enable
 
+    extraVulkanHeaders = []
+    if args.headers_dir is not None:
+        extraVulkanHeaders = getExtraVulkanHeaders(args.headers_dir)
+
     #
     # API call decoder generators
     genOpts['generated_vulkan_decoder.cpp'] = [
@@ -181,7 +208,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -194,7 +222,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -209,7 +238,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -222,7 +252,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -235,7 +266,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -246,7 +278,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -264,7 +297,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -280,7 +314,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -293,7 +328,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -311,7 +347,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -324,7 +361,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -338,7 +376,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -351,7 +390,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -363,7 +403,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -375,7 +416,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -387,7 +429,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -402,7 +445,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -416,7 +460,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -429,7 +474,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -442,7 +488,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -453,7 +500,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -464,7 +512,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -479,7 +528,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -492,7 +542,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -503,7 +554,8 @@ def makeGenOpts(args):
             directory=directory,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -515,7 +567,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -527,7 +580,8 @@ def makeGenOpts(args):
             blacklists=blacklists,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -542,7 +596,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -555,7 +610,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -568,7 +624,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -581,7 +638,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -594,7 +652,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=False,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -607,7 +666,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -620,7 +680,8 @@ def makeGenOpts(args):
             platformTypes=platformTypes,
             prefixText=prefixStrings + vkPrefixStrings,
             protectFile=True,
-            protectFeature=False
+            protectFeature=False,
+            extraVulkanHeaders=extraVulkanHeaders
         )
     ]
 
@@ -702,6 +763,18 @@ if __name__ == '__main__':
         action='store',
         default='vk.xml',
         help='Use specified registry file instead of vk.xml'
+    )
+    parser.add_argument(
+        '-headers-dir',
+        dest='headers_dir',
+        action='store',
+        default=None,
+        help='\n'.join(
+            [
+                'Path to a directory that holds additional Vulkan header files required to build.',
+                'These header files are included directly after the Vulkan header in all generated files.'
+            ]
+        )
     )
     parser.add_argument('-time', action='store_true', help='Enable timing')
     parser.add_argument(

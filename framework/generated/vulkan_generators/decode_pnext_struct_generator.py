@@ -36,11 +36,19 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
         directory='.',
         prefixText='',
         protectFile=False,
-        protectFeature=True
+        protectFeature=True,
+        extraVulkanHeaders=[]
     ):
         BaseGeneratorOptions.__init__(
-            self, None, None, filename, directory, prefixText, protectFile,
-            protectFeature
+            self,
+            None,
+            None,
+            filename,
+            directory,
+            prefixText,
+            protectFile,
+            protectFeature,
+            extraVulkanHeaders=extraVulkanHeaders
         )
 
 
