@@ -174,6 +174,7 @@ class D3D12CaptureManager : public CaptureManager
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             state_tracker_->RemoveEntry(wrapper);
+            state_tracker_->TrackRelease(wrapper);
         }
     }
 

@@ -185,6 +185,8 @@ class Dx12StateTracker
                                 ID3D12Pageable* const*          objects,
                                 const D3D12_RESIDENCY_PRIORITY* priorities);
 
+    void TrackRelease(IUnknown_Wrapper* wrapper);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
