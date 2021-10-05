@@ -73,7 +73,7 @@ class VulkanStructToStringHeaderGenerator(BaseGenerator):
     # yapf: disable
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
-        body = inspect.cleandoc(
+        includes = inspect.cleandoc(
             '''
             #include "format/platform_types.h"
             #include "util/to_string.h"
