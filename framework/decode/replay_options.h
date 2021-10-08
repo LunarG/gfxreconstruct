@@ -47,6 +47,7 @@ struct ReplayOptions
     bool enable_validation_layer{ false };
     bool sync_queue_submissions{ false };
     bool enable_debug_device_lost{ false };
+    bool create_dummy_allocations{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

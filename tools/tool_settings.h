@@ -78,6 +78,7 @@ const char kSyncOption[]                       = "--sync";
 const char kRemoveUnsupportedOption[]          = "--remove-unsupported";
 const char kValidateOption[]                   = "--validate";
 const char kDebugDeviceLostOption[]            = "--debug-device-lost";
+const char kCreateDummyAllocationsOption[]     = "--create-dummy-allocations";
 const char kDeniedMessages[]                   = "--denied-messages";
 const char kAllowedMessages[]                  = "--allowed-messages";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
@@ -525,6 +526,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     if (arg_parser.IsOptionSet(kSyncOption))
     {
         options.sync_queue_submissions = true;
+    }
+
+    if (arg_parser.IsOptionSet(kCreateDummyAllocationsOption))
+    {
+        options.create_dummy_allocations = true;
     }
 }
 

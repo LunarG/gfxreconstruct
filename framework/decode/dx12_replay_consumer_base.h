@@ -219,6 +219,38 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          Decoded_GUID                                              riid,
                                          HandlePointerDecoder<void*>*                              heap);
 
+    HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
+                                            HRESULT                                              original_result,
+                                            StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                            D3D12_HEAP_FLAGS                                     HeapFlags,
+                                            StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>*   pDesc,
+                                            D3D12_RESOURCE_STATES                                InitialResourceState,
+                                            StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                            Decoded_GUID                                         riid,
+                                            HandlePointerDecoder<void*>*                         resource);
+
+    HRESULT OverrideCreateCommittedResource1(DxObjectInfo*                                        replay_object_info,
+                                             HRESULT                                              original_result,
+                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                             D3D12_HEAP_FLAGS                                     HeapFlags,
+                                             StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>*   pDesc,
+                                             D3D12_RESOURCE_STATES                                InitialResourceState,
+                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                             DxObjectInfo*                protected_session_object_info,
+                                             Decoded_GUID                 riid,
+                                             HandlePointerDecoder<void*>* resource);
+
+    HRESULT OverrideCreateCommittedResource2(DxObjectInfo*                                        replay_object_info,
+                                             HRESULT                                              original_result,
+                                             StructPointerDecoder<Decoded_D3D12_HEAP_PROPERTIES>* pHeapProperties,
+                                             D3D12_HEAP_FLAGS                                     HeapFlags,
+                                             StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>*  pDesc,
+                                             D3D12_RESOURCE_STATES                                InitialResourceState,
+                                             StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*     pOptimizedClearValue,
+                                             DxObjectInfo*                protected_session_object_info,
+                                             Decoded_GUID                 riid,
+                                             HandlePointerDecoder<void*>* resource);
+
     HRESULT OverrideCreateFence(DxObjectInfo*                replay_object_info,
                                 HRESULT                      original_result,
                                 UINT64                       initial_value,
