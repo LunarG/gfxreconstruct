@@ -25,9 +25,6 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_DX12_ENUM_TO_STRING.CPP
-#define  GFXRECON_GENERATED_DX12_ENUM_TO_STRING.CPP
-
 #include "generated_dx12_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -4304,5 +4301,3 @@ template <> std::string ToString<D3D12_MESSAGE_ID>(const D3D12_MESSAGE_ID& value
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif

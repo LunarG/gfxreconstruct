@@ -51,7 +51,9 @@ GENERATE_TARGETS = [
     'generated_dx12_command_list_util.cpp',
 
     'generated_dx12_enum_to_string.h',
-    'generated_dx12_enum_to_string.cpp'
+    'generated_dx12_enum_to_string.cpp',
+    'generated_dx12_struct_to_string.h',
+    'generated_dx12_struct_to_string.cpp'
 ]
 
 DX12_SOURCE_LIST = [

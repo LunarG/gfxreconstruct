@@ -56,6 +56,8 @@ from dx12_command_list_util_body_generator import Dx12CommandListUtilBodyGenerat
 
 from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator
 from dx12_enum_to_string_body_generator import Dx12EnumToStringBodyGenerator
+from dx12_struct_to_string_header_generator import Dx12StructToStringHeaderGenerator
+from dx12_struct_to_string_body_generator import Dx12StructToStringBodyGenerator
 
 # JSON files for customizing code generation
 default_blacklists = 'blacklists.json'
@@ -568,7 +570,37 @@ def make_gen_opts(args):
             directory=directory,
             platform_types=platform_types,
             prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_to_string_header_generator.py'
+    )
+    gen_opts['generated_dx12_struct_to_string.h'] = [
+        Dx12StructToStringHeaderGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_to_string.h',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
             protect_file=True,
+            protect_feature=False
+        )
+    ]
+
+    py_prefix_strings[-4] = py_prefix_strings1.format(
+        'dx12_struct_to_string_body_generator.py'
+    )
+    gen_opts['generated_dx12_struct_to_string.cpp'] = [
+        Dx12StructToStringBodyGenerator,
+        Dx12GeneratorOptions(
+            filename='generated_dx12_struct_to_string.cpp',
+            directory=directory,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + py_prefix_strings,
+            protect_file=False,
             protect_feature=False
         )
     ]
