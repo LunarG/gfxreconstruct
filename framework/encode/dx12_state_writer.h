@@ -73,12 +73,23 @@ class Dx12StateWriter
             auto wrapper_info = wrapper->GetObjectInfo();
             if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
             {
-                StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
-                WriteAddRefAndReleaseCommands(wrapper);
-                WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+                StandardCreateWrite(wrapper);
                 processed.insert(wrapper_info->create_parameters.get());
             }
         });
+    }
+
+    template <typename Wrapper>
+    void StandardCreateWrite(const Wrapper& wrapper)
+    {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
+        WriteAddRefAndReleaseCommands(wrapper);
+        WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
     }
 
     void StandardCreateWrite(format::HandleId object_id, const DxWrapperInfo& wrapper_info);

@@ -339,11 +339,7 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         }
 
         // TODO (GH #83): Add D3D12 trimming support, handle custom state for other heap types
-
-        WriteMethodCall(
-            wrapper_info->create_call_id, wrapper_info->create_object_id, wrapper_info->create_parameters.get());
-
-        WriteAddRefAndReleaseCommands(wrapper);
+        StandardCreateWrite(wrapper);
     });
 }
 
@@ -386,9 +382,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         const auto& heap_desc = heap->GetDesc();
 
         // Write heap creation call.
-        WriteMethodCall(heap_info->create_call_id, heap_info->create_object_id, heap_info->create_parameters.get());
-
-        WriteAddRefAndReleaseCommands(heap_wrapper);
+        StandardCreateWrite(heap_wrapper);
 
         // Write GetCPUDescriptorHandleForHeapStart call.
         if (heap_info->cpu_start != 0)
@@ -422,7 +416,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
                         &parameter_stream_);
         parameter_stream_.Reset();
 
-        // Write descriptor creation calls.
+        // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
         {
             const DxDescriptorInfo& descriptor_info = heap_info->descriptor_info[i];
@@ -544,9 +538,7 @@ void Dx12StateWriter::WriteResourceState(const Dx12StateTable& state_table)
         assert(resource_info->create_object_id != format::kNullHandleId);
 
         // Write the resource creation call to capture file.
-        WriteMethodCall(
-            resource_info->create_call_id, resource_info->create_object_id, resource_info->create_parameters.get());
-        WriteAddRefAndReleaseCommands(resource_wrapper);
+        StandardCreateWrite(resource_wrapper);
 
         // Write call to get GPU address for buffers.
         if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
@@ -847,8 +839,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         assert(fence_info->create_object_id != format::kNullHandleId);
 
         // Write call to create the fence.
-        WriteMethodCall(fence_info->create_call_id, fence_info->create_object_id, fence_info->create_parameters.get());
-        WriteAddRefAndReleaseCommands(fence_wrapper);
+        StandardCreateWrite(fence_wrapper);
 
         UINT64 completed_fence_value = fence->GetCompletedValue();
 
@@ -1043,9 +1034,9 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12GraphicsCommandList_W
 void Dx12StateWriter::WriteCommandListCreation(const ID3D12GraphicsCommandList_Wrapper* list_wrapper)
 {
     // Write call to create the command list.
+    StandardCreateWrite(list_wrapper);
     auto list_info = list_wrapper->GetObjectInfo();
-    WriteMethodCall(list_info->create_call_id, list_info->create_object_id, list_info->create_parameters.get());
-    WriteAddRefAndReleaseCommands(list_wrapper);
+
 
     // If the command list was created open and reset since creation, write a command to close it. This frees up the
     // command allocator used in creation. This list's command_data will contain a reset, possibly with a different
@@ -1158,8 +1149,7 @@ void Dx12StateWriter::WriteSwapChainState(const Dx12StateTable& state_table)
         auto swapchain_info = swapchain_wrapper->GetObjectInfo();
 
         // Write swapchain creation call.
-        StandardCreateWrite(swapchain_wrapper->GetCaptureId(), *swapchain_info.get());
-        WriteAddRefAndReleaseCommands(swapchain_wrapper);
+        StandardCreateWrite(swapchain_wrapper);
 
         // Write call to resize the swapchain buffers.
         if (swapchain_info->resize_info.call_id != format::ApiCall_Unknown)
