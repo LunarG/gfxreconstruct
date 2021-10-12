@@ -13547,7 +13547,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CheckFeatureSupport(
             pFeatureSupportData,
             FeatureSupportDataSize);
 
-        result = GetWrappedObjectAs<ID3D12Device>()->CheckFeatureSupport(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Device_CheckFeatureSupport(
+            this,
             Feature,
             pFeatureSupportData,
             FeatureSupportDataSize);

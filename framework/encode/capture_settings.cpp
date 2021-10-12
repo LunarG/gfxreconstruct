@@ -97,6 +97,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define DEBUG_LAYER_UPPER                   "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER             "debug_device_lost"
 #define DEBUG_DEVICE_LOST_UPPER             "DEBUG_DEVICE_LOST"
+#define DISABLE_DXR_LOWER                   "disable_dxr"
+#define DISABLE_DXR_UPPER                   "DISABLE_DXR"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -133,6 +135,7 @@ const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
+const char kDisableDxrEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 
 #else
 // Desktop environment settings
@@ -168,6 +171,7 @@ const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 const char kDebugLayerEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_UPPER;
 const char kDebugDeviceLostEnvVar[]           = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_UPPER;
+const char kDisableDxrEnvVar[]                = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -202,6 +206,7 @@ const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFil
 const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
 const std::string kDebugLayer                         = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                    = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
+const std::string kOptionDisableDxr                   = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -313,6 +318,9 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     // Screenshot environment variables
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
+
+    // DirectX environment variables
+    LoadSingleOptionEnvVar(options, kDisableDxrEnvVar, kOptionDisableDxr);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -402,6 +410,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.screenshot_dir =
         FindOption(options, kOptionKeyScreenshotDir, settings->trace_settings_.screenshot_dir);
     ParseFramesList(FindOption(options, kOptionKeyScreenshotFrames), &settings->trace_settings_.screenshot_ranges);
+
+    // DirectX options
+    settings->trace_settings_.disable_dxr =
+        ParseBoolString(FindOption(options, kOptionDisableDxr), settings->trace_settings_.disable_dxr);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)

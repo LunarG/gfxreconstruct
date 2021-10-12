@@ -215,6 +215,7 @@ class CaptureManager
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
+    bool                                GetDisableDxrSetting() const { return disable_dxr_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
@@ -291,6 +292,7 @@ class CaptureManager
     bool                                    debug_device_lost_;
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
+    bool                                    disable_dxr_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

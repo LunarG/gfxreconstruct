@@ -559,6 +559,11 @@ class D3D12CaptureManager : public CaptureManager
 
     HRESULT OverrideCreateDXGIFactory2(UINT Flags, REFIID riid, void** ppFactory);
 
+    HRESULT OverrideID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* device_wrapper,
+                                                     D3D12_FEATURE         feature,
+                                                     void*                 feature_support_data,
+                                                     UINT                  feature_support_data_size);
+
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }

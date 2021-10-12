@@ -9,7 +9,8 @@
     },
     "ID3D12Device": {
       "CreateHeap": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap",
-      "CreateCommittedResource": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource"
+      "CreateCommittedResource": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateCommittedResource",
+      "CheckFeatureSupport": "D3D12CaptureManager::Get()->OverrideID3D12Device_CheckFeatureSupport"
     },
     "ID3D12Device4": {
       "CreateHeap1": "D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1",

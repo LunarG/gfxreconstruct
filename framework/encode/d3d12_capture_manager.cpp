@@ -1577,6 +1577,26 @@ HRESULT D3D12CaptureManager::OverrideCreateDXGIFactory2(UINT Flags, REFIID riid,
     return result;
 }
 
+HRESULT D3D12CaptureManager::OverrideID3D12Device_CheckFeatureSupport(ID3D12Device_Wrapper* device_wrapper,
+                                                                      D3D12_FEATURE         feature,
+                                                                      void*                 feature_support_data,
+                                                                      UINT                  feature_support_data_size)
+{
+    auto device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+    if (GetDisableDxrSetting() && (feature == D3D12_FEATURE_D3D12_OPTIONS5))
+    {
+        auto    features         = reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS5*>(feature_support_data);
+        HRESULT result           = device->CheckFeatureSupport(feature, features, feature_support_data_size);
+        features->RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+        return result;
+    }
+    else
+    {
+        return device->CheckFeatureSupport(feature, feature_support_data, feature_support_data_size);
+    }
+}
+
 void D3D12CaptureManager::PreProcess_D3D12CreateDevice(IUnknown*         pAdapter,
                                                        D3D_FEATURE_LEVEL MinimumFeatureLevel,
                                                        REFIID            riid,
