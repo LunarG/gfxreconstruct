@@ -120,6 +120,10 @@ class Dx12AsciiConsumerBodyGenerator(Dx12AsciiConsumerHeaderGenerator):
         if not 'void' in return_type:
             code = '            FieldToString(str_strm, true, "return", to_string_flags, tab_count, tab_size, \'"\' + ToString(return_value, to_string_flags, tab_count, tab_size) + \'"\');\n'
 
+        # Handle calling object
+        if class_name:
+            code += '            FieldToString(str_strm, false, "' + class_name + '", to_string_flags, tab_count, tab_size, "nullptr");\n'
+
         # Handle function arguments
         for parameter in method_info['parameters']:
             value = self.get_value_info(parameter)
