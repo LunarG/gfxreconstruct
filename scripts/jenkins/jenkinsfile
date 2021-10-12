@@ -20,6 +20,12 @@ if (env.MAX_DAYS) {
 if (env.MAX_BUILDS) {
     kMaxBuilds = env.MAX_BUILDS
 }
+
+if (env.BRANCH_NAME == "feature_d3d12"){
+	kMaxBuilds = 90
+	kMaxDays = 90
+}
+
 email_recip_fail = ""
 email_recip_success = ""
 
@@ -42,7 +48,6 @@ def setupJobVars() {
 		key, value -> println("${key} = ${value}");
 	}
 	println(env.PATH)
-	
     email_recip_fail = ""
     email_recip_success = ""
 
@@ -275,7 +280,7 @@ def Build(label) {
 			    cloneReposWin()
                 withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}"]) {
 					echo "${env.BRANCH_NAME}" 
-					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests" 
 					if (env.BRANCH_NAME.startsWith("PR-"))
 						{
 						    kMaxBuilds= 5
